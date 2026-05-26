@@ -34,6 +34,12 @@ const negativeArtifacts = [
     candidateId: 'rawFrameNameIdFoldTrim',
     family: 'fold-trimmed-text-checksum',
   },
+  {
+    file: 'text-trim-guard-candidate.json',
+    controlId: 'rawFrameNameId',
+    candidateId: 'rawFrameNameIdTrimGuard',
+    family: 'text-trim-boundary-guard',
+  },
 ];
 
 function parseArgs(argv = process.argv.slice(2)) {

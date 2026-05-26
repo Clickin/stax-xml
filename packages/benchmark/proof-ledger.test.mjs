@@ -102,7 +102,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /runtime-limit-proof-obligation-gate\.md/);
   assert.match(markdown, /incomplete-proof-correctly-blocked/);
   assert.match(markdown, /all 10 required claim guards are satisfied/);
-  assert.match(markdown, /all 28 required artifact mentions\s+are present/);
+  assert.match(markdown, /all 29 required artifact mentions\s+are present/);
   assert.match(markdown, /all 5 required open-obligation disclosures are present/);
   assert.match(markdown, /all 12\s+proof-rule checks are satisfied/);
   assert.match(markdown, /`conclusionAllowed: false`/);
@@ -181,7 +181,10 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /1\.08x full-string speedup is still required/);
   assert.match(markdown, /maximum\s+same-scale without-text speedup is 1\.41x at 4 GiB after omitting 67,949,424\s+text string reads/);
   assert.match(markdown, /maximum no-trim speedup at only\s+1\.02x, maximum fold-trim speedup at 0\.80x/);
-  assert.match(markdown, /repeated text-value cache at 0\.74x of\s+its control, long ASCII text fast path at 0\.41x of its control, and fold-trim\s+checksum at 0\.84x of its control/);
+  assert.match(markdown, /repeated text-value cache at 0\.74x of\s+its control, long ASCII text fast path at 0\.41x of its control, fold-trim\s+checksum at 0\.84x of its control, and the byte-boundary trim guard at 1\.00x of\s+its control/);
+  assert.match(markdown, /text-trim-guard-candidate\.md/);
+  assert.match(markdown, /`rawFrameNameId`\s+averaged 109\.66 MiB\/s and `rawFrameNameIdTrimGuard` averaged 109\.56 MiB\/s/);
+  assert.match(markdown, /skipped `value\.trim\(\)` for 11,950,239 text\/CDATA spans and fell back 374,103\s+times/);
   assert.match(markdown, /throughput `41\.10 MiB\/s`, peak heap used `4\.00 GiB`, and peak RSS\s+`13\.45 GiB`/);
   assert.match(markdown, /`sourceMode: "complete-js-string"` and\s+`boundedMemory: false` under the 512 MiB RSS gate/);
   assert.match(markdown, /headroom evidence rather\s+than runtime-limit counterexamples/);

@@ -119,7 +119,7 @@ this ledger's claim table, checks required guard claims and artifact mentions,
 and records whether the broad runtime-limit conclusion is currently allowed.
 
 The current gate report passes with status `incomplete-proof-correctly-blocked`:
-all 10 required claim guards are satisfied, all 28 required artifact mentions
+all 10 required claim guards are satisfied, all 29 required artifact mentions
 are present, all 5 required open-obligation disclosures are present, and all 12
 proof-rule checks are satisfied. The important result is
 `conclusionAllowed: false`, not a proof of impossibility.
@@ -287,10 +287,17 @@ rows cross 200 MiB/s only after omitting text/CDATA strings; the maximum
 same-scale without-text speedup is 1.41x at 4 GiB after omitting 67,949,424
 text string reads. The same synthesis records maximum no-trim speedup at only
 1.02x, maximum fold-trim speedup at 0.80x, repeated text-value cache at 0.74x of
-its control, long ASCII text fast path at 0.41x of its control, and fold-trim
-checksum at 0.84x of its control. This makes text/CDATA materialization the
-current local headroom axis while preserving that all without-text rows are
-non-counterexamples because they change the full-string contract. The
+its control, long ASCII text fast path at 0.41x of its control, fold-trim
+checksum at 0.84x of its control, and the byte-boundary trim guard at 1.00x of
+its control. `packages/benchmark/results/release/text-trim-guard-candidate.md`
+records the guard as a 1 GiB 3-run full-string parity row: `rawFrameNameId`
+averaged 109.66 MiB/s and `rawFrameNameIdTrimGuard` averaged 109.56 MiB/s,
+both preserving 45,189,256 events and checksum `1421012805`; the candidate
+skipped `value.trim()` for 11,950,239 text/CDATA spans and fell back 374,103
+times, but it did not improve throughput or cross the 200 MiB/s threshold. This
+makes text/CDATA materialization the current local headroom axis while
+preserving that all without-text rows are non-counterexamples because they
+change the full-string contract. The
 Firefox/SpiderMonkey rows are
 recognized by the scan, but they lack row-level heap proof and therefore cannot
 satisfy the bounded-memory counterexample rule. The scan now has zero measured

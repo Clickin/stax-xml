@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T05:05:05.906Z",
+  "generatedAt": "2026-05-26T05:22:24.386Z",
   "objective": "text-materialization-frontier",
   "contract": "same-corpus-text-materialization-headroom-synthesis",
   "note": "Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.",
@@ -12,7 +12,8 @@
       "text-trim-cost-decomposition-8gib.json",
       "text-cache-materialization-candidate-stability.json",
       "long-ascii-text-materialization-candidate-stability.json",
-      "fold-trimmed-text-candidate-stability.json"
+      "fold-trimmed-text-candidate-stability.json",
+      "text-trim-guard-candidate.json"
     ]
   },
   "summary": {
@@ -20,7 +21,7 @@
     "scaledArtifactCount": 4,
     "fullRowCount": 4,
     "nearFullWithoutTextRowCount": 4,
-    "negativeCandidateCount": 3,
+    "negativeCandidateCount": 4,
     "fastestFull": {
       "id": "rawFrameNameId",
       "role": "full",
@@ -426,6 +427,40 @@
       "candidatePreservesFullStringParity": true,
       "candidateCrossesTarget": false,
       "rejectedForFullTarget": true
+    },
+    {
+      "family": "text-trim-boundary-guard",
+      "sourceArtifact": "text-trim-guard-candidate.json",
+      "control": {
+        "id": "rawFrameNameId",
+        "role": "full",
+        "sourceArtifact": "text-trim-guard-candidate.json",
+        "sizeGiB": 1,
+        "mibPerSec": 109.66,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "eventCount": 45189256,
+        "checksum": 1421012805,
+        "textStringReads": 12324342,
+        "stringFieldReads": 102702850
+      },
+      "candidate": {
+        "id": "rawFrameNameIdTrimGuard",
+        "role": "negative-candidate",
+        "sourceArtifact": "text-trim-guard-candidate.json",
+        "sizeGiB": 1,
+        "mibPerSec": 109.56,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "eventCount": 45189256,
+        "checksum": 1421012805,
+        "textStringReads": 12324342,
+        "stringFieldReads": 102702850
+      },
+      "candidateToControlRatio": 1,
+      "candidatePreservesFullStringParity": true,
+      "candidateCrossesTarget": false,
+      "rejectedForFullTarget": true
     }
   ],
   "findings": [
@@ -467,7 +502,8 @@
       "evidence": [
         "repeated-text-value-cache: candidate/control=0.74x, candidate=129.31 MiB/s",
         "long-ascii-text-fast-path: candidate/control=0.41x, candidate=71.21 MiB/s",
-        "fold-trimmed-text-checksum: candidate/control=0.84x, candidate=103.26 MiB/s"
+        "fold-trimmed-text-checksum: candidate/control=0.84x, candidate=103.26 MiB/s",
+        "text-trim-boundary-guard: candidate/control=1.00x, candidate=109.56 MiB/s"
       ]
     },
     {

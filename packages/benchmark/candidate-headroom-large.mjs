@@ -319,6 +319,14 @@ function createVariants(fixture, requestedCases = null) {
       run: () => consumeRawFrameStyle(fixture, [], undefined, { textCache: new SpanStringCache() }),
     },
     {
+      id: 'rawFrameNameIdTrimGuard',
+      family: 'full-stax-js',
+      implementation: 'nextRawBatch typed arrays with numeric name-id cache and byte-boundary text trim guard',
+      contractScope: 'full-string-materialization',
+      fullStringParity: true,
+      run: () => consumeRawFrameStyle(fixture, [], undefined, { trimGuard: true }),
+    },
+    {
       id: 'rawFrameNameIdLongTextCache',
       family: 'full-stax-js',
       implementation: 'nextRawBatch typed arrays with numeric name-id cache plus bounded long text/CDATA span string cache',
@@ -824,6 +832,20 @@ function createFindings(variants, fixture) {
       ],
     });
   }
+  const trimGuard = variants.find((entry) => entry.id === 'rawFrameNameIdTrimGuard');
+  if (rawNameId && trimGuard) {
+    findings.push({
+      id: 'text-trim-guard-candidate',
+      summary: 'rawFrameNameIdTrimGuard keeps the full-string checksum while skipping value.trim() when byte boundaries prove the text span is unchanged by trim.',
+      evidence: [
+        `rawFrameNameId=${formatRate(rawNameId.mibPerSec)}`,
+        `rawFrameNameIdTrimGuard=${formatRate(trimGuard.mibPerSec)}`,
+        `sameChecksum=${trimGuard.checksum === rawNameId.checksum}`,
+        `trimGuardSkips=${trimGuard.materializationCounters.textTrimGuardSkips}`,
+        `trimGuardFallbacks=${trimGuard.materializationCounters.textTrimGuardFallbacks}`,
+      ],
+    });
+  }
   const longTextCache = variants.find((entry) => entry.id === 'rawFrameNameIdLongTextCache');
   if (rawNameId && longTextCache) {
     findings.push({
@@ -1180,7 +1202,7 @@ function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, valueC
           const value = options.longAsciiText
             ? materializeTextValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters)
             : materializeValue(buffer, start, textEnds[index], decoder, textCache, materializationCounters, 'text');
-          const textForChecksum = options.trimText === false ? value : value.trim();
+          const textForChecksum = prepareTextForChecksum(value, buffer, start, textEnds[index], options, materializationCounters);
           checksum = options.foldTrimmedText ? foldTrimmedString(checksum, value) : foldString(checksum, textForChecksum);
         }
       }
@@ -1651,12 +1673,45 @@ function createMaterializationCounters() {
     semanticByteFoldFallbacks: 0,
     longAsciiTextHits: 0,
     longAsciiTextFallbacks: 0,
+    textTrimGuardSkips: 0,
+    textTrimGuardFallbacks: 0,
     implicitAttrValueReads: 0,
     eventObjects: 0,
     projectedRecords: 0,
     projectionFieldReads: 0,
     attributePairs: 0,
   };
+}
+
+function prepareTextForChecksum(value, buffer, start, end, options, materializationCounters) {
+  if (options.trimText === false || options.foldTrimmedText) {
+    return value;
+  }
+  if (!options.trimGuard) {
+    return value.trim();
+  }
+  if (textTrimWouldKeepSpan(buffer, start, end)) {
+    materializationCounters.textTrimGuardSkips++;
+    return value;
+  }
+  materializationCounters.textTrimGuardFallbacks++;
+  return value.trim();
+}
+
+function textTrimWouldKeepSpan(buffer, start, end) {
+  if (start >= end) {
+    return true;
+  }
+  const first = buffer[start];
+  const last = buffer[end - 1];
+  return isAsciiNonTrimCodeUnit(first) && isAsciiNonTrimCodeUnit(last);
+}
+
+function isAsciiNonTrimCodeUnit(value) {
+  return value !== undefined
+    && value > 0x20
+    && value < 0x7f
+    && value !== 0xa0;
 }
 
 function incrementSemanticByteFoldField(counters, kind) {
