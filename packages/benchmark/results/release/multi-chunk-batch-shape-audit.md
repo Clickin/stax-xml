@@ -1,6 +1,6 @@
 # Multi-Chunk Batch Shape Audit
 
-Generated: 2026-05-26T09:06:49.976Z
+Generated: 2026-05-26T09:53:18.346Z
 
 Audits the current sync parser source shape behind Iterable<Uint8Array[]> batch-size experiments. This is source evidence only; it is not a benchmark row and not a runtime-limit conclusion.
 
@@ -92,11 +92,17 @@ Audits the current sync parser source shape behind Iterable<Uint8Array[]> batch-
   - packages\stax-xml\src\IterableReader.ts:398: frame.buffer = this.currentBuffer
   - packages\stax-xml\src\IterableReader.ts:36: buffer: BufferType
   - packages\stax-xml\src\IterableReader.ts:143: buffer: EMPTY_BUFFER
-- bounded-prototype-axis (DESIGN_GUARD): The next falsifiable implementation experiment should separate parser pull frequency from concat copying by adding a segment-aware scanner prototype without changing the full-string checksum contract.
+- bounded-prototype-axis (DESIGN_GUARD): A falsifiable implementation sequence should first separate parser pull frequency from concat copying with a segment-aware byte-scan probe, then only treat a full segmented parser as counterexample-relevant if it preserves the full-string checksum contract.
   - keep source contract: demand-driven Iterable<Uint8Array[]>
-  - keep semantic contract: event count plus full-string checksum
+  - lower-bound probe: delimiter byte-scan checksum only
+  - full counterexample probe: event count plus full-string checksum
   - compare against batchSize=1 and existing grouped-batch concat rows
   - do not use direct ReadableStream rows as the parser-core baseline
+- segment-byte-scan-probe-scope (SCOPE_GUARD): The segment-scan-headroom benchmark is allowed as parser-core headroom evidence only; it does not remove the need for a segment-aware XML parser prototype before claiming full StAX throughput.
+  - segment-scan-headroom contract: delimiter-byte-scan-no-xml-parse-no-string-materialization
+  - fullStringParity=false
+  - directReadableStream=false
+  - fullArrayBufferParserInput=false
 - no-concat-prototype-scope (SCOPE_GUARD): A no-concat multi-chunk batch path would need to replace the single-currentBuffer span model or add a segmented-buffer abstraction through scanning, span storage, decoding, and raw-frame exposure.
   - current model: single Uint8Array currentBuffer
   - multi-item batch: concat before scan

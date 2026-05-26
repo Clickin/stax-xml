@@ -1,18 +1,18 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-26T09:41:16.277Z
+Generated: 2026-05-26T09:50:58.094Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
 ## Summary
 
-- Scanned artifacts: 157
+- Scanned artifacts: 158
 - Ignored derived artifacts: 5
-- Measured rows recognized: 827
+- Measured rows recognized: 830
 - Aggregate rows recognized: 93
 - 1 GiB+ JS full-string rows recognized: 521
 - 1 GiB+ JS full-string aggregate rows recognized: 73
-- Rows with recognized source mode: 250
+- Rows with recognized source mode: 253
 - 1 GiB+ JS full-string rows with recognized source mode: 191
 - Rows with unknown full-string parity: 0
 - Rows with unknown bounded-memory flag: 20
@@ -21,7 +21,7 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
   - Unknown bounded-memory 1 GiB+ JS full-string rows: 0
   - Unknown bounded-memory rows with memory counters: 10
 - Counterexamples found: 0
-- Partial/projection threshold rows: 27
+- Partial/projection threshold rows: 30
 - Text/CDATA materialization headroom rows: 7
 - Full-string rows failing bounded-memory criterion: 91
   - Explicit boundedMemory=false rows: 91
@@ -31,7 +31,7 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
 - Fastest 1 GiB+ JS full-string row: Node/V8 rawFrameNameId from text-trim-cost-decomposition.json at 185.50 MiB/s (yes, process-rss)
 - Fastest 1 GiB+ JS full-string row with memory proof: Node/V8 rawFrameNameId from text-trim-cost-decomposition.json at 185.50 MiB/s (yes, process-rss)
 - Fastest 1 GiB+ JS full-string aggregate row with memory proof: Bun/JSC rawFrameNameId from access-shape-candidate-cross-process.json at avg 177.34 MiB/s (yes, process-rss, samples 3, spread 3.23%)
-- Fastest partial/projection threshold row: Bun/JSC scanAllNoDecode from candidate-headroom-cross-process-books-corpus-partial.json at 326.65 MiB/s (yes, process-rss)
+- Fastest partial/projection threshold row: Node/V8 grouped-segment-scan from segment-scan-headroom.json at 682.83 MiB/s (yes, process-rss)
 - Fastest text/CDATA materialization headroom row: Node/V8 withoutTextStrings from text-trim-cost-decomposition-4gib.json at 252.36 MiB/s (yes, process-rss)
 
 ## Counterexamples
@@ -113,6 +113,9 @@ These rows may show runtime/parser headroom, but they do not preserve the full-s
 
 | Artifact | Runtime | Row | Size GiB | MiB/s | Contract | Events | Checksum |
 | --- | --- | --- | ---: | ---: | --- | ---: | ---: |
+| `segment-scan-headroom.json` | Node/V8 | `grouped-segment-scan` | 1.00 | 682.83 | delimiter-byte-scan-no-xml-parse-no-string-materialization | 162096810 | -428951732 |
+| `segment-scan-headroom.json` | Node/V8 | `grouped-concat-scan` | 1.00 | 589.23 | delimiter-byte-scan-no-xml-parse-no-string-materialization | 162096810 | -428951732 |
+| `segment-scan-headroom.json` | Node/V8 | `singleton-segment-scan` | 1.00 | 575.24 | delimiter-byte-scan-no-xml-parse-no-string-materialization | 162096810 | -428951732 |
 | `candidate-headroom-cross-process-books-corpus-partial.json` | Bun/JSC | `scanAllNoDecode` | 1.00 | 326.65 | event-types-and-attribute-counts-only | 57096514 | -239086029 |
 | `candidate-headroom-cross-process-books-corpus-partial.json` | Bun/JSC | `scanAllNoDecode` | 1.00 | 315.97 | event-types-and-attribute-counts-only | 57096514 | -239086029 |
 | `candidate-headroom-cross-process-books-corpus-partial.json` | Bun/JSC | `scanAllNoDecode` | 1.00 | 300.90 | event-types-and-attribute-counts-only | 57096514 | -239086029 |
@@ -158,10 +161,10 @@ These near-full rows still materialize element names and attributes, but omit te
 ## Findings
 
 - bounded-full-string-counterexample-search (NOT_FOUND_IN_RECOGNIZED_RELEASE_ROWS): No recognized release row currently meets the 200 MiB/s bounded full-string JS rule.
-- partial-headroom-not-stax-counterexample (HEADROOM_EVIDENCE_PRESENT): 27 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples.
+- partial-headroom-not-stax-counterexample (HEADROOM_EVIDENCE_PRESENT): 30 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples.
 - text-materialization-headroom (HEADROOM_EVIDENCE_PRESENT): 7 recognized 1 GiB+ near-full row(s) cross the threshold only after omitting text/CDATA string materialization.
 - unbounded-or-unknown-full-rows-not-counterexamples (LIMITED_EVIDENCE_PRESENT): 91 recognized 1 GiB+ full-string JavaScript row(s) fail the bounded-memory counterexample criterion: 91 explicit boundedMemory=false, 0 bounded flag without row-level memory proof, 0 unknown bounded flag.
-- measured-row-classification-complete (LIMITED_EVIDENCE_PRESENT): 827 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 20 have unknown boundedMemory.
+- measured-row-classification-complete (LIMITED_EVIDENCE_PRESENT): 830 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 20 have unknown boundedMemory.
 - cross-process-aggregate-rows-separated (AGGREGATE_EVIDENCE_PRESENT): Cross-process aggregate rows are reported separately from individual sample rows so fastest-row triage does not hide average-throughput evidence.
 - source-consumption-modes-separated (SOURCE_MODE_EVIDENCE_PRESENT): Recognized 1 GiB+ full-string rows expose source-mode metadata for generated-sync-iterable-byte-batches:141, file-backed-sync-iterable-byte-batches:47, complete-js-string:1, sync-iterable-byte-batches:1, web-readable-stream-pull:1; not-full-ArrayBuffer parser-input rows are generated-sync-iterable-byte-batches:141/141, file-backed-sync-iterable-byte-batches:47/47, complete-js-string:1/1, sync-iterable-byte-batches:1/1, web-readable-stream-pull:1/1.
 

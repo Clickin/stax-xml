@@ -117,12 +117,24 @@ function createReport() {
       {
         id: 'bounded-prototype-axis',
         classification: 'DESIGN_GUARD',
-        summary: 'The next falsifiable implementation experiment should separate parser pull frequency from concat copying by adding a segment-aware scanner prototype without changing the full-string checksum contract.',
+        summary: 'A falsifiable implementation sequence should first separate parser pull frequency from concat copying with a segment-aware byte-scan probe, then only treat a full segmented parser as counterexample-relevant if it preserves the full-string checksum contract.',
         evidence: [
           'keep source contract: demand-driven Iterable<Uint8Array[]>',
-          'keep semantic contract: event count plus full-string checksum',
+          'lower-bound probe: delimiter byte-scan checksum only',
+          'full counterexample probe: event count plus full-string checksum',
           'compare against batchSize=1 and existing grouped-batch concat rows',
           'do not use direct ReadableStream rows as the parser-core baseline',
+        ],
+      },
+      {
+        id: 'segment-byte-scan-probe-scope',
+        classification: 'SCOPE_GUARD',
+        summary: 'The segment-scan-headroom benchmark is allowed as parser-core headroom evidence only; it does not remove the need for a segment-aware XML parser prototype before claiming full StAX throughput.',
+        evidence: [
+          'segment-scan-headroom contract: delimiter-byte-scan-no-xml-parse-no-string-materialization',
+          'fullStringParity=false',
+          'directReadableStream=false',
+          'fullArrayBufferParserInput=false',
         ],
       },
       {

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T09:17:38.055Z",
+  "generatedAt": "2026-05-26T09:56:34.015Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -2567,6 +2567,29 @@
       "measuredRowCount": 0
     },
     {
+      "sourceArtifact": "segment-scan-headroom.json",
+      "objective": "segment-scan-headroom",
+      "contract": "file-backed-delimiter-scan-headroom",
+      "evidenceKinds": [
+        "BENCH_FACT",
+        "SCOPE_GUARD"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "outcome": null,
+      "fixture": {
+        "source": null,
+        "shape": null,
+        "sourceFile": null,
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073741644
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 3
+    },
+    {
       "sourceArtifact": "stax-event-public-object-shape-audit.json",
       "objective": "stax-event-public-object-shape-audit",
       "contract": "source-public-object-row-vs-file-backed-low-memory-scope",
@@ -3235,12 +3258,12 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 157,
+    "scannedArtifactCount": 158,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 827,
+    "measuredRowCount": 830,
     "rowClassificationCompleteness": {
-      "measuredRows": 827,
+      "measuredRows": 830,
       "unknownFullStringParityRows": 0,
       "unknownBoundedMemoryRows": 20
     },
@@ -3256,7 +3279,7 @@
       "nonJsNoPeakMemoryRows": 6,
       "rowsWithMemoryCounter": 10
     },
-    "benchmarkArtifactCount": 115,
+    "benchmarkArtifactCount": 116,
     "sourceArtifactCount": 16,
     "traceArtifactCount": 10,
     "allocationArtifactCount": 15,
@@ -3273,8 +3296,8 @@
       {
         "runtimeId": "node-v8",
         "runtimeLabel": "Node/V8",
-        "artifactCount": 75,
-        "measuredRowCount": 349,
+        "artifactCount": 76,
+        "measuredRowCount": 352,
         "largeFullStringRowCount": 221,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "text-trim-cost-decomposition.json",

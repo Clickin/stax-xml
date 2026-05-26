@@ -53,15 +53,18 @@ test('multi-chunk batch shape audit pins current concat and single-buffer assump
   const model = report.findings.find(finding => finding.id === 'single-buffer-span-model');
   const surface = report.findings.find(finding => finding.id === 'segmented-no-concat-change-surface');
   const bounded = report.findings.find(finding => finding.id === 'bounded-prototype-axis');
+  const segmentProbe = report.findings.find(finding => finding.id === 'segment-byte-scan-probe-scope');
   const scope = report.findings.find(finding => finding.id === 'no-concat-prototype-scope');
   assert.ok(single);
   assert.ok(multi);
   assert.ok(model);
   assert.ok(surface);
   assert.ok(bounded);
+  assert.ok(segmentProbe);
   assert.ok(scope);
   assert.equal(surface.classification, 'IMPLEMENTATION_SCOPE');
   assert.equal(bounded.classification, 'DESIGN_GUARD');
+  assert.equal(segmentProbe.classification, 'SCOPE_GUARD');
   assert.equal(scope.classification, 'SCOPE_GUARD');
   assert.deepEqual(single.missingPatterns, []);
   assert.deepEqual(multi.missingPatterns, []);
@@ -71,7 +74,9 @@ test('multi-chunk batch shape audit pins current concat and single-buffer assump
   assert.ok(model.evidence.some(item => /currentBuffer/.test(item)));
   assert.ok(surface.evidence.some(item => /publicSingleBufferSurfaces=/.test(item)));
   assert.match(surface.summary, /single-buffer public frame ABI/);
-  assert.match(bounded.summary, /segment-aware scanner prototype/);
+  assert.match(bounded.summary, /segment-aware byte-scan probe/);
+  assert.match(segmentProbe.summary, /parser-core headroom evidence only/);
+  assert.ok(segmentProbe.evidence.some(item => /fullStringParity=false/.test(item)));
   assert.match(scope.summary, /segmented-buffer abstraction/);
 
   const markdown = readFileSync(mdOut, 'utf8');
@@ -82,5 +87,6 @@ test('multi-chunk batch shape audit pins current concat and single-buffer assump
   assert.match(markdown, /Implementation Surface/);
   assert.match(markdown, /segmented-no-concat-change-surface/);
   assert.match(markdown, /bounded-prototype-axis/);
+  assert.match(markdown, /segment-byte-scan-probe-scope/);
   assert.match(markdown, /no-concat multi-chunk batch path/);
 });

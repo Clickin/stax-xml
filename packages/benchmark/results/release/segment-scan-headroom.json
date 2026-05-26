@@ -1,0 +1,320 @@
+{
+  "generatedAt": "2026-05-26T09:50:11.946Z",
+  "objective": "segment-scan-headroom",
+  "contract": "file-backed-delimiter-scan-headroom",
+  "note": "Benchmark-only probe for the parser-core no-concat hypothesis. Rows consume demand-driven synchronous Iterable<Uint8Array[]> file batches and scan delimiter bytes without XML parsing or string materialization, so these rows are partial headroom evidence and not full StAX counterexamples.",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48"
+  },
+  "fixture": {
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\node-string-return-1024mib.xml",
+    "sizeBytes": 1073741644,
+    "sizeMiB": 1023.999828338623,
+    "sizeGiB": 0.9999998323619366
+  },
+  "options": {
+    "chunkKiB": 32,
+    "batchSize": 8,
+    "runs": 3,
+    "warmups": 0,
+    "boundedRssMiB": 512
+  },
+  "rows": [
+    {
+      "id": "singleton-segment-scan",
+      "tool": "singleton-segment-scan",
+      "implementation": "File-backed sync Iterable<Uint8Array[]> singleton batches scanned as direct segments",
+      "family": "partial-segment-scan-headroom",
+      "contractScope": "delimiter-byte-scan-no-xml-parse-no-string-materialization",
+      "fullStringParity": false,
+      "sourceMode": "file-backed-sync-iterable-byte-batches-singleton",
+      "parserInput": "synchronous Iterable<Uint8Array[]>",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "chunkKiB": 32,
+      "batchSize": 1,
+      "concatBeforeScan": false,
+      "segmentAwareScan": true,
+      "mibPerSec": 575.2390168167128,
+      "avgMs": 1780.1292999999998,
+      "minMs": 1731.8392,
+      "maxMs": 1864.6344000000001,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.07459862606609546,
+      "samplesMs": [
+        1731.8392,
+        1864.6344000000001,
+        1743.9142999999995
+      ],
+      "eventCount": 162096810,
+      "delimiterCount": 162096810,
+      "checksum": -428951732,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 98336768,
+        "maxHeapUsedBytes": 4201272,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 53501952,
+              "heapUsedBytes": 4429056,
+              "externalBytes": 1877817,
+              "arrayBuffersBytes": 22767
+            },
+            "after": {
+              "rssBytes": 94081024,
+              "heapUsedBytes": 4145688,
+              "externalBytes": 39702990,
+              "arrayBuffersBytes": 37804271
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 93843456,
+              "heapUsedBytes": 3647552,
+              "externalBytes": 39702990,
+              "arrayBuffersBytes": 35215599
+            },
+            "after": {
+              "rssBytes": 98205696,
+              "heapUsedBytes": 4200312,
+              "externalBytes": 43766222,
+              "arrayBuffersBytes": 41867503
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 98275328,
+              "heapUsedBytes": 3653720,
+              "externalBytes": 43766222,
+              "arrayBuffersBytes": 39049455
+            },
+            "after": {
+              "rssBytes": 98336768,
+              "heapUsedBytes": 4201272,
+              "externalBytes": 43798990,
+              "arrayBuffersBytes": 41900271
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "grouped-concat-scan",
+      "tool": "grouped-concat-scan",
+      "implementation": "File-backed sync Iterable<Uint8Array[]> grouped batches concatenated before delimiter scan",
+      "family": "partial-segment-scan-headroom",
+      "contractScope": "delimiter-byte-scan-no-xml-parse-no-string-materialization",
+      "fullStringParity": false,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "parserInput": "synchronous Iterable<Uint8Array[]>",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "chunkKiB": 32,
+      "batchSize": 8,
+      "concatBeforeScan": true,
+      "segmentAwareScan": false,
+      "mibPerSec": 589.2282319194787,
+      "avgMs": 1737.8661999999995,
+      "minMs": 1515.5647999999992,
+      "maxMs": 2071.2191000000003,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.31973364807946736,
+      "samplesMs": [
+        2071.2191000000003,
+        1515.5647999999992,
+        1626.814699999999
+      ],
+      "eventCount": 162096810,
+      "delimiterCount": 162096810,
+      "checksum": -428951732,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 122163200,
+        "maxHeapUsedBytes": 3920208,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 98390016,
+              "heapUsedBytes": 3659040,
+              "externalBytes": 43798990,
+              "arrayBuffersBytes": 40786159
+            },
+            "after": {
+              "rssBytes": 118226944,
+              "heapUsedBytes": 3920208,
+              "externalBytes": 63295770,
+              "arrayBuffersBytes": 61397051
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 118288384,
+              "heapUsedBytes": 3674496,
+              "externalBytes": 63295770,
+              "arrayBuffersBytes": 57169979
+            },
+            "after": {
+              "rssBytes": 115433472,
+              "heapUsedBytes": 3745032,
+              "externalBytes": 18731290,
+              "arrayBuffersBytes": 16832571
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 115421184,
+              "heapUsedBytes": 3670856,
+              "externalBytes": 18731290,
+              "arrayBuffersBytes": 16701499
+            },
+            "after": {
+              "rssBytes": 122163200,
+              "heapUsedBytes": 3758984,
+              "externalBytes": 22303002,
+              "arrayBuffersBytes": 20404283
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "grouped-segment-scan",
+      "tool": "grouped-segment-scan",
+      "implementation": "File-backed sync Iterable<Uint8Array[]> grouped batches scanned segment-by-segment without concat",
+      "family": "partial-segment-scan-headroom",
+      "contractScope": "delimiter-byte-scan-no-xml-parse-no-string-materialization",
+      "fullStringParity": false,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "parserInput": "synchronous Iterable<Uint8Array[]>",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "chunkKiB": 32,
+      "batchSize": 8,
+      "concatBeforeScan": false,
+      "segmentAwareScan": true,
+      "mibPerSec": 682.8265916048964,
+      "avgMs": 1499.6484333333337,
+      "minMs": 1472.0046000000002,
+      "maxMs": 1523.810800000001,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.03454556337904412,
+      "samplesMs": [
+        1523.810800000001,
+        1503.1299,
+        1472.0046000000002
+      ],
+      "eventCount": 162096810,
+      "delimiterCount": 162096810,
+      "checksum": -428951732,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 107843584,
+        "maxHeapUsedBytes": 4032472,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 122163200,
+              "heapUsedBytes": 3672496,
+              "externalBytes": 22303002,
+              "arrayBuffersBytes": 18438203
+            },
+            "after": {
+              "rssBytes": 106795008,
+              "heapUsedBytes": 4024768,
+              "externalBytes": 51761614,
+              "arrayBuffersBytes": 49862895
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 106827776,
+              "heapUsedBytes": 3672600,
+              "externalBytes": 51761614,
+              "arrayBuffersBytes": 45242607
+            },
+            "after": {
+              "rssBytes": 106385408,
+              "heapUsedBytes": 4021728,
+              "externalBytes": 51237326,
+              "arrayBuffersBytes": 49338607
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 106422272,
+              "heapUsedBytes": 3672968,
+              "externalBytes": 51237326,
+              "arrayBuffersBytes": 45734127
+            },
+            "after": {
+              "rssBytes": 107843584,
+              "heapUsedBytes": 4032472,
+              "externalBytes": 52744654,
+              "arrayBuffersBytes": 50845935
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "rowCount": 3,
+    "fastest": {
+      "id": "grouped-segment-scan",
+      "mibPerSec": 682.8265916048964,
+      "boundedMemory": true,
+      "memoryKind": "process-rss"
+    },
+    "groupedSegmentVsConcatRatio": 1.1588490751376768,
+    "singletonVsGroupedSegmentRatio": 0.8424379247807078,
+    "counterexamples200MiB": 0
+  },
+  "findings": [
+    {
+      "id": "same-byte-scan-contract",
+      "classification": "CONTRACT_FACT",
+      "summary": "All rows scan the same file-backed bytes and preserve delimiter count plus checksum parity.",
+      "evidence": [
+        "162096810:-428951732"
+      ]
+    },
+    {
+      "id": "segment-scan-headroom",
+      "classification": "BENCH_FACT",
+      "summary": "Grouped segment-aware scan reached 682.83 MiB/s versus grouped concat scan at 589.23 MiB/s (1.16x).",
+      "evidence": [
+        "singleton-segment-scan: 575.24 MiB/s, concatBeforeScan=false",
+        "grouped-concat-scan: 589.23 MiB/s, concatBeforeScan=true",
+        "grouped-segment-scan: 682.83 MiB/s, concatBeforeScan=false"
+      ]
+    },
+    {
+      "id": "partial-not-stax-counterexample",
+      "classification": "SCOPE_GUARD",
+      "summary": "These rows do not parse XML, do not materialize strings, and do not preserve full StAX event semantics; they are no-concat parser-core headroom evidence only.",
+      "evidence": [
+        "singleton-segment-scan: fullStringParity=false, contractScope=delimiter-byte-scan-no-xml-parse-no-string-materialization",
+        "grouped-concat-scan: fullStringParity=false, contractScope=delimiter-byte-scan-no-xml-parse-no-string-materialization",
+        "grouped-segment-scan: fullStringParity=false, contractScope=delimiter-byte-scan-no-xml-parse-no-string-materialization"
+      ]
+    },
+    {
+      "id": "source-contract",
+      "classification": "CONTRACT_FACT",
+      "summary": "Rows use demand-driven synchronous Iterable<Uint8Array[]> parser-input shape, not direct ReadableStream and not one full ArrayBuffer parser input.",
+      "evidence": [
+        "singletonBatchSize=1",
+        "groupedBatchSize=8",
+        "directReadableStream=false",
+        "fullArrayBufferParserInput=false"
+      ]
+    }
+  ]
+}
