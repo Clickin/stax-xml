@@ -175,7 +175,7 @@ const requiredProofRules = [
   },
   {
     id: 'source-shapes-separated',
-    pattern: /direct ReadableStream overhead evidence stays distinct from\s+synchronous byte-batch rows/i,
+    pattern: /direct ReadableStream overhead evidence stays\s+distinct from\s+synchronous byte-batch rows/i,
     description: 'Direct ReadableStream source-overhead rows must remain separate from synchronous byte-batch parser rows.',
   },
   {
