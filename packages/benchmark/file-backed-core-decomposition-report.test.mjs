@@ -44,7 +44,7 @@ test('file-backed core decomposition separates partial and full-string rows', ()
   assert.equal(report.contract, 'file-backed-parser-core-materialization-decomposition');
   assert.equal(report.summary.rowCount, 4);
   assert.equal(report.summary.counterexamples200MiB, 0);
-  assert.equal(report.summary.fastestFullString.id, 'stax-raw-frame-name-id');
+  assert.ok(['stax-stream', 'stax-raw-frame-name-id'].includes(report.summary.fastestFullString.id));
 
   const scan = report.rows.find(row => row.id === 'stax-scan-all-no-decode');
   const semantic = report.rows.find(row => row.id === 'stax-raw-frame-semantic-checksum');

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T22:37:57.833Z",
+  "generatedAt": "2026-05-26T00:51:18.133Z",
   "objective": "file-backed-core-decomposition",
   "contract": "file-backed-parser-core-materialization-decomposition",
   "note": "Runs each parser-core consumption shape in a fresh Node process over the same demand-driven file-backed byte batches. Partial rows expose parser/frame headroom but are not full-string StAX counterexamples.",
@@ -24,7 +24,7 @@
     ],
     "chunkKiB": 32,
     "batchSize": 4,
-    "runs": 1,
+    "runs": 3,
     "warmups": 0,
     "boundedRssMiB": 512
   },
@@ -39,30 +39,60 @@
       "chunkKiB": 32,
       "batchSize": 4,
       "sourceMode": "file-sync-batches",
-      "mibPerSec": 237.07914470411012,
-      "avgMs": 4319.232,
-      "minMs": 4319.232,
-      "maxMs": 4319.232,
+      "mibPerSec": 241.6269814745749,
+      "avgMs": 4237.9366,
+      "minMs": 4159.338399999999,
+      "maxMs": 4330.7222,
       "samplesMs": [
-        4319.232
+        4330.7222,
+        4223.749200000001,
+        4159.338399999999
       ],
       "eventCount": 61236571,
       "checksum": -1830981171,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 61775872,
-        "maxHeapUsedBytes": 5835200,
+        "maxRssBytes": 67321856,
+        "maxHeapUsedBytes": 5865200,
         "samples": [
           {
             "before": {
-              "rssBytes": 56233984,
-              "heapUsedBytes": 4946528,
-              "externalBytes": 2176397,
+              "rssBytes": 56115200,
+              "heapUsedBytes": 4961752,
+              "externalBytes": 2182578,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 61775872,
-              "heapUsedBytes": 5835200,
+              "rssBytes": 60493824,
+              "heapUsedBytes": 5865200,
+              "externalBytes": 3305943,
+              "arrayBuffersBytes": 1223992
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 60395520,
+              "heapUsedBytes": 5289752,
+              "externalBytes": 3305943,
+              "arrayBuffersBytes": 334191
+            },
+            "after": {
+              "rssBytes": 66260992,
+              "heapUsedBytes": 5738560,
+              "externalBytes": 3043728,
+              "arrayBuffersBytes": 961777
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 66289664,
+              "heapUsedBytes": 5249608,
+              "externalBytes": 3043728,
+              "arrayBuffersBytes": 506223
+            },
+            "after": {
+              "rssBytes": 67321856,
+              "heapUsedBytes": 5787488,
               "externalBytes": 3305943,
               "arrayBuffersBytes": 1223992
             }
@@ -80,32 +110,62 @@
       "chunkKiB": 32,
       "batchSize": 4,
       "sourceMode": "file-sync-batches",
-      "mibPerSec": 142.06675170305988,
-      "avgMs": 7207.8781,
-      "minMs": 7207.8781,
-      "maxMs": 7207.8781,
+      "mibPerSec": 142.24093796541837,
+      "avgMs": 7199.051433333334,
+      "minMs": 7140.670600000001,
+      "maxMs": 7275.6372,
       "samplesMs": [
-        7207.8781
+        7275.6372,
+        7180.8465,
+        7140.670600000001
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 63471616,
-        "maxHeapUsedBytes": 7019400,
+        "maxRssBytes": 68739072,
+        "maxHeapUsedBytes": 9228120,
         "samples": [
           {
             "before": {
-              "rssBytes": 56328192,
-              "heapUsedBytes": 4946584,
-              "externalBytes": 2176397,
+              "rssBytes": 56037376,
+              "heapUsedBytes": 4961808,
+              "externalBytes": 2182578,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 63471616,
-              "heapUsedBytes": 7019400,
-              "externalBytes": 3648989,
-              "arrayBuffersBytes": 1567038
+              "rssBytes": 63848448,
+              "heapUsedBytes": 7369712,
+              "externalBytes": 4042212,
+              "arrayBuffersBytes": 1960261
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 61526016,
+              "heapUsedBytes": 5302192,
+              "externalBytes": 4042212,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 63352832,
+              "heapUsedBytes": 7232952,
+              "externalBytes": 3517913,
+              "arrayBuffersBytes": 1435962
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 63168512,
+              "heapUsedBytes": 5281056,
+              "externalBytes": 3517913,
+              "arrayBuffersBytes": 268655
+            },
+            "after": {
+              "rssBytes": 68739072,
+              "heapUsedBytes": 9228120,
+              "externalBytes": 4435596,
+              "arrayBuffersBytes": 2353645
             }
           }
         ]
@@ -121,32 +181,62 @@
       "chunkKiB": 32,
       "batchSize": 4,
       "sourceMode": "file-sync-batches",
-      "mibPerSec": 144.41057415843463,
-      "avgMs": 7090.8923,
-      "minMs": 7090.8923,
-      "maxMs": 7090.8923,
+      "mibPerSec": 126.31676241958041,
+      "avgMs": 8106.602866666667,
+      "minMs": 7345.291399999999,
+      "maxMs": 8510.283200000002,
       "samplesMs": [
-        7090.8923
+        7345.291399999999,
+        8464.234,
+        8510.283200000002
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 63643648,
-        "maxHeapUsedBytes": 6673040,
+        "maxRssBytes": 65396736,
+        "maxHeapUsedBytes": 7136464,
         "samples": [
           {
             "before": {
-              "rssBytes": 56041472,
-              "heapUsedBytes": 4946160,
-              "externalBytes": 2176397,
+              "rssBytes": 56053760,
+              "heapUsedBytes": 4961384,
+              "externalBytes": 2182578,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 63643648,
-              "heapUsedBytes": 6673040,
+              "rssBytes": 63586304,
+              "heapUsedBytes": 6709432,
               "externalBytes": 3305943,
               "arrayBuffersBytes": 1223992
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 61140992,
+              "heapUsedBytes": 5392840,
+              "externalBytes": 3305943,
+              "arrayBuffersBytes": 22895
+            },
+            "after": {
+              "rssBytes": 64589824,
+              "heapUsedBytes": 5829496,
+              "externalBytes": 2781583,
+              "arrayBuffersBytes": 699632
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 62361600,
+              "heapUsedBytes": 5366616,
+              "externalBytes": 2781583,
+              "arrayBuffersBytes": 334191
+            },
+            "after": {
+              "rssBytes": 65396736,
+              "heapUsedBytes": 7136464,
+              "externalBytes": 3568089,
+              "arrayBuffersBytes": 1486138
             }
           }
         ]
@@ -162,32 +252,62 @@
       "chunkKiB": 32,
       "batchSize": 4,
       "sourceMode": "file-sync-batches",
-      "mibPerSec": 148.63661565787478,
-      "avgMs": 6889.2838,
-      "minMs": 6889.2838,
-      "maxMs": 6889.2838,
+      "mibPerSec": 140.68451468094997,
+      "avgMs": 7278.696099999998,
+      "minMs": 6909.233299999999,
+      "maxMs": 7956.0826,
       "samplesMs": [
-        6889.2838
+        7956.0826,
+        6909.233299999999,
+        6970.7724
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 63668224,
-        "maxHeapUsedBytes": 5895952,
+        "maxRssBytes": 63823872,
+        "maxHeapUsedBytes": 7696600,
         "samples": [
           {
             "before": {
-              "rssBytes": 56193024,
-              "heapUsedBytes": 4946208,
-              "externalBytes": 2176397,
+              "rssBytes": 56061952,
+              "heapUsedBytes": 4961432,
+              "externalBytes": 2182578,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 63668224,
-              "heapUsedBytes": 5895952,
-              "externalBytes": 2862479,
-              "arrayBuffersBytes": 780528
+              "rssBytes": 63688704,
+              "heapUsedBytes": 7696600,
+              "externalBytes": 4042325,
+              "arrayBuffersBytes": 1960374
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 61624320,
+              "heapUsedBytes": 5347144,
+              "externalBytes": 4042325,
+              "arrayBuffersBytes": 334191
+            },
+            "after": {
+              "rssBytes": 63672320,
+              "heapUsedBytes": 7251000,
+              "externalBytes": 3649054,
+              "arrayBuffersBytes": 1567103
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 63451136,
+              "heapUsedBytes": 5343304,
+              "externalBytes": 3649054,
+              "arrayBuffersBytes": 334191
+            },
+            "after": {
+              "rssBytes": 63823872,
+              "heapUsedBytes": 7349152,
+              "externalBytes": 3780126,
+              "arrayBuffersBytes": 1698175
             }
           }
         ]
@@ -199,30 +319,30 @@
     "fastest": {
       "id": "stax-scan-all-no-decode",
       "family": "partial-scan",
-      "throughputMiBPerSec": 237.08,
+      "throughputMiBPerSec": 241.63,
       "eventCount": 61236571,
       "checksum": -1830981171,
       "boundedMemory": true,
-      "maxRssMiB": 58.91
+      "maxRssMiB": 64.2
     },
     "fastestFullString": {
       "id": "stax-raw-frame-name-id",
       "family": "full-string-materialization",
-      "throughputMiBPerSec": 148.64,
+      "throughputMiBPerSec": 140.68,
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
-      "maxRssMiB": 60.72
+      "maxRssMiB": 60.87
     },
     "partialThresholdRows": [
       {
         "id": "stax-scan-all-no-decode",
         "family": "partial-scan",
-        "throughputMiBPerSec": 237.08,
+        "throughputMiBPerSec": 241.63,
         "eventCount": 61236571,
         "checksum": -1830981171,
         "boundedMemory": true,
-        "maxRssMiB": 58.91
+        "maxRssMiB": 64.2
       }
     ],
     "counterexamples200MiB": 0
@@ -233,10 +353,10 @@
       "classification": "BENCH_FACT",
       "summary": "Parser-core consumption shapes were measured in separate Node processes over the same file-backed source contract.",
       "evidence": [
-        "stax-scan-all-no-decode=237.08 MiB/s fullString=false",
-        "stax-raw-frame-semantic-checksum=142.07 MiB/s fullString=false",
-        "stax-stream=144.41 MiB/s fullString=true",
-        "stax-raw-frame-name-id=148.64 MiB/s fullString=true"
+        "stax-scan-all-no-decode=241.63 MiB/s fullString=false",
+        "stax-raw-frame-semantic-checksum=142.24 MiB/s fullString=false",
+        "stax-stream=126.32 MiB/s fullString=true",
+        "stax-raw-frame-name-id=140.68 MiB/s fullString=true"
       ]
     },
     {
@@ -244,18 +364,18 @@
       "classification": "HEADROOM_EVIDENCE",
       "summary": "The semantic byte-fold row preserves event count and checksum of the full-string row while avoiding JavaScript string materialization on ASCII spans.",
       "evidence": [
-        "stax-raw-frame-semantic-checksum: events=61236571, checksum=-716099804, mibPerSec=142.07",
-        "stax-stream: events=61236571, checksum=-716099804, mibPerSec=144.41",
-        "stax-raw-frame-name-id: events=61236571, checksum=-716099804, mibPerSec=148.64"
+        "stax-raw-frame-semantic-checksum: events=61236571, checksum=-716099804, mibPerSec=142.24",
+        "stax-stream: events=61236571, checksum=-716099804, mibPerSec=126.32",
+        "stax-raw-frame-name-id: events=61236571, checksum=-716099804, mibPerSec=140.68"
       ]
     },
     {
       "id": "bounded-counterexample-search",
       "classification": "COUNTEREXAMPLE_NOT_FOUND",
-      "summary": "Fastest bounded full-string row was stax-raw-frame-name-id at 148.64 MiB/s.",
+      "summary": "Fastest bounded full-string row was stax-raw-frame-name-id at 140.68 MiB/s.",
       "evidence": [
-        "fastest=stax-scan-all-no-decode 237.08 MiB/s",
-        "fastestFullString=stax-raw-frame-name-id 148.64 MiB/s"
+        "fastest=stax-scan-all-no-decode 241.63 MiB/s",
+        "fastestFullString=stax-raw-frame-name-id 140.68 MiB/s"
       ]
     }
   ]
