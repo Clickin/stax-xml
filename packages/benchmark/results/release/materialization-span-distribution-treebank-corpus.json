@@ -1,0 +1,168 @@
+{
+  "generatedAt": "2026-05-26T15:54:13.168Z",
+  "objective": "materialization-span-distribution",
+  "contract": "same-raw-frame-materialization-span-distribution",
+  "note": "Counts raw UTF-8 span length, ASCII, and trim properties for full-string materialization fields. This is distribution evidence for candidate selection, not throughput evidence and not a runtime-limit proof.",
+  "sourceContract": {
+    "parserInput": "StreamReaderSync over synchronous Iterable<Uint8Array[]> corpus-cycle batches.",
+    "fullArrayBufferParserInput": false,
+    "directReadableStream": false,
+    "demandDrivenSource": true,
+    "corpusCycle": "The corpus seed is replayed as parser byte batches until the target byte size is reached, matching candidate-headroom-large corpus-cycle semantics."
+  },
+  "options": {
+    "sizeGiB": 1,
+    "corpusFile": "G:\\programming\\stax-xml\\packages\\stax-xml\\performance\\samples\\treebank_e.xml",
+    "batchSize": 1,
+    "corpusBytes": 89565617,
+    "targetBytes": 1073741824
+  },
+  "eventCount": 75206126,
+  "summary": {
+    "attributePairCount": 12,
+    "implicitAttrValueCount": 0,
+    "name": {
+      "total": 58503984,
+      "ascii": 58503984,
+      "nonAscii": 0,
+      "shortAscii": 58335744,
+      "mediumAscii": 168240,
+      "longAscii": 0,
+      "trimUnchanged": 0,
+      "trimChanged": 0,
+      "empty": 0,
+      "minLength": 1,
+      "maxLength": 18,
+      "totalBytes": 164724312,
+      "buckets": {
+        "0": 0,
+        "1-12": 58335744,
+        "13-24": 168240,
+        "25-64": 0,
+        "65-256": 0,
+        "257+": 0
+      },
+      "averageLength": 2.815608454972913,
+      "asciiRatio": 1,
+      "shortAsciiRatio": 0.9971242984067546,
+      "mediumAsciiRatio": 0.002875701593245342,
+      "longAsciiRatio": 0,
+      "trimChangedRatio": 0
+    },
+    "text": {
+      "total": 16702140,
+      "ascii": 16702140,
+      "nonAscii": 0,
+      "shortAscii": 0,
+      "mediumAscii": 16638312,
+      "longAscii": 63828,
+      "trimUnchanged": 16702140,
+      "trimChanged": 0,
+      "empty": 0,
+      "minLength": 24,
+      "maxLength": 172,
+      "totalBytes": 402132624,
+      "buckets": {
+        "0": 0,
+        "1-12": 0,
+        "13-24": 16638312,
+        "25-64": 63744,
+        "65-256": 84,
+        "257+": 0
+      },
+      "averageLength": 24.076712564976702,
+      "asciiRatio": 1,
+      "shortAsciiRatio": 0,
+      "mediumAsciiRatio": 0.9961784537789768,
+      "longAsciiRatio": 0.0038215462210231745,
+      "trimChangedRatio": 0
+    },
+    "attrName": {
+      "total": 12,
+      "ascii": 12,
+      "nonAscii": 0,
+      "shortAscii": 12,
+      "mediumAscii": 0,
+      "longAscii": 0,
+      "trimUnchanged": 0,
+      "trimChanged": 0,
+      "empty": 0,
+      "minLength": 4,
+      "maxLength": 4,
+      "totalBytes": 48,
+      "buckets": {
+        "0": 0,
+        "1-12": 12,
+        "13-24": 0,
+        "25-64": 0,
+        "65-256": 0,
+        "257+": 0
+      },
+      "averageLength": 4,
+      "asciiRatio": 1,
+      "shortAsciiRatio": 1,
+      "mediumAsciiRatio": 0,
+      "longAsciiRatio": 0,
+      "trimChangedRatio": 0
+    },
+    "attrValue": {
+      "total": 12,
+      "ascii": 12,
+      "nonAscii": 0,
+      "shortAscii": 12,
+      "mediumAscii": 0,
+      "longAscii": 0,
+      "trimUnchanged": 0,
+      "trimChanged": 0,
+      "empty": 0,
+      "minLength": 8,
+      "maxLength": 8,
+      "totalBytes": 96,
+      "buckets": {
+        "0": 0,
+        "1-12": 12,
+        "13-24": 0,
+        "25-64": 0,
+        "65-256": 0,
+        "257+": 0
+      },
+      "averageLength": 8,
+      "asciiRatio": 1,
+      "shortAsciiRatio": 1,
+      "mediumAsciiRatio": 0,
+      "longAsciiRatio": 0,
+      "trimChangedRatio": 0
+    }
+  },
+  "findings": [
+    {
+      "id": "text-medium-ascii-candidate-coverage",
+      "classification": "SOURCE_FACT",
+      "summary": "Text spans have a measurable 13-24 byte ASCII cohort, so medium/unrolled ASCII text candidates exercise real corpus data.",
+      "evidence": [
+        "text.mediumAscii=16638312",
+        "text.mediumAsciiRatio=99.62%",
+        "text.trimChanged=0"
+      ]
+    },
+    {
+      "id": "attr-value-medium-ascii-candidate-coverage",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "Attribute values have no 13-24 byte ASCII spans in this corpus-cycle fixture, so the medium ASCII attr-value candidate is not expected to hit.",
+      "evidence": [
+        "attrValue.mediumAscii=0",
+        "attrValue.shortAscii=12",
+        "attrValue.longAscii=0"
+      ]
+    },
+    {
+      "id": "distribution-artifact-scope",
+      "classification": "SCOPE_GUARD",
+      "summary": "This artifact describes materialization span shape only; it is not a throughput benchmark or runtime-limit proof.",
+      "evidence": [
+        "No MiB/s row is emitted.",
+        "No 200 MiB/s counterexample can be inferred from this artifact alone."
+      ]
+    }
+  ]
+}

@@ -258,7 +258,6 @@ function isAsciiXmlWhitespace(value) {
 
 function summarizeStats(stats) {
   return {
-    eventCount: stats.eventCount,
     attributePairCount: stats.attributePairCount,
     implicitAttrValueCount: stats.implicitAttrValueCount,
     name: summarizeKind(stats.name),

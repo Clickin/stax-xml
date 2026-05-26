@@ -33,7 +33,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 170);
+  assert.equal(report.summary.scannedArtifactCount, 172);
   assert.ok(report.scannedArtifacts.includes('concat-buffer-reuse-negative-result.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-materialization-profile.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-long-ascii-text-candidate.json'));
@@ -161,6 +161,8 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('segment-tokenizer-headroom.json'));
   assert.ok(report.scannedArtifacts.includes('segment-tokenizer-string-frontier.json'));
   assert.ok(report.scannedArtifacts.includes('materialization-span-distribution-books-corpus.json'));
+  assert.ok(report.scannedArtifacts.includes('materialization-span-distribution-large-corpus.json'));
+  assert.ok(report.scannedArtifacts.includes('materialization-span-distribution-treebank-corpus.json'));
   assert.ok(report.aggregateRows.some(row =>
     row.sourceArtifact === 'unrolled-medium-ascii-text-cross-process-books-corpus.json'
     && row.runtimeLabel === 'Node/V8'
@@ -658,7 +660,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Runtime Counterexample Scan/);
   assert.match(markdown, /Counterexamples found: 0/);
-  assert.match(markdown, /Scanned artifacts: 170/);
+  assert.match(markdown, /Scanned artifacts: 172/);
   assert.match(markdown, /Measured rows recognized: 895/);
   assert.match(markdown, /Aggregate rows recognized: 99/);
   assert.match(markdown, /1 GiB\+ JS full-string aggregate rows recognized: 77/);
