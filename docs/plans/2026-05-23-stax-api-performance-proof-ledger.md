@@ -244,9 +244,9 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 168 primary release JSON artifacts, recognizes 874
-sample throughput rows and 93 aggregate rows, and finds 545 JavaScript 1 GiB+
-full-string sample rows plus 73 JavaScript 1 GiB+ full-string aggregate rows.
+The current scan covers 176 primary release JSON artifacts, recognizes 930
+sample throughput rows and 99 aggregate rows, and finds 587 JavaScript 1 GiB+
+full-string sample rows plus 77 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
 full-string sample row overall is Node/V8 `rawFrameNameId` from
 `text-trim-cost-decomposition.json` at 185.50 MiB/s with process RSS evidence.
@@ -257,7 +257,7 @@ scan now reports aggregate rows separately from individual child samples so
 fastest-row triage does not blur single-sample and average-throughput evidence.
 
 The scan also preserves or infers source-consumption metadata when release rows
-or their source contract carry it. It now finds 215 JavaScript 1 GiB+
+or their source contract carry it. It now finds 257 JavaScript 1 GiB+
 full-string rows with source mode metadata, including
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
 `complete-js-string`, `sync-iterable-byte-batches`, and
@@ -265,24 +265,25 @@ full-string rows with source mode metadata, including
 the fastest access-shape rows plus the local `large.xml` fresh-process corpus
 rows plus the new trim-cost decompositions and the same-contract batch-shape
 comparison artifacts plus the all-ASCII span materialization negative row; the
-generated-sync bucket now has 163 JavaScript 1 GiB+ full-string rows, 154 of
-them bounded. The file-backed sync byte-batch bucket adds 47 full-string rows,
-46 of them bounded, with fastest row 152.11 MiB/s. The fastest
+generated-sync bucket now has 180 JavaScript 1 GiB+ full-string rows, 171 of
+them bounded. The file-backed sync byte-batch bucket adds 49 full-string rows,
+48 of them bounded, with fastest row 152.11 MiB/s. The fastest
 source-mode-classified row is Node/V8 `rawFrameNameId` from
 `text-trim-cost-decomposition.json` at 185.50 MiB/s. The source-consumption
 comparison rows from
 `stream-source-consumption-shapes.json` remain included in the JavaScript
 full-string scan with explicit machine-readable source flags:
 `sync-iterable-byte-batches` now covers three grouped sync rows. The fastest is
-`sync-iterable-byte-batches-batch-8`, which records parser input
+`sync-iterable-byte-batches`, which records parser input
 `synchronous Iterable<Uint8Array[]>`, `directReadableStream=false`, and
-128.29 MiB/s; the backpressure-respecting `web-readable-stream-pull` row
-records parser input `Web ReadableStream<Uint8Array>`,
-`directReadableStream=true`, and 125.22 MiB/s. The scan separates
+75.36 MiB/s. The fastest backpressure-respecting `web-readable-stream-pull`
+row is `web-readable-stream-raw-frame-ascii-batch-8`; it records parser input
+`Web ReadableStream<Uint8Array>`, `directReadableStream=true`,
+`respectsBackpressure=true`, and 76.87 MiB/s. The scan separates
 parser-demand-driven source rows from direct ReadableStream rows and from Web
 Stream backpressure rows, so direct ReadableStream overhead evidence stays
 distinct from synchronous byte-batch rows. It also classifies source-mode rows
-by whether they are a prebuilt full-XML `ArrayBuffer` parser input: all 215
+by whether they are a prebuilt full-XML `ArrayBuffer` parser input: all 257
 JavaScript 1 GiB+ full-string rows with source-mode metadata are now marked as
 not full `ArrayBuffer` parser-input rows. This also fixes the previous scanner
 blind spot where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but
@@ -419,7 +420,8 @@ control, unrolled medium ASCII text fast path at 1.04x of its control,
 unrolled medium ASCII text plus trim guard at 1.20x of its same-run control,
 fold-trim checksum at 0.84x of its control, the byte-boundary trim guard at
 1.00x of its control, ASCII byte pre-trim before decode at 0.99x of its control,
-and manual ASCII materialization for all string spans at 0.63x of its control.
+manual ASCII materialization for all string spans at 0.63x of its control, and
+direct semantic byte checksum at 0.97x of its same-condition control.
 `packages/benchmark/results/release/text-trim-guard-candidate.md`
 records the guard as a 1 GiB 3-run full-string parity row: `rawFrameNameId`
 averaged 109.66 MiB/s and `rawFrameNameIdTrimGuard` averaged 109.56 MiB/s,
@@ -468,10 +470,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 168 primary release artifacts and recognizes 874
-measured rows. It records 125 benchmark artifacts, 17 source artifacts, 10
+The current audit scans 176 primary release artifacts and recognizes 930
+measured rows. It records 130 benchmark artifacts, 17 source artifacts, 10
 trace/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and
-13 negative-result artifacts, 545 JavaScript 1 GiB+ full-string rows, and three
+16 negative-result artifacts, 587 JavaScript 1 GiB+ full-string rows, and three
 release corpus seeds: `books.xml`, `large.xml`, and `treebank_e.xml`. The
 negative-result set now includes
 `concat-buffer-reuse-negative-result.json`, which records that reusable
@@ -1137,16 +1139,20 @@ wrapped as a single-item byte batch, the public `StreamReader` path awaits
 file-backed release decomposition invokes `external-baseline` in
 `file-sync-batches` mode, and the public `EventReader` adapter converts stream
 reads into `AsyncIterable<Uint8Array[]>` batches. The refreshed release artifact
-uses the current 64 KiB file-backed basis with sync batch sizes 1, 8, and 16 plus
-the backpressure-respecting ReadableStream row, with three measured runs. It
-reports `118.57 MiB/s` for batch size 1, `128.29 MiB/s` for batch size 8,
-`124.65 MiB/s` for batch size 16, and `125.22 MiB/s` for the direct
-ReadableStream path. The fastest sync grouped row is therefore only 1.02x the
-ReadableStream row in this run. This keeps the ratio as a run-specific benchmark
-fact rather than a global async-overhead conclusion. All rows are
-parser-demand-driven, while only the Web ReadableStream row carries stream
-backpressure metadata, so this artifact is direct source-shape evidence rather
-than an assumption that the large matrices consume a pure ReadableStream.
+uses the current 64 KiB file-backed basis with sync batch sizes 1, 8, and 16,
+async byte-batch sizes 1, 4, 8, and 16, direct ReadableStream batch sizes 1, 4,
+8, and 16, plus raw-frame and short-ASCII raw-frame access variants. It reports
+the fastest sync grouped row at `75.36 MiB/s`, the fastest async
+`Iterable<Uint8Array[]>` row as `async-iterable-raw-frame-ascii-batch-8` at
+`76.20 MiB/s`, and the fastest direct ReadableStream row as
+`web-readable-stream-raw-frame-ascii-batch-8` at `76.87 MiB/s`. The earlier
+raw-frame rows without short-ASCII span materialization were slower, while the
+short-ASCII raw-frame rows recovered only small source-shape headroom. This
+keeps the ratio as a run-specific benchmark fact rather than a global
+async-overhead conclusion. All rows are parser-demand-driven; async and Web
+ReadableStream rows carry backpressure metadata, so this artifact is direct
+source-shape evidence rather than an assumption that the large matrices consume
+a pure ReadableStream.
 
 `packages/benchmark/results/release/event-reader-byte-batch-cross-process-corpus.md`
 then repeats the batch-16 `ReadableStream`, `AsyncIterable<Uint8Array[]>`,
@@ -1764,6 +1770,15 @@ decodes, but still did not beat `rawFrameNameId`: Node/V8 reported
 `158.38 MiB/s`, and Bun/JSC reported `82.49 MiB/s`. This is a negative result
 for the hypothesis that removing JS string construction from this checksum
 loop is enough to expose a 200 MiB/s same-field path.
+`packages/benchmark/results/release/semantic-checksum-upper-bound.md` then
+reruns that same no-string checksum path under the no-exposed-GC,
+`warmups=0` condition family used by the fastest text-trim artifact. In that
+same-condition 1 GiB `books.xml` run, `rawFrameNameId` reported 96.88 MiB/s
+while `rawFrameSemanticChecksum` reported 94.11 MiB/s, folded the same
+62,758,976 semantic byte fields with zero fallback decodes, preserved checksum
+`-540013997`, and performed zero string-field reads. This keeps the semantic
+byte-folding path as a negative headroom result rather than a hidden
+same-condition 200 MiB/s counterexample.
 
 The same single-run artifacts also tested bounded repeated-span value caching
 as `rawFrameStringCache`. It preserved the full-string checksum contract and
