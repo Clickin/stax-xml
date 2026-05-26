@@ -37,9 +37,11 @@ test('Firefox diagnostic dump audit records no-dump as a scoped negative result'
   assert.equal(report.contract, 'firefox-browser-spidermonkey-diagnostic-dump-availability');
   assert.equal(report.outcome.status, 'no-dump-emitted');
   assert.equal(report.outcome.emittedDump, false);
+  assert.ok(report.parameters.diagnosticEnv.ION_SPEW_FILENAME.endsWith('ion-spew.log'));
   assert.ok(report.findings.some(entry =>
     entry.id === 'spidermonkey-diagnostic-dump-not-emitted'
     && entry.classification === 'NEGATIVE_RESULT'
+    && entry.evidence.includes('ION_SPEW_FILENAME was set inside the audit output directory')
   ));
   assert.ok(report.findings.some(entry =>
     entry.id === 'diagnostic-dump-audit-scope'
@@ -49,5 +51,6 @@ test('Firefox diagnostic dump audit records no-dump as a scoped negative result'
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /Firefox\/SpiderMonkey Diagnostic Dump Audit/);
   assert.match(markdown, /Emitted dump: no/);
+  assert.match(markdown, /ION_SPEW_FILENAME/);
   assert.match(markdown, /keep the codegen proof obligation open/);
 });

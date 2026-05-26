@@ -108,8 +108,10 @@ function runAudit(options) {
   mkdirSync(options.outputDir, { recursive: true });
   const childJsonOut = join(options.outputDir, 'firefox-diagnostic-child.json');
   const childMdOut = join(options.outputDir, 'firefox-diagnostic-child.md');
+  const ionSpewFile = join(options.outputDir, 'ion-spew.log');
   const diagnosticEnv = {
     IONFLAGS: 'logs,codegen,mir,lir,aborts,scripts',
+    ION_SPEW_FILENAME: ionSpewFile,
     JIT_SPEW_DIR: options.outputDir,
     JS_JITSPEW: 'logs,codegen,mir,lir,aborts,scripts',
   };
@@ -193,6 +195,7 @@ function createSelfTestReport(options) {
   return createReport(options, {
     diagnosticEnv: {
       IONFLAGS: 'logs,codegen,mir,lir,aborts,scripts',
+      ION_SPEW_FILENAME: join(options.outputDir, 'ion-spew.log'),
       JIT_SPEW_DIR: options.outputDir,
       JS_JITSPEW: 'logs,codegen,mir,lir,aborts,scripts',
     },
@@ -311,6 +314,7 @@ function createFindings(completed, emittedDump, dumpFiles, dumpBytes, childRepor
       summary: 'The installed Firefox run completed but did not emit SpiderMonkey JIT diagnostic dump files or recognizable diagnostic stream output.',
       evidence: [
         'IONFLAGS=logs,codegen,mir,lir,aborts,scripts',
+        'ION_SPEW_FILENAME was set inside the audit output directory',
         'JS_JITSPEW=logs,codegen,mir,lir,aborts,scripts',
         'JIT_SPEW_DIR was set to the audit output directory',
         'This is not JIT IR evidence; keep the codegen proof obligation open.',
