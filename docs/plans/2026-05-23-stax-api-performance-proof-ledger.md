@@ -368,7 +368,15 @@ commands on macOS; `spidermonkey-codegen-handoff` maps the Firefox/SpiderMonkey
 codegen obligation to the existing diagnostic dump audit and js-shell
 availability path. Both handoffs require rerunning the coverage audit and
 counterexample scan after external evidence is produced, and both preserve the
-guard that missing local tools are environment facts only.
+guard that missing local tools are environment facts only. The handoff now also
+records structured `localClosure` status for each active obligation. Safari is
+`external-run-required` with `localRunnable=false` because the current host
+cannot run Safari/WebKit browser rows through the normal Safari/safaridriver
+path. Firefox/SpiderMonkey codegen is also `external-run-required` with
+`localRunnable=false` because the installed Firefox diagnostic audit emitted no
+JIT diagnostic dump and no local SpiderMonkey JS shell was found. These are
+local availability facts, not Safari/WebKit benchmark evidence, not emitted
+SpiderMonkey JIT IR, and not runtime-limit proof.
 
 ## Current Evidence: Multi-Chunk Byte Batch Probe
 

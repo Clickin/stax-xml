@@ -1,6 +1,6 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-05-26T03:41:03.438Z
+Generated: 2026-05-26T03:59:17.783Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -24,6 +24,12 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Classification: EXTERNAL_RUN_REQUIRED
 - Obligations: safari-jsc-source-and-browser-rows-open
 - Proof goal: Produce same-contract Safari/WebKit browser rows separate from Bun/JSC, then rerun the coverage audit and counterexample scan.
+- Local closure status: external-run-required
+- Locally runnable now: no
+- Local closure scope: This is environment availability evidence only; it is not a Safari/WebKit benchmark row or runtime limitation.
+- Local blockers:
+  - Current host cannot run Safari/WebKit browser rows through the normal Safari/safaridriver path.
+- Local evidence artifacts: safari-webkit-availability-audit.json
 
 Prerequisites:
 - macOS host with the exact Safari/WebKit build under test.
@@ -72,6 +78,13 @@ Scope guards:
 - Classification: EXTERNAL_RUN_REQUIRED
 - Obligations: codegen-traces-open
 - Proof goal: Capture emitted SpiderMonkey JIT IR, optimized-code, or codegen diagnostics for same-contract Firefox/SpiderMonkey full-string rows.
+- Local closure status: external-run-required
+- Locally runnable now: no
+- Local closure scope: These are local diagnostic availability facts only; they are not emitted SpiderMonkey JIT IR or optimized-code evidence.
+- Local blockers:
+  - Installed Firefox diagnostic dump audit emitted no JIT diagnostic dump.
+  - No local SpiderMonkey JS shell was found for JIT IR probing.
+- Local evidence artifacts: firefox-spidermonkey-diagnostic-dump-audit.json, firefox-spidermonkey-js-shell-availability-audit.json
 
 Prerequisites:
 - Diagnostic-capable Firefox build or SpiderMonkey shell built with the required JitSpew/codegen diagnostics enabled.

@@ -69,6 +69,20 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey);
   assert.deepEqual(safari.obligationIds, ['safari-jsc-source-and-browser-rows-open']);
   assert.deepEqual(spiderMonkey.obligationIds, ['codegen-traces-open']);
+  assert.equal(safari.localClosure.localStatus, 'external-run-required');
+  assert.equal(safari.localClosure.localRunnable, false);
+  assert.deepEqual(safari.localClosure.evidenceArtifacts, ['safari-webkit-availability-audit.json']);
+  assert.ok(safari.localClosure.blockers.some(item => /Current host cannot run Safari\/WebKit browser rows/.test(item)));
+  assert.match(safari.localClosure.scopeGuard, /not a Safari\/WebKit benchmark row/);
+  assert.equal(spiderMonkey.localClosure.localStatus, 'external-run-required');
+  assert.equal(spiderMonkey.localClosure.localRunnable, false);
+  assert.deepEqual(spiderMonkey.localClosure.evidenceArtifacts, [
+    'firefox-spidermonkey-diagnostic-dump-audit.json',
+    'firefox-spidermonkey-js-shell-availability-audit.json',
+  ]);
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /emitted no JIT diagnostic dump/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /No local SpiderMonkey JS shell was found/.test(item)));
+  assert.match(spiderMonkey.localClosure.scopeGuard, /not emitted SpiderMonkey JIT IR/);
   assert.match(safari.sourceConsumptionContract.primaryParserInput, /StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/);
   assert.match(safari.sourceConsumptionContract.demandDrivenSource, /per parser pull/);
   assert.match(safari.sourceConsumptionContract.demandDrivenSource, /must not pass one full XML ArrayBuffer/);
@@ -99,6 +113,11 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Runtime Proof Gap Handoff/);
   assert.match(markdown, /safari-webkit-browser-row-handoff/);
   assert.match(markdown, /spidermonkey-codegen-handoff/);
+  assert.match(markdown, /Local closure status: external-run-required/);
+  assert.match(markdown, /Locally runnable now: no/);
+  assert.match(markdown, /Current host cannot run Safari\/WebKit browser rows/);
+  assert.match(markdown, /Installed Firefox diagnostic dump audit emitted no JIT diagnostic dump/);
+  assert.match(markdown, /No local SpiderMonkey JS shell was found/);
   assert.match(markdown, /safaridriver/);
   assert.match(markdown, /Source consumption contract/);
   assert.match(markdown, /StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/);

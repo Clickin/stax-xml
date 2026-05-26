@@ -200,6 +200,10 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /safari-webkit-browser-row-handoff/);
   assert.match(markdown, /spidermonkey-codegen-handoff/);
   assert.match(markdown, /no unhandled gaps/);
+  assert.match(markdown, /structured `localClosure` status/);
+  assert.match(markdown, /Safari is\s+`external-run-required` with `localRunnable=false`/);
+  assert.match(markdown, /Firefox\/SpiderMonkey codegen is also `external-run-required` with\s+`localRunnable=false`/);
+  assert.match(markdown, /installed Firefox diagnostic audit emitted no\s+JIT diagnostic dump and no local SpiderMonkey JS shell was found/);
   assert.match(markdown, /candidate-headroom-cross-process-books-corpus-batch16\.md/);
   assert.match(markdown, /multi-item batch is\s+concatenated into one parser buffer/);
   assert.match(markdown, /Node\/V8 `rawFrameNameId` averaged `99\.83 MiB\/s`/);
