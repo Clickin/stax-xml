@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T11:42:10.029Z",
+  "generatedAt": "2026-05-26T11:50:39.447Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -2561,6 +2561,30 @@
       "measuredRowCount": 0
     },
     {
+      "sourceArtifact": "raw-span-shape-audit.json",
+      "objective": "raw-span-shape-audit",
+      "contract": "raw-frame-span-length-and-ascii-distribution",
+      "evidenceKinds": [
+        "NEGATIVE_RESULT",
+        "SCOPE_GUARD",
+        "SOURCE_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "outcome": null,
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073744736
+      },
+      "corpusSeed": "books.xml",
+      "measuredRowCount": 0
+    },
+    {
       "sourceArtifact": "runtime-matrix.json",
       "objective": null,
       "contract": null,
@@ -3348,7 +3372,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 162,
+    "scannedArtifactCount": 163,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
     "measuredRowCount": 848,
@@ -3370,11 +3394,11 @@
       "rowsWithMemoryCounter": 10
     },
     "benchmarkArtifactCount": 120,
-    "sourceArtifactCount": 16,
+    "sourceArtifactCount": 17,
     "traceArtifactCount": 10,
     "allocationArtifactCount": 15,
     "environmentArtifactCount": 2,
-    "negativeArtifactCount": 12,
+    "negativeArtifactCount": 13,
     "largeJsFullRowCount": 526,
     "runtimeCount": 8,
     "corpusSeedCount": 3,
@@ -3386,7 +3410,7 @@
       {
         "runtimeId": "node-v8",
         "runtimeLabel": "Node/V8",
-        "artifactCount": 80,
+        "artifactCount": 81,
         "measuredRowCount": 370,
         "largeFullStringRowCount": 226,
         "fastestLargeFullStringRow": {
@@ -17663,6 +17687,30 @@
         "outcome": null,
         "fixture": null,
         "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "raw-span-shape-audit.json",
+        "objective": "raw-span-shape-audit",
+        "contract": "raw-frame-span-length-and-ascii-distribution",
+        "evidenceKinds": [
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD",
+          "SOURCE_FACT"
+        ],
+        "runtimes": [
+          "node-v8"
+        ],
+        "outcome": null,
+        "fixture": {
+          "source": "corpus-file",
+          "shape": "corpus-cycle",
+          "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+          "sizeGiB": 1,
+          "sizeMiB": 1024,
+          "actualBytes": 1073744736
+        },
+        "corpusSeed": "books.xml",
         "measuredRowCount": 0
       },
       {

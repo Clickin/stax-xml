@@ -32,7 +32,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 162);
+  assert.equal(report.summary.scannedArtifactCount, 163);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'file-backed-materialization-profile.json'
     && artifact.objective === 'file-backed-materialization-profile'
@@ -88,11 +88,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.corpusSeedCount, 3);
   assert.equal(report.summary.openObligationCount, 2);
   assert.equal(report.summary.benchmarkArtifactCount, 120);
-  assert.equal(report.summary.sourceArtifactCount, 16);
+  assert.equal(report.summary.sourceArtifactCount, 17);
   assert.equal(report.summary.traceArtifactCount, 10);
   assert.equal(report.summary.allocationArtifactCount, 15);
   assert.equal(report.summary.environmentArtifactCount, 2);
-  assert.equal(report.summary.negativeArtifactCount, 12);
+  assert.equal(report.summary.negativeArtifactCount, 13);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'concat-buffer-reuse-negative-result.json'
     && artifact.measuredRowCount === 0
@@ -349,6 +349,14 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.measuredRowCount === 0
   ));
   assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'raw-span-shape-audit.json'
+    && row.evidenceKinds.includes('SOURCE_FACT')
+    && row.evidenceKinds.includes('NEGATIVE_RESULT')
+    && row.evidenceKinds.includes('SCOPE_GUARD')
+    && row.measuredRowCount === 0
+    && row.runtimes.includes('node-v8')
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'stax-event-public-object-shape-audit.json'
     && row.evidenceKinds.includes('SOURCE_FACT')
     && row.measuredRowCount === 0
@@ -565,7 +573,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey JIT IR or optimized-code dump missing/);
   assert.match(markdown, /15 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 2/);
-  assert.match(markdown, /\| Node\/V8 \| 80 \| 370 \| 226 \|/);
+  assert.match(markdown, /\| Node\/V8 \| 81 \| 370 \| 226 \|/);
   assert.match(markdown, /\| Java\/Woodstox \| 11 \| 12 \| 4 \|/);
   assert.match(markdown, /\| Rust\/quick-xml \| 10 \| 18 \| 4 \|/);
   assert.doesNotMatch(markdown, /\| unknown \|/);

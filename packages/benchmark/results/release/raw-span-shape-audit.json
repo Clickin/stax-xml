@@ -1,0 +1,287 @@
+{
+  "generatedAt": "2026-05-26T11:49:11.487Z",
+  "objective": "raw-span-shape-audit",
+  "contract": "raw-frame-span-length-and-ascii-distribution",
+  "note": "Audits raw-frame span shape over a demand-driven synchronous Iterable<Uint8Array[]> corpus-cycle input. It records source/span facts only; it is not a throughput benchmark and not a runtime-limit proof.",
+  "environment": {
+    "runtimeName": "node",
+    "javascriptEngine": "V8",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48"
+  },
+  "fixture": {
+    "source": "corpus-file",
+    "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+    "shape": "corpus-cycle",
+    "seedBytes": 4551,
+    "targetBytes": 1073741824,
+    "actualBytes": 1073744736,
+    "sizeGiB": 1.0000027120113373,
+    "batchSize": 1
+  },
+  "sourceConsumption": {
+    "parserInput": "synchronous Iterable<Uint8Array[]>",
+    "arrayBufferConsumption": "The corpus seed is read once and replayed as Uint8Array batches; the parser does not receive one full 1 GiB ArrayBuffer input.",
+    "batchBackpressure": "The iterator yields one Uint8Array[] batch per StreamReaderSync pull and does not prebuild the repeated 1 GiB stream.",
+    "directReadableStream": false
+  },
+  "summary": {
+    "eventCount": 57096514,
+    "shapeChecksum": -1533499053,
+    "totalMaterializedStringSpans": 62758976,
+    "explicitAttrValueMediumAsciiCount": 0,
+    "textMediumAsciiCount": 2831232,
+    "textLongOrNonAsciiCount": 3539040
+  },
+  "eventTypeCounts": {
+    "startElement": 20054560,
+    "endElement": 20054560,
+    "characters": 16987392,
+    "cdata": 0,
+    "other": 2
+  },
+  "spans": {
+    "elementName": {
+      "count": 40109120,
+      "totalBytes": 275101376,
+      "averageBytes": 6.86,
+      "minBytes": 4,
+      "maxBytes": 12,
+      "asciiCount": 40109120,
+      "nonAsciiCount": 0,
+      "shortAsciiCount": 40109120,
+      "mediumAsciiCount": 0,
+      "longAsciiCount": 0,
+      "longOrNonAsciiCount": 0,
+      "whitespaceBoundaryCount": 0,
+      "emptyCount": 0,
+      "buckets": {
+        "empty": 0,
+        "1-4": 5662464,
+        "5-8": 23121728,
+        "9-12": 11324928,
+        "13-24": 0,
+        "25-64": 0,
+        "65+": 0
+      },
+      "topLengths": [
+        {
+          "length": 5,
+          "count": 16987392
+        },
+        {
+          "length": 4,
+          "count": 5662464
+        },
+        {
+          "length": 6,
+          "count": 5662464
+        },
+        {
+          "length": 11,
+          "count": 5662464
+        },
+        {
+          "length": 12,
+          "count": 5662464
+        },
+        {
+          "length": 7,
+          "count": 471872
+        }
+      ]
+    },
+    "text": {
+      "count": 16987392,
+      "totalBytes": 496645280,
+      "averageBytes": 29.24,
+      "minBytes": 4,
+      "maxBytes": 185,
+      "asciiCount": 16987392,
+      "nonAsciiCount": 0,
+      "shortAsciiCount": 10617120,
+      "mediumAsciiCount": 2831232,
+      "longAsciiCount": 3539040,
+      "longOrNonAsciiCount": 3539040,
+      "whitespaceBoundaryCount": 0,
+      "emptyCount": 0,
+      "buckets": {
+        "empty": 0,
+        "1-4": 1887488,
+        "5-8": 3539040,
+        "9-12": 5190592,
+        "13-24": 2831232,
+        "25-64": 943744,
+        "65+": 2595296
+      },
+      "topLengths": [
+        {
+          "length": 10,
+          "count": 3067168
+        },
+        {
+          "length": 4,
+          "count": 1887488
+        },
+        {
+          "length": 7,
+          "count": 1415616
+        },
+        {
+          "length": 11,
+          "count": 1179680
+        },
+        {
+          "length": 5,
+          "count": 943744
+        },
+        {
+          "length": 8,
+          "count": 943744
+        },
+        {
+          "length": 12,
+          "count": 943744
+        },
+        {
+          "length": 15,
+          "count": 943744
+        },
+        {
+          "length": 13,
+          "count": 707808
+        },
+        {
+          "length": 94,
+          "count": 471872
+        },
+        {
+          "length": 132,
+          "count": 471872
+        },
+        {
+          "length": 6,
+          "count": 235936
+        }
+      ]
+    },
+    "attrName": {
+      "count": 2831232,
+      "totalBytes": 5662464,
+      "averageBytes": 2,
+      "minBytes": 2,
+      "maxBytes": 2,
+      "asciiCount": 2831232,
+      "nonAsciiCount": 0,
+      "shortAsciiCount": 2831232,
+      "mediumAsciiCount": 0,
+      "longAsciiCount": 0,
+      "longOrNonAsciiCount": 0,
+      "whitespaceBoundaryCount": 0,
+      "emptyCount": 0,
+      "buckets": {
+        "empty": 0,
+        "1-4": 2831232,
+        "5-8": 0,
+        "9-12": 0,
+        "13-24": 0,
+        "25-64": 0,
+        "65+": 0
+      },
+      "topLengths": [
+        {
+          "length": 2,
+          "count": 2831232
+        }
+      ]
+    },
+    "attrValueExplicit": {
+      "count": 2831232,
+      "totalBytes": 14156160,
+      "averageBytes": 5,
+      "minBytes": 5,
+      "maxBytes": 5,
+      "asciiCount": 2831232,
+      "nonAsciiCount": 0,
+      "shortAsciiCount": 2831232,
+      "mediumAsciiCount": 0,
+      "longAsciiCount": 0,
+      "longOrNonAsciiCount": 0,
+      "whitespaceBoundaryCount": 0,
+      "emptyCount": 0,
+      "buckets": {
+        "empty": 0,
+        "1-4": 0,
+        "5-8": 2831232,
+        "9-12": 0,
+        "13-24": 0,
+        "25-64": 0,
+        "65+": 0
+      },
+      "topLengths": [
+        {
+          "length": 5,
+          "count": 2831232
+        }
+      ]
+    },
+    "attrValueImplicit": {
+      "count": 0,
+      "totalBytes": 0,
+      "averageBytes": 0,
+      "minBytes": 0,
+      "maxBytes": 0,
+      "asciiCount": 0,
+      "nonAsciiCount": 0,
+      "shortAsciiCount": 0,
+      "mediumAsciiCount": 0,
+      "longAsciiCount": 0,
+      "longOrNonAsciiCount": 0,
+      "whitespaceBoundaryCount": 0,
+      "emptyCount": 0,
+      "buckets": {
+        "empty": 0,
+        "1-4": 0,
+        "5-8": 0,
+        "9-12": 0,
+        "13-24": 0,
+        "25-64": 0,
+        "65+": 0
+      },
+      "topLengths": []
+    }
+  },
+  "findings": [
+    {
+      "id": "attr-value-medium-ascii-pocket-absent",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "The books.xml corpus-cycle has no explicit attribute-value spans in the 13-24 byte ASCII bucket, so the medium ASCII attr-value fast path has no hit population on this input.",
+      "evidence": [
+        "explicitAttrValueTotal=2,831,232",
+        "explicitAttrValueShortAscii=2,831,232",
+        "explicitAttrValueMediumAscii=0"
+      ]
+    },
+    {
+      "id": "text-medium-ascii-pocket-present",
+      "classification": "SOURCE_FACT",
+      "summary": "The same corpus-cycle does contain a 13-24 byte ASCII text/CDATA population, matching the medium ASCII text candidate hit counter.",
+      "evidence": [
+        "textTotal=16,987,392",
+        "textMediumAscii=2,831,232",
+        "textLongOrNonAscii=3,539,040"
+      ]
+    },
+    {
+      "id": "source-shape-separated-from-stream-overhead",
+      "classification": "SCOPE_GUARD",
+      "summary": "This audit uses the same synchronous byte-batch source shape as the primary Node/V8 full-parity rows; it is not a direct ReadableStream measurement.",
+      "evidence": [
+        "parserInput=synchronous Iterable<Uint8Array[]>",
+        "directReadableStream=false"
+      ]
+    }
+  ]
+}

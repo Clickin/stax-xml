@@ -33,7 +33,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 162);
+  assert.equal(report.summary.scannedArtifactCount, 163);
   assert.ok(report.scannedArtifacts.includes('concat-buffer-reuse-negative-result.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-materialization-profile.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-long-ascii-text-candidate.json'));
@@ -105,6 +105,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('candidate-headroom-cross-process-books-corpus-partial.json'));
   assert.ok(report.scannedArtifacts.includes('multi-chunk-batch-shape-audit.json'));
   assert.ok(report.scannedArtifacts.includes('raw-batch-kind-shape-audit.json'));
+  assert.ok(report.scannedArtifacts.includes('raw-span-shape-audit.json'));
   assert.ok(report.scannedArtifacts.includes('materialization-category-drop-sweep.json'));
   assert.ok(report.scannedArtifacts.includes('fold-trimmed-text-candidate-stability.json'));
   assert.ok(report.scannedArtifacts.includes('long-ascii-text-materialization-candidate.json'));
@@ -586,7 +587,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Runtime Counterexample Scan/);
   assert.match(markdown, /Counterexamples found: 0/);
-  assert.match(markdown, /Scanned artifacts: 162/);
+  assert.match(markdown, /Scanned artifacts: 163/);
   assert.match(markdown, /Measured rows recognized: 848/);
   assert.match(markdown, /Aggregate rows recognized: 93/);
   assert.match(markdown, /1 GiB\+ JS full-string aggregate rows recognized: 73/);

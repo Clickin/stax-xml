@@ -349,6 +349,15 @@ from 165.38 MiB/s to 167.49 MiB/s, still below 200 MiB/s. The counters record
 attribute-value hits or fallbacks, showing this corpus' attribute values are
 already covered by the existing short-span path rather than hiding a medium-span
 TextDecoder headroom pocket.
+`raw-span-shape-audit.json` records the corresponding source/span distribution
+without adding a throughput row: over the same 1 GiB `books.xml` corpus-cycle it
+counts 57,096,514 events and 62,758,976 materialized string spans. The audit
+matches the candidate counters by finding 16,987,392 text/CDATA spans, including
+2,831,232 13-24 byte ASCII text spans and 3,539,040 >24 byte ASCII text spans,
+while all 2,831,232 explicit attribute-value spans are 5-byte ASCII and zero
+explicit attribute values fall in the 13-24 byte bucket. This makes the
+attribute-value medium-ASCII path a span-shape negative result for this corpus,
+not merely a noisy timing result.
 `packages/benchmark/results/release/text-materialization-frontier.md`
 synthesizes the scaled text/CDATA experiments directly: the fastest full row is
 still 185.50 MiB/s, 14.50 MiB/s below the 200 MiB/s counterexample threshold,

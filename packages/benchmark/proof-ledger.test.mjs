@@ -203,6 +203,10 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`medium-ascii-attr-value-materialization-candidate\.json` artifact applies the\s+same 13-24 byte ASCII split strategy to attribute values/);
   assert.match(markdown, /improves its same-run control only\s+from 165\.38 MiB\/s to 167\.49 MiB\/s/);
   assert.match(markdown, /2,831,232 raw attribute-value span materializations but zero medium-ASCII\s+attribute-value hits or fallbacks/);
+  assert.match(markdown, /`raw-span-shape-audit\.json` records the corresponding source\/span distribution\s+without adding a throughput row/);
+  assert.match(markdown, /57,096,514 events and 62,758,976 materialized string spans/);
+  assert.match(markdown, /2,831,232 13-24 byte ASCII text spans and 3,539,040 >24 byte ASCII text spans/);
+  assert.match(markdown, /all 2,831,232 explicit attribute-value spans are 5-byte ASCII and zero\s+explicit attribute values fall in the 13-24 byte bucket/);
   assert.match(markdown, /omitted all\s+16,987,392 text\/CDATA string reads and changed the checksum to `1372281363`/);
   assert.match(markdown, /text-materialization-frontier\.md/);
   assert.match(markdown, /fastest full row is\s+still 185\.50 MiB\/s, 14\.50 MiB\/s below the 200 MiB\/s counterexample threshold/);
