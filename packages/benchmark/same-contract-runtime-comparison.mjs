@@ -8,7 +8,7 @@ const defaultReleaseDir = resolve(__dirname, 'results', 'release');
 const defaultJsonOut = resolve(defaultReleaseDir, 'same-contract-runtime-comparison.json');
 const defaultMdOut = resolve(defaultReleaseDir, 'same-contract-runtime-comparison.md');
 
-const candidateCases = ['stringFull', 'eventObjectFull', 'rawFrameNameId'];
+const candidateCases = ['stringFull', 'eventObjectFull', 'cursorAccessor', 'rawFrameDirect', 'rawFrameNameId'];
 const candidateStabilityCases = ['stringFull', 'eventObjectFull', 'rawFrameNameId', 'rawFrameStringCache'];
 const textDecoderCases = ['subarraySharedDecoder', 'shortAsciiSubarraySharedDecoder'];
 

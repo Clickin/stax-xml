@@ -1,13 +1,13 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-26T06:32:32.617Z
+Generated: 2026-05-26T06:42:50.210Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
 ## Summary
 
-- Aggregated rows: 138
-- 1 GiB+ JavaScript full-string rows: 121
+- Aggregated rows: 156
+- 1 GiB+ JavaScript full-string rows: 139
 - 200 MiB/s+ bounded-memory JavaScript counterexamples found: 0
 - Fastest aggregated 1 GiB+ JS full-string row: Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB)
 - Fastest JS full-string row vs 200 MiB/s: 0.93x, 14.50 MiB/s remaining
@@ -23,8 +23,8 @@ This report aggregates existing release artifacts. It compares rows only through
 - 1024 MiB Woodstox baseline: 190.72 MiB/s
 - 1024 MiB quick-xml baseline: 150.24 MiB/s (0.79x Woodstox)
 - Recognized JS source modes: file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches
-- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 115/115
-- 1 GiB+ source-mode rows replaying a corpus seed buffer: 57 (max seed 100.26 MiB, max seed/target 0.09)
+- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 133/133
+- 1 GiB+ source-mode rows replaying a corpus seed buffer: 63 (max seed 100.26 MiB, max seed/target 0.09)
 
 ## Fastest JS Rows By Group
 
@@ -57,7 +57,7 @@ This report aggregates existing release artifacts. It compares rows only through
 
 | Scope | Rows | Not full ArrayBuffer parser input | Full ArrayBuffer parser input | Unknown parser input | Corpus seed replay rows | Max corpus seed |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 1 GiB+ JS full-string rows with source mode metadata | 115 | 115 | 0 | 0 | 57 | 100.26 MiB |
+| 1 GiB+ JS full-string rows with source mode metadata | 133 | 133 | 0 | 0 | 63 | 100.26 MiB |
 
 ## Selected Comparison Rows
 
@@ -90,36 +90,54 @@ This report aggregates existing release artifacts. It compares rows only through
 | `file-backed-long-ascii-text-candidate` | Rust/quick-xml | `quick-xml` | 61236571 | -716099804 | 272.33 | yes | process RSS max 4.78 MiB | n/a | unknown | no | `file-backed-long-ascii-text-candidate.json` |
 | `generated-1gib-candidate` | Node/V8 | `stringFull` | 45189256 | 1421012805 | 49.01 | yes | process RSS max 85.56 MiB | `sync-iterable-byte-batches` | no | no | `candidate-headroom-large.json` |
 | `generated-1gib-candidate` | Node/V8 | `eventObjectFull` | 45189256 | 1421012805 | 39.45 | yes | process RSS max 137.52 MiB | `sync-iterable-byte-batches` | no | no | `candidate-headroom-large.json` |
+| `generated-1gib-candidate` | Node/V8 | `cursorAccessor` | 45189256 | 1421012805 | 51.99 | yes | process RSS max 143.24 MiB | `sync-iterable-byte-batches` | no | no | `candidate-headroom-large.json` |
+| `generated-1gib-candidate` | Node/V8 | `rawFrameDirect` | 45189256 | 1421012805 | 52.23 | yes | process RSS max 143.06 MiB | `sync-iterable-byte-batches` | no | no | `candidate-headroom-large.json` |
 | `generated-1gib-candidate` | Node/V8 | `rawFrameNameId` | 45189256 | 1421012805 | 55.85 | yes | process RSS max 144.54 MiB | `sync-iterable-byte-batches` | no | no | `candidate-headroom-large.json` |
 | `generated-1gib-candidate` | Bun/JSC | `stringFull` | 45189256 | 1421012805 | 52.93 | yes | process RSS max 188.56 MiB | `sync-iterable-byte-batches` | no | no | `bun-candidate-headroom-large.json` |
 | `generated-1gib-candidate` | Bun/JSC | `eventObjectFull` | 45189256 | 1421012805 | 37.27 | yes | process RSS max 177.00 MiB | `sync-iterable-byte-batches` | no | no | `bun-candidate-headroom-large.json` |
+| `generated-1gib-candidate` | Bun/JSC | `cursorAccessor` | 45189256 | 1421012805 | 54.62 | yes | process RSS max 181.95 MiB | `sync-iterable-byte-batches` | no | no | `bun-candidate-headroom-large.json` |
+| `generated-1gib-candidate` | Bun/JSC | `rawFrameDirect` | 45189256 | 1421012805 | 49.93 | yes | process RSS max 192.83 MiB | `sync-iterable-byte-batches` | no | no | `bun-candidate-headroom-large.json` |
 | `generated-1gib-candidate` | Bun/JSC | `rawFrameNameId` | 45189256 | 1421012805 | 57.99 | yes | process RSS max 192.98 MiB | `sync-iterable-byte-batches` | no | no | `bun-candidate-headroom-large.json` |
 | `generated-1gib-candidate` | Chrome/V8 browser | `stringFull` | 45189256 | 1421012805 | 34.46 | yes | JS heap max 14.66 MiB; host working set 522.09 MiB | `sync-iterable-byte-batches` | no | no | `browser-candidate-headroom-large.json` |
 | `generated-1gib-candidate` | Chrome/V8 browser | `eventObjectFull` | 45189256 | 1421012805 | 33.10 | yes | JS heap max 38.78 MiB; host working set 522.09 MiB | `sync-iterable-byte-batches` | no | no | `browser-candidate-headroom-large.json` |
+| `generated-1gib-candidate` | Chrome/V8 browser | `cursorAccessor` | 45189256 | 1421012805 | 40.05 | yes | JS heap max 42.84 MiB; host working set 522.09 MiB | `sync-iterable-byte-batches` | no | no | `browser-candidate-headroom-large.json` |
+| `generated-1gib-candidate` | Chrome/V8 browser | `rawFrameDirect` | 45189256 | 1421012805 | 42.35 | yes | JS heap max 31.70 MiB; host working set 522.09 MiB | `sync-iterable-byte-batches` | no | no | `browser-candidate-headroom-large.json` |
 | `generated-1gib-candidate` | Chrome/V8 browser | `rawFrameNameId` | 45189256 | 1421012805 | 43.45 | yes | JS heap max 17.86 MiB; host working set 522.09 MiB | `sync-iterable-byte-batches` | no | no | `browser-candidate-headroom-large.json` |
 | `generated-1gib-candidate` | Firefox/SpiderMonkey browser | `stringFull` | 45189256 | 1421012805 | 33.02 | no | browser-js-heap-unavailable; fresh host probe 783.20 MiB | `sync-iterable-byte-batches` | no | no | `firefox-bidi-candidate-headroom.json` |
 | `generated-1gib-candidate` | Firefox/SpiderMonkey browser | `eventObjectFull` | 45189256 | 1421012805 | 23.31 | no | browser-js-heap-unavailable; fresh host probe 956.18 MiB | `sync-iterable-byte-batches` | no | no | `firefox-bidi-candidate-headroom.json` |
 | `generated-1gib-candidate` | Firefox/SpiderMonkey browser | `rawFrameNameId` | 45189256 | 1421012805 | 35.02 | no | browser-js-heap-unavailable; fresh host probe 775.57 MiB | `sync-iterable-byte-batches` | no | no | `firefox-bidi-candidate-headroom.json` |
 | `corpus-1gib-candidate` | Node/V8 | `stringFull` | 75206126 | -925527041 | 62.17 | yes | process RSS max 353.58 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Node/V8 | `eventObjectFull` | 75206126 | -925527041 | 61.80 | yes | process RSS max 419.02 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `candidate-headroom-corpus.json` |
+| `corpus-1gib-candidate` | Node/V8 | `cursorAccessor` | 75206126 | -925527041 | 66.95 | yes | process RSS max 419.54 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `candidate-headroom-corpus.json` |
+| `corpus-1gib-candidate` | Node/V8 | `rawFrameDirect` | 75206126 | -925527041 | 71.51 | yes | process RSS max 419.35 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Node/V8 | `rawFrameNameId` | 75206126 | -925527041 | 77.00 | yes | process RSS max 419.31 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Bun/JSC | `stringFull` | 75206126 | -925527041 | 56.23 | no | process RSS max 1470.83 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `bun-candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Bun/JSC | `eventObjectFull` | 75206126 | -925527041 | 62.08 | no | process RSS max 1476.53 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `bun-candidate-headroom-corpus.json` |
+| `corpus-1gib-candidate` | Bun/JSC | `cursorAccessor` | 75206126 | -925527041 | 71.78 | no | process RSS max 1482.77 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `bun-candidate-headroom-corpus.json` |
+| `corpus-1gib-candidate` | Bun/JSC | `rawFrameDirect` | 75206126 | -925527041 | 62.45 | no | process RSS max 1750.19 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `bun-candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Bun/JSC | `rawFrameNameId` | 75206126 | -925527041 | 76.08 | no | process RSS max 1751.13 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `bun-candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Chrome/V8 browser | `stringFull` | 75206126 | -925527041 | 30.38 | yes | JS heap max 349.79 MiB; host working set 865.83 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `browser-candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Chrome/V8 browser | `eventObjectFull` | 75206126 | -925527041 | 28.92 | yes | JS heap max 358.37 MiB; host working set 865.83 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `browser-candidate-headroom-corpus.json` |
+| `corpus-1gib-candidate` | Chrome/V8 browser | `cursorAccessor` | 75206126 | -925527041 | 30.07 | yes | JS heap max 337.04 MiB; host working set 865.83 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `browser-candidate-headroom-corpus.json` |
+| `corpus-1gib-candidate` | Chrome/V8 browser | `rawFrameDirect` | 75206126 | -925527041 | 30.29 | yes | JS heap max 351.61 MiB; host working set 865.83 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `browser-candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Chrome/V8 browser | `rawFrameNameId` | 75206126 | -925527041 | 29.05 | yes | JS heap max 345.78 MiB; host working set 865.83 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `browser-candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Firefox/SpiderMonkey browser | `stringFull` | 75206126 | -925527041 | 44.92 | no | browser-js-heap-unavailable; fresh host probe 1064.98 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `firefox-bidi-candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Firefox/SpiderMonkey browser | `eventObjectFull` | 75206126 | -925527041 | 36.27 | no | browser-js-heap-unavailable; fresh host probe 1220.22 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `firefox-bidi-candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Firefox/SpiderMonkey browser | `rawFrameNameId` | 75206126 | -925527041 | 48.15 | no | browser-js-heap-unavailable; fresh host probe 1060.55 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `firefox-bidi-candidate-headroom-corpus.json` |
 | `projection-1gib-full` | Node/V8 | `stringFull` | 60416563 | 1441552024 | 67.04 | yes | process RSS max 78.53 MiB | `sync-iterable-byte-batches` | no | no | `candidate-headroom-projection-large.json` |
 | `projection-1gib-full` | Node/V8 | `eventObjectFull` | 60416563 | 1441552024 | 57.67 | yes | process RSS max 135.87 MiB | `sync-iterable-byte-batches` | no | no | `candidate-headroom-projection-large.json` |
+| `projection-1gib-full` | Node/V8 | `cursorAccessor` | 60416563 | 1441552024 | 77.29 | yes | process RSS max 144.34 MiB | `sync-iterable-byte-batches` | no | no | `candidate-headroom-projection-large.json` |
+| `projection-1gib-full` | Node/V8 | `rawFrameDirect` | 60416563 | 1441552024 | 74.48 | yes | process RSS max 144.48 MiB | `sync-iterable-byte-batches` | no | no | `candidate-headroom-projection-large.json` |
 | `projection-1gib-full` | Node/V8 | `rawFrameNameId` | 60416563 | 1441552024 | 82.91 | yes | process RSS max 145.97 MiB | `sync-iterable-byte-batches` | no | no | `candidate-headroom-projection-large.json` |
 | `projection-1gib-full` | Bun/JSC | `stringFull` | 60416563 | 1441552024 | 77.04 | yes | process RSS max 214.97 MiB | `sync-iterable-byte-batches` | no | no | `bun-candidate-headroom-projection-large.json` |
 | `projection-1gib-full` | Bun/JSC | `eventObjectFull` | 60416563 | 1441552024 | 63.29 | yes | process RSS max 182.34 MiB | `sync-iterable-byte-batches` | no | no | `bun-candidate-headroom-projection-large.json` |
+| `projection-1gib-full` | Bun/JSC | `cursorAccessor` | 60416563 | 1441552024 | 80.14 | yes | process RSS max 177.44 MiB | `sync-iterable-byte-batches` | no | no | `bun-candidate-headroom-projection-large.json` |
+| `projection-1gib-full` | Bun/JSC | `rawFrameDirect` | 60416563 | 1441552024 | 64.97 | yes | process RSS max 194.21 MiB | `sync-iterable-byte-batches` | no | no | `bun-candidate-headroom-projection-large.json` |
 | `projection-1gib-full` | Bun/JSC | `rawFrameNameId` | 60416563 | 1441552024 | 84.68 | yes | process RSS max 199.15 MiB | `sync-iterable-byte-batches` | no | no | `bun-candidate-headroom-projection-large.json` |
 | `projection-1gib-full` | Chrome/V8 browser | `stringFull` | 60416563 | 1441552024 | 56.44 | yes | JS heap max 13.82 MiB; host working set 444.27 MiB | `sync-iterable-byte-batches` | no | no | `browser-candidate-headroom-projection-large.json` |
 | `projection-1gib-full` | Chrome/V8 browser | `eventObjectFull` | 60416563 | 1441552024 | 48.12 | yes | JS heap max 15.88 MiB; host working set 444.27 MiB | `sync-iterable-byte-batches` | no | no | `browser-candidate-headroom-projection-large.json` |
+| `projection-1gib-full` | Chrome/V8 browser | `cursorAccessor` | 60416563 | 1441552024 | 56.15 | yes | JS heap max 16.78 MiB; host working set 444.27 MiB | `sync-iterable-byte-batches` | no | no | `browser-candidate-headroom-projection-large.json` |
+| `projection-1gib-full` | Chrome/V8 browser | `rawFrameDirect` | 60416563 | 1441552024 | 57.69 | yes | JS heap max 16.49 MiB; host working set 444.27 MiB | `sync-iterable-byte-batches` | no | no | `browser-candidate-headroom-projection-large.json` |
 | `projection-1gib-full` | Chrome/V8 browser | `rawFrameNameId` | 60416563 | 1441552024 | 60.32 | yes | JS heap max 30.03 MiB; host working set 444.27 MiB | `sync-iterable-byte-batches` | no | no | `browser-candidate-headroom-projection-large.json` |
 | `projection-1gib-full` | Firefox/SpiderMonkey browser | `stringFull` | 60416563 | 1441552024 | 61.77 | no | browser-js-heap-unavailable; fresh host probe 673.60 MiB | `sync-iterable-byte-batches` | no | no | `firefox-bidi-candidate-headroom-projection.json` |
 | `projection-1gib-full` | Firefox/SpiderMonkey browser | `eventObjectFull` | 60416563 | 1441552024 | 52.54 | no | browser-js-heap-unavailable; fresh host probe 724.15 MiB | `sync-iterable-byte-batches` | no | no | `firefox-bidi-candidate-headroom-projection.json` |
@@ -221,11 +239,11 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - browser-js-heap-unavailable
   - process-rss
 - no-js-200mib-large-full-counterexample-in-aggregated-artifacts (NOT_FOUND_IN_AGGREGATED_ARTIFACTS): The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.
-  - jsLargeFullRows=121
+  - jsLargeFullRows=139
   - counterexamples=0
 - source-shape-not-full-arraybuffer (CLASSIFIED): Recognized 1 GiB+ JavaScript full-string source-mode rows are classified for full XML ArrayBuffer parser input.
-  - largeJsFullSourceModeRows=115
-  - notFullArrayBufferRows=115
+  - largeJsFullSourceModeRows=133
+  - notFullArrayBufferRows=133
   - fullArrayBufferRows=0
   - unknownArrayBufferRows=0
 - external-target-remains-visible (BENCH_FACT): The external baselines keep Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.

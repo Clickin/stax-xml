@@ -127,15 +127,15 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /The traced rows preserved the full-string contract across\s+`subarraySharedDecoder`, `viewSharedDecoder`, `sliceCopySharedDecoder`,\s+`subarrayNewDecoder`, and `shortAsciiSubarraySharedDecoder`/);
   assert.match(markdown, /18\s+generated DFG JIT lines, 675 bytecode lines, 1,880 DFG node lines, and 59 target\s+mentions/);
   assert.match(markdown, /does\s+not prove generated native code inside Bun Zig `TextDecoder`/);
-  assert.match(markdown, /138 aggregated rows and 121 JavaScript 1 GiB\+\s+full-string rows/);
+  assert.match(markdown, /156 aggregated rows and 139 JavaScript 1 GiB\+\s+full-string rows/);
   assert.match(markdown, /zero 200 MiB\/s\+ bounded-memory JavaScript\s+counterexamples/);
   assert.match(markdown, /fastest aggregated 1 GiB\+ JavaScript\s+full-string row is Node\/V8 `rawFrameNameId` from\s+`text-trim-cost-decomposition\.json` at 185\.50 MiB\/s/);
   assert.match(markdown, /184\.09 to 186\.66 MiB\/s/);
   assert.match(markdown, /fastest aggregate\s+row is `sync-iterable-byte-batches`/);
   assert.match(markdown, /fastest public event-object row is also\s+`sync-iterable-byte-batches`/);
   assert.match(markdown, /1024 MiB file-backed stax baseline is\s+`file-backed-sync-iterable-byte-batches`/);
-  assert.match(markdown, /all 115 JavaScript 1 GiB\+ full-string\s+rows with source-mode metadata in this aggregate are marked as not full\s+`ArrayBuffer` parser-input rows/);
-  assert.match(markdown, /separately records 57 corpus-seed replay\s+rows, with a maximum seed size of 100\.26 MiB and a maximum seed\/target ratio of\s+0\.09/);
+  assert.match(markdown, /all 133 JavaScript 1 GiB\+ full-string\s+rows with source-mode metadata in this aggregate are marked as not full\s+`ArrayBuffer` parser-input rows/);
+  assert.match(markdown, /separately records 63 corpus-seed replay\s+rows, with a maximum seed size of 100\.26 MiB and a maximum seed\/target ratio of\s+0\.09/);
   assert.match(markdown, /0\.93x of the 200 MiB\/s target and\s+0\.97x of the 1024 MiB Woodstox reference/);
   assert.match(markdown, /fastest aggregated JS row\s+and the 1024 MiB Woodstox reference can come from different corpus fixtures/);
   assert.match(markdown, /same-fixture 1024 MiB JS row vs Woodstox target now includes the\s+file-backed source, batch-size sweep, short attr-value cache, and trim-boundary\s+candidate rows/);

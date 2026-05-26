@@ -152,14 +152,14 @@ remain, the gate fails.
 `packages/benchmark/results/release/same-contract-runtime-comparison.md`
 aggregates existing release artifacts under the same full-string checksum
 contract without normalizing object shapes or memory models. It includes the
-16 MiB external baseline, 1 GiB generated/corpus JavaScript candidate rows, 1
-GiB projection-cycle full-string rows, 1 GiB TextDecoder span rows, access-shape
-cross-process rows, books-corpus stability rows, selected text/fold/cache
-negative stability rows, quick-xml global allocator counters plus stability
-rerun, and Woodstox JFR sampled allocation artifacts plus the measured-window
-rerun.
+16 MiB external baseline, 1 GiB generated/corpus JavaScript candidate rows
+including `cursorAccessor` and `rawFrameDirect`, 1 GiB projection-cycle
+full-string rows, 1 GiB TextDecoder span rows, access-shape cross-process rows,
+books-corpus stability rows, selected text/fold/cache negative stability rows,
+quick-xml global allocator counters plus stability rerun, and Woodstox JFR
+sampled allocation artifacts plus the measured-window rerun.
 
-The current aggregate has 138 aggregated rows and 121 JavaScript 1 GiB+
+The current aggregate has 156 aggregated rows and 139 JavaScript 1 GiB+
 full-string rows. It finds zero 200 MiB/s+ bounded-memory JavaScript
 counterexamples in those artifacts. The fastest aggregated 1 GiB+ JavaScript
 full-string row is Node/V8 `rawFrameNameId` from
@@ -173,9 +173,9 @@ row is `sync-iterable-byte-batches`, the fastest public event-object row is also
 `sync-iterable-byte-batches`, and the 1024 MiB file-backed stax baseline is
 `file-backed-sync-iterable-byte-batches`; older artifacts without source
 metadata remain `n/a` rather than inferred. The same-contract report now also
-classifies the source-shape guard locally: all 115 JavaScript 1 GiB+ full-string
+classifies the source-shape guard locally: all 133 JavaScript 1 GiB+ full-string
 rows with source-mode metadata in this aggregate are marked as not full
-`ArrayBuffer` parser-input rows. It separately records 57 corpus-seed replay
+`ArrayBuffer` parser-input rows. It separately records 63 corpus-seed replay
 rows, with a maximum seed size of 100.26 MiB and a maximum seed/target ratio of
 0.09, so corpus replay is not collapsed into the full-target `ArrayBuffer`
 parser-input claim. That is 0.93x of the 200 MiB/s target and
