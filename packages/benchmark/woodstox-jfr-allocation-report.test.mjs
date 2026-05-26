@@ -49,6 +49,9 @@ test('Woodstox JFR allocation report records sampled allocation facts without cl
   assert.equal(report.rawArtifacts.allocationEventsJson.committed, false);
   assert.equal(report.benchmark.eventCount, 276);
   assert.equal(report.benchmark.checksum, 812383466);
+  assert.equal(report.benchmark.shapeStats.elementLocalNameReadCount, 92);
+  assert.equal(report.benchmark.shapeStats.attributeValueReadCount, 92);
+  assert.equal(report.benchmark.shapeStats.textReadCount, 46);
   assert.equal(report.jfrSummary.allocationEventCounts.ObjectAllocationInNewTLAB, 4);
   assert.equal(report.allocation.eventCount, 4);
   assert.equal(report.allocation.consumeStackEventCount, 3);
@@ -56,6 +59,7 @@ test('Woodstox JFR allocation report records sampled allocation facts without cl
   assert.ok(report.allocation.topConsumeClasses.some(entry => entry.objectClass === 'char[]'));
   assert.ok(report.allocation.topConsumeClasses.some(entry => entry.objectClass === 'java.lang.String'));
   assert.ok(report.findings.some(entry => entry.id === 'string-materialization-stack-visible'));
+  assert.ok(report.findings.some(entry => entry.id === 'woodstox-accessor-shape-counters'));
   assert.ok(report.findings.some(entry => entry.id === 'not-deterministic-census'));
 
   const markdown = readFileSync(mdOut, 'utf8');
@@ -64,6 +68,8 @@ test('Woodstox JFR allocation report records sampled allocation facts without cl
   assert.match(markdown, /ObjectAllocationInNewTLAB/);
   assert.match(markdown, /sampled process-level evidence/);
   assert.match(markdown, /not a deterministic allocation census/);
+  assert.match(markdown, /Comparator Shape Counters/);
+  assert.match(markdown, /Element local-name reads/);
   assert.match(markdown, /TextBuffer::contentsAsString/);
   assert.match(markdown, /BasicStreamReader::getAttributeValue/);
 });

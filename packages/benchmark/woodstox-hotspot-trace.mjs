@@ -124,7 +124,7 @@ function createSelfTestReport(options) {
     '                              @ 148   com.ctc.wstx.sr.BasicStreamReader::getAttributeValue (20 bytes)   inline',
     '                              @ 186   com.ctc.wstx.sr.BasicStreamReader::getText (26 bytes)   callee is too large',
     '                              @ 250   com.ctc.wstx.sr.BasicStreamReader::next (22 bytes)   inline',
-    '{"runtime":"1.8.0_472","avgMs":42.0,"minMs":41.0,"maxMs":43.0,"mibPerSec":381.0,"eventCount":276,"checksum":812383466,"samplesMs":[42.0]}',
+    '{"runtime":"1.8.0_472","avgMs":42.0,"minMs":41.0,"maxMs":43.0,"mibPerSec":381.0,"eventCount":276,"checksum":812383466,"shapeStats":{"startElementCount":46,"endElementCount":46,"charactersEventCount":92,"cdataEventCount":0,"elementLocalNameReadCount":92,"attributeCountReadCount":46,"attributeLocalNameReadCount":92,"attributeValueReadCount":92,"textReadCount":46,"textTrimCount":46,"nonEmptyTextCount":46,"foldedStringCount":322,"foldedStringUtf16Units":1932},"samplesMs":[42.0]}',
   ].join('\n');
   return createReport({
     options,
@@ -253,7 +253,10 @@ function createReport({ options, rawLog, javaVersionText, fixture, command, rawA
 }
 
 function extractBenchmarkJson(rawLog) {
-  const matches = [...rawLog.matchAll(/\{"runtime":.+?\}/gs)].map(match => match[0]);
+  const matches = String(rawLog)
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(line => line.startsWith('{"runtime":'));
   if (matches.length === 0) {
     throw new Error('Woodstox benchmark JSON was not found in HotSpot trace output.');
   }
@@ -310,6 +313,16 @@ function createFindings(benchmark, analysis) {
       ],
     },
     {
+      id: 'woodstox-accessor-shape-counters',
+      summary: 'The Woodstox comparator reports accessor/materialization counters for the same checksum contract.',
+      evidence: [
+        `elementLocalNameReads=${benchmark.shapeStats?.elementLocalNameReadCount ?? 0}`,
+        `attributeValueReads=${benchmark.shapeStats?.attributeValueReadCount ?? 0}`,
+        `textReads=${benchmark.shapeStats?.textReadCount ?? 0}`,
+        `foldedStrings=${benchmark.shapeStats?.foldedStringCount ?? 0}`,
+      ],
+    },
+    {
       id: 'allocation-still-missing',
       summary: 'PrintCompilation/PrintInlining does not prove allocation behavior or borrowed/owned string lifetimes.',
       evidence: [
@@ -346,6 +359,12 @@ function renderMarkdown(report) {
     '| --- | ---: | ---: | ---: | ---: |',
     `| ${escapePipe(report.benchmark.runtime)} | ${report.benchmark.mibPerSec.toFixed(1)} MiB/s | ${report.benchmark.avgMs.toFixed(2)} ms | ${report.benchmark.eventCount} | ${report.benchmark.checksum} |`,
     '',
+    '## Comparator Shape Counters',
+    '',
+    '| Counter | Value |',
+    '| --- | ---: |',
+    ...shapeStatsRows(report.benchmark.shapeStats),
+    '',
     '## HotSpot Trace Summary',
     '',
     '| Metric | Value |',
@@ -370,6 +389,25 @@ function renderMarkdown(report) {
     '',
   ];
   return lines.join('\n');
+}
+
+function shapeStatsRows(shapeStats = {}) {
+  const entries = [
+    ['Start elements', shapeStats.startElementCount],
+    ['End elements', shapeStats.endElementCount],
+    ['Characters events observed', shapeStats.charactersEventCount],
+    ['CDATA events observed', shapeStats.cdataEventCount],
+    ['Element local-name reads', shapeStats.elementLocalNameReadCount],
+    ['Attribute-count reads', shapeStats.attributeCountReadCount],
+    ['Attribute local-name reads', shapeStats.attributeLocalNameReadCount],
+    ['Attribute value reads', shapeStats.attributeValueReadCount],
+    ['Text reads', shapeStats.textReadCount],
+    ['Text trims', shapeStats.textTrimCount],
+    ['Non-empty text folds', shapeStats.nonEmptyTextCount],
+    ['Folded strings', shapeStats.foldedStringCount],
+    ['Folded UTF-16 code units', shapeStats.foldedStringUtf16Units],
+  ];
+  return entries.map(([name, value]) => `| ${name} | ${Number(value ?? 0)} |`);
 }
 
 function runCommand(command, args, cwd) {

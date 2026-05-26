@@ -42,7 +42,7 @@ public final class WoodstoxBench {
       if (recording != null) {
         stopAndDumpRecording(recording, options.measuredJfrOut);
       }
-      if (stable != null && (stable.eventCount != result.eventCount || stable.checksum != result.checksum)) {
+      if (stable != null && (stable.eventCount != result.eventCount || stable.checksum != result.checksum || !stable.shapeStats.equals(result.shapeStats))) {
         throw new IllegalStateException("woodstox produced unstable event count or checksum");
       }
       stable = result;
@@ -59,6 +59,8 @@ public final class WoodstoxBench {
     appendNumberField(json, "mibPerSec", sizeMiB / (avgMs / 1000.0)).append(',');
     appendLongField(json, "eventCount", stable.eventCount).append(',');
     appendIntField(json, "checksum", stable.checksum).append(',');
+    json.append("\"shapeStats\":");
+    appendShapeStats(json, stable.shapeStats).append(',');
     json.append("\"samplesMs\":[");
     for (int index = 0; index < samplesMs.size(); index++) {
       if (index > 0) {
@@ -107,6 +109,7 @@ public final class WoodstoxBench {
   private static Result consume(XMLInputFactory factory, Path file) throws Exception {
     int eventCount = 0;
     int checksum = 0;
+    ShapeStats shapeStats = new ShapeStats();
 
     try (InputStream input = new BufferedInputStream(Files.newInputStream(file), 1024 * 1024)) {
       XMLStreamReader reader = factory.createXMLStreamReader(input, "UTF-8");
@@ -125,34 +128,61 @@ public final class WoodstoxBench {
             break;
           case XMLStreamConstants.START_ELEMENT:
             eventCount++;
+            shapeStats.startElementCount++;
             checksum = mixChecksum(checksum, 2);
-            checksum = foldString(checksum, reader.getLocalName());
+            String startName = reader.getLocalName();
+            shapeStats.elementLocalNameReadCount++;
+            shapeStats.foldString(startName);
+            checksum = foldString(checksum, startName);
             int attrCount = reader.getAttributeCount();
+            shapeStats.attributeCountReadCount++;
             checksum = mixChecksum(checksum, attrCount);
             for (int attrIndex = 0; attrIndex < attrCount; attrIndex++) {
-              checksum = foldString(checksum, reader.getAttributeLocalName(attrIndex));
-              checksum = foldString(checksum, reader.getAttributeValue(attrIndex));
+              String attrName = reader.getAttributeLocalName(attrIndex);
+              shapeStats.attributeLocalNameReadCount++;
+              shapeStats.foldString(attrName);
+              checksum = foldString(checksum, attrName);
+              String attrValue = reader.getAttributeValue(attrIndex);
+              shapeStats.attributeValueReadCount++;
+              shapeStats.foldString(attrValue);
+              checksum = foldString(checksum, attrValue);
             }
             break;
           case XMLStreamConstants.END_ELEMENT:
             eventCount++;
+            shapeStats.endElementCount++;
             checksum = mixChecksum(checksum, 3);
-            checksum = foldString(checksum, reader.getLocalName());
+            String endName = reader.getLocalName();
+            shapeStats.elementLocalNameReadCount++;
+            shapeStats.foldString(endName);
+            checksum = foldString(checksum, endName);
             break;
           case XMLStreamConstants.CHARACTERS:
+            shapeStats.charactersEventCount++;
             if (!reader.isWhiteSpace()) {
-              String text = reader.getText().trim();
+              String rawText = reader.getText();
+              shapeStats.textReadCount++;
+              String text = rawText.trim();
+              shapeStats.textTrimCount++;
               if (!text.isEmpty()) {
                 eventCount++;
+                shapeStats.nonEmptyTextCount++;
+                shapeStats.foldString(text);
                 checksum = mixChecksum(checksum, 4);
                 checksum = foldString(checksum, text);
               }
             }
             break;
           case XMLStreamConstants.CDATA:
-            String cdata = reader.getText().trim();
+            shapeStats.cdataEventCount++;
+            String rawCdata = reader.getText();
+            shapeStats.textReadCount++;
+            String cdata = rawCdata.trim();
+            shapeStats.textTrimCount++;
             if (!cdata.isEmpty()) {
               eventCount++;
+              shapeStats.nonEmptyTextCount++;
+              shapeStats.foldString(cdata);
               checksum = mixChecksum(checksum, 5);
               checksum = foldString(checksum, cdata);
             }
@@ -167,7 +197,7 @@ public final class WoodstoxBench {
       reader.close();
     }
 
-    return new Result(eventCount, checksum);
+    return new Result(eventCount, checksum, shapeStats);
   }
 
   private static int mixChecksum(int seed, int value) {
@@ -229,6 +259,25 @@ public final class WoodstoxBench {
     return json;
   }
 
+  private static StringBuilder appendShapeStats(StringBuilder json, ShapeStats stats) {
+    json.append('{');
+    appendLongField(json, "startElementCount", stats.startElementCount).append(',');
+    appendLongField(json, "endElementCount", stats.endElementCount).append(',');
+    appendLongField(json, "charactersEventCount", stats.charactersEventCount).append(',');
+    appendLongField(json, "cdataEventCount", stats.cdataEventCount).append(',');
+    appendLongField(json, "elementLocalNameReadCount", stats.elementLocalNameReadCount).append(',');
+    appendLongField(json, "attributeCountReadCount", stats.attributeCountReadCount).append(',');
+    appendLongField(json, "attributeLocalNameReadCount", stats.attributeLocalNameReadCount).append(',');
+    appendLongField(json, "attributeValueReadCount", stats.attributeValueReadCount).append(',');
+    appendLongField(json, "textReadCount", stats.textReadCount).append(',');
+    appendLongField(json, "textTrimCount", stats.textTrimCount).append(',');
+    appendLongField(json, "nonEmptyTextCount", stats.nonEmptyTextCount).append(',');
+    appendLongField(json, "foldedStringCount", stats.foldedStringCount).append(',');
+    appendLongField(json, "foldedStringUtf16Units", stats.foldedStringUtf16Units);
+    json.append('}');
+    return json;
+  }
+
   private static String doubleJson(double value) {
     if (Double.isNaN(value) || Double.isInfinite(value)) {
       return "null";
@@ -243,10 +292,53 @@ public final class WoodstoxBench {
   private static final class Result {
     final int eventCount;
     final int checksum;
+    final ShapeStats shapeStats;
 
-    Result(int eventCount, int checksum) {
+    Result(int eventCount, int checksum, ShapeStats shapeStats) {
       this.eventCount = eventCount;
       this.checksum = checksum;
+      this.shapeStats = shapeStats;
+    }
+  }
+
+  private static final class ShapeStats {
+    long startElementCount;
+    long endElementCount;
+    long charactersEventCount;
+    long cdataEventCount;
+    long elementLocalNameReadCount;
+    long attributeCountReadCount;
+    long attributeLocalNameReadCount;
+    long attributeValueReadCount;
+    long textReadCount;
+    long textTrimCount;
+    long nonEmptyTextCount;
+    long foldedStringCount;
+    long foldedStringUtf16Units;
+
+    void foldString(String value) {
+      if (value == null || value.isEmpty()) {
+        return;
+      }
+      foldedStringCount++;
+      foldedStringUtf16Units += value.length();
+    }
+
+    boolean equals(ShapeStats other) {
+      return other != null
+        && startElementCount == other.startElementCount
+        && endElementCount == other.endElementCount
+        && charactersEventCount == other.charactersEventCount
+        && cdataEventCount == other.cdataEventCount
+        && elementLocalNameReadCount == other.elementLocalNameReadCount
+        && attributeCountReadCount == other.attributeCountReadCount
+        && attributeLocalNameReadCount == other.attributeLocalNameReadCount
+        && attributeValueReadCount == other.attributeValueReadCount
+        && textReadCount == other.textReadCount
+        && textTrimCount == other.textTrimCount
+        && nonEmptyTextCount == other.nonEmptyTextCount
+        && foldedStringCount == other.foldedStringCount
+        && foldedStringUtf16Units == other.foldedStringUtf16Units;
     }
   }
 

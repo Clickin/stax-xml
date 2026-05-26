@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-05-23T11:01:26.495Z",
+  "generatedAt": "2026-05-26T11:05:18.594Z",
   "objective": "woodstox-jfr-allocation",
   "contract": "jfr-allocation-sampling",
-  "note": "JFR allocation events for the Java + Woodstox comparator. This is process-level sampled allocation evidence, not a deterministic allocation census or a proof of all Woodstox object lifetimes.",
+  "note": "JFR allocation events for the Java + Woodstox comparator process. This is process-level sampled allocation evidence, not a deterministic allocation census or a proof of all Woodstox object lifetimes.",
   "environment": {
     "java": "openjdk version \"1.8.0_472\"",
     "javaVersionText": "openjdk version \"1.8.0_472\"\r\nOpenJDK Runtime Environment (Temurin)(build 1.8.0_472-b08)\r\nOpenJDK 64-Bit Server VM (Temurin)(build 25.472-b08, mixed mode)",
@@ -20,6 +20,7 @@
     "warmups": 4,
     "stackDepth": 32,
     "jfrSettings": "profile",
+    "recordingMode": "process",
     "allocationEvents": "ObjectAllocationInNewTLAB,ObjectAllocationOutsideTLAB"
   },
   "command": {
@@ -38,7 +39,7 @@
       "--warmups",
       "4"
     ],
-    "elapsedMs": 1235
+    "elapsedMs": 1215
   },
   "rawArtifacts": {
     "jfr": {
@@ -52,19 +53,34 @@
   },
   "benchmark": {
     "runtime": "1.8.0_472",
-    "avgMs": 49.9568,
-    "minMs": 49.9568,
-    "maxMs": 49.9568,
-    "mibPerSec": 320.27332106883705,
+    "avgMs": 51.3043,
+    "minMs": 51.3043,
+    "maxMs": 51.3043,
+    "mibPerSec": 311.86138873294595,
     "eventCount": 967967,
     "checksum": -746772258,
+    "shapeStats": {
+      "startElementCount": 341635,
+      "endElementCount": 341635,
+      "charactersEventCount": 341635,
+      "cdataEventCount": 0,
+      "elementLocalNameReadCount": 683270,
+      "attributeCountReadCount": 341635,
+      "attributeLocalNameReadCount": 284695,
+      "attributeValueReadCount": 284695,
+      "textReadCount": 284695,
+      "textTrimCount": 284695,
+      "nonEmptyTextCount": 284695,
+      "foldedStringCount": 1537355,
+      "foldedStringUtf16Units": 13759225
+    },
     "samplesMs": [
-      49.9568
+      51.3043
     ]
   },
   "jfrSummary": {
     "allocationEventCounts": {
-      "ObjectAllocationInNewTLAB": 56,
+      "ObjectAllocationInNewTLAB": 55,
       "ObjectAllocationOutsideTLAB": 0
     },
     "eventCounts": {
@@ -73,8 +89,8 @@
         "sizeBytes": 26004
       },
       "jdk.SystemProcess": {
-        "count": 408,
-        "sizeBytes": 23781
+        "count": 384,
+        "sizeBytes": 21866
       },
       "jdk.IntFlag": {
         "count": 269,
@@ -97,20 +113,20 @@
         "sizeBytes": 7012
       },
       "jdk.PromoteObjectInNewPLAB": {
-        "count": 93,
-        "sizeBytes": 1889
-      },
-      "jdk.InitialEnvironmentVariable": {
-        "count": 89,
-        "sizeBytes": 9487
+        "count": 97,
+        "sizeBytes": 1971
       },
       "jdk.NativeLibrary": {
         "count": 88,
         "sizeBytes": 5720
       },
+      "jdk.InitialEnvironmentVariable": {
+        "count": 59,
+        "sizeBytes": 7126
+      },
       "jdk.ObjectAllocationInNewTLAB": {
-        "count": 56,
-        "sizeBytes": 1069
+        "count": 55,
+        "sizeBytes": 1053
       },
       "jdk.ThreadAllocationStatistics": {
         "count": 30,
@@ -126,31 +142,31 @@
       },
       "jdk.InitialSystemProperty": {
         "count": 16,
-        "sizeBytes": 5644
+        "sizeBytes": 5393
+      },
+      "jdk.ExecutionSample": {
+        "count": 16,
+        "sizeBytes": 208
       },
       "jdk.ThreadStart": {
         "count": 16,
         "sizeBytes": 224
       },
-      "jdk.ExecutionSample": {
-        "count": 15,
-        "sizeBytes": 195
-      },
       "jdk.GCPhasePauseLevel2": {
         "count": 13,
-        "sizeBytes": 399
+        "sizeBytes": 400
       },
       "jdk.JavaMonitorWait": {
-        "count": 11,
-        "sizeBytes": 286
-      },
-      "jdk.PromoteObjectOutsidePLAB": {
-        "count": 10,
-        "sizeBytes": 190
+        "count": 12,
+        "sizeBytes": 312
       },
       "jdk.DoubleFlag": {
         "count": 10,
         "sizeBytes": 449
+      },
+      "jdk.PromoteObjectOutsidePLAB": {
+        "count": 9,
+        "sizeBytes": 171
       },
       "jdk.GCPhasePauseLevel1": {
         "count": 9,
@@ -162,15 +178,15 @@
       },
       "jdk.GCReferenceStatistics": {
         "count": 8,
-        "sizeBytes": 107
+        "sizeBytes": 106
       },
       "jdk.CheckPoint": {
-        "count": 7,
-        "sizeBytes": 17130
+        "count": 5,
+        "sizeBytes": 14714
       },
       "jdk.SafepointBegin": {
         "count": 5,
-        "sizeBytes": 77
+        "sizeBytes": 78
       },
       "jdk.GCHeapSummary": {
         "count": 4,
@@ -206,7 +222,7 @@
       },
       "jdk.CodeSweeperStatistics": {
         "count": 2,
-        "sizeBytes": 33
+        "sizeBytes": 32
       },
       "jdk.GCConfiguration": {
         "count": 2,
@@ -236,13 +252,9 @@
         "count": 1,
         "sizeBytes": 50
       },
-      "jdk.OldObjectSample": {
-        "count": 1,
-        "sizeBytes": 24
-      },
       "jdk.JVMInformation": {
         "count": 1,
-        "sizeBytes": 631
+        "sizeBytes": 630
       },
       "jdk.OSInformation": {
         "count": 1,
@@ -259,10 +271,6 @@
       "jdk.ThreadCPULoad": {
         "count": 1,
         "sizeBytes": 19
-      },
-      "jdk.NativeMethodSample": {
-        "count": 1,
-        "sizeBytes": 13
       },
       "jdk.CompilerConfiguration": {
         "count": 1,
@@ -500,6 +508,10 @@
         "count": 0,
         "sizeBytes": 0
       },
+      "jdk.OldObjectSample": {
+        "count": 0,
+        "sizeBytes": 0
+      },
       "jdk.DumpReason": {
         "count": 0,
         "sizeBytes": 0
@@ -525,6 +537,10 @@
         "sizeBytes": 0
       },
       "jdk.ClassLoadingStatistics": {
+        "count": 0,
+        "sizeBytes": 0
+      },
+      "jdk.NativeMethodSample": {
         "count": 0,
         "sizeBytes": 0
       },
@@ -595,21 +611,26 @@
     }
   },
   "allocation": {
-    "eventCount": 56,
-    "sampledBytes": 3040,
-    "mainThreadEventCount": 50,
-    "mainThreadSampledBytes": 2544,
-    "consumeStackEventCount": 49,
-    "consumeStackSampledBytes": 2520,
+    "eventCount": 55,
+    "sampledBytes": 3536,
+    "mainThreadEventCount": 49,
+    "mainThreadSampledBytes": 3040,
+    "consumeStackEventCount": 48,
+    "consumeStackSampledBytes": 2584,
     "woodstoxStackEventCount": 48,
-    "woodstoxStackSampledBytes": 2480,
-    "stringBoundaryEventCount": 42,
-    "stringBoundarySampledBytes": 2288,
+    "woodstoxStackSampledBytes": 2584,
+    "stringBoundaryEventCount": 44,
+    "stringBoundarySampledBytes": 2456,
     "topClasses": [
       {
         "objectClass": "char[]",
-        "samples": 32,
-        "sampledBytes": 2048
+        "samples": 24,
+        "sampledBytes": 2408
+      },
+      {
+        "objectClass": "java.lang.String",
+        "samples": 25,
+        "sampledBytes": 600
       },
       {
         "objectClass": "java.lang.Thread",
@@ -617,24 +638,9 @@
         "sampledBytes": 376
       },
       {
-        "objectClass": "java.lang.String",
-        "samples": 14,
-        "sampledBytes": 336
-      },
-      {
         "objectClass": "com.ctc.wstx.sr.Attribute",
-        "samples": 6,
-        "sampledBytes": 192
-      },
-      {
-        "objectClass": "java.io.BufferedInputStream",
-        "samples": 1,
-        "sampledBytes": 40
-      },
-      {
-        "objectClass": "byte[]",
-        "samples": 1,
-        "sampledBytes": 24
+        "samples": 4,
+        "sampledBytes": 128
       },
       {
         "objectClass": "java.lang.Object[]",
@@ -645,23 +651,18 @@
     "topConsumeClasses": [
       {
         "objectClass": "char[]",
-        "samples": 32,
-        "sampledBytes": 2048
+        "samples": 23,
+        "sampledBytes": 1952
       },
       {
         "objectClass": "java.lang.String",
-        "samples": 10,
-        "sampledBytes": 240
+        "samples": 21,
+        "sampledBytes": 504
       },
       {
         "objectClass": "com.ctc.wstx.sr.Attribute",
-        "samples": 6,
-        "sampledBytes": 192
-      },
-      {
-        "objectClass": "java.io.BufferedInputStream",
-        "samples": 1,
-        "sampledBytes": 40
+        "samples": 4,
+        "sampledBytes": 128
       }
     ],
     "keySamples": [
@@ -758,7 +759,22 @@
       {
         "eventType": "jdk.ObjectAllocationInNewTLAB",
         "objectClass": "char[]",
-        "allocationSize": 64,
+        "allocationSize": 160,
+        "threadName": "main",
+        "topFrame": "java.util.Arrays::copyOfRange",
+        "stack": [
+          "java.util.Arrays::copyOfRange",
+          "java.lang.String::<init>",
+          "com.ctc.wstx.util.TextBuffer::contentsAsString",
+          "com.ctc.wstx.sr.BasicStreamReader::getText",
+          "com.staxxml.benchmark.WoodstoxBench::consume",
+          "com.staxxml.benchmark.WoodstoxBench::main"
+        ]
+      },
+      {
+        "eventType": "jdk.ObjectAllocationInNewTLAB",
+        "objectClass": "char[]",
+        "allocationSize": 160,
         "threadName": "main",
         "topFrame": "java.util.Arrays::copyOfRange",
         "stack": [
@@ -818,31 +834,14 @@
       {
         "eventType": "jdk.ObjectAllocationInNewTLAB",
         "objectClass": "char[]",
-        "allocationSize": 48,
+        "allocationSize": 64,
         "threadName": "main",
         "topFrame": "java.util.Arrays::copyOfRange",
         "stack": [
           "java.util.Arrays::copyOfRange",
           "java.lang.String::<init>",
-          "com.ctc.wstx.util.TextBuilder::getAllValues",
-          "com.ctc.wstx.sr.AttributeCollector::getValue",
-          "com.ctc.wstx.sr.BasicStreamReader::getAttributeValue",
-          "com.staxxml.benchmark.WoodstoxBench::consume",
-          "com.staxxml.benchmark.WoodstoxBench::main"
-        ]
-      },
-      {
-        "eventType": "jdk.ObjectAllocationInNewTLAB",
-        "objectClass": "char[]",
-        "allocationSize": 48,
-        "threadName": "main",
-        "topFrame": "java.util.Arrays::copyOfRange",
-        "stack": [
-          "java.util.Arrays::copyOfRange",
-          "java.lang.String::<init>",
-          "com.ctc.wstx.util.TextBuilder::getAllValues",
-          "com.ctc.wstx.sr.AttributeCollector::getValue",
-          "com.ctc.wstx.sr.BasicStreamReader::getAttributeValue",
+          "com.ctc.wstx.util.TextBuffer::contentsAsString",
+          "com.ctc.wstx.sr.BasicStreamReader::getText",
           "com.staxxml.benchmark.WoodstoxBench::consume",
           "com.staxxml.benchmark.WoodstoxBench::main"
         ]
@@ -856,16 +855,16 @@
       "evidence": [
         "events=967967",
         "checksum=-746772258",
-        "throughput=320.3 MiB/s"
+        "throughput=311.9 MiB/s"
       ]
     },
     {
       "id": "allocation-samples-visible",
       "summary": "JFR emitted allocation samples for the comparator process.",
       "evidence": [
-        "allocationEvents=56",
-        "sampledBytes=3.0 KiB",
-        "consumeStackEvents=49",
+        "allocationEvents=55",
+        "sampledBytes=3.5 KiB",
+        "consumeStackEvents=48",
         "woodstoxStackEvents=48"
       ]
     },
@@ -873,8 +872,18 @@
       "id": "string-materialization-stack-visible",
       "summary": "At least one sampled consume stack crosses Woodstox text or attribute accessors into Java String/char materialization.",
       "evidence": [
-        "stringBoundaryEvents=42",
-        "stringBoundarySampledBytes=2.2 KiB"
+        "stringBoundaryEvents=44",
+        "stringBoundarySampledBytes=2.4 KiB"
+      ]
+    },
+    {
+      "id": "woodstox-accessor-shape-counters",
+      "summary": "The Woodstox comparator reports accessor/materialization counters for the same checksum contract.",
+      "evidence": [
+        "elementLocalNameReads=683270",
+        "attributeValueReads=284695",
+        "textReads=284695",
+        "foldedStrings=1537355"
       ]
     },
     {

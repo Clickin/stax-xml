@@ -43,10 +43,14 @@ test('Woodstox HotSpot trace report records inlining facts without claiming allo
   assert.equal(report.rawArtifact.committed, false);
   assert.equal(report.benchmark.eventCount, 276);
   assert.equal(report.benchmark.checksum, 812383466);
+  assert.equal(report.benchmark.shapeStats.elementLocalNameReadCount, 92);
+  assert.equal(report.benchmark.shapeStats.attributeValueReadCount, 92);
+  assert.equal(report.benchmark.shapeStats.textReadCount, 46);
   assert.ok(report.analysis.hasPrintInliningEvidence);
   assert.ok(report.analysis.keyCounts.consume > 0);
   assert.ok(report.analysis.keyCounts.getLocalName > 0);
   assert.ok(report.analysis.keyCounts.getAttributeValue > 0);
+  assert.ok(report.findings.some(entry => entry.id === 'woodstox-accessor-shape-counters'));
   assert.ok(report.findings.some(entry => entry.id === 'allocation-still-missing'));
 
   const markdown = readFileSync(mdOut, 'utf8');
@@ -54,5 +58,7 @@ test('Woodstox HotSpot trace report records inlining facts without claiming allo
   assert.match(markdown, /TRACE_FACT/);
   assert.match(markdown, /PrintCompilation/);
   assert.match(markdown, /PrintInlining/);
+  assert.match(markdown, /Comparator Shape Counters/);
+  assert.match(markdown, /Attribute value reads/);
   assert.match(markdown, /not an allocation profile/);
 });

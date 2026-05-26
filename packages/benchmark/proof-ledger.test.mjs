@@ -276,6 +276,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /same semantic fields/);
   assert.match(markdown, /not the same object shape/);
   assert.match(markdown, /Woodstox uses `XMLStreamReader` cursor\/accessor calls/);
+  assert.match(markdown, /683,270 element local-name reads/);
+  assert.match(markdown, /1,537,355 folded strings/);
   assert.match(markdown, /Lazy getters\s+remain a recorded negative result/);
   assert.match(markdown, /woodstox-hotspot-trace\.md/);
   assert.match(markdown, /woodstox-jfr-allocation\.md/);
@@ -972,10 +974,13 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /quick-xml encoding surface audit records[\s\S]*comparator has no active `encoding` feature and rejects a UTF-16\s+probe/);
   assert.match(markdown, /does\s+not prove a\s+JavaScript runtime ceiling/);
   assert.match(markdown, /sampled JFR allocation stacks/);
+  assert.match(markdown, /comparator-local accessor shape counters/);
+  assert.match(markdown, /284,695 attribute value reads/);
   assert.match(markdown, /TextBuffer\.contentsAsString/);
   assert.match(markdown, /repeats the measured-window JFR capture/);
   assert.match(markdown, /again emitted 10 measured-window allocation samples/);
   assert.match(markdown, /with 9\s+string-boundary samples/);
+  assert.match(markdown, /7 were string-boundary samples/);
   assert.match(markdown, /second measured-window sample\s+with the same allocation-path shape/);
   assert.match(markdown, /after warmups and after the pre-run\s+`System\.gc\(\)`/);
   assert.match(markdown, /It is allocation-path evidence, not a\s+speed baseline/);

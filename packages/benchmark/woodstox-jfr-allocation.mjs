@@ -134,6 +134,21 @@ function createSelfTestReport(options) {
     mibPerSec: 381.0,
     eventCount: 276,
     checksum: 812383466,
+    shapeStats: {
+      startElementCount: 46,
+      endElementCount: 46,
+      charactersEventCount: 92,
+      cdataEventCount: 0,
+      elementLocalNameReadCount: 92,
+      attributeCountReadCount: 46,
+      attributeLocalNameReadCount: 92,
+      attributeValueReadCount: 92,
+      textReadCount: 46,
+      textTrimCount: 46,
+      nonEmptyTextCount: 46,
+      foldedStringCount: 322,
+      foldedStringUtf16Units: 1932,
+    },
     samplesMs: [42.0],
   };
   const rawEvents = {
@@ -490,6 +505,16 @@ function createFindings(benchmark, analysis, recordingMode) {
       ],
     },
     {
+      id: 'woodstox-accessor-shape-counters',
+      summary: 'The Woodstox comparator reports accessor/materialization counters for the same checksum contract.',
+      evidence: [
+        `elementLocalNameReads=${benchmark.shapeStats?.elementLocalNameReadCount ?? 0}`,
+        `attributeValueReads=${benchmark.shapeStats?.attributeValueReadCount ?? 0}`,
+        `textReads=${benchmark.shapeStats?.textReadCount ?? 0}`,
+        `foldedStrings=${benchmark.shapeStats?.foldedStringCount ?? 0}`,
+      ],
+    },
+    {
       id: 'not-deterministic-census',
       summary: recordingMode === 'measured'
         ? 'JFR allocation events are measured-run sampled evidence, not a deterministic allocation census.'
@@ -516,7 +541,10 @@ function createFindings(benchmark, analysis, recordingMode) {
 }
 
 function extractBenchmarkJson(stdout) {
-  const matches = [...String(stdout).matchAll(/\{"runtime":.+?\}/gs)].map(match => match[0]);
+  const matches = String(stdout)
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(line => line.startsWith('{"runtime":'));
   if (matches.length === 0) {
     throw new Error('Woodstox benchmark JSON was not found in JFR run output.');
   }
@@ -560,6 +588,12 @@ function renderMarkdown(report) {
     '| --- | ---: | ---: | ---: | ---: |',
     `| ${escapePipe(report.benchmark.runtime)} | ${report.benchmark.mibPerSec.toFixed(1)} MiB/s | ${report.benchmark.avgMs.toFixed(2)} ms | ${report.benchmark.eventCount} | ${report.benchmark.checksum} |`,
     '',
+    '## Comparator Shape Counters',
+    '',
+    '| Counter | Value |',
+    '| --- | ---: |',
+    ...shapeStatsRows(report.benchmark.shapeStats),
+    '',
     '## Allocation Summary',
     '',
     '| Metric | Value |',
@@ -600,6 +634,25 @@ function renderMarkdown(report) {
     '',
   ];
   return lines.join('\n');
+}
+
+function shapeStatsRows(shapeStats = {}) {
+  const entries = [
+    ['Start elements', shapeStats.startElementCount],
+    ['End elements', shapeStats.endElementCount],
+    ['Characters events observed', shapeStats.charactersEventCount],
+    ['CDATA events observed', shapeStats.cdataEventCount],
+    ['Element local-name reads', shapeStats.elementLocalNameReadCount],
+    ['Attribute-count reads', shapeStats.attributeCountReadCount],
+    ['Attribute local-name reads', shapeStats.attributeLocalNameReadCount],
+    ['Attribute value reads', shapeStats.attributeValueReadCount],
+    ['Text reads', shapeStats.textReadCount],
+    ['Text trims', shapeStats.textTrimCount],
+    ['Non-empty text folds', shapeStats.nonEmptyTextCount],
+    ['Folded strings', shapeStats.foldedStringCount],
+    ['Folded UTF-16 code units', shapeStats.foldedStringUtf16Units],
+  ];
+  return entries.map(([name, value]) => `| ${name} | ${Number(value ?? 0)} |`);
 }
 
 function runCommand(command, args, cwd) {

@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-26T10:54:13.571Z
+Generated: 2026-05-26T11:08:40.774Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -51,10 +51,10 @@ These rows have enough throughput/parity metadata to be recognized, but no row-l
 | `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 205.15 |
 | `quick-xml-shape-audit.json` | Rust/quick-xml | `quick-xml` | 0.02 | not-recorded | yes | 309.82 |
 | `quick-xml-shape-audit.json` | Java/Woodstox | `woodstox` | 0.02 | not-recorded | yes | 333.43 |
-| `woodstox-hotspot-trace.json` | Java/Woodstox | `benchmark` | 0.02 | not-recorded | yes | 324.67 |
-| `woodstox-jfr-allocation.json` | Java/Woodstox | `benchmark` | 0.02 | not-recorded | yes | 320.27 |
+| `woodstox-hotspot-trace.json` | Java/Woodstox | `benchmark` | 0.02 | not-recorded | yes | 322.29 |
+| `woodstox-jfr-allocation.json` | Java/Woodstox | `benchmark` | 0.02 | not-recorded | yes | 311.86 |
 | `woodstox-measured-jfr-allocation-rerun.json` | Java/Woodstox | `benchmark` | 0.02 | not-recorded | yes | 136.56 |
-| `woodstox-measured-jfr-allocation.json` | Java/Woodstox | `benchmark` | 0.02 | not-recorded | yes | 201.11 |
+| `woodstox-measured-jfr-allocation.json` | Java/Woodstox | `benchmark` | 0.02 | not-recorded | yes | 182.56 |
 
 ## Runtime Coverage
 
