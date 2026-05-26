@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-05-24T22:55:24.678Z",
+  "generatedAt": "2026-05-26T09:06:49.976Z",
   "objective": "multi-chunk-batch-shape-audit",
   "contract": "sync-uint8array-byte-batch-buffer-shape",
   "note": "Audits the current sync parser source shape behind Iterable<Uint8Array[]> batch-size experiments. This is source evidence only; it is not a benchmark row and not a runtime-limit conclusion.",
   "sourceFiles": [
     {
       "path": "packages\\stax-xml\\src\\IterableReader.ts",
-      "lineCount": 1282,
+      "lineCount": 1317,
       "currentBufferOccurrences": 16,
       "pendingTailOccurrences": 11,
       "concatOccurrences": 0
@@ -19,13 +19,59 @@
       "concatOccurrences": 3
     }
   ],
+  "implementationSurface": {
+    "publicSingleBufferSurfaces": [
+      "packages\\stax-xml\\src\\IterableReader.ts:265: buffer(): Uint8Array",
+      "packages\\stax-xml\\src\\IterableReader.ts:398: frame.buffer = this.currentBuffer",
+      "packages\\stax-xml\\src\\IterableReader.ts:36: buffer: BufferType",
+      "packages\\stax-xml\\src\\IterableReader.ts:143: buffer: EMPTY_BUFFER"
+    ],
+    "singleBufferDecodeSurfaces": [
+      "packages\\stax-xml\\src\\IterableReader.ts:309: decodeSpan(start: number, end: number): string",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:147: decodeUtf8(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:156: decodeUtf8(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:164: decodeUtf8(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:173: decodeUtf8(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:202: decodeUtf8(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:211: decodeUtf8(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:385: decodeUtf8(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:388: decodeUtf8(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:436: decodeUtf8(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:528: decodeUtf8(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:531: decodeUtf8(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:541: decodeUtf8(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:544: decodeUtf8(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:554: decodeUtf8(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:557: decodeUtf8(this.currentBuffer",
+      "packages\\stax-xml\\src\\IterableReader.ts:314: this.decoder.decode(this.currentBuffer.subarray(start, end))"
+    ],
+    "singleBufferScanHelpers": [
+      "packages\\stax-xml\\src\\IterableReader.ts:463: buffer.indexOf(60",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:327: indexOfAscii(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:340: indexOfAscii(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:364: indexOfAscii(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:326: startsWithAscii(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:339: startsWithAscii(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:347: startsWithAscii(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:366: startsWithAscii(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:355: findGt(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:373: findGt(this.currentBuffer",
+      "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:403: findTagEnd(this.currentBuffer"
+    ],
+    "spanArrays": [
+      "nameStarts/nameEnds",
+      "textStarts/textEnds",
+      "attrNameStarts/attrNameEnds",
+      "attrValueStarts/attrValueEnds"
+    ]
+  },
   "findings": [
     {
       "id": "single-item-batch-direct-view",
       "classification": "SOURCE_FACT",
       "summary": "Both sync byte readers special-case a single Uint8Array batch without pending tail as a direct view.",
       "evidence": [
-        "packages\\stax-xml\\src\\IterableReader.ts:415: if (!hasTail && batch.length === 1)",
+        "packages\\stax-xml\\src\\IterableReader.ts:416: if (!hasTail && batch.length === 1)",
         "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:576: if (!hasTail && batch.length === 1)",
         "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:577: return asUint8ArrayView(batch[0]!)"
       ],
@@ -37,7 +83,7 @@
       "summary": "Both sync byte readers concatenate multi-item Uint8Array batches into one parser buffer before scanning.",
       "evidence": [
         "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:587: return concatUint8Arrays(buffers, total)",
-        "packages\\stax-xml\\src\\IterableReader.ts:433: buffer.set(chunk, offset)",
+        "packages\\stax-xml\\src\\IterableReader.ts:434: buffer.set(chunk, offset)",
         "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:630: buffer.set(chunk, offset)"
       ],
       "missingPatterns": []
@@ -51,24 +97,24 @@
         "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:31: private currentBuffer: Uint8Array",
         "packages\\stax-xml\\src\\IterableReader.ts:38: nameStarts",
         "packages\\stax-xml\\src\\IterableReader.ts:112: nameStarts",
-        "packages\\stax-xml\\src\\IterableReader.ts:144: nameStarts",
-        "packages\\stax-xml\\src\\IterableReader.ts:273: nameStarts",
-        "packages\\stax-xml\\src\\IterableReader.ts:321: nameStarts",
-        "packages\\stax-xml\\src\\IterableReader.ts:399: nameStarts",
-        "packages\\stax-xml\\src\\IterableReader.ts:881: nameStarts",
-        "packages\\stax-xml\\src\\IterableReader.ts:905: nameStarts",
+        "packages\\stax-xml\\src\\IterableReader.ts:145: nameStarts",
+        "packages\\stax-xml\\src\\IterableReader.ts:274: nameStarts",
+        "packages\\stax-xml\\src\\IterableReader.ts:322: nameStarts",
+        "packages\\stax-xml\\src\\IterableReader.ts:400: nameStarts",
+        "packages\\stax-xml\\src\\IterableReader.ts:904: nameStarts",
+        "packages\\stax-xml\\src\\IterableReader.ts:928: nameStarts",
         "packages\\stax-xml\\src\\IterableReader.ts:45: attrNameStarts",
         "packages\\stax-xml\\src\\IterableReader.ts:121: attrNameStarts",
-        "packages\\stax-xml\\src\\IterableReader.ts:151: attrNameStarts",
-        "packages\\stax-xml\\src\\IterableReader.ts:293: attrNameStarts",
-        "packages\\stax-xml\\src\\IterableReader.ts:335: attrNameStarts",
-        "packages\\stax-xml\\src\\IterableReader.ts:362: attrNameStarts",
-        "packages\\stax-xml\\src\\IterableReader.ts:380: attrNameStarts",
-        "packages\\stax-xml\\src\\IterableReader.ts:406: attrNameStarts",
-        "packages\\stax-xml\\src\\IterableReader.ts:894: attrNameStarts",
-        "packages\\stax-xml\\src\\IterableReader.ts:915: attrNameStarts",
-        "packages\\stax-xml\\src\\IterableReader.ts:916: attrNameStarts",
+        "packages\\stax-xml\\src\\IterableReader.ts:152: attrNameStarts",
+        "packages\\stax-xml\\src\\IterableReader.ts:294: attrNameStarts",
+        "packages\\stax-xml\\src\\IterableReader.ts:336: attrNameStarts",
+        "packages\\stax-xml\\src\\IterableReader.ts:363: attrNameStarts",
+        "packages\\stax-xml\\src\\IterableReader.ts:381: attrNameStarts",
+        "packages\\stax-xml\\src\\IterableReader.ts:407: attrNameStarts",
         "packages\\stax-xml\\src\\IterableReader.ts:917: attrNameStarts",
+        "packages\\stax-xml\\src\\IterableReader.ts:938: attrNameStarts",
+        "packages\\stax-xml\\src\\IterableReader.ts:939: attrNameStarts",
+        "packages\\stax-xml\\src\\IterableReader.ts:940: attrNameStarts",
         "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:50: attrNameStarts",
         "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:192: attrNameStarts",
         "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:202: attrNameStarts",
@@ -94,9 +140,35 @@
         "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:544: decodeUtf8(this.currentBuffer",
         "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:554: decodeUtf8(this.currentBuffer",
         "packages\\stax-xml\\src\\iterable\\Uint8ArrayCurrentCursor.ts:557: decodeUtf8(this.currentBuffer",
-        "packages\\stax-xml\\src\\IterableReader.ts:397: this.frame.buffer = this.currentBuffer"
+        "packages\\stax-xml\\src\\IterableReader.ts:398: this.frame.buffer = this.currentBuffer"
       ],
       "missingPatterns": []
+    },
+    {
+      "id": "segmented-no-concat-change-surface",
+      "classification": "IMPLEMENTATION_SCOPE",
+      "summary": "A segmented no-concat prototype must either preserve the existing single-buffer public frame ABI by copying at the boundary or introduce segment-aware spans through parser, materialization, and raw-frame consumers.",
+      "evidence": [
+        "publicSingleBufferSurfaces=4",
+        "singleBufferDecodeSurfaces=17",
+        "singleBufferScanHelpers=11",
+        "spanArrays=nameStarts/nameEnds, textStarts/textEnds, attrNameStarts/attrNameEnds, attrValueStarts/attrValueEnds",
+        "packages\\stax-xml\\src\\IterableReader.ts:265: buffer(): Uint8Array",
+        "packages\\stax-xml\\src\\IterableReader.ts:398: frame.buffer = this.currentBuffer",
+        "packages\\stax-xml\\src\\IterableReader.ts:36: buffer: BufferType",
+        "packages\\stax-xml\\src\\IterableReader.ts:143: buffer: EMPTY_BUFFER"
+      ]
+    },
+    {
+      "id": "bounded-prototype-axis",
+      "classification": "DESIGN_GUARD",
+      "summary": "The next falsifiable implementation experiment should separate parser pull frequency from concat copying by adding a segment-aware scanner prototype without changing the full-string checksum contract.",
+      "evidence": [
+        "keep source contract: demand-driven Iterable<Uint8Array[]>",
+        "keep semantic contract: event count plus full-string checksum",
+        "compare against batchSize=1 and existing grouped-batch concat rows",
+        "do not use direct ReadableStream rows as the parser-core baseline"
+      ]
     },
     {
       "id": "no-concat-prototype-scope",

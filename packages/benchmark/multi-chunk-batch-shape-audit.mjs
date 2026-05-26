@@ -84,6 +84,7 @@ function createReport() {
     }),
   ];
   const missingFacts = requiredFacts.filter(fact => fact.missingPatterns.length > 0);
+  const implementationSurface = createImplementationSurface(files);
   const report = {
     generatedAt: new Date().toISOString(),
     objective: 'multi-chunk-batch-shape-audit',
@@ -96,8 +97,34 @@ function createReport() {
       pendingTailOccurrences: countPattern(file.text, 'pendingTail'),
       concatOccurrences: countPattern(file.text, 'concatUint8Arrays'),
     })),
+    implementationSurface,
     findings: [
       ...requiredFacts,
+      {
+        id: 'segmented-no-concat-change-surface',
+        classification: missingFacts.length === 0 ? 'IMPLEMENTATION_SCOPE' : 'OPEN',
+        summary: missingFacts.length === 0
+          ? 'A segmented no-concat prototype must either preserve the existing single-buffer public frame ABI by copying at the boundary or introduce segment-aware spans through parser, materialization, and raw-frame consumers.'
+          : 'The audit could not verify the current single-buffer assumptions, so it cannot size the no-concat change surface.',
+        evidence: [
+          `publicSingleBufferSurfaces=${implementationSurface.publicSingleBufferSurfaces.length}`,
+          `singleBufferDecodeSurfaces=${implementationSurface.singleBufferDecodeSurfaces.length}`,
+          `singleBufferScanHelpers=${implementationSurface.singleBufferScanHelpers.length}`,
+          `spanArrays=${implementationSurface.spanArrays.join(', ')}`,
+          ...implementationSurface.publicSingleBufferSurfaces,
+        ],
+      },
+      {
+        id: 'bounded-prototype-axis',
+        classification: 'DESIGN_GUARD',
+        summary: 'The next falsifiable implementation experiment should separate parser pull frequency from concat copying by adding a segment-aware scanner prototype without changing the full-string checksum contract.',
+        evidence: [
+          'keep source contract: demand-driven Iterable<Uint8Array[]>',
+          'keep semantic contract: event count plus full-string checksum',
+          'compare against batchSize=1 and existing grouped-batch concat rows',
+          'do not use direct ReadableStream rows as the parser-core baseline',
+        ],
+      },
       {
         id: 'no-concat-prototype-scope',
         classification: missingFacts.length === 0 ? 'SCOPE_GUARD' : 'OPEN',
@@ -120,6 +147,41 @@ function createReport() {
     sourceFileCount: files.length,
   };
   return report;
+}
+
+function createImplementationSurface(files) {
+  return {
+    publicSingleBufferSurfaces: [
+      ...findPatternText(files, 'buffer(): Uint8Array'),
+      ...findPatternText(files, 'frame.buffer = this.currentBuffer'),
+      ...findPatternText(files, 'buffer: BufferType'),
+      ...findPatternText(files, 'buffer: EMPTY_BUFFER'),
+    ],
+    singleBufferDecodeSurfaces: [
+      ...findPatternText(files, 'decodeSpan(start: number, end: number): string'),
+      ...findPatternText(files, 'decodeUtf8(this.currentBuffer'),
+      ...findPatternText(files, 'this.decoder.decode(this.currentBuffer.subarray(start, end))'),
+    ],
+    singleBufferScanHelpers: [
+      ...findPatternText(files, 'buffer.indexOf(60'),
+      ...findPatternText(files, 'indexOfAscii(this.currentBuffer'),
+      ...findPatternText(files, 'startsWithAscii(this.currentBuffer'),
+      ...findPatternText(files, 'findGt(this.currentBuffer'),
+      ...findPatternText(files, 'findTagEnd(this.currentBuffer'),
+    ],
+    spanArrays: [
+      'nameStarts/nameEnds',
+      'textStarts/textEnds',
+      'attrNameStarts/attrNameEnds',
+      'attrValueStarts/attrValueEnds',
+    ],
+  };
+}
+
+function findPatternText(files, pattern) {
+  return files
+    .flatMap(file => findPattern(file, pattern))
+    .map(match => `${relative(repoRoot, match.path)}:${match.line}: ${pattern}`);
 }
 
 function readSourceFile(path) {
@@ -188,6 +250,13 @@ function renderMarkdown(report) {
     '| --- | ---: | ---: | ---: | ---: |',
     ...report.sourceFiles.map(file =>
       `| ${file.path} | ${file.lineCount} | ${file.currentBufferOccurrences} | ${file.pendingTailOccurrences} | ${file.concatOccurrences} |`),
+    '',
+    '## Implementation Surface',
+    '',
+    `- Public single-buffer surfaces: ${report.implementationSurface.publicSingleBufferSurfaces.length}`,
+    `- Single-buffer decode surfaces: ${report.implementationSurface.singleBufferDecodeSurfaces.length}`,
+    `- Single-buffer scan helpers: ${report.implementationSurface.singleBufferScanHelpers.length}`,
+    `- Span arrays: ${report.implementationSurface.spanArrays.join(', ')}`,
     '',
     '## Findings',
     '',

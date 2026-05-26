@@ -491,6 +491,16 @@ implementation direction, but it requires replacing the single-buffer span
 model or adding a segmented-buffer abstraction through scanning, span storage,
 decode, and raw-frame exposure.
 
+The same audit now sizes the implementation surface more explicitly: four
+public single-buffer surfaces, 17 single-buffer decode surfaces, 11
+single-buffer scan-helper surfaces, and the span arrays
+`nameStarts/nameEnds`, `textStarts/textEnds`, `attrNameStarts/attrNameEnds`,
+and `attrValueStarts/attrValueEnds`. This does not reject a segmented
+prototype; it defines the next falsifiable experiment as a segment-aware scanner
+that preserves the demand-driven `Iterable<Uint8Array[]>` source contract and
+the full-string checksum contract, while comparing against the existing
+`batchSize=1` and grouped-batch concat rows.
+
 ## Current Evidence: Safari/WebKit Availability Audit
 
 `packages/benchmark/results/release/safari-webkit-availability-audit.md` is an

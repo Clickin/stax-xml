@@ -38,15 +38,30 @@ test('multi-chunk batch shape audit pins current concat and single-buffer assump
   assert.equal(report.summary.sourceFileCount, 2);
   assert.ok(report.sourceFiles.some(file => file.path.endsWith('IterableReader.ts')));
   assert.ok(report.sourceFiles.some(file => file.path.endsWith('Uint8ArrayCurrentCursor.ts')));
+  assert.ok(report.implementationSurface.publicSingleBufferSurfaces.length >= 3);
+  assert.ok(report.implementationSurface.singleBufferDecodeSurfaces.length >= 3);
+  assert.ok(report.implementationSurface.singleBufferScanHelpers.length >= 5);
+  assert.deepEqual(report.implementationSurface.spanArrays, [
+    'nameStarts/nameEnds',
+    'textStarts/textEnds',
+    'attrNameStarts/attrNameEnds',
+    'attrValueStarts/attrValueEnds',
+  ]);
 
   const single = report.findings.find(finding => finding.id === 'single-item-batch-direct-view');
   const multi = report.findings.find(finding => finding.id === 'multi-item-batch-concat');
   const model = report.findings.find(finding => finding.id === 'single-buffer-span-model');
+  const surface = report.findings.find(finding => finding.id === 'segmented-no-concat-change-surface');
+  const bounded = report.findings.find(finding => finding.id === 'bounded-prototype-axis');
   const scope = report.findings.find(finding => finding.id === 'no-concat-prototype-scope');
   assert.ok(single);
   assert.ok(multi);
   assert.ok(model);
+  assert.ok(surface);
+  assert.ok(bounded);
   assert.ok(scope);
+  assert.equal(surface.classification, 'IMPLEMENTATION_SCOPE');
+  assert.equal(bounded.classification, 'DESIGN_GUARD');
   assert.equal(scope.classification, 'SCOPE_GUARD');
   assert.deepEqual(single.missingPatterns, []);
   assert.deepEqual(multi.missingPatterns, []);
@@ -54,6 +69,9 @@ test('multi-chunk batch shape audit pins current concat and single-buffer assump
   assert.ok(single.evidence.some(item => /batch\.length === 1/.test(item)));
   assert.ok(multi.evidence.some(item => /concatUint8Arrays/.test(item)));
   assert.ok(model.evidence.some(item => /currentBuffer/.test(item)));
+  assert.ok(surface.evidence.some(item => /publicSingleBufferSurfaces=/.test(item)));
+  assert.match(surface.summary, /single-buffer public frame ABI/);
+  assert.match(bounded.summary, /segment-aware scanner prototype/);
   assert.match(scope.summary, /segmented-buffer abstraction/);
 
   const markdown = readFileSync(mdOut, 'utf8');
@@ -61,5 +79,8 @@ test('multi-chunk batch shape audit pins current concat and single-buffer assump
   assert.match(markdown, /Status: source-shape-confirmed/);
   assert.match(markdown, /single-item-batch-direct-view/);
   assert.match(markdown, /multi-item-batch-concat/);
+  assert.match(markdown, /Implementation Surface/);
+  assert.match(markdown, /segmented-no-concat-change-surface/);
+  assert.match(markdown, /bounded-prototype-axis/);
   assert.match(markdown, /no-concat multi-chunk batch path/);
 });
