@@ -1,0 +1,110 @@
+{
+  "generatedAt": "2026-05-26T22:05:30.426Z",
+  "objective": "firefox-spidermonkey-buildconfig-source-pin-audit",
+  "contract": "installed-firefox-buildconfig-jitspew-boundary",
+  "note": "Pins installed Firefox build metadata and about:buildconfig diagnostic flags for the SpiderMonkey JitSpew/codegen evidence gap. This is build/source-boundary evidence, not emitted JIT IR or optimized-code proof.",
+  "parameters": {
+    "browserExecutable": "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+    "browserTimeoutMs": 60000,
+    "selfTest": false
+  },
+  "summary": {
+    "browserExecutable": "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+    "version": "143.0.1",
+    "buildId": "20250918214338",
+    "sourceRepository": "https://hg.mozilla.org/releases/mozilla-release",
+    "sourceStamp": "644b498d517849c3fb95679e2017e965fe62b77a",
+    "aboutBuildconfigCompleted": true,
+    "aboutBuildconfigTitle": "Build Configuration",
+    "configureMentionsEnableJsShell": true,
+    "configureMentionsMozPackageJsShell": true,
+    "configureMentionsEnableJitSpew": false,
+    "configureMentionsJsJitSpew": false,
+    "configureMentionsStructuredSpew": false
+  },
+  "installation": {
+    "browserExecutable": "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+    "applicationIni": {
+      "path": "C:\\Program Files\\Mozilla Firefox\\application.ini",
+      "text": "; This file is not used. If you modify it and want the application to use\n; your modifications, move it under the browser/ subdirectory and start with\n; the \"-app /path/to/browser/application.ini\" argument.\n[App]\nVendor=Mozilla\nName=Firefox\nRemotingName=firefox\nVersion=143.0.1\nBuildID=20250918214338\nSourceRepository=https://hg.mozilla.org/releases/mozilla-release\nSourceStamp=644b498d517849c3fb95679e2017e965fe62b77a\nID={ec8030f7-c20a-464f-9b0e-13a3a9e97384}\n\n[Gecko]\nMinVersion=143.0.1\nMaxVersion=143.0.1\n\n[XRE]\nEnableProfileMigrator=1\n\n[Crash Reporter]\nEnabled=1\nServerURL=https://crash-reports.mozilla.com/submit?id={ec8030f7-c20a-464f-9b0e-13a3a9e97384}&version=143.0.1&buildid=20250918214338\n\n[AppUpdate]\nURL=https://aus5.mozilla.org/update/6/%PRODUCT%/%VERSION%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%SYSTEM_CAPABILITIES%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/update.xml\n",
+      "values": {
+        "App": {
+          "Vendor": "Mozilla",
+          "Name": "Firefox",
+          "RemotingName": "firefox",
+          "Version": "143.0.1",
+          "BuildID": "20250918214338",
+          "SourceRepository": "https://hg.mozilla.org/releases/mozilla-release",
+          "SourceStamp": "644b498d517849c3fb95679e2017e965fe62b77a",
+          "ID": "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
+        },
+        "Gecko": {
+          "MinVersion": "143.0.1",
+          "MaxVersion": "143.0.1"
+        },
+        "XRE": {
+          "EnableProfileMigrator": "1"
+        },
+        "Crash Reporter": {
+          "Enabled": "1",
+          "ServerURL": "https://crash-reports.mozilla.com/submit?id={ec8030f7-c20a-464f-9b0e-13a3a9e97384}&version=143.0.1&buildid=20250918214338"
+        },
+        "AppUpdate": {
+          "URL": "https://aus5.mozilla.org/update/6/%PRODUCT%/%VERSION%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%SYSTEM_CAPABILITIES%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/update.xml"
+        }
+      }
+    },
+    "platformIni": {
+      "path": "C:\\Program Files\\Mozilla Firefox\\platform.ini",
+      "text": "[Build]\nBuildID=20250918214338\nMilestone=143.0.1\nSourceRepository=https://hg.mozilla.org/releases/mozilla-release\nSourceStamp=644b498d517849c3fb95679e2017e965fe62b77a\n",
+      "values": {
+        "Build": {
+          "BuildID": "20250918214338",
+          "Milestone": "143.0.1",
+          "SourceRepository": "https://hg.mozilla.org/releases/mozilla-release",
+          "SourceStamp": "644b498d517849c3fb95679e2017e965fe62b77a"
+        }
+      }
+    }
+  },
+  "aboutBuildconfig": {
+    "completed": true,
+    "error": null,
+    "title": "Build Configuration",
+    "textExcerpt": "Build Configuration\n\nPlease be aware that this page doesn't reflect all the options used to build Firefox.\n\nSource\n\nBuilt from https://hg.mozilla.org/releases/mozilla-release/rev/644b498d517849c3fb95679e2017e965fe62b77a\n\nBuild platform\ntarget\nx86_64-pc-mingw32\nBuild tools\nCompiler\tVersion\tCompiler flags\n/builds/worker/fetches/clang/bin/clang-cl -fms-compatibility-version=19.39 -Xclang -ivfsoverlay -Xclang /builds/worker/fetches/vs/overlay.yaml\t19.1.7\t-Gy -Zc:inline -Gw -D_HAS_EXCEPTIONS=0 -fcrash-diagnostics-dir=/builds/worker/artifacts\n/builds/worker/fetches/clang/bin/clang-cl -fms-compatibility-version=19.39 -std:c++17 -Xclang -ivfsoverlay -Xclang /builds/worker/fetches/vs/overlay.yaml\t19.1.7\t-Zc:sizedDealloc- -Gy -Zc:inline -Gw -D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING -TP -GR- -D_HAS_EXCEPTIONS=0 -fcrash-diagnostics-dir=/builds/worker/artifacts -Z7 -O2 -Oy\n/builds/worker/fetches/rustc/bin/rustc\t1.86.0\t\nConfigure options\n\nMOZ_AUTOMATION=1 --target=x86_64-pc-windows-msvc MOZILLA_OFFICIAL=1 --enable-update-channel=release MOZBUILD_STATE_PATH=/builds/worker/.mozbuild MOZ_FETCHES_DIR=/builds/worker/fetches 'CFLAGS= -fcrash-diagnostics-dir=/builds/worker/artifacts' 'CXXFLAGS= -fcrash-diagnostics-dir=/builds/worker/artifacts' ENABLE_CLANG_PLUGIN=1 --enable-profile-use=cross --with-pgo-profile-path=/builds/worker/fetches/merged.profdata --with-pgo-jarlog=/builds/worker/fetches/en-US.log MOZ_LTO=cross MOZ_SOURCE_REPO=https://hg.mozilla.org/releases/mozilla-release MOZ_SOURCE_CHANGESET=644b498d517849c3fb95679e2017e965fe62b77a --enable-js-shell --enable-rust-simd --with-mozilla-api-keyfile=/builds/mozilla-desktop-geoloc-api.key --with-google-location-service-api-keyfile=/builds/gls-gapi.data --with-google-safebrowsing-api-keyfile=/builds/sb-gapi.data MAR_CHANNEL_ID=firefox-mozilla-release ACCEPTED_MAR_CHANNEL_IDS=firefox-mozilla-release --enable-official-branding MOZ_SIMPLE_PACKAGE_NAME=target MOZ_PACKAGE_JSSHELL=1 UPX=/builds/worker/fetches/upx-3.95-win64/upx.exe"
+  },
+  "findings": [
+    {
+      "id": "installed-firefox-source-stamp-pinned",
+      "classification": "SOURCE_FACT",
+      "summary": "The installed Firefox build identity is pinned from installation metadata.",
+      "evidence": [
+        "version=143.0.1",
+        "buildId=20250918214338",
+        "sourceRepository=https://hg.mozilla.org/releases/mozilla-release",
+        "sourceStamp=644b498d517849c3fb95679e2017e965fe62b77a"
+      ]
+    },
+    {
+      "id": "installed-firefox-buildconfig-does-not-mention-jitspew",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "The installed Firefox about:buildconfig text does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW.",
+      "evidence": [
+        "aboutBuildconfigTitle=Build Configuration",
+        "configureMentionsEnableJsShell=true",
+        "configureMentionsMozPackageJsShell=true",
+        "configureMentionsEnableJitSpew=false",
+        "configureMentionsJsJitSpew=false",
+        "configureMentionsStructuredSpew=false"
+      ]
+    },
+    {
+      "id": "buildconfig-audit-scope",
+      "classification": "SCOPE_GUARD",
+      "summary": "Buildconfig metadata narrows the diagnostic surface only; it is not emitted SpiderMonkey JIT IR, optimized-code, allocation, or throughput evidence.",
+      "evidence": [
+        "A diagnostic-capable Firefox build or SpiderMonkey shell can still close the codegen proof obligation."
+      ]
+    }
+  ]
+}

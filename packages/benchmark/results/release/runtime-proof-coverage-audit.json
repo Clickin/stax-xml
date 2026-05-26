@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T21:50:39.000Z",
+  "generatedAt": "2026-05-26T22:07:35.910Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -2231,6 +2231,24 @@
       "measuredRowCount": 0
     },
     {
+      "sourceArtifact": "firefox-spidermonkey-buildconfig-source-pin-audit.json",
+      "objective": "firefox-spidermonkey-buildconfig-source-pin-audit",
+      "contract": "installed-firefox-buildconfig-jitspew-boundary",
+      "evidenceKinds": [
+        "NEGATIVE_RESULT",
+        "SCOPE_GUARD",
+        "SOURCE_FACT"
+      ],
+      "runtimes": [
+        "firefox-spidermonkey-browser"
+      ],
+      "availability": null,
+      "outcome": null,
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
       "sourceArtifact": "firefox-spidermonkey-diagnostic-dump-audit.json",
       "objective": "firefox-spidermonkey-diagnostic-dump-audit",
       "contract": "firefox-browser-spidermonkey-diagnostic-dump-availability",
@@ -3893,7 +3911,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 180,
+    "scannedArtifactCount": 181,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
     "measuredRowCount": 991,
@@ -3915,11 +3933,11 @@
       "rowsWithMemoryCounter": 10
     },
     "benchmarkArtifactCount": 134,
-    "sourceArtifactCount": 17,
+    "sourceArtifactCount": 18,
     "traceArtifactCount": 10,
     "allocationArtifactCount": 15,
     "environmentArtifactCount": 2,
-    "negativeArtifactCount": 16,
+    "negativeArtifactCount": 17,
     "largeJsFullRowCount": 648,
     "runtimeCount": 8,
     "corpusSeedCount": 4,
@@ -4124,7 +4142,7 @@
       {
         "runtimeId": "firefox-spidermonkey-browser",
         "runtimeLabel": "Firefox/SpiderMonkey browser",
-        "artifactCount": 19,
+        "artifactCount": 20,
         "measuredRowCount": 82,
         "largeFullStringRowCount": 70,
         "fastestLargeFullStringRow": {
@@ -4145,6 +4163,13 @@
           "contractScope": "independent-browser-process-candidate-headroom-stability"
         },
         "sourcePins": [
+          {
+            "runtimeId": "firefox-spidermonkey-browser",
+            "kind": "Firefox installed buildconfig JitSpew boundary",
+            "revision": "644b498d517849c3fb95679e2017e965fe62b77a",
+            "limitation": "buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true",
+            "sourceArtifact": "firefox-spidermonkey-buildconfig-source-pin-audit.json"
+          },
           {
             "runtimeId": "firefox-spidermonkey-browser",
             "kind": "SpiderMonkey JitSpew source boundary",
@@ -18552,6 +18577,13 @@
       },
       {
         "runtimeId": "firefox-spidermonkey-browser",
+        "kind": "Firefox installed buildconfig JitSpew boundary",
+        "revision": "644b498d517849c3fb95679e2017e965fe62b77a",
+        "limitation": "buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true",
+        "sourceArtifact": "firefox-spidermonkey-buildconfig-source-pin-audit.json"
+      },
+      {
+        "runtimeId": "firefox-spidermonkey-browser",
         "kind": "SpiderMonkey JitSpew source boundary",
         "revision": "644b498d517849c3fb95679e2017e965fe62b77a",
         "limitation": "source pin only; not emitted JIT IR or optimized-code proof",
@@ -19308,6 +19340,24 @@
         "measuredRowCount": 0
       },
       {
+        "sourceArtifact": "firefox-spidermonkey-buildconfig-source-pin-audit.json",
+        "objective": "firefox-spidermonkey-buildconfig-source-pin-audit",
+        "contract": "installed-firefox-buildconfig-jitspew-boundary",
+        "evidenceKinds": [
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD",
+          "SOURCE_FACT"
+        ],
+        "runtimes": [
+          "firefox-spidermonkey-browser"
+        ],
+        "availability": null,
+        "outcome": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
         "sourceArtifact": "firefox-spidermonkey-diagnostic-dump-audit.json",
         "objective": "firefox-spidermonkey-diagnostic-dump-audit",
         "contract": "firefox-browser-spidermonkey-diagnostic-dump-availability",
@@ -19532,7 +19582,7 @@
     {
       "id": "codegen-traces-open",
       "status": "partial",
-      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=not-found, found=0, searchRoots=0); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey JIT IR or optimized-code dump missing.",
+      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=not-found, found=0, searchRoots=0); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey JIT IR or optimized-code dump missing.",
       "nextExperiment": "Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows."
     },
     {

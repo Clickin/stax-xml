@@ -32,7 +32,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 180);
+  assert.equal(report.summary.scannedArtifactCount, 181);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'file-backed-materialization-profile.json'
     && artifact.objective === 'file-backed-materialization-profile'
@@ -151,11 +151,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.corpusSeedCount, 4);
   assert.equal(report.summary.openObligationCount, 2);
   assert.equal(report.summary.benchmarkArtifactCount, 134);
-  assert.equal(report.summary.sourceArtifactCount, 17);
+  assert.equal(report.summary.sourceArtifactCount, 18);
   assert.equal(report.summary.traceArtifactCount, 10);
   assert.equal(report.summary.allocationArtifactCount, 15);
   assert.equal(report.summary.environmentArtifactCount, 2);
-  assert.equal(report.summary.negativeArtifactCount, 16);
+  assert.equal(report.summary.negativeArtifactCount, 17);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'concat-buffer-reuse-negative-result.json'
     && artifact.measuredRowCount === 0
@@ -593,6 +593,19 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.outcome.foundCount === 0
   ));
   assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'firefox-spidermonkey-buildconfig-source-pin-audit.json'
+    && row.runtimes.includes('firefox-spidermonkey-browser')
+    && row.evidenceKinds.includes('SOURCE_FACT')
+    && row.evidenceKinds.includes('NEGATIVE_RESULT')
+    && row.measuredRowCount === 0
+  ));
+  assert.ok(report.coverage.sourcePins.some(pin =>
+    pin.runtimeId === 'firefox-spidermonkey-browser'
+    && pin.sourceArtifact === 'firefox-spidermonkey-buildconfig-source-pin-audit.json'
+    && pin.kind === 'Firefox installed buildconfig JitSpew boundary'
+    && /enableJitSpew=false/.test(pin.limitation)
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'materialization-contract-audit.json'
     && row.evidenceKinds.includes('NEGATIVE_RESULT')
   ));
@@ -685,15 +698,18 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Chrome\/V8 browser codegen trace evidence present/);
   assert.match(markdown, /Firefox\/SpiderMonkey Gecko Profiler trace evidence present/);
   assert.match(markdown, /Firefox\/SpiderMonkey JitSpew\/IONFLAGS source gate evidence present, but it is not emitted JIT IR/);
+  assert.match(markdown, /Firefox\/SpiderMonkey installed buildconfig source pin present \(buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true\)/);
   assert.match(markdown, /Firefox\/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build \(status=no-dump-emitted, dumpFiles=0\)/);
   assert.match(markdown, /Firefox\/SpiderMonkey local js-shell availability audit present \(status=not-found, found=0, searchRoots=\d+\); no emitted JIT IR is recorded by that audit/);
   assert.match(markdown, /Firefox\/SpiderMonkey JIT IR or optimized-code dump missing/);
   assert.match(markdown, /15 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 2/);
-  assert.match(markdown, /Negative-result artifacts: 16/);
+  assert.match(markdown, /Source artifacts: 18/);
+  assert.match(markdown, /Negative-result artifacts: 17/);
   assert.match(markdown, /\| Node\/V8 \| 94 \| 464 \| 305 \|/);
   assert.match(markdown, /\| Bun\/JSC \| 35 \| 253 \| 161 \|/);
   assert.match(markdown, /\| Deno\/V8 \| 10 \| 62 \| 56 \|/);
+  assert.match(markdown, /\| Firefox\/SpiderMonkey browser \| 20 \| 82 \| 70 \|/);
   assert.match(markdown, /\| Java\/Woodstox \| 12 \| 13 \| 5 \|/);
   assert.match(markdown, /\| Rust\/quick-xml \| 11 \| 19 \| 5 \|/);
   assert.doesNotMatch(markdown, /\| unknown \|/);

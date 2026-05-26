@@ -450,6 +450,10 @@ function createObligationRows(coverage) {
   const hasSpiderMonkeyJitSpewSourcePin = coverage.sourcePins.some(pin =>
     pin.sourceArtifact === 'firefox-spidermonkey-jitspew-source-pin-audit.json'
   );
+  const spiderMonkeyBuildconfigSourcePin = coverage.sourcePins.find(pin =>
+    pin.sourceArtifact === 'firefox-spidermonkey-buildconfig-source-pin-audit.json'
+  );
+  const hasSpiderMonkeyBuildconfigSourcePin = Boolean(spiderMonkeyBuildconfigSourcePin);
   const hasBunAllocation = (runtimeById.get('bun-jsc')?.allocationArtifacts.length ?? 0) > 0;
   const hasNonV8BrowserAllocation = coverage.allocationArtifacts.some(artifact =>
     artifact.runtimes.some(runtimeId => isBrowserRuntime(runtimeId) && !runtimeId.includes('v8'))
@@ -492,6 +496,7 @@ function createObligationRows(coverage) {
         hasChromeCodegen ? 'Chrome/V8 browser codegen trace evidence present.' : 'Chrome/V8 browser codegen trace evidence missing.',
         hasSpiderMonkeyProfilerTrace ? 'Firefox/SpiderMonkey Gecko Profiler trace evidence present.' : 'Firefox/SpiderMonkey profiler trace evidence missing.',
         hasSpiderMonkeyJitSpewSourcePin ? 'Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR.' : 'Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence missing.',
+        hasSpiderMonkeyBuildconfigSourcePin ? `Firefox/SpiderMonkey installed buildconfig source pin present (${spiderMonkeyBuildconfigSourcePin.limitation}).` : 'Firefox/SpiderMonkey installed buildconfig source pin missing.',
         hasSpiderMonkeyDiagnosticNoDump ? `Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=${spiderMonkeyDiagnosticDumpAudit.outcome.status}, dumpFiles=${spiderMonkeyDiagnosticDumpAudit.outcome.dumpFileCount ?? 'unknown'}).` : 'Firefox/SpiderMonkey diagnostic dump availability audit missing or did not complete as a no-dump result.',
         hasSpiderMonkeyJsShellAvailabilityAudit ? `Firefox/SpiderMonkey local js-shell availability audit present (status=${spiderMonkeyJsShellAvailabilityAudit.outcome?.status ?? 'unknown'}, found=${spiderMonkeyJsShellAvailabilityAudit.outcome?.foundCount ?? 'unknown'}, searchRoots=${spiderMonkeyJsShellAvailabilityAudit.parameters?.searchRoots?.length ?? 0}); no emitted JIT IR is recorded by that audit.` : 'Firefox/SpiderMonkey local js-shell availability audit missing.',
         hasSpiderMonkeyCodegen ? 'Firefox/SpiderMonkey JIT IR or optimized-code dump present.' : 'Firefox/SpiderMonkey JIT IR or optimized-code dump missing.',
@@ -595,6 +600,14 @@ function classifySourcePins(sourceArtifact, root) {
       kind: 'SpiderMonkey JitSpew source boundary',
       revision: root.source?.revision ?? null,
       limitation: 'source pin only; not emitted JIT IR or optimized-code proof',
+    }];
+  }
+  if (sourceArtifact === 'firefox-spidermonkey-buildconfig-source-pin-audit.json') {
+    return [{
+      runtimeId: 'firefox-spidermonkey-browser',
+      kind: 'Firefox installed buildconfig JitSpew boundary',
+      revision: root.summary?.sourceStamp ?? null,
+      limitation: `buildconfig source pin only; enableJitSpew=${Boolean(root.summary?.configureMentionsEnableJitSpew)}, enableJsShell=${Boolean(root.summary?.configureMentionsEnableJsShell)}, mozPackageJsShell=${Boolean(root.summary?.configureMentionsMozPackageJsShell)}`,
     }];
   }
   if (sourceArtifact === 'bun-webkit-textdecoder-source-pin-audit.json' || sourceArtifact === 'bun-jsc-source-pin-audit.json') {

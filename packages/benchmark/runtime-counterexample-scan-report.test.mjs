@@ -33,7 +33,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 180);
+  assert.equal(report.summary.scannedArtifactCount, 181);
   assert.ok(report.scannedArtifacts.includes('concat-buffer-reuse-negative-result.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-materialization-profile.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-long-ascii-text-candidate.json'));
@@ -47,6 +47,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('stream-source-consumption-backpressure-counters.json'));
   assert.ok(report.scannedArtifacts.includes('candidate-headroom-cross-process-midsize-corpus.json'));
   assert.ok(report.scannedArtifacts.includes('event-reader-byte-batch-cross-process-midsize-corpus.json'));
+  assert.ok(report.scannedArtifacts.includes('firefox-spidermonkey-buildconfig-source-pin-audit.json'));
   assert.equal(report.summary.measuredRowCount, 991);
   assert.equal(report.summary.aggregateRowCount, 117);
   assert.equal(report.summary.largeJsFullRowCount, 648);
@@ -746,7 +747,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Runtime Counterexample Scan/);
   assert.match(markdown, /Counterexamples found: 0/);
-  assert.match(markdown, /Scanned artifacts: 180/);
+  assert.match(markdown, /Scanned artifacts: 181/);
   assert.match(markdown, /Measured rows recognized: 991/);
   assert.match(markdown, /Aggregate rows recognized: 117/);
   assert.match(markdown, /1 GiB\+ JS full-string aggregate rows recognized: 95/);

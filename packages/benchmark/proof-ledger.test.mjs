@@ -270,7 +270,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`sourceMode: "complete-js-string"` and\s+`boundedMemory: false` under the 512 MiB RSS gate/);
   assert.match(markdown, /headroom evidence rather than runtime-limit\s+counterexamples/);
   assert.match(markdown, /recognizes 991\s+measured rows/);
-  assert.match(markdown, /134 benchmark artifacts, 17 source artifacts, 10\s+trace\/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and\s+16 negative-result artifacts, 648 JavaScript 1 GiB\+ full-string rows/);
+  assert.match(markdown, /134 benchmark artifacts, 18 source artifacts, 10\s+trace\/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and\s+17 negative-result artifacts, 648 JavaScript 1 GiB\+ full-string rows/);
   assert.match(markdown, /concat-buffer-reuse-negative-result\.json/);
   assert.match(markdown, /stax-raw-frame-span-stats/);
   assert.match(markdown, /segment-scan-headroom\.json/);
@@ -308,7 +308,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /structured `localClosure` status/);
   assert.match(markdown, /Safari is\s+`external-run-required` with `localRunnable=false`/);
   assert.match(markdown, /Firefox\/SpiderMonkey codegen is also `external-run-required` with\s+`localRunnable=false`/);
-  assert.match(markdown, /installed Firefox diagnostic audit emitted no\s+JIT diagnostic dump and no local SpiderMonkey JS shell was found/);
+  assert.match(markdown, /installed Firefox diagnostic audit emitted no\s+JIT diagnostic dump, the installed Firefox buildconfig does not expose the\s+JitSpew build flag, and no local SpiderMonkey JS shell was found/);
   assert.match(markdown, /candidate-headroom-cross-process-books-corpus-batch16\.md/);
   assert.match(markdown, /multi-item batch is\s+concatenated into one parser buffer/);
   assert.match(markdown, /Node\/V8 `rawFrameNameId` averaged `99\.83 MiB\/s`/);
@@ -749,6 +749,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /7 threads, 9,054 samples, and 9,640 frames/);
   assert.match(markdown, /not JIT IR, not a deterministic\s+optimized-code dump/);
   assert.match(markdown, /firefox-spidermonkey-jitspew-source-pin-audit\.md/);
+  assert.match(markdown, /firefox-spidermonkey-buildconfig-source-pin-audit\.md/);
+  assert.match(markdown, /about:buildconfig` excerpt records `--enable-js-shell` and\s+`MOZ_PACKAGE_JSSHELL=1`, but no `--enable-jitspew`, `JS_JITSPEW`, or\s+`JS_STRUCTURED_SPEW`/);
   assert.match(markdown, /pins\s+Gecko revision `644b498d517849c3fb95679e2017e965fe62b77a`/);
   assert.match(markdown, /records the\s+`JS_JITSPEW` guard in `JitSpewer\.h` and `JitSpewer\.cpp`/);
   assert.match(markdown, /`--enable-jitspew` configure option/);
