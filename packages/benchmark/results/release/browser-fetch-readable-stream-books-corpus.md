@@ -1,6 +1,6 @@
 # Browser Candidate Headroom Matrix
 
-Generated: 2026-05-24T20:48:41.829Z
+Generated: 2026-05-26T22:27:32.218Z
 
 This experiment is a browser-runtime counterexample search over corpus-backed browser `Uint8Array` batches.
 Partial rows intentionally skip one or more string fields and therefore cannot be used as StAX full-materialization counterexamples.
@@ -32,17 +32,17 @@ Variant memory uses browser JS heap only. Host process-tree memory is reported s
 ## Woodstox Target
 
 - Baseline tool: woodstox
-- Woodstox throughput: 333.43 MiB/s
+- Woodstox throughput: 303.10 MiB/s
 - Goal ratio: 0.90x
-- Target throughput: 300.09 MiB/s
+- Target throughput: 272.79 MiB/s
 
 ## Results
 
 | Variant | Family | Contract scope | Count kind | Throughput | Relative to stringFull | Woodstox ratio | 0.9x target | Bounded JS heap | Counterexample | Events | Checksum | Full parity |
 | --- | --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | ---: | ---: | --- |
-| eventObjectFull | full-stax-js | full-event-object-materialization | stream-events | 67.78 MiB/s | 1.00x | 0.20x | below | yes | not-found | 57096514 | -540013997 | yes |
-| fetchReadableStreamFull | readable-stream-live-source | full-event-object-materialization-live-readable-stream-source | stream-events | 9.49 MiB/s | 1.00x | 0.03x | below | yes | not-found | 57096514 | -540013997 | yes |
-| fetchAsyncByteBatchFull | async-byte-batch-live-source | full-event-object-materialization-live-async-byte-batch-source | stream-events | 9.68 MiB/s | 1.00x | 0.03x | below | yes | not-found | 57096514 | -540013997 | yes |
+| eventObjectFull | full-stax-js | full-event-object-materialization | stream-events | 64.56 MiB/s | 1.00x | 0.21x | below | yes | not-found | 57096514 | -540013997 | yes |
+| fetchReadableStreamFull | readable-stream-live-source | full-event-object-materialization-live-readable-stream-source | stream-events | 9.68 MiB/s | 1.00x | 0.03x | below | yes | not-found | 57096514 | -540013997 | yes |
+| fetchAsyncByteBatchFull | async-byte-batch-live-source | full-event-object-materialization-live-async-byte-batch-source | stream-events | 9.77 MiB/s | 1.00x | 0.03x | below | yes | not-found | 57096514 | -540013997 | yes |
 
 ## Memory
 
@@ -50,24 +50,24 @@ Memory uses page-exposed browser JS heap counters before and after each measured
 
 | Variant | Avg used heap delta | Max used heap | Max total heap | JS heap limit |
 | --- | ---: | ---: | ---: | ---: |
-| eventObjectFull | +4.5 MiB | 11.5 MiB | 41.2 MiB | 4.00 GiB |
-| fetchReadableStreamFull | +10.6 MiB | 16.7 MiB | 61.3 MiB | 4.00 GiB |
-| fetchAsyncByteBatchFull | +30.7 MiB | 37.0 MiB | 66.1 MiB | 4.00 GiB |
+| eventObjectFull | +9.5 MiB | 16.5 MiB | 42.1 MiB | 4.00 GiB |
+| fetchReadableStreamFull | +27.8 MiB | 34.1 MiB | 64.1 MiB | 4.00 GiB |
+| fetchAsyncByteBatchFull | +11.5 MiB | 17.7 MiB | 62.3 MiB | 4.00 GiB |
 
 ## Host Process Memory
 
 Windows Win32_Process process tree rooted at the browser pid. Working set and private bytes are host OS counters, not portable browser RSS, and are not variant-level JS heap measurements.
 
 - Scope: windows-process-tree
-- Max working set: 458.6 MiB
-- Max private bytes: 222.0 MiB
+- Max working set: 645.0 MiB
+- Max private bytes: 221.2 MiB
 - Max process count: 10
 
 | Sample | Scope | Processes | Working set | Private bytes |
 | --- | --- | ---: | ---: | ---: |
-| browser-started | windows-process-tree | 9 | 360.7 MiB | 150.0 MiB |
-| before-run | windows-process-tree | 10 | 413.8 MiB | 172.3 MiB |
-| after-run | windows-process-tree | 8 | 458.6 MiB | 222.0 MiB |
+| browser-started | windows-process-tree | 9 | 553.4 MiB | 151.5 MiB |
+| before-run | windows-process-tree | 10 | 600.8 MiB | 171.2 MiB |
+| after-run | windows-process-tree | 8 | 645.0 MiB | 221.2 MiB |
 
 ## Materialization Counters
 
@@ -94,9 +94,9 @@ Windows Win32_Process process tree rooted at the browser pid. Working set and pr
   - fixtureSource=corpus-file
   - rowCycleSize=1
   - batchSize=1
-  - eventObjectFull: maxJsHeap=11.5 MiB
-  - fetchReadableStreamFull: maxJsHeap=16.7 MiB
-  - fetchAsyncByteBatchFull: maxJsHeap=37.0 MiB
+  - eventObjectFull: maxJsHeap=16.5 MiB
+  - fetchReadableStreamFull: maxJsHeap=34.1 MiB
+  - fetchAsyncByteBatchFull: maxJsHeap=17.7 MiB
 - browser-streaming-source-gap: Most corpus-cycle rows still load a fixture seed with arrayBuffer() before replay; fetchReadableStreamFull and fetchAsyncByteBatchFull separately measure direct fetch Response.body consumption.
   - createFixtureRows(corpus-cycle) returns [new Uint8Array(await response.arrayBuffer())] for StreamReaderSync rows.
   - StreamReaderSync(byteBatches(fixture)) pulls one synchronous batch at a time.
@@ -107,8 +107,8 @@ Windows Win32_Process process tree rooted at the browser pid. Working set and pr
   - fetchReadableStreamFull: jsHeapLimit=4.00 GiB
   - fetchAsyncByteBatchFull: jsHeapLimit=4.00 GiB
 - browser-host-process-memory: Host process-tree memory is recorded separately from variant JS heap when the host supports it.
-  - maxWorkingSet=458.6 MiB
-  - maxPrivateBytes=222.0 MiB
+  - maxWorkingSet=645.0 MiB
+  - maxPrivateBytes=221.2 MiB
   - maxProcessCount=10
 - contract-separation: Partial rows deliberately drop one or more string fields and are not StAX parity rows.
 - full-string-parity: Full rows fold element names, text/CDATA, attribute names, and attribute values into the same checksum.
@@ -117,10 +117,10 @@ Windows Win32_Process process tree rooted at the browser pid. Working set and pr
   - fetchAsyncByteBatchFull: events=57096514, checksum=-540013997
 - headroom-search: The fastest row in each family is a browser headroom signal, not a runtime-limit conclusion.
   - partial=missing
-  - full=eventObjectFull 67.78 MiB/s
+  - full=eventObjectFull 64.56 MiB/s
 - browser-fetch-readable-stream-source: Fetch streaming rows consume the browser fetch body under the same full event-object checksum contract.
-  - fetchReadableStreamFull=9.49 MiB/s, events=57096514, checksum=-540013997
-  - fetchAsyncByteBatchFull=9.68 MiB/s, events=57096514, checksum=-540013997
+  - fetchReadableStreamFull=9.68 MiB/s, events=57096514, checksum=-540013997
+  - fetchAsyncByteBatchFull=9.77 MiB/s, events=57096514, checksum=-540013997
 - corpus-cycle-fixture: The browser fixture repeats a real XML corpus seed as byte batches rather than synthesized element rows.
   - sourceFile=G:\programming\stax-xml\packages\benchmark\assets\books.xml
   - sourceBytes=4551

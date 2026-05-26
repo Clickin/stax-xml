@@ -170,7 +170,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /fastest cross-process aggregate full-string row with memory proof remains\s+the Bun\/JSC `rawFrameNameId` family at 177\.34 MiB\/s average over 3 samples with\s+3\.23% spread/);
   assert.match(markdown, /aggregate rows separately from\s+individual child samples/);
   assert.match(markdown, /282 JavaScript 1 GiB\+\s+full-string rows with source mode metadata/);
-  assert.match(markdown, /generated-sync bucket now has 198 JavaScript 1 GiB\+ full-string rows, 189 of\s+them bounded/);
+  assert.match(markdown, /generated-sync bucket now has 196 JavaScript 1 GiB\+ full-string rows, 187 of\s+them bounded/);
   assert.match(markdown, /file-backed sync byte-batch bucket adds 53 full-string rows,\s+52 of them bounded, with fastest row 152\.11 MiB\/s/);
   assert.match(markdown, /stable-shape event-object row\s+keeps the same file-backed `Iterable<Uint8Array\[\]>` source, 61,236,571 events,\s+checksum `-716099804`, and stable own-property shape/);
   assert.match(markdown, /it reaches 62\.32 MiB\/s with 133\.71 MiB\s+max RSS, only 1\.61 MiB\/s above the union public event-object row at\s+60\.71 MiB\/s and still below the public baseline at 85\.78 MiB\/s/);
@@ -182,6 +182,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /direct\s+`ReadableStream` row records 16,385 `pull\(\)` calls and 16,384 enqueues/);
   assert.match(markdown, /fastest backpressure-respecting `web-readable-stream-pull`\s+row is `web-readable-stream-raw-frame-ascii-batch-8`; it records parser input\s+`Web ReadableStream<Uint8Array>`, `directReadableStream=true`,\s+`respectsBackpressure=true`, and 76\.87 MiB\/s/);
   assert.match(markdown, /separates\s+parser-demand-driven source rows from direct ReadableStream rows and from Web\s+Stream backpressure rows/);
+  assert.match(markdown, /`fetchReadableStreamFull`\s+is classified as `fetch-readable-stream-pull` with `directReadableStream=true`\s+and `respectsBackpressure=true` at 9\.68 MiB\/s/);
+  assert.match(markdown, /`fetchAsyncByteBatchFull` is classified as `fetch-async-iterable-byte-batches`\s+with `directReadableStream=false` and `respectsBackpressure=true` at\s+9\.77 MiB\/s/);
   assert.match(markdown, /all 282\s+JavaScript 1 GiB\+ full-string rows with source-mode metadata are now marked as\s+not full `ArrayBuffer` parser-input rows/);
   assert.match(markdown, /fixes the previous scanner\s+blind spot/);
   assert.match(markdown, /non-`stax-\*` Node\/V8 row tools could be labeled `Node\/V8` but\s+not counted as JavaScript runtime rows/);
@@ -491,8 +493,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /browser-fetch-readable-stream-books-corpus\.md/);
   assert.match(markdown, /`fetchReadableStreamFull` row consumes `fetch\(\.\.\.\)\.body` directly through public\s+asynchronous `EventReader`/);
   assert.match(markdown, /`fetchAsyncByteBatchFull` manually groups\s+`Response\.body` reads into `AsyncIterable<Uint8Array\[\]>` batches/);
-  assert.match(markdown, /The live rows report only `9\.49 MiB\/s` and `9\.68 MiB\/s`\s+with max used JS heap `16\.7 MiB` and `37\.0 MiB`/);
-  assert.match(markdown, /prepared\s+`eventObjectFull` row in the same artifact reports `67\.78 MiB\/s`/);
+  assert.match(markdown, /The live rows report only `9\.68 MiB\/s` and `9\.77 MiB\/s`\s+with max used JS heap `34\.1 MiB` and `17\.7 MiB`/);
+  assert.match(markdown, /prepared\s+`eventObjectFull` row in the same artifact reports `64\.56 MiB\/s`/);
   assert.match(markdown, /negative result for the hypothesis that direct browser fetch streaming exposes\s+hidden 200 MiB\/s full-StAX headroom/);
   assert.match(markdown, /firefox-fetch-readable-stream-timeout-audit\.md/);
   assert.match(markdown, /did not\s+complete within a 300\.0 second timeout/);

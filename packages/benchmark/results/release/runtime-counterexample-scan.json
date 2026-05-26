@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T22:07:31.935Z",
+  "generatedAt": "2026-05-26T22:28:11.959Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -212,9 +212,9 @@
     "sourceModeBreakdown": [
       {
         "sourceMode": "generated-sync-iterable-byte-batches",
-        "rowCount": 265,
-        "fullStringRowCount": 198,
-        "boundedFullStringRowCount": 189,
+        "rowCount": 263,
+        "fullStringRowCount": 196,
+        "boundedFullStringRowCount": 187,
         "fastestMiBPerSec": 326.65,
         "fastestRow": {
           "sourceArtifact": "candidate-headroom-cross-process-books-corpus-partial.json",
@@ -236,10 +236,10 @@
           "fullArrayBufferParserInput": false,
           "directReadableStream": false
         },
-        "demandDrivenRows": 265,
+        "demandDrivenRows": 263,
         "backpressureRows": 0,
         "directReadableStreamRows": 0,
-        "notFullArrayBufferRows": 265,
+        "notFullArrayBufferRows": 263,
         "fullArrayBufferRows": 0,
         "unknownArrayBufferRows": 0
       },
@@ -440,14 +440,80 @@
         "notFullArrayBufferRows": 2,
         "fullArrayBufferRows": 0,
         "unknownArrayBufferRows": 0
+      },
+      {
+        "sourceMode": "fetch-async-iterable-byte-batches",
+        "rowCount": 1,
+        "fullStringRowCount": 1,
+        "boundedFullStringRowCount": 1,
+        "fastestMiBPerSec": 9.77,
+        "fastestRow": {
+          "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+          "runtimeLabel": "Chrome/V8",
+          "id": "fetchAsyncByteBatchFull",
+          "sizeGiB": 1,
+          "mibPerSec": 9.77,
+          "boundedMemory": true,
+          "fullStringParity": true,
+          "memoryKind": "browser-js-heap",
+          "hasMemoryProof": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
+          "sourceMode": "fetch-async-iterable-byte-batches",
+          "batchSize": null,
+          "chunkKiB": null,
+          "demandDrivenSource": true,
+          "respectsBackpressure": true,
+          "fullArrayBufferParserInput": false,
+          "directReadableStream": false
+        },
+        "demandDrivenRows": 1,
+        "backpressureRows": 1,
+        "directReadableStreamRows": 0,
+        "notFullArrayBufferRows": 1,
+        "fullArrayBufferRows": 0,
+        "unknownArrayBufferRows": 0
+      },
+      {
+        "sourceMode": "fetch-readable-stream-pull",
+        "rowCount": 1,
+        "fullStringRowCount": 1,
+        "boundedFullStringRowCount": 1,
+        "fastestMiBPerSec": 9.68,
+        "fastestRow": {
+          "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+          "runtimeLabel": "Chrome/V8",
+          "id": "fetchReadableStreamFull",
+          "sizeGiB": 1,
+          "mibPerSec": 9.68,
+          "boundedMemory": true,
+          "fullStringParity": true,
+          "memoryKind": "browser-js-heap",
+          "hasMemoryProof": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
+          "sourceMode": "fetch-readable-stream-pull",
+          "batchSize": null,
+          "chunkKiB": null,
+          "demandDrivenSource": true,
+          "respectsBackpressure": true,
+          "fullArrayBufferParserInput": false,
+          "directReadableStream": true
+        },
+        "demandDrivenRows": 1,
+        "backpressureRows": 1,
+        "directReadableStreamRows": 1,
+        "notFullArrayBufferRows": 1,
+        "fullArrayBufferRows": 0,
+        "unknownArrayBufferRows": 0
       }
     ],
     "largeJsFullSourceModeBreakdown": [
       {
         "sourceMode": "generated-sync-iterable-byte-batches",
-        "rowCount": 198,
-        "fullStringRowCount": 198,
-        "boundedFullStringRowCount": 189,
+        "rowCount": 196,
+        "fullStringRowCount": 196,
+        "boundedFullStringRowCount": 187,
         "fastestMiBPerSec": 185.5,
         "fastestRow": {
           "sourceArtifact": "text-trim-cost-decomposition.json",
@@ -469,10 +535,10 @@
           "fullArrayBufferParserInput": false,
           "directReadableStream": false
         },
-        "demandDrivenRows": 198,
+        "demandDrivenRows": 196,
         "backpressureRows": 0,
         "directReadableStreamRows": 0,
-        "notFullArrayBufferRows": 198,
+        "notFullArrayBufferRows": 196,
         "fullArrayBufferRows": 0,
         "unknownArrayBufferRows": 0
       },
@@ -637,6 +703,72 @@
         "demandDrivenRows": 0,
         "backpressureRows": 0,
         "directReadableStreamRows": 0,
+        "notFullArrayBufferRows": 1,
+        "fullArrayBufferRows": 0,
+        "unknownArrayBufferRows": 0
+      },
+      {
+        "sourceMode": "fetch-async-iterable-byte-batches",
+        "rowCount": 1,
+        "fullStringRowCount": 1,
+        "boundedFullStringRowCount": 1,
+        "fastestMiBPerSec": 9.77,
+        "fastestRow": {
+          "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+          "runtimeLabel": "Chrome/V8",
+          "id": "fetchAsyncByteBatchFull",
+          "sizeGiB": 1,
+          "mibPerSec": 9.77,
+          "boundedMemory": true,
+          "fullStringParity": true,
+          "memoryKind": "browser-js-heap",
+          "hasMemoryProof": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
+          "sourceMode": "fetch-async-iterable-byte-batches",
+          "batchSize": null,
+          "chunkKiB": null,
+          "demandDrivenSource": true,
+          "respectsBackpressure": true,
+          "fullArrayBufferParserInput": false,
+          "directReadableStream": false
+        },
+        "demandDrivenRows": 1,
+        "backpressureRows": 1,
+        "directReadableStreamRows": 0,
+        "notFullArrayBufferRows": 1,
+        "fullArrayBufferRows": 0,
+        "unknownArrayBufferRows": 0
+      },
+      {
+        "sourceMode": "fetch-readable-stream-pull",
+        "rowCount": 1,
+        "fullStringRowCount": 1,
+        "boundedFullStringRowCount": 1,
+        "fastestMiBPerSec": 9.68,
+        "fastestRow": {
+          "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+          "runtimeLabel": "Chrome/V8",
+          "id": "fetchReadableStreamFull",
+          "sizeGiB": 1,
+          "mibPerSec": 9.68,
+          "boundedMemory": true,
+          "fullStringParity": true,
+          "memoryKind": "browser-js-heap",
+          "hasMemoryProof": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
+          "sourceMode": "fetch-readable-stream-pull",
+          "batchSize": null,
+          "chunkKiB": null,
+          "demandDrivenSource": true,
+          "respectsBackpressure": true,
+          "fullArrayBufferParserInput": false,
+          "directReadableStream": true
+        },
+        "demandDrivenRows": 1,
+        "backpressureRows": 1,
+        "directReadableStreamRows": 1,
         "notFullArrayBufferRows": 1,
         "fullArrayBufferRows": 0,
         "unknownArrayBufferRows": 0
@@ -9998,7 +10130,7 @@
       "boundedMemory": true,
       "sizeGiB": 1,
       "sizeMiB": 1024,
-      "mibPerSec": 67.78,
+      "mibPerSec": 64.56,
       "eventCount": 57096514,
       "checksum": -540013997,
       "contractScope": "full-event-object-materialization",
@@ -10024,7 +10156,7 @@
       "boundedMemory": true,
       "sizeGiB": 1,
       "sizeMiB": 1024,
-      "mibPerSec": 9.49,
+      "mibPerSec": 9.68,
       "eventCount": 57096514,
       "checksum": -540013997,
       "contractScope": "full-event-object-materialization-live-readable-stream-source",
@@ -10032,13 +10164,13 @@
       "counterexampleStatus": "not-found",
       "memoryKind": "browser-js-heap",
       "hasMemoryProof": true,
-      "sourceMode": "generated-sync-iterable-byte-batches",
+      "sourceMode": "fetch-readable-stream-pull",
       "fullArrayBufferParserInput": false,
-      "directReadableStream": false,
+      "directReadableStream": true,
       "batchSize": null,
       "chunkKiB": null,
       "demandDrivenSource": true,
-      "respectsBackpressure": null
+      "respectsBackpressure": true
     },
     {
       "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
@@ -10050,7 +10182,7 @@
       "boundedMemory": true,
       "sizeGiB": 1,
       "sizeMiB": 1024,
-      "mibPerSec": 9.68,
+      "mibPerSec": 9.77,
       "eventCount": 57096514,
       "checksum": -540013997,
       "contractScope": "full-event-object-materialization-live-async-byte-batch-source",
@@ -10058,13 +10190,13 @@
       "counterexampleStatus": "not-found",
       "memoryKind": "browser-js-heap",
       "hasMemoryProof": true,
-      "sourceMode": "generated-sync-iterable-byte-batches",
+      "sourceMode": "fetch-async-iterable-byte-batches",
       "fullArrayBufferParserInput": false,
       "directReadableStream": false,
       "batchSize": null,
       "chunkKiB": null,
       "demandDrivenSource": true,
-      "respectsBackpressure": null
+      "respectsBackpressure": true
     },
     {
       "sourceArtifact": "bun-cache-candidates-books-corpus.json",
@@ -18785,7 +18917,7 @@
     {
       "id": "source-consumption-modes-separated",
       "status": "SOURCE_MODE_EVIDENCE_PRESENT",
-      "summary": "Recognized 1 GiB+ full-string rows expose source-mode metadata for generated-sync-iterable-byte-batches:198, file-backed-sync-iterable-byte-batches:53, async-iterable-byte-batches:13, web-readable-stream-pull:13, sync-iterable-byte-batches:4, complete-js-string:1; not-full-ArrayBuffer parser-input rows are generated-sync-iterable-byte-batches:198/198, file-backed-sync-iterable-byte-batches:53/53, async-iterable-byte-batches:13/13, web-readable-stream-pull:13/13, sync-iterable-byte-batches:4/4, complete-js-string:1/1."
+      "summary": "Recognized 1 GiB+ full-string rows expose source-mode metadata for generated-sync-iterable-byte-batches:196, file-backed-sync-iterable-byte-batches:53, async-iterable-byte-batches:13, web-readable-stream-pull:13, sync-iterable-byte-batches:4, complete-js-string:1, fetch-async-iterable-byte-batches:1, fetch-readable-stream-pull:1; not-full-ArrayBuffer parser-input rows are generated-sync-iterable-byte-batches:196/196, file-backed-sync-iterable-byte-batches:53/53, async-iterable-byte-batches:13/13, web-readable-stream-pull:13/13, sync-iterable-byte-batches:4/4, complete-js-string:1/1, fetch-async-iterable-byte-batches:1/1, fetch-readable-stream-pull:1/1."
     }
   ]
 }

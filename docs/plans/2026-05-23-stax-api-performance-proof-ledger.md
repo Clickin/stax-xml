@@ -261,12 +261,13 @@ The scan also preserves or infers source-consumption metadata when release rows
 or their source contract carry it. It now finds 282 JavaScript 1 GiB+
 full-string rows with source mode metadata, including
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
-`complete-js-string`, `sync-iterable-byte-batches`, and
-`web-readable-stream-pull`. The generated sync byte-batch bucket now includes
+`complete-js-string`, `sync-iterable-byte-batches`,
+`web-readable-stream-pull`, `fetch-readable-stream-pull`, and
+`fetch-async-iterable-byte-batches`. The generated sync byte-batch bucket now includes
 the fastest access-shape rows plus the local `large.xml` fresh-process corpus
 rows plus the `midsize.xml` fresh-process corpus rows plus the new trim-cost decompositions and the same-contract batch-shape
 comparison artifacts plus the all-ASCII span materialization negative row; the
-generated-sync bucket now has 198 JavaScript 1 GiB+ full-string rows, 189 of
+generated-sync bucket now has 196 JavaScript 1 GiB+ full-string rows, 187 of
 them bounded. The file-backed sync byte-batch bucket adds 53 full-string rows,
 52 of them bounded, with fastest row 152.11 MiB/s. The focused
 `file-backed-public-consumer-shape-sweep.json` stable-shape event-object row
@@ -296,7 +297,13 @@ row is `web-readable-stream-raw-frame-ascii-batch-8`; it records parser input
 `respectsBackpressure=true`, and 76.87 MiB/s. The scan separates
 parser-demand-driven source rows from direct ReadableStream rows and from Web
 Stream backpressure rows, so direct ReadableStream overhead evidence stays
-distinct from synchronous byte-batch rows. It also classifies source-mode rows
+distinct from synchronous byte-batch rows. The focused Chrome/V8 live fetch rows
+are now also separated from prepared browser byte-batch rows: `fetchReadableStreamFull`
+is classified as `fetch-readable-stream-pull` with `directReadableStream=true`
+and `respectsBackpressure=true` at 9.68 MiB/s, while
+`fetchAsyncByteBatchFull` is classified as `fetch-async-iterable-byte-batches`
+with `directReadableStream=false` and `respectsBackpressure=true` at
+9.77 MiB/s. It also classifies source-mode rows
 by whether they are a prebuilt full-XML `ArrayBuffer` parser input: all 282
 JavaScript 1 GiB+ full-string rows with source-mode metadata are now marked as
 not full `ArrayBuffer` parser-input rows. This also fixes the previous scanner
@@ -2100,10 +2107,10 @@ adds focused Chrome/V8 1.00 GiB `books.xml` live fetch source rows. The
 asynchronous `EventReader`; `fetchAsyncByteBatchFull` manually groups
 `Response.body` reads into `AsyncIterable<Uint8Array[]>` batches. Both preserve
 the same 57,096,514 events and checksum `-540013997` as the prepared browser
-`eventObjectFull` row. The live rows report only `9.49 MiB/s` and `9.68 MiB/s`
-with max used JS heap `16.7 MiB` and `37.0 MiB`; the paired prepared
-`eventObjectFull` row in the same artifact reports `67.78 MiB/s` with max used
-JS heap `11.5 MiB`. This closes the live browser `ReadableStream` and
+`eventObjectFull` row. The live rows report only `9.68 MiB/s` and `9.77 MiB/s`
+with max used JS heap `34.1 MiB` and `17.7 MiB`; the paired prepared
+`eventObjectFull` row in the same artifact reports `64.56 MiB/s` with max used
+JS heap `16.5 MiB`. This closes the live browser `ReadableStream` and
 manual async-byte-batch source gap for Chrome/V8 on this corpus, and records a
 negative result for the hypothesis that direct browser fetch streaming exposes
 hidden 200 MiB/s full-StAX headroom.
