@@ -1,13 +1,13 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-26T06:42:50.210Z
+Generated: 2026-05-26T07:05:30.720Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
 ## Summary
 
-- Aggregated rows: 156
-- 1 GiB+ JavaScript full-string rows: 139
+- Aggregated rows: 159
+- 1 GiB+ JavaScript full-string rows: 142
 - 200 MiB/s+ bounded-memory JavaScript counterexamples found: 0
 - Fastest aggregated 1 GiB+ JS full-string row: Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB)
 - Fastest JS full-string row vs 200 MiB/s: 0.93x, 14.50 MiB/s remaining
@@ -23,7 +23,7 @@ This report aggregates existing release artifacts. It compares rows only through
 - 1024 MiB Woodstox baseline: 190.72 MiB/s
 - 1024 MiB quick-xml baseline: 150.24 MiB/s (0.79x Woodstox)
 - Recognized JS source modes: file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches
-- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 133/133
+- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 136/136
 - 1 GiB+ source-mode rows replaying a corpus seed buffer: 63 (max seed 100.26 MiB, max seed/target 0.09)
 
 ## Fastest JS Rows By Group
@@ -42,6 +42,7 @@ This report aggregates existing release artifacts. It compares rows only through
 | `text-cache-negative-stability` | Node/V8 | `rawFrameNameId` | 175.02 | yes | process RSS max 71.23 MiB | `sync-iterable-byte-batches` | no |
 | `long-ascii-text-negative-stability` | Node/V8 | `rawFrameNameId` | 172.85 | yes | process RSS max 78.00 MiB | `sync-iterable-byte-batches` | no |
 | `fold-trimmed-text-negative-stability` | Node/V8 | `rawFrameNameId` | 122.32 | yes | process RSS max 71.22 MiB | `sync-iterable-byte-batches` | no |
+| `name-collision-safe-interning` | Node/V8 | `rawFrameNameId` | 96.99 | yes | process RSS max 218.93 MiB | `sync-iterable-byte-batches` | no |
 | `text-trim-cost-decomposition` | Node/V8 | `rawFrameNameId` | 185.50 | yes | process RSS max 60.45 MiB | `sync-iterable-byte-batches` | no |
 | `text-trim-cost-decomposition-2gib` | Node/V8 | `rawFrameNameId` | 184.92 | yes | process RSS max 66.48 MiB | `sync-iterable-byte-batches` | no |
 | `text-trim-cost-decomposition-4gib` | Node/V8 | `rawFrameNameId` | 178.86 | yes | process RSS max 66.07 MiB | `sync-iterable-byte-batches` | no |
@@ -57,7 +58,7 @@ This report aggregates existing release artifacts. It compares rows only through
 
 | Scope | Rows | Not full ArrayBuffer parser input | Full ArrayBuffer parser input | Unknown parser input | Corpus seed replay rows | Max corpus seed |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 1 GiB+ JS full-string rows with source mode metadata | 133 | 133 | 0 | 0 | 63 | 100.26 MiB |
+| 1 GiB+ JS full-string rows with source mode metadata | 136 | 136 | 0 | 0 | 63 | 100.26 MiB |
 
 ## Selected Comparison Rows
 
@@ -163,6 +164,9 @@ This report aggregates existing release artifacts. It compares rows only through
 | `long-ascii-text-negative-stability` | Node/V8 | `rawFrameNameIdLongAsciiText` | 57096514 | -540013997 | 71.21 | yes | process RSS max 102.10 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `long-ascii-text-materialization-candidate-stability.json` |
 | `fold-trimmed-text-negative-stability` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 122.32 | yes | process RSS max 71.22 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `fold-trimmed-text-candidate-stability.json` |
 | `fold-trimmed-text-negative-stability` | Node/V8 | `rawFrameNameIdFoldTrim` | 57096514 | -540013997 | 103.26 | yes | process RSS max 77.77 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `fold-trimmed-text-candidate-stability.json` |
+| `name-collision-safe-interning` | Node/V8 | `stringFull` | 45189256 | 1421012805 | 84.18 | yes | process RSS max 99.26 MiB | `sync-iterable-byte-batches` | no | no | `name-collision-safe-interning-perf.json` |
+| `name-collision-safe-interning` | Node/V8 | `eventObjectFull` | 45189256 | 1421012805 | 70.96 | yes | process RSS max 202.43 MiB | `sync-iterable-byte-batches` | no | no | `name-collision-safe-interning-perf.json` |
+| `name-collision-safe-interning` | Node/V8 | `rawFrameNameId` | 45189256 | 1421012805 | 96.99 | yes | process RSS max 218.93 MiB | `sync-iterable-byte-batches` | no | no | `name-collision-safe-interning-perf.json` |
 | `text-trim-cost-decomposition` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 185.50 | yes | process RSS max 60.45 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `text-trim-cost-decomposition.json` |
 | `text-trim-cost-decomposition` | Node/V8 | `rawFrameNameIdFoldTrim` | 57096514 | -540013997 | 148.57 | yes | process RSS max 66.88 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `text-trim-cost-decomposition.json` |
 | `text-trim-cost-decomposition-2gib` | Node/V8 | `rawFrameNameId` | 114192784 | 1903859545 | 184.92 | yes | process RSS max 66.48 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `text-trim-cost-decomposition-2gib.json` |
@@ -239,11 +243,11 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - browser-js-heap-unavailable
   - process-rss
 - no-js-200mib-large-full-counterexample-in-aggregated-artifacts (NOT_FOUND_IN_AGGREGATED_ARTIFACTS): The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.
-  - jsLargeFullRows=139
+  - jsLargeFullRows=142
   - counterexamples=0
 - source-shape-not-full-arraybuffer (CLASSIFIED): Recognized 1 GiB+ JavaScript full-string source-mode rows are classified for full XML ArrayBuffer parser input.
-  - largeJsFullSourceModeRows=133
-  - notFullArrayBufferRows=133
+  - largeJsFullSourceModeRows=136
+  - notFullArrayBufferRows=136
   - fullArrayBufferRows=0
   - unknownArrayBufferRows=0
 - external-target-remains-visible (BENCH_FACT): The external baselines keep Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.

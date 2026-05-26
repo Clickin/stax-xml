@@ -133,7 +133,8 @@ export class IterableReader {
   private rootElementCount = 0;
   private hasDoctype = false;
   private readonly declaredEntities = new Set<string>();
-  private readonly nameIds = new Map<number, number>();
+  private readonly nameIds = new Map<number, number[]>();
+  private readonly nameBytes: Uint8Array[] = [];
   private readonly nameStrings: Array<string | undefined> = [];
 
   private readonly frame: IterableReaderBatchFrame = {
@@ -839,11 +840,23 @@ export class IterableReader {
     const key = nameKey(buffer, start, end);
     const existing = this.nameIds.get(key);
     if (existing !== undefined) {
-      return existing;
+      for (let index = 0; index < existing.length; index++) {
+        const id = existing[index]!;
+        if (spanEqualsStoredName(this.nameBytes[id]!, buffer, start, end)) {
+          return id;
+        }
+      }
     }
     const id = this.nameStrings.length;
-    this.nameIds.set(key, id);
+    const bytes = new Uint8Array(end - start);
+    bytes.set(buffer.subarray(start, end));
+    this.nameBytes.push(bytes);
     this.nameStrings.push(undefined);
+    if (existing === undefined) {
+      this.nameIds.set(key, [id]);
+    } else {
+      existing.push(id);
+    }
     return id;
   }
 
@@ -860,7 +873,17 @@ export class IterableReader {
   }
 
   private lookupNameId(buffer: Uint8Array, start: number, end: number): number {
-    return this.nameIds.get(nameKey(buffer, start, end)) ?? -1;
+    const existing = this.nameIds.get(nameKey(buffer, start, end));
+    if (existing === undefined) {
+      return -1;
+    }
+    for (let index = 0; index < existing.length; index++) {
+      const id = existing[index]!;
+      if (spanEqualsStoredName(this.nameBytes[id]!, buffer, start, end)) {
+        return id;
+      }
+    }
+    return -1;
   }
 
   private addTextEvent(type: IterableEventType, start: number, end: number): void {
@@ -1191,6 +1214,18 @@ function nameKey(buffer: Uint8Array, start: number, end: number): number {
     hash = Math.imul(hash, 16777619) >>> 0;
   }
   return hash + ((end - start) * 0x1_0000_0000);
+}
+
+function spanEqualsStoredName(stored: Uint8Array, buffer: Uint8Array, start: number, end: number): boolean {
+  if (stored.byteLength !== end - start) {
+    return false;
+  }
+  for (let index = 0; index < stored.byteLength; index++) {
+    if (stored[index] !== buffer[start + index]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 function startsWithAscii(buffer: Uint8Array, position: number, value: string): boolean {

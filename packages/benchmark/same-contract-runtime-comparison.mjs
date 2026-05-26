@@ -216,6 +216,15 @@ const variantArtifacts = [
     sourceMode: 'sync-iterable-byte-batches',
   },
   {
+    group: 'name-collision-safe-interning',
+    file: 'name-collision-safe-interning-perf.json',
+    runtimeId: 'node-v8',
+    runtimeLabel: 'Node/V8',
+    jsRuntime: true,
+    cases: ['stringFull', 'eventObjectFull', 'rawFrameNameId'],
+    sourceMode: 'sync-iterable-byte-batches',
+  },
+  {
     group: 'text-trim-cost-decomposition',
     file: 'text-trim-cost-decomposition.json',
     runtimeId: 'node-v8',

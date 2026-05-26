@@ -157,9 +157,11 @@ including `cursorAccessor` and `rawFrameDirect`, 1 GiB projection-cycle
 full-string rows, 1 GiB TextDecoder span rows, access-shape cross-process rows,
 books-corpus stability rows, selected text/fold/cache negative stability rows,
 quick-xml global allocator counters plus stability rerun, and Woodstox JFR
-sampled allocation artifacts plus the measured-window rerun.
+sampled allocation artifacts plus the measured-window rerun. It also includes
+the name-collision-safe interning rerun after the reader switched from a
+hash-only name-id lookup to a hash-bucket plus byte-compare lookup.
 
-The current aggregate has 156 aggregated rows and 139 JavaScript 1 GiB+
+The current aggregate has 159 aggregated rows and 142 JavaScript 1 GiB+
 full-string rows. It finds zero 200 MiB/s+ bounded-memory JavaScript
 counterexamples in those artifacts. The fastest aggregated 1 GiB+ JavaScript
 full-string row is Node/V8 `rawFrameNameId` from
@@ -173,7 +175,7 @@ row is `sync-iterable-byte-batches`, the fastest public event-object row is also
 `sync-iterable-byte-batches`, and the 1024 MiB file-backed stax baseline is
 `file-backed-sync-iterable-byte-batches`; older artifacts without source
 metadata remain `n/a` rather than inferred. The same-contract report now also
-classifies the source-shape guard locally: all 133 JavaScript 1 GiB+ full-string
+classifies the source-shape guard locally: all 136 JavaScript 1 GiB+ full-string
 rows with source-mode metadata in this aggregate are marked as not full
 `ArrayBuffer` parser-input rows. It separately records 63 corpus-seed replay
 rows, with a maximum seed size of 100.26 MiB and a maximum seed/target ratio of
@@ -216,6 +218,19 @@ fresh-browser per-variant Windows host process-tree probes,
 quick-xml records allocator traffic, and Woodstox records JFR sampled
 allocations. Therefore this artifact improves cross-runtime comparison hygiene;
 it is not a peak-memory equivalence proof and not a runtime-limit conclusion.
+
+`packages/benchmark/results/release/name-collision-safe-interning-perf.md`
+records the same 1 GiB `diverse-cycle` contract after fixing a concrete
+internal name-id collision pair, `aSd3njyge` and `aSXRYquSd`. The related
+regression coverage checks distinct element names, mismatched closing tags, and
+distinct attribute names for that collision pair. The benchmark rows remain
+demand-driven synchronous `Iterable<Uint8Array[]>` input rows and report
+`stringFull` at 84.18 MiB/s, public `eventObjectFull` at 70.96 MiB/s, and
+`rawFrameNameId` at 96.99 MiB/s, all with 45,189,256 events, checksum
+`1421012805`, bounded RSS, and no 200 MiB/s counterexample. This is correctness
+evidence for stable reader parsing, not a new speed claim; it also records the
+memory cost of retaining distinct interned name bytes instead of retaining whole
+parser buffers.
 
 ## Current Evidence: Runtime Counterexample Scan
 
