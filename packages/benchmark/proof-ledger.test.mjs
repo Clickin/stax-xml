@@ -155,12 +155,12 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /Bun\/JSC `rawFrameNameId` fresh-process\s+sample from `access-shape-candidate-cross-process\.json` at 179\.70 MiB\/s/);
   assert.match(markdown, /fastest cross-process aggregate full-string row with\s+memory proof is the same Bun\/JSC `rawFrameNameId` family at 177\.34 MiB\/s average\s+over 3 samples with 3\.23% spread/);
   assert.match(markdown, /aggregate rows separately from\s+individual child samples/);
-  assert.match(markdown, /150 JavaScript 1 GiB\+\s+full-string rows with source mode metadata/);
+  assert.match(markdown, /152 JavaScript 1 GiB\+\s+full-string rows with source mode metadata/);
   assert.match(markdown, /generated-sync bucket now has 108 JavaScript 1 GiB\+ full-string rows,\s+99 of them bounded/);
   assert.match(markdown, /[Tt]he fastest source-mode-classified row is\s+Bun\/JSC\s+`rawFrameNameId` from `access-shape-candidate-cross-process\.json` at\s+179\.70 MiB\/s/);
   assert.match(markdown, /`complete-js-string`/);
-  assert.match(markdown, /`sync-iterable-byte-batches` at 124\.49 MiB\/s/);
-  assert.match(markdown, /backpressure-respecting `web-readable-stream-pull` row at 110\.32 MiB\/s/);
+  assert.match(markdown, /`sync-iterable-byte-batches` at 136\.79 MiB\/s/);
+  assert.match(markdown, /backpressure-respecting `web-readable-stream-pull` row at 144\.06 MiB\/s/);
   assert.match(markdown, /separates parser-demand-driven source rows from Web Stream backpressure\s+rows/);
   assert.match(markdown, /fixes the previous scanner blind\s+spot/);
   assert.match(markdown, /non-`stax-\*` Node\/V8 row tools could be labeled `Node\/V8` but not counted\s+as JavaScript runtime rows/);
@@ -567,7 +567,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /stream-source-consumption-shapes\.md/);
   assert.match(markdown, /machine-readable `sourceContract` records that\s+`sync-iterable-byte-batches` uses `StreamReaderSync` over a synchronous\s+`Iterable<Uint8Array\[\]>`/);
   assert.match(markdown, /`web-readable-stream-pull` uses `StreamReader` over a Web\s+`ReadableStream<Uint8Array>` pull source/);
-  assert.match(markdown, /`124\.49 MiB\/s`\s+for the sync iterable path and `110\.32 MiB\/s` for the backpressure-respecting\s+ReadableStream path/);
+  assert.match(markdown, /32 KiB x batch-size 4 file-backed basis and reports `136\.79 MiB\/s` for the\s+sync iterable path and `144\.06 MiB\/s` for the backpressure-respecting\s+ReadableStream path/);
   assert.match(markdown, /Its `sourceFacts` section now also pins the implementation evidence/);
   assert.match(markdown, /Both rows\s+are parser-demand-driven, while only the Web ReadableStream row carries stream\s+backpressure metadata/);
   assert.match(markdown, /event-reader-byte-batch-cross-process-corpus\.md/);

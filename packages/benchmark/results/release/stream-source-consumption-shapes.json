@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T23:29:08.026Z",
+  "generatedAt": "2026-05-26T01:20:39.492Z",
   "objective": "stream-source-consumption-shapes",
   "contract": "same-full-string-checksum-source-consumption-shapes",
   "note": "Compares demand-driven sync Iterable<Uint8Array[]> consumption with direct Web ReadableStream<Uint8Array> consumption under the same StreamBatch full-string checksum contract. The ReadableStream row reads one chunk only from pull(), so it respects stream backpressure and does not pre-materialize the file.",
@@ -127,60 +127,60 @@
       "batchSize": 4,
       "demandDrivenSource": true,
       "respectsBackpressure": null,
-      "mibPerSec": 139.2674561864541,
-      "avgMs": 7352.757466666666,
-      "minMs": 6870.992400000001,
-      "maxMs": 8134.3169,
+      "mibPerSec": 136.79225514431002,
+      "avgMs": 7485.802666666667,
+      "minMs": 6911.2492999999995,
+      "maxMs": 8278.807,
       "samplesMs": [
-        8134.3169,
-        6870.992400000001,
-        7052.963099999997
+        8278.807,
+        6911.2492999999995,
+        7267.351700000003
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 69480448,
-        "maxHeapUsedBytes": 9130288,
+        "maxRssBytes": 69455872,
+        "maxHeapUsedBytes": 9177136,
         "samples": [
           {
             "before": {
-              "rssBytes": 60801024,
-              "heapUsedBytes": 5048256,
+              "rssBytes": 61444096,
+              "heapUsedBytes": 5048704,
               "externalBytes": 2669055,
-              "arrayBuffersBytes": 22895
+              "arrayBuffersBytes": 342383
             },
             "after": {
-              "rssBytes": 63422464,
-              "heapUsedBytes": 5617216,
+              "rssBytes": 63565824,
+              "heapUsedBytes": 5927784,
               "externalBytes": 2600905,
               "arrayBuffersBytes": 699632
             }
           },
           {
             "before": {
-              "rssBytes": 61280256,
-              "heapUsedBytes": 5113144,
+              "rssBytes": 63369216,
+              "heapUsedBytes": 5110144,
               "externalBytes": 2600905,
-              "arrayBuffersBytes": 22895
+              "arrayBuffersBytes": 342383
             },
             "after": {
-              "rssBytes": 64049152,
-              "heapUsedBytes": 7382248,
+              "rssBytes": 63496192,
+              "heapUsedBytes": 7186160,
               "externalBytes": 3649624,
               "arrayBuffersBytes": 1748351
             }
           },
           {
             "before": {
-              "rssBytes": 63602688,
-              "heapUsedBytes": 5119064,
+              "rssBytes": 63127552,
+              "heapUsedBytes": 5121720,
               "externalBytes": 3649624,
               "arrayBuffersBytes": 568687
             },
             "after": {
-              "rssBytes": 69480448,
-              "heapUsedBytes": 9130288,
+              "rssBytes": 69455872,
+              "heapUsedBytes": 9177136,
               "externalBytes": 4960466,
               "arrayBuffersBytes": 3059193
             }
@@ -200,62 +200,62 @@
       "batchSize": null,
       "demandDrivenSource": true,
       "respectsBackpressure": true,
-      "mibPerSec": 143.29349237233828,
-      "avgMs": 7146.171199999997,
-      "minMs": 6966.023799999995,
-      "maxMs": 7334.422299999998,
+      "mibPerSec": 144.0622778431452,
+      "avgMs": 7108.035800000001,
+      "minMs": 7038.946100000001,
+      "maxMs": 7231.4447,
       "samplesMs": [
-        7334.422299999998,
-        6966.023799999995,
-        7138.067499999997
+        7053.7166,
+        7038.946100000001,
+        7231.4447
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 81440768,
-        "maxHeapUsedBytes": 9174408,
+        "maxRssBytes": 81870848,
+        "maxHeapUsedBytes": 11539856,
         "samples": [
           {
             "before": {
-              "rssBytes": 70025216,
-              "heapUsedBytes": 5463136,
-              "externalBytes": 4724249,
-              "arrayBuffersBytes": 627952
+              "rssBytes": 70184960,
+              "heapUsedBytes": 5461208,
+              "externalBytes": 4953665,
+              "arrayBuffersBytes": 586992
             },
             "after": {
-              "rssBytes": 69967872,
-              "heapUsedBytes": 7681536,
-              "externalBytes": 3424692,
-              "arrayBuffersBytes": 1357247
+              "rssBytes": 70385664,
+              "heapUsedBytes": 8191080,
+              "externalBytes": 3752532,
+              "arrayBuffersBytes": 1685087
             }
           },
           {
             "before": {
-              "rssBytes": 70074368,
-              "heapUsedBytes": 5460440,
-              "externalBytes": 3424692,
+              "rssBytes": 70488064,
+              "heapUsedBytes": 5456704,
+              "externalBytes": 3752532,
+              "arrayBuffersBytes": 119151
+            },
+            "after": {
+              "rssBytes": 70201344,
+              "heapUsedBytes": 8091304,
+              "externalBytes": 3686941,
+              "arrayBuffersBytes": 1619496
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 70299648,
+              "heapUsedBytes": 5496016,
+              "externalBytes": 3686941,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 70041600,
-              "heapUsedBytes": 5985016,
-              "externalBytes": 4965286,
-              "arrayBuffersBytes": 242877
-            }
-          },
-          {
-            "before": {
-              "rssBytes": 69890048,
-              "heapUsedBytes": 5472040,
-              "externalBytes": 2310322,
-              "arrayBuffersBytes": 47471
-            },
-            "after": {
-              "rssBytes": 81440768,
-              "heapUsedBytes": 9174408,
-              "externalBytes": 4408015,
-              "arrayBuffersBytes": 2340570
+              "rssBytes": 81870848,
+              "heapUsedBytes": 11539856,
+              "externalBytes": 5882936,
+              "arrayBuffersBytes": 3815491
             }
           }
         ]
@@ -266,19 +266,19 @@
     "rowCount": 2,
     "fastest": {
       "id": "web-readable-stream-pull",
-      "mibPerSec": 143.29349237233828,
-      "maxRssBytes": 81440768,
+      "mibPerSec": 144.0622778431452,
+      "maxRssBytes": 81870848,
       "eventCount": 61236571,
       "checksum": -716099804
     },
     "slowest": {
       "id": "sync-iterable-byte-batches",
-      "mibPerSec": 139.2674561864541,
-      "maxRssBytes": 69480448,
+      "mibPerSec": 136.79225514431002,
+      "maxRssBytes": 69455872,
       "eventCount": 61236571,
       "checksum": -716099804
     },
-    "readableStreamRatioToSyncIterable": 1.0289086646380188,
+    "readableStreamRatioToSyncIterable": 1.0531464496375589,
     "counterexamples200MiB": 0
   },
   "findings": [
@@ -295,16 +295,16 @@
       "classification": "CONTRACT_FACT",
       "summary": "The current file-backed release comparison uses the sync Iterable<Uint8Array[]> shape, not direct Web ReadableStream consumption.",
       "evidence": [
-        "sync-iterable-byte-batches: 139.27 MiB/s"
+        "sync-iterable-byte-batches: 136.79 MiB/s"
       ]
     },
     {
       "id": "readable-stream-overhead",
       "classification": "BENCH_FACT",
-      "summary": "Direct ReadableStream consumption reached 143.29 MiB/s (1.03x of sync Iterable<Uint8Array[]>).",
+      "summary": "Direct ReadableStream consumption reached 144.06 MiB/s (1.05x of sync Iterable<Uint8Array[]>).",
       "evidence": [
-        "sync-iterable-byte-batches=139.27 MiB/s rss=66.26 MiB",
-        "web-readable-stream-pull=143.29 MiB/s rss=77.67 MiB"
+        "sync-iterable-byte-batches=136.79 MiB/s rss=66.24 MiB",
+        "web-readable-stream-pull=144.06 MiB/s rss=78.08 MiB"
       ]
     },
     {

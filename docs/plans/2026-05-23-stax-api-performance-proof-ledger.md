@@ -230,7 +230,7 @@ individual child samples so fastest-row triage does not blur single-sample and
 average-throughput evidence.
 
 The scan also preserves or infers source-consumption metadata when release rows
-or their source contract carry it. It now finds 150 JavaScript 1 GiB+
+or their source contract carry it. It now finds 152 JavaScript 1 GiB+
 full-string rows with source mode metadata, including
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
 `complete-js-string`, `sync-iterable-byte-batches`, and
@@ -241,8 +241,8 @@ rows; the generated-sync bucket now has 108 JavaScript 1 GiB+ full-string rows,
 `rawFrameNameId` from `access-shape-candidate-cross-process.json` at
 179.70 MiB/s. The source-consumption comparison rows from
 `stream-source-consumption-shapes.json` remain included in the JavaScript
-full-string scan: `sync-iterable-byte-batches` at 124.49 MiB/s and the
-backpressure-respecting `web-readable-stream-pull` row at 110.32 MiB/s. The
+full-string scan: `sync-iterable-byte-batches` at 136.79 MiB/s and the
+backpressure-respecting `web-readable-stream-pull` row at 144.06 MiB/s. The
 scan separates parser-demand-driven source rows from Web Stream backpressure
 rows, so direct ReadableStream overhead evidence stays distinct from
 synchronous byte-batch rows. This also fixes the previous scanner blind spot
@@ -854,8 +854,9 @@ the sync row feeds `StreamReaderSync` from demand-driven `Iterable<Uint8Array[]>
 batches, direct `Uint8Array` input is wrapped as a single-item byte batch, the
 public `StreamReader` path pushes each stream read as a single-item byte batch,
 and the public `EventReader` adapter converts stream reads into
-`AsyncIterable<Uint8Array[]>` batches. The release row reports `124.49 MiB/s`
-for the sync iterable path and `110.32 MiB/s` for the backpressure-respecting
+`AsyncIterable<Uint8Array[]>` batches. The release row now uses the current
+32 KiB x batch-size 4 file-backed basis and reports `136.79 MiB/s` for the
+sync iterable path and `144.06 MiB/s` for the backpressure-respecting
 ReadableStream path. Both rows
 are parser-demand-driven, while only the Web ReadableStream row carries stream
 backpressure metadata, so this artifact is direct source-shape evidence rather
