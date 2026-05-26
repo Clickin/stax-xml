@@ -380,6 +380,11 @@ const crossProcessArtifacts = [
     file: 'candidate-headroom-cross-process-large-asset-corpus.json',
     cases: candidateCases,
   },
+  {
+    group: 'cross-process-midsize-corpus',
+    file: 'candidate-headroom-cross-process-midsize-corpus.json',
+    cases: candidateCases,
+  },
 ];
 
 const fileBackedSweepArtifacts = [

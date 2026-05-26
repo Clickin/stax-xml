@@ -151,8 +151,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /141\.06 to 142\.03 MiB\/s/);
   assert.match(markdown, /16 MiB\s+quick-xml row is 243\.43 MiB\/s with process RSS max 4\.79 MiB, or 0\.80x\s+Woodstox/);
   assert.match(markdown, /not a peak-memory equivalence proof and not a runtime-limit conclusion/);
-  assert.match(markdown, /recognizes 934\s+sample throughput rows and 99 aggregate rows/);
-  assert.match(markdown, /591 JavaScript 1 GiB\+\s+full-string sample rows plus 77 JavaScript 1 GiB\+ full-string aggregate rows/);
+  assert.match(markdown, /recognizes 952\s+sample throughput rows and 105 aggregate rows/);
+  assert.match(markdown, /609 JavaScript 1 GiB\+\s+full-string sample rows plus 83 JavaScript 1 GiB\+ full-string aggregate rows/);
   assert.match(markdown, /zero bounded-memory 200 MiB\/s\+ counterexamples/);
   assert.match(markdown, /zero measured\s+rows with unknown full-string parity and 20 rows with unknown bounded-memory\s+flags/);
   assert.match(markdown, /unknown bounded-memory set contains 4 JavaScript rows, 20\s+full-string rows, 0 JavaScript 1 GiB\+\s+full-string rows, and 10 rows that have\s+raw memory counters/);
@@ -164,8 +164,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /Node\/V8 `rawFrameNameId` from\s+`text-trim-cost-decomposition\.json` at 185\.50 MiB\/s/);
   assert.match(markdown, /fastest cross-process aggregate full-string row with memory proof remains\s+the Bun\/JSC `rawFrameNameId` family at 177\.34 MiB\/s average over 3 samples with\s+3\.23% spread/);
   assert.match(markdown, /aggregate rows separately from\s+individual child samples/);
-  assert.match(markdown, /261 JavaScript 1 GiB\+\s+full-string rows with source mode metadata/);
-  assert.match(markdown, /generated-sync bucket now has 180 JavaScript 1 GiB\+ full-string rows, 171 of\s+them bounded/);
+  assert.match(markdown, /279 JavaScript 1 GiB\+\s+full-string rows with source mode metadata/);
+  assert.match(markdown, /generated-sync bucket now has 198 JavaScript 1 GiB\+ full-string rows, 189 of\s+them bounded/);
   assert.match(markdown, /file-backed sync byte-batch bucket adds 50 full-string rows,\s+49 of them bounded, with fastest row 152\.11 MiB\/s/);
   assert.match(markdown, /[Tt]he fastest\s+source-mode-classified row is Node\/V8 `rawFrameNameId` from\s+`text-trim-cost-decomposition\.json` at 185\.50 MiB\/s/);
   assert.match(markdown, /`complete-js-string`/);
@@ -175,7 +175,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /direct\s+`ReadableStream` row records 16,385 `pull\(\)` calls and 16,384 enqueues/);
   assert.match(markdown, /fastest backpressure-respecting `web-readable-stream-pull`\s+row is `web-readable-stream-raw-frame-ascii-batch-8`; it records parser input\s+`Web ReadableStream<Uint8Array>`, `directReadableStream=true`,\s+`respectsBackpressure=true`, and 76\.87 MiB\/s/);
   assert.match(markdown, /separates\s+parser-demand-driven source rows from direct ReadableStream rows and from Web\s+Stream backpressure rows/);
-  assert.match(markdown, /all 261\s+JavaScript 1 GiB\+ full-string rows with source-mode metadata are now marked as\s+not full `ArrayBuffer` parser-input rows/);
+  assert.match(markdown, /all 279\s+JavaScript 1 GiB\+ full-string rows with source-mode metadata are now marked as\s+not full `ArrayBuffer` parser-input rows/);
   assert.match(markdown, /fixes the previous scanner\s+blind spot/);
   assert.match(markdown, /non-`stax-\*` Node\/V8 row tools could be labeled `Node\/V8` but\s+not counted as JavaScript runtime rows/);
   assert.match(markdown, /remain below the 200 MiB\/s\s+counterexample threshold/);
@@ -260,8 +260,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /throughput `41\.10 MiB\/s`, peak heap used `4\.00 GiB`, and peak RSS\s+`13\.45 GiB`/);
   assert.match(markdown, /`sourceMode: "complete-js-string"` and\s+`boundedMemory: false` under the 512 MiB RSS gate/);
   assert.match(markdown, /headroom evidence rather than runtime-limit\s+counterexamples/);
-  assert.match(markdown, /recognizes 934\s+measured rows/);
-  assert.match(markdown, /132 benchmark artifacts, 17 source artifacts, 10\s+trace\/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and\s+16 negative-result artifacts/);
+  assert.match(markdown, /recognizes 952\s+measured rows/);
+  assert.match(markdown, /133 benchmark artifacts, 17 source artifacts, 10\s+trace\/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and\s+16 negative-result artifacts/);
   assert.match(markdown, /concat-buffer-reuse-negative-result\.json/);
   assert.match(markdown, /stax-raw-frame-span-stats/);
   assert.match(markdown, /segment-scan-headroom\.json/);
@@ -274,7 +274,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /grouped segment tokenization plus `TextDecoder`\s+materialization/);
   assert.match(markdown, /token-only 234\.30 MiB\/s, element-name strings\s+111\.32 MiB\/s, cached element-name strings 153\.14 MiB\/s, all token strings\s+without public objects 66\.58 MiB\/s, name-cached all token strings\s+81\.14 MiB\/s, and bounded all-string cache all token strings 74\.85 MiB\/s/);
   assert.match(markdown, /full-checksum follow-up row: it matches the `StreamReaderSync` reference\s+event count and checksum on the same 1024 MiB fixture, but reaches only\s+42\.58 MiB\/s with 96\.15 MiB max RSS/);
-  assert.match(markdown, /three\s+release corpus seeds:\s+`books\.xml`, `large\.xml`, and `treebank_e\.xml`/);
+  assert.match(markdown, /four\s+release corpus seeds:\s+`books\.xml`, `large\.xml`, `midsize\.xml`, and `treebank_e\.xml`/);
   assert.match(markdown, /coverage audit now treats `runtime\.id: "node"` \/ `runtime\.v8` artifacts such as\s+`stream-reader-4gb-shapes\.json` as Node\/V8 row evidence/);
   assert.match(markdown, /rather than leaving\s+their 4 GiB generated byte-batch rows in the `unknown` bucket/);
   assert.match(markdown, /normalize `events` as row event count for those rows/);

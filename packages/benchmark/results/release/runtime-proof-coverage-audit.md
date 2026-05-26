@@ -1,14 +1,14 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-26T20:00:11.469Z
+Generated: 2026-05-26T20:16:03.912Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 178
+- Scanned primary artifacts: 179
 - Ignored derived artifacts: 5
-- Measured rows recognized: 934
+- Measured rows recognized: 952
 - Rows with unknown full-string parity: 0
 - Rows with unknown bounded-memory flag: 20
   - Unknown bounded-memory JS rows: 4
@@ -19,14 +19,14 @@ This audit scans current release artifacts to show which proof obligations are c
   - Unknown bounded-memory non-JS allocator-counter rows: 10
   - Unknown bounded-memory non-JS rows without peak-memory counters: 6
   - Unknown bounded-memory rows with memory counters: 10
-- Benchmark artifacts: 132
+- Benchmark artifacts: 133
 - Source artifacts: 17
 - Trace/profile artifacts: 10
 - Allocation artifacts: 15
 - Environment artifacts: 2
 - Negative-result artifacts: 16
-- 1 GiB+ JS full-string rows: 591
-- Corpus seeds: 3
+- 1 GiB+ JS full-string rows: 609
+- Corpus seeds: 4
 - Open or partial obligations: 2
 
 ## Unknown Bounded-Memory Rows
@@ -60,8 +60,8 @@ These rows have enough throughput/parity metadata to be recognized, but no row-l
 
 | Runtime | Artifacts | Measured Rows | 1 GiB+ Full Rows | Fastest 1 GiB+ Full Row | Source Pins | Trace/Profile | Allocation |
 | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
-| Node/V8 | 92 | 440 | 281 | rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json | 2 | 2 | 5 |
-| Bun/JSC | 33 | 232 | 140 | rawFrameNameId 179.70 MiB/s from access-shape-candidate-cross-process.json | 3 | 4 | 2 |
+| Node/V8 | 93 | 449 | 290 | rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json | 2 | 2 | 5 |
+| Bun/JSC | 34 | 241 | 149 | rawFrameNameId 179.70 MiB/s from access-shape-candidate-cross-process.json | 3 | 4 | 2 |
 | Deno/V8 | 9 | 50 | 44 | shortAsciiSubarraySharedDecoder 90.83 MiB/s from deno-textdecoder-span-variants-corpus.json | 1 | 1 | 1 |
 | Chrome/V8 browser | 15 | 98 | 56 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |
 | Firefox/SpiderMonkey browser | 19 | 82 | 70 | rawFrameNameId 76.90 MiB/s from firefox-bidi-candidate-headroom-cross-process-books-corpus.json | 4 | 1 | 1 |
@@ -78,12 +78,12 @@ These rows have enough throughput/parity metadata to be recognized, but no row-l
 | `codegen-traces-open` | partial | Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=not-found, found=0); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey JIT IR or optimized-code dump missing. | Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows. |
 | `allocation-profiles-open` | covered | 15 allocation/profile artifacts found. Bun/JSC allocation evidence present. Non-V8 browser allocation evidence present. | Add Bun/JSC and non-V8 browser allocation or heap-profile artifacts for the same full-string rows. |
 | `non-v8-browser-coverage-open` | covered | 82 non-V8 browser benchmark rows found. | Broaden non-V8 browser coverage with Safari/WebKit plus corpus/projection rows and allocation evidence. |
-| `independent-corpus-suite-open` | covered | 3 release corpus seed(s) found: books.xml, large.xml, treebank_e.xml. | Keep new corpus rows flowing through the counterexample scanner before broadening claims. |
+| `independent-corpus-suite-open` | covered | 4 release corpus seed(s) found: books.xml, large.xml, midsize.xml, treebank_e.xml. | Keep new corpus rows flowing through the counterexample scanner before broadening claims. |
 | `counterexample-rule-present` | covered | runtime-counterexample-scan.md is a required gate artifact and preserves the bounded full-string 200 MiB/s counterexample rule. | Keep new rows flowing through the counterexample scanner before broadening claims. |
 
 ## Corpus Coverage
 
-Current release corpus seeds: `books.xml`, `large.xml`, `treebank_e.xml`.
+Current release corpus seeds: `books.xml`, `large.xml`, `midsize.xml`, `treebank_e.xml`.
 
 ## Browser Coverage
 
@@ -98,7 +98,7 @@ Firefox benchmark rows and exact tested-build JS string, TextDecoder, and page m
 
 - coverage-audit-is-not-runtime-limit-proof (SCOPE_GUARD): Coverage auditing can prove which evidence families are absent or partial, but it cannot prove a JavaScript runtime ceiling.
 - non-v8-browser-gap-remains (COVERED): At least one non-V8 browser benchmark row is present.
-- corpus-suite-gap-remains (COVERED): Current release artifacts cover 3 corpus seed(s), so broad corpus coverage remains unproven.
+- corpus-suite-gap-remains (COVERED): Current release artifacts cover 4 corpus seed(s), so broad corpus coverage remains unproven.
 - open-obligations-ranked (OPEN): 2 proof obligation(s) remain open or partial after scanning current release artifacts.
   - safari-jsc-source-and-browser-rows-open
   - codegen-traces-open
