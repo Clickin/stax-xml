@@ -351,6 +351,14 @@ function createVariants(fixture, requestedCases = null) {
       run: () => consumeRawFrameStyle(fixture, [], undefined, { textCache: new SpanStringCache() }),
     },
     {
+      id: 'rawFrameNameIdOffsetTextCache',
+      family: 'full-stax-js',
+      implementation: 'nextRawBatch typed arrays with numeric name-id cache plus buffer-identity offset text/CDATA span string cache',
+      contractScope: 'full-string-materialization',
+      fullStringParity: true,
+      run: () => consumeRawFrameStyle(fixture, [], undefined, { textCache: new OffsetSpanStringCache() }),
+    },
+    {
       id: 'rawFrameNameIdTrimGuard',
       family: 'full-stax-js',
       implementation: 'nextRawBatch typed arrays with numeric name-id cache and byte-boundary text trim guard',
@@ -1591,6 +1599,23 @@ class SpanStringCache {
       return;
     }
     bucket.push({ bytes, value });
+  }
+}
+
+class OffsetSpanStringCache {
+  buckets = new WeakMap();
+
+  get(buffer, start, end) {
+    return this.buckets.get(buffer)?.get(`${start}:${end}`);
+  }
+
+  set(buffer, start, end, value) {
+    let bucket = this.buckets.get(buffer);
+    if (bucket === undefined) {
+      bucket = new Map();
+      this.buckets.set(buffer, bucket);
+    }
+    bucket.set(`${start}:${end}`, value);
   }
 }
 

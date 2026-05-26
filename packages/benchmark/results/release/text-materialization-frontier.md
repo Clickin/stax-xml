@@ -1,6 +1,6 @@
 # Text Materialization Frontier
 
-Generated: 2026-05-26T12:43:44.679Z
+Generated: 2026-05-26T12:58:16.117Z
 
 Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.
 
@@ -38,6 +38,7 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
 | Family | Control | Candidate | Candidate/control | Full parity | Crosses target | Rejected |
 | --- | ---: | ---: | ---: | --- | --- | --- |
 | repeated-text-value-cache | 175.02 | 129.31 | 0.74x | yes | no | yes |
+| buffer-offset-text-value-cache | 160.72 | 105.41 | 0.66x | yes | no | yes |
 | bounded-long-text-value-cache | 170.13 | 141.85 | 0.83x | yes | no | yes |
 | long-ascii-text-fast-path | 172.85 | 71.21 | 0.41x | yes | no | yes |
 | medium-ascii-text-fast-path | 164.31 | 170.16 | 1.04x | yes | no | yes |
@@ -65,6 +66,7 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
   - maximumFoldTrimSpeedup=0.80x
 - cache-and-ascii-candidates-rejected (NEGATIVE_RESULT): The current repeated text cache, bounded long-text cache, ASCII text fast paths, and fold-trim candidate rows do not reach the full target row.
   - repeated-text-value-cache: candidate/control=0.74x, candidate=129.31 MiB/s
+  - buffer-offset-text-value-cache: candidate/control=0.66x, candidate=105.41 MiB/s
   - bounded-long-text-value-cache: candidate/control=0.83x, candidate=141.85 MiB/s
   - long-ascii-text-fast-path: candidate/control=0.41x, candidate=71.21 MiB/s
   - medium-ascii-text-fast-path: candidate/control=1.04x, candidate=170.16 MiB/s

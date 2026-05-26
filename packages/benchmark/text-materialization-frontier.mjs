@@ -23,6 +23,12 @@ const negativeArtifacts = [
     family: 'repeated-text-value-cache',
   },
   {
+    file: 'offset-text-cache-materialization-candidate.json',
+    controlId: 'rawFrameNameId',
+    candidateId: 'rawFrameNameIdOffsetTextCache',
+    family: 'buffer-offset-text-value-cache',
+  },
+  {
     file: 'long-text-cache-materialization-candidate.json',
     controlId: 'rawFrameNameId',
     candidateId: 'rawFrameNameIdLongTextCache',
