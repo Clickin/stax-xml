@@ -32,7 +32,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 169);
+  assert.equal(report.summary.scannedArtifactCount, 170);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'file-backed-materialization-profile.json'
     && artifact.objective === 'file-backed-materialization-profile'
@@ -117,7 +117,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.traceArtifactCount, 10);
   assert.equal(report.summary.allocationArtifactCount, 15);
   assert.equal(report.summary.environmentArtifactCount, 2);
-  assert.equal(report.summary.negativeArtifactCount, 13);
+  assert.equal(report.summary.negativeArtifactCount, 14);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'concat-buffer-reuse-negative-result.json'
     && artifact.measuredRowCount === 0
@@ -282,6 +282,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.runtimes.includes('node-v8')
     && row.runtimes.includes('bun-jsc')
     && row.measuredRowCount === 18
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'materialization-span-distribution-books-corpus.json'
+    && row.evidenceKinds.includes('NEGATIVE_RESULT')
+    && row.evidenceKinds.includes('SCOPE_GUARD')
+    && row.measuredRowCount === 0
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'segment-scan-headroom.json'
