@@ -1,42 +1,42 @@
 {
-  "generatedAt": "2026-05-26T23:50:48.954Z",
-  "objective": "firefox-spidermonkey-release-jsshell-availability-audit",
-  "contract": "official-firefox-release-jsshell-jit-status-and-diagnostic-surface",
-  "note": "Checks an official Firefox release SpiderMonkey JavaScript shell package for local JIT execution status and diagnostic surface. This is not emitted JIT IR, optimized-code, throughput, or browser evidence.",
+  "generatedAt": "2026-05-26T23:50:52.444Z",
+  "objective": "firefox-spidermonkey-nightly-jsshell-availability-audit",
+  "contract": "official-firefox-nightly-jsshell-jit-status-and-diagnostic-surface",
+  "note": "Checks an official Firefox nightly SpiderMonkey JavaScript shell package for local JIT execution status and diagnostic surface. This is not emitted JIT IR, optimized-code, throughput, or browser evidence.",
   "environment": {
     "platform": "win32-x64"
   },
   "parameters": {
-    "packageUrl": "https://archive.mozilla.org/pub/firefox/releases/143.0.1/jsshell/jsshell-win64.zip",
-    "sumsUrl": "https://archive.mozilla.org/pub/firefox/releases/143.0.1/SHA512SUMS",
+    "packageUrl": "https://archive.mozilla.org/pub/firefox/nightly/2025/08/2025-08-11-09-34-16-mozilla-central/jsshell-win64.zip",
+    "sumsUrl": "https://archive.mozilla.org/pub/firefox/nightly/2025/08/2025-08-11-09-34-16-mozilla-central/",
     "packagePathInSums": "jsshell/jsshell-win64.zip",
-    "packageKind": "release",
+    "packageKind": "nightly",
     "selfTest": false
   },
   "packageVerification": {
-    "status": "verified",
-    "packageZip": "G:\\tmp\\stax-spidermonkey-jsshell\\jsshell-win64.zip",
-    "sha512sums": "G:\\tmp\\stax-spidermonkey-jsshell\\SHA512SUMS",
-    "packageSha512": "3fdfe9046c42a5d0bfa5a21db456171636a140866a54264589e10cb55ed29469659753bcbf3823bbafbc30a42535b459f62437e4700728657df5db67a220126a",
-    "expectedLine": "3fdfe9046c42a5d0bfa5a21db456171636a140866a54264589e10cb55ed29469659753bcbf3823bbafbc30a42535b459f62437e4700728657df5db67a220126a  jsshell/jsshell-win64.zip",
-    "hashMatches": true
+    "status": "not-checked",
+    "packageZip": "G:\\tmp\\stax-spidermonkey-nightly-jsshell\\jsshell-win64.zip",
+    "sha512sums": null,
+    "packageSha512": "c6dc2165aa054017a3cbdc422d29a5fec7b23e3d537dc81cd8f22c30a15b45399e556ed930f619dd4994a507b4ae48f3ca1a87bfc527f24a1a992b7fe9a28497",
+    "expectedLine": null,
+    "hashMatches": null
   },
   "shell": {
     "status": "available",
-    "jsShell": "G:\\tmp\\stax-spidermonkey-jsshell\\extract\\js.exe",
+    "jsShell": "G:\\tmp\\stax-spidermonkey-nightly-jsshell\\js.exe",
     "version": {
-      "command": "G:\\tmp\\stax-spidermonkey-jsshell\\extract\\js.exe",
+      "command": "G:\\tmp\\stax-spidermonkey-nightly-jsshell\\js.exe",
       "args": [
         "--version"
       ],
       "exitCode": 0,
       "error": null,
-      "stdout": "JavaScript-C143.0.1\r\n",
+      "stdout": "JavaScript-C143.0a1\r\n",
       "stderr": ""
     },
     "help": {
       "versionLine": [
-        "Version: JavaScript-C143.0.1"
+        "Version: JavaScript-C143.0a1"
       ],
       "hasIonEager": true,
       "hasIonOffthreadCompile": true,
@@ -72,7 +72,7 @@
       "error": null,
       "fileCreated": true,
       "fileBytes": 93,
-      "fileSha256": "5540675892aa0df3da49acfdffa767f264cb7ae0c175822e03ed8d378b1ca5c4",
+      "fileSha256": "e77a6fb36ee90f3ba28614e7cd8be94ddd9651f6be0b1d025141cf8274d3437b",
       "hasDisassembler": "false",
       "disnativeWriteError": "Error: Did not write all function bytes to the file.",
       "stdout": "hasDisassembler=false\r\ndisnativeWriteError=Error: Did not write all function bytes to the file.\r\n",
@@ -114,7 +114,7 @@
   },
   "outcome": {
     "status": "available",
-    "packageVerified": true,
+    "packageVerified": false,
     "hasJitExecutionStatus": true,
     "hasIrDumpSurface": false,
     "hasNativeDisassemblySurface": false,
@@ -125,19 +125,19 @@
   },
   "findings": [
     {
-      "id": "official-release-jsshell-available",
+      "id": "official-nightly-jsshell-available",
       "classification": "ENVIRONMENT_FACT",
-      "summary": "The official Firefox release SpiderMonkey JavaScript shell is executable locally.",
+      "summary": "The official Firefox nightly SpiderMonkey JavaScript shell is executable locally.",
       "evidence": [
-        "version=JavaScript-C143.0.1",
-        "packageVerified=true",
-        "packageUrl=https://archive.mozilla.org/pub/firefox/releases/143.0.1/jsshell/jsshell-win64.zip"
+        "version=JavaScript-C143.0a1",
+        "packageVerified=false",
+        "packageUrl=https://archive.mozilla.org/pub/firefox/nightly/2025/08/2025-08-11-09-34-16-mozilla-central/jsshell-win64.zip"
       ]
     },
     {
       "id": "spidermonkey-jit-status-observed",
       "classification": "TRACE_FACT",
-      "summary": "The release SpiderMonkey shell can observe Ion execution status with inIon() under --ion-eager.",
+      "summary": "The nightly SpiderMonkey shell can observe Ion execution status with inIon() under --ion-eager.",
       "evidence": [
         "ionHits=4988",
         "checksum=12502500",
@@ -146,9 +146,9 @@
       ]
     },
     {
-      "id": "spidermonkey-release-jsshell-no-ir-dump-surface",
+      "id": "spidermonkey-nightly-jsshell-no-ir-dump-surface",
       "classification": "NEGATIVE_RESULT",
-      "summary": "The release SpiderMonkey shell exposes Ion controls and native dump helper names, but no active disassembler or JitSpew/IONFLAGS/IR dump surface.",
+      "summary": "The nightly SpiderMonkey shell exposes Ion controls and native dump helper names, but no active disassembler or JitSpew/IONFLAGS/IR dump surface.",
       "evidence": [
         "hasIonEager=true",
         "hasIonOffthreadCompile=true",
@@ -163,9 +163,9 @@
       ]
     },
     {
-      "id": "spidermonkey-release-jsshell-stax-api-gap",
+      "id": "spidermonkey-nightly-jsshell-stax-api-gap",
       "classification": "NEGATIVE_RESULT",
-      "summary": "The release SpiderMonkey shell can read binary XML into Uint8Array, but lacks TextDecoder/TextEncoder and Web stream globals needed to run the current full-string stax-xml benchmark unchanged.",
+      "summary": "The nightly SpiderMonkey shell can read binary XML into Uint8Array, but lacks TextDecoder/TextEncoder and Web stream globals needed to run the current full-string stax-xml benchmark unchanged.",
       "evidence": [
         "TextDecoder=undefined",
         "TextEncoder=undefined",
@@ -178,7 +178,7 @@
       ]
     },
     {
-      "id": "release-jsshell-scope",
+      "id": "nightly-jsshell-scope",
       "classification": "SCOPE_GUARD",
       "summary": "This audit is shell JIT-status evidence only; it is not browser throughput, allocation, emitted IR, or optimized-code evidence.",
       "evidence": [

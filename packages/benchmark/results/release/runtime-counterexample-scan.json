@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T23:38:55.144Z",
+  "generatedAt": "2026-05-26T23:51:23.677Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -117,6 +117,7 @@
     "firefox-spidermonkey-jitspew-source-pin-audit.json",
     "firefox-spidermonkey-js-shell-availability-audit.json",
     "firefox-spidermonkey-memory-api-source-pin-audit.json",
+    "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
     "firefox-spidermonkey-profiler-trace.json",
     "firefox-spidermonkey-release-jsshell-availability-audit.json",
     "firefox-spidermonkey-string-source-pin-audit.json",
@@ -201,7 +202,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 182,
+    "scannedArtifactCount": 183,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
     "measuredRowCount": 991,

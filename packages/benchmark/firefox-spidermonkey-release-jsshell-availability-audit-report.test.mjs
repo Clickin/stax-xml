@@ -31,6 +31,7 @@ test('Firefox SpiderMonkey release jsshell audit records JIT status without clos
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
   assert.equal(report.objective, 'firefox-spidermonkey-release-jsshell-availability-audit');
   assert.equal(report.contract, 'official-firefox-release-jsshell-jit-status-and-diagnostic-surface');
+  assert.equal(report.parameters.packageKind, 'release');
   assert.equal(report.outcome.status, 'available');
   assert.equal(report.outcome.packageVerified, true);
   assert.equal(report.outcome.hasJitExecutionStatus, true);
@@ -83,6 +84,39 @@ test('Firefox SpiderMonkey release jsshell audit records JIT status without clos
   assert.match(markdown, /Binary Input Probe/);
   assert.match(markdown, /Byte length: 4551/);
   assert.match(markdown, /does not close the emitted JIT IR obligation/);
+});
+
+test('Firefox SpiderMonkey jsshell audit records package kind in objective and findings', () => {
+  resetTmp();
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'firefox-spidermonkey-release-jsshell-availability-audit.mjs'),
+    '--self-test',
+    '--package-kind',
+    'nightly',
+    '--json-out',
+    jsonOut,
+    '--md-out',
+    mdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
+  assert.equal(report.objective, 'firefox-spidermonkey-nightly-jsshell-availability-audit');
+  assert.equal(report.contract, 'official-firefox-nightly-jsshell-jit-status-and-diagnostic-surface');
+  assert.equal(report.parameters.packageKind, 'nightly');
+  assert.ok(report.findings.some(finding => finding.id === 'official-nightly-jsshell-available'));
+  assert.ok(report.findings.some(finding => finding.id === 'spidermonkey-nightly-jsshell-no-ir-dump-surface'));
+  assert.ok(report.findings.some(finding => finding.id === 'spidermonkey-nightly-jsshell-stax-api-gap'));
+  assert.ok(report.findings.some(finding => finding.id === 'nightly-jsshell-scope'));
+
+  const markdown = readFileSync(mdOut, 'utf8');
+  assert.match(markdown, /Firefox SpiderMonkey Nightly JS Shell Availability Audit/);
+  assert.match(markdown, /official Firefox nightly SpiderMonkey JavaScript shell package/);
 });
 
 function resetTmp() {

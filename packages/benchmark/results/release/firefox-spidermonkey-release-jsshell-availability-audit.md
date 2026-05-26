@@ -1,6 +1,6 @@
 # Firefox SpiderMonkey Release JS Shell Availability Audit
 
-Generated: 2026-05-26T23:12:50.892Z
+Generated: 2026-05-26T23:50:48.954Z
 
 Checks an official Firefox release SpiderMonkey JavaScript shell package for local JIT execution status and diagnostic surface. This is not emitted JIT IR, optimized-code, throughput, or browser evidence.
 
@@ -56,7 +56,7 @@ Checks an official Firefox release SpiderMonkey JavaScript shell package for loc
 
 - File created: true
 - File bytes: 93
-- File SHA256: 1879641b071ffac11b21e6c52d0fc50fb2a3ceee07f1526e7253ce0ae8500a66
+- File SHA256: 5540675892aa0df3da49acfdffa767f264cb7ae0c175822e03ed8d378b1ca5c4
 - hasDisassembler: false
 - disnative write error: Error: Did not write all function bytes to the file.
 

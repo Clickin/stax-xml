@@ -786,6 +786,14 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /lacks `TextDecoder`, `TextEncoder`,\s+`ReadableStream`, and `fetch`, so it cannot run the current full-string\s+stax-xml benchmark unchanged/);
   assert.match(markdown, /records no JitSpew, `IONFLAGS`, MIR\/LIR,\s+or IR dump flag surface/);
   assert.match(markdown, /does not close the\s+`codegen-traces-open` obligation/);
+  assert.match(markdown, /firefox-spidermonkey-nightly-jsshell-availability-audit\.md/);
+  assert.match(markdown, /official Mozilla nightly jsshell package from\s+`2025-08-11-09-34-16-mozilla-central`/);
+  assert.match(markdown, /packageVerified=false/);
+  assert.match(markdown, /runs as `JavaScript-C143\.0a1`/);
+  assert.match(markdown, /observes the same `ionHits=4988`, `ion\.enable=1`, `ion\.warmup\.trigger=0`, and\s+checksum `12502500`/);
+  assert.match(markdown, /has `hasDisassembler\(\): false`, creates only a failed 93-byte `disnative` file/);
+  assert.match(markdown, /narrows one more\s+public Mozilla package path/);
+  assert.match(markdown, /does not close `codegen-traces-open`/);
   assert.match(markdown, /same-process `runs=3`, `warmups=0` rerun/);
   assert.match(markdown, /`scanAllNoDecode` at `109\.41 MiB\/s`/);
   assert.match(markdown, /timing spread was\s+high at `25\.2%`/);

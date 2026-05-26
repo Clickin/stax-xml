@@ -36,6 +36,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     packageUrl: defaultPackageUrl,
     sumsUrl: defaultSumsUrl,
     packagePathInSums: defaultPackagePathInSums,
+    packageKind: 'release',
     binaryProbeFile: defaultBinaryProbeFile,
     selfTest: false,
     jsonOut: defaultJsonOut,
@@ -71,6 +72,9 @@ function parseArgs(argv = process.argv.slice(2)) {
       case '--package-path-in-sums':
         options.packagePathInSums = readValue();
         break;
+      case '--package-kind':
+        options.packageKind = parsePackageKind(readValue(), name);
+        break;
       case '--binary-probe-file':
         options.binaryProbeFile = resolve(process.cwd(), readValue());
         break;
@@ -90,6 +94,11 @@ function parseArgs(argv = process.argv.slice(2)) {
   return options;
 }
 
+function parsePackageKind(value, flag) {
+  if (value === 'release' || value === 'nightly') return value;
+  throw new Error(`${flag} must be release or nightly.`);
+}
+
 function main() {
   const options = parseArgs();
   const report = options.selfTest ? createSelfTestReport(options) : runAudit(options);
@@ -105,12 +114,16 @@ function runAudit(options) {
 }
 
 function verifyPackage(options) {
+  const packageExists = options.packageZip && existsSync(options.packageZip);
+  const packageSha512 = packageExists
+    ? createHash('sha512').update(readFileSync(options.packageZip)).digest('hex')
+    : null;
   if (!options.packageZip || !options.sha512sums) {
     return {
       status: 'not-checked',
       packageZip: options.packageZip,
       sha512sums: options.sha512sums,
-      packageSha512: null,
+      packageSha512,
       expectedLine: null,
       hashMatches: null,
     };
@@ -120,12 +133,11 @@ function verifyPackage(options) {
       status: 'missing-input',
       packageZip: options.packageZip,
       sha512sums: options.sha512sums,
-      packageSha512: null,
+      packageSha512,
       expectedLine: null,
       hashMatches: false,
     };
   }
-  const packageSha512 = createHash('sha512').update(readFileSync(options.packageZip)).digest('hex');
   const expectedLine = readFileSync(options.sha512sums, 'utf8')
     .split(/\r?\n/)
     .find(line => line.endsWith(`  ${options.packagePathInSums}`)) ?? null;
@@ -453,13 +465,15 @@ function createSelfTestReport(options) {
 }
 
 function createReport(options, packageVerification, shell) {
+  const objective = `firefox-spidermonkey-${options.packageKind}-jsshell-availability-audit`;
+  const contract = `official-firefox-${options.packageKind}-jsshell-jit-status-and-diagnostic-surface`;
   const hasJitExecutionStatus = shell.jitProbe?.ionHits > 0 && shell.jitProbe?.ionEnable === 1;
   const hasIrDumpSurface = shell.help?.hasJitSpewFlag === true;
   const report = {
     generatedAt: new Date().toISOString(),
-    objective: 'firefox-spidermonkey-release-jsshell-availability-audit',
-    contract: 'official-firefox-release-jsshell-jit-status-and-diagnostic-surface',
-    note: 'Checks an official Firefox release SpiderMonkey JavaScript shell package for local JIT execution status and diagnostic surface. This is not emitted JIT IR, optimized-code, throughput, or browser evidence.',
+    objective,
+    contract,
+    note: `Checks an official Firefox ${options.packageKind} SpiderMonkey JavaScript shell package for local JIT execution status and diagnostic surface. This is not emitted JIT IR, optimized-code, throughput, or browser evidence.`,
     environment: {
       platform: `${process.platform}-${process.arch}`,
     },
@@ -467,6 +481,7 @@ function createReport(options, packageVerification, shell) {
       packageUrl: options.packageUrl,
       sumsUrl: options.sumsUrl,
       packagePathInSums: options.packagePathInSums,
+      packageKind: options.packageKind,
       selfTest: options.selfTest,
     },
     packageVerification,
@@ -493,13 +508,14 @@ function createReport(options, packageVerification, shell) {
 }
 
 function createFindings(report) {
+  const packageKind = report.parameters.packageKind;
   return [
     {
-      id: 'official-release-jsshell-available',
+      id: `official-${packageKind}-jsshell-available`,
       classification: 'ENVIRONMENT_FACT',
       summary: report.outcome.status === 'available'
-        ? 'The official Firefox release SpiderMonkey JavaScript shell is executable locally.'
-        : 'The official Firefox release SpiderMonkey JavaScript shell was not executable locally.',
+        ? `The official Firefox ${packageKind} SpiderMonkey JavaScript shell is executable locally.`
+        : `The official Firefox ${packageKind} SpiderMonkey JavaScript shell was not executable locally.`,
       evidence: [
         `version=${oneLine(report.shell.version?.stdout)}`,
         `packageVerified=${report.outcome.packageVerified}`,
@@ -510,8 +526,8 @@ function createFindings(report) {
       id: 'spidermonkey-jit-status-observed',
       classification: report.outcome.hasJitExecutionStatus ? 'TRACE_FACT' : 'NEGATIVE_RESULT',
       summary: report.outcome.hasJitExecutionStatus
-        ? 'The release SpiderMonkey shell can observe Ion execution status with inIon() under --ion-eager.'
-        : 'The release SpiderMonkey shell did not observe Ion execution status in the probe.',
+        ? `The ${packageKind} SpiderMonkey shell can observe Ion execution status with inIon() under --ion-eager.`
+        : `The ${packageKind} SpiderMonkey shell did not observe Ion execution status in the probe.`,
       evidence: [
         `ionHits=${report.shell.jitProbe?.ionHits ?? 'unknown'}`,
         `checksum=${report.shell.jitProbe?.checksum ?? 'unknown'}`,
@@ -520,9 +536,9 @@ function createFindings(report) {
       ],
     },
     {
-      id: 'spidermonkey-release-jsshell-no-ir-dump-surface',
+      id: `spidermonkey-${packageKind}-jsshell-no-ir-dump-surface`,
       classification: 'NEGATIVE_RESULT',
-      summary: 'The release SpiderMonkey shell exposes Ion controls and native dump helper names, but no active disassembler or JitSpew/IONFLAGS/IR dump surface.',
+      summary: `The ${packageKind} SpiderMonkey shell exposes Ion controls and native dump helper names, but no active disassembler or JitSpew/IONFLAGS/IR dump surface.`,
       evidence: [
         `hasIonEager=${report.shell.help?.hasIonEager ?? 'unknown'}`,
         `hasIonOffthreadCompile=${report.shell.help?.hasIonOffthreadCompile ?? 'unknown'}`,
@@ -537,9 +553,9 @@ function createFindings(report) {
       ],
     },
     {
-      id: 'spidermonkey-release-jsshell-stax-api-gap',
+      id: `spidermonkey-${packageKind}-jsshell-stax-api-gap`,
       classification: 'NEGATIVE_RESULT',
-      summary: 'The release SpiderMonkey shell can read binary XML into Uint8Array, but lacks TextDecoder/TextEncoder and Web stream globals needed to run the current full-string stax-xml benchmark unchanged.',
+      summary: `The ${packageKind} SpiderMonkey shell can read binary XML into Uint8Array, but lacks TextDecoder/TextEncoder and Web stream globals needed to run the current full-string stax-xml benchmark unchanged.`,
       evidence: [
         `TextDecoder=${report.shell.apiProbe?.TextDecoder ?? 'unknown'}`,
         `TextEncoder=${report.shell.apiProbe?.TextEncoder ?? 'unknown'}`,
@@ -552,7 +568,7 @@ function createFindings(report) {
       ],
     },
     {
-      id: 'release-jsshell-scope',
+      id: `${packageKind}-jsshell-scope`,
       classification: 'SCOPE_GUARD',
       summary: 'This audit is shell JIT-status evidence only; it is not browser throughput, allocation, emitted IR, or optimized-code evidence.',
       evidence: [
@@ -563,8 +579,9 @@ function createFindings(report) {
 }
 
 function renderMarkdown(report) {
+  const packageKindLabel = report.parameters.packageKind[0].toUpperCase() + report.parameters.packageKind.slice(1);
   const lines = [
-    '# Firefox SpiderMonkey Release JS Shell Availability Audit',
+    `# Firefox SpiderMonkey ${packageKindLabel} JS Shell Availability Audit`,
     '',
     `Generated: ${report.generatedAt}`,
     '',
@@ -653,7 +670,7 @@ function writeOutput(path, contents) {
 }
 
 function printSummary(report) {
-  console.log(`firefox-spidermonkey-release-jsshell-availability-audit: status=${report.outcome.status} jitStatus=${report.outcome.hasJitExecutionStatus} irDumpSurface=${report.outcome.hasIrDumpSurface}`);
+  console.log(`${report.objective}: status=${report.outcome.status} jitStatus=${report.outcome.hasJitExecutionStatus} irDumpSurface=${report.outcome.hasIrDumpSurface}`);
 }
 
 function keepShort(value, limit = 4000) {

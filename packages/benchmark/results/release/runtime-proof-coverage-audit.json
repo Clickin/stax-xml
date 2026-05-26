@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T23:39:06.643Z",
+  "generatedAt": "2026-05-26T23:51:14.236Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -2356,6 +2356,39 @@
       "measuredRowCount": 0
     },
     {
+      "sourceArtifact": "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
+      "objective": "firefox-spidermonkey-nightly-jsshell-availability-audit",
+      "contract": "official-firefox-nightly-jsshell-jit-status-and-diagnostic-surface",
+      "evidenceKinds": [
+        "ENVIRONMENT_FACT",
+        "NEGATIVE_RESULT",
+        "SCOPE_GUARD"
+      ],
+      "runtimes": [
+        "firefox-spidermonkey-browser"
+      ],
+      "availability": null,
+      "outcome": {
+        "status": "available",
+        "completed": null,
+        "emittedDump": null,
+        "dumpFileCount": null,
+        "foundCount": null,
+        "foundCandidates": null,
+        "packageVerified": false,
+        "hasJitExecutionStatus": true,
+        "hasIrDumpSurface": false,
+        "hasNativeDisassemblySurface": false,
+        "nativeDumpComplete": false,
+        "canReadBinaryInput": true,
+        "canRunCurrentStaxFullStringBenchmark": false,
+        "closesEmittedIrObligation": false
+      },
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
       "sourceArtifact": "firefox-spidermonkey-profiler-trace.json",
       "objective": "firefox-spidermonkey-profiler-trace",
       "contract": "gecko-profiler-same-contract-browser-reader-shapes",
@@ -3968,7 +4001,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 182,
+    "scannedArtifactCount": 183,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
     "measuredRowCount": 991,
@@ -3993,8 +4026,8 @@
     "sourceArtifactCount": 18,
     "traceArtifactCount": 10,
     "allocationArtifactCount": 15,
-    "environmentArtifactCount": 3,
-    "negativeArtifactCount": 18,
+    "environmentArtifactCount": 4,
+    "negativeArtifactCount": 19,
     "largeJsFullRowCount": 648,
     "runtimeCount": 8,
     "corpusSeedCount": 4,
@@ -4199,7 +4232,7 @@
       {
         "runtimeId": "firefox-spidermonkey-browser",
         "runtimeLabel": "Firefox/SpiderMonkey browser",
-        "artifactCount": 21,
+        "artifactCount": 22,
         "measuredRowCount": 82,
         "largeFullStringRowCount": 70,
         "fastestLargeFullStringRow": {
@@ -19299,6 +19332,39 @@
         "measuredRowCount": 0
       },
       {
+        "sourceArtifact": "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
+        "objective": "firefox-spidermonkey-nightly-jsshell-availability-audit",
+        "contract": "official-firefox-nightly-jsshell-jit-status-and-diagnostic-surface",
+        "evidenceKinds": [
+          "ENVIRONMENT_FACT",
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD"
+        ],
+        "runtimes": [
+          "firefox-spidermonkey-browser"
+        ],
+        "availability": null,
+        "outcome": {
+          "status": "available",
+          "completed": null,
+          "emittedDump": null,
+          "dumpFileCount": null,
+          "foundCount": null,
+          "foundCandidates": null,
+          "packageVerified": false,
+          "hasJitExecutionStatus": true,
+          "hasIrDumpSurface": false,
+          "hasNativeDisassemblySurface": false,
+          "nativeDumpComplete": false,
+          "canReadBinaryInput": true,
+          "canRunCurrentStaxFullStringBenchmark": false,
+          "closesEmittedIrObligation": false
+        },
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
         "sourceArtifact": "firefox-spidermonkey-release-jsshell-availability-audit.json",
         "objective": "firefox-spidermonkey-release-jsshell-availability-audit",
         "contract": "official-firefox-release-jsshell-jit-status-and-diagnostic-surface",
@@ -19530,6 +19596,39 @@
         "measuredRowCount": 0
       },
       {
+        "sourceArtifact": "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
+        "objective": "firefox-spidermonkey-nightly-jsshell-availability-audit",
+        "contract": "official-firefox-nightly-jsshell-jit-status-and-diagnostic-surface",
+        "evidenceKinds": [
+          "ENVIRONMENT_FACT",
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD"
+        ],
+        "runtimes": [
+          "firefox-spidermonkey-browser"
+        ],
+        "availability": null,
+        "outcome": {
+          "status": "available",
+          "completed": null,
+          "emittedDump": null,
+          "dumpFileCount": null,
+          "foundCount": null,
+          "foundCandidates": null,
+          "packageVerified": false,
+          "hasJitExecutionStatus": true,
+          "hasIrDumpSurface": false,
+          "hasNativeDisassemblySurface": false,
+          "nativeDumpComplete": false,
+          "canReadBinaryInput": true,
+          "canRunCurrentStaxFullStringBenchmark": false,
+          "closesEmittedIrObligation": false
+        },
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
         "sourceArtifact": "firefox-spidermonkey-release-jsshell-availability-audit.json",
         "objective": "firefox-spidermonkey-release-jsshell-availability-audit",
         "contract": "official-firefox-release-jsshell-jit-status-and-diagnostic-surface",
@@ -19737,7 +19836,7 @@
     {
       "id": "codegen-traces-open",
       "status": "partial",
-      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=not-found, found=0, searchRoots=0); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey JIT IR or optimized-code dump missing.",
+      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=not-found, found=0, searchRoots=0); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey JIT IR or optimized-code dump missing.",
       "nextExperiment": "Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows."
     },
     {
