@@ -588,8 +588,10 @@ js-shell availability audit narrow the codegen route. The official Firefox
 143.0.1 release jsshell audit now adds a verified package hash and records
 `JavaScript-C143.0.1`; it observes Ion execution status under `--ion-eager`
 (`ionHits=4988`, `ion.enable=1`, checksum `12502500`) but records
-`has JitSpew/IR dump flag surface: false`, so it is JIT-status evidence only
-and still not emitted JIT IR. The regenerated coverage
+`has JitSpew/IR dump flag surface: false`, `hasDisassembler(): false`, and
+`disnative` native byte output failing with `Error: Did not write all function
+bytes to the file.` after writing a 93-byte file. It is therefore JIT-status
+and diagnostic-surface evidence only, still not emitted JIT IR. The regenerated coverage
 audit now preserves the exact local outcomes (`status=no-dump-emitted`,
 `dumpFiles=0`, `status=not-found`, `found=0`) and records that the installed
 Firefox `about:buildconfig` mentions `--enable-js-shell` and
@@ -625,8 +627,9 @@ JIT diagnostic dump, the installed Firefox buildconfig does not expose the
 JitSpew build flag, and no local SpiderMonkey JS shell was found on the
 configured env, `PATH`, or filesystem search-root probes. The official release
 jsshell artifact proves a runnable release shell and Ion status probe, but also
-records no JitSpew/IR dump flag surface. These are local availability and
-JIT-status facts, not Safari/WebKit benchmark evidence, not emitted
+records no JitSpew/IR dump flag surface, no active disassembler, and an
+incomplete `disnative` byte dump. These are local availability and
+JIT-status/diagnostic-surface facts, not Safari/WebKit benchmark evidence, not emitted
 SpiderMonkey JIT IR, and not runtime-limit proof.
 
 ## Current Evidence: Multi-Chunk Byte Batch Probe
@@ -1365,8 +1368,13 @@ exposes `--ion-eager`, `--ion-offthread-compile`, and `--dump-bytecode`. A
 deterministic `--ion-eager --ion-offthread-compile=off` probe observes
 `ionHits=4988`, `ion.enable=1`, `ion.warmup.trigger=0`, and checksum
 `12502500`, proving that the release shell can observe Ion execution status.
-The same help-surface audit records no JitSpew, `IONFLAGS`, MIR/LIR, or IR dump
-flag surface, so this is not emitted JIT IR and does not close the
+The same diagnostic-surface audit records `disnative`, `disblic`, and `inJit`
+builtins, but `hasDisassembler(): false`; a `disnative(f, path)` probe creates
+a 93-byte file with SHA256
+`77ae9208875b0b06c4108084ed4be78ae9150a0ab4d462a5c11032133d8ebae0` and then
+fails with `Error: Did not write all function bytes to the file.` It also
+records no JitSpew, `IONFLAGS`, MIR/LIR, or IR dump flag surface, so this is
+not emitted JIT IR and does not close the
 `codegen-traces-open` obligation.
 
 ### Node/V8 1 GiB Candidate Headroom Stability Rerun

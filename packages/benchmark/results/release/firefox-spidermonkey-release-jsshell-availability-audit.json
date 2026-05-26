@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T22:45:41.128Z",
+  "generatedAt": "2026-05-26T23:01:39.317Z",
   "objective": "firefox-spidermonkey-release-jsshell-availability-audit",
   "contract": "official-firefox-release-jsshell-jit-status-and-diagnostic-surface",
   "note": "Checks an official Firefox release SpiderMonkey JavaScript shell package for local JIT execution status and diagnostic surface. This is not emitted JIT IR, optimized-code, throughput, or browser evidence.",
@@ -43,6 +43,19 @@
       "hasJitSpewFlag": false,
       "hasInIonHelp": false
     },
+    "builtinProbe": {
+      "exitCode": 0,
+      "error": null,
+      "hasDisassemblerBuiltin": true,
+      "hasDisnativeBuiltin": true,
+      "hasDisblicBuiltin": true,
+      "hasInJitBuiltin": true,
+      "hasInIonBuiltin": true,
+      "hasJitCompilerOptionsBuiltin": true,
+      "hasDisassemblerValue": "false",
+      "stdout": "hasDisassembler=function\r\ndisnative=function\r\ndisblic=function\r\ninJit=function\r\ninIon=function\r\ngetJitCompilerOptions=function\r\nhasDisassemblerValue=false\r\n",
+      "stderr": ""
+    },
     "jitProbe": {
       "exitCode": 0,
       "error": null,
@@ -52,6 +65,17 @@
       "ionWarmup": 0,
       "stdout": "ionHits=4988\r\nchecksum=12502500\r\nionEnable=1\r\nionWarmup=0\r\n",
       "stderr": ""
+    },
+    "nativeDumpProbe": {
+      "exitCode": 0,
+      "error": null,
+      "fileCreated": true,
+      "fileBytes": 93,
+      "fileSha256": "77ae9208875b0b06c4108084ed4be78ae9150a0ab4d462a5c11032133d8ebae0",
+      "hasDisassembler": "false",
+      "disnativeWriteError": "Error: Did not write all function bytes to the file.",
+      "stdout": "hasDisassembler=false\r\ndisnativeWriteError=Error: Did not write all function bytes to the file.\r\n",
+      "stderr": ""
     }
   },
   "outcome": {
@@ -59,6 +83,8 @@
     "packageVerified": true,
     "hasJitExecutionStatus": true,
     "hasIrDumpSurface": false,
+    "hasNativeDisassemblySurface": false,
+    "nativeDumpComplete": false,
     "closesEmittedIrObligation": false
   },
   "findings": [
@@ -86,12 +112,17 @@
     {
       "id": "spidermonkey-release-jsshell-no-ir-dump-surface",
       "classification": "NEGATIVE_RESULT",
-      "summary": "The release SpiderMonkey shell help surface exposes Ion controls but no JitSpew/IONFLAGS/IR dump flag surface.",
+      "summary": "The release SpiderMonkey shell exposes Ion controls and native dump helper names, but no active disassembler or JitSpew/IONFLAGS/IR dump surface.",
       "evidence": [
         "hasIonEager=true",
         "hasIonOffthreadCompile=true",
         "hasDumpBytecode=true",
         "hasJitSpewFlag=false",
+        "hasDisnativeBuiltin=true",
+        "hasDisblicBuiltin=true",
+        "hasDisassembler=false",
+        "nativeDumpBytes=93",
+        "nativeDumpError=Error: Did not write all function bytes to the file.",
         "This narrows the local diagnostic path but does not close the emitted JIT IR obligation."
       ]
     },

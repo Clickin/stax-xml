@@ -1,7 +1,8 @@
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -19,6 +20,11 @@ const jitProbeSource = [
   "print('checksum=' + checksum);",
   "print('ionEnable=' + getJitCompilerOptions()['ion.enable']);",
   "print('ionWarmup=' + getJitCompilerOptions()['ion.warmup.trigger']);",
+].join(' ');
+const builtinProbeSource = [
+  "const names = ['hasDisassembler', 'disnative', 'disblic', 'inJit', 'inIon', 'getJitCompilerOptions'];",
+  'for (const name of names) print(name + "=" + typeof this[name]);',
+  "print('hasDisassemblerValue=' + (typeof hasDisassembler === 'function' ? hasDisassembler() : 'missing'));",
 ].join(' ');
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -149,18 +155,22 @@ function probeShell(jsShell) {
   }
   const version = run(jsShell, ['--version']);
   const help = run(jsShell, ['--help']);
+  const builtinProbe = run(jsShell, ['-e', builtinProbeSource]);
   const jitProbe = run(jsShell, [
     '--ion-eager',
     '--ion-offthread-compile=off',
     '-e',
     jitProbeSource,
   ]);
+  const nativeDumpProbe = runNativeDumpProbe(jsShell);
   return {
-    status: version.exitCode === 0 && help.exitCode === 0 && jitProbe.exitCode === 0 ? 'available' : 'probe-failed',
+    status: version.exitCode === 0 && help.exitCode === 0 && jitProbe.exitCode === 0 && builtinProbe.exitCode === 0 ? 'available' : 'probe-failed',
     jsShell,
     version,
     help: summarizeHelp(help.stdout),
+    builtinProbe: summarizeBuiltinProbe(builtinProbe),
     jitProbe: summarizeJitProbe(jitProbe),
+    nativeDumpProbe,
   };
 }
 
@@ -209,6 +219,57 @@ function summarizeJitProbe(runResult) {
   };
 }
 
+function summarizeBuiltinProbe(runResult) {
+  const combined = `${runResult.stdout}\n${runResult.stderr}`;
+  return {
+    exitCode: runResult.exitCode,
+    error: runResult.error,
+    hasDisassemblerBuiltin: /hasDisassembler=function/.test(combined),
+    hasDisnativeBuiltin: /disnative=function/.test(combined),
+    hasDisblicBuiltin: /disblic=function/.test(combined),
+    hasInJitBuiltin: /inJit=function/.test(combined),
+    hasInIonBuiltin: /inIon=function/.test(combined),
+    hasJitCompilerOptionsBuiltin: /getJitCompilerOptions=function/.test(combined),
+    hasDisassemblerValue: firstMatch(combined, /hasDisassemblerValue=(\w+)/)?.[1] ?? null,
+    stdout: keepShort(runResult.stdout, 2000),
+    stderr: keepShort(runResult.stderr, 2000),
+  };
+}
+
+function runNativeDumpProbe(jsShell) {
+  const tempDir = mkdtempSync(join(tmpdir(), 'stax-spidermonkey-native-dump-'));
+  const nativePath = join(tempDir, 'native.bin');
+  const shellPath = nativePath.replace(/\\/g, '/');
+  try {
+    const result = run(jsShell, [
+      '--ion-eager',
+      '--ion-offthread-compile=off',
+      '-e',
+      [
+        'function f(x) { return ((x + 1) | 0); }',
+        'for (let i = 0; i < 5000; i++) f(i);',
+        "print('hasDisassembler=' + hasDisassembler());",
+        `try { disnative(f, ${JSON.stringify(shellPath)}); print('disnativeWrite=ok'); } catch (e) { print('disnativeWriteError=' + e); }`,
+      ].join(' '),
+    ]);
+    const fileExists = existsSync(nativePath);
+    const bytes = fileExists ? readFileSync(nativePath) : null;
+    return {
+      exitCode: result.exitCode,
+      error: result.error,
+      fileCreated: fileExists,
+      fileBytes: fileExists ? statSync(nativePath).size : 0,
+      fileSha256: bytes ? createHash('sha256').update(bytes).digest('hex') : null,
+      hasDisassembler: firstMatch(`${result.stdout}\n${result.stderr}`, /hasDisassembler=(\w+)/)?.[1] ?? null,
+      disnativeWriteError: firstMatch(`${result.stdout}\n${result.stderr}`, /disnativeWriteError=(.+)/)?.[1] ?? null,
+      stdout: keepShort(result.stdout, 2000),
+      stderr: keepShort(result.stderr, 2000),
+    };
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
 function firstMatch(text, pattern) {
   return text.match(pattern) ?? null;
 }
@@ -236,6 +297,19 @@ function createSelfTestReport(options) {
         hasJitSpewFlag: false,
         hasInIonHelp: false,
       },
+      builtinProbe: {
+        exitCode: 0,
+        error: null,
+        hasDisassemblerBuiltin: true,
+        hasDisnativeBuiltin: true,
+        hasDisblicBuiltin: true,
+        hasInJitBuiltin: true,
+        hasInIonBuiltin: true,
+        hasJitCompilerOptionsBuiltin: true,
+        hasDisassemblerValue: 'false',
+        stdout: 'hasDisassembler=function\ndisnative=function\ndisblic=function\ninJit=function\ninIon=function\ngetJitCompilerOptions=function\nhasDisassemblerValue=false\n',
+        stderr: '',
+      },
       jitProbe: {
         exitCode: 0,
         error: null,
@@ -244,6 +318,17 @@ function createSelfTestReport(options) {
         ionEnable: 1,
         ionWarmup: 0,
         stdout: 'ionHits=4988\nchecksum=12502500\nionEnable=1\nionWarmup=0\n',
+        stderr: '',
+      },
+      nativeDumpProbe: {
+        exitCode: 0,
+        error: null,
+        fileCreated: true,
+        fileBytes: 93,
+        fileSha256: 'self-test-sha256',
+        hasDisassembler: 'false',
+        disnativeWriteError: 'Error: Did not write all function bytes to the file.',
+        stdout: 'hasDisassembler=false\ndisnativeWriteError=Error: Did not write all function bytes to the file.\n',
         stderr: '',
       },
     },
@@ -274,6 +359,8 @@ function createReport(options, packageVerification, shell) {
       packageVerified: packageVerification.hashMatches === true,
       hasJitExecutionStatus,
       hasIrDumpSurface,
+      hasNativeDisassemblySurface: shell.builtinProbe?.hasDisassemblerValue === 'true',
+      nativeDumpComplete: shell.nativeDumpProbe?.fileCreated === true && shell.nativeDumpProbe?.disnativeWriteError === null,
       closesEmittedIrObligation: false,
     },
   };
@@ -311,12 +398,17 @@ function createFindings(report) {
     {
       id: 'spidermonkey-release-jsshell-no-ir-dump-surface',
       classification: 'NEGATIVE_RESULT',
-      summary: 'The release SpiderMonkey shell help surface exposes Ion controls but no JitSpew/IONFLAGS/IR dump flag surface.',
+      summary: 'The release SpiderMonkey shell exposes Ion controls and native dump helper names, but no active disassembler or JitSpew/IONFLAGS/IR dump surface.',
       evidence: [
         `hasIonEager=${report.shell.help?.hasIonEager ?? 'unknown'}`,
         `hasIonOffthreadCompile=${report.shell.help?.hasIonOffthreadCompile ?? 'unknown'}`,
         `hasDumpBytecode=${report.shell.help?.hasDumpBytecode ?? 'unknown'}`,
         `hasJitSpewFlag=${report.shell.help?.hasJitSpewFlag ?? 'unknown'}`,
+        `hasDisnativeBuiltin=${report.shell.builtinProbe?.hasDisnativeBuiltin ?? 'unknown'}`,
+        `hasDisblicBuiltin=${report.shell.builtinProbe?.hasDisblicBuiltin ?? 'unknown'}`,
+        `hasDisassembler=${report.shell.builtinProbe?.hasDisassemblerValue ?? 'unknown'}`,
+        `nativeDumpBytes=${report.shell.nativeDumpProbe?.fileBytes ?? 'unknown'}`,
+        `nativeDumpError=${report.shell.nativeDumpProbe?.disnativeWriteError ?? 'none'}`,
         'This narrows the local diagnostic path but does not close the emitted JIT IR obligation.',
       ],
     },
@@ -345,6 +437,8 @@ function renderMarkdown(report) {
     `- Package verified: ${report.outcome.packageVerified}`,
     `- JIT execution status observed: ${report.outcome.hasJitExecutionStatus}`,
     `- IR dump surface present: ${report.outcome.hasIrDumpSurface}`,
+    `- Native disassembly surface present: ${report.outcome.hasNativeDisassemblySurface}`,
+    `- Native dump complete: ${report.outcome.nativeDumpComplete}`,
     `- Closes emitted IR obligation: ${report.outcome.closesEmittedIrObligation}`,
     `- Package URL: ${report.parameters.packageUrl}`,
     `- Sums URL: ${report.parameters.sumsUrl}`,
@@ -365,6 +459,10 @@ function renderMarkdown(report) {
     `- has --ion-offthread-compile: ${report.shell.help?.hasIonOffthreadCompile}`,
     `- has --dump-bytecode: ${report.shell.help?.hasDumpBytecode}`,
     `- has JitSpew/IR dump flag surface: ${report.shell.help?.hasJitSpewFlag}`,
+    `- has disnative builtin: ${report.shell.builtinProbe?.hasDisnativeBuiltin}`,
+    `- has disblic builtin: ${report.shell.builtinProbe?.hasDisblicBuiltin}`,
+    `- has inJit builtin: ${report.shell.builtinProbe?.hasInJitBuiltin}`,
+    `- hasDisassembler(): ${report.shell.builtinProbe?.hasDisassemblerValue ?? 'not-recorded'}`,
     '',
     '## JIT Status Probe',
     '',
@@ -373,6 +471,14 @@ function renderMarkdown(report) {
     `- Checksum: ${report.shell.jitProbe?.checksum ?? 'not-recorded'}`,
     `- ion.enable: ${report.shell.jitProbe?.ionEnable ?? 'not-recorded'}`,
     `- ion.warmup.trigger: ${report.shell.jitProbe?.ionWarmup ?? 'not-recorded'}`,
+    '',
+    '## Native Dump Probe',
+    '',
+    `- File created: ${report.shell.nativeDumpProbe?.fileCreated ?? 'not-run'}`,
+    `- File bytes: ${report.shell.nativeDumpProbe?.fileBytes ?? 'not-recorded'}`,
+    `- File SHA256: ${report.shell.nativeDumpProbe?.fileSha256 ?? 'not-recorded'}`,
+    `- hasDisassembler: ${report.shell.nativeDumpProbe?.hasDisassembler ?? 'not-recorded'}`,
+    `- disnative write error: ${report.shell.nativeDumpProbe?.disnativeWriteError ?? 'none'}`,
     '',
     '## Findings',
     '',

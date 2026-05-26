@@ -312,6 +312,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /Firefox\/SpiderMonkey codegen is also `external-run-required` with\s+`localRunnable=false`/);
   assert.match(markdown, /installed Firefox diagnostic audit emitted no\s+JIT diagnostic dump, the installed Firefox buildconfig does not expose the\s+JitSpew build flag, and no local SpiderMonkey JS shell was found/);
   assert.match(markdown, /official release\s+jsshell artifact proves a runnable release shell and Ion status probe, but also\s+records no JitSpew\/IR dump flag surface/);
+  assert.match(markdown, /no active disassembler, and an\s+incomplete `disnative` byte dump/);
   assert.match(markdown, /candidate-headroom-cross-process-books-corpus-batch16\.md/);
   assert.match(markdown, /multi-item batch is\s+concatenated into one parser buffer/);
   assert.match(markdown, /Node\/V8 `rawFrameNameId` averaged `99\.83 MiB\/s`/);
@@ -773,6 +774,9 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /verifies `jsshell-win64\.zip` against\s+`SHA512SUMS`/);
   assert.match(markdown, /runs `js\.exe --version` as `JavaScript-C143\.0\.1`/);
   assert.match(markdown, /observes\s+`ionHits=4988`, `ion\.enable=1`, `ion\.warmup\.trigger=0`, and checksum\s+`12502500`/);
+  assert.match(markdown, /records `disnative`, `disblic`, and `inJit`\s+builtins, but `hasDisassembler\(\): false`/);
+  assert.match(markdown, /creates\s+a 93-byte file with SHA256\s+`77ae9208875b0b06c4108084ed4be78ae9150a0ab4d462a5c11032133d8ebae0`/);
+  assert.match(markdown, /fails with `Error: Did not write all function bytes to the file\.`/);
   assert.match(markdown, /records no JitSpew, `IONFLAGS`, MIR\/LIR, or IR dump\s+flag surface/);
   assert.match(markdown, /does not close the\s+`codegen-traces-open` obligation/);
   assert.match(markdown, /same-process `runs=3`, `warmups=0` rerun/);
