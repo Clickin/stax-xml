@@ -1,14 +1,14 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-26T10:07:28.203Z
+Generated: 2026-05-26T10:23:36.014Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 159
+- Scanned primary artifacts: 160
 - Ignored derived artifacts: 5
-- Measured rows recognized: 833
+- Measured rows recognized: 838
 - Rows with unknown full-string parity: 0
 - Rows with unknown bounded-memory flag: 20
   - Unknown bounded-memory JS rows: 4
@@ -19,7 +19,7 @@ This audit scans current release artifacts to show which proof obligations are c
   - Unknown bounded-memory non-JS allocator-counter rows: 10
   - Unknown bounded-memory non-JS rows without peak-memory counters: 6
   - Unknown bounded-memory rows with memory counters: 10
-- Benchmark artifacts: 117
+- Benchmark artifacts: 118
 - Source artifacts: 16
 - Trace/profile artifacts: 10
 - Allocation artifacts: 15
@@ -60,7 +60,7 @@ These rows have enough throughput/parity metadata to be recognized, but no row-l
 
 | Runtime | Artifacts | Measured Rows | 1 GiB+ Full Rows | Fastest 1 GiB+ Full Row | Source Pins | Trace/Profile | Allocation |
 | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
-| Node/V8 | 77 | 355 | 221 | rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json | 2 | 2 | 5 |
+| Node/V8 | 78 | 360 | 221 | rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json | 2 | 2 | 5 |
 | Bun/JSC | 31 | 218 | 130 | rawFrameNameId 179.70 MiB/s from access-shape-candidate-cross-process.json | 3 | 4 | 2 |
 | Deno/V8 | 9 | 50 | 44 | shortAsciiSubarraySharedDecoder 90.83 MiB/s from deno-textdecoder-span-variants-corpus.json | 1 | 1 | 1 |
 | Chrome/V8 browser | 15 | 98 | 56 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |

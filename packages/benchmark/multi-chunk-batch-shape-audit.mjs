@@ -150,6 +150,18 @@ function createReport() {
         ],
       },
       {
+        id: 'segment-tokenizer-string-frontier-scope',
+        classification: 'SCOPE_GUARD',
+        summary: 'The segment-tokenizer-string-frontier benchmark adds TextDecoder string materialization on top of token-boundary folding, but it remains a simplified tokenizer frontier rather than public StAX reader parity.',
+        evidence: [
+          'segment-tokenizer-string-frontier contract: xml-token-boundary-string-materialization-frontier',
+          'uses TextDecoder, not Node Buffer, native addons, or lazy getters',
+          'fullStringParity=false',
+          'directReadableStream=false',
+          'fullArrayBufferParserInput=false',
+        ],
+      },
+      {
         id: 'no-concat-prototype-scope',
         classification: missingFacts.length === 0 ? 'SCOPE_GUARD' : 'OPEN',
         summary: missingFacts.length === 0

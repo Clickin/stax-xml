@@ -55,6 +55,7 @@ test('multi-chunk batch shape audit pins current concat and single-buffer assump
   const bounded = report.findings.find(finding => finding.id === 'bounded-prototype-axis');
   const segmentProbe = report.findings.find(finding => finding.id === 'segment-byte-scan-probe-scope');
   const tokenizerProbe = report.findings.find(finding => finding.id === 'segment-tokenizer-probe-scope');
+  const stringFrontier = report.findings.find(finding => finding.id === 'segment-tokenizer-string-frontier-scope');
   const scope = report.findings.find(finding => finding.id === 'no-concat-prototype-scope');
   assert.ok(single);
   assert.ok(multi);
@@ -63,11 +64,13 @@ test('multi-chunk batch shape audit pins current concat and single-buffer assump
   assert.ok(bounded);
   assert.ok(segmentProbe);
   assert.ok(tokenizerProbe);
+  assert.ok(stringFrontier);
   assert.ok(scope);
   assert.equal(surface.classification, 'IMPLEMENTATION_SCOPE');
   assert.equal(bounded.classification, 'DESIGN_GUARD');
   assert.equal(segmentProbe.classification, 'SCOPE_GUARD');
   assert.equal(tokenizerProbe.classification, 'SCOPE_GUARD');
+  assert.equal(stringFrontier.classification, 'SCOPE_GUARD');
   assert.equal(scope.classification, 'SCOPE_GUARD');
   assert.deepEqual(single.missingPatterns, []);
   assert.deepEqual(multi.missingPatterns, []);
@@ -82,6 +85,8 @@ test('multi-chunk batch shape audit pins current concat and single-buffer assump
   assert.ok(segmentProbe.evidence.some(item => /fullStringParity=false/.test(item)));
   assert.match(tokenizerProbe.summary, /XML token-boundary folding/);
   assert.ok(tokenizerProbe.evidence.some(item => /xml-token-boundary-no-string-materialization/.test(item)));
+  assert.match(stringFrontier.summary, /TextDecoder string materialization/);
+  assert.ok(stringFrontier.evidence.some(item => /xml-token-boundary-string-materialization-frontier/.test(item)));
   assert.match(scope.summary, /segmented-buffer abstraction/);
 
   const markdown = readFileSync(mdOut, 'utf8');
@@ -94,5 +99,6 @@ test('multi-chunk batch shape audit pins current concat and single-buffer assump
   assert.match(markdown, /bounded-prototype-axis/);
   assert.match(markdown, /segment-byte-scan-probe-scope/);
   assert.match(markdown, /segment-tokenizer-probe-scope/);
+  assert.match(markdown, /segment-tokenizer-string-frontier-scope/);
   assert.match(markdown, /no-concat multi-chunk batch path/);
 });

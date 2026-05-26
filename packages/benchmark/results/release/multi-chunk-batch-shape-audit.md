@@ -1,6 +1,6 @@
 # Multi-Chunk Batch Shape Audit
 
-Generated: 2026-05-26T10:10:14.342Z
+Generated: 2026-05-26T10:23:37.279Z
 
 Audits the current sync parser source shape behind Iterable<Uint8Array[]> batch-size experiments. This is source evidence only; it is not a benchmark row and not a runtime-limit conclusion.
 
@@ -106,6 +106,12 @@ Audits the current sync parser source shape behind Iterable<Uint8Array[]> batch-
 - segment-tokenizer-probe-scope (SCOPE_GUARD): The segment-tokenizer-headroom benchmark raises the no-concat probe from delimiter scanning to XML token-boundary folding, but it still omits string materialization, full XML validation, public event objects, and full StAX checksum parity.
   - segment-tokenizer-headroom contract: xml-token-boundary-no-string-materialization
   - grouped segment-aware tokenization is parser-core headroom evidence only
+  - fullStringParity=false
+  - directReadableStream=false
+  - fullArrayBufferParserInput=false
+- segment-tokenizer-string-frontier-scope (SCOPE_GUARD): The segment-tokenizer-string-frontier benchmark adds TextDecoder string materialization on top of token-boundary folding, but it remains a simplified tokenizer frontier rather than public StAX reader parity.
+  - segment-tokenizer-string-frontier contract: xml-token-boundary-string-materialization-frontier
+  - uses TextDecoder, not Node Buffer, native addons, or lazy getters
   - fullStringParity=false
   - directReadableStream=false
   - fullArrayBufferParserInput=false

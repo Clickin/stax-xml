@@ -150,7 +150,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /141\.06 to 142\.03 MiB\/s/);
   assert.match(markdown, /16 MiB\s+quick-xml row is 243\.43 MiB\/s with process RSS max 4\.79 MiB, or 0\.80x\s+Woodstox/);
   assert.match(markdown, /not a peak-memory equivalence proof and not a runtime-limit conclusion/);
-  assert.match(markdown, /recognizes 833\s+sample throughput rows and 93 aggregate rows/);
+  assert.match(markdown, /recognizes 838\s+sample throughput rows and 93 aggregate rows/);
   assert.match(markdown, /521 JavaScript 1 GiB\+\s+full-string sample rows plus 73 JavaScript 1 GiB\+ full-string aggregate rows/);
   assert.match(markdown, /zero bounded-memory 200 MiB\/s\+ counterexamples/);
   assert.match(markdown, /zero measured\s+rows with unknown full-string parity and 20 rows with unknown bounded-memory\s+flags/);
@@ -175,7 +175,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /fixes the previous scanner\s+blind spot/);
   assert.match(markdown, /non-`stax-\*` Node\/V8 row tools could be labeled `Node\/V8` but\s+not counted as JavaScript runtime rows/);
   assert.match(markdown, /remain below the 200 MiB\/s\s+counterexample threshold/);
-  assert.match(markdown, /31 threshold-crossing partial\/projection rows/);
+  assert.match(markdown, /32 threshold-crossing partial\/projection rows/);
   assert.match(markdown, /fastest is Node\/V8 `grouped-segment-scan` at 682\.83 MiB\/s from\s+`segment-scan-headroom\.json`/);
   assert.match(markdown, /records\s+`directReadableStream=false`, and is explicitly `fullStringParity=false`/);
   assert.match(markdown, /grouped segment-aware scan at 682\.83 MiB\/s versus grouped\s+concat-before-scan at 589\.23 MiB\/s, or 1\.16x/);
@@ -186,6 +186,10 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /grouped segment-aware row reaches only 196\.26 MiB\/s versus grouped concat\s+at 194\.55 MiB\/s, or 1\.01x/);
   assert.match(markdown, /matching 61,236,569 events, 21,612,907\s+start elements, 21,612,907 end elements, 18,010,755 text events,\s+18,010,755 attributes, and checksum `-1381363934`/);
   assert.match(markdown, /1\.16x delimiter-scan no-concat headroom mostly disappears once token-boundary\s+work is included/);
+  assert.match(markdown, /`segment-tokenizer-string-frontier\.json` then keeps the grouped segment source\s+fixed and adds browser-compatible `TextDecoder` materialization one field\s+family at a time/);
+  assert.match(markdown, /token-only row reaches 207\.36 MiB\/s, but element-name\s+strings alone drop to 97\.50 MiB\/s after 43,225,814 decode calls and\s+288,172,088 decoded bytes/);
+  assert.match(markdown, /all token strings without public objects reach only\s+68\.94 MiB\/s after 97,258,079 decode calls and 882,827,595 decoded bytes/);
+  assert.match(markdown, /string primitive boundary dominates\s+before public event-object allocation is even reintroduced/);
   assert.match(markdown, /Bun\/JSC\s+`scanAllNoDecode` at 326\.65 MiB\/s from\s+`candidate-headroom-cross-process-books-corpus-partial\.json` remains the\s+fastest parser-produced partial row/);
   assert.match(markdown, /The fastest is Node\/V8 `withoutTextStrings` from\s+`text-trim-cost-decomposition-4gib\.json` at 252\.36 MiB\/s/);
   assert.match(markdown, /`rawFrameNameIdNoTrim` at 185\.03 MiB\/s\s+with the same 62,758,976 string-field reads/);
@@ -215,8 +219,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /throughput `41\.10 MiB\/s`, peak heap used `4\.00 GiB`, and peak RSS\s+`13\.45 GiB`/);
   assert.match(markdown, /`sourceMode: "complete-js-string"` and\s+`boundedMemory: false` under the 512 MiB RSS gate/);
   assert.match(markdown, /headroom evidence rather than runtime-limit\s+counterexamples/);
-  assert.match(markdown, /recognizes 833\s+measured rows/);
-  assert.match(markdown, /117 benchmark artifacts, 16 source artifacts, 10\s+trace\/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and\s+12 negative-result artifacts/);
+  assert.match(markdown, /recognizes 838\s+measured rows/);
+  assert.match(markdown, /118 benchmark artifacts, 16 source artifacts, 10\s+trace\/profile artifacts, 15 allocation artifacts, 2 environment artifacts, and\s+12 negative-result artifacts/);
   assert.match(markdown, /concat-buffer-reuse-negative-result\.json/);
   assert.match(markdown, /stax-raw-frame-span-stats/);
   assert.match(markdown, /segment-scan-headroom\.json/);
@@ -225,6 +229,9 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /segment-tokenizer-headroom\.json/);
   assert.match(markdown, /folds start\/end\/text\s+token boundaries and attribute counts without JavaScript string materialization/);
   assert.match(markdown, /showing 236\.55 MiB\/s for singleton segment pulls but only 196\.26 MiB\/s for the\s+grouped segment-aware row/);
+  assert.match(markdown, /segment-tokenizer-string-frontier\.json/);
+  assert.match(markdown, /grouped segment tokenization plus `TextDecoder`\s+materialization/);
+  assert.match(markdown, /token-only 207\.36 MiB\/s, element-name strings\s+97\.50 MiB\/s, and all token strings without public objects 68\.94 MiB\/s/);
   assert.match(markdown, /three\s+release corpus seeds:\s+`books\.xml`, `large\.xml`, and `treebank_e\.xml`/);
   assert.match(markdown, /coverage audit now treats `runtime\.id: "node"` \/ `runtime\.v8` artifacts such as\s+`stream-reader-4gb-shapes\.json` as Node\/V8 row evidence/);
   assert.match(markdown, /rather than leaving\s+their 4 GiB generated byte-batch rows in the `unknown` bucket/);

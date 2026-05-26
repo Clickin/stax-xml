@@ -1,0 +1,534 @@
+{
+  "generatedAt": "2026-05-26T10:22:23.717Z",
+  "objective": "segment-tokenizer-string-frontier",
+  "contract": "file-backed-segment-tokenizer-string-frontier",
+  "note": "Benchmark-only probe that keeps the same demand-driven synchronous Iterable<Uint8Array[]> grouped segment source and incrementally adds browser-compatible TextDecoder string materialization to the token-boundary scanner. Rows are partial headroom evidence and not full StAX counterexamples because they do not expose public event objects or validate the full XML contract.",
+  "environment": {
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "platform": "win32-x64",
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48"
+  },
+  "fixture": {
+    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\node-string-return-1024mib.xml",
+    "sizeBytes": 1073741644,
+    "sizeMiB": 1023.999828338623,
+    "sizeGiB": 0.9999998323619366
+  },
+  "options": {
+    "chunkKiB": 32,
+    "batchSize": 8,
+    "runs": 3,
+    "warmups": 0,
+    "boundedRssMiB": 512
+  },
+  "rows": [
+    {
+      "id": "tokenOnly",
+      "tool": "tokenOnly",
+      "implementation": "Segment-aware token-boundary folding without string materialization",
+      "family": "partial-segment-tokenizer-string-frontier",
+      "contractScope": "xml-token-boundary-string-materialization-frontier",
+      "fullStringParity": false,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "parserInput": "synchronous Iterable<Uint8Array[]>",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "usesTextDecoder": false,
+      "usesNodeBuffer": false,
+      "chunkKiB": 32,
+      "batchSize": 8,
+      "concatBeforeTokenize": false,
+      "segmentAwareTokenize": true,
+      "decodeElementNames": false,
+      "decodeAttributeNames": false,
+      "decodeAttributeValues": false,
+      "decodeText": false,
+      "mibPerSec": 207.3559834334603,
+      "avgMs": 4938.366433333333,
+      "minMs": 4711.927,
+      "maxMs": 5064.3324,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.07136072317787312,
+      "samplesMs": [
+        4711.927,
+        5064.3324,
+        5038.839899999999
+      ],
+      "eventCount": 61236569,
+      "startElementCount": 21612907,
+      "endElementCount": 21612907,
+      "textEventCount": 18010755,
+      "attributeCount": 18010755,
+      "materializedStringCount": 0,
+      "decodedByteCount": 0,
+      "decodeCalls": 0,
+      "checksum": -1381363934,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 112189440,
+        "maxHeapUsedBytes": 11780752,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 54996992,
+              "heapUsedBytes": 4445488,
+              "externalBytes": 1884966,
+              "arrayBuffersBytes": 22767
+            },
+            "after": {
+              "rssBytes": 112189440,
+              "heapUsedBytes": 5838600,
+              "externalBytes": 47832008,
+              "arrayBuffersBytes": 45930735
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 112140288,
+              "heapUsedBytes": 4675008,
+              "externalBytes": 47832008,
+              "arrayBuffersBytes": 43800815
+            },
+            "after": {
+              "rssBytes": 75685888,
+              "heapUsedBytes": 11780752,
+              "externalBytes": 3267528,
+              "arrayBuffersBytes": 1366255
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 75685888,
+              "heapUsedBytes": 4681472,
+              "externalBytes": 3267528,
+              "arrayBuffersBytes": 448751
+            },
+            "after": {
+              "rssBytes": 75776000,
+              "heapUsedBytes": 10773200,
+              "externalBytes": 3267528,
+              "arrayBuffersBytes": 1366255
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "elementNameStrings",
+      "tool": "elementNameStrings",
+      "implementation": "Segment-aware token-boundary folding with TextDecoder materialization for element names",
+      "family": "partial-segment-tokenizer-string-frontier",
+      "contractScope": "xml-token-boundary-string-materialization-frontier",
+      "fullStringParity": false,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "parserInput": "synchronous Iterable<Uint8Array[]>",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "usesTextDecoder": true,
+      "usesNodeBuffer": false,
+      "chunkKiB": 32,
+      "batchSize": 8,
+      "concatBeforeTokenize": false,
+      "segmentAwareTokenize": true,
+      "decodeElementNames": true,
+      "decodeAttributeNames": false,
+      "decodeAttributeValues": false,
+      "decodeText": false,
+      "mibPerSec": 97.50141768309776,
+      "avgMs": 10502.409633333335,
+      "minMs": 10463.254000000004,
+      "maxMs": 10543.911099999998,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.0076798661274835,
+      "samplesMs": [
+        10500.0638,
+        10463.254000000004,
+        10543.911099999998
+      ],
+      "eventCount": 61236569,
+      "startElementCount": 21612907,
+      "endElementCount": 21612907,
+      "textEventCount": 18010755,
+      "attributeCount": 18010755,
+      "materializedStringCount": 43225814,
+      "decodedByteCount": 288172088,
+      "decodeCalls": 43225814,
+      "checksum": 1787722344,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 93396992,
+        "maxHeapUsedBytes": 17250560,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 75587584,
+              "heapUsedBytes": 4684320,
+              "externalBytes": 3267528,
+              "arrayBuffersBytes": 481519
+            },
+            "after": {
+              "rssBytes": 75784192,
+              "heapUsedBytes": 6777872,
+              "externalBytes": 2481167,
+              "arrayBuffersBytes": 579894
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 75444224,
+              "heapUsedBytes": 4717696,
+              "externalBytes": 2481167,
+              "arrayBuffersBytes": 416054
+            },
+            "after": {
+              "rssBytes": 93188096,
+              "heapUsedBytes": 17250560,
+              "externalBytes": 3267826,
+              "arrayBuffersBytes": 1366553
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 93298688,
+              "heapUsedBytes": 4722352,
+              "externalBytes": 3267826,
+              "arrayBuffersBytes": 448864
+            },
+            "after": {
+              "rssBytes": 93396992,
+              "heapUsedBytes": 15877368,
+              "externalBytes": 3267815,
+              "arrayBuffersBytes": 1366542
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "elementAndAttributeNameStrings",
+      "tool": "elementAndAttributeNameStrings",
+      "implementation": "Segment-aware token-boundary folding with TextDecoder materialization for element names, attribute names",
+      "family": "partial-segment-tokenizer-string-frontier",
+      "contractScope": "xml-token-boundary-string-materialization-frontier",
+      "fullStringParity": false,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "parserInput": "synchronous Iterable<Uint8Array[]>",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "usesTextDecoder": true,
+      "usesNodeBuffer": false,
+      "chunkKiB": 32,
+      "batchSize": 8,
+      "concatBeforeTokenize": false,
+      "segmentAwareTokenize": true,
+      "decodeElementNames": true,
+      "decodeAttributeNames": true,
+      "decodeAttributeValues": false,
+      "decodeText": false,
+      "mibPerSec": 81.95320703763652,
+      "avgMs": 12494.932966666665,
+      "minMs": 12295.1967,
+      "maxMs": 12801.968899999993,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.040558216786911364,
+      "samplesMs": [
+        12295.1967,
+        12801.968899999993,
+        12387.633300000001
+      ],
+      "eventCount": 61236569,
+      "startElementCount": 21612907,
+      "endElementCount": 21612907,
+      "textEventCount": 18010755,
+      "attributeCount": 18010755,
+      "materializedStringCount": 61236569,
+      "decodedByteCount": 367419410,
+      "decodeCalls": 61236569,
+      "checksum": 976545000,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 93540352,
+        "maxHeapUsedBytes": 9629704,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 93085696,
+              "heapUsedBytes": 4716280,
+              "externalBytes": 3267815,
+              "arrayBuffersBytes": 907740
+            },
+            "after": {
+              "rssBytes": 93327360,
+              "heapUsedBytes": 9629704,
+              "externalBytes": 2743353,
+              "arrayBuffersBytes": 842080
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 93167616,
+              "heapUsedBytes": 4726568,
+              "externalBytes": 2743353,
+              "arrayBuffersBytes": 383328
+            },
+            "after": {
+              "rssBytes": 93507584,
+              "heapUsedBytes": 6648368,
+              "externalBytes": 2481167,
+              "arrayBuffersBytes": 579894
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 93196288,
+              "heapUsedBytes": 4735616,
+              "externalBytes": 2481167,
+              "arrayBuffersBytes": 252143
+            },
+            "after": {
+              "rssBytes": 93540352,
+              "heapUsedBytes": 6636952,
+              "externalBytes": 2481167,
+              "arrayBuffersBytes": 579894
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "elementAndAttributeStrings",
+      "tool": "elementAndAttributeStrings",
+      "implementation": "Segment-aware token-boundary folding with TextDecoder materialization for element names, attribute names, attribute values",
+      "family": "partial-segment-tokenizer-string-frontier",
+      "contractScope": "xml-token-boundary-string-materialization-frontier",
+      "fullStringParity": false,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "parserInput": "synchronous Iterable<Uint8Array[]>",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "usesTextDecoder": true,
+      "usesNodeBuffer": false,
+      "chunkKiB": 32,
+      "batchSize": 8,
+      "concatBeforeTokenize": false,
+      "segmentAwareTokenize": true,
+      "decodeElementNames": true,
+      "decodeAttributeNames": true,
+      "decodeAttributeValues": true,
+      "decodeText": false,
+      "mibPerSec": 78.96378574989592,
+      "avgMs": 12967.967766666668,
+      "minMs": 12269.205099999992,
+      "maxMs": 14217.864300000001,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.15026712242522017,
+      "samplesMs": [
+        14217.864300000001,
+        12269.205099999992,
+        12416.833900000012
+      ],
+      "eventCount": 61236569,
+      "startElementCount": 21612907,
+      "endElementCount": 21612907,
+      "textEventCount": 18010755,
+      "attributeCount": 18010755,
+      "materializedStringCount": 79247324,
+      "decodedByteCount": 430775658,
+      "decodeCalls": 79247324,
+      "checksum": -1128445687,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 93888512,
+        "maxHeapUsedBytes": 15240776,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 93204480,
+              "heapUsedBytes": 4733616,
+              "externalBytes": 2481167,
+              "arrayBuffersBytes": 284911
+            },
+            "after": {
+              "rssBytes": 93560832,
+              "heapUsedBytes": 15240776,
+              "externalBytes": 3005550,
+              "arrayBuffersBytes": 1104277
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 93388800,
+              "heapUsedBytes": 4739216,
+              "externalBytes": 3005550,
+              "arrayBuffersBytes": 448864
+            },
+            "after": {
+              "rssBytes": 93720576,
+              "heapUsedBytes": 12397304,
+              "externalBytes": 2743370,
+              "arrayBuffersBytes": 842097
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 93659136,
+              "heapUsedBytes": 4740736,
+              "externalBytes": 2743370,
+              "arrayBuffersBytes": 383328
+            },
+            "after": {
+              "rssBytes": 93888512,
+              "heapUsedBytes": 12367640,
+              "externalBytes": 2743359,
+              "arrayBuffersBytes": 842086
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "allTokenStringsNoObjects",
+      "tool": "allTokenStringsNoObjects",
+      "implementation": "Segment-aware token-boundary folding with TextDecoder materialization for element names, attribute names, attribute values, text",
+      "family": "partial-segment-tokenizer-string-frontier",
+      "contractScope": "xml-token-boundary-string-materialization-frontier",
+      "fullStringParity": false,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "parserInput": "synchronous Iterable<Uint8Array[]>",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "usesTextDecoder": true,
+      "usesNodeBuffer": false,
+      "chunkKiB": 32,
+      "batchSize": 8,
+      "concatBeforeTokenize": false,
+      "segmentAwareTokenize": true,
+      "decodeElementNames": true,
+      "decodeAttributeNames": true,
+      "decodeAttributeValues": true,
+      "decodeText": true,
+      "mibPerSec": 68.93807933137585,
+      "avgMs": 14853.907133333336,
+      "minMs": 14753.632699999987,
+      "maxMs": 14917.581800000014,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.011037439410948816,
+      "samplesMs": [
+        14890.506900000008,
+        14917.581800000014,
+        14753.632699999987
+      ],
+      "eventCount": 61236569,
+      "startElementCount": 21612907,
+      "endElementCount": 21612907,
+      "textEventCount": 18010755,
+      "attributeCount": 18010755,
+      "materializedStringCount": 97258079,
+      "decodedByteCount": 882827595,
+      "decodeCalls": 97258079,
+      "checksum": 1627122898,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 128823296,
+        "maxHeapUsedBytes": 36396744,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 93605888,
+              "heapUsedBytes": 4738016,
+              "externalBytes": 2743359,
+              "arrayBuffersBytes": 448864
+            },
+            "after": {
+              "rssBytes": 93564928,
+              "heapUsedBytes": 9366064,
+              "externalBytes": 2481239,
+              "arrayBuffersBytes": 579966
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 92921856,
+              "heapUsedBytes": 4764208,
+              "externalBytes": 2481239,
+              "arrayBuffersBytes": 121071
+            },
+            "after": {
+              "rssBytes": 128823296,
+              "heapUsedBytes": 36396744,
+              "externalBytes": 3792901,
+              "arrayBuffersBytes": 1891628
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 128585728,
+              "heapUsedBytes": 4765304,
+              "externalBytes": 3792901,
+              "arrayBuffersBytes": 1006476
+            },
+            "after": {
+              "rssBytes": 127856640,
+              "heapUsedBytes": 19491008,
+              "externalBytes": 3005838,
+              "arrayBuffersBytes": 1104565
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "rowCount": 5,
+    "fastest": {
+      "id": "tokenOnly",
+      "mibPerSec": 207.3559834334603,
+      "boundedMemory": true,
+      "memoryKind": "process-rss"
+    },
+    "tokenOnlyMiBPerSec": 207.3559834334603,
+    "allStringsMiBPerSec": 68.93807933137585,
+    "allStringsVsTokenOnlyRatio": 0.3324624550971677,
+    "counterexamples200MiB": 0
+  },
+  "findings": [
+    {
+      "id": "same-token-boundary-contract",
+      "classification": "CONTRACT_FACT",
+      "summary": "All rows consume the same grouped file-backed sync Iterable<Uint8Array[]> source and preserve token boundary counters.",
+      "evidence": [
+        "61236569:21612907:21612907:18010755:18010755"
+      ]
+    },
+    {
+      "id": "string-materialization-frontier",
+      "classification": "BENCH_FACT",
+      "summary": "Adding element, attribute, and text string materialization reached 68.94 MiB/s versus token-only 207.36 MiB/s (0.33x).",
+      "evidence": [
+        "tokenOnly: 207.36 MiB/s, strings=0, decodedBytes=0",
+        "elementNameStrings: 97.50 MiB/s, strings=43225814, decodedBytes=288172088",
+        "elementAndAttributeNameStrings: 81.95 MiB/s, strings=61236569, decodedBytes=367419410",
+        "elementAndAttributeStrings: 78.96 MiB/s, strings=79247324, decodedBytes=430775658",
+        "allTokenStringsNoObjects: 68.94 MiB/s, strings=97258079, decodedBytes=882827595"
+      ]
+    },
+    {
+      "id": "partial-not-stax-counterexample",
+      "classification": "SCOPE_GUARD",
+      "summary": "These rows use browser-compatible TextDecoder and deliberately avoid Node Buffer and native addons, but they still do not expose public event objects or claim full StAX checksum parity.",
+      "evidence": [
+        "tokenOnly: fullStringParity=false, usesTextDecoder=false, usesNodeBuffer=false",
+        "elementNameStrings: fullStringParity=false, usesTextDecoder=true, usesNodeBuffer=false",
+        "elementAndAttributeNameStrings: fullStringParity=false, usesTextDecoder=true, usesNodeBuffer=false",
+        "elementAndAttributeStrings: fullStringParity=false, usesTextDecoder=true, usesNodeBuffer=false",
+        "allTokenStringsNoObjects: fullStringParity=false, usesTextDecoder=true, usesNodeBuffer=false"
+      ]
+    }
+  ]
+}
