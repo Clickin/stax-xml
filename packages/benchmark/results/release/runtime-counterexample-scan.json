@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T00:52:04.200Z",
+  "generatedAt": "2026-05-26T01:04:22.375Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -166,11 +166,11 @@
     "scannedArtifactCount": 144,
     "ignoredArtifactCount": 5,
     "parseErrorCount": 0,
-    "measuredRowCount": 779,
+    "measuredRowCount": 780,
     "aggregateRowCount": 89,
     "largeJsFullRowCount": 482,
     "largeJsFullAggregateRowCount": 69,
-    "sourceModeRowCount": 202,
+    "sourceModeRowCount": 203,
     "largeJsFullSourceModeRowCount": 152,
     "sourceModeBreakdown": [
       {
@@ -202,29 +202,29 @@
       },
       {
         "sourceMode": "file-backed-sync-iterable-byte-batches",
-        "rowCount": 48,
+        "rowCount": 49,
         "fullStringRowCount": 42,
         "boundedFullStringRowCount": 41,
-        "fastestMiBPerSec": 241.63,
+        "fastestMiBPerSec": 240.08,
         "fastestRow": {
           "sourceArtifact": "file-backed-core-decomposition.json",
           "runtimeLabel": "Node/V8",
-          "id": "stax-scan-all-no-decode",
+          "id": "stax-raw-frame-span-stats",
           "sizeGiB": 1,
-          "mibPerSec": 241.63,
+          "mibPerSec": 240.08,
           "boundedMemory": true,
           "fullStringParity": false,
           "memoryKind": "process-rss",
           "hasMemoryProof": true,
           "eventCount": 61236571,
-          "checksum": -1830981171,
+          "checksum": -1264359145,
           "sourceMode": "file-backed-sync-iterable-byte-batches",
           "batchSize": 4,
           "chunkKiB": 32,
           "demandDrivenSource": true,
           "respectsBackpressure": null
         },
-        "demandDrivenRows": 48,
+        "demandDrivenRows": 49,
         "backpressureRows": 0
       },
       {
@@ -447,7 +447,7 @@
       }
     ],
     "rowClassificationCompleteness": {
-      "measuredRows": 779,
+      "measuredRows": 780,
       "unknownFullStringParityRows": 0,
       "unknownBoundedMemoryRows": 20
     },
@@ -460,7 +460,7 @@
       "rowsWithMemoryCounter": 10
     },
     "counterexampleCount": 0,
-    "partialHeadroomRowCount": 22,
+    "partialHeadroomRowCount": 23,
     "unboundedOrUnknownLargeFullRowCount": 91,
     "largeFullMemoryRejectionBreakdown": {
       "total": 91,
@@ -1776,19 +1776,19 @@
     },
     {
       "sourceArtifact": "file-backed-core-decomposition.json",
-      "jsonPath": "rows.0",
-      "id": "stax-scan-all-no-decode",
+      "jsonPath": "rows.1",
+      "id": "stax-raw-frame-span-stats",
       "runtimeLabel": "Node/V8",
       "jsRuntime": true,
       "fullStringParity": false,
       "boundedMemory": true,
       "sizeGiB": 1,
       "sizeMiB": 1024,
-      "mibPerSec": 241.63,
+      "mibPerSec": 240.08,
       "eventCount": 61236571,
-      "checksum": -1830981171,
-      "contractScope": "partial-scan-no-string-materialization",
-      "family": "partial-scan",
+      "checksum": -1264359145,
+      "contractScope": "partial-raw-frame-span-metadata-no-string-materialization",
+      "family": "partial-span-metadata",
       "counterexampleStatus": null,
       "memoryKind": "process-rss",
       "hasMemoryProof": true,
@@ -1820,6 +1820,30 @@
       "batchSize": null,
       "chunkKiB": null,
       "demandDrivenSource": false,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-core-decomposition.json",
+      "jsonPath": "rows.0",
+      "id": "stax-scan-all-no-decode",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 234.57,
+      "eventCount": 61236571,
+      "checksum": -1830981171,
+      "contractScope": "partial-scan-no-string-materialization",
+      "family": "partial-scan",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "batchSize": 4,
+      "chunkKiB": 32,
+      "demandDrivenSource": true,
       "respectsBackpressure": null
     },
     {
@@ -9900,7 +9924,7 @@
       "boundedMemory": true,
       "sizeGiB": 1,
       "sizeMiB": 1024,
-      "mibPerSec": 241.63,
+      "mibPerSec": 234.57,
       "eventCount": 61236571,
       "checksum": -1830981171,
       "contractScope": "partial-scan-no-string-materialization",
@@ -9917,6 +9941,30 @@
     {
       "sourceArtifact": "file-backed-core-decomposition.json",
       "jsonPath": "rows.1",
+      "id": "stax-raw-frame-span-stats",
+      "runtimeLabel": "Node/V8",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": true,
+      "sizeGiB": 1,
+      "sizeMiB": 1024,
+      "mibPerSec": 240.08,
+      "eventCount": 61236571,
+      "checksum": -1264359145,
+      "contractScope": "partial-raw-frame-span-metadata-no-string-materialization",
+      "family": "partial-span-metadata",
+      "counterexampleStatus": null,
+      "memoryKind": "process-rss",
+      "hasMemoryProof": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "batchSize": 4,
+      "chunkKiB": 32,
+      "demandDrivenSource": true,
+      "respectsBackpressure": null
+    },
+    {
+      "sourceArtifact": "file-backed-core-decomposition.json",
+      "jsonPath": "rows.2",
       "id": "stax-raw-frame-semantic-checksum",
       "runtimeLabel": "Node/V8",
       "jsRuntime": true,
@@ -9924,7 +9972,7 @@
       "boundedMemory": true,
       "sizeGiB": 1,
       "sizeMiB": 1024,
-      "mibPerSec": 142.24,
+      "mibPerSec": 144.67,
       "eventCount": 61236571,
       "checksum": -716099804,
       "contractScope": "same-fields-checksum-no-string-materialization",
@@ -9940,7 +9988,7 @@
     },
     {
       "sourceArtifact": "file-backed-core-decomposition.json",
-      "jsonPath": "rows.2",
+      "jsonPath": "rows.3",
       "id": "stax-stream",
       "runtimeLabel": "Node/V8 stax-stream",
       "jsRuntime": true,
@@ -9948,7 +9996,7 @@
       "boundedMemory": true,
       "sizeGiB": 1,
       "sizeMiB": 1024,
-      "mibPerSec": 126.32,
+      "mibPerSec": 113.62,
       "eventCount": 61236571,
       "checksum": -716099804,
       "contractScope": "full-string-checksum",
@@ -9964,7 +10012,7 @@
     },
     {
       "sourceArtifact": "file-backed-core-decomposition.json",
-      "jsonPath": "rows.3",
+      "jsonPath": "rows.4",
       "id": "stax-raw-frame-name-id",
       "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
       "jsRuntime": true,
@@ -9972,7 +10020,7 @@
       "boundedMemory": true,
       "sizeGiB": 1,
       "sizeMiB": 1024,
-      "mibPerSec": 140.68,
+      "mibPerSec": 142.25,
       "eventCount": 61236571,
       "checksum": -716099804,
       "contractScope": "full-string-checksum",
@@ -11628,7 +11676,7 @@
     {
       "id": "partial-headroom-not-stax-counterexample",
       "status": "HEADROOM_EVIDENCE_PRESENT",
-      "summary": "22 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples."
+      "summary": "23 recognized 1 GiB+ partial/projection JavaScript row(s) reach the threshold but are not full-string StAX counterexamples."
     },
     {
       "id": "text-materialization-headroom",
@@ -11643,7 +11691,7 @@
     {
       "id": "measured-row-classification-complete",
       "status": "LIMITED_EVIDENCE_PRESENT",
-      "summary": "779 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 20 have unknown boundedMemory."
+      "summary": "780 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 20 have unknown boundedMemory."
     },
     {
       "id": "cross-process-aggregate-rows-separated",

@@ -18,7 +18,7 @@ test('file-backed core decomposition separates partial and full-string rows', ()
     '--file',
     join(__dirname, 'test-data', 'runtime-comparison-16mib.xml'),
     '--tools',
-    'stax-scan-all-no-decode,stax-raw-frame-semantic-checksum,stax-stream,stax-raw-frame-name-id',
+    'stax-scan-all-no-decode,stax-raw-frame-span-stats,stax-raw-frame-semantic-checksum,stax-stream,stax-raw-frame-name-id',
     '--chunk-kib',
     '64',
     '--batch-size',
@@ -42,16 +42,20 @@ test('file-backed core decomposition separates partial and full-string rows', ()
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
   assert.equal(report.objective, 'file-backed-core-decomposition');
   assert.equal(report.contract, 'file-backed-parser-core-materialization-decomposition');
-  assert.equal(report.summary.rowCount, 4);
+  assert.equal(report.summary.rowCount, 5);
   assert.equal(report.summary.counterexamples200MiB, 0);
   assert.ok(['stax-stream', 'stax-raw-frame-name-id'].includes(report.summary.fastestFullString.id));
 
   const scan = report.rows.find(row => row.id === 'stax-scan-all-no-decode');
+  const spanStats = report.rows.find(row => row.id === 'stax-raw-frame-span-stats');
   const semantic = report.rows.find(row => row.id === 'stax-raw-frame-semantic-checksum');
   const full = report.rows.find(row => row.id === 'stax-stream');
   const rawNameId = report.rows.find(row => row.id === 'stax-raw-frame-name-id');
   assert.equal(scan.fullStringParity, false);
   assert.equal(scan.family, 'partial-scan');
+  assert.equal(spanStats.fullStringParity, false);
+  assert.equal(spanStats.family, 'partial-span-metadata');
+  assert.equal(spanStats.eventCount, full.eventCount);
   assert.equal(semantic.fullStringParity, false);
   assert.equal(semantic.checksum, full.checksum);
   assert.equal(full.fullStringParity, true);

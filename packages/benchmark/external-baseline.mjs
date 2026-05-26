@@ -21,6 +21,7 @@ const woodstoxJar = join(woodstoxDir, 'target', 'woodstox-baseline-1.0.0-bench.j
 const quickXmlExe = join(quickXmlDir, 'target', 'release', process.platform === 'win32' ? 'quick_xml_baseline.exe' : 'quick_xml_baseline');
 const allTools = [
   'stax-scan-all-no-decode',
+  'stax-raw-frame-span-stats',
   'stax-raw-frame-semantic-checksum',
   'stax-stream',
   'stax-raw-frame-name-id',
@@ -372,6 +373,63 @@ function consumeStaxRawFrameSemanticChecksum(bytes) {
         for (let attrIndex = attrStart; attrIndex < attrEnd; attrIndex++) {
           checksum = foldSemanticSpan(checksum, buffer, attrNameStarts[attrIndex], attrNameEnds[attrIndex], decoder);
           checksum = foldSemanticSpan(checksum, buffer, attrValueStarts[attrIndex], attrValueEnds[attrIndex], decoder);
+        }
+      }
+    }
+  }
+
+  return { eventCount, checksum };
+}
+
+function consumeStaxRawFrameSpanStats(bytes) {
+  const parser = new StreamReaderSync(bytes);
+  let eventCount = 0;
+  let checksum = 0;
+  let frame;
+
+  while ((frame = parser.nextRawBatch()) !== null) {
+    if (frame.kind !== 'frame') {
+      throw new Error(`Unsupported raw batch kind: ${frame.kind}`);
+    }
+    const eventTypes = frame.eventTypes;
+    const nameStarts = frame.nameStarts;
+    const nameEnds = frame.nameEnds;
+    const nameIds = frame.nameIds;
+    const textStarts = frame.textStarts;
+    const textEnds = frame.textEnds;
+    const attrStarts = frame.attrStarts;
+    const attrCounts = frame.attrCounts;
+    const attrNameStarts = frame.attrNameStarts;
+    const attrNameEnds = frame.attrNameEnds;
+    const attrNameIds = frame.attrNameIds;
+    const attrValueStarts = frame.attrValueStarts;
+    const attrValueEnds = frame.attrValueEnds;
+    const count = frame.eventCount;
+
+    for (let index = 0; index < count; index++) {
+      const type = eventTypes[index];
+      eventCount++;
+      checksum = mixChecksum(checksum, type);
+
+      if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+        checksum = mixChecksum(checksum, nameIds[index]);
+        checksum = mixChecksum(checksum, nameEnds[index] - nameStarts[index]);
+      }
+      if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+        const start = textStarts[index];
+        if (start >= 0) {
+          checksum = mixChecksum(checksum, textEnds[index] - start);
+        }
+      }
+      if (type === StreamEventType.START_ELEMENT) {
+        const attrStart = attrStarts[index];
+        const attrCount = attrCounts[index];
+        checksum = mixChecksum(checksum, attrCount);
+        const attrEnd = attrStart + attrCount;
+        for (let attrIndex = attrStart; attrIndex < attrEnd; attrIndex++) {
+          checksum = mixChecksum(checksum, attrNameIds[attrIndex]);
+          checksum = mixChecksum(checksum, attrNameEnds[attrIndex] - attrNameStarts[attrIndex]);
+          checksum = mixChecksum(checksum, attrValueEnds[attrIndex] - attrValueStarts[attrIndex]);
         }
       }
     }
@@ -1394,6 +1452,7 @@ function createMarkdown(report) {
   lines.push('');
   lines.push('- Workload: full-string checksum over event type, element names, trimmed text, attribute names, and attribute values.');
   lines.push('- `stax-scan-all-no-decode` is a partial row: event types plus start-element attribute counts only.');
+  lines.push('- `stax-raw-frame-span-stats` is a partial row: raw frame event types, name ids, and span lengths only.');
   lines.push('- `stax-raw-frame-semantic-checksum` is a same-fields checksum row that avoids JavaScript string materialization on ASCII spans; it is not a full-string materialization row.');
   lines.push(`- \`stax-stream\`, \`stax-raw-frame-name-id\`, \`stax-raw-frame-name-id-long-ascii-text\`, \`stax-raw-frame-name-id-fold-trim\`, \`stax-raw-frame-name-id-trim-boundary-check\`, \`stax-raw-frame-string-cache\`, and \`stax-raw-frame-short-attr-value-cache\` use \`stax-xml\` \`StreamReaderSync\` byte batches; source mode: \`${report.options.staxStreamSource}\`, chunkKiB=${report.options.chunkKiB}, batchSize=${report.options.batchSize}.`);
   lines.push('- `stax-event` uses `stax-xml` `EventReaderSync` public event objects.');
@@ -1418,6 +1477,7 @@ async function main() {
   const needsStaxEvent = options.tools.includes('stax-event');
   const needsPreloadedStaxStream = (
     options.tools.includes('stax-scan-all-no-decode')
+    || options.tools.includes('stax-raw-frame-span-stats')
     || options.tools.includes('stax-raw-frame-semantic-checksum')
     || options.tools.includes('stax-stream')
     || options.tools.includes('stax-raw-frame-name-id')
@@ -1444,6 +1504,18 @@ async function main() {
       results.push(measureLocal('stax-scan-all-no-decode', implementation, run, fileSizeMiB, options, {
         workload: 'event-types-and-attribute-counts-only',
         contractScope: 'partial-scan-no-string-materialization',
+        fullStringParity: false,
+      }));
+    } else if (tool === 'stax-raw-frame-span-stats') {
+      const implementation = options.staxStreamSource === 'file-sync-batches'
+        ? 'Node + stax-xml nextRawBatch span metadata fold file-backed Iterable<Uint8Array[]>'
+        : 'Node + stax-xml nextRawBatch span metadata fold preloaded Uint8Array';
+      const run = options.staxStreamSource === 'file-sync-batches'
+        ? () => consumeStaxRawFrameSpanStats(createFileByteBatches(options.file, chunkBytes, options.batchSize))
+        : () => consumeStaxRawFrameSpanStats(bytes);
+      results.push(measureLocal('stax-raw-frame-span-stats', implementation, run, fileSizeMiB, options, {
+        workload: 'event-types-name-ids-and-span-lengths',
+        contractScope: 'partial-raw-frame-span-metadata-no-string-materialization',
         fullStringParity: false,
       }));
     } else if (tool === 'stax-raw-frame-semantic-checksum') {

@@ -37,13 +37,13 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('concat-buffer-reuse-negative-result.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-materialization-profile.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-long-ascii-text-candidate.json'));
-  assert.equal(report.summary.measuredRowCount, 779);
+  assert.equal(report.summary.measuredRowCount, 780);
   assert.equal(report.summary.aggregateRowCount, 89);
   assert.equal(report.summary.largeJsFullRowCount, 482);
   assert.equal(report.summary.largeJsFullAggregateRowCount, 69);
-  assert.equal(report.summary.sourceModeRowCount, 202);
+  assert.equal(report.summary.sourceModeRowCount, 203);
   assert.equal(report.summary.largeJsFullSourceModeRowCount, 152);
-  assert.equal(report.summary.partialHeadroomRowCount, 22);
+  assert.equal(report.summary.partialHeadroomRowCount, 23);
   assert.equal(report.summary.textMaterializationHeadroomRowCount, 3);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
   assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 20);
@@ -166,9 +166,16 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.partialHeadroomRows.some(row =>
     row.sourceArtifact === 'file-backed-core-decomposition.json'
     && row.id === 'stax-scan-all-no-decode'
-    && row.mibPerSec === 241.63
+    && row.mibPerSec === 234.57
     && row.fullStringParity === false
     && row.contractScope === 'partial-scan-no-string-materialization'
+  ));
+  assert.ok(report.partialHeadroomRows.some(row =>
+    row.sourceArtifact === 'file-backed-core-decomposition.json'
+    && row.id === 'stax-raw-frame-span-stats'
+    && row.mibPerSec === 240.08
+    && row.fullStringParity === false
+    && row.contractScope === 'partial-raw-frame-span-metadata-no-string-materialization'
   ));
   assert.ok(!report.partialHeadroomRows.some(row =>
     row.sourceArtifact === 'text-cache-materialization-candidate.json'
@@ -420,7 +427,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.match(markdown, /Counterexamples found: 0/);
   assert.match(markdown, /Aggregate rows recognized: 89/);
   assert.match(markdown, /1 GiB\+ JS full-string aggregate rows recognized: 69/);
-  assert.match(markdown, /Rows with recognized source mode: 202/);
+  assert.match(markdown, /Rows with recognized source mode: 203/);
   assert.match(markdown, /1 GiB\+ JS full-string rows with recognized source mode: 152/);
   assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Rows With Memory Proof/);
   assert.match(markdown, /Fastest 1 GiB\+ Full-String JS Cross-Process Aggregate Rows With Memory Proof/);

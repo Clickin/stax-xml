@@ -15,6 +15,7 @@ const GIB = 1024 * MIB;
 
 const defaultTools = [
   'stax-scan-all-no-decode',
+  'stax-raw-frame-span-stats',
   'stax-raw-frame-semantic-checksum',
   'stax-stream',
   'stax-raw-frame-name-id',
@@ -231,6 +232,7 @@ function runDecomposition(options) {
 
 function classifyFamily(row) {
   if (classifyFullStringParity(row)) return 'full-string-materialization';
+  if (/span-metadata/i.test(row.contractScope ?? row.workload ?? '')) return 'partial-span-metadata';
   if (/scan/i.test(row.contractScope ?? row.workload ?? '')) return 'partial-scan';
   return 'same-fields-no-string-materialization';
 }
