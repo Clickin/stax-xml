@@ -701,6 +701,39 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.availability?.exactSafariBuildIdentityRecorded === false
     && row.availability?.safariSourceBoundaryPinned === false
   ));
+  assert.equal(report.coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount, 0);
+  assert.equal(report.coverage.spiderMonkeyDiagnostics.jitStatusOnlyCount, 2);
+  assert.equal(report.coverage.spiderMonkeyDiagnostics.missingIrSurfaceCount, 2);
+  assert.ok(report.coverage.spiderMonkeyDiagnostics.rows.some(row =>
+    row.id === 'official-release-jsshell'
+    && row.status === 'available'
+    && row.packageVerified === true
+    && row.hasJitExecutionStatus === true
+    && row.irDumpSurface === false
+    && row.nativeDumpComplete === false
+    && row.canReadBinaryInput === true
+    && row.canRunCurrentStaxFullStringBenchmark === false
+    && row.closesEmittedIrObligation === false
+    && row.evidenceClass === 'jit-status-only'
+  ));
+  assert.ok(report.coverage.spiderMonkeyDiagnostics.rows.some(row =>
+    row.id === 'official-nightly-jsshell'
+    && row.status === 'available'
+    && row.packageVerified === false
+    && row.hasJitExecutionStatus === true
+    && row.irDumpSurface === false
+    && row.nativeDumpComplete === false
+    && row.canReadBinaryInput === true
+    && row.canRunCurrentStaxFullStringBenchmark === false
+    && row.closesEmittedIrObligation === false
+    && row.evidenceClass === 'jit-status-only'
+  ));
+  assert.ok(report.coverage.spiderMonkeyDiagnostics.rows.some(row =>
+    row.id === 'installed-browser-diagnostic-dump'
+    && row.status === 'no-dump-emitted'
+    && row.dumpFileCount === 0
+    && row.closesEmittedIrObligation === false
+  ));
 
   assertObligation(report, 'firefox-browser-rows-open', 'covered');
   assertObligation(report, 'safari-jsc-source-and-browser-rows-open', 'open');
@@ -728,6 +761,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Bun\/JSC allocation evidence present/);
   assert.match(markdown, /Bun\/JSC codegen\/IR evidence present/);
   assert.match(markdown, /Chrome\/V8 browser codegen trace evidence present/);
+  assert.match(markdown, /## SpiderMonkey Diagnostic Surface/);
+  assert.match(markdown, /Emitted SpiderMonkey IR\/codegen evidence artifacts: 0/);
+  assert.match(markdown, /JIT-status-only SpiderMonkey shell artifacts: 2/);
+  assert.match(markdown, /\| `official-release-jsshell` \| `firefox-spidermonkey-release-jsshell-availability-audit\.json` \| available \| jit-status-only \| yes \| no \| no \| no \| no \|/);
+  assert.match(markdown, /\| `official-nightly-jsshell` \| `firefox-spidermonkey-nightly-jsshell-availability-audit\.json` \| available \| jit-status-only \| yes \| no \| no \| no \| no \|/);
   assert.match(markdown, /Firefox\/SpiderMonkey Gecko Profiler trace evidence present/);
   assert.match(markdown, /Firefox\/SpiderMonkey JitSpew\/IONFLAGS source gate evidence present, but it is not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey installed buildconfig source pin present \(buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true\)/);
@@ -746,7 +784,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /\| Firefox\/SpiderMonkey browser \| 22 \| 82 \| 70 \|/);
   assert.match(markdown, /\| Java\/Woodstox \| 12 \| 13 \| 5 \|/);
   assert.match(markdown, /\| Rust\/quick-xml \| 11 \| 19 \| 5 \|/);
-  assert.doesNotMatch(markdown, /\| unknown \|/);
+  assert.doesNotMatch(markdown, /\| unknown \| \d+ \| \d+ \| \d+ \|/);
   assert.match(markdown, /Non-V8 browser allocation evidence present/);
   assert.match(markdown, /Non-V8 browser benchmark rows: 82/);
   assert.match(markdown, /Current release corpus seeds: `books\.xml`, `large\.xml`, `midsize\.xml`, `treebank_e\.xml`/);

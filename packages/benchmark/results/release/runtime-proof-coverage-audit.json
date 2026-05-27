@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-27T00:27:13.118Z",
+  "generatedAt": "2026-05-27T00:38:31.842Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -18715,6 +18715,99 @@
         "sourceArtifact": "v8-string-limit-audit.json"
       }
     ],
+    "spiderMonkeyDiagnostics": {
+      "rows": [
+        {
+          "id": "installed-browser-diagnostic-dump",
+          "sourceArtifact": "firefox-spidermonkey-diagnostic-dump-audit.json",
+          "status": "no-dump-emitted",
+          "packageVerified": null,
+          "foundCount": null,
+          "searchRoots": null,
+          "dumpFileCount": 0,
+          "hasJitExecutionStatus": null,
+          "irDumpSurface": null,
+          "nativeDisassemblySurface": null,
+          "nativeDumpComplete": null,
+          "canReadBinaryInput": null,
+          "canRunCurrentStaxFullStringBenchmark": null,
+          "closesEmittedIrObligation": false,
+          "evidenceClass": "negative-diagnostic-surface"
+        },
+        {
+          "id": "local-js-shell-discovery",
+          "sourceArtifact": "firefox-spidermonkey-js-shell-availability-audit.json",
+          "status": "not-found",
+          "packageVerified": null,
+          "foundCount": 0,
+          "searchRoots": 3,
+          "dumpFileCount": null,
+          "hasJitExecutionStatus": null,
+          "irDumpSurface": null,
+          "nativeDisassemblySurface": null,
+          "nativeDumpComplete": null,
+          "canReadBinaryInput": null,
+          "canRunCurrentStaxFullStringBenchmark": null,
+          "closesEmittedIrObligation": false,
+          "evidenceClass": "negative-diagnostic-surface"
+        },
+        {
+          "id": "official-release-jsshell",
+          "sourceArtifact": "firefox-spidermonkey-release-jsshell-availability-audit.json",
+          "status": "available",
+          "packageVerified": true,
+          "foundCount": null,
+          "searchRoots": null,
+          "dumpFileCount": null,
+          "hasJitExecutionStatus": true,
+          "irDumpSurface": false,
+          "nativeDisassemblySurface": false,
+          "nativeDumpComplete": false,
+          "canReadBinaryInput": true,
+          "canRunCurrentStaxFullStringBenchmark": false,
+          "closesEmittedIrObligation": false,
+          "evidenceClass": "jit-status-only"
+        },
+        {
+          "id": "official-nightly-jsshell",
+          "sourceArtifact": "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
+          "status": "available",
+          "packageVerified": false,
+          "foundCount": null,
+          "searchRoots": null,
+          "dumpFileCount": null,
+          "hasJitExecutionStatus": true,
+          "irDumpSurface": false,
+          "nativeDisassemblySurface": false,
+          "nativeDumpComplete": false,
+          "canReadBinaryInput": true,
+          "canRunCurrentStaxFullStringBenchmark": false,
+          "closesEmittedIrObligation": false,
+          "evidenceClass": "jit-status-only"
+        },
+        {
+          "id": "installed-buildconfig-source-pin",
+          "sourceArtifact": "firefox-spidermonkey-buildconfig-source-pin-audit.json",
+          "status": "source-pin",
+          "packageVerified": null,
+          "foundCount": null,
+          "searchRoots": null,
+          "dumpFileCount": null,
+          "hasJitExecutionStatus": null,
+          "irDumpSurface": null,
+          "nativeDisassemblySurface": null,
+          "nativeDumpComplete": null,
+          "canReadBinaryInput": null,
+          "canRunCurrentStaxFullStringBenchmark": null,
+          "closesEmittedIrObligation": false,
+          "evidenceClass": "source-pin-only"
+        }
+      ],
+      "emittedIrEvidenceCount": 0,
+      "jitStatusOnlyCount": 2,
+      "availabilityOnlyCount": 0,
+      "missingIrSurfaceCount": 2
+    },
     "codegenArtifacts": [
       {
         "sourceArtifact": "browser-v8-codegen-trace.json",

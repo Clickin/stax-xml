@@ -327,6 +327,7 @@ function createCoverage(artifacts, options) {
       .sort((left, right) => right.mibPerSec - left.mibPerSec)
       .slice(0, 12)),
     sourcePins: artifacts.flatMap(artifact => artifact.sourcePins.map(pin => ({ ...pin, sourceArtifact: artifact.sourceArtifact }))),
+    spiderMonkeyDiagnostics: summarizeSpiderMonkeyDiagnostics(artifacts),
     codegenArtifacts: artifacts
       .filter(artifact => artifact.evidenceKinds.includes('TRACE_FACT'))
       .map(artifact => summarizeArtifact(artifact)),
@@ -340,6 +341,83 @@ function createCoverage(artifacts, options) {
       .filter(artifact => artifact.evidenceKinds.includes('NEGATIVE_RESULT'))
       .map(artifact => summarizeArtifact(artifact)),
   };
+}
+
+function summarizeSpiderMonkeyDiagnostics(artifacts) {
+  const byName = new Map(artifacts.map(artifact => [artifact.sourceArtifact, artifact]));
+  const diagnosticDump = byName.get('firefox-spidermonkey-diagnostic-dump-audit.json') ?? null;
+  const localJsShell = byName.get('firefox-spidermonkey-js-shell-availability-audit.json') ?? null;
+  const releaseJsShell = byName.get('firefox-spidermonkey-release-jsshell-availability-audit.json') ?? null;
+  const nightlyJsShell = byName.get('firefox-spidermonkey-nightly-jsshell-availability-audit.json') ?? null;
+  const buildconfig = byName.get('firefox-spidermonkey-buildconfig-source-pin-audit.json') ?? null;
+  const rows = [
+    summarizeSpiderMonkeyDiagnostic('installed-browser-diagnostic-dump', diagnosticDump),
+    summarizeSpiderMonkeyDiagnostic('local-js-shell-discovery', localJsShell),
+    summarizeSpiderMonkeyDiagnostic('official-release-jsshell', releaseJsShell),
+    summarizeSpiderMonkeyDiagnostic('official-nightly-jsshell', nightlyJsShell),
+    summarizeSpiderMonkeyDiagnostic('installed-buildconfig-source-pin', buildconfig),
+  ].filter(Boolean);
+  return {
+    rows,
+    emittedIrEvidenceCount: rows.filter(row => row.closesEmittedIrObligation === true).length,
+    jitStatusOnlyCount: rows.filter(row => row.hasJitExecutionStatus === true && row.closesEmittedIrObligation === false).length,
+    availabilityOnlyCount: rows.filter(row => row.evidenceClass === 'availability-only').length,
+    missingIrSurfaceCount: rows.filter(row => row.irDumpSurface === false || row.nativeDumpComplete === false).length,
+  };
+}
+
+function summarizeSpiderMonkeyDiagnostic(id, artifact) {
+  if (!artifact) return null;
+  const outcome = artifact.outcome ?? {};
+  const hasJitExecutionStatus = typeof outcome.hasJitExecutionStatus === 'boolean'
+    ? outcome.hasJitExecutionStatus
+    : null;
+  const closesEmittedIrObligation = typeof outcome.closesEmittedIrObligation === 'boolean'
+    ? outcome.closesEmittedIrObligation
+    : false;
+  const irDumpSurface = typeof outcome.hasIrDumpSurface === 'boolean'
+    ? outcome.hasIrDumpSurface
+    : null;
+  const nativeDumpComplete = typeof outcome.nativeDumpComplete === 'boolean'
+    ? outcome.nativeDumpComplete
+    : null;
+  return {
+    id,
+    sourceArtifact: artifact.sourceArtifact,
+    status: outcome.status ?? 'source-pin',
+    packageVerified: typeof outcome.packageVerified === 'boolean' ? outcome.packageVerified : null,
+    foundCount: typeof outcome.foundCount === 'number' ? outcome.foundCount : null,
+    searchRoots: artifact.parameters?.searchRoots?.length ?? null,
+    dumpFileCount: typeof outcome.dumpFileCount === 'number' ? outcome.dumpFileCount : null,
+    hasJitExecutionStatus,
+    irDumpSurface,
+    nativeDisassemblySurface: typeof outcome.hasNativeDisassemblySurface === 'boolean'
+      ? outcome.hasNativeDisassemblySurface
+      : null,
+    nativeDumpComplete,
+    canReadBinaryInput: typeof outcome.canReadBinaryInput === 'boolean' ? outcome.canReadBinaryInput : null,
+    canRunCurrentStaxFullStringBenchmark: typeof outcome.canRunCurrentStaxFullStringBenchmark === 'boolean'
+      ? outcome.canRunCurrentStaxFullStringBenchmark
+      : null,
+    closesEmittedIrObligation,
+    evidenceClass: classifySpiderMonkeyDiagnosticEvidence({
+      id,
+      hasJitExecutionStatus,
+      closesEmittedIrObligation,
+      irDumpSurface,
+      nativeDumpComplete,
+      outcome,
+    }),
+  };
+}
+
+function classifySpiderMonkeyDiagnosticEvidence({ id, hasJitExecutionStatus, closesEmittedIrObligation, irDumpSurface, nativeDumpComplete, outcome }) {
+  if (closesEmittedIrObligation) return 'emitted-ir';
+  if (hasJitExecutionStatus) return 'jit-status-only';
+  if (irDumpSurface === false || nativeDumpComplete === false) return 'negative-diagnostic-surface';
+  if (outcome?.status === 'no-dump-emitted' || outcome?.status === 'not-found') return 'negative-diagnostic-surface';
+  if (id.includes('buildconfig')) return 'source-pin-only';
+  return 'availability-only';
 }
 
 function summarizeRowClassificationCompleteness(rows) {
@@ -980,6 +1058,20 @@ function renderMarkdown(report) {
   );
   for (const row of report.coverage.runtimes) {
     lines.push(`| ${row.runtimeLabel} | ${row.artifactCount} | ${row.measuredRowCount} | ${row.largeFullStringRowCount} | ${formatFastest(row.fastestLargeFullStringRow)} | ${row.sourcePins.length} | ${row.traceArtifacts.length} | ${row.allocationArtifacts.length} |`);
+  }
+
+  lines.push(
+    '',
+    '## SpiderMonkey Diagnostic Surface',
+    '',
+    `Emitted SpiderMonkey IR/codegen evidence artifacts: ${report.coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount}`,
+    `JIT-status-only SpiderMonkey shell artifacts: ${report.coverage.spiderMonkeyDiagnostics.jitStatusOnlyCount}`,
+    '',
+    '| Diagnostic | Artifact | Status | Evidence class | JIT status | IR surface | Native dump complete | Current stax benchmark | Closes emitted IR obligation |',
+    '| --- | --- | --- | --- | --- | --- | --- | --- | --- |',
+  );
+  for (const row of report.coverage.spiderMonkeyDiagnostics.rows) {
+    lines.push(`| \`${row.id}\` | \`${row.sourceArtifact}\` | ${row.status} | ${row.evidenceClass} | ${formatBoolean(row.hasJitExecutionStatus)} | ${formatBoolean(row.irDumpSurface)} | ${formatBoolean(row.nativeDumpComplete)} | ${formatBoolean(row.canRunCurrentStaxFullStringBenchmark)} | ${formatBoolean(row.closesEmittedIrObligation)} |`);
   }
 
   lines.push(
