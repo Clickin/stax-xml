@@ -541,6 +541,7 @@ function createRuntimeCoverage(runtimeId, artifacts, allRows) {
 function createObligationRows(coverage) {
   const hasFirefoxRows = coverage.browser.firefoxBenchmarkRows.length > 0;
   const hasSafariRows = coverage.browser.safariBenchmarkRows.length > 0;
+  const closesSafariObligation = coverage.safariWebKitStatus.closesSafariObligation === true;
   const hasNonV8BrowserRows = coverage.browser.nonV8BenchmarkRows.length > 0;
   const corpusSeedCount = coverage.corpusSeeds.length;
   const runtimeById = new Map(coverage.runtimes.map(row => [row.runtimeId, row]));
@@ -601,14 +602,21 @@ function createObligationRows(coverage) {
     },
     {
       id: 'safari-jsc-source-and-browser-rows-open',
-      status: hasSafariRows ? 'covered' : 'open',
-      evidence: hasSafariRows
-        ? `${coverage.browser.safariBenchmarkRows.length} Safari/WebKit browser benchmark rows found.`
+      status: closesSafariObligation ? 'covered' : hasSafariRows ? 'partial' : 'open',
+      evidence: closesSafariObligation
+        ? `${coverage.browser.safariBenchmarkRows.length} Safari/WebKit browser benchmark rows found with exact build identity and source-boundary evidence.`
+        : hasSafariRows
+          ? [
+            `${coverage.browser.safariBenchmarkRows.length} Safari/WebKit browser benchmark rows found, but the obligation is not closed.`,
+            `exactBuildIdentityRecorded=${coverage.safariWebKitStatus.exactBuildIdentityRecorded}; sourceBoundaryPinned=${coverage.safariWebKitStatus.sourceBoundaryPinned}; closesSafariObligation=${coverage.safariWebKitStatus.closesSafariObligation}.`,
+          ].join(' ')
         : [
           'Bun/JSC and Bun-patched WebKit evidence is present, but no Safari/WebKit browser benchmark row was found.',
           hasSafariAvailabilityAudit ? 'Local Safari/WebKit availability audit is present and records that the current host cannot run Safari rows even though the repository has a safaridriver harness when safaridriver is available.' : 'No local Safari/WebKit availability audit was found.',
         ].join(' '),
-      nextExperiment: hasSafariAvailabilityAudit
+      nextExperiment: hasSafariRows && !closesSafariObligation
+        ? 'Record exact Safari/WebKit build identity and source-boundary pins for the measured Safari rows, then rerun the coverage audit and counterexample scan.'
+        : hasSafariAvailabilityAudit
         ? 'Run same-contract Safari/WebKit rows on a macOS host through the safaridriver wrapper and cross-process stability runner.'
         : 'Pin the exact Safari/WebKit browser build and run same-contract browser rows separately from Bun/JSC.',
     },

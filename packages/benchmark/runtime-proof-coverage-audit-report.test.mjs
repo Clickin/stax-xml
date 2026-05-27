@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
@@ -814,6 +814,80 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Current release corpus seeds: `books\.xml`, `large\.xml`, `midsize\.xml`, `treebank_e\.xml`/);
   assert.match(markdown, /2 proof obligation\(s\) remain open or partial/);
   assert.match(markdown, /Missing evidence is not evidence that optimization is impossible/);
+});
+
+test('runtime proof coverage audit does not close Safari on rows alone', () => {
+  const syntheticDir = join(tmpDir, 'safari-row-without-closure');
+  const syntheticJsonOut = join(tmpDir, 'safari-row-without-closure.json');
+  const syntheticMdOut = join(tmpDir, 'safari-row-without-closure.md');
+  resetTmp();
+  mkdirSync(syntheticDir, { recursive: true });
+  writeFileSync(join(syntheticDir, 'safari-webkit-availability-audit.json'), `${JSON.stringify({
+    objective: 'safari-webkit-availability-audit',
+    summary: {
+      hostIsMacOS: true,
+      safariExecutableFound: true,
+      safaridriverFound: true,
+      currentHarnessSupportsSafari: true,
+      canRunSafariBrowserRows: true,
+      safariBenchmarkRowsRecorded: true,
+      exactSafariBuildIdentityRecorded: false,
+      safariSourceBoundaryPinned: false,
+      openObligationRemains: true,
+    },
+  }, null, 2)}\n`);
+  writeFileSync(join(syntheticDir, 'safari-synthetic-browser-row.json'), `${JSON.stringify({
+    objective: 'safari-synthetic-browser-row',
+    contract: 'same-full-string-checksum-contract',
+    environment: {
+      runtimeName: 'browser',
+      browserName: 'Safari',
+      javascriptEngine: 'JavaScriptCore',
+    },
+    fixture: {
+      source: 'corpus-file',
+      sourceFile: 'books.xml',
+      sizeGiB: 1,
+    },
+    rows: [
+      {
+        id: 'safariFullString',
+        mibPerSec: 150,
+        fullStringParity: true,
+        boundedMemory: true,
+        eventCount: 1,
+        checksum: 1,
+        contractScope: 'full-string-checksum',
+      },
+    ],
+  }, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-coverage-audit.mjs'),
+    '--release-dir',
+    syntheticDir,
+    '--json-out',
+    syntheticJsonOut,
+    '--md-out',
+    syntheticMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(syntheticJsonOut, 'utf8'));
+  assert.equal(report.coverage.safariWebKitStatus.evidenceClass, 'browser-row-evidence');
+  assert.equal(report.coverage.safariWebKitStatus.benchmarkRowsRecorded, 1);
+  assert.equal(report.coverage.safariWebKitStatus.exactBuildIdentityRecorded, false);
+  assert.equal(report.coverage.safariWebKitStatus.sourceBoundaryPinned, false);
+  assert.equal(report.coverage.safariWebKitStatus.closesSafariObligation, false);
+  assertObligation(report, 'safari-jsc-source-and-browser-rows-open', 'partial');
+  const obligation = report.obligations.find(item => item.id === 'safari-jsc-source-and-browser-rows-open');
+  assert.match(obligation.evidence, /Safari\/WebKit browser benchmark rows found, but the obligation is not closed/);
+  assert.match(obligation.evidence, /closesSafariObligation=false/);
+  assert.match(obligation.nextExperiment, /exact Safari\/WebKit build identity and source-boundary pins/);
 });
 
 function assertObligation(report, id, status) {
