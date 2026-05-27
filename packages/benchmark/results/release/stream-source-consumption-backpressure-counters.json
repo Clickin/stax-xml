@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T19:59:37.619Z",
+  "generatedAt": "2026-05-27T01:05:55.081Z",
   "objective": "stream-source-consumption-shapes",
   "contract": "same-full-string-checksum-source-consumption-shapes",
   "note": "Compares demand-driven sync Iterable<Uint8Array[]>, async Iterable<Uint8Array[]>, and direct Web ReadableStream<Uint8Array> consumption under the same full-string checksum contract. The ReadableStream source reads only from pull(), and StreamReader groups at most the configured batch size per nextBatch() operation, so it stays bounded by consumer demand and does not pre-materialize the file.",
@@ -168,7 +168,11 @@
     "shapes": [
       "sync-iterable-byte-batches",
       "async-iterable-byte-batches",
-      "web-readable-stream-pull"
+      "async-iterable-raw-frame",
+      "async-iterable-raw-frame-ascii",
+      "web-readable-stream-pull",
+      "web-readable-stream-raw-frame",
+      "web-readable-stream-raw-frame-ascii"
     ],
     "chunkKiB": 64,
     "batchSize": 1,
@@ -202,34 +206,34 @@
       "directReadableStream": false,
       "fullArrayBufferParserInput": false,
       "respectsBackpressure": null,
-      "mibPerSec": 90.55835739728613,
-      "avgMs": 11307.6237,
-      "minMs": 11307.6237,
-      "maxMs": 11307.6237,
+      "mibPerSec": 91.95112666940805,
+      "avgMs": 11136.348899999999,
+      "minMs": 11136.348899999999,
+      "maxMs": 11136.348899999999,
       "sampleCount": 1,
       "sampleSpreadRatio": 0,
       "samplesMs": [
-        11307.6237
+        11136.348899999999
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 136822784,
-        "maxHeapUsedBytes": 6893008,
+        "maxRssBytes": 135745536,
+        "maxHeapUsedBytes": 6588496,
         "samples": [
           {
             "before": {
-              "rssBytes": 62595072,
-              "heapUsedBytes": 4726008,
+              "rssBytes": 62541824,
+              "heapUsedBytes": 4726264,
               "externalBytes": 1986309,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 136822784,
-              "heapUsedBytes": 6893008,
-              "externalBytes": 66245552,
-              "arrayBuffersBytes": 64344279
+              "rssBytes": 135745536,
+              "heapUsedBytes": 6588496,
+              "externalBytes": 66245580,
+              "arrayBuffersBytes": 64344307
             }
           }
         ]
@@ -276,34 +280,182 @@
       "directReadableStream": false,
       "fullArrayBufferParserInput": false,
       "respectsBackpressure": true,
-      "mibPerSec": 67.11693672708496,
-      "avgMs": 15256.9512,
-      "minMs": 15256.9512,
-      "maxMs": 15256.9512,
+      "mibPerSec": 66.3199687178644,
+      "avgMs": 15440.2942,
+      "minMs": 15440.2942,
+      "maxMs": 15440.2942,
       "sampleCount": 1,
       "sampleSpreadRatio": 0,
       "samplesMs": [
-        15256.9512
+        15440.2942
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 77983744,
-        "maxHeapUsedBytes": 9171688,
+        "maxRssBytes": 79130624,
+        "maxHeapUsedBytes": 7132544,
         "samples": [
           {
             "before": {
-              "rssBytes": 120766464,
-              "heapUsedBytes": 5244248,
-              "externalBytes": 66245552,
-              "arrayBuffersBytes": 50879785
+              "rssBytes": 130088960,
+              "heapUsedBytes": 5243912,
+              "externalBytes": 66245580,
+              "arrayBuffersBytes": 57171298
             },
             "after": {
-              "rssBytes": 77983744,
-              "heapUsedBytes": 9171688,
-              "externalBytes": 6641869,
-              "arrayBuffersBytes": 4574424
+              "rssBytes": 79130624,
+              "heapUsedBytes": 7132544,
+              "externalBytes": 5068978,
+              "arrayBuffersBytes": 3001533
+            }
+          }
+        ]
+      },
+      "sourceCounters": {
+        "stable": true,
+        "first": {
+          "readCalls": 16385,
+          "chunkCount": 16384,
+          "byteCount": 1073741644,
+          "batchCount": 2048,
+          "iteratorYields": 2048,
+          "pullCalls": 0,
+          "enqueueCalls": 0,
+          "closeCalls": 1
+        },
+        "samples": [
+          {
+            "readCalls": 16385,
+            "chunkCount": 16384,
+            "byteCount": 1073741644,
+            "batchCount": 2048,
+            "iteratorYields": 2048,
+            "pullCalls": 0,
+            "enqueueCalls": 0,
+            "closeCalls": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "async-iterable-raw-frame-batch-8",
+      "tool": "async-iterable-raw-frame-batch-8",
+      "implementation": "Node + stax-xml StreamReader.nextRawBatch over demand-driven AsyncIterable<Uint8Array[]> file batches (batchSize=8)",
+      "family": "source-consumption-shape",
+      "sourceMode": "async-iterable-byte-batches",
+      "parserInput": "async Iterable<Uint8Array[]>",
+      "accessMode": "raw-frame",
+      "contractScope": "full-string-checksum",
+      "fullStringParity": true,
+      "chunkKiB": 64,
+      "batchSize": 8,
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "respectsBackpressure": true,
+      "mibPerSec": 60.70975431959597,
+      "avgMs": 16867.1384,
+      "minMs": 16867.1384,
+      "maxMs": 16867.1384,
+      "sampleCount": 1,
+      "sampleSpreadRatio": 0,
+      "samplesMs": [
+        16867.1384
+      ],
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 78249984,
+        "maxHeapUsedBytes": 9007672,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 79192064,
+              "heapUsedBytes": 5429648,
+              "externalBytes": 5068978,
+              "arrayBuffersBytes": 3001533
+            },
+            "after": {
+              "rssBytes": 78249984,
+              "heapUsedBytes": 9007672,
+              "externalBytes": 5543111,
+              "arrayBuffersBytes": 3475666
+            }
+          }
+        ]
+      },
+      "sourceCounters": {
+        "stable": true,
+        "first": {
+          "readCalls": 16385,
+          "chunkCount": 16384,
+          "byteCount": 1073741644,
+          "batchCount": 2048,
+          "iteratorYields": 2048,
+          "pullCalls": 0,
+          "enqueueCalls": 0,
+          "closeCalls": 1
+        },
+        "samples": [
+          {
+            "readCalls": 16385,
+            "chunkCount": 16384,
+            "byteCount": 1073741644,
+            "batchCount": 2048,
+            "iteratorYields": 2048,
+            "pullCalls": 0,
+            "enqueueCalls": 0,
+            "closeCalls": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "async-iterable-raw-frame-ascii-batch-8",
+      "tool": "async-iterable-raw-frame-ascii-batch-8",
+      "implementation": "Node + stax-xml StreamReader.nextRawBatch over demand-driven AsyncIterable<Uint8Array[]> file batches with short ASCII span materialization (batchSize=8)",
+      "family": "source-consumption-shape",
+      "sourceMode": "async-iterable-byte-batches",
+      "parserInput": "async Iterable<Uint8Array[]>",
+      "accessMode": "raw-frame-short-ascii",
+      "contractScope": "full-string-checksum",
+      "fullStringParity": true,
+      "chunkKiB": 64,
+      "batchSize": 8,
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "respectsBackpressure": true,
+      "mibPerSec": 72.9380224107399,
+      "avgMs": 14039.314399999996,
+      "minMs": 14039.314399999996,
+      "maxMs": 14039.314399999996,
+      "sampleCount": 1,
+      "sampleSpreadRatio": 0,
+      "samplesMs": [
+        14039.314399999996
+      ],
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 91418624,
+        "maxHeapUsedBytes": 6860560,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 78385152,
+              "heapUsedBytes": 5457696,
+              "externalBytes": 5543111,
+              "arrayBuffersBytes": 1300847
+            },
+            "after": {
+              "rssBytes": 91418624,
+              "heapUsedBytes": 6860560,
+              "externalBytes": 4494514,
+              "arrayBuffersBytes": 2427069
             }
           }
         ]
@@ -350,34 +502,182 @@
       "directReadableStream": true,
       "fullArrayBufferParserInput": false,
       "respectsBackpressure": true,
-      "mibPerSec": 72.68680372125144,
-      "avgMs": 14087.836800000001,
-      "minMs": 14087.836800000001,
-      "maxMs": 14087.836800000001,
+      "mibPerSec": 73.34107375479877,
+      "avgMs": 13962.160299999996,
+      "minMs": 13962.160299999996,
+      "maxMs": 13962.160299999996,
       "sampleCount": 1,
       "sampleSpreadRatio": 0,
       "samplesMs": [
-        14087.836800000001
+        13962.160299999996
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 76480512,
-        "maxHeapUsedBytes": 6403104,
+        "maxRssBytes": 91705344,
+        "maxHeapUsedBytes": 10231592,
         "samples": [
           {
             "before": {
-              "rssBytes": 73560064,
-              "heapUsedBytes": 5423096,
+              "rssBytes": 91574272,
+              "heapUsedBytes": 5491536,
+              "externalBytes": 4494514,
+              "arrayBuffersBytes": 1902959
+            },
+            "after": {
+              "rssBytes": 91705344,
+              "heapUsedBytes": 10231592,
+              "externalBytes": 6641869,
+              "arrayBuffersBytes": 4574424
+            }
+          }
+        ]
+      },
+      "sourceCounters": {
+        "stable": true,
+        "first": {
+          "readCalls": 16385,
+          "chunkCount": 16384,
+          "byteCount": 1073741644,
+          "batchCount": 0,
+          "iteratorYields": 0,
+          "pullCalls": 16385,
+          "enqueueCalls": 16384,
+          "closeCalls": 1
+        },
+        "samples": [
+          {
+            "readCalls": 16385,
+            "chunkCount": 16384,
+            "byteCount": 1073741644,
+            "batchCount": 0,
+            "iteratorYields": 0,
+            "pullCalls": 16385,
+            "enqueueCalls": 16384,
+            "closeCalls": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "web-readable-stream-raw-frame-batch-8",
+      "tool": "web-readable-stream-raw-frame-batch-8",
+      "implementation": "Node + stax-xml StreamReader.nextRawBatch over backpressure-respecting ReadableStream<Uint8Array> pull source (batchSize=8)",
+      "family": "source-consumption-shape",
+      "sourceMode": "web-readable-stream-pull",
+      "parserInput": "Web ReadableStream<Uint8Array>",
+      "accessMode": "raw-frame",
+      "contractScope": "full-string-checksum",
+      "fullStringParity": true,
+      "chunkKiB": 64,
+      "batchSize": 8,
+      "demandDrivenSource": true,
+      "directReadableStream": true,
+      "fullArrayBufferParserInput": false,
+      "respectsBackpressure": true,
+      "mibPerSec": 62.86955961803909,
+      "avgMs": 16287.688899999994,
+      "minMs": 16287.688899999994,
+      "maxMs": 16287.688899999994,
+      "sampleCount": 1,
+      "sampleSpreadRatio": 0,
+      "samplesMs": [
+        16287.688899999994
+      ],
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 85299200,
+        "maxHeapUsedBytes": 7473888,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 82685952,
+              "heapUsedBytes": 5679736,
               "externalBytes": 6641869,
               "arrayBuffersBytes": 22895
             },
             "after": {
-              "rssBytes": 76480512,
-              "heapUsedBytes": 6403104,
-              "externalBytes": 7166157,
-              "arrayBuffersBytes": 2411709
+              "rssBytes": 85299200,
+              "heapUsedBytes": 7473888,
+              "externalBytes": 7640277,
+              "arrayBuffersBytes": 2361533
+            }
+          }
+        ]
+      },
+      "sourceCounters": {
+        "stable": true,
+        "first": {
+          "readCalls": 16385,
+          "chunkCount": 16384,
+          "byteCount": 1073741644,
+          "batchCount": 0,
+          "iteratorYields": 0,
+          "pullCalls": 16385,
+          "enqueueCalls": 16384,
+          "closeCalls": 1
+        },
+        "samples": [
+          {
+            "readCalls": 16385,
+            "chunkCount": 16384,
+            "byteCount": 1073741644,
+            "batchCount": 0,
+            "iteratorYields": 0,
+            "pullCalls": 16385,
+            "enqueueCalls": 16384,
+            "closeCalls": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "web-readable-stream-raw-frame-ascii-batch-8",
+      "tool": "web-readable-stream-raw-frame-ascii-batch-8",
+      "implementation": "Node + stax-xml StreamReader.nextRawBatch over backpressure-respecting ReadableStream<Uint8Array> pull source with short ASCII span materialization (batchSize=8)",
+      "family": "source-consumption-shape",
+      "sourceMode": "web-readable-stream-pull",
+      "parserInput": "Web ReadableStream<Uint8Array>",
+      "accessMode": "raw-frame-short-ascii",
+      "contractScope": "full-string-checksum",
+      "fullStringParity": true,
+      "chunkKiB": 64,
+      "batchSize": 8,
+      "demandDrivenSource": true,
+      "directReadableStream": true,
+      "fullArrayBufferParserInput": false,
+      "respectsBackpressure": true,
+      "mibPerSec": 75.19943612300126,
+      "avgMs": 13617.121100000004,
+      "minMs": 13617.121100000004,
+      "maxMs": 13617.121100000004,
+      "sampleCount": 1,
+      "sampleSpreadRatio": 0,
+      "samplesMs": [
+        13617.121100000004
+      ],
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 91910144,
+        "maxHeapUsedBytes": 13982232,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 84303872,
+              "heapUsedBytes": 5660968,
+              "externalBytes": 4428978,
+              "arrayBuffersBytes": 1300847
+            },
+            "after": {
+              "rssBytes": 91910144,
+              "heapUsedBytes": 13982232,
+              "externalBytes": 9737459,
+              "arrayBuffersBytes": 7670014
             }
           }
         ]
@@ -410,47 +710,47 @@
     }
   ],
   "summary": {
-    "rowCount": 3,
+    "rowCount": 7,
     "fastest": {
       "id": "sync-iterable-byte-batches-batch-8",
-      "mibPerSec": 90.55835739728613,
-      "maxRssBytes": 136822784,
+      "mibPerSec": 91.95112666940805,
+      "maxRssBytes": 135745536,
       "eventCount": 61236571,
       "checksum": -716099804
     },
     "slowest": {
-      "id": "async-iterable-byte-batches-batch-8",
-      "mibPerSec": 67.11693672708496,
-      "maxRssBytes": 77983744,
+      "id": "async-iterable-raw-frame-batch-8",
+      "mibPerSec": 60.70975431959597,
+      "maxRssBytes": 78249984,
       "eventCount": 61236571,
       "checksum": -716099804
     },
     "fastestSyncIterable": {
       "id": "sync-iterable-byte-batches-batch-8",
-      "mibPerSec": 90.55835739728613,
-      "maxRssBytes": 136822784,
+      "mibPerSec": 91.95112666940805,
+      "maxRssBytes": 135745536,
       "eventCount": 61236571,
       "checksum": -716099804
     },
     "fastestAsyncIterable": {
-      "id": "async-iterable-byte-batches-batch-8",
-      "mibPerSec": 67.11693672708496,
-      "maxRssBytes": 77983744,
+      "id": "async-iterable-raw-frame-ascii-batch-8",
+      "mibPerSec": 72.9380224107399,
+      "maxRssBytes": 91418624,
       "eventCount": 61236571,
       "checksum": -716099804
     },
     "fastestReadableStream": {
-      "id": "web-readable-stream-pull-batch-8",
-      "mibPerSec": 72.68680372125144,
-      "maxRssBytes": 76480512,
+      "id": "web-readable-stream-raw-frame-ascii-batch-8",
+      "mibPerSec": 75.19943612300126,
+      "maxRssBytes": 91910144,
       "eventCount": 61236571,
       "checksum": -716099804
     },
     "readableStreamRatioToSyncIterable": null,
     "readableStreamRatioToFastestSyncIterable": null,
-    "fastestReadableStreamRatioToFastestSyncIterable": 0.8026515256054073,
+    "fastestReadableStreamRatioToFastestSyncIterable": 0.8178196270869615,
     "asyncIterableRatioToSyncIterable": null,
-    "fastestAsyncIterableRatioToFastestSyncIterable": 0.741145694953786,
+    "fastestAsyncIterableRatioToFastestSyncIterable": 0.7932259783284007,
     "counterexamples200MiB": 0
   },
   "findings": [
@@ -467,54 +767,68 @@
       "classification": "CONTRACT_FACT",
       "summary": "The current file-backed release comparison uses the sync Iterable<Uint8Array[]> shape, not direct Web ReadableStream consumption; grouped sync rows remain demand-driven parser pulls.",
       "evidence": [
-        "sync-iterable-byte-batches-batch-8: batchSize=8, 90.56 MiB/s"
+        "sync-iterable-byte-batches-batch-8: batchSize=8, 91.95 MiB/s"
       ]
     },
     {
       "id": "sync-batch-size-headroom",
       "classification": "BENCH_FACT",
-      "summary": "The fastest sync Iterable<Uint8Array[]> row was sync-iterable-byte-batches-batch-8 at 90.56 MiB/s; this isolates grouped byte-batch source shape from direct ReadableStream async overhead.",
+      "summary": "The fastest sync Iterable<Uint8Array[]> row was sync-iterable-byte-batches-batch-8 at 91.95 MiB/s; this isolates grouped byte-batch source shape from direct ReadableStream async overhead.",
       "evidence": [
-        "sync-iterable-byte-batches-batch-8: batchSize=8, rss=130.48 MiB, checksum=-716099804"
+        "sync-iterable-byte-batches-batch-8: batchSize=8, rss=129.46 MiB, checksum=-716099804"
       ]
     },
     {
       "id": "async-byte-batch-source-shape",
       "classification": "BENCH_FACT",
-      "summary": "The fastest AsyncIterable<Uint8Array[]> row was async-iterable-byte-batches-batch-8 at 67.12 MiB/s (0.74x of the fastest sync row); this isolates an async batch boundary without direct ReadableStream reads.",
+      "summary": "The fastest AsyncIterable<Uint8Array[]> row was async-iterable-raw-frame-ascii-batch-8 at 72.94 MiB/s (0.79x of the fastest sync row); this isolates an async batch boundary without direct ReadableStream reads.",
       "evidence": [
-        "async-iterable-byte-batches-batch-8: batchSize=8, rss=74.37 MiB, checksum=-716099804"
+        "async-iterable-byte-batches-batch-8: batchSize=8, rss=75.46 MiB, checksum=-716099804",
+        "async-iterable-raw-frame-batch-8: batchSize=8, rss=74.63 MiB, checksum=-716099804",
+        "async-iterable-raw-frame-ascii-batch-8: batchSize=8, rss=87.18 MiB, checksum=-716099804"
       ]
     },
     {
       "id": "async-raw-frame-source-shape",
       "classification": "BENCH_FACT",
-      "summary": "No AsyncIterable nextRawBatch rows were measured.",
-      "evidence": []
+      "summary": "The fastest AsyncIterable nextRawBatch row was async-iterable-raw-frame-ascii-batch-8 at 72.94 MiB/s; this tests the async source with wrapper-free raw frame traversal.",
+      "evidence": [
+        "async-iterable-raw-frame-batch-8: batchSize=8, rss=74.63 MiB, checksum=-716099804",
+        "async-iterable-raw-frame-ascii-batch-8: batchSize=8, rss=87.18 MiB, checksum=-716099804"
+      ]
     },
     {
       "id": "readable-stream-direct-source-shape",
       "classification": "BENCH_FACT",
-      "summary": "Direct ReadableStream consumption reached 72.69 MiB/s (0.80x of the fastest sync Iterable<Uint8Array[]> row); this is a separate source-shape row, not the current release comparison source.",
+      "summary": "Direct ReadableStream consumption reached 75.20 MiB/s (0.82x of the fastest sync Iterable<Uint8Array[]> row); this is a separate source-shape row, not the current release comparison source.",
       "evidence": [
-        "sync-iterable-byte-batches-batch-8=90.56 MiB/s rss=130.48 MiB",
-        "async-iterable-byte-batches-batch-8=67.12 MiB/s rss=74.37 MiB",
-        "web-readable-stream-pull-batch-8=72.69 MiB/s rss=72.94 MiB"
+        "sync-iterable-byte-batches-batch-8=91.95 MiB/s rss=129.46 MiB",
+        "async-iterable-byte-batches-batch-8=66.32 MiB/s rss=75.46 MiB",
+        "async-iterable-raw-frame-batch-8=60.71 MiB/s rss=74.63 MiB",
+        "async-iterable-raw-frame-ascii-batch-8=72.94 MiB/s rss=87.18 MiB",
+        "web-readable-stream-pull-batch-8=73.34 MiB/s rss=87.46 MiB",
+        "web-readable-stream-raw-frame-batch-8=62.87 MiB/s rss=81.35 MiB",
+        "web-readable-stream-raw-frame-ascii-batch-8=75.20 MiB/s rss=87.65 MiB"
       ]
     },
     {
       "id": "readable-stream-batch-size-headroom",
       "classification": "BENCH_FACT",
-      "summary": "The fastest bounded ReadableStream batch row was web-readable-stream-pull-batch-8 at 72.69 MiB/s; this tests whether grouping chunks behind the ReadableStream async boundary exposes headroom.",
+      "summary": "The fastest bounded ReadableStream batch row was web-readable-stream-raw-frame-ascii-batch-8 at 75.20 MiB/s; this tests whether grouping chunks behind the ReadableStream async boundary exposes headroom.",
       "evidence": [
-        "web-readable-stream-pull-batch-8: batchSize=8, rss=72.94 MiB, checksum=-716099804"
+        "web-readable-stream-pull-batch-8: batchSize=8, rss=87.46 MiB, checksum=-716099804",
+        "web-readable-stream-raw-frame-batch-8: batchSize=8, rss=81.35 MiB, checksum=-716099804",
+        "web-readable-stream-raw-frame-ascii-batch-8: batchSize=8, rss=87.65 MiB, checksum=-716099804"
       ]
     },
     {
       "id": "readable-stream-raw-frame-source-shape",
       "classification": "BENCH_FACT",
-      "summary": "No ReadableStream nextRawBatch rows were measured.",
-      "evidence": []
+      "summary": "The fastest ReadableStream nextRawBatch row was web-readable-stream-raw-frame-ascii-batch-8 at 75.20 MiB/s; this tests whether direct ReadableStream rows gain from wrapper-free raw frame traversal.",
+      "evidence": [
+        "web-readable-stream-raw-frame-batch-8: batchSize=8, rss=81.35 MiB, checksum=-716099804",
+        "web-readable-stream-raw-frame-ascii-batch-8: batchSize=8, rss=87.65 MiB, checksum=-716099804"
+      ]
     },
     {
       "id": "backpressure-respected",
@@ -522,7 +836,11 @@
       "summary": "The async byte-batch rows advance the source iterator only from StreamReader.nextBatch(), and the ReadableStream rows read from the file only in pull(). Source counters record stable per-run read, batch/yield, pull, and enqueue counts.",
       "evidence": [
         "async-iterable-byte-batches-batch-8: demandDrivenSource=true, respectsBackpressure=true, batchSize=8, reads=16385, batches=2048, pulls=0, enqueues=0, stable=true",
-        "web-readable-stream-pull-batch-8: demandDrivenSource=true, respectsBackpressure=true, batchSize=8, reads=16385, batches=0, pulls=16385, enqueues=16384, stable=true"
+        "async-iterable-raw-frame-batch-8: demandDrivenSource=true, respectsBackpressure=true, batchSize=8, reads=16385, batches=2048, pulls=0, enqueues=0, stable=true",
+        "async-iterable-raw-frame-ascii-batch-8: demandDrivenSource=true, respectsBackpressure=true, batchSize=8, reads=16385, batches=2048, pulls=0, enqueues=0, stable=true",
+        "web-readable-stream-pull-batch-8: demandDrivenSource=true, respectsBackpressure=true, batchSize=8, reads=16385, batches=0, pulls=16385, enqueues=16384, stable=true",
+        "web-readable-stream-raw-frame-batch-8: demandDrivenSource=true, respectsBackpressure=true, batchSize=8, reads=16385, batches=0, pulls=16385, enqueues=16384, stable=true",
+        "web-readable-stream-raw-frame-ascii-batch-8: demandDrivenSource=true, respectsBackpressure=true, batchSize=8, reads=16385, batches=0, pulls=16385, enqueues=16384, stable=true"
       ]
     },
     {
@@ -532,7 +850,11 @@
       "evidence": [
         "sync-iterable-byte-batches-batch-8: bytes=1073741644, chunks=16384, iteratorYields=2048, pullCalls=0",
         "async-iterable-byte-batches-batch-8: bytes=1073741644, chunks=16384, iteratorYields=2048, pullCalls=0",
-        "web-readable-stream-pull-batch-8: bytes=1073741644, chunks=16384, iteratorYields=0, pullCalls=16385"
+        "async-iterable-raw-frame-batch-8: bytes=1073741644, chunks=16384, iteratorYields=2048, pullCalls=0",
+        "async-iterable-raw-frame-ascii-batch-8: bytes=1073741644, chunks=16384, iteratorYields=2048, pullCalls=0",
+        "web-readable-stream-pull-batch-8: bytes=1073741644, chunks=16384, iteratorYields=0, pullCalls=16385",
+        "web-readable-stream-raw-frame-batch-8: bytes=1073741644, chunks=16384, iteratorYields=0, pullCalls=16385",
+        "web-readable-stream-raw-frame-ascii-batch-8: bytes=1073741644, chunks=16384, iteratorYields=0, pullCalls=16385"
       ]
     }
   ]
