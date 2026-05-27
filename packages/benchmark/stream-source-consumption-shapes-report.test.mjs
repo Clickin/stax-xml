@@ -10,6 +10,7 @@ const repoRoot = resolve(__dirname, '..', '..');
 const tmpDir = join(__dirname, 'results', 'tmp', 'stream-source-consumption-shapes-report-test');
 const jsonOut = join(tmpDir, 'stream-source-consumption-shapes.json');
 const mdOut = join(tmpDir, 'stream-source-consumption-shapes.md');
+const focusedReleaseJson = join(__dirname, 'results', 'release', 'stream-source-consumption-backpressure-counters.json');
 
 test('stream source consumption shapes report separates sync batches from direct ReadableStream source shape', () => {
   resetTmp();
@@ -243,6 +244,90 @@ test('stream source consumption shapes report separates sync batches from direct
   assert.match(markdown, /source-counter-audit/);
   assert.match(markdown, /not the current release comparison source and not a JavaScript runtime ceiling proof/);
   assert.match(markdown, /rather than a global async-overhead conclusion/);
+});
+
+test('focused release source-shape evidence pins batch-8 backpressure counters', () => {
+  const report = JSON.parse(readFileSync(focusedReleaseJson, 'utf8'));
+  assert.equal(report.objective, 'stream-source-consumption-shapes');
+  assert.equal(report.contract, 'same-full-string-checksum-source-consumption-shapes');
+  assert.deepEqual(report.sourceContract.syncBatchSizes, [8]);
+  assert.deepEqual(report.sourceContract.asyncBatchSizes, [8]);
+  assert.deepEqual(report.sourceContract.readableBatchSizes, [8]);
+  assert.equal(report.summary.rowCount, 7);
+  assert.equal(report.summary.counterexamples200MiB, 0);
+  assert.equal(report.summary.fastestSyncIterable.id, 'sync-iterable-byte-batches-batch-8');
+  assert.equal(report.summary.fastestAsyncIterable.id, 'async-iterable-raw-frame-ascii-batch-8');
+  assert.equal(report.summary.fastestReadableStream.id, 'web-readable-stream-raw-frame-ascii-batch-8');
+
+  const rows = new Map(report.rows.map(row => [row.id, row]));
+  const expectedRows = [
+    'sync-iterable-byte-batches-batch-8',
+    'async-iterable-byte-batches-batch-8',
+    'async-iterable-raw-frame-batch-8',
+    'async-iterable-raw-frame-ascii-batch-8',
+    'web-readable-stream-pull-batch-8',
+    'web-readable-stream-raw-frame-batch-8',
+    'web-readable-stream-raw-frame-ascii-batch-8',
+  ];
+  assert.deepEqual([...rows.keys()], expectedRows);
+
+  const syncRow = rows.get('sync-iterable-byte-batches-batch-8');
+  const asyncRow = rows.get('async-iterable-byte-batches-batch-8');
+  const asyncRawRow = rows.get('async-iterable-raw-frame-batch-8');
+  const asyncRawAsciiRow = rows.get('async-iterable-raw-frame-ascii-batch-8');
+  const readableRow = rows.get('web-readable-stream-pull-batch-8');
+  const readableRawRow = rows.get('web-readable-stream-raw-frame-batch-8');
+  const readableRawAsciiRow = rows.get('web-readable-stream-raw-frame-ascii-batch-8');
+
+  for (const row of rows.values()) {
+    assert.equal(row.fullStringParity, true);
+    assert.equal(row.eventCount, 61236571);
+    assert.equal(row.checksum, -716099804);
+    assert.equal(row.batchSize, 8);
+    assert.equal(row.boundedMemory, true);
+    assert.equal(row.demandDrivenSource, true);
+    assert.equal(row.fullArrayBufferParserInput, false);
+    assert.equal(row.sourceCounters.stable, true);
+    assert.equal(row.sourceCounters.first.readCalls, 16385);
+    assert.equal(row.sourceCounters.first.chunkCount, 16384);
+    assert.equal(row.sourceCounters.first.byteCount, report.fixture.sizeBytes);
+  }
+
+  assert.equal(syncRow.parserInput, 'synchronous Iterable<Uint8Array[]>');
+  assert.equal(syncRow.sourceMode, 'sync-iterable-byte-batches');
+  assert.equal(syncRow.accessMode, 'stream-batch');
+  assert.equal(syncRow.directReadableStream, false);
+  assert.equal(syncRow.respectsBackpressure, null);
+  assert.equal(syncRow.sourceCounters.first.batchCount, 2048);
+  assert.equal(syncRow.sourceCounters.first.iteratorYields, 2048);
+  assert.equal(syncRow.sourceCounters.first.pullCalls, 0);
+  assert.equal(syncRow.sourceCounters.first.enqueueCalls, 0);
+
+  for (const row of [asyncRow, asyncRawRow, asyncRawAsciiRow]) {
+    assert.equal(row.parserInput, 'async Iterable<Uint8Array[]>');
+    assert.equal(row.sourceMode, 'async-iterable-byte-batches');
+    assert.equal(row.directReadableStream, false);
+    assert.equal(row.respectsBackpressure, true);
+    assert.equal(row.sourceCounters.first.batchCount, 2048);
+    assert.equal(row.sourceCounters.first.iteratorYields, 2048);
+    assert.equal(row.sourceCounters.first.pullCalls, 0);
+    assert.equal(row.sourceCounters.first.enqueueCalls, 0);
+  }
+  assert.equal(asyncRawRow.accessMode, 'raw-frame');
+  assert.equal(asyncRawAsciiRow.accessMode, 'raw-frame-short-ascii');
+
+  for (const row of [readableRow, readableRawRow, readableRawAsciiRow]) {
+    assert.equal(row.parserInput, 'Web ReadableStream<Uint8Array>');
+    assert.equal(row.sourceMode, 'web-readable-stream-pull');
+    assert.equal(row.directReadableStream, true);
+    assert.equal(row.respectsBackpressure, true);
+    assert.equal(row.sourceCounters.first.batchCount, 0);
+    assert.equal(row.sourceCounters.first.iteratorYields, 0);
+    assert.equal(row.sourceCounters.first.pullCalls, 16385);
+    assert.equal(row.sourceCounters.first.enqueueCalls, 16384);
+  }
+  assert.equal(readableRawRow.accessMode, 'raw-frame');
+  assert.equal(readableRawAsciiRow.accessMode, 'raw-frame-short-ascii');
 });
 
 function resetTmp() {
