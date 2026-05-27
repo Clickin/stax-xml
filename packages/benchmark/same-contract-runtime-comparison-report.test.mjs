@@ -132,6 +132,24 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.summary.sameFixture1024MiBProcessRssSnapshot.quickXml.sourceArtifact, 'file-backed-short-attr-value-cache-candidate.json');
   assert.match(report.summary.sameFixture1024MiBProcessRssSnapshot.caveat, /not allocation-model equivalence/);
   assert.equal(report.summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference.comparableFixture, false);
+  assert.equal(report.summary.textMaterializationFrontier.sourceArtifact, 'text-materialization-frontier.json');
+  assert.equal(report.summary.textMaterializationFrontier.fastestFull.id, 'rawFrameNameId');
+  assert.equal(report.summary.textMaterializationFrontier.fastestFull.mibPerSec, 185.5);
+  assert.equal(report.summary.textMaterializationFrontier.fastestFullRemainingMiBPerSec, 14.5);
+  assert.equal(report.summary.textMaterializationFrontier.requiredSpeedupToTarget, 1.08);
+  assert.equal(report.summary.textMaterializationFrontier.fastestWithoutText.id, 'withoutTextStrings');
+  assert.equal(report.summary.textMaterializationFrontier.fastestWithoutText.mibPerSec, 252.36);
+  assert.equal(report.summary.textMaterializationFrontier.fastestWithoutText.fullStringParity, false);
+  assert.equal(report.summary.textMaterializationFrontier.fastestWithoutTextToFullRatio, 1.36);
+  assert.equal(report.summary.textMaterializationFrontier.noTextRowsCrossTarget, 4);
+  assert.equal(report.summary.textMaterializationFrontier.fullRowsCrossTarget, 0);
+  assert.equal(report.summary.textMaterializationFrontier.negativeCandidateCount, 14);
+  assert.equal(report.summary.textMaterializationFrontier.conclusionAllowed, false);
+  assert.ok(report.metadata.sourceArtifacts.includes('text-materialization-frontier.json'));
+  assert.ok(report.findings.some(finding =>
+    finding.id === 'text-materialization-frontier-visible'
+    && finding.status === 'HEADROOM_CLASSIFIED'
+  ));
   assert.deepEqual(report.summary.memoryMetricKinds, ['browser-js-heap', 'browser-js-heap-unavailable', 'process-rss']);
   assert.deepEqual(report.summary.sourceModes, ['file-backed-sync-iterable-byte-batches', 'sync-iterable-byte-batches']);
   assert.deepEqual(report.summary.sourceShapeSafety, {
@@ -650,6 +668,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id-batch-8 at 0\.43x Woodstox, 164\.29 MiB\/s below 0\.9x target/);
   assert.match(markdown, /Same-fixture 1024 MiB JS row vs quick-xml target: stax-raw-frame-name-id-batch-8 at 0\.55x quick-xml, 95\.06 MiB\/s below 0\.9x target/);
   assert.match(markdown, /Same-fixture 1024 MiB process RSS snapshot: JS 61\.77 MiB, Woodstox 312\.71 MiB, quick-xml 4\.78 MiB/);
+  assert.match(markdown, /Text materialization frontier: fastest full row rawFrameNameId at 185\.50 MiB\/s, 14\.50 MiB\/s below 200 MiB\/s; without-text rows crossing target: 4; negative candidates: 14/);
   assert.match(markdown, /1024 MiB Books Fixture Woodstox 0\.9x Target Distances/);
   assert.match(markdown, /\| `file-backed-batch-size-sweep` \| `stax-raw-frame-name-id-batch-8` \| 152\.11 \| process RSS max 61\.77 MiB \| `file-backed-sync-iterable-byte-batches` \| 351\.56 \| 316\.40 \| 164\.29 \| 0\.43 \| no \| `file-backed-trim-boundary-check-candidate\.json` \| same books 1024 MiB fixture family/);
   assert.match(markdown, /\| `external-baseline-1024mib-file-sync-batches` \| `stax-raw-frame-name-id` \| 132\.54 \| process RSS max 67\.59 MiB \| `file-backed-sync-iterable-byte-batches` \| 337\.97 \| 304\.17 \| 171\.63 \| 0\.39 \| no \| `external-baseline-1024mib-file-sync-batches\.json` \| same artifact Woodstox reference \|/);
@@ -660,6 +679,10 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 170\/170/);
   assert.match(markdown, /1 GiB\+ source-mode rows replaying a corpus seed buffer: 93 \(max seed 100\.26 MiB, max seed\/target 0\.09\)/);
   assert.match(markdown, /\| 1 GiB\+ JS full-string rows with source mode metadata \| 170 \| 170 \| 0 \| 0 \| 93 \| 100\.26 MiB \|/);
+  assert.match(markdown, /## Text Materialization Frontier/);
+  assert.match(markdown, /\| Fastest full row \| `rawFrameNameId` \| 185\.50 \| yes \| yes \| `text-trim-cost-decomposition\.json` \| 14\.50 MiB\/s below 200 MiB\/s; 1\.08x speedup required \|/);
+  assert.match(markdown, /\| Fastest without text\/CDATA strings \| `withoutTextStrings` \| 252\.36 \| no \| yes \| `text-trim-cost-decomposition-4gib\.json` \| 1\.36x fastest full row; 4 row\(s\) cross 200 MiB\/s \|/);
+  assert.match(markdown, /Interpretation: Text\/CDATA omission crosses the target as headroom evidence, while trim-only, fold-trim, cache, and ASCII candidates remain negative for the current full-string contract\./);
   assert.match(markdown, /different corpus fixtures/);
   assert.match(markdown, /access-shape-cross-process-books-corpus/);
   assert.match(markdown, /books-corpus-stability/);
@@ -684,6 +707,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /200 MiB\/s\+ bounded-memory JavaScript counterexamples found: 0/);
   assert.match(markdown, /Woodstox JFR rows are sampled allocation evidence/);
   assert.match(markdown, /dominantPhase=attribute-collection/);
+  assert.match(markdown, /text-materialization-frontier-visible \(HEADROOM_CLASSIFIED\)/);
   assert.match(markdown, /fresh-browser per-variant Windows host process-tree probes/);
   assert.match(markdown, /not proof that JavaScript runtimes have no remaining headroom/);
 });

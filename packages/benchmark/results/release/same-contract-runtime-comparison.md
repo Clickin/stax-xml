@@ -1,6 +1,6 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-27T01:30:37.610Z
+Generated: 2026-05-27T01:44:55.530Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
@@ -26,6 +26,7 @@ This report aggregates existing release artifacts. It compares rows only through
 - Recognized JS source modes: file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches
 - 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 170/170
 - 1 GiB+ source-mode rows replaying a corpus seed buffer: 93 (max seed 100.26 MiB, max seed/target 0.09)
+- Text materialization frontier: fastest full row rawFrameNameId at 185.50 MiB/s, 14.50 MiB/s below 200 MiB/s; without-text rows crossing target: 4; negative candidates: 14
 
 ## Fastest JS Rows By Group
 
@@ -92,6 +93,19 @@ These rows compare the fastest JavaScript full-string row in each 1024 MiB books
 | `file-backed-trim-boundary-check-candidate` | `stax-raw-frame-name-id` | 143.35 | process RSS max 61.40 MiB | `file-backed-sync-iterable-byte-batches` | 273.74 | 246.37 | 103.02 | 0.52 | no | `file-backed-trim-boundary-check-candidate.json` | same artifact quick-xml reference |
 | `file-backed-long-ascii-text-candidate` | `stax-raw-frame-name-id` | 141.29 | process RSS max 61.34 MiB | `file-backed-sync-iterable-byte-batches` | 272.33 | 245.10 | 103.81 | 0.52 | no | `file-backed-long-ascii-text-candidate.json` | same artifact quick-xml reference |
 | `external-baseline-1024mib-file-sync-batches` | `stax-raw-frame-name-id` | 132.54 | process RSS max 67.59 MiB | `file-backed-sync-iterable-byte-batches` | 270.26 | 243.23 | 110.69 | 0.49 | no | `external-baseline-1024mib-file-sync-batches.json` | same artifact quick-xml reference |
+
+## Text Materialization Frontier
+
+This summarizes the nearest current full-string headroom evidence. Rows that omit text/CDATA strings are headroom probes, not full-string StAX counterexamples.
+
+| Scope | Row | MiB/s | Full string parity | Bounded memory | Artifact | Notes |
+| --- | --- | ---: | --- | --- | --- | --- |
+| Fastest full row | `rawFrameNameId` | 185.50 | yes | yes | `text-trim-cost-decomposition.json` | 14.50 MiB/s below 200 MiB/s; 1.08x speedup required |
+| Fastest without text/CDATA strings | `withoutTextStrings` | 252.36 | no | yes | `text-trim-cost-decomposition-4gib.json` | 1.36x fastest full row; 4 row(s) cross 200 MiB/s |
+| Fastest no-trim probe | `rawFrameNameIdNoTrim` | 186.97 | no | n/a | `text-trim-cost-decomposition-8gib.json` | 1.01x fastest full row; 0 row(s) cross 200 MiB/s |
+| Fastest fold-trim probe | `rawFrameNameIdFoldTrim` | 148.58 | yes | n/a | `text-trim-cost-decomposition-2gib.json` | 0.80x fastest full row; 0 row(s) cross 200 MiB/s |
+
+Interpretation: Text/CDATA omission crosses the target as headroom evidence, while trim-only, fold-trim, cache, and ASCII candidates remain negative for the current full-string contract.
 
 ## Source Shape Safety
 
@@ -357,6 +371,13 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - same-fixture-woodstox-rss=312.71 MiB
   - same-fixture-quick-xml-rss=4.78 MiB
   - same-fixture-0.9x-target-met=false
+- text-materialization-frontier-visible (HEADROOM_CLASSIFIED): The nearest full-string row, text/CDATA omission headroom, and negative text-materialization candidates remain visible in the aggregate comparison.
+  - fastestFull=rawFrameNameId@185.50 MiB/s
+  - remainingTo200=14.50 MiB/s
+  - requiredSpeedup=1.08x
+  - withoutText=withoutTextStrings@252.36 MiB/s
+  - withoutTextRowsCrossTarget=4
+  - negativeCandidates=14
 
 ## Limits
 

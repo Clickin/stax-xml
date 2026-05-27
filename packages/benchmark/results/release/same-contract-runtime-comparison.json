@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-27T01:30:37.610Z",
+  "generatedAt": "2026-05-27T01:44:55.530Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -58,7 +58,8 @@
       "quick-xml-allocation-count-stability.json",
       "woodstox-jfr-allocation.json",
       "woodstox-measured-jfr-allocation.json",
-      "woodstox-measured-jfr-allocation-rerun.json"
+      "woodstox-measured-jfr-allocation-rerun.json",
+      "text-materialization-frontier.json"
     ]
   },
   "summary": {
@@ -1787,6 +1788,53 @@
       "corpusSeedReplayRows": 93,
       "maxCorpusSeedMiB": 100.26,
       "maxCorpusSeedToTargetRatio": 0.09
+    },
+    "textMaterializationFrontier": {
+      "sourceArtifact": "text-materialization-frontier.json",
+      "targetMiBPerSec": 200,
+      "fastestFull": {
+        "id": "rawFrameNameId",
+        "sourceArtifact": "text-trim-cost-decomposition.json",
+        "mibPerSec": 185.5,
+        "boundedMemory": true,
+        "fullStringParity": true,
+        "textStringReads": 16987392,
+        "stringFieldReads": 62758976
+      },
+      "fastestWithoutText": {
+        "id": "withoutTextStrings",
+        "sourceArtifact": "text-trim-cost-decomposition-4gib.json",
+        "mibPerSec": 252.36,
+        "boundedMemory": true,
+        "fullStringParity": false,
+        "textStringReads": 0,
+        "stringFieldReads": 183085948
+      },
+      "fastestNoTrim": {
+        "id": "rawFrameNameIdNoTrim",
+        "sourceArtifact": "text-trim-cost-decomposition-8gib.json",
+        "mibPerSec": 186.97,
+        "fullStringParity": false
+      },
+      "fastestFoldTrim": {
+        "id": "rawFrameNameIdFoldTrim",
+        "sourceArtifact": "text-trim-cost-decomposition-2gib.json",
+        "mibPerSec": 148.58,
+        "fullStringParity": true
+      },
+      "fastestFullToTargetRatio": 0.93,
+      "fastestFullRemainingMiBPerSec": 14.5,
+      "requiredSpeedupToTarget": 1.08,
+      "fastestWithoutTextToFullRatio": 1.36,
+      "fastestNoTrimToFullRatio": 1.01,
+      "fastestFoldTrimToFullRatio": 0.8,
+      "noTextRowsCrossTarget": 4,
+      "fullRowsCrossTarget": 0,
+      "noTrimRowsCrossTarget": 0,
+      "foldTrimRowsCrossTarget": 0,
+      "negativeCandidateCount": 14,
+      "conclusionAllowed": false,
+      "interpretation": "Text/CDATA omission crosses the target as headroom evidence, while trim-only, fold-trim, cache, and ASCII candidates remain negative for the current full-string contract."
     },
     "allocationEvidenceKinds": [
       "global-allocator-counters",
@@ -12604,6 +12652,19 @@
         "same-fixture-woodstox-rss=312.71 MiB",
         "same-fixture-quick-xml-rss=4.78 MiB",
         "same-fixture-0.9x-target-met=false"
+      ]
+    },
+    {
+      "id": "text-materialization-frontier-visible",
+      "status": "HEADROOM_CLASSIFIED",
+      "summary": "The nearest full-string row, text/CDATA omission headroom, and negative text-materialization candidates remain visible in the aggregate comparison.",
+      "evidence": [
+        "fastestFull=rawFrameNameId@185.50 MiB/s",
+        "remainingTo200=14.50 MiB/s",
+        "requiredSpeedup=1.08x",
+        "withoutText=withoutTextStrings@252.36 MiB/s",
+        "withoutTextRowsCrossTarget=4",
+        "negativeCandidates=14"
       ]
     }
   ]
