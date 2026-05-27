@@ -1,6 +1,6 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-26T20:59:08.015Z
+Generated: 2026-05-27T00:05:40.669Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
@@ -65,6 +65,19 @@ This report aggregates existing release artifacts. It compares rows only through
 | `cross-process-midsize-corpus` | Bun/JSC | `stringFull` | 91.17 | yes | process RSS max 420.17 MiB | `sync-iterable-byte-batches` | no |
 | `file-backed-batch-size-sweep` | Node/V8 | `stax-raw-frame-name-id-batch-8` | 152.11 | yes | process RSS max 61.77 MiB | `file-backed-sync-iterable-byte-batches` | no |
 | `file-backed-source-sweep` | Node/V8 | `stax-raw-frame-name-id-chunk-32kib` | 151.70 | yes | process RSS max 59.23 MiB | `file-backed-sync-iterable-byte-batches` | no |
+
+## 1024 MiB Books Fixture Woodstox 0.9x Target Distances
+
+These rows compare the fastest JavaScript full-string row in each 1024 MiB books fixture family against the best available Woodstox row for that same fixture family. Rows whose Woodstox reference comes from a separate candidate artifact are still same-fixture target-distance rows, not object-shape or allocation-equivalence proof.
+
+| Group | JS case | JS MiB/s | JS RSS | Source mode | Woodstox MiB/s | 0.9x target | Remaining to 0.9x | JS/Woodstox | Target met | Woodstox artifact | Reference scope |
+| --- | --- | ---: | --- | --- | ---: | ---: | ---: | ---: | --- | --- | --- |
+| `file-backed-batch-size-sweep` | `stax-raw-frame-name-id-batch-8` | 152.11 | process RSS max 61.77 MiB | `file-backed-sync-iterable-byte-batches` | 351.56 | 316.40 | 164.29 | 0.43 | no | `file-backed-trim-boundary-check-candidate.json` | same books 1024 MiB fixture family, but Woodstox reference comes from a separate candidate artifact |
+| `file-backed-source-sweep` | `stax-raw-frame-name-id-chunk-32kib` | 151.70 | process RSS max 59.23 MiB | `file-backed-sync-iterable-byte-batches` | 351.56 | 316.40 | 164.70 | 0.43 | no | `file-backed-trim-boundary-check-candidate.json` | same books 1024 MiB fixture family, but Woodstox reference comes from a separate candidate artifact |
+| `file-backed-short-attr-value-cache-candidate` | `stax-raw-frame-name-id` | 147.05 | process RSS max 61.14 MiB | `file-backed-sync-iterable-byte-batches` | 338.14 | 304.33 | 157.28 | 0.43 | no | `file-backed-short-attr-value-cache-candidate.json` | same artifact Woodstox reference |
+| `file-backed-trim-boundary-check-candidate` | `stax-raw-frame-name-id` | 143.35 | process RSS max 61.40 MiB | `file-backed-sync-iterable-byte-batches` | 351.56 | 316.40 | 173.05 | 0.41 | no | `file-backed-trim-boundary-check-candidate.json` | same artifact Woodstox reference |
+| `file-backed-long-ascii-text-candidate` | `stax-raw-frame-name-id` | 141.29 | process RSS max 61.34 MiB | `file-backed-sync-iterable-byte-batches` | 308.06 | 277.25 | 135.96 | 0.46 | no | `file-backed-long-ascii-text-candidate.json` | same artifact Woodstox reference |
+| `external-baseline-1024mib-file-sync-batches` | `stax-raw-frame-name-id` | 132.54 | process RSS max 67.59 MiB | `file-backed-sync-iterable-byte-batches` | 337.97 | 304.17 | 171.63 | 0.39 | no | `external-baseline-1024mib-file-sync-batches.json` | same artifact Woodstox reference |
 
 ## Source Shape Safety
 
@@ -322,6 +335,7 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - 1024MiB quick-xml=270.26 MiB/s
   - same-fixture-fastest-js=stax-raw-frame-name-id-batch-8
   - same-fixture-fastest-js/Woodstox=0.43
+  - same-fixture-target-distance-rows=6
   - same-fixture-fastest-js-rss=61.77 MiB
   - same-fixture-woodstox-rss=312.71 MiB
   - same-fixture-quick-xml-rss=4.78 MiB

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T20:59:08.015Z",
+  "generatedAt": "2026-05-27T00:05:40.669Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -110,6 +110,332 @@
       "remainingTo90PercentMiBPerSec": 164.29,
       "targetMet": false
     },
+    "sameFixture1024MiBTargetRows": [
+      {
+        "group": "file-backed-batch-size-sweep",
+        "fastestJs": {
+          "group": "file-backed-batch-size-sweep",
+          "runtimeId": "node-v8",
+          "runtimeLabel": "Node/V8",
+          "caseId": "stax-raw-frame-name-id-batch-8",
+          "mibPerSec": 152.11,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 61.77,
+            "deltaMiB": null,
+            "maxHeapUsedMiB": 6.83,
+            "maxExternalMiB": 3.66,
+            "maxArrayBuffersMiB": 1.67
+          },
+          "sourceMode": "file-backed-sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
+          "sourceArtifact": "file-backed-batch-size-sweep.json",
+          "sampleCount": 1,
+          "sampleMinMiBPerSec": null,
+          "sampleMaxMiBPerSec": null,
+          "sampleSpreadRatio": null
+        },
+        "woodstoxReference": {
+          "group": "file-backed-trim-boundary-check-candidate",
+          "runtimeId": "woodstox-jvm",
+          "runtimeLabel": "Java/Woodstox",
+          "caseId": "woodstox",
+          "mibPerSec": 351.56,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 312.71,
+            "deltaMiB": null,
+            "maxHeapUsedMiB": null,
+            "maxExternalMiB": null,
+            "maxArrayBuffersMiB": null
+          },
+          "sourceMode": null,
+          "fullArrayBufferParserInput": null,
+          "sourceArtifact": "file-backed-trim-boundary-check-candidate.json",
+          "sampleCount": null,
+          "sampleMinMiBPerSec": null,
+          "sampleMaxMiBPerSec": null,
+          "sampleSpreadRatio": null
+        },
+        "woodstox90MiBPerSec": 316.4,
+        "jsWoodstoxRatio": 0.43,
+        "remainingTo90PercentMiBPerSec": 164.29,
+        "targetMet": false,
+        "caveat": "same books 1024 MiB fixture family, but Woodstox reference comes from a separate candidate artifact"
+      },
+      {
+        "group": "file-backed-source-sweep",
+        "fastestJs": {
+          "group": "file-backed-source-sweep",
+          "runtimeId": "node-v8",
+          "runtimeLabel": "Node/V8",
+          "caseId": "stax-raw-frame-name-id-chunk-32kib",
+          "mibPerSec": 151.7,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 59.23,
+            "deltaMiB": null,
+            "maxHeapUsedMiB": 7.01,
+            "maxExternalMiB": 3.48,
+            "maxArrayBuffersMiB": 1.49
+          },
+          "sourceMode": "file-backed-sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
+          "sourceArtifact": "file-backed-source-sweep.json",
+          "sampleCount": 1,
+          "sampleMinMiBPerSec": null,
+          "sampleMaxMiBPerSec": null,
+          "sampleSpreadRatio": null
+        },
+        "woodstoxReference": {
+          "group": "file-backed-trim-boundary-check-candidate",
+          "runtimeId": "woodstox-jvm",
+          "runtimeLabel": "Java/Woodstox",
+          "caseId": "woodstox",
+          "mibPerSec": 351.56,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 312.71,
+            "deltaMiB": null,
+            "maxHeapUsedMiB": null,
+            "maxExternalMiB": null,
+            "maxArrayBuffersMiB": null
+          },
+          "sourceMode": null,
+          "fullArrayBufferParserInput": null,
+          "sourceArtifact": "file-backed-trim-boundary-check-candidate.json",
+          "sampleCount": null,
+          "sampleMinMiBPerSec": null,
+          "sampleMaxMiBPerSec": null,
+          "sampleSpreadRatio": null
+        },
+        "woodstox90MiBPerSec": 316.4,
+        "jsWoodstoxRatio": 0.43,
+        "remainingTo90PercentMiBPerSec": 164.7,
+        "targetMet": false,
+        "caveat": "same books 1024 MiB fixture family, but Woodstox reference comes from a separate candidate artifact"
+      },
+      {
+        "group": "file-backed-short-attr-value-cache-candidate",
+        "fastestJs": {
+          "group": "file-backed-short-attr-value-cache-candidate",
+          "runtimeId": "node-v8-stax-raw-frame-name-id",
+          "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
+          "caseId": "stax-raw-frame-name-id",
+          "mibPerSec": 147.05,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 61.14,
+            "deltaMiB": null,
+            "maxHeapUsedMiB": 7.44,
+            "maxExternalMiB": 3.73,
+            "maxArrayBuffersMiB": 1.74
+          },
+          "sourceMode": "file-backed-sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
+          "sourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
+          "sampleCount": null,
+          "sampleMinMiBPerSec": null,
+          "sampleMaxMiBPerSec": null,
+          "sampleSpreadRatio": null
+        },
+        "woodstoxReference": {
+          "group": "file-backed-short-attr-value-cache-candidate",
+          "runtimeId": "woodstox-jvm",
+          "runtimeLabel": "Java/Woodstox",
+          "caseId": "woodstox",
+          "mibPerSec": 338.14,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 318.52,
+            "deltaMiB": null,
+            "maxHeapUsedMiB": null,
+            "maxExternalMiB": null,
+            "maxArrayBuffersMiB": null
+          },
+          "sourceMode": null,
+          "fullArrayBufferParserInput": null,
+          "sourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
+          "sampleCount": null,
+          "sampleMinMiBPerSec": null,
+          "sampleMaxMiBPerSec": null,
+          "sampleSpreadRatio": null
+        },
+        "woodstox90MiBPerSec": 304.33,
+        "jsWoodstoxRatio": 0.43,
+        "remainingTo90PercentMiBPerSec": 157.28,
+        "targetMet": false,
+        "caveat": "same artifact Woodstox reference"
+      },
+      {
+        "group": "file-backed-trim-boundary-check-candidate",
+        "fastestJs": {
+          "group": "file-backed-trim-boundary-check-candidate",
+          "runtimeId": "node-v8-stax-raw-frame-name-id",
+          "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
+          "caseId": "stax-raw-frame-name-id",
+          "mibPerSec": 143.35,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 61.4,
+            "deltaMiB": null,
+            "maxHeapUsedMiB": 7.2,
+            "maxExternalMiB": 3.61,
+            "maxArrayBuffersMiB": 1.62
+          },
+          "sourceMode": "file-backed-sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
+          "sourceArtifact": "file-backed-trim-boundary-check-candidate.json",
+          "sampleCount": null,
+          "sampleMinMiBPerSec": null,
+          "sampleMaxMiBPerSec": null,
+          "sampleSpreadRatio": null
+        },
+        "woodstoxReference": {
+          "group": "file-backed-trim-boundary-check-candidate",
+          "runtimeId": "woodstox-jvm",
+          "runtimeLabel": "Java/Woodstox",
+          "caseId": "woodstox",
+          "mibPerSec": 351.56,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 312.71,
+            "deltaMiB": null,
+            "maxHeapUsedMiB": null,
+            "maxExternalMiB": null,
+            "maxArrayBuffersMiB": null
+          },
+          "sourceMode": null,
+          "fullArrayBufferParserInput": null,
+          "sourceArtifact": "file-backed-trim-boundary-check-candidate.json",
+          "sampleCount": null,
+          "sampleMinMiBPerSec": null,
+          "sampleMaxMiBPerSec": null,
+          "sampleSpreadRatio": null
+        },
+        "woodstox90MiBPerSec": 316.4,
+        "jsWoodstoxRatio": 0.41,
+        "remainingTo90PercentMiBPerSec": 173.05,
+        "targetMet": false,
+        "caveat": "same artifact Woodstox reference"
+      },
+      {
+        "group": "file-backed-long-ascii-text-candidate",
+        "fastestJs": {
+          "group": "file-backed-long-ascii-text-candidate",
+          "runtimeId": "node-v8-stax-raw-frame-name-id",
+          "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
+          "caseId": "stax-raw-frame-name-id",
+          "mibPerSec": 141.29,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 61.34,
+            "deltaMiB": null,
+            "maxHeapUsedMiB": 6.92,
+            "maxExternalMiB": 2.98,
+            "maxArrayBuffersMiB": 0.99
+          },
+          "sourceMode": "file-backed-sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
+          "sourceArtifact": "file-backed-long-ascii-text-candidate.json",
+          "sampleCount": null,
+          "sampleMinMiBPerSec": null,
+          "sampleMaxMiBPerSec": null,
+          "sampleSpreadRatio": null
+        },
+        "woodstoxReference": {
+          "group": "file-backed-long-ascii-text-candidate",
+          "runtimeId": "woodstox-jvm",
+          "runtimeLabel": "Java/Woodstox",
+          "caseId": "woodstox",
+          "mibPerSec": 308.06,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 310.86,
+            "deltaMiB": null,
+            "maxHeapUsedMiB": null,
+            "maxExternalMiB": null,
+            "maxArrayBuffersMiB": null
+          },
+          "sourceMode": null,
+          "fullArrayBufferParserInput": null,
+          "sourceArtifact": "file-backed-long-ascii-text-candidate.json",
+          "sampleCount": null,
+          "sampleMinMiBPerSec": null,
+          "sampleMaxMiBPerSec": null,
+          "sampleSpreadRatio": null
+        },
+        "woodstox90MiBPerSec": 277.25,
+        "jsWoodstoxRatio": 0.46,
+        "remainingTo90PercentMiBPerSec": 135.96,
+        "targetMet": false,
+        "caveat": "same artifact Woodstox reference"
+      },
+      {
+        "group": "external-baseline-1024mib-file-sync-batches",
+        "fastestJs": {
+          "group": "external-baseline-1024mib-file-sync-batches",
+          "runtimeId": "node-v8-stax-raw-frame-name-id",
+          "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
+          "caseId": "stax-raw-frame-name-id",
+          "mibPerSec": 132.54,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 67.59,
+            "deltaMiB": null,
+            "maxHeapUsedMiB": 9.28,
+            "maxExternalMiB": 3.98,
+            "maxArrayBuffersMiB": 1.99
+          },
+          "sourceMode": "file-backed-sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
+          "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json",
+          "sampleCount": null,
+          "sampleMinMiBPerSec": null,
+          "sampleMaxMiBPerSec": null,
+          "sampleSpreadRatio": null
+        },
+        "woodstoxReference": {
+          "group": "external-baseline-1024mib-file-sync-batches",
+          "runtimeId": "woodstox-jvm",
+          "runtimeLabel": "Java/Woodstox",
+          "caseId": "woodstox",
+          "mibPerSec": 337.97,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 312.07,
+            "deltaMiB": null,
+            "maxHeapUsedMiB": null,
+            "maxExternalMiB": null,
+            "maxArrayBuffersMiB": null
+          },
+          "sourceMode": null,
+          "fullArrayBufferParserInput": null,
+          "sourceArtifact": "external-baseline-1024mib-file-sync-batches.json",
+          "sampleCount": null,
+          "sampleMinMiBPerSec": null,
+          "sampleMaxMiBPerSec": null,
+          "sampleSpreadRatio": null
+        },
+        "woodstox90MiBPerSec": 304.17,
+        "jsWoodstoxRatio": 0.39,
+        "remainingTo90PercentMiBPerSec": 171.63,
+        "targetMet": false,
+        "caveat": "same artifact Woodstox reference"
+      }
+    ],
     "sameFixture1024MiBProcessRssSnapshot": {
       "caveat": "Process RSS values are same-fixture endpoint evidence, not allocation-model equivalence across Java, Rust, and JavaScript runtimes.",
       "fastestJs": {
@@ -11932,6 +12258,7 @@
         "1024MiB quick-xml=270.26 MiB/s",
         "same-fixture-fastest-js=stax-raw-frame-name-id-batch-8",
         "same-fixture-fastest-js/Woodstox=0.43",
+        "same-fixture-target-distance-rows=6",
         "same-fixture-fastest-js-rss=61.77 MiB",
         "same-fixture-woodstox-rss=312.71 MiB",
         "same-fixture-quick-xml-rss=4.78 MiB",

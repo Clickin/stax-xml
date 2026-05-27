@@ -931,6 +931,29 @@ function summarizeSourceShapeSafety(rows) {
   };
 }
 
+function summarizeWoodstoxTargetDistance(group, groupRows, woodstoxReference) {
+  const fastestJs = maxBy(
+    groupRows.filter(row => row.jsRuntime && row.fullStringParity),
+    row => row.mibPerSec,
+  );
+  if (!fastestJs || !woodstoxReference) {
+    return null;
+  }
+  const target90MiBPerSec = round(woodstoxReference.mibPerSec * 0.9);
+  return {
+    group,
+    fastestJs: summarizeRow(fastestJs),
+    woodstoxReference: summarizeRow(woodstoxReference),
+    woodstox90MiBPerSec: target90MiBPerSec,
+    jsWoodstoxRatio: round(fastestJs.mibPerSec / woodstoxReference.mibPerSec),
+    remainingTo90PercentMiBPerSec: round(target90MiBPerSec - fastestJs.mibPerSec),
+    targetMet: fastestJs.mibPerSec >= target90MiBPerSec,
+    caveat: fastestJs.sourceArtifact === woodstoxReference.sourceArtifact
+      ? 'same artifact Woodstox reference'
+      : 'same books 1024 MiB fixture family, but Woodstox reference comes from a separate candidate artifact',
+  };
+}
+
 function summarize(rows, allocationEvidence) {
   const jsLargeFullRows = rows.filter(row =>
     row.jsRuntime
@@ -977,6 +1000,18 @@ function summarize(rows, allocationEvidence) {
     sameFixture1024MiBRows.filter(row => row.jsRuntime && row.fullStringParity),
     row => row.mibPerSec,
   );
+  const sameFixture1024MiBTargetRows = Array.from(
+    groupBy(sameFixture1024MiBRows, row => row.group),
+    ([group, groupRows]) => {
+      const groupWoodstox = maxBy(
+        groupRows.filter(row => row.runtimeId === 'woodstox-jvm'),
+        row => row.mibPerSec,
+      );
+      return summarizeWoodstoxTargetDistance(group, groupRows, groupWoodstox ?? sameFixtureWoodstox);
+    },
+  )
+    .filter(Boolean)
+    .sort((left, right) => (right.fastestJs?.mibPerSec ?? -Infinity) - (left.fastestJs?.mibPerSec ?? -Infinity));
   const fastestJsLargeFullRowMibPerSec = fastestJsLargeFullRow?.mibPerSec ?? null;
   const largeWoodstoxMibPerSec = largeWoodstox?.mibPerSec ?? null;
   const sameFixtureWoodstoxMibPerSec = sameFixtureWoodstox?.mibPerSec ?? null;
@@ -1025,6 +1060,7 @@ function summarize(rows, allocationEvidence) {
         ? fastestSameFixtureLargeJsMibPerSec >= sameFixtureTargetWoodstox90MiBPerSec
         : null,
     },
+    sameFixture1024MiBTargetRows,
     sameFixture1024MiBProcessRssSnapshot: {
       caveat: 'Process RSS values are same-fixture endpoint evidence, not allocation-model equivalence across Java, Rust, and JavaScript runtimes.',
       fastestJs: summarizeProcessRssRow(fastestSameFixtureLargeJsRow),
@@ -1109,6 +1145,7 @@ function createFindings(summary) {
         `1024MiB quick-xml=${formatNumber(summary.externalBaseline1024MiBFileSyncBatches.quickXmlMiBPerSec)} MiB/s`,
         `same-fixture-fastest-js=${summary.sameFixture1024MiBWoodstoxTarget.fastestJsCaseId}`,
         `same-fixture-fastest-js/Woodstox=${formatNumber(summary.sameFixture1024MiBWoodstoxTarget.fastestJsWoodstoxRatio)}`,
+        `same-fixture-target-distance-rows=${summary.sameFixture1024MiBTargetRows.length}`,
         `same-fixture-fastest-js-rss=${formatNumber(summary.sameFixture1024MiBProcessRssSnapshot.fastestJs?.maxRssMiB)} MiB`,
         `same-fixture-woodstox-rss=${formatNumber(summary.sameFixture1024MiBProcessRssSnapshot.woodstox?.maxRssMiB)} MiB`,
         `same-fixture-quick-xml-rss=${formatNumber(summary.sameFixture1024MiBProcessRssSnapshot.quickXml?.maxRssMiB)} MiB`,
@@ -1157,6 +1194,20 @@ function renderMarkdown(report) {
   for (const item of report.summary.fastestRowsByGroup) {
     const row = item.fastest;
     lines.push(`| \`${item.group}\` | ${row.runtimeLabel} | \`${row.caseId}\` | ${formatNumber(row.mibPerSec)} | ${row.boundedMemory ? 'yes' : 'no'} | ${formatMemory(row.memory)} | ${formatSourceMode(row.sourceMode)} | ${formatFullArrayBufferInput(row.fullArrayBufferParserInput)} |`);
+  }
+
+  lines.push(
+    '',
+    '## 1024 MiB Books Fixture Woodstox 0.9x Target Distances',
+    '',
+    'These rows compare the fastest JavaScript full-string row in each 1024 MiB books fixture family against the best available Woodstox row for that same fixture family. Rows whose Woodstox reference comes from a separate candidate artifact are still same-fixture target-distance rows, not object-shape or allocation-equivalence proof.',
+    '',
+    '| Group | JS case | JS MiB/s | JS RSS | Source mode | Woodstox MiB/s | 0.9x target | Remaining to 0.9x | JS/Woodstox | Target met | Woodstox artifact | Reference scope |',
+    '| --- | --- | ---: | --- | --- | ---: | ---: | ---: | ---: | --- | --- | --- |',
+  );
+
+  for (const item of report.summary.sameFixture1024MiBTargetRows) {
+    lines.push(`| \`${item.group}\` | \`${item.fastestJs.caseId}\` | ${formatNumber(item.fastestJs.mibPerSec)} | ${formatMemory(item.fastestJs.memory)} | ${formatSourceMode(item.fastestJs.sourceMode)} | ${formatNumber(item.woodstoxReference.mibPerSec)} | ${formatNumber(item.woodstox90MiBPerSec)} | ${formatNumber(item.remainingTo90PercentMiBPerSec)} | ${formatNumber(item.jsWoodstoxRatio)} | ${item.targetMet ? 'yes' : 'no'} | \`${item.woodstoxReference.sourceArtifact}\` | ${item.caveat} |`);
   }
 
   lines.push(
