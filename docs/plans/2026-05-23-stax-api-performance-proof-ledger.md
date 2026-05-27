@@ -119,8 +119,8 @@ this ledger's claim table, checks required guard claims and artifact mentions,
 and records whether the broad runtime-limit conclusion is currently allowed.
 
 The current gate report passes with status `incomplete-proof-correctly-blocked`:
-all 10 required claim guards are satisfied, all 33 required artifact mentions
-are present, all 5 required open-obligation disclosures are present, and all 12
+all 10 required claim guards are satisfied, all 35 required artifact mentions
+are present, all 5 required open-obligation disclosures are present, and all 14
 proof-rule checks are satisfied. The important result is
 `conclusionAllowed: false`, not a proof of impossibility.
 The runtime-limit claim remains `HYPOTHESIS`, while the gate confirms that
@@ -165,7 +165,7 @@ text, trim-guard, offset text-cache, attribute-value cache, Bun/JSC cache
 candidate, text-checksum consumer decomposition, and semantic checksum
 upper-bound artifacts under the same checksum contract.
 
-The current aggregate has 207 aggregated rows and 176 JavaScript 1 GiB+
+The current aggregate has 210 aggregated rows and 179 JavaScript 1 GiB+
 full-string rows. It finds zero 200 MiB/s+ bounded-memory JavaScript
 counterexamples in those artifacts. The fastest aggregated 1 GiB+ JavaScript
 full-string row is Node/V8 `rawFrameNameId` from
@@ -179,9 +179,9 @@ row is `sync-iterable-byte-batches`, the fastest public event-object row is also
 `sync-iterable-byte-batches`, and the 1024 MiB file-backed stax baseline is
 `file-backed-sync-iterable-byte-batches`; older artifacts without source
 metadata remain `n/a` rather than inferred. The same-contract report now also
-classifies the source-shape guard locally: all 170 JavaScript 1 GiB+ full-string
+classifies the source-shape guard locally: all 173 JavaScript 1 GiB+ full-string
 rows with source-mode metadata in this aggregate are marked as not full
-`ArrayBuffer` parser-input rows. It separately records 93 corpus-seed replay
+`ArrayBuffer` parser-input rows. It separately records 96 corpus-seed replay
 rows, with a maximum seed size of 100.26 MiB and a maximum seed/target ratio of
 0.09, so corpus replay is not collapsed into the full-target `ArrayBuffer`
 parser-input claim. That is 0.93x of the 200 MiB/s target and
@@ -642,6 +642,20 @@ records no JitSpew/IR dump flag surface, no active disassembler, and an
 incomplete `disnative` byte dump. These are local availability and
 JIT-status/diagnostic-surface facts, not Safari/WebKit benchmark evidence, not emitted
 SpiderMonkey JIT IR, and not runtime-limit proof.
+
+The handoff also consumes `same-contract-runtime-comparison.json` as structured
+source-consumption evidence. Its source-consumption evidence status is
+`classified`: the aggregate has 210 rows, source modes
+`fetch-async-iterable-byte-batches`, `fetch-readable-stream-pull`,
+`file-backed-sync-iterable-byte-batches`, and `sync-iterable-byte-batches`; all
+173 JavaScript 1 GiB+ full-string rows with source-mode metadata are not full
+`ArrayBuffer` parser-input rows; Node source frontier records
+`sync-iterable-byte-batches-batch-8` at 91.95 MiB/s versus
+`web-readable-stream-raw-frame-ascii-batch-8` at 75.20 MiB/s with backpressure
+6/6; browser live fetch frontier records `fetchReadableStreamFull` at 9.68
+MiB/s and `fetchAsyncByteBatchFull` at 9.77 MiB/s with backpressure 2/2. This
+classification closes only the source-consumption guard; Safari/WebKit browser
+rows and SpiderMonkey emitted IR remain active obligations.
 
 ## Current Evidence: Multi-Chunk Byte Batch Probe
 

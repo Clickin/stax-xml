@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-27T01:14:15.428Z",
+  "generatedAt": "2026-05-27T02:32:33.946Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -291,6 +291,11 @@
       "id": "event-reader-byte-batch-cross-process-corpus.md",
       "file": "event-reader-byte-batch-cross-process-corpus.md",
       "present": true
+    },
+    {
+      "id": "runtime-proof-gap-handoff.md",
+      "file": "runtime-proof-gap-handoff.md",
+      "present": true
     }
   ],
   "openObligations": [
@@ -393,6 +398,12 @@
       "satisfied": true
     },
     {
+      "id": "handoff-source-consumption-classified",
+      "pattern": {},
+      "description": "The handoff must carry classified source-consumption evidence without closing Safari/WebKit or SpiderMonkey obligations.",
+      "satisfied": true
+    },
+    {
       "id": "woodstox-reference-not-identical-input",
       "pattern": {},
       "description": "Cross-fixture Woodstox ratios must remain target-distance references, not identical-input target passes.",
@@ -408,11 +419,11 @@
   "summary": {
     "satisfiedClaimGuards": 10,
     "requiredClaimGuards": 10,
-    "presentArtifactMentions": 34,
-    "requiredArtifactMentions": 34,
+    "presentArtifactMentions": 35,
+    "requiredArtifactMentions": 35,
     "disclosedOpenObligations": 5,
     "requiredOpenObligations": 5,
-    "satisfiedProofRules": 13,
-    "requiredProofRules": 13
+    "satisfiedProofRules": 14,
+    "requiredProofRules": 14
   }
 }

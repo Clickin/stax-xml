@@ -50,12 +50,14 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.artifactMentions.some(item => item.file === 'firefox-spidermonkey-textdecoder-source-pin-audit.md' && item.present));
   assert.ok(report.artifactMentions.some(item => item.file === 'firefox-bidi-candidate-headroom.md' && item.present));
   assert.ok(report.artifactMentions.some(item => item.file === 'stream-source-consumption-backpressure-counters.md' && item.present));
+  assert.ok(report.artifactMentions.some(item => item.file === 'runtime-proof-gap-handoff.md' && item.present));
   assert.ok(report.proofRules.some(item => item.id === 'target-contract-not-object-shape' && item.satisfied));
   assert.ok(report.proofRules.some(item => item.id === 'lazy-getters-reopen-burden' && item.satisfied));
   assert.ok(report.proofRules.some(item => item.id === 'source-shapes-separated' && item.satisfied));
   assert.ok(report.proofRules.some(item => item.id === 'byte-batches-not-full-arraybuffer' && item.satisfied));
   assert.ok(report.proofRules.some(item => item.id === 'byte-batch-backpressure-preserved' && item.satisfied));
   assert.ok(report.proofRules.some(item => item.id === 'raw-frame-source-shapes-backpressure-counted' && item.satisfied));
+  assert.ok(report.proofRules.some(item => item.id === 'handoff-source-consumption-classified' && item.satisfied));
   assert.ok(report.proofRules.some(item => item.id === 'woodstox-reference-not-identical-input' && item.satisfied));
   assert.ok(report.proofRules.some(item => item.id === 'same-fixture-woodstox-target-unmet' && item.satisfied));
 
@@ -71,6 +73,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /source-shapes-separated/);
   assert.match(markdown, /byte-batch-backpressure-preserved/);
   assert.match(markdown, /raw-frame-source-shapes-backpressure-counted/);
+  assert.match(markdown, /handoff-source-consumption-classified/);
   assert.match(markdown, /woodstox-reference-not-identical-input/);
   assert.match(markdown, /same-fixture-woodstox-target-unmet/);
   assert.match(markdown, /A future 200 MiB\/s\+ bounded-memory full-string JavaScript row remains a counterexample/);
@@ -150,11 +153,12 @@ function createLedgerFixture(runtimeStatus) {
     '| `CLAIM-BUN-TEXTDECODER-DISPATCH-SOURCE-BOUNDARY` | Bun dispatch source boundary. | `SOURCE_FACT` + `COUNTEREXAMPLE` | bun-textdecoder-dispatch-source-pin-audit.md | Not throughput. |',
     '| `CLAIM-FIREFOX-SPIDERMONKEY-TEXTDECODER-SOURCE-BOUNDARY` | Firefox/Gecko source boundary. | `SOURCE_FACT` | firefox-spidermonkey-textdecoder-source-pin-audit.md | Not heap/allocation, not generated-code evidence. |',
     '',
-    'Artifacts: same-contract-runtime-comparison.md, runtime-counterexample-scan.md, runtime-proof-coverage-audit.md, quick-xml-allocation-count.md, quick-xml-allocation-count-stability.md, woodstox-hotspot-trace.md, woodstox-jfr-allocation.md, woodstox-measured-jfr-allocation.md, woodstox-measured-jfr-allocation-rerun.md, candidate-headroom-large.md, bun-candidate-headroom-large.md, browser-candidate-headroom-large.md, firefox-bidi-candidate-headroom.md, text-cdata-cost-decomposition.md, text-materialization-frontier.md, text-trim-guard-candidate.md, text-ascii-pretrim-candidate.md, all-ascii-span-materialization-candidate.md, sync-byte-batch-shape-batch1.md, sync-byte-batch-shape-batch16.md, bun-textdecoder-span-variants.md, browser-textdecoder-span-variants.md, bun-jsc-partial-codegen-trace.md, bun-jsc-textdecoder-codegen-trace.md, stream-source-consumption-shapes.md, stream-source-consumption-backpressure-counters.md, event-reader-byte-batch-cross-process-corpus.md.',
+    'Artifacts: same-contract-runtime-comparison.md, runtime-counterexample-scan.md, runtime-proof-coverage-audit.md, quick-xml-allocation-count.md, quick-xml-allocation-count-stability.md, woodstox-hotspot-trace.md, woodstox-jfr-allocation.md, woodstox-measured-jfr-allocation.md, woodstox-measured-jfr-allocation-rerun.md, candidate-headroom-large.md, bun-candidate-headroom-large.md, browser-candidate-headroom-large.md, firefox-bidi-candidate-headroom.md, text-cdata-cost-decomposition.md, text-materialization-frontier.md, text-trim-guard-candidate.md, text-ascii-pretrim-candidate.md, all-ascii-span-materialization-candidate.md, sync-byte-batch-shape-batch1.md, sync-byte-batch-shape-batch16.md, bun-textdecoder-span-variants.md, browser-textdecoder-span-variants.md, bun-jsc-partial-codegen-trace.md, bun-jsc-textdecoder-codegen-trace.md, stream-source-consumption-shapes.md, stream-source-consumption-backpressure-counters.md, event-reader-byte-batch-cross-process-corpus.md, runtime-proof-gap-handoff.md.',
     '',
     'Source-shape rules: direct ReadableStream overhead evidence stays',
     'distinct from synchronous byte-batch rows. The current large matrix does not prebuild one repeated 1 GiB ArrayBuffer parser input. The byte-batch rows preserve backpressure by pulling at most the next batch on demand.',
     'The focused audit now includes seven source-shape rows: async `nextRawBatch()` raw-frame rows and direct `ReadableStream` `nextRawBatch()` raw-frame rows under the same backpressure counter contract.',
+    'The handoff source-consumption evidence status is `classified`: all 173 JavaScript 1 GiB+ full-string rows with source-mode metadata are not full `ArrayBuffer` parser-input rows, browser live fetch frontier records `fetchReadableStreamFull` at 9.68 MiB/s and `fetchAsyncByteBatchFull` at 9.77 MiB/s, and Safari/WebKit browser rows and SpiderMonkey emitted IR remain active obligations.',
     '',
     'Woodstox target rules: the fastest aggregated JS row and the 1024 MiB Woodstox reference can come from different corpus fixtures. Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id-chunk-32kib at 0.80x Woodstox, 19.95 MiB/s below 0.9x target.',
     '',

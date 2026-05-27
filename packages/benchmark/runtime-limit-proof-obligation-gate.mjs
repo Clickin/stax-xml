@@ -108,6 +108,7 @@ const requiredArtifactMentions = [
   'stream-source-consumption-shapes.md',
   'stream-source-consumption-backpressure-counters.md',
   'event-reader-byte-batch-cross-process-corpus.md',
+  'runtime-proof-gap-handoff.md',
 ];
 
 const openObligationDisclosures = [
@@ -193,6 +194,11 @@ const requiredProofRules = [
     id: 'raw-frame-source-shapes-backpressure-counted',
     pattern: /focused audit now includes seven source-shape rows[\s\S]+?async `nextRawBatch\(\)` raw-frame[\s\S]+?direct\s+`ReadableStream` `nextRawBatch\(\)` raw-frame[\s\S]+?same backpressure counter contract/i,
     description: 'Focused source-shape evidence must include raw-frame async and ReadableStream rows under the same backpressure counters.',
+  },
+  {
+    id: 'handoff-source-consumption-classified',
+    pattern: /source-consumption evidence status is\s+`classified`[\s\S]+?all\s+173 JavaScript 1 GiB\+ full-string rows with source-mode metadata are not full\s+`ArrayBuffer` parser-input rows[\s\S]+?browser live fetch frontier records `fetchReadableStreamFull` at 9\.68\s+MiB\/s and `fetchAsyncByteBatchFull` at 9\.77 MiB\/s[\s\S]+?Safari\/WebKit browser\s+rows and SpiderMonkey emitted IR remain active obligations/i,
+    description: 'The handoff must carry classified source-consumption evidence without closing Safari/WebKit or SpiderMonkey obligations.',
   },
   {
     id: 'woodstox-reference-not-identical-input',
