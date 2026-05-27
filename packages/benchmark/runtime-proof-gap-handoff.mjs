@@ -4,12 +4,14 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const defaultAuditJson = resolve(__dirname, 'results', 'release', 'runtime-proof-coverage-audit.json');
+const defaultComparisonJson = resolve(__dirname, 'results', 'release', 'same-contract-runtime-comparison.json');
 const defaultJsonOut = resolve(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json');
 const defaultMdOut = resolve(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.md');
 
 function parseArgs(argv = process.argv.slice(2)) {
   const options = {
     auditJson: defaultAuditJson,
+    comparisonJson: defaultComparisonJson,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
   };
@@ -30,6 +32,9 @@ function parseArgs(argv = process.argv.slice(2)) {
       case '--audit-json':
         options.auditJson = resolve(process.cwd(), readValue());
         break;
+      case '--comparison-json':
+        options.comparisonJson = resolve(process.cwd(), readValue());
+        break;
       case '--json-out':
         options.jsonOut = resolve(process.cwd(), readValue());
         break;
@@ -47,7 +52,8 @@ function parseArgs(argv = process.argv.slice(2)) {
 function main() {
   const options = parseArgs();
   const audit = readAudit(options.auditJson);
-  const report = createReport(audit, options);
+  const comparison = readComparison(options.comparisonJson);
+  const report = createReport(audit, comparison, options);
   writeOutput(options.jsonOut, `${JSON.stringify(report, null, 2)}\n`);
   writeOutput(options.mdOut, renderMarkdown(report));
   printSummary(report);
@@ -64,7 +70,18 @@ function readAudit(auditJson) {
   return audit;
 }
 
-function createReport(audit, options) {
+function readComparison(comparisonJson) {
+  if (!existsSync(comparisonJson)) {
+    return null;
+  }
+  const comparison = JSON.parse(readFileSync(comparisonJson, 'utf8'));
+  if (comparison.objective !== 'same-contract-runtime-comparison') {
+    throw new Error(`expected same-contract-runtime-comparison JSON, got ${comparison.objective ?? 'unknown'}`);
+  }
+  return comparison;
+}
+
+function createReport(audit, comparison, options) {
   const obligations = audit.obligations ?? [];
   const activeObligations = obligations.filter(obligation => obligation.status !== 'covered');
   const localClosure = createLocalClosure(activeObligations, audit);
@@ -78,7 +95,8 @@ function createReport(audit, options) {
       reason: 'No concrete external-run handoff is defined yet for this obligation.',
       nextExperiment: obligation.nextExperiment ?? null,
     }));
-  const summary = createSummary(activeObligations, localClosure, handoffs, unhandledObligations);
+  const sourceConsumptionEvidence = summarizeSourceConsumptionEvidence(comparison);
+  const summary = createSummary(activeObligations, localClosure, handoffs, unhandledObligations, sourceConsumptionEvidence);
 
   return {
     generatedAt: new Date().toISOString(),
@@ -87,6 +105,10 @@ function createReport(audit, options) {
     note: 'Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.',
     inputs: {
       auditJson: options.auditJson,
+      comparisonJson: options.comparisonJson,
+      comparisonGeneratedAt: comparison?.generatedAt ?? null,
+      comparisonObjective: comparison?.objective ?? null,
+      comparisonContract: comparison?.contract ?? null,
       auditGeneratedAt: audit.generatedAt,
       auditObjective: audit.objective,
       auditContract: audit.contract,
@@ -103,6 +125,7 @@ function createReport(audit, options) {
         nextExperiment: obligation.nextExperiment,
       })),
     },
+    sourceConsumptionEvidence,
     localClosure,
     handoffs,
     unhandledObligations,
@@ -110,7 +133,59 @@ function createReport(audit, options) {
   };
 }
 
-function createSummary(activeObligations, localClosure, handoffs, unhandledObligations) {
+function summarizeSourceConsumptionEvidence(comparison) {
+  if (!comparison?.summary) {
+    return {
+      status: 'missing',
+      sourceArtifact: 'same-contract-runtime-comparison.json',
+      reason: 'same-contract-runtime-comparison JSON was not available to the handoff generator.',
+    };
+  }
+  const sourceShapeSafety = comparison.summary.sourceShapeSafety ?? {};
+  const sourceConsumptionFrontier = comparison.summary.sourceConsumptionFrontier ?? null;
+  const browserLiveSourceFrontier = comparison.summary.browserLiveSourceFrontier ?? null;
+  return {
+    status: sourceShapeSafety.fullArrayBufferRows === 0
+      && sourceShapeSafety.unknownArrayBufferRows === 0
+      && sourceConsumptionFrontier?.backpressureRows === sourceConsumptionFrontier?.backpressureRowsRespected
+      && browserLiveSourceFrontier?.liveRows === browserLiveSourceFrontier?.liveRowsBackpressureRespected
+      ? 'classified'
+      : 'partial',
+    sourceArtifact: 'same-contract-runtime-comparison.json',
+    rowCount: comparison.summary.rowCount ?? null,
+    sourceModes: comparison.summary.sourceModes ?? [],
+    sourceShapeSafety: {
+      largeJsFullSourceModeRows: sourceShapeSafety.largeJsFullSourceModeRows ?? null,
+      notFullArrayBufferRows: sourceShapeSafety.notFullArrayBufferRows ?? null,
+      fullArrayBufferRows: sourceShapeSafety.fullArrayBufferRows ?? null,
+      unknownArrayBufferRows: sourceShapeSafety.unknownArrayBufferRows ?? null,
+      corpusSeedReplayRows: sourceShapeSafety.corpusSeedReplayRows ?? null,
+    },
+    sourceConsumptionFrontier: sourceConsumptionFrontier ? {
+      sourceArtifact: sourceConsumptionFrontier.sourceArtifact,
+      fastestSyncIterable: sourceConsumptionFrontier.fastestSyncIterable?.id ?? null,
+      fastestSyncIterableMiBPerSec: sourceConsumptionFrontier.fastestSyncIterable?.mibPerSec ?? null,
+      fastestReadableStream: sourceConsumptionFrontier.fastestReadableStream?.id ?? null,
+      fastestReadableStreamMiBPerSec: sourceConsumptionFrontier.fastestReadableStream?.mibPerSec ?? null,
+      fastestReadableStreamRatioToFastestSyncIterable: sourceConsumptionFrontier.fastestReadableStreamRatioToFastestSyncIterable ?? null,
+      backpressureRows: sourceConsumptionFrontier.backpressureRows ?? null,
+      backpressureRowsRespected: sourceConsumptionFrontier.backpressureRowsRespected ?? null,
+      fullArrayBufferRows: sourceConsumptionFrontier.fullArrayBufferRows ?? null,
+    } : null,
+    browserLiveSourceFrontier: browserLiveSourceFrontier ? {
+      sourceArtifact: browserLiveSourceFrontier.sourceArtifact,
+      fetchReadableStreamRow: browserLiveSourceFrontier.fetchReadableStreamRow?.id ?? null,
+      fetchReadableStreamMiBPerSec: browserLiveSourceFrontier.fetchReadableStreamRow?.mibPerSec ?? null,
+      fetchAsyncByteBatchRow: browserLiveSourceFrontier.fetchAsyncByteBatchRow?.id ?? null,
+      fetchAsyncByteBatchMiBPerSec: browserLiveSourceFrontier.fetchAsyncByteBatchRow?.mibPerSec ?? null,
+      liveRows: browserLiveSourceFrontier.liveRows ?? null,
+      liveRowsBackpressureRespected: browserLiveSourceFrontier.liveRowsBackpressureRespected ?? null,
+      liveRowsFullArrayBufferInput: browserLiveSourceFrontier.liveRowsFullArrayBufferInput ?? null,
+    } : null,
+  };
+}
+
+function createSummary(activeObligations, localClosure, handoffs, unhandledObligations, sourceConsumptionEvidence) {
   const externalRunRequiredCount = localClosure
     .filter(item => item.localStatus === 'external-run-required' || item.localRunnable === false)
     .length;
@@ -132,6 +207,7 @@ function createSummary(activeObligations, localClosure, handoffs, unhandledOblig
     sourceConsumptionPrimary: 'synchronous Iterable<Uint8Array[]> byte batches',
     directReadableStreamScope: 'separate source-overhead evidence only',
     directReadableStreamBackpressureRequired: true,
+    sourceConsumptionEvidenceStatus: sourceConsumptionEvidence.status,
     conclusionAllowed: false,
     conclusionBlocker: activeObligations.length === 0
       ? 'No active obligations remain, but this handoff report is not a runtime-limit conclusion artifact.'
@@ -390,6 +466,8 @@ function renderMarkdown(report) {
     '',
     `- Audit JSON: ${report.inputs.auditJson}`,
     `- Audit generated: ${report.inputs.auditGeneratedAt}`,
+    `- Comparison JSON: ${report.inputs.comparisonJson}`,
+    `- Comparison generated: ${report.inputs.comparisonGeneratedAt ?? 'n/a'}`,
     `- Active obligations: ${report.auditSummary.activeObligations.length}`,
     '',
     '## Summary',
@@ -403,12 +481,45 @@ function renderMarkdown(report) {
     `- Primary source consumption: ${report.summary.sourceConsumptionPrimary}`,
     `- Direct ReadableStream scope: ${report.summary.directReadableStreamScope}`,
     `- Direct ReadableStream backpressure required: ${report.summary.directReadableStreamBackpressureRequired ? 'yes' : 'no'}`,
+    `- Source consumption evidence status: ${report.summary.sourceConsumptionEvidenceStatus}`,
     `- Runtime-limit conclusion allowed: ${report.summary.conclusionAllowed ? 'yes' : 'no'}`,
     `- Conclusion blocker: ${report.summary.conclusionBlocker}`,
     '',
+    '## Source Consumption Evidence',
+    '',
+    `- Status: ${report.sourceConsumptionEvidence.status}`,
+    `- Source artifact: ${report.sourceConsumptionEvidence.sourceArtifact}`,
+  ];
+
+  if (report.sourceConsumptionEvidence.status === 'missing') {
+    lines.push(`- Reason: ${report.sourceConsumptionEvidence.reason}`);
+  } else {
+    const evidence = report.sourceConsumptionEvidence;
+    lines.push(
+      `- Aggregate rows: ${evidence.rowCount}`,
+      `- Source modes: ${evidence.sourceModes.join(', ') || 'none'}`,
+      `- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: ${evidence.sourceShapeSafety.notFullArrayBufferRows}/${evidence.sourceShapeSafety.largeJsFullSourceModeRows}`,
+      `- Full ArrayBuffer parser-input rows: ${evidence.sourceShapeSafety.fullArrayBufferRows}`,
+      `- Unknown parser-input rows: ${evidence.sourceShapeSafety.unknownArrayBufferRows}`,
+      `- Corpus seed replay rows: ${evidence.sourceShapeSafety.corpusSeedReplayRows}`,
+    );
+    if (evidence.sourceConsumptionFrontier) {
+      lines.push(
+        `- Node source frontier: ${evidence.sourceConsumptionFrontier.fastestSyncIterable} ${formatNumber(evidence.sourceConsumptionFrontier.fastestSyncIterableMiBPerSec)} MiB/s vs ${evidence.sourceConsumptionFrontier.fastestReadableStream} ${formatNumber(evidence.sourceConsumptionFrontier.fastestReadableStreamMiBPerSec)} MiB/s (${formatNumber(evidence.sourceConsumptionFrontier.fastestReadableStreamRatioToFastestSyncIterable)}x); backpressure ${evidence.sourceConsumptionFrontier.backpressureRowsRespected}/${evidence.sourceConsumptionFrontier.backpressureRows}; fullArrayBufferRows=${evidence.sourceConsumptionFrontier.fullArrayBufferRows}`,
+      );
+    }
+    if (evidence.browserLiveSourceFrontier) {
+      lines.push(
+        `- Browser live fetch frontier: ${evidence.browserLiveSourceFrontier.fetchReadableStreamRow} ${formatNumber(evidence.browserLiveSourceFrontier.fetchReadableStreamMiBPerSec)} MiB/s; ${evidence.browserLiveSourceFrontier.fetchAsyncByteBatchRow} ${formatNumber(evidence.browserLiveSourceFrontier.fetchAsyncByteBatchMiBPerSec)} MiB/s; backpressure ${evidence.browserLiveSourceFrontier.liveRowsBackpressureRespected}/${evidence.browserLiveSourceFrontier.liveRows}; fullArrayBufferRows=${evidence.browserLiveSourceFrontier.liveRowsFullArrayBufferInput}`,
+      );
+    }
+  }
+
+  lines.push(
+    '',
     '## Active Obligations',
     '',
-  ];
+  );
 
   for (const obligation of report.auditSummary.activeObligations) {
     lines.push(`- ${obligation.id} (${obligation.status}): ${obligation.evidence}`);
@@ -505,6 +616,10 @@ function formatNullableBoolean(value) {
   if (value === true) return 'yes';
   if (value === false) return 'no';
   return 'unknown';
+}
+
+function formatNumber(value) {
+  return typeof value === 'number' && Number.isFinite(value) ? value.toFixed(2) : 'n/a';
 }
 
 function countBy(values, keyOf) {

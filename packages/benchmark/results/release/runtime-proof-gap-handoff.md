@@ -1,6 +1,6 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-05-27T01:22:25.213Z
+Generated: 2026-05-27T02:20:24.427Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -8,6 +8,8 @@ Turns current open or partial runtime proof obligations into concrete external-r
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
 - Audit generated: 2026-05-27T01:06:14.066Z
+- Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
+- Comparison generated: 2026-05-27T02:14:20.669Z
 - Active obligations: 2
 
 ## Summary
@@ -21,8 +23,22 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Primary source consumption: synchronous Iterable<Uint8Array[]> byte batches
 - Direct ReadableStream scope: separate source-overhead evidence only
 - Direct ReadableStream backpressure required: yes
+- Source consumption evidence status: classified
 - Runtime-limit conclusion allowed: no
 - Conclusion blocker: Open or partial obligations still require external runtime evidence before any runtime-limit conclusion.
+
+## Source Consumption Evidence
+
+- Status: classified
+- Source artifact: same-contract-runtime-comparison.json
+- Aggregate rows: 210
+- Source modes: fetch-async-iterable-byte-batches, fetch-readable-stream-pull, file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches
+- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 173/173
+- Full ArrayBuffer parser-input rows: 0
+- Unknown parser-input rows: 0
+- Corpus seed replay rows: 96
+- Node source frontier: sync-iterable-byte-batches-batch-8 91.95 MiB/s vs web-readable-stream-raw-frame-ascii-batch-8 75.20 MiB/s (0.82x); backpressure 6/6; fullArrayBufferRows=0
+- Browser live fetch frontier: fetchReadableStreamFull 9.68 MiB/s; fetchAsyncByteBatchFull 9.77 MiB/s; backpressure 2/2; fullArrayBufferRows=0
 
 ## Active Obligations
 

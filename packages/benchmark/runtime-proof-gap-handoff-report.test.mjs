@@ -63,8 +63,43 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.equal(report.summary.sourceConsumptionPrimary, 'synchronous Iterable<Uint8Array[]> byte batches');
   assert.equal(report.summary.directReadableStreamScope, 'separate source-overhead evidence only');
   assert.equal(report.summary.directReadableStreamBackpressureRequired, true);
+  assert.equal(report.summary.sourceConsumptionEvidenceStatus, 'classified');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.match(report.summary.conclusionBlocker, /external runtime evidence/);
+  assert.match(report.inputs.comparisonJson, /same-contract-runtime-comparison\.json/);
+  assert.equal(report.inputs.comparisonObjective, 'same-contract-runtime-comparison');
+  assert.equal(report.inputs.comparisonContract, 'same-full-string-checksum-contract-not-same-object-shape');
+  assert.equal(report.sourceConsumptionEvidence.status, 'classified');
+  assert.equal(report.sourceConsumptionEvidence.sourceArtifact, 'same-contract-runtime-comparison.json');
+  assert.equal(report.sourceConsumptionEvidence.rowCount, 210);
+  assert.deepEqual(report.sourceConsumptionEvidence.sourceModes, [
+    'fetch-async-iterable-byte-batches',
+    'fetch-readable-stream-pull',
+    'file-backed-sync-iterable-byte-batches',
+    'sync-iterable-byte-batches',
+  ]);
+  assert.deepEqual(report.sourceConsumptionEvidence.sourceShapeSafety, {
+    largeJsFullSourceModeRows: 173,
+    notFullArrayBufferRows: 173,
+    fullArrayBufferRows: 0,
+    unknownArrayBufferRows: 0,
+    corpusSeedReplayRows: 96,
+  });
+  assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestSyncIterable, 'sync-iterable-byte-batches-batch-8');
+  assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestSyncIterableMiBPerSec, 91.95);
+  assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestReadableStream, 'web-readable-stream-raw-frame-ascii-batch-8');
+  assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestReadableStreamMiBPerSec, 75.2);
+  assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestReadableStreamRatioToFastestSyncIterable, 0.82);
+  assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.backpressureRowsRespected, 6);
+  assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.backpressureRows, 6);
+  assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fullArrayBufferRows, 0);
+  assert.equal(report.sourceConsumptionEvidence.browserLiveSourceFrontier.fetchReadableStreamRow, 'fetchReadableStreamFull');
+  assert.equal(report.sourceConsumptionEvidence.browserLiveSourceFrontier.fetchReadableStreamMiBPerSec, 9.68);
+  assert.equal(report.sourceConsumptionEvidence.browserLiveSourceFrontier.fetchAsyncByteBatchRow, 'fetchAsyncByteBatchFull');
+  assert.equal(report.sourceConsumptionEvidence.browserLiveSourceFrontier.fetchAsyncByteBatchMiBPerSec, 9.77);
+  assert.equal(report.sourceConsumptionEvidence.browserLiveSourceFrontier.liveRowsBackpressureRespected, 2);
+  assert.equal(report.sourceConsumptionEvidence.browserLiveSourceFrontier.liveRows, 2);
+  assert.equal(report.sourceConsumptionEvidence.browserLiveSourceFrontier.liveRowsFullArrayBufferInput, 0);
   assert.equal(report.auditSummary.artifactCount, audit.scannedArtifacts.length);
   assert.equal(report.auditSummary.measuredRows, audit.summary.measuredRowCount);
   assert.deepEqual(
@@ -153,6 +188,14 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Primary source consumption: synchronous Iterable<Uint8Array\[\]> byte batches/);
   assert.match(markdown, /Direct ReadableStream scope: separate source-overhead evidence only/);
   assert.match(markdown, /Direct ReadableStream backpressure required: yes/);
+  assert.match(markdown, /Source consumption evidence status: classified/);
+  assert.match(markdown, /## Source Consumption Evidence/);
+  assert.match(markdown, /Source modes: fetch-async-iterable-byte-batches, fetch-readable-stream-pull, file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches/);
+  assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 173\/173/);
+  assert.match(markdown, /Full ArrayBuffer parser-input rows: 0/);
+  assert.match(markdown, /Unknown parser-input rows: 0/);
+  assert.match(markdown, /Node source frontier: sync-iterable-byte-batches-batch-8 91\.95 MiB\/s vs web-readable-stream-raw-frame-ascii-batch-8 75\.20 MiB\/s \(0\.82x\); backpressure 6\/6; fullArrayBufferRows=0/);
+  assert.match(markdown, /Browser live fetch frontier: fetchReadableStreamFull 9\.68 MiB\/s; fetchAsyncByteBatchFull 9\.77 MiB\/s; backpressure 2\/2; fullArrayBufferRows=0/);
   assert.match(markdown, /Runtime-limit conclusion allowed: no/);
   assert.match(markdown, /safari-webkit-browser-row-handoff/);
   assert.match(markdown, /spidermonkey-codegen-handoff/);

@@ -1,10 +1,14 @@
 {
-  "generatedAt": "2026-05-27T01:22:25.213Z",
+  "generatedAt": "2026-05-27T02:20:24.427Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
   "inputs": {
     "auditJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-coverage-audit.json",
+    "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
+    "comparisonGeneratedAt": "2026-05-27T02:14:20.669Z",
+    "comparisonObjective": "same-contract-runtime-comparison",
+    "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
     "auditGeneratedAt": "2026-05-27T01:06:14.066Z",
     "auditObjective": "runtime-proof-coverage-audit",
     "auditContract": "static-release-artifact-proof-coverage"
@@ -25,6 +29,7 @@
     "sourceConsumptionPrimary": "synchronous Iterable<Uint8Array[]> byte batches",
     "directReadableStreamScope": "separate source-overhead evidence only",
     "directReadableStreamBackpressureRequired": true,
+    "sourceConsumptionEvidenceStatus": "classified",
     "conclusionAllowed": false,
     "conclusionBlocker": "Open or partial obligations still require external runtime evidence before any runtime-limit conclusion."
   },
@@ -46,6 +51,45 @@
         "nextExperiment": "Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows."
       }
     ]
+  },
+  "sourceConsumptionEvidence": {
+    "status": "classified",
+    "sourceArtifact": "same-contract-runtime-comparison.json",
+    "rowCount": 210,
+    "sourceModes": [
+      "fetch-async-iterable-byte-batches",
+      "fetch-readable-stream-pull",
+      "file-backed-sync-iterable-byte-batches",
+      "sync-iterable-byte-batches"
+    ],
+    "sourceShapeSafety": {
+      "largeJsFullSourceModeRows": 173,
+      "notFullArrayBufferRows": 173,
+      "fullArrayBufferRows": 0,
+      "unknownArrayBufferRows": 0,
+      "corpusSeedReplayRows": 96
+    },
+    "sourceConsumptionFrontier": {
+      "sourceArtifact": "stream-source-consumption-backpressure-counters.json",
+      "fastestSyncIterable": "sync-iterable-byte-batches-batch-8",
+      "fastestSyncIterableMiBPerSec": 91.95,
+      "fastestReadableStream": "web-readable-stream-raw-frame-ascii-batch-8",
+      "fastestReadableStreamMiBPerSec": 75.2,
+      "fastestReadableStreamRatioToFastestSyncIterable": 0.82,
+      "backpressureRows": 6,
+      "backpressureRowsRespected": 6,
+      "fullArrayBufferRows": 0
+    },
+    "browserLiveSourceFrontier": {
+      "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+      "fetchReadableStreamRow": "fetchReadableStreamFull",
+      "fetchReadableStreamMiBPerSec": 9.68,
+      "fetchAsyncByteBatchRow": "fetchAsyncByteBatchFull",
+      "fetchAsyncByteBatchMiBPerSec": 9.77,
+      "liveRows": 2,
+      "liveRowsBackpressureRespected": 2,
+      "liveRowsFullArrayBufferInput": 0
+    }
   },
   "localClosure": [
     {
