@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-05-27T00:06:15.809Z
+Generated: 2026-05-27T00:16:18.735Z
 
 ## Scope
 
@@ -64,6 +64,7 @@ This is a static gate over the proof ledger for the broad `CLAIM-JS-RUNTIME-LIMI
 | `bun-jsc-partial-codegen-trace.md` | yes |
 | `bun-jsc-textdecoder-codegen-trace.md` | yes |
 | `stream-source-consumption-shapes.md` | yes |
+| `stream-source-consumption-backpressure-counters.md` | yes |
 | `event-reader-byte-batch-cross-process-corpus.md` | yes |
 
 ## Open Obligations

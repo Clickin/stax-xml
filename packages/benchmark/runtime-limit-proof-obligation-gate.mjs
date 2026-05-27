@@ -106,6 +106,7 @@ const requiredArtifactMentions = [
   'bun-jsc-partial-codegen-trace.md',
   'bun-jsc-textdecoder-codegen-trace.md',
   'stream-source-consumption-shapes.md',
+  'stream-source-consumption-backpressure-counters.md',
   'event-reader-byte-batch-cross-process-corpus.md',
 ];
 

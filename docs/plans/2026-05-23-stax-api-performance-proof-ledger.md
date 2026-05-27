@@ -284,7 +284,9 @@ comparison rows from
 `stream-source-consumption-shapes.json` remain included in the JavaScript
 full-string scan with explicit machine-readable source flags:
 `sync-iterable-byte-batches` now covers four grouped sync rows after the focused
-`stream-source-consumption-backpressure-counters.json` audit. The fastest is
+`stream-source-consumption-backpressure-counters.json` audit, preserved in
+`packages/benchmark/results/release/stream-source-consumption-backpressure-counters.md`.
+The fastest is
 `sync-iterable-byte-batches-batch-8`, which records parser input
 `synchronous Iterable<Uint8Array[]>`, `directReadableStream=false`, and
 90.56 MiB/s. The same focused audit records source counters on the 1024 MiB
