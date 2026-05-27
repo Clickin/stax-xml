@@ -1,6 +1,6 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-27T00:05:40.669Z
+Generated: 2026-05-27T01:30:37.610Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
@@ -13,6 +13,7 @@ This report aggregates existing release artifacts. It compares rows only through
 - Fastest JS full-string row vs 200 MiB/s: 0.93x, 14.50 MiB/s remaining
 - Fastest JS full-string row vs 1024 MiB Woodstox reference: 0.55x Woodstox, 118.67 MiB/s below 0.9x reference target
 - Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id-batch-8 at 0.43x Woodstox, 164.29 MiB/s below 0.9x target
+- Same-fixture 1024 MiB JS row vs quick-xml target: stax-raw-frame-name-id-batch-8 at 0.55x quick-xml, 95.06 MiB/s below 0.9x target
 - Same-fixture 1024 MiB process RSS snapshot: JS 61.77 MiB, Woodstox 312.71 MiB, quick-xml 4.78 MiB
 - Fastest 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 141.62 MiB/s (process RSS max 203.27 MiB)
 - Fastest bounded 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 141.62 MiB/s (process RSS max 203.27 MiB)
@@ -78,6 +79,19 @@ These rows compare the fastest JavaScript full-string row in each 1024 MiB books
 | `file-backed-trim-boundary-check-candidate` | `stax-raw-frame-name-id` | 143.35 | process RSS max 61.40 MiB | `file-backed-sync-iterable-byte-batches` | 351.56 | 316.40 | 173.05 | 0.41 | no | `file-backed-trim-boundary-check-candidate.json` | same artifact Woodstox reference |
 | `file-backed-long-ascii-text-candidate` | `stax-raw-frame-name-id` | 141.29 | process RSS max 61.34 MiB | `file-backed-sync-iterable-byte-batches` | 308.06 | 277.25 | 135.96 | 0.46 | no | `file-backed-long-ascii-text-candidate.json` | same artifact Woodstox reference |
 | `external-baseline-1024mib-file-sync-batches` | `stax-raw-frame-name-id` | 132.54 | process RSS max 67.59 MiB | `file-backed-sync-iterable-byte-batches` | 337.97 | 304.17 | 171.63 | 0.39 | no | `external-baseline-1024mib-file-sync-batches.json` | same artifact Woodstox reference |
+
+## 1024 MiB Books Fixture quick-xml 0.9x Target Distances
+
+These rows compare the fastest JavaScript full-string row in each 1024 MiB books fixture family against the best available quick-xml row for that same fixture family. Rows whose quick-xml reference comes from a separate candidate artifact are still same-fixture target-distance rows, not object-shape or allocation-equivalence proof.
+
+| Group | JS case | JS MiB/s | JS RSS | Source mode | quick-xml MiB/s | 0.9x target | Remaining to 0.9x | JS/quick-xml | Target met | quick-xml artifact | Reference scope |
+| --- | --- | ---: | --- | --- | ---: | ---: | ---: | ---: | --- | --- | --- |
+| `file-backed-batch-size-sweep` | `stax-raw-frame-name-id-batch-8` | 152.11 | process RSS max 61.77 MiB | `file-backed-sync-iterable-byte-batches` | 274.63 | 247.17 | 95.06 | 0.55 | no | `file-backed-short-attr-value-cache-candidate.json` | same books 1024 MiB fixture family, but quick-xml reference comes from a separate candidate artifact |
+| `file-backed-source-sweep` | `stax-raw-frame-name-id-chunk-32kib` | 151.70 | process RSS max 59.23 MiB | `file-backed-sync-iterable-byte-batches` | 274.63 | 247.17 | 95.47 | 0.55 | no | `file-backed-short-attr-value-cache-candidate.json` | same books 1024 MiB fixture family, but quick-xml reference comes from a separate candidate artifact |
+| `file-backed-short-attr-value-cache-candidate` | `stax-raw-frame-name-id` | 147.05 | process RSS max 61.14 MiB | `file-backed-sync-iterable-byte-batches` | 274.63 | 247.17 | 100.12 | 0.54 | no | `file-backed-short-attr-value-cache-candidate.json` | same artifact quick-xml reference |
+| `file-backed-trim-boundary-check-candidate` | `stax-raw-frame-name-id` | 143.35 | process RSS max 61.40 MiB | `file-backed-sync-iterable-byte-batches` | 273.74 | 246.37 | 103.02 | 0.52 | no | `file-backed-trim-boundary-check-candidate.json` | same artifact quick-xml reference |
+| `file-backed-long-ascii-text-candidate` | `stax-raw-frame-name-id` | 141.29 | process RSS max 61.34 MiB | `file-backed-sync-iterable-byte-batches` | 272.33 | 245.10 | 103.81 | 0.52 | no | `file-backed-long-ascii-text-candidate.json` | same artifact quick-xml reference |
+| `external-baseline-1024mib-file-sync-batches` | `stax-raw-frame-name-id` | 132.54 | process RSS max 67.59 MiB | `file-backed-sync-iterable-byte-batches` | 270.26 | 243.23 | 110.69 | 0.49 | no | `external-baseline-1024mib-file-sync-batches.json` | same artifact quick-xml reference |
 
 ## Source Shape Safety
 
@@ -336,6 +350,9 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - same-fixture-fastest-js=stax-raw-frame-name-id-batch-8
   - same-fixture-fastest-js/Woodstox=0.43
   - same-fixture-target-distance-rows=6
+  - same-fixture-fastest-js/quick-xml=0.55
+  - same-fixture-quick-xml-target-distance-rows=6
+  - same-fixture-0.9x-quick-xml-target-met=false
   - same-fixture-fastest-js-rss=61.77 MiB
   - same-fixture-woodstox-rss=312.71 MiB
   - same-fixture-quick-xml-rss=4.78 MiB

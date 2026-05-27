@@ -954,6 +954,29 @@ function summarizeWoodstoxTargetDistance(group, groupRows, woodstoxReference) {
   };
 }
 
+function summarizeQuickXmlTargetDistance(group, groupRows, quickXmlReference) {
+  const fastestJs = maxBy(
+    groupRows.filter(row => row.jsRuntime && row.fullStringParity),
+    row => row.mibPerSec,
+  );
+  if (!fastestJs || !quickXmlReference) {
+    return null;
+  }
+  const target90MiBPerSec = round(quickXmlReference.mibPerSec * 0.9);
+  return {
+    group,
+    fastestJs: summarizeRow(fastestJs),
+    quickXmlReference: summarizeRow(quickXmlReference),
+    quickXml90MiBPerSec: target90MiBPerSec,
+    jsQuickXmlRatio: round(fastestJs.mibPerSec / quickXmlReference.mibPerSec),
+    remainingTo90PercentMiBPerSec: round(target90MiBPerSec - fastestJs.mibPerSec),
+    targetMet: fastestJs.mibPerSec >= target90MiBPerSec,
+    caveat: fastestJs.sourceArtifact === quickXmlReference.sourceArtifact
+      ? 'same artifact quick-xml reference'
+      : 'same books 1024 MiB fixture family, but quick-xml reference comes from a separate candidate artifact',
+  };
+}
+
 function summarize(rows, allocationEvidence) {
   const jsLargeFullRows = rows.filter(row =>
     row.jsRuntime
@@ -1012,14 +1035,30 @@ function summarize(rows, allocationEvidence) {
   )
     .filter(Boolean)
     .sort((left, right) => (right.fastestJs?.mibPerSec ?? -Infinity) - (left.fastestJs?.mibPerSec ?? -Infinity));
+  const sameFixture1024MiBQuickXmlTargetRows = Array.from(
+    groupBy(sameFixture1024MiBRows, row => row.group),
+    ([group, groupRows]) => {
+      const groupQuickXml = maxBy(
+        groupRows.filter(row => row.runtimeId === 'quick-xml-rust'),
+        row => row.mibPerSec,
+      );
+      return summarizeQuickXmlTargetDistance(group, groupRows, groupQuickXml ?? sameFixtureQuickXml);
+    },
+  )
+    .filter(Boolean)
+    .sort((left, right) => (right.fastestJs?.mibPerSec ?? -Infinity) - (left.fastestJs?.mibPerSec ?? -Infinity));
   const fastestJsLargeFullRowMibPerSec = fastestJsLargeFullRow?.mibPerSec ?? null;
   const largeWoodstoxMibPerSec = largeWoodstox?.mibPerSec ?? null;
   const sameFixtureWoodstoxMibPerSec = sameFixtureWoodstox?.mibPerSec ?? null;
+  const sameFixtureQuickXmlMibPerSec = sameFixtureQuickXml?.mibPerSec ?? null;
   const targetWoodstox90MiBPerSec = typeof largeWoodstoxMibPerSec === 'number'
     ? round(largeWoodstoxMibPerSec * 0.9)
     : null;
   const sameFixtureTargetWoodstox90MiBPerSec = typeof sameFixtureWoodstoxMibPerSec === 'number'
     ? round(sameFixtureWoodstoxMibPerSec * 0.9)
+    : null;
+  const sameFixtureTargetQuickXml90MiBPerSec = typeof sameFixtureQuickXmlMibPerSec === 'number'
+    ? round(sameFixtureQuickXmlMibPerSec * 0.9)
     : null;
   const fastestSameFixtureLargeJsMibPerSec = fastestSameFixtureLargeJsRow?.mibPerSec ?? null;
 
@@ -1061,6 +1100,25 @@ function summarize(rows, allocationEvidence) {
         : null,
     },
     sameFixture1024MiBTargetRows,
+    sameFixture1024MiBQuickXmlTarget: {
+      group: fastestSameFixtureLargeJsRow?.group ?? null,
+      sourceArtifact: fastestSameFixtureLargeJsRow?.sourceArtifact ?? null,
+      fastestJsCaseId: fastestSameFixtureLargeJsRow?.caseId ?? null,
+      fastestJsMiBPerSec: round(fastestSameFixtureLargeJsMibPerSec),
+      quickXmlSourceArtifact: sameFixtureQuickXml?.sourceArtifact ?? null,
+      quickXmlMiBPerSec: round(sameFixtureQuickXmlMibPerSec),
+      target90MiBPerSec: sameFixtureTargetQuickXml90MiBPerSec,
+      fastestJsQuickXmlRatio: typeof fastestSameFixtureLargeJsMibPerSec === 'number' && typeof sameFixtureQuickXmlMibPerSec === 'number'
+        ? round(fastestSameFixtureLargeJsMibPerSec / sameFixtureQuickXmlMibPerSec)
+        : null,
+      remainingTo90PercentMiBPerSec: typeof fastestSameFixtureLargeJsMibPerSec === 'number' && typeof sameFixtureTargetQuickXml90MiBPerSec === 'number'
+        ? round(sameFixtureTargetQuickXml90MiBPerSec - fastestSameFixtureLargeJsMibPerSec)
+        : null,
+      targetMet: typeof fastestSameFixtureLargeJsMibPerSec === 'number' && typeof sameFixtureTargetQuickXml90MiBPerSec === 'number'
+        ? fastestSameFixtureLargeJsMibPerSec >= sameFixtureTargetQuickXml90MiBPerSec
+        : null,
+    },
+    sameFixture1024MiBQuickXmlTargetRows,
     sameFixture1024MiBProcessRssSnapshot: {
       caveat: 'Process RSS values are same-fixture endpoint evidence, not allocation-model equivalence across Java, Rust, and JavaScript runtimes.',
       fastestJs: summarizeProcessRssRow(fastestSameFixtureLargeJsRow),
@@ -1146,6 +1204,9 @@ function createFindings(summary) {
         `same-fixture-fastest-js=${summary.sameFixture1024MiBWoodstoxTarget.fastestJsCaseId}`,
         `same-fixture-fastest-js/Woodstox=${formatNumber(summary.sameFixture1024MiBWoodstoxTarget.fastestJsWoodstoxRatio)}`,
         `same-fixture-target-distance-rows=${summary.sameFixture1024MiBTargetRows.length}`,
+        `same-fixture-fastest-js/quick-xml=${formatNumber(summary.sameFixture1024MiBQuickXmlTarget.fastestJsQuickXmlRatio)}`,
+        `same-fixture-quick-xml-target-distance-rows=${summary.sameFixture1024MiBQuickXmlTargetRows.length}`,
+        `same-fixture-0.9x-quick-xml-target-met=${summary.sameFixture1024MiBQuickXmlTarget.targetMet}`,
         `same-fixture-fastest-js-rss=${formatNumber(summary.sameFixture1024MiBProcessRssSnapshot.fastestJs?.maxRssMiB)} MiB`,
         `same-fixture-woodstox-rss=${formatNumber(summary.sameFixture1024MiBProcessRssSnapshot.woodstox?.maxRssMiB)} MiB`,
         `same-fixture-quick-xml-rss=${formatNumber(summary.sameFixture1024MiBProcessRssSnapshot.quickXml?.maxRssMiB)} MiB`,
@@ -1172,6 +1233,7 @@ function renderMarkdown(report) {
     `- Fastest JS full-string row vs 200 MiB/s: ${formatNumber(report.summary.fastestJsLargeFullRowTo200MiBPerSec.ratio)}x, ${formatNumber(report.summary.fastestJsLargeFullRowTo200MiBPerSec.remainingMiBPerSec)} MiB/s remaining`,
     `- Fastest JS full-string row vs 1024 MiB Woodstox reference: ${formatNumber(report.summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference.ratio)}x Woodstox, ${formatNumber(report.summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference.remainingTo90PercentMiBPerSec)} MiB/s below 0.9x reference target`,
     `- Same-fixture 1024 MiB JS row vs Woodstox target: ${report.summary.sameFixture1024MiBWoodstoxTarget.fastestJsCaseId ?? 'n/a'} at ${formatNumber(report.summary.sameFixture1024MiBWoodstoxTarget.fastestJsWoodstoxRatio)}x Woodstox, ${formatNumber(report.summary.sameFixture1024MiBWoodstoxTarget.remainingTo90PercentMiBPerSec)} MiB/s below 0.9x target`,
+    `- Same-fixture 1024 MiB JS row vs quick-xml target: ${report.summary.sameFixture1024MiBQuickXmlTarget.fastestJsCaseId ?? 'n/a'} at ${formatNumber(report.summary.sameFixture1024MiBQuickXmlTarget.fastestJsQuickXmlRatio)}x quick-xml, ${formatNumber(report.summary.sameFixture1024MiBQuickXmlTarget.remainingTo90PercentMiBPerSec)} MiB/s below 0.9x target`,
     `- Same-fixture 1024 MiB process RSS snapshot: JS ${formatNumber(report.summary.sameFixture1024MiBProcessRssSnapshot.fastestJs?.maxRssMiB)} MiB, Woodstox ${formatNumber(report.summary.sameFixture1024MiBProcessRssSnapshot.woodstox?.maxRssMiB)} MiB, quick-xml ${formatNumber(report.summary.sameFixture1024MiBProcessRssSnapshot.quickXml?.maxRssMiB)} MiB`,
     `- Fastest 1 GiB+ JS public event-object row: ${formatSummaryRow(report.summary.fastestJsLargePublicEventRow)}`,
     `- Fastest bounded 1 GiB+ JS public event-object row: ${formatSummaryRow(report.summary.fastestBoundedJsLargePublicEventRow)}`,
@@ -1208,6 +1270,20 @@ function renderMarkdown(report) {
 
   for (const item of report.summary.sameFixture1024MiBTargetRows) {
     lines.push(`| \`${item.group}\` | \`${item.fastestJs.caseId}\` | ${formatNumber(item.fastestJs.mibPerSec)} | ${formatMemory(item.fastestJs.memory)} | ${formatSourceMode(item.fastestJs.sourceMode)} | ${formatNumber(item.woodstoxReference.mibPerSec)} | ${formatNumber(item.woodstox90MiBPerSec)} | ${formatNumber(item.remainingTo90PercentMiBPerSec)} | ${formatNumber(item.jsWoodstoxRatio)} | ${item.targetMet ? 'yes' : 'no'} | \`${item.woodstoxReference.sourceArtifact}\` | ${item.caveat} |`);
+  }
+
+  lines.push(
+    '',
+    '## 1024 MiB Books Fixture quick-xml 0.9x Target Distances',
+    '',
+    'These rows compare the fastest JavaScript full-string row in each 1024 MiB books fixture family against the best available quick-xml row for that same fixture family. Rows whose quick-xml reference comes from a separate candidate artifact are still same-fixture target-distance rows, not object-shape or allocation-equivalence proof.',
+    '',
+    '| Group | JS case | JS MiB/s | JS RSS | Source mode | quick-xml MiB/s | 0.9x target | Remaining to 0.9x | JS/quick-xml | Target met | quick-xml artifact | Reference scope |',
+    '| --- | --- | ---: | --- | --- | ---: | ---: | ---: | ---: | --- | --- | --- |',
+  );
+
+  for (const item of report.summary.sameFixture1024MiBQuickXmlTargetRows) {
+    lines.push(`| \`${item.group}\` | \`${item.fastestJs.caseId}\` | ${formatNumber(item.fastestJs.mibPerSec)} | ${formatMemory(item.fastestJs.memory)} | ${formatSourceMode(item.fastestJs.sourceMode)} | ${formatNumber(item.quickXmlReference.mibPerSec)} | ${formatNumber(item.quickXml90MiBPerSec)} | ${formatNumber(item.remainingTo90PercentMiBPerSec)} | ${formatNumber(item.jsQuickXmlRatio)} | ${item.targetMet ? 'yes' : 'no'} | \`${item.quickXmlReference.sourceArtifact}\` | ${item.caveat} |`);
   }
 
   lines.push(
