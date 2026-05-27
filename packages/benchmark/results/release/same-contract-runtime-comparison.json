@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-27T01:44:55.530Z",
+  "generatedAt": "2026-05-27T02:06:49.099Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -59,7 +59,8 @@
       "woodstox-jfr-allocation.json",
       "woodstox-measured-jfr-allocation.json",
       "woodstox-measured-jfr-allocation-rerun.json",
-      "text-materialization-frontier.json"
+      "text-materialization-frontier.json",
+      "stream-source-consumption-backpressure-counters.json"
     ]
   },
   "summary": {
@@ -1835,6 +1836,85 @@
       "negativeCandidateCount": 14,
       "conclusionAllowed": false,
       "interpretation": "Text/CDATA omission crosses the target as headroom evidence, while trim-only, fold-trim, cache, and ASCII candidates remain negative for the current full-string contract."
+    },
+    "sourceConsumptionFrontier": {
+      "sourceArtifact": "stream-source-consumption-backpressure-counters.json",
+      "contract": "same-full-string-checksum-source-consumption-shapes",
+      "fixtureSizeMiB": 1024,
+      "primaryLargeComparisonInput": "The file-backed release comparison rows call external-baseline with --stax-stream-source file-sync-batches, which records synchronous Iterable<Uint8Array[]> parser input and directReadableStream=false.",
+      "syncIterableInput": "sync-iterable-byte-batches uses StreamReaderSync over a synchronous Iterable<Uint8Array[]> and yields one grouped batch per parser pull.",
+      "asyncIterableInput": "async-iterable-byte-batches uses StreamReader over an AsyncIterable<Uint8Array[]> and awaits one pre-grouped byte batch per parser pull.",
+      "readableStreamInput": "web-readable-stream-pull uses StreamReader over a Web ReadableStream<Uint8Array> pull source.",
+      "readableStreamAsyncBoundary": "The direct ReadableStream rows include the public StreamReader await reader.read() boundary; batchSize controls how many chunks are grouped per bounded nextBatch() operation. Throughput is source-shape evidence, not a parser/runtime ceiling for sync byte batches.",
+      "readableStreamBackpressure": "The ReadableStream source reads only inside pull(); StreamReader consumes at most the configured readable batch size per nextBatch() operation, so production remains bounded by consumer demand.",
+      "arrayBufferConsumption": "Neither measured row constructs one full XML string or one repeated 1 GiB ArrayBuffer parser input; file chunks are read on demand for the selected source shape.",
+      "fastestSyncIterable": {
+        "id": "sync-iterable-byte-batches-batch-8",
+        "sourceMode": "sync-iterable-byte-batches",
+        "parserInput": "synchronous Iterable<Uint8Array[]>",
+        "mibPerSec": 91.95,
+        "maxRssMiB": 129.46,
+        "batchSize": 8,
+        "directReadableStream": false,
+        "fullArrayBufferParserInput": false,
+        "demandDrivenSource": true,
+        "respectsBackpressure": null,
+        "readCalls": 16385,
+        "batchCount": 2048,
+        "iteratorYields": 2048,
+        "pullCalls": 0,
+        "enqueueCalls": 0,
+        "eventCount": 61236571,
+        "checksum": -716099804
+      },
+      "fastestAsyncIterable": {
+        "id": "async-iterable-raw-frame-ascii-batch-8",
+        "sourceMode": "async-iterable-byte-batches",
+        "parserInput": "async Iterable<Uint8Array[]>",
+        "mibPerSec": 72.94,
+        "maxRssMiB": 87.18,
+        "batchSize": 8,
+        "directReadableStream": false,
+        "fullArrayBufferParserInput": false,
+        "demandDrivenSource": true,
+        "respectsBackpressure": true,
+        "readCalls": 16385,
+        "batchCount": 2048,
+        "iteratorYields": 2048,
+        "pullCalls": 0,
+        "enqueueCalls": 0,
+        "eventCount": 61236571,
+        "checksum": -716099804
+      },
+      "fastestReadableStream": {
+        "id": "web-readable-stream-raw-frame-ascii-batch-8",
+        "sourceMode": "web-readable-stream-pull",
+        "parserInput": "Web ReadableStream<Uint8Array>",
+        "mibPerSec": 75.2,
+        "maxRssMiB": 87.65,
+        "batchSize": 8,
+        "directReadableStream": true,
+        "fullArrayBufferParserInput": false,
+        "demandDrivenSource": true,
+        "respectsBackpressure": true,
+        "readCalls": 16385,
+        "batchCount": 0,
+        "iteratorYields": 0,
+        "pullCalls": 16385,
+        "enqueueCalls": 16384,
+        "eventCount": 61236571,
+        "checksum": -716099804
+      },
+      "fastestAsyncIterableRatioToFastestSyncIterable": 0.79,
+      "fastestReadableStreamRatioToFastestSyncIterable": 0.82,
+      "counterexamples200MiB": 0,
+      "backpressureRows": 6,
+      "backpressureRowsRespected": 6,
+      "fullArrayBufferRows": 0,
+      "readableStreamDirectRows": 3,
+      "syncIterableRows": 1,
+      "asyncIterableRows": 3,
+      "interpretation": "The current large-file comparison uses demand-driven Iterable<Uint8Array[]> batches; direct ReadableStream rows are separate source-shape evidence and remain bounded by pull/read demand."
     },
     "allocationEvidenceKinds": [
       "global-allocator-counters",
@@ -12665,6 +12745,19 @@
         "withoutText=withoutTextStrings@252.36 MiB/s",
         "withoutTextRowsCrossTarget=4",
         "negativeCandidates=14"
+      ]
+    },
+    {
+      "id": "source-consumption-frontier-visible",
+      "status": "CLASSIFIED",
+      "summary": "The aggregate comparison links the sync byte-batch baseline, async byte-batch rows, direct ReadableStream rows, and backpressure counters.",
+      "evidence": [
+        "sync=sync-iterable-byte-batches-batch-8@91.95 MiB/s",
+        "async=async-iterable-raw-frame-ascii-batch-8@72.94 MiB/s",
+        "readable=web-readable-stream-raw-frame-ascii-batch-8@75.20 MiB/s",
+        "readable/sync=0.82x",
+        "backpressureRows=6/6",
+        "fullArrayBufferRows=0"
       ]
     }
   ]

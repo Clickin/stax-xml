@@ -1,6 +1,6 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-27T01:44:55.530Z
+Generated: 2026-05-27T02:06:49.099Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
@@ -27,6 +27,7 @@ This report aggregates existing release artifacts. It compares rows only through
 - 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 170/170
 - 1 GiB+ source-mode rows replaying a corpus seed buffer: 93 (max seed 100.26 MiB, max seed/target 0.09)
 - Text materialization frontier: fastest full row rawFrameNameId at 185.50 MiB/s, 14.50 MiB/s below 200 MiB/s; without-text rows crossing target: 4; negative candidates: 14
+- Source consumption frontier: sync byte batches sync-iterable-byte-batches-batch-8 at 91.95 MiB/s; direct ReadableStream web-readable-stream-raw-frame-ascii-batch-8 at 75.20 MiB/s (0.82x sync); backpressure rows 6/6
 
 ## Fastest JS Rows By Group
 
@@ -112,6 +113,23 @@ Interpretation: Text/CDATA omission crosses the target as headroom evidence, whi
 | Scope | Rows | Not full ArrayBuffer parser input | Full ArrayBuffer parser input | Unknown parser input | Corpus seed replay rows | Max corpus seed |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | 1 GiB+ JS full-string rows with source mode metadata | 170 | 170 | 0 | 0 | 93 | 100.26 MiB |
+
+## Source Consumption Frontier
+
+This separates the current large-file Iterable<Uint8Array[]> baseline from direct ReadableStream consumption. ReadableStream rows are bounded source-shape evidence, not the aggregate comparison baseline.
+
+| Scope | Row | Input | MiB/s | RSS | Batch size | Direct ReadableStream | Full ArrayBuffer input | Backpressure | Counters |
+| --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | --- |
+| Fastest sync byte batches | `sync-iterable-byte-batches-batch-8` | synchronous Iterable<Uint8Array[]> | 91.95 | 129.46 MiB | 8 | no | no | n/a | reads=16385, batches=2048, pulls=0, enqueues=0 |
+| Fastest async byte batches | `async-iterable-raw-frame-ascii-batch-8` | async Iterable<Uint8Array[]> | 72.94 | 87.18 MiB | 8 | no | no | yes | reads=16385, batches=2048, pulls=0, enqueues=0 |
+| Fastest direct ReadableStream | `web-readable-stream-raw-frame-ascii-batch-8` | Web ReadableStream<Uint8Array> | 75.20 | 87.65 MiB | 8 | yes | no | yes | reads=16385, batches=0, pulls=16385, enqueues=16384 |
+
+- Direct ReadableStream / sync byte-batch ratio: 0.82x
+- Async byte-batch / sync byte-batch ratio: 0.79x
+- Backpressure-respecting async/readable rows: 6/6
+- Full ArrayBuffer parser-input rows in source-consumption artifact: 0
+- Primary large comparison input: The file-backed release comparison rows call external-baseline with --stax-stream-source file-sync-batches, which records synchronous Iterable<Uint8Array[]> parser input and directReadableStream=false.
+Interpretation: The current large-file comparison uses demand-driven Iterable<Uint8Array[]> batches; direct ReadableStream rows are separate source-shape evidence and remain bounded by pull/read demand.
 
 ## Selected Comparison Rows
 
@@ -378,6 +396,13 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - withoutText=withoutTextStrings@252.36 MiB/s
   - withoutTextRowsCrossTarget=4
   - negativeCandidates=14
+- source-consumption-frontier-visible (CLASSIFIED): The aggregate comparison links the sync byte-batch baseline, async byte-batch rows, direct ReadableStream rows, and backpressure counters.
+  - sync=sync-iterable-byte-batches-batch-8@91.95 MiB/s
+  - async=async-iterable-raw-frame-ascii-batch-8@72.94 MiB/s
+  - readable=web-readable-stream-raw-frame-ascii-batch-8@75.20 MiB/s
+  - readable/sync=0.82x
+  - backpressureRows=6/6
+  - fullArrayBufferRows=0
 
 ## Limits
 

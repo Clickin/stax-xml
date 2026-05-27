@@ -161,6 +161,33 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     maxCorpusSeedMiB: 100.26,
     maxCorpusSeedToTargetRatio: 0.09,
   });
+  assert.equal(report.summary.sourceConsumptionFrontier.sourceArtifact, 'stream-source-consumption-backpressure-counters.json');
+  assert.equal(report.summary.sourceConsumptionFrontier.fastestSyncIterable.id, 'sync-iterable-byte-batches-batch-8');
+  assert.equal(report.summary.sourceConsumptionFrontier.fastestSyncIterable.parserInput, 'synchronous Iterable<Uint8Array[]>');
+  assert.equal(report.summary.sourceConsumptionFrontier.fastestSyncIterable.mibPerSec, 91.95);
+  assert.equal(report.summary.sourceConsumptionFrontier.fastestSyncIterable.batchCount, 2048);
+  assert.equal(report.summary.sourceConsumptionFrontier.fastestSyncIterable.pullCalls, 0);
+  assert.equal(report.summary.sourceConsumptionFrontier.fastestAsyncIterable.id, 'async-iterable-raw-frame-ascii-batch-8');
+  assert.equal(report.summary.sourceConsumptionFrontier.fastestAsyncIterable.mibPerSec, 72.94);
+  assert.equal(report.summary.sourceConsumptionFrontier.fastestAsyncIterableRatioToFastestSyncIterable, 0.79);
+  assert.equal(report.summary.sourceConsumptionFrontier.fastestReadableStream.id, 'web-readable-stream-raw-frame-ascii-batch-8');
+  assert.equal(report.summary.sourceConsumptionFrontier.fastestReadableStream.parserInput, 'Web ReadableStream<Uint8Array>');
+  assert.equal(report.summary.sourceConsumptionFrontier.fastestReadableStream.mibPerSec, 75.2);
+  assert.equal(report.summary.sourceConsumptionFrontier.fastestReadableStream.directReadableStream, true);
+  assert.equal(report.summary.sourceConsumptionFrontier.fastestReadableStream.pullCalls, 16385);
+  assert.equal(report.summary.sourceConsumptionFrontier.fastestReadableStream.enqueueCalls, 16384);
+  assert.equal(report.summary.sourceConsumptionFrontier.fastestReadableStreamRatioToFastestSyncIterable, 0.82);
+  assert.equal(report.summary.sourceConsumptionFrontier.backpressureRows, 6);
+  assert.equal(report.summary.sourceConsumptionFrontier.backpressureRowsRespected, 6);
+  assert.equal(report.summary.sourceConsumptionFrontier.fullArrayBufferRows, 0);
+  assert.equal(report.summary.sourceConsumptionFrontier.counterexamples200MiB, 0);
+  assert.match(report.summary.sourceConsumptionFrontier.primaryLargeComparisonInput, /file-sync-batches/);
+  assert.match(report.summary.sourceConsumptionFrontier.interpretation, /direct ReadableStream rows are separate source-shape evidence/);
+  assert.ok(report.metadata.sourceArtifacts.includes('stream-source-consumption-backpressure-counters.json'));
+  assert.ok(report.findings.some(finding =>
+    finding.id === 'source-consumption-frontier-visible'
+    && finding.status === 'CLASSIFIED'
+  ));
   assert.ok(report.comparisonRows
     .filter(row => row.jsRuntime && row.fullStringParity && (row.fixture?.sizeGiB ?? 0) >= 0.999 && row.sourceMode)
     .every(row => row.fullArrayBufferParserInput === false));
@@ -669,6 +696,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /Same-fixture 1024 MiB JS row vs quick-xml target: stax-raw-frame-name-id-batch-8 at 0\.55x quick-xml, 95\.06 MiB\/s below 0\.9x target/);
   assert.match(markdown, /Same-fixture 1024 MiB process RSS snapshot: JS 61\.77 MiB, Woodstox 312\.71 MiB, quick-xml 4\.78 MiB/);
   assert.match(markdown, /Text materialization frontier: fastest full row rawFrameNameId at 185\.50 MiB\/s, 14\.50 MiB\/s below 200 MiB\/s; without-text rows crossing target: 4; negative candidates: 14/);
+  assert.match(markdown, /Source consumption frontier: sync byte batches sync-iterable-byte-batches-batch-8 at 91\.95 MiB\/s; direct ReadableStream web-readable-stream-raw-frame-ascii-batch-8 at 75\.20 MiB\/s \(0\.82x sync\); backpressure rows 6\/6/);
   assert.match(markdown, /1024 MiB Books Fixture Woodstox 0\.9x Target Distances/);
   assert.match(markdown, /\| `file-backed-batch-size-sweep` \| `stax-raw-frame-name-id-batch-8` \| 152\.11 \| process RSS max 61\.77 MiB \| `file-backed-sync-iterable-byte-batches` \| 351\.56 \| 316\.40 \| 164\.29 \| 0\.43 \| no \| `file-backed-trim-boundary-check-candidate\.json` \| same books 1024 MiB fixture family/);
   assert.match(markdown, /\| `external-baseline-1024mib-file-sync-batches` \| `stax-raw-frame-name-id` \| 132\.54 \| process RSS max 67\.59 MiB \| `file-backed-sync-iterable-byte-batches` \| 337\.97 \| 304\.17 \| 171\.63 \| 0\.39 \| no \| `external-baseline-1024mib-file-sync-batches\.json` \| same artifact Woodstox reference \|/);
@@ -683,6 +711,12 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /\| Fastest full row \| `rawFrameNameId` \| 185\.50 \| yes \| yes \| `text-trim-cost-decomposition\.json` \| 14\.50 MiB\/s below 200 MiB\/s; 1\.08x speedup required \|/);
   assert.match(markdown, /\| Fastest without text\/CDATA strings \| `withoutTextStrings` \| 252\.36 \| no \| yes \| `text-trim-cost-decomposition-4gib\.json` \| 1\.36x fastest full row; 4 row\(s\) cross 200 MiB\/s \|/);
   assert.match(markdown, /Interpretation: Text\/CDATA omission crosses the target as headroom evidence, while trim-only, fold-trim, cache, and ASCII candidates remain negative for the current full-string contract\./);
+  assert.match(markdown, /## Source Consumption Frontier/);
+  assert.match(markdown, /This separates the current large-file Iterable<Uint8Array\[\]> baseline from direct ReadableStream consumption/);
+  assert.match(markdown, /\| Fastest sync byte batches \| `sync-iterable-byte-batches-batch-8` \| synchronous Iterable<Uint8Array\[\]> \| 91\.95 \| 129\.46 MiB \| 8 \| no \| no \| n\/a \| reads=16385, batches=2048, pulls=0, enqueues=0 \|/);
+  assert.match(markdown, /\| Fastest direct ReadableStream \| `web-readable-stream-raw-frame-ascii-batch-8` \| Web ReadableStream<Uint8Array> \| 75\.20 \| 87\.65 MiB \| 8 \| yes \| no \| yes \| reads=16385, batches=0, pulls=16385, enqueues=16384 \|/);
+  assert.match(markdown, /Backpressure-respecting async\/readable rows: 6\/6/);
+  assert.match(markdown, /Full ArrayBuffer parser-input rows in source-consumption artifact: 0/);
   assert.match(markdown, /different corpus fixtures/);
   assert.match(markdown, /access-shape-cross-process-books-corpus/);
   assert.match(markdown, /books-corpus-stability/);
@@ -708,6 +742,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /Woodstox JFR rows are sampled allocation evidence/);
   assert.match(markdown, /dominantPhase=attribute-collection/);
   assert.match(markdown, /text-materialization-frontier-visible \(HEADROOM_CLASSIFIED\)/);
+  assert.match(markdown, /source-consumption-frontier-visible \(CLASSIFIED\)/);
   assert.match(markdown, /fresh-browser per-variant Windows host process-tree probes/);
   assert.match(markdown, /not proof that JavaScript runtimes have no remaining headroom/);
 });

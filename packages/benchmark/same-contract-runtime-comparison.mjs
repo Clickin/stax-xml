@@ -503,7 +503,10 @@ function createReport(options) {
   const textMaterializationFrontier = summarizeTextMaterializationFrontier(
     readOptionalReleaseJson('text-materialization-frontier.json'),
   );
-  const summary = summarize(comparisonRows, allocationEvidence, textMaterializationFrontier);
+  const sourceConsumptionFrontier = summarizeSourceConsumptionFrontier(
+    readOptionalReleaseJson('stream-source-consumption-backpressure-counters.json'),
+  );
+  const summary = summarize(comparisonRows, allocationEvidence, textMaterializationFrontier, sourceConsumptionFrontier);
   return {
     generatedAt: new Date().toISOString(),
     objective: 'same-contract-runtime-comparison',
@@ -518,6 +521,7 @@ function createReport(options) {
         ...fileBackedSweepArtifacts.map(spec => spec.file),
         ...allocationArtifacts.map(spec => spec.file),
         ...(textMaterializationFrontier ? ['text-materialization-frontier.json'] : []),
+        ...(sourceConsumptionFrontier ? ['stream-source-consumption-backpressure-counters.json'] : []),
       ],
     },
     summary,
@@ -1033,7 +1037,67 @@ function summarizeTextMaterializationFrontier(report) {
   };
 }
 
-function summarize(rows, allocationEvidence, textMaterializationFrontier) {
+function summarizeSourceConsumptionFrontier(report) {
+  if (!report?.summary) return null;
+  const rows = Array.isArray(report.rows) ? report.rows : [];
+  const asyncAndReadableRows = rows.filter(row =>
+    row.sourceMode === 'async-iterable-byte-batches'
+    || row.sourceMode === 'web-readable-stream-pull'
+  );
+  return {
+    sourceArtifact: 'stream-source-consumption-backpressure-counters.json',
+    contract: report.contract ?? null,
+    fixtureSizeMiB: round(report.fixture?.sizeMiB),
+    primaryLargeComparisonInput: report.sourceContract?.primaryLargeComparisonInput ?? null,
+    syncIterableInput: report.sourceContract?.syncIterableInput ?? null,
+    asyncIterableInput: report.sourceContract?.asyncIterableInput ?? null,
+    readableStreamInput: report.sourceContract?.readableStreamInput ?? null,
+    readableStreamAsyncBoundary: report.sourceContract?.readableStreamAsyncBoundary ?? null,
+    readableStreamBackpressure: report.sourceContract?.readableStreamBackpressure ?? null,
+    arrayBufferConsumption: report.sourceContract?.arrayBufferConsumption ?? null,
+    fastestSyncIterable: summarizeSourceConsumptionRow(report.summary.fastestSyncIterable, rows),
+    fastestAsyncIterable: summarizeSourceConsumptionRow(report.summary.fastestAsyncIterable, rows),
+    fastestReadableStream: summarizeSourceConsumptionRow(report.summary.fastestReadableStream, rows),
+    fastestAsyncIterableRatioToFastestSyncIterable: round(report.summary.fastestAsyncIterableRatioToFastestSyncIterable),
+    fastestReadableStreamRatioToFastestSyncIterable: round(report.summary.fastestReadableStreamRatioToFastestSyncIterable),
+    counterexamples200MiB: report.summary.counterexamples200MiB ?? null,
+    backpressureRows: asyncAndReadableRows.length,
+    backpressureRowsRespected: asyncAndReadableRows
+      .filter(row => row.demandDrivenSource === true && row.respectsBackpressure === true).length,
+    fullArrayBufferRows: rows.filter(row => row.fullArrayBufferParserInput === true).length,
+    readableStreamDirectRows: rows.filter(row => row.directReadableStream === true).length,
+    syncIterableRows: rows.filter(row => row.sourceMode === 'sync-iterable-byte-batches').length,
+    asyncIterableRows: rows.filter(row => row.sourceMode === 'async-iterable-byte-batches').length,
+    interpretation: 'The current large-file comparison uses demand-driven Iterable<Uint8Array[]> batches; direct ReadableStream rows are separate source-shape evidence and remain bounded by pull/read demand.',
+  };
+}
+
+function summarizeSourceConsumptionRow(summaryRow, rows) {
+  if (!summaryRow) return null;
+  const row = rows.find(candidate => candidate.id === summaryRow.id) ?? {};
+  const counters = row.sourceCounters?.first ?? {};
+  return {
+    id: summaryRow.id,
+    sourceMode: row.sourceMode ?? null,
+    parserInput: row.parserInput ?? null,
+    mibPerSec: round(summaryRow.mibPerSec),
+    maxRssMiB: round(summaryRow.maxRssBytes / (1024 * 1024)),
+    batchSize: row.batchSize ?? null,
+    directReadableStream: row.directReadableStream === true,
+    fullArrayBufferParserInput: row.fullArrayBufferParserInput === true,
+    demandDrivenSource: row.demandDrivenSource === true,
+    respectsBackpressure: row.respectsBackpressure === null ? null : row.respectsBackpressure === true,
+    readCalls: counters.readCalls ?? null,
+    batchCount: counters.batchCount ?? null,
+    iteratorYields: counters.iteratorYields ?? null,
+    pullCalls: counters.pullCalls ?? null,
+    enqueueCalls: counters.enqueueCalls ?? null,
+    eventCount: summaryRow.eventCount ?? null,
+    checksum: summaryRow.checksum ?? null,
+  };
+}
+
+function summarize(rows, allocationEvidence, textMaterializationFrontier, sourceConsumptionFrontier) {
   const jsLargeFullRows = rows.filter(row =>
     row.jsRuntime
     && row.fullStringParity
@@ -1206,6 +1270,7 @@ function summarize(rows, allocationEvidence, textMaterializationFrontier) {
     sourceModes: Array.from(new Set(rows.map(row => row.sourceMode).filter(Boolean))).sort(),
     sourceShapeSafety: summarizeSourceShapeSafety(jsLargeFullRows),
     textMaterializationFrontier,
+    sourceConsumptionFrontier,
     allocationEvidenceKinds: allocationEvidence.map(item => item.evidenceKind),
     conclusionAllowed: false,
   };
@@ -1285,6 +1350,25 @@ function createFindings(summary) {
         `negativeCandidates=${summary.textMaterializationFrontier.negativeCandidateCount}`,
       ] : [],
     },
+    {
+      id: 'source-consumption-frontier-visible',
+      status: summary.sourceConsumptionFrontier
+        && summary.sourceConsumptionFrontier.fullArrayBufferRows === 0
+        && summary.sourceConsumptionFrontier.backpressureRows === summary.sourceConsumptionFrontier.backpressureRowsRespected
+        ? 'CLASSIFIED'
+        : 'PARTIAL',
+      summary: summary.sourceConsumptionFrontier
+        ? 'The aggregate comparison links the sync byte-batch baseline, async byte-batch rows, direct ReadableStream rows, and backpressure counters.'
+        : 'The stream source-consumption artifact was not found in the aggregate comparison.',
+      evidence: summary.sourceConsumptionFrontier ? [
+        `sync=${summary.sourceConsumptionFrontier.fastestSyncIterable?.id}@${formatNumber(summary.sourceConsumptionFrontier.fastestSyncIterable?.mibPerSec)} MiB/s`,
+        `async=${summary.sourceConsumptionFrontier.fastestAsyncIterable?.id}@${formatNumber(summary.sourceConsumptionFrontier.fastestAsyncIterable?.mibPerSec)} MiB/s`,
+        `readable=${summary.sourceConsumptionFrontier.fastestReadableStream?.id}@${formatNumber(summary.sourceConsumptionFrontier.fastestReadableStream?.mibPerSec)} MiB/s`,
+        `readable/sync=${formatNumber(summary.sourceConsumptionFrontier.fastestReadableStreamRatioToFastestSyncIterable)}x`,
+        `backpressureRows=${summary.sourceConsumptionFrontier.backpressureRowsRespected}/${summary.sourceConsumptionFrontier.backpressureRows}`,
+        `fullArrayBufferRows=${summary.sourceConsumptionFrontier.fullArrayBufferRows}`,
+      ] : [],
+    },
   ];
 }
 
@@ -1321,6 +1405,9 @@ function renderMarkdown(report) {
     report.summary.textMaterializationFrontier
       ? `- Text materialization frontier: fastest full row ${report.summary.textMaterializationFrontier.fastestFull.id} at ${formatNumber(report.summary.textMaterializationFrontier.fastestFull.mibPerSec)} MiB/s, ${formatNumber(report.summary.textMaterializationFrontier.fastestFullRemainingMiBPerSec)} MiB/s below 200 MiB/s; without-text rows crossing target: ${report.summary.textMaterializationFrontier.noTextRowsCrossTarget}; negative candidates: ${report.summary.textMaterializationFrontier.negativeCandidateCount}`
       : '- Text materialization frontier: not recorded',
+    report.summary.sourceConsumptionFrontier
+      ? `- Source consumption frontier: sync byte batches ${report.summary.sourceConsumptionFrontier.fastestSyncIterable.id} at ${formatNumber(report.summary.sourceConsumptionFrontier.fastestSyncIterable.mibPerSec)} MiB/s; direct ReadableStream ${report.summary.sourceConsumptionFrontier.fastestReadableStream.id} at ${formatNumber(report.summary.sourceConsumptionFrontier.fastestReadableStream.mibPerSec)} MiB/s (${formatNumber(report.summary.sourceConsumptionFrontier.fastestReadableStreamRatioToFastestSyncIterable)}x sync); backpressure rows ${report.summary.sourceConsumptionFrontier.backpressureRowsRespected}/${report.summary.sourceConsumptionFrontier.backpressureRows}`
+      : '- Source consumption frontier: not recorded',
     '',
     '## Fastest JS Rows By Group',
     '',
@@ -1392,6 +1479,32 @@ function renderMarkdown(report) {
     '| Scope | Rows | Not full ArrayBuffer parser input | Full ArrayBuffer parser input | Unknown parser input | Corpus seed replay rows | Max corpus seed |',
     '| --- | ---: | ---: | ---: | ---: | ---: | ---: |',
     `| 1 GiB+ JS full-string rows with source mode metadata | ${report.summary.sourceShapeSafety.largeJsFullSourceModeRows} | ${report.summary.sourceShapeSafety.notFullArrayBufferRows} | ${report.summary.sourceShapeSafety.fullArrayBufferRows} | ${report.summary.sourceShapeSafety.unknownArrayBufferRows} | ${report.summary.sourceShapeSafety.corpusSeedReplayRows} | ${formatNumber(report.summary.sourceShapeSafety.maxCorpusSeedMiB)} MiB |`,
+  );
+
+  if (report.summary.sourceConsumptionFrontier) {
+    const frontier = report.summary.sourceConsumptionFrontier;
+    lines.push(
+      '',
+      '## Source Consumption Frontier',
+      '',
+      'This separates the current large-file Iterable<Uint8Array[]> baseline from direct ReadableStream consumption. ReadableStream rows are bounded source-shape evidence, not the aggregate comparison baseline.',
+      '',
+      '| Scope | Row | Input | MiB/s | RSS | Batch size | Direct ReadableStream | Full ArrayBuffer input | Backpressure | Counters |',
+      '| --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | --- |',
+      sourceConsumptionMarkdownRow('Fastest sync byte batches', frontier.fastestSyncIterable),
+      sourceConsumptionMarkdownRow('Fastest async byte batches', frontier.fastestAsyncIterable),
+      sourceConsumptionMarkdownRow('Fastest direct ReadableStream', frontier.fastestReadableStream),
+      '',
+      `- Direct ReadableStream / sync byte-batch ratio: ${formatNumber(frontier.fastestReadableStreamRatioToFastestSyncIterable)}x`,
+      `- Async byte-batch / sync byte-batch ratio: ${formatNumber(frontier.fastestAsyncIterableRatioToFastestSyncIterable)}x`,
+      `- Backpressure-respecting async/readable rows: ${frontier.backpressureRowsRespected}/${frontier.backpressureRows}`,
+      `- Full ArrayBuffer parser-input rows in source-consumption artifact: ${frontier.fullArrayBufferRows}`,
+      `- Primary large comparison input: ${frontier.primaryLargeComparisonInput}`,
+      `Interpretation: ${frontier.interpretation}`,
+    );
+  }
+
+  lines.push(
     '',
     '## Selected Comparison Rows',
     '',
@@ -1703,6 +1816,14 @@ function formatFullArrayBufferInput(value) {
 function formatCorpusSeedReplay(row) {
   if (!row?.corpusSeedReplay) return 'no';
   return `yes (${formatNumber(bytesToMiB(row.corpusSeedBytes))} MiB)`;
+}
+
+function sourceConsumptionMarkdownRow(scope, row) {
+  if (!row) {
+    return `| ${scope} | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a |`;
+  }
+  const counters = `reads=${row.readCalls}, batches=${row.batchCount}, pulls=${row.pullCalls}, enqueues=${row.enqueueCalls}`;
+  return `| ${scope} | \`${row.id}\` | ${row.parserInput ?? 'n/a'} | ${formatNumber(row.mibPerSec)} | ${formatNumber(row.maxRssMiB)} MiB | ${row.batchSize ?? 'n/a'} | ${row.directReadableStream ? 'yes' : 'no'} | ${formatFullArrayBufferInput(row.fullArrayBufferParserInput)} | ${row.respectsBackpressure === null ? 'n/a' : row.respectsBackpressure ? 'yes' : 'no'} | ${counters} |`;
 }
 
 function formatAllocationMemory(item) {
