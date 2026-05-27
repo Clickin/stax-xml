@@ -180,10 +180,15 @@ function createArtifactRecord(sourceArtifact, root, options) {
 function summarizeAvailability(summary = {}) {
   if (!summary || typeof summary !== 'object') return null;
   const availability = {
+    hostIsMacOS: typeof summary.hostIsMacOS === 'boolean' ? summary.hostIsMacOS : null,
+    safariExecutableFound: typeof summary.safariExecutableFound === 'boolean' ? summary.safariExecutableFound : null,
+    safaridriverFound: typeof summary.safaridriverFound === 'boolean' ? summary.safaridriverFound : null,
+    currentHarnessSupportsSafari: typeof summary.currentHarnessSupportsSafari === 'boolean' ? summary.currentHarnessSupportsSafari : null,
     canRunSafariBrowserRows: typeof summary.canRunSafariBrowserRows === 'boolean' ? summary.canRunSafariBrowserRows : null,
     safariBenchmarkRowsRecorded: typeof summary.safariBenchmarkRowsRecorded === 'boolean' ? summary.safariBenchmarkRowsRecorded : null,
     exactSafariBuildIdentityRecorded: typeof summary.exactSafariBuildIdentityRecorded === 'boolean' ? summary.exactSafariBuildIdentityRecorded : null,
     safariSourceBoundaryPinned: typeof summary.safariSourceBoundaryPinned === 'boolean' ? summary.safariSourceBoundaryPinned : null,
+    openObligationRemains: typeof summary.openObligationRemains === 'boolean' ? summary.openObligationRemains : null,
   };
   return Object.values(availability).some(value => value !== null) ? availability : null;
 }
@@ -327,6 +332,7 @@ function createCoverage(artifacts, options) {
       .sort((left, right) => right.mibPerSec - left.mibPerSec)
       .slice(0, 12)),
     sourcePins: artifacts.flatMap(artifact => artifact.sourcePins.map(pin => ({ ...pin, sourceArtifact: artifact.sourceArtifact }))),
+    safariWebKitStatus: summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows),
     spiderMonkeyDiagnostics: summarizeSpiderMonkeyDiagnostics(artifacts),
     codegenArtifacts: artifacts
       .filter(artifact => artifact.evidenceKinds.includes('TRACE_FACT'))
@@ -340,6 +346,35 @@ function createCoverage(artifacts, options) {
     negativeArtifacts: artifacts
       .filter(artifact => artifact.evidenceKinds.includes('NEGATIVE_RESULT'))
       .map(artifact => summarizeArtifact(artifact)),
+  };
+}
+
+function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows) {
+  const availabilityArtifact = artifacts.find(artifact =>
+    artifact.sourceArtifact === 'safari-webkit-availability-audit.json'
+  ) ?? null;
+  const availability = availabilityArtifact?.availability ?? {};
+  const safariRows = browserBenchmarkRows.filter(row => row.runtimeId === 'safari-jsc-browser');
+  return {
+    availabilityArtifact: availabilityArtifact?.sourceArtifact ?? null,
+    hostIsMacOS: availability.hostIsMacOS ?? null,
+    safariExecutableFound: availability.safariExecutableFound ?? null,
+    safaridriverFound: availability.safaridriverFound ?? null,
+    harnessSupportsSafari: availability.currentHarnessSupportsSafari ?? null,
+    canRunSafariBrowserRows: availability.canRunSafariBrowserRows ?? null,
+    benchmarkRowsRecorded: safariRows.length,
+    availabilitySaysRowsRecorded: availability.safariBenchmarkRowsRecorded ?? null,
+    exactBuildIdentityRecorded: availability.exactSafariBuildIdentityRecorded ?? null,
+    sourceBoundaryPinned: availability.safariSourceBoundaryPinned ?? null,
+    openObligationRemains: availability.openObligationRemains ?? null,
+    evidenceClass: safariRows.length > 0
+      ? 'browser-row-evidence'
+      : availabilityArtifact
+        ? 'environment-availability-only'
+        : 'missing-availability-audit',
+    closesSafariObligation: safariRows.length > 0
+      && availability.exactSafariBuildIdentityRecorded === true
+      && availability.safariSourceBoundaryPinned === true,
   };
 }
 
@@ -1062,6 +1097,18 @@ function renderMarkdown(report) {
 
   lines.push(
     '',
+    '## Safari/WebKit Browser Row Status',
+    '',
+    `Safari/WebKit evidence class: ${report.coverage.safariWebKitStatus.evidenceClass}`,
+    `Safari/WebKit obligation closed: ${formatBoolean(report.coverage.safariWebKitStatus.closesSafariObligation)}`,
+    '',
+    '| Availability artifact | macOS host | Safari executable | safaridriver | Harness support | Runnable here | Browser rows | Exact build identity | Source boundary pinned |',
+    '| --- | --- | --- | --- | --- | --- | ---: | --- | --- |',
+    `| ${formatOptionalArtifact(report.coverage.safariWebKitStatus.availabilityArtifact)} | ${formatBoolean(report.coverage.safariWebKitStatus.hostIsMacOS)} | ${formatBoolean(report.coverage.safariWebKitStatus.safariExecutableFound)} | ${formatBoolean(report.coverage.safariWebKitStatus.safaridriverFound)} | ${formatBoolean(report.coverage.safariWebKitStatus.harnessSupportsSafari)} | ${formatBoolean(report.coverage.safariWebKitStatus.canRunSafariBrowserRows)} | ${report.coverage.safariWebKitStatus.benchmarkRowsRecorded} | ${formatBoolean(report.coverage.safariWebKitStatus.exactBuildIdentityRecorded)} | ${formatBoolean(report.coverage.safariWebKitStatus.sourceBoundaryPinned)} |`,
+  );
+
+  lines.push(
+    '',
     '## SpiderMonkey Diagnostic Surface',
     '',
     `Emitted SpiderMonkey IR/codegen evidence artifacts: ${report.coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount}`,
@@ -1205,6 +1252,10 @@ function formatFastest(row) {
 
 function formatNumber(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value.toFixed(2) : 'n/a';
+}
+
+function formatOptionalArtifact(sourceArtifact) {
+  return sourceArtifact ? `\`${sourceArtifact}\`` : 'none';
 }
 
 function formatBoolean(value) {

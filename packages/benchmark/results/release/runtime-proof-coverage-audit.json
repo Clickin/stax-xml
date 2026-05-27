@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-27T00:38:31.842Z",
+  "generatedAt": "2026-05-27T00:51:48.248Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -3063,10 +3063,15 @@
         "safari-jsc-browser"
       ],
       "availability": {
+        "hostIsMacOS": false,
+        "safariExecutableFound": false,
+        "safaridriverFound": false,
+        "currentHarnessSupportsSafari": true,
         "canRunSafariBrowserRows": false,
         "safariBenchmarkRowsRecorded": false,
         "exactSafariBuildIdentityRecorded": false,
-        "safariSourceBoundaryPinned": false
+        "safariSourceBoundaryPinned": false,
+        "openObligationRemains": true
       },
       "outcome": null,
       "fixture": null,
@@ -18715,6 +18720,21 @@
         "sourceArtifact": "v8-string-limit-audit.json"
       }
     ],
+    "safariWebKitStatus": {
+      "availabilityArtifact": "safari-webkit-availability-audit.json",
+      "hostIsMacOS": false,
+      "safariExecutableFound": false,
+      "safaridriverFound": false,
+      "harnessSupportsSafari": true,
+      "canRunSafariBrowserRows": false,
+      "benchmarkRowsRecorded": 0,
+      "availabilitySaysRowsRecorded": false,
+      "exactBuildIdentityRecorded": false,
+      "sourceBoundaryPinned": false,
+      "openObligationRemains": true,
+      "evidenceClass": "environment-availability-only",
+      "closesSafariObligation": false
+    },
     "spiderMonkeyDiagnostics": {
       "rows": [
         {
@@ -19501,10 +19521,15 @@
           "safari-jsc-browser"
         ],
         "availability": {
+          "hostIsMacOS": false,
+          "safariExecutableFound": false,
+          "safaridriverFound": false,
+          "currentHarnessSupportsSafari": true,
           "canRunSafariBrowserRows": false,
           "safariBenchmarkRowsRecorded": false,
           "exactSafariBuildIdentityRecorded": false,
-          "safariSourceBoundaryPinned": false
+          "safariSourceBoundaryPinned": false,
+          "openObligationRemains": true
         },
         "outcome": null,
         "fixture": null,

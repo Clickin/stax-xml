@@ -696,11 +696,31 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'safari-webkit-availability-audit.json'
+    && row.availability?.hostIsMacOS === false
+    && row.availability?.safariExecutableFound === false
+    && row.availability?.safaridriverFound === false
+    && row.availability?.currentHarnessSupportsSafari === true
     && row.availability?.canRunSafariBrowserRows === false
     && row.availability?.safariBenchmarkRowsRecorded === false
     && row.availability?.exactSafariBuildIdentityRecorded === false
     && row.availability?.safariSourceBoundaryPinned === false
+    && row.availability?.openObligationRemains === true
   ));
+  assert.deepEqual(report.coverage.safariWebKitStatus, {
+    availabilityArtifact: 'safari-webkit-availability-audit.json',
+    hostIsMacOS: false,
+    safariExecutableFound: false,
+    safaridriverFound: false,
+    harnessSupportsSafari: true,
+    canRunSafariBrowserRows: false,
+    benchmarkRowsRecorded: 0,
+    availabilitySaysRowsRecorded: false,
+    exactBuildIdentityRecorded: false,
+    sourceBoundaryPinned: false,
+    openObligationRemains: true,
+    evidenceClass: 'environment-availability-only',
+    closesSafariObligation: false,
+  });
   assert.equal(report.coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount, 0);
   assert.equal(report.coverage.spiderMonkeyDiagnostics.jitStatusOnlyCount, 2);
   assert.equal(report.coverage.spiderMonkeyDiagnostics.missingIrSurfaceCount, 2);
@@ -758,6 +778,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Local Safari\/WebKit availability audit is present/);
   assert.match(markdown, /Run same-contract Safari\/WebKit rows on a macOS host/);
   assert.match(markdown, /Bun\/JSC evidence is not Safari\/browser JSC evidence/);
+  assert.match(markdown, /## Safari\/WebKit Browser Row Status/);
+  assert.match(markdown, /Safari\/WebKit evidence class: environment-availability-only/);
+  assert.match(markdown, /Safari\/WebKit obligation closed: no/);
+  assert.match(markdown, /\| `safari-webkit-availability-audit\.json` \| no \| no \| no \| yes \| no \| 0 \| no \| no \|/);
   assert.match(markdown, /Bun\/JSC allocation evidence present/);
   assert.match(markdown, /Bun\/JSC codegen\/IR evidence present/);
   assert.match(markdown, /Chrome\/V8 browser codegen trace evidence present/);

@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-27T00:38:31.842Z
+Generated: 2026-05-27T00:51:48.248Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -68,6 +68,15 @@ These rows have enough throughput/parity metadata to be recognized, but no row-l
 | Safari/WebKit browser | 1 | 0 | 0 | none | 0 | 0 | 0 |
 | Java/Woodstox | 12 | 13 | 5 | woodstox 351.56 MiB/s from file-backed-trim-boundary-check-candidate.json | 0 | 1 | 3 |
 | Rust/quick-xml | 11 | 19 | 5 | quick-xml 274.63 MiB/s from file-backed-short-attr-value-cache-candidate.json | 0 | 0 | 2 |
+
+## Safari/WebKit Browser Row Status
+
+Safari/WebKit evidence class: environment-availability-only
+Safari/WebKit obligation closed: no
+
+| Availability artifact | macOS host | Safari executable | safaridriver | Harness support | Runnable here | Browser rows | Exact build identity | Source boundary pinned |
+| --- | --- | --- | --- | --- | --- | ---: | --- | --- |
+| `safari-webkit-availability-audit.json` | no | no | no | yes | no | 0 | no | no |
 
 ## SpiderMonkey Diagnostic Surface
 
