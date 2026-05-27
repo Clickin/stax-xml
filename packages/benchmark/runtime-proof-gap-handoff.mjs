@@ -276,6 +276,14 @@ function createHandoffs(activeObligations, localClosure) {
         'Memory evidence is classified explicitly; missing Safari JS heap counters must not be treated as bounded-memory proof.',
         'Exact Safari/WebKit build identity and source-boundary status are recorded separately from Bun/JSC WebKit evidence.',
       ],
+      closureChecks: [
+        'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.evidenceClass must be browser-row-evidence.',
+        'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.benchmarkRowsRecorded must be greater than 0.',
+        'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.exactBuildIdentityRecorded must be true.',
+        'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.sourceBoundaryPinned must be true.',
+        'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.closesSafariObligation must be true before safari-jsc-source-and-browser-rows-open can be marked covered.',
+        'runtime-counterexample-scan.json must include any Safari/WebKit full-string rows and classify any 200 MiB/s+ bounded-memory row as a counterexample.',
+      ],
       scopeGuards: [
         'Safari rows are browser JSC evidence; they do not replace Bun/JSC rows.',
         'Bun/JSC WebKit source pins must not be reused as Safari source-boundary evidence without an exact build match.',
@@ -328,6 +336,12 @@ function createHandoffs(activeObligations, localClosure) {
         'A release artifact whose objective records emitted Firefox/SpiderMonkey JIT IR, optimized-code, or codegen dump evidence.',
         'The artifact must include the runtime/build identity, diagnostic flags, selected row id, event count, and checksum parity.',
         'The coverage audit must classify the artifact as SpiderMonkey codegen evidence, not merely profiler/source/availability evidence.',
+      ],
+      closureChecks: [
+        'runtime-proof-coverage-audit.json coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount must be greater than 0.',
+        'runtime-proof-coverage-audit.json coverage.spiderMonkeyDiagnostics.missingIrSurfaceCount must be 0 for the SpiderMonkey diagnostic rows that are claimed as codegen closure evidence.',
+        'The closing artifact must not have evidenceClass jit-status-only, source-pin-only, negative-diagnostic-surface, or missing-availability-audit.',
+        'The closing artifact must include runtime/build identity, diagnostic flags, selected row id, event count, checksum parity, and emitted IR or optimized-code dump metadata.',
       ],
       scopeGuards: [
         'The existing no-dump diagnostic audit is a negative result for the installed browser build only.',
@@ -447,6 +461,13 @@ function renderMarkdown(report) {
     lines.push('Expected evidence:');
     for (const item of handoff.expectedEvidence) {
       lines.push(`- ${item}`);
+    }
+    if (handoff.closureChecks?.length > 0) {
+      lines.push('');
+      lines.push('Closure checks:');
+      for (const item of handoff.closureChecks) {
+        lines.push(`- ${item}`);
+      }
     }
     lines.push('');
     lines.push('Scope guards:');

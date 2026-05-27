@@ -120,6 +120,10 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(safari.expectedEvidence.some(item => /fullStringParity/.test(item)));
   assert.ok(safari.expectedEvidence.some(item => /synchronous Iterable<Uint8Array\[\]> source contract/.test(item)));
   assert.ok(safari.expectedEvidence.some(item => /source-boundary status/.test(item)));
+  assert.ok(safari.closureChecks.some(item => /coverage\.safariWebKitStatus\.evidenceClass/.test(item)));
+  assert.ok(safari.closureChecks.some(item => /benchmarkRowsRecorded must be greater than 0/.test(item)));
+  assert.ok(safari.closureChecks.some(item => /closesSafariObligation must be true/.test(item)));
+  assert.ok(safari.closureChecks.some(item => /200 MiB\/s\+ bounded-memory row as a counterexample/.test(item)));
   assert.ok(safari.scopeGuards.some(item => /direct ReadableStream throughput/.test(item)));
   assert.ok(safari.scopeGuards.some(item => /must not be reused as Safari source-boundary evidence/.test(item)));
   assert.ok(spiderMonkey.commands.some(command => /firefox-spidermonkey-diagnostic-dump-audit\.mjs/.test(command.command)));
@@ -128,6 +132,10 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.commands.some(command => /--package-kind nightly/.test(command.command)));
   assert.ok(spiderMonkey.commands.some(command => /FIREFOX_PATH=/.test(command.command)));
   assert.ok(spiderMonkey.expectedEvidence.some(item => /JIT IR/.test(item)));
+  assert.ok(spiderMonkey.closureChecks.some(item => /emittedIrEvidenceCount must be greater than 0/.test(item)));
+  assert.ok(spiderMonkey.closureChecks.some(item => /missingIrSurfaceCount must be 0/.test(item)));
+  assert.ok(spiderMonkey.closureChecks.some(item => /jit-status-only/.test(item)));
+  assert.ok(spiderMonkey.closureChecks.some(item => /emitted IR or optimized-code dump metadata/.test(item)));
   assert.ok(spiderMonkey.scopeGuards.some(item => /no-dump diagnostic audit is a negative result for the installed browser build only/.test(item)));
   assert.ok(spiderMonkey.scopeGuards.some(item => /JS shell and official jsshell availability are environment evidence only/.test(item)));
   assert.match(report.note, /not benchmark evidence/);
@@ -165,6 +173,10 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Source boundary contract/);
   assert.match(markdown, /Bun\/JSC and Bun-patched WebKit source pins are not Safari browser JSC source pins/);
   assert.match(markdown, /same-contract-runtime-comparison/);
+  assert.match(markdown, /Closure checks:/);
+  assert.match(markdown, /coverage\.safariWebKitStatus\.closesSafariObligation must be true/);
+  assert.match(markdown, /coverage\.spiderMonkeyDiagnostics\.emittedIrEvidenceCount must be greater than 0/);
+  assert.match(markdown, /evidenceClass jit-status-only/);
   assert.match(markdown, /firefox-spidermonkey-diagnostic-dump-audit/);
   assert.match(markdown, /firefox-spidermonkey-buildconfig-source-pin-audit/);
   assert.match(markdown, /negative result for the installed browser build only/);
