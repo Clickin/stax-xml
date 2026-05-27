@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-27T02:06:49.099Z",
+  "generatedAt": "2026-05-27T02:14:20.669Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -19,6 +19,7 @@
       "candidate-headroom-corpus.json",
       "bun-candidate-headroom-corpus.json",
       "browser-candidate-headroom-corpus.json",
+      "browser-fetch-readable-stream-books-corpus.json",
       "firefox-bidi-candidate-headroom-corpus.json",
       "candidate-headroom-projection-large.json",
       "bun-candidate-headroom-projection-large.json",
@@ -64,8 +65,8 @@
     ]
   },
   "summary": {
-    "rowCount": 207,
-    "jsLargeFullRowCount": 176,
+    "rowCount": 210,
+    "jsLargeFullRowCount": 179,
     "jsRuntimeCounterexamples200MiB": 0,
     "fastestJsLargeFullRow": {
       "group": "text-trim-cost-decomposition",
@@ -1039,6 +1040,36 @@
         }
       },
       {
+        "group": "browser-fetch-readable-stream-books-corpus",
+        "fastest": {
+          "group": "browser-fetch-readable-stream-books-corpus",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
+          "caseId": "eventObjectFull",
+          "mibPerSec": 64.56,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "browser-js-heap",
+            "maxMiB": 16.54,
+            "deltaMiB": 9.49,
+            "hostProcessTree": {
+              "kind": "windows-process-tree",
+              "maxWorkingSetMiB": 644.96,
+              "maxPrivateMiB": 221.21,
+              "note": "host process-tree counters are report-level, not per-variant memory"
+            },
+            "hostProcessTreeProbe": null
+          },
+          "sourceMode": "sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
+          "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+          "sampleCount": 1,
+          "sampleMinMiBPerSec": 64.56,
+          "sampleMaxMiBPerSec": 64.56,
+          "sampleSpreadRatio": 0
+        }
+      },
+      {
         "group": "projection-1gib-full",
         "fastest": {
           "group": "projection-1gib-full",
@@ -1778,15 +1809,17 @@
       "process-rss"
     ],
     "sourceModes": [
+      "fetch-async-iterable-byte-batches",
+      "fetch-readable-stream-pull",
       "file-backed-sync-iterable-byte-batches",
       "sync-iterable-byte-batches"
     ],
     "sourceShapeSafety": {
-      "largeJsFullSourceModeRows": 170,
-      "notFullArrayBufferRows": 170,
+      "largeJsFullSourceModeRows": 173,
+      "notFullArrayBufferRows": 173,
       "fullArrayBufferRows": 0,
       "unknownArrayBufferRows": 0,
-      "corpusSeedReplayRows": 93,
+      "corpusSeedReplayRows": 96,
       "maxCorpusSeedMiB": 100.26,
       "maxCorpusSeedToTargetRatio": 0.09
     },
@@ -1915,6 +1948,73 @@
       "syncIterableRows": 1,
       "asyncIterableRows": 3,
       "interpretation": "The current large-file comparison uses demand-driven Iterable<Uint8Array[]> batches; direct ReadableStream rows are separate source-shape evidence and remain bounded by pull/read demand."
+    },
+    "browserLiveSourceFrontier": {
+      "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+      "runtimeId": "chrome-v8-browser",
+      "fixtureSizeGiB": 1,
+      "preparedSeedRow": {
+        "id": "eventObjectFull",
+        "sourceMode": "sync-iterable-byte-batches",
+        "mibPerSec": 64.56,
+        "maxJsHeapMiB": 16.54,
+        "directReadableStream": null,
+        "demandDrivenSource": null,
+        "respectsBackpressure": null,
+        "fullArrayBufferParserInput": false,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "eventCount": 57096514,
+        "checksum": -540013997
+      },
+      "fetchReadableStreamRow": {
+        "id": "fetchReadableStreamFull",
+        "sourceMode": "fetch-readable-stream-pull",
+        "mibPerSec": 9.68,
+        "maxJsHeapMiB": 34.05,
+        "directReadableStream": true,
+        "demandDrivenSource": true,
+        "respectsBackpressure": true,
+        "fullArrayBufferParserInput": false,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "eventCount": 57096514,
+        "checksum": -540013997
+      },
+      "fetchAsyncByteBatchRow": {
+        "id": "fetchAsyncByteBatchFull",
+        "sourceMode": "fetch-async-iterable-byte-batches",
+        "mibPerSec": 9.77,
+        "maxJsHeapMiB": 17.75,
+        "directReadableStream": false,
+        "demandDrivenSource": true,
+        "respectsBackpressure": true,
+        "fullArrayBufferParserInput": false,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "eventCount": 57096514,
+        "checksum": -540013997
+      },
+      "fastestLiveRow": {
+        "id": "fetchAsyncByteBatchFull",
+        "sourceMode": "fetch-async-iterable-byte-batches",
+        "mibPerSec": 9.77,
+        "maxJsHeapMiB": 17.75,
+        "directReadableStream": false,
+        "demandDrivenSource": true,
+        "respectsBackpressure": true,
+        "fullArrayBufferParserInput": false,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "eventCount": 57096514,
+        "checksum": -540013997
+      },
+      "liveRows": 2,
+      "liveRowsBackpressureRespected": 2,
+      "liveRowsFullArrayBufferInput": 0,
+      "readableToPreparedRatio": 0.15,
+      "asyncBatchToPreparedRatio": 0.15,
+      "interpretation": "Browser live fetch rows consume Response.body directly or through grouped AsyncIterable<Uint8Array[]> batches under the same checksum contract; they are intentionally separate from prepared corpus-seed replay rows."
     },
     "allocationEvidenceKinds": [
       "global-allocator-counters",
@@ -2972,6 +3072,9 @@
       "mibPerSec": 49.01,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -3026,6 +3129,9 @@
       "mibPerSec": 39.45,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -3080,6 +3186,9 @@
       "mibPerSec": 51.99,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -3134,6 +3243,9 @@
       "mibPerSec": 52.23,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -3188,6 +3300,9 @@
       "mibPerSec": 55.85,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -3242,6 +3357,9 @@
       "mibPerSec": 52.93,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -3296,6 +3414,9 @@
       "mibPerSec": 37.27,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -3350,6 +3471,9 @@
       "mibPerSec": 54.62,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -3404,6 +3528,9 @@
       "mibPerSec": 49.93,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -3458,6 +3585,9 @@
       "mibPerSec": 57.99,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -3512,6 +3642,9 @@
       "mibPerSec": 34.46,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap",
@@ -3570,6 +3703,9 @@
       "mibPerSec": 33.1,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap",
@@ -3628,6 +3764,9 @@
       "mibPerSec": 40.05,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap",
@@ -3686,6 +3825,9 @@
       "mibPerSec": 42.35,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap",
@@ -3744,6 +3886,9 @@
       "mibPerSec": 43.45,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap",
@@ -3802,6 +3947,9 @@
       "mibPerSec": 33.02,
       "boundedMemory": false,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
@@ -3860,6 +4008,9 @@
       "mibPerSec": 23.31,
       "boundedMemory": false,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
@@ -3918,6 +4069,9 @@
       "mibPerSec": 35.02,
       "boundedMemory": false,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
@@ -3976,6 +4130,9 @@
       "mibPerSec": 62.17,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -4033,6 +4190,9 @@
       "mibPerSec": 61.8,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -4090,6 +4250,9 @@
       "mibPerSec": 66.95,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -4147,6 +4310,9 @@
       "mibPerSec": 71.51,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -4204,6 +4370,9 @@
       "mibPerSec": 77,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -4261,6 +4430,9 @@
       "mibPerSec": 56.23,
       "boundedMemory": false,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -4318,6 +4490,9 @@
       "mibPerSec": 62.08,
       "boundedMemory": false,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -4375,6 +4550,9 @@
       "mibPerSec": 71.78,
       "boundedMemory": false,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -4432,6 +4610,9 @@
       "mibPerSec": 62.45,
       "boundedMemory": false,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -4489,6 +4670,9 @@
       "mibPerSec": 76.08,
       "boundedMemory": false,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -4546,6 +4730,9 @@
       "mibPerSec": 30.38,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap",
@@ -4607,6 +4794,9 @@
       "mibPerSec": 28.92,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap",
@@ -4668,6 +4858,9 @@
       "mibPerSec": 30.07,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap",
@@ -4729,6 +4922,9 @@
       "mibPerSec": 30.29,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap",
@@ -4790,6 +4986,9 @@
       "mibPerSec": 29.05,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap",
@@ -4819,6 +5018,198 @@
       "corpusSeedReplay": true,
       "corpusSeedBytes": 89565617,
       "corpusSeedToTargetRatio": 0.08333333333333333
+    },
+    {
+      "group": "browser-fetch-readable-stream-books-corpus",
+      "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+      "runtimeId": "chrome-v8-browser",
+      "runtimeLabel": "Chrome/V8 browser",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "148.0.0.0",
+      "caseId": "eventObjectFull",
+      "implementation": "public event objects materialized from browser byte batches",
+      "contractScope": "full-event-object-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073744736,
+        "batchSize": 1,
+        "rowCycleSize": 1,
+        "minRowBytes": 4551,
+        "maxRowBytes": 4551,
+        "averageRowBytes": 4551
+      },
+      "fullStringParity": true,
+      "eventCount": 57096514,
+      "checksum": -540013997,
+      "mibPerSec": 64.56,
+      "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
+      "fullArrayBufferParserInput": false,
+      "memory": {
+        "primaryKind": "browser-js-heap",
+        "maxMiB": 16.54,
+        "deltaMiB": 9.49,
+        "hostProcessTree": {
+          "kind": "windows-process-tree",
+          "maxWorkingSetMiB": 644.96,
+          "maxPrivateMiB": 221.21,
+          "note": "host process-tree counters are report-level, not per-variant memory"
+        },
+        "hostProcessTreeProbe": null
+      },
+      "materializationCounters": {
+        "stringFieldReads": 62758976,
+        "eventObjects": 57096514,
+        "rawSpanMaterializations": 0,
+        "attributePairs": 2831232
+      },
+      "sampleCount": 1,
+      "sampleMinMiBPerSec": 64.56,
+      "sampleMaxMiBPerSec": 64.56,
+      "sampleSpreadRatio": 0,
+      "woodstoxRatio": 0.21,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false,
+      "corpusSeedReplay": true,
+      "corpusSeedBytes": 4551,
+      "corpusSeedToTargetRatio": 0.000004238437542384375
+    },
+    {
+      "group": "browser-fetch-readable-stream-books-corpus",
+      "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+      "runtimeId": "chrome-v8-browser",
+      "runtimeLabel": "Chrome/V8 browser",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "148.0.0.0",
+      "caseId": "fetchReadableStreamFull",
+      "implementation": "EventReader over fetch Response.body ReadableStream corpus-cycle source",
+      "contractScope": "full-event-object-materialization-live-readable-stream-source",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073744736,
+        "batchSize": 1,
+        "rowCycleSize": 1,
+        "minRowBytes": 4551,
+        "maxRowBytes": 4551,
+        "averageRowBytes": 4551
+      },
+      "fullStringParity": true,
+      "eventCount": 57096514,
+      "checksum": -540013997,
+      "mibPerSec": 9.68,
+      "boundedMemory": true,
+      "sourceMode": "fetch-readable-stream-pull",
+      "demandDrivenSource": true,
+      "directReadableStream": true,
+      "respectsBackpressure": true,
+      "fullArrayBufferParserInput": false,
+      "memory": {
+        "primaryKind": "browser-js-heap",
+        "maxMiB": 34.05,
+        "deltaMiB": 27.85,
+        "hostProcessTree": {
+          "kind": "windows-process-tree",
+          "maxWorkingSetMiB": 644.96,
+          "maxPrivateMiB": 221.21,
+          "note": "host process-tree counters are report-level, not per-variant memory"
+        },
+        "hostProcessTreeProbe": null
+      },
+      "materializationCounters": {
+        "stringFieldReads": 62758976,
+        "eventObjects": 57096514,
+        "rawSpanMaterializations": 0,
+        "attributePairs": 2831232
+      },
+      "sampleCount": 1,
+      "sampleMinMiBPerSec": 9.68,
+      "sampleMaxMiBPerSec": 9.68,
+      "sampleSpreadRatio": 0,
+      "woodstoxRatio": 0.03,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false,
+      "corpusSeedReplay": true,
+      "corpusSeedBytes": 4551,
+      "corpusSeedToTargetRatio": 0.000004238437542384375
+    },
+    {
+      "group": "browser-fetch-readable-stream-books-corpus",
+      "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+      "runtimeId": "chrome-v8-browser",
+      "runtimeLabel": "Chrome/V8 browser",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "148.0.0.0",
+      "caseId": "fetchAsyncByteBatchFull",
+      "implementation": "createEventReaderFromAsyncByteBatches over fetch Response.body corpus-cycle source",
+      "contractScope": "full-event-object-materialization-live-async-byte-batch-source",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073744736,
+        "batchSize": 1,
+        "rowCycleSize": 1,
+        "minRowBytes": 4551,
+        "maxRowBytes": 4551,
+        "averageRowBytes": 4551
+      },
+      "fullStringParity": true,
+      "eventCount": 57096514,
+      "checksum": -540013997,
+      "mibPerSec": 9.77,
+      "boundedMemory": true,
+      "sourceMode": "fetch-async-iterable-byte-batches",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "respectsBackpressure": true,
+      "fullArrayBufferParserInput": false,
+      "memory": {
+        "primaryKind": "browser-js-heap",
+        "maxMiB": 17.75,
+        "deltaMiB": 11.49,
+        "hostProcessTree": {
+          "kind": "windows-process-tree",
+          "maxWorkingSetMiB": 644.96,
+          "maxPrivateMiB": 221.21,
+          "note": "host process-tree counters are report-level, not per-variant memory"
+        },
+        "hostProcessTreeProbe": null
+      },
+      "materializationCounters": {
+        "stringFieldReads": 62758976,
+        "eventObjects": 57096514,
+        "rawSpanMaterializations": 0,
+        "attributePairs": 2831232
+      },
+      "sampleCount": 1,
+      "sampleMinMiBPerSec": 9.77,
+      "sampleMaxMiBPerSec": 9.77,
+      "sampleSpreadRatio": 0,
+      "woodstoxRatio": 0.03,
+      "targetStatus": "below",
+      "runtimeLimitCounterexample": false,
+      "corpusSeedReplay": true,
+      "corpusSeedBytes": 4551,
+      "corpusSeedToTargetRatio": 0.000004238437542384375
     },
     {
       "group": "corpus-1gib-candidate",
@@ -4851,6 +5242,9 @@
       "mibPerSec": 44.92,
       "boundedMemory": false,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
@@ -4912,6 +5306,9 @@
       "mibPerSec": 36.27,
       "boundedMemory": false,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
@@ -4973,6 +5370,9 @@
       "mibPerSec": 48.15,
       "boundedMemory": false,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
@@ -5034,6 +5434,9 @@
       "mibPerSec": 67.04,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -5088,6 +5491,9 @@
       "mibPerSec": 57.67,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -5142,6 +5548,9 @@
       "mibPerSec": 77.29,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -5196,6 +5605,9 @@
       "mibPerSec": 74.48,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -5250,6 +5662,9 @@
       "mibPerSec": 82.91,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -5304,6 +5719,9 @@
       "mibPerSec": 77.04,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -5358,6 +5776,9 @@
       "mibPerSec": 63.29,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -5412,6 +5833,9 @@
       "mibPerSec": 80.14,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -5466,6 +5890,9 @@
       "mibPerSec": 64.97,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -5520,6 +5947,9 @@
       "mibPerSec": 84.68,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -5574,6 +6004,9 @@
       "mibPerSec": 56.44,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap",
@@ -5632,6 +6065,9 @@
       "mibPerSec": 48.12,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap",
@@ -5690,6 +6126,9 @@
       "mibPerSec": 56.15,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap",
@@ -5748,6 +6187,9 @@
       "mibPerSec": 57.69,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap",
@@ -5806,6 +6248,9 @@
       "mibPerSec": 60.32,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap",
@@ -5864,6 +6309,9 @@
       "mibPerSec": 61.77,
       "boundedMemory": false,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
@@ -5922,6 +6370,9 @@
       "mibPerSec": 52.54,
       "boundedMemory": false,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
@@ -5980,6 +6431,9 @@
       "mibPerSec": 64.24,
       "boundedMemory": false,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap-unavailable",
@@ -6038,6 +6492,9 @@
       "mibPerSec": 37.33,
       "boundedMemory": true,
       "sourceMode": null,
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
@@ -6093,6 +6550,9 @@
       "mibPerSec": 51.6,
       "boundedMemory": true,
       "sourceMode": null,
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
@@ -6148,6 +6608,9 @@
       "mibPerSec": 40.31,
       "boundedMemory": true,
       "sourceMode": null,
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
@@ -6203,6 +6666,9 @@
       "mibPerSec": 47.67,
       "boundedMemory": true,
       "sourceMode": null,
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "process-rss",
@@ -6258,6 +6724,9 @@
       "mibPerSec": 16.63,
       "boundedMemory": true,
       "sourceMode": null,
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap",
@@ -6317,6 +6786,9 @@
       "mibPerSec": 39.42,
       "boundedMemory": true,
       "sourceMode": null,
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": null,
       "memory": {
         "primaryKind": "browser-js-heap",
@@ -6376,6 +6848,9 @@
       "mibPerSec": 154.29,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -6433,6 +6908,9 @@
       "mibPerSec": 141.62,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -6490,6 +6968,9 @@
       "mibPerSec": 176.47,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -6547,6 +7028,9 @@
       "mibPerSec": 129.28,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -6604,6 +7088,9 @@
       "mibPerSec": 171.35,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -6661,6 +7148,9 @@
       "mibPerSec": 136.44,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -6718,6 +7208,9 @@
       "mibPerSec": 178.52,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -6775,6 +7268,9 @@
       "mibPerSec": 143.2,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -6832,6 +7328,9 @@
       "mibPerSec": 175.02,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -6889,6 +7388,9 @@
       "mibPerSec": 129.31,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -6946,6 +7448,9 @@
       "mibPerSec": 160.72,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -7003,6 +7508,9 @@
       "mibPerSec": 110.79,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -7060,6 +7568,9 @@
       "mibPerSec": 105.41,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -7117,6 +7628,9 @@
       "mibPerSec": 216.04,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -7174,6 +7688,9 @@
       "mibPerSec": 164.31,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -7231,6 +7748,9 @@
       "mibPerSec": 170.16,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -7288,6 +7808,9 @@
       "mibPerSec": 222.28,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -7345,6 +7868,9 @@
       "mibPerSec": 164.13,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -7402,6 +7928,9 @@
       "mibPerSec": 170.59,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -7459,6 +7988,9 @@
       "mibPerSec": 155.35,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -7516,6 +8048,9 @@
       "mibPerSec": 214.41,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -7573,6 +8108,9 @@
       "mibPerSec": 109.66,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -7627,6 +8165,9 @@
       "mibPerSec": 109.56,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -7681,6 +8222,9 @@
       "mibPerSec": 136.23,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -7738,6 +8282,9 @@
       "mibPerSec": 166.33,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -7795,6 +8342,9 @@
       "mibPerSec": 163.62,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -7852,6 +8402,9 @@
       "mibPerSec": 164.14,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -7909,6 +8462,9 @@
       "mibPerSec": 215.7,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -7966,6 +8522,9 @@
       "mibPerSec": 165.38,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -8023,6 +8582,9 @@
       "mibPerSec": 167.49,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -8080,6 +8642,9 @@
       "mibPerSec": 155.23,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -8137,6 +8702,9 @@
       "mibPerSec": 213.11,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -8194,6 +8762,9 @@
       "mibPerSec": 161.24,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -8251,6 +8822,9 @@
       "mibPerSec": 158.96,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -8308,6 +8882,9 @@
       "mibPerSec": 120.41,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -8365,6 +8942,9 @@
       "mibPerSec": 151.93,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -8422,6 +9002,9 @@
       "mibPerSec": 169.07,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -8479,6 +9062,9 @@
       "mibPerSec": 158.09,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -8536,6 +9122,9 @@
       "mibPerSec": 99.92,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -8593,6 +9182,9 @@
       "mibPerSec": 150.27,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -8650,6 +9242,9 @@
       "mibPerSec": 213.15,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -8707,6 +9302,9 @@
       "mibPerSec": 148.17,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -8764,6 +9362,9 @@
       "mibPerSec": 172.85,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -8821,6 +9422,9 @@
       "mibPerSec": 71.21,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -8878,6 +9482,9 @@
       "mibPerSec": 122.32,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -8935,6 +9542,9 @@
       "mibPerSec": 103.26,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -8992,6 +9602,9 @@
       "mibPerSec": 84.18,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -9046,6 +9659,9 @@
       "mibPerSec": 70.96,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -9100,6 +9716,9 @@
       "mibPerSec": 96.99,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -9154,6 +9773,9 @@
       "mibPerSec": 185.5,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -9211,6 +9833,9 @@
       "mibPerSec": 148.57,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -9268,6 +9893,9 @@
       "mibPerSec": 184.92,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -9325,6 +9953,9 @@
       "mibPerSec": 148.58,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -9382,6 +10013,9 @@
       "mibPerSec": 178.86,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -9439,6 +10073,9 @@
       "mibPerSec": 184.03,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -9496,6 +10133,9 @@
       "mibPerSec": 91.2,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -9553,6 +10193,9 @@
       "mibPerSec": 99.01,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -9610,6 +10253,9 @@
       "mibPerSec": 99.39,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -9667,6 +10313,9 @@
       "mibPerSec": 113.94,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -9724,6 +10373,9 @@
       "mibPerSec": 96.88,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -9781,6 +10433,9 @@
       "mibPerSec": 94.11,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -9838,6 +10493,9 @@
       "mibPerSec": 119.39,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": null,
+      "directReadableStream": null,
+      "respectsBackpressure": null,
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "process-rss",
@@ -12693,7 +13351,7 @@
       "status": "NOT_FOUND_IN_AGGREGATED_ARTIFACTS",
       "summary": "The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.",
       "evidence": [
-        "jsLargeFullRows=176",
+        "jsLargeFullRows=179",
         "counterexamples=0"
       ]
     },
@@ -12702,8 +13360,8 @@
       "status": "CLASSIFIED",
       "summary": "Recognized 1 GiB+ JavaScript full-string source-mode rows are classified for full XML ArrayBuffer parser input.",
       "evidence": [
-        "largeJsFullSourceModeRows=170",
-        "notFullArrayBufferRows=170",
+        "largeJsFullSourceModeRows=173",
+        "notFullArrayBufferRows=173",
         "fullArrayBufferRows=0",
         "unknownArrayBufferRows=0"
       ]
@@ -12758,6 +13416,18 @@
         "readable/sync=0.82x",
         "backpressureRows=6/6",
         "fullArrayBufferRows=0"
+      ]
+    },
+    {
+      "id": "browser-live-fetch-source-visible",
+      "status": "CLASSIFIED",
+      "summary": "Chrome live fetch ReadableStream and grouped async byte-batch rows remain visible separately from prepared corpus-seed replay rows.",
+      "evidence": [
+        "prepared=eventObjectFull@64.56 MiB/s",
+        "fetchReadable=fetchReadableStreamFull@9.68 MiB/s",
+        "fetchAsyncBatch=fetchAsyncByteBatchFull@9.77 MiB/s",
+        "liveBackpressureRows=2/2",
+        "liveFullArrayBufferRows=0"
       ]
     }
   ]

@@ -114,6 +114,14 @@ const variantArtifacts = [
     cases: candidateCases,
   },
   {
+    group: 'browser-fetch-readable-stream-books-corpus',
+    file: 'browser-fetch-readable-stream-books-corpus.json',
+    runtimeId: 'chrome-v8-browser',
+    runtimeLabel: 'Chrome/V8 browser',
+    jsRuntime: true,
+    cases: ['eventObjectFull', 'fetchReadableStreamFull', 'fetchAsyncByteBatchFull'],
+  },
+  {
     group: 'corpus-1gib-candidate',
     file: 'firefox-bidi-candidate-headroom-corpus.json',
     runtimeId: 'firefox-spidermonkey-browser',
@@ -605,6 +613,9 @@ function extractVariantRows(report, spec) {
       mibPerSec: round(row.mibPerSec),
       boundedMemory: row.boundedMemory === true,
       sourceMode,
+      demandDrivenSource: row.demandDrivenSource === true ? true : row.demandDrivenSource === false ? false : null,
+      directReadableStream: row.directReadableStream === true ? true : row.directReadableStream === false ? false : null,
+      respectsBackpressure: row.respectsBackpressure === true ? true : row.respectsBackpressure === false ? false : null,
       fullArrayBufferParserInput: classifyFullArrayBufferParserInput(row, sourceMode, report),
       memory,
       materializationCounters: pickMaterializationCounters(row.materializationCounters),
@@ -1271,8 +1282,52 @@ function summarize(rows, allocationEvidence, textMaterializationFrontier, source
     sourceShapeSafety: summarizeSourceShapeSafety(jsLargeFullRows),
     textMaterializationFrontier,
     sourceConsumptionFrontier,
+    browserLiveSourceFrontier: summarizeBrowserLiveSourceFrontier(rows),
     allocationEvidenceKinds: allocationEvidence.map(item => item.evidenceKind),
     conclusionAllowed: false,
+  };
+}
+
+function summarizeBrowserLiveSourceFrontier(rows) {
+  const browserRows = rows.filter(row => row.group === 'browser-fetch-readable-stream-books-corpus');
+  if (browserRows.length === 0) return null;
+  const prepared = browserRows.find(row => row.caseId === 'eventObjectFull') ?? null;
+  const readable = browserRows.find(row => row.caseId === 'fetchReadableStreamFull') ?? null;
+  const asyncBatch = browserRows.find(row => row.caseId === 'fetchAsyncByteBatchFull') ?? null;
+  const liveRows = [readable, asyncBatch].filter(Boolean);
+  return {
+    sourceArtifact: 'browser-fetch-readable-stream-books-corpus.json',
+    runtimeId: 'chrome-v8-browser',
+    fixtureSizeGiB: round(browserRows[0]?.fixture?.sizeGiB),
+    preparedSeedRow: summarizeBrowserLiveSourceRow(prepared),
+    fetchReadableStreamRow: summarizeBrowserLiveSourceRow(readable),
+    fetchAsyncByteBatchRow: summarizeBrowserLiveSourceRow(asyncBatch),
+    fastestLiveRow: summarizeBrowserLiveSourceRow(maxBy(liveRows, row => row.mibPerSec)),
+    liveRows: liveRows.length,
+    liveRowsBackpressureRespected: liveRows
+      .filter(row => row.demandDrivenSource === true && row.respectsBackpressure === true).length,
+    liveRowsFullArrayBufferInput: liveRows.filter(row => row.fullArrayBufferParserInput === true).length,
+    readableToPreparedRatio: readable && prepared ? round(readable.mibPerSec / prepared.mibPerSec) : null,
+    asyncBatchToPreparedRatio: asyncBatch && prepared ? round(asyncBatch.mibPerSec / prepared.mibPerSec) : null,
+    interpretation: 'Browser live fetch rows consume Response.body directly or through grouped AsyncIterable<Uint8Array[]> batches under the same checksum contract; they are intentionally separate from prepared corpus-seed replay rows.',
+  };
+}
+
+function summarizeBrowserLiveSourceRow(row) {
+  if (!row) return null;
+  return {
+    id: row.caseId,
+    sourceMode: row.sourceMode,
+    mibPerSec: row.mibPerSec,
+    maxJsHeapMiB: row.memory?.primaryKind === 'browser-js-heap' ? row.memory.maxMiB : null,
+    directReadableStream: row.directReadableStream === null ? null : row.directReadableStream === true,
+    demandDrivenSource: row.demandDrivenSource === null ? null : row.demandDrivenSource === true,
+    respectsBackpressure: row.respectsBackpressure === null ? null : row.respectsBackpressure === true,
+    fullArrayBufferParserInput: row.fullArrayBufferParserInput === true,
+    fullStringParity: row.fullStringParity === true,
+    boundedMemory: row.boundedMemory === true,
+    eventCount: row.eventCount,
+    checksum: row.checksum,
   };
 }
 
@@ -1369,6 +1424,24 @@ function createFindings(summary) {
         `fullArrayBufferRows=${summary.sourceConsumptionFrontier.fullArrayBufferRows}`,
       ] : [],
     },
+    {
+      id: 'browser-live-fetch-source-visible',
+      status: summary.browserLiveSourceFrontier
+        && summary.browserLiveSourceFrontier.liveRowsFullArrayBufferInput === 0
+        && summary.browserLiveSourceFrontier.liveRows === summary.browserLiveSourceFrontier.liveRowsBackpressureRespected
+        ? 'CLASSIFIED'
+        : 'PARTIAL',
+      summary: summary.browserLiveSourceFrontier
+        ? 'Chrome live fetch ReadableStream and grouped async byte-batch rows remain visible separately from prepared corpus-seed replay rows.'
+        : 'The browser live fetch source artifact was not found in the aggregate comparison.',
+      evidence: summary.browserLiveSourceFrontier ? [
+        `prepared=${summary.browserLiveSourceFrontier.preparedSeedRow?.id}@${formatNumber(summary.browserLiveSourceFrontier.preparedSeedRow?.mibPerSec)} MiB/s`,
+        `fetchReadable=${summary.browserLiveSourceFrontier.fetchReadableStreamRow?.id}@${formatNumber(summary.browserLiveSourceFrontier.fetchReadableStreamRow?.mibPerSec)} MiB/s`,
+        `fetchAsyncBatch=${summary.browserLiveSourceFrontier.fetchAsyncByteBatchRow?.id}@${formatNumber(summary.browserLiveSourceFrontier.fetchAsyncByteBatchRow?.mibPerSec)} MiB/s`,
+        `liveBackpressureRows=${summary.browserLiveSourceFrontier.liveRowsBackpressureRespected}/${summary.browserLiveSourceFrontier.liveRows}`,
+        `liveFullArrayBufferRows=${summary.browserLiveSourceFrontier.liveRowsFullArrayBufferInput}`,
+      ] : [],
+    },
   ];
 }
 
@@ -1408,6 +1481,9 @@ function renderMarkdown(report) {
     report.summary.sourceConsumptionFrontier
       ? `- Source consumption frontier: sync byte batches ${report.summary.sourceConsumptionFrontier.fastestSyncIterable.id} at ${formatNumber(report.summary.sourceConsumptionFrontier.fastestSyncIterable.mibPerSec)} MiB/s; direct ReadableStream ${report.summary.sourceConsumptionFrontier.fastestReadableStream.id} at ${formatNumber(report.summary.sourceConsumptionFrontier.fastestReadableStream.mibPerSec)} MiB/s (${formatNumber(report.summary.sourceConsumptionFrontier.fastestReadableStreamRatioToFastestSyncIterable)}x sync); backpressure rows ${report.summary.sourceConsumptionFrontier.backpressureRowsRespected}/${report.summary.sourceConsumptionFrontier.backpressureRows}`
       : '- Source consumption frontier: not recorded',
+    report.summary.browserLiveSourceFrontier
+      ? `- Browser live fetch source frontier: fetch ReadableStream ${report.summary.browserLiveSourceFrontier.fetchReadableStreamRow.id} at ${formatNumber(report.summary.browserLiveSourceFrontier.fetchReadableStreamRow.mibPerSec)} MiB/s; fetch async byte batches ${report.summary.browserLiveSourceFrontier.fetchAsyncByteBatchRow.id} at ${formatNumber(report.summary.browserLiveSourceFrontier.fetchAsyncByteBatchRow.mibPerSec)} MiB/s; live backpressure rows ${report.summary.browserLiveSourceFrontier.liveRowsBackpressureRespected}/${report.summary.browserLiveSourceFrontier.liveRows}`
+      : '- Browser live fetch source frontier: not recorded',
     '',
     '## Fastest JS Rows By Group',
     '',
@@ -1500,6 +1576,28 @@ function renderMarkdown(report) {
       `- Backpressure-respecting async/readable rows: ${frontier.backpressureRowsRespected}/${frontier.backpressureRows}`,
       `- Full ArrayBuffer parser-input rows in source-consumption artifact: ${frontier.fullArrayBufferRows}`,
       `- Primary large comparison input: ${frontier.primaryLargeComparisonInput}`,
+      `Interpretation: ${frontier.interpretation}`,
+    );
+  }
+
+  if (report.summary.browserLiveSourceFrontier) {
+    const frontier = report.summary.browserLiveSourceFrontier;
+    lines.push(
+      '',
+      '## Browser Live Fetch Source Frontier',
+      '',
+      'This keeps Chrome fetch Response.body rows separate from prepared corpus-seed replay rows. Both live rows preserve the full checksum contract and do not use a full ArrayBuffer parser input.',
+      '',
+      '| Scope | Row | Source mode | MiB/s | JS heap | Direct ReadableStream | Full ArrayBuffer input | Backpressure | Events | Checksum |',
+      '| --- | --- | --- | ---: | ---: | --- | --- | --- | ---: | ---: |',
+      browserLiveSourceMarkdownRow('Prepared corpus seed replay', frontier.preparedSeedRow),
+      browserLiveSourceMarkdownRow('Fetch ReadableStream', frontier.fetchReadableStreamRow),
+      browserLiveSourceMarkdownRow('Fetch async byte batches', frontier.fetchAsyncByteBatchRow),
+      '',
+      `- Live fetch rows respecting backpressure: ${frontier.liveRowsBackpressureRespected}/${frontier.liveRows}`,
+      `- Live fetch rows with full ArrayBuffer parser input: ${frontier.liveRowsFullArrayBufferInput}`,
+      `- Fetch ReadableStream / prepared replay ratio: ${formatNumber(frontier.readableToPreparedRatio)}x`,
+      `- Fetch async byte-batch / prepared replay ratio: ${formatNumber(frontier.asyncBatchToPreparedRatio)}x`,
       `Interpretation: ${frontier.interpretation}`,
     );
   }
@@ -1824,6 +1922,19 @@ function sourceConsumptionMarkdownRow(scope, row) {
   }
   const counters = `reads=${row.readCalls}, batches=${row.batchCount}, pulls=${row.pullCalls}, enqueues=${row.enqueueCalls}`;
   return `| ${scope} | \`${row.id}\` | ${row.parserInput ?? 'n/a'} | ${formatNumber(row.mibPerSec)} | ${formatNumber(row.maxRssMiB)} MiB | ${row.batchSize ?? 'n/a'} | ${row.directReadableStream ? 'yes' : 'no'} | ${formatFullArrayBufferInput(row.fullArrayBufferParserInput)} | ${row.respectsBackpressure === null ? 'n/a' : row.respectsBackpressure ? 'yes' : 'no'} | ${counters} |`;
+}
+
+function browserLiveSourceMarkdownRow(scope, row) {
+  if (!row) {
+    return `| ${scope} | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a |`;
+  }
+  return `| ${scope} | \`${row.id}\` | ${formatSourceMode(row.sourceMode)} | ${formatNumber(row.mibPerSec)} | ${formatNumber(row.maxJsHeapMiB)} MiB | ${formatNullableBoolean(row.directReadableStream)} | ${formatFullArrayBufferInput(row.fullArrayBufferParserInput)} | ${formatNullableBoolean(row.respectsBackpressure)} | ${row.eventCount} | ${row.checksum} |`;
+}
+
+function formatNullableBoolean(value) {
+  if (value === true) return 'yes';
+  if (value === false) return 'no';
+  return 'n/a';
 }
 
 function formatAllocationMemory(item) {

@@ -32,8 +32,8 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.contract, 'same-full-string-checksum-contract-not-same-object-shape');
   assert.equal(report.summary.jsRuntimeCounterexamples200MiB, 0);
   assert.equal(report.summary.conclusionAllowed, false);
-  assert.equal(report.summary.rowCount, 207);
-  assert.equal(report.summary.jsLargeFullRowCount, 176);
+  assert.equal(report.summary.rowCount, 210);
+  assert.equal(report.summary.jsLargeFullRowCount, 179);
   assert.equal(report.summary.fastestJsLargeFullRow.sourceArtifact, 'text-trim-cost-decomposition.json');
   assert.equal(report.summary.fastestJsLargeFullRow.runtimeId, 'node-v8');
   assert.equal(report.summary.fastestJsLargeFullRow.caseId, 'rawFrameNameId');
@@ -151,13 +151,18 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     && finding.status === 'HEADROOM_CLASSIFIED'
   ));
   assert.deepEqual(report.summary.memoryMetricKinds, ['browser-js-heap', 'browser-js-heap-unavailable', 'process-rss']);
-  assert.deepEqual(report.summary.sourceModes, ['file-backed-sync-iterable-byte-batches', 'sync-iterable-byte-batches']);
+  assert.deepEqual(report.summary.sourceModes, [
+    'fetch-async-iterable-byte-batches',
+    'fetch-readable-stream-pull',
+    'file-backed-sync-iterable-byte-batches',
+    'sync-iterable-byte-batches',
+  ]);
   assert.deepEqual(report.summary.sourceShapeSafety, {
-    largeJsFullSourceModeRows: 170,
-    notFullArrayBufferRows: 170,
+    largeJsFullSourceModeRows: 173,
+    notFullArrayBufferRows: 173,
     fullArrayBufferRows: 0,
     unknownArrayBufferRows: 0,
-    corpusSeedReplayRows: 93,
+    corpusSeedReplayRows: 96,
     maxCorpusSeedMiB: 100.26,
     maxCorpusSeedToTargetRatio: 0.09,
   });
@@ -186,6 +191,30 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.ok(report.metadata.sourceArtifacts.includes('stream-source-consumption-backpressure-counters.json'));
   assert.ok(report.findings.some(finding =>
     finding.id === 'source-consumption-frontier-visible'
+    && finding.status === 'CLASSIFIED'
+  ));
+  assert.equal(report.summary.browserLiveSourceFrontier.sourceArtifact, 'browser-fetch-readable-stream-books-corpus.json');
+  assert.equal(report.summary.browserLiveSourceFrontier.preparedSeedRow.id, 'eventObjectFull');
+  assert.equal(report.summary.browserLiveSourceFrontier.preparedSeedRow.sourceMode, 'sync-iterable-byte-batches');
+  assert.equal(report.summary.browserLiveSourceFrontier.preparedSeedRow.mibPerSec, 64.56);
+  assert.equal(report.summary.browserLiveSourceFrontier.fetchReadableStreamRow.id, 'fetchReadableStreamFull');
+  assert.equal(report.summary.browserLiveSourceFrontier.fetchReadableStreamRow.sourceMode, 'fetch-readable-stream-pull');
+  assert.equal(report.summary.browserLiveSourceFrontier.fetchReadableStreamRow.mibPerSec, 9.68);
+  assert.equal(report.summary.browserLiveSourceFrontier.fetchReadableStreamRow.directReadableStream, true);
+  assert.equal(report.summary.browserLiveSourceFrontier.fetchReadableStreamRow.fullArrayBufferParserInput, false);
+  assert.equal(report.summary.browserLiveSourceFrontier.fetchAsyncByteBatchRow.id, 'fetchAsyncByteBatchFull');
+  assert.equal(report.summary.browserLiveSourceFrontier.fetchAsyncByteBatchRow.sourceMode, 'fetch-async-iterable-byte-batches');
+  assert.equal(report.summary.browserLiveSourceFrontier.fetchAsyncByteBatchRow.mibPerSec, 9.77);
+  assert.equal(report.summary.browserLiveSourceFrontier.fastestLiveRow.id, 'fetchAsyncByteBatchFull');
+  assert.equal(report.summary.browserLiveSourceFrontier.liveRows, 2);
+  assert.equal(report.summary.browserLiveSourceFrontier.liveRowsBackpressureRespected, 2);
+  assert.equal(report.summary.browserLiveSourceFrontier.liveRowsFullArrayBufferInput, 0);
+  assert.equal(report.summary.browserLiveSourceFrontier.readableToPreparedRatio, 0.15);
+  assert.equal(report.summary.browserLiveSourceFrontier.asyncBatchToPreparedRatio, 0.15);
+  assert.match(report.summary.browserLiveSourceFrontier.interpretation, /separate from prepared corpus-seed replay rows/);
+  assert.ok(report.metadata.sourceArtifacts.includes('browser-fetch-readable-stream-books-corpus.json'));
+  assert.ok(report.findings.some(finding =>
+    finding.id === 'browser-live-fetch-source-visible'
     && finding.status === 'CLASSIFIED'
   ));
   assert.ok(report.comparisonRows
@@ -624,6 +653,42 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     && row.memory.hostProcessTree
   ));
   assert.ok(report.comparisonRows.some(row =>
+    row.group === 'browser-fetch-readable-stream-books-corpus'
+    && row.sourceArtifact === 'browser-fetch-readable-stream-books-corpus.json'
+    && row.runtimeId === 'chrome-v8-browser'
+    && row.caseId === 'fetchReadableStreamFull'
+    && row.mibPerSec === 9.68
+    && row.eventCount === 57096514
+    && row.checksum === -540013997
+    && row.fullStringParity === true
+    && row.boundedMemory === true
+    && row.sourceMode === 'fetch-readable-stream-pull'
+    && row.demandDrivenSource === true
+    && row.directReadableStream === true
+    && row.respectsBackpressure === true
+    && row.fullArrayBufferParserInput === false
+    && row.memory.primaryKind === 'browser-js-heap'
+    && row.memory.maxMiB === 34.05
+  ));
+  assert.ok(report.comparisonRows.some(row =>
+    row.group === 'browser-fetch-readable-stream-books-corpus'
+    && row.sourceArtifact === 'browser-fetch-readable-stream-books-corpus.json'
+    && row.runtimeId === 'chrome-v8-browser'
+    && row.caseId === 'fetchAsyncByteBatchFull'
+    && row.mibPerSec === 9.77
+    && row.eventCount === 57096514
+    && row.checksum === -540013997
+    && row.fullStringParity === true
+    && row.boundedMemory === true
+    && row.sourceMode === 'fetch-async-iterable-byte-batches'
+    && row.demandDrivenSource === true
+    && row.directReadableStream === false
+    && row.respectsBackpressure === true
+    && row.fullArrayBufferParserInput === false
+    && row.memory.primaryKind === 'browser-js-heap'
+    && row.memory.maxMiB === 17.75
+  ));
+  assert.ok(report.comparisonRows.some(row =>
     row.sourceArtifact === 'firefox-bidi-candidate-headroom.json'
     && row.runtimeId === 'firefox-spidermonkey-browser'
     && row.caseId === 'rawFrameNameId'
@@ -703,10 +768,10 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /1024 MiB Books Fixture quick-xml 0\.9x Target Distances/);
   assert.match(markdown, /\| `file-backed-batch-size-sweep` \| `stax-raw-frame-name-id-batch-8` \| 152\.11 \| process RSS max 61\.77 MiB \| `file-backed-sync-iterable-byte-batches` \| 274\.63 \| 247\.17 \| 95\.06 \| 0\.55 \| no \| `file-backed-short-attr-value-cache-candidate\.json` \| same books 1024 MiB fixture family/);
   assert.match(markdown, /\| `external-baseline-1024mib-file-sync-batches` \| `stax-raw-frame-name-id` \| 132\.54 \| process RSS max 67\.59 MiB \| `file-backed-sync-iterable-byte-batches` \| 270\.26 \| 243\.23 \| 110\.69 \| 0\.49 \| no \| `external-baseline-1024mib-file-sync-batches\.json` \| same artifact quick-xml reference \|/);
-  assert.match(markdown, /Recognized JS source modes: file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches/);
-  assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 170\/170/);
-  assert.match(markdown, /1 GiB\+ source-mode rows replaying a corpus seed buffer: 93 \(max seed 100\.26 MiB, max seed\/target 0\.09\)/);
-  assert.match(markdown, /\| 1 GiB\+ JS full-string rows with source mode metadata \| 170 \| 170 \| 0 \| 0 \| 93 \| 100\.26 MiB \|/);
+  assert.match(markdown, /Recognized JS source modes: fetch-async-iterable-byte-batches, fetch-readable-stream-pull, file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches/);
+  assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 173\/173/);
+  assert.match(markdown, /1 GiB\+ source-mode rows replaying a corpus seed buffer: 96 \(max seed 100\.26 MiB, max seed\/target 0\.09\)/);
+  assert.match(markdown, /\| 1 GiB\+ JS full-string rows with source mode metadata \| 173 \| 173 \| 0 \| 0 \| 96 \| 100\.26 MiB \|/);
   assert.match(markdown, /## Text Materialization Frontier/);
   assert.match(markdown, /\| Fastest full row \| `rawFrameNameId` \| 185\.50 \| yes \| yes \| `text-trim-cost-decomposition\.json` \| 14\.50 MiB\/s below 200 MiB\/s; 1\.08x speedup required \|/);
   assert.match(markdown, /\| Fastest without text\/CDATA strings \| `withoutTextStrings` \| 252\.36 \| no \| yes \| `text-trim-cost-decomposition-4gib\.json` \| 1\.36x fastest full row; 4 row\(s\) cross 200 MiB\/s \|/);
@@ -717,6 +782,13 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /\| Fastest direct ReadableStream \| `web-readable-stream-raw-frame-ascii-batch-8` \| Web ReadableStream<Uint8Array> \| 75\.20 \| 87\.65 MiB \| 8 \| yes \| no \| yes \| reads=16385, batches=0, pulls=16385, enqueues=16384 \|/);
   assert.match(markdown, /Backpressure-respecting async\/readable rows: 6\/6/);
   assert.match(markdown, /Full ArrayBuffer parser-input rows in source-consumption artifact: 0/);
+  assert.match(markdown, /Browser live fetch source frontier: fetch ReadableStream fetchReadableStreamFull at 9\.68 MiB\/s; fetch async byte batches fetchAsyncByteBatchFull at 9\.77 MiB\/s; live backpressure rows 2\/2/);
+  assert.match(markdown, /## Browser Live Fetch Source Frontier/);
+  assert.match(markdown, /This keeps Chrome fetch Response\.body rows separate from prepared corpus-seed replay rows/);
+  assert.match(markdown, /\| Fetch ReadableStream \| `fetchReadableStreamFull` \| `fetch-readable-stream-pull` \| 9\.68 \| 34\.05 MiB \| yes \| no \| yes \| 57096514 \| -540013997 \|/);
+  assert.match(markdown, /\| Fetch async byte batches \| `fetchAsyncByteBatchFull` \| `fetch-async-iterable-byte-batches` \| 9\.77 \| 17\.75 MiB \| no \| no \| yes \| 57096514 \| -540013997 \|/);
+  assert.match(markdown, /Live fetch rows respecting backpressure: 2\/2/);
+  assert.match(markdown, /Live fetch rows with full ArrayBuffer parser input: 0/);
   assert.match(markdown, /different corpus fixtures/);
   assert.match(markdown, /access-shape-cross-process-books-corpus/);
   assert.match(markdown, /books-corpus-stability/);
@@ -743,6 +815,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /dominantPhase=attribute-collection/);
   assert.match(markdown, /text-materialization-frontier-visible \(HEADROOM_CLASSIFIED\)/);
   assert.match(markdown, /source-consumption-frontier-visible \(CLASSIFIED\)/);
+  assert.match(markdown, /browser-live-fetch-source-visible \(CLASSIFIED\)/);
   assert.match(markdown, /fresh-browser per-variant Windows host process-tree probes/);
   assert.match(markdown, /not proof that JavaScript runtimes have no remaining headroom/);
 });

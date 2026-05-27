@@ -1,13 +1,13 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-27T02:06:49.099Z
+Generated: 2026-05-27T02:14:20.669Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
 ## Summary
 
-- Aggregated rows: 207
-- 1 GiB+ JavaScript full-string rows: 176
+- Aggregated rows: 210
+- 1 GiB+ JavaScript full-string rows: 179
 - 200 MiB/s+ bounded-memory JavaScript counterexamples found: 0
 - Fastest aggregated 1 GiB+ JS full-string row: Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB)
 - Fastest JS full-string row vs 200 MiB/s: 0.93x, 14.50 MiB/s remaining
@@ -23,11 +23,12 @@ This report aggregates existing release artifacts. It compares rows only through
 - 1024 MiB file-backed rawFrameNameId baseline: 132.54 MiB/s (0.39x Woodstox)
 - 1024 MiB Woodstox baseline: 337.97 MiB/s
 - 1024 MiB quick-xml baseline: 270.26 MiB/s (0.80x Woodstox)
-- Recognized JS source modes: file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches
-- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 170/170
-- 1 GiB+ source-mode rows replaying a corpus seed buffer: 93 (max seed 100.26 MiB, max seed/target 0.09)
+- Recognized JS source modes: fetch-async-iterable-byte-batches, fetch-readable-stream-pull, file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches
+- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 173/173
+- 1 GiB+ source-mode rows replaying a corpus seed buffer: 96 (max seed 100.26 MiB, max seed/target 0.09)
 - Text materialization frontier: fastest full row rawFrameNameId at 185.50 MiB/s, 14.50 MiB/s below 200 MiB/s; without-text rows crossing target: 4; negative candidates: 14
 - Source consumption frontier: sync byte batches sync-iterable-byte-batches-batch-8 at 91.95 MiB/s; direct ReadableStream web-readable-stream-raw-frame-ascii-batch-8 at 75.20 MiB/s (0.82x sync); backpressure rows 6/6
+- Browser live fetch source frontier: fetch ReadableStream fetchReadableStreamFull at 9.68 MiB/s; fetch async byte batches fetchAsyncByteBatchFull at 9.77 MiB/s; live backpressure rows 2/2
 
 ## Fastest JS Rows By Group
 
@@ -40,6 +41,7 @@ This report aggregates existing release artifacts. It compares rows only through
 | `file-backed-long-ascii-text-candidate` | Node/V8 stax-raw-frame-name-id | `stax-raw-frame-name-id` | 141.29 | yes | process RSS max 61.34 MiB | `file-backed-sync-iterable-byte-batches` | no |
 | `generated-1gib-candidate` | Bun/JSC | `rawFrameNameId` | 57.99 | yes | process RSS max 192.98 MiB | `sync-iterable-byte-batches` | no |
 | `corpus-1gib-candidate` | Node/V8 | `rawFrameNameId` | 77.00 | yes | process RSS max 419.31 MiB | `sync-iterable-byte-batches` | no |
+| `browser-fetch-readable-stream-books-corpus` | Chrome/V8 browser | `eventObjectFull` | 64.56 | yes | JS heap max 16.54 MiB; host working set 644.96 MiB | `sync-iterable-byte-batches` | no |
 | `projection-1gib-full` | Bun/JSC | `rawFrameNameId` | 84.68 | yes | process RSS max 199.15 MiB | `sync-iterable-byte-batches` | no |
 | `generated-1gib-textdecoder` | Node/V8 | `shortAsciiSubarraySharedDecoder` | 51.60 | yes | process RSS max 83.91 MiB | n/a | unknown |
 | `books-corpus-stability` | Bun/JSC | `rawFrameNameId` | 178.52 | yes | process RSS max 189.37 MiB | `sync-iterable-byte-batches` | no |
@@ -112,7 +114,7 @@ Interpretation: Text/CDATA omission crosses the target as headroom evidence, whi
 
 | Scope | Rows | Not full ArrayBuffer parser input | Full ArrayBuffer parser input | Unknown parser input | Corpus seed replay rows | Max corpus seed |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 1 GiB+ JS full-string rows with source mode metadata | 170 | 170 | 0 | 0 | 93 | 100.26 MiB |
+| 1 GiB+ JS full-string rows with source mode metadata | 173 | 173 | 0 | 0 | 96 | 100.26 MiB |
 
 ## Source Consumption Frontier
 
@@ -130,6 +132,22 @@ This separates the current large-file Iterable<Uint8Array[]> baseline from direc
 - Full ArrayBuffer parser-input rows in source-consumption artifact: 0
 - Primary large comparison input: The file-backed release comparison rows call external-baseline with --stax-stream-source file-sync-batches, which records synchronous Iterable<Uint8Array[]> parser input and directReadableStream=false.
 Interpretation: The current large-file comparison uses demand-driven Iterable<Uint8Array[]> batches; direct ReadableStream rows are separate source-shape evidence and remain bounded by pull/read demand.
+
+## Browser Live Fetch Source Frontier
+
+This keeps Chrome fetch Response.body rows separate from prepared corpus-seed replay rows. Both live rows preserve the full checksum contract and do not use a full ArrayBuffer parser input.
+
+| Scope | Row | Source mode | MiB/s | JS heap | Direct ReadableStream | Full ArrayBuffer input | Backpressure | Events | Checksum |
+| --- | --- | --- | ---: | ---: | --- | --- | --- | ---: | ---: |
+| Prepared corpus seed replay | `eventObjectFull` | `sync-iterable-byte-batches` | 64.56 | 16.54 MiB | n/a | no | n/a | 57096514 | -540013997 |
+| Fetch ReadableStream | `fetchReadableStreamFull` | `fetch-readable-stream-pull` | 9.68 | 34.05 MiB | yes | no | yes | 57096514 | -540013997 |
+| Fetch async byte batches | `fetchAsyncByteBatchFull` | `fetch-async-iterable-byte-batches` | 9.77 | 17.75 MiB | no | no | yes | 57096514 | -540013997 |
+
+- Live fetch rows respecting backpressure: 2/2
+- Live fetch rows with full ArrayBuffer parser input: 0
+- Fetch ReadableStream / prepared replay ratio: 0.15x
+- Fetch async byte-batch / prepared replay ratio: 0.15x
+Interpretation: Browser live fetch rows consume Response.body directly or through grouped AsyncIterable<Uint8Array[]> batches under the same checksum contract; they are intentionally separate from prepared corpus-seed replay rows.
 
 ## Selected Comparison Rows
 
@@ -197,6 +215,9 @@ Interpretation: The current large-file comparison uses demand-driven Iterable<Ui
 | `corpus-1gib-candidate` | Chrome/V8 browser | `cursorAccessor` | 75206126 | -925527041 | 30.07 | yes | JS heap max 337.04 MiB; host working set 865.83 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `browser-candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Chrome/V8 browser | `rawFrameDirect` | 75206126 | -925527041 | 30.29 | yes | JS heap max 351.61 MiB; host working set 865.83 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `browser-candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Chrome/V8 browser | `rawFrameNameId` | 75206126 | -925527041 | 29.05 | yes | JS heap max 345.78 MiB; host working set 865.83 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `browser-candidate-headroom-corpus.json` |
+| `browser-fetch-readable-stream-books-corpus` | Chrome/V8 browser | `eventObjectFull` | 57096514 | -540013997 | 64.56 | yes | JS heap max 16.54 MiB; host working set 644.96 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `browser-fetch-readable-stream-books-corpus.json` |
+| `browser-fetch-readable-stream-books-corpus` | Chrome/V8 browser | `fetchReadableStreamFull` | 57096514 | -540013997 | 9.68 | yes | JS heap max 34.05 MiB; host working set 644.96 MiB | `fetch-readable-stream-pull` | no | yes (0.00 MiB) | `browser-fetch-readable-stream-books-corpus.json` |
+| `browser-fetch-readable-stream-books-corpus` | Chrome/V8 browser | `fetchAsyncByteBatchFull` | 57096514 | -540013997 | 9.77 | yes | JS heap max 17.75 MiB; host working set 644.96 MiB | `fetch-async-iterable-byte-batches` | no | yes (0.00 MiB) | `browser-fetch-readable-stream-books-corpus.json` |
 | `corpus-1gib-candidate` | Firefox/SpiderMonkey browser | `stringFull` | 75206126 | -925527041 | 44.92 | no | browser-js-heap-unavailable; fresh host probe 1064.98 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `firefox-bidi-candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Firefox/SpiderMonkey browser | `eventObjectFull` | 75206126 | -925527041 | 36.27 | no | browser-js-heap-unavailable; fresh host probe 1220.22 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `firefox-bidi-candidate-headroom-corpus.json` |
 | `corpus-1gib-candidate` | Firefox/SpiderMonkey browser | `rawFrameNameId` | 75206126 | -925527041 | 48.15 | no | browser-js-heap-unavailable; fresh host probe 1060.55 MiB | `sync-iterable-byte-batches` | no | yes (85.42 MiB) | `firefox-bidi-candidate-headroom-corpus.json` |
@@ -362,11 +383,11 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - browser-js-heap-unavailable
   - process-rss
 - no-js-200mib-large-full-counterexample-in-aggregated-artifacts (NOT_FOUND_IN_AGGREGATED_ARTIFACTS): The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.
-  - jsLargeFullRows=176
+  - jsLargeFullRows=179
   - counterexamples=0
 - source-shape-not-full-arraybuffer (CLASSIFIED): Recognized 1 GiB+ JavaScript full-string source-mode rows are classified for full XML ArrayBuffer parser input.
-  - largeJsFullSourceModeRows=170
-  - notFullArrayBufferRows=170
+  - largeJsFullSourceModeRows=173
+  - notFullArrayBufferRows=173
   - fullArrayBufferRows=0
   - unknownArrayBufferRows=0
 - external-target-remains-visible (BENCH_FACT): The external baselines keep Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.
@@ -403,6 +424,12 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - readable/sync=0.82x
   - backpressureRows=6/6
   - fullArrayBufferRows=0
+- browser-live-fetch-source-visible (CLASSIFIED): Chrome live fetch ReadableStream and grouped async byte-batch rows remain visible separately from prepared corpus-seed replay rows.
+  - prepared=eventObjectFull@64.56 MiB/s
+  - fetchReadable=fetchReadableStreamFull@9.68 MiB/s
+  - fetchAsyncBatch=fetchAsyncByteBatchFull@9.77 MiB/s
+  - liveBackpressureRows=2/2
+  - liveFullArrayBufferRows=0
 
 ## Limits
 
