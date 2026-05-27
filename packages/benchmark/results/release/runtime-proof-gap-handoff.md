@@ -1,13 +1,13 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-05-27T00:19:37.259Z
+Generated: 2026-05-27T00:27:45.943Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-05-27T00:16:49.767Z
+- Audit generated: 2026-05-27T00:27:13.118Z
 - Active obligations: 2
 
 ## Summary
@@ -96,12 +96,14 @@ Scope guards:
 - Proof goal: Capture emitted SpiderMonkey JIT IR, optimized-code, or codegen diagnostics for same-contract Firefox/SpiderMonkey full-string rows.
 - Local closure status: external-run-required
 - Locally runnable now: no
-- Local closure scope: These are local diagnostic availability facts only; they are not emitted SpiderMonkey JIT IR or optimized-code evidence.
+- Local closure scope: These are local and official-shell diagnostic availability facts only; they are not emitted SpiderMonkey JIT IR or optimized-code evidence.
 - Local blockers:
   - Installed Firefox diagnostic dump audit emitted no JIT diagnostic dump.
   - No local SpiderMonkey JS shell was found for JIT IR probing across env, PATH, and filesystem search-root probes.
+  - Official Firefox release jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface and cannot run the current stax full-string benchmark unchanged.
+  - Official Firefox nightly jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface and cannot run the current stax full-string benchmark unchanged.
   - Installed Firefox about:buildconfig records --enable-js-shell / MOZ_PACKAGE_JSSHELL but does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW.
-- Local evidence artifacts: firefox-spidermonkey-diagnostic-dump-audit.json, firefox-spidermonkey-js-shell-availability-audit.json, firefox-spidermonkey-buildconfig-source-pin-audit.json
+- Local evidence artifacts: firefox-spidermonkey-diagnostic-dump-audit.json, firefox-spidermonkey-js-shell-availability-audit.json, firefox-spidermonkey-release-jsshell-availability-audit.json, firefox-spidermonkey-nightly-jsshell-availability-audit.json, firefox-spidermonkey-buildconfig-source-pin-audit.json
 
 Prerequisites:
 - Diagnostic-capable Firefox build or SpiderMonkey shell built with the required JitSpew/codegen diagnostics enabled.
@@ -115,6 +117,8 @@ Commands:
   - `FIREFOX_PATH=/path/to/firefox node packages/benchmark/firefox-spidermonkey-diagnostic-dump-audit.mjs --size-gib 0.0001 --fixture-shape diverse-cycle --diverse-cycle-size 16 --cases rawFrameNameId --output-dir packages/benchmark/results/firefox-spidermonkey-diagnostic-dump-audit --json-out packages/benchmark/results/release/firefox-spidermonkey-diagnostic-dump-audit.json --md-out packages/benchmark/results/release/firefox-spidermonkey-diagnostic-dump-audit.md`
 - spidermonkey-js-shell-availability: Record whether a local SpiderMonkey shell is available for follow-up JIT diagnostics.
   - `SPIDERMONKEY_JS_SHELL=/path/to/js node packages/benchmark/firefox-spidermonkey-js-shell-availability-audit.mjs --json-out packages/benchmark/results/release/firefox-spidermonkey-js-shell-availability-audit.json --md-out packages/benchmark/results/release/firefox-spidermonkey-js-shell-availability-audit.md`
+- spidermonkey-official-jsshell-surface: Repeat the official release/nightly jsshell diagnostic surface audit before assuming a downloaded shell can emit MIR/LIR or optimized code.
+  - `node packages/benchmark/firefox-spidermonkey-release-jsshell-availability-audit.mjs --package-kind release --json-out packages/benchmark/results/release/firefox-spidermonkey-release-jsshell-availability-audit.json --md-out packages/benchmark/results/release/firefox-spidermonkey-release-jsshell-availability-audit.md && node packages/benchmark/firefox-spidermonkey-release-jsshell-availability-audit.mjs --package-kind nightly --json-out packages/benchmark/results/release/firefox-spidermonkey-nightly-jsshell-availability-audit.json --md-out packages/benchmark/results/release/firefox-spidermonkey-nightly-jsshell-availability-audit.md`
 - post-spidermonkey-audits: Reclassify the codegen obligation after diagnostic artifacts are generated.
   - `node packages/benchmark/runtime-proof-coverage-audit.mjs --json-out packages/benchmark/results/release/runtime-proof-coverage-audit.json --md-out packages/benchmark/results/release/runtime-proof-coverage-audit.md`
 
@@ -126,7 +130,7 @@ Expected evidence:
 Scope guards:
 - The existing no-dump diagnostic audit is a negative result for the installed browser build only.
 - The installed buildconfig audit explains the local diagnostic surface but is still not emitted JIT IR.
-- JS shell availability is environment evidence only until a dump or IR artifact is captured.
+- JS shell and official jsshell availability are environment evidence only until a dump or IR artifact is captured.
 
 ## Findings
 

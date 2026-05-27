@@ -94,12 +94,16 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.deepEqual(spiderMonkey.localClosure.evidenceArtifacts, [
     'firefox-spidermonkey-diagnostic-dump-audit.json',
     'firefox-spidermonkey-js-shell-availability-audit.json',
+    'firefox-spidermonkey-release-jsshell-availability-audit.json',
+    'firefox-spidermonkey-nightly-jsshell-availability-audit.json',
     'firefox-spidermonkey-buildconfig-source-pin-audit.json',
   ]);
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /emitted no JIT diagnostic dump/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /No local SpiderMonkey JS shell was found/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /Official Firefox release jsshell is executable/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /Official Firefox nightly jsshell is executable/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /about:buildconfig records --enable-js-shell/.test(item)));
-  assert.match(spiderMonkey.localClosure.scopeGuard, /not emitted SpiderMonkey JIT IR/);
+  assert.match(spiderMonkey.localClosure.scopeGuard, /official-shell diagnostic availability facts/);
   assert.match(safari.sourceConsumptionContract.primaryParserInput, /StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/);
   assert.match(safari.sourceConsumptionContract.demandDrivenSource, /per parser pull/);
   assert.match(safari.sourceConsumptionContract.demandDrivenSource, /must not pass one full XML ArrayBuffer/);
@@ -120,10 +124,12 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(safari.scopeGuards.some(item => /must not be reused as Safari source-boundary evidence/.test(item)));
   assert.ok(spiderMonkey.commands.some(command => /firefox-spidermonkey-diagnostic-dump-audit\.mjs/.test(command.command)));
   assert.ok(spiderMonkey.commands.some(command => /firefox-spidermonkey-buildconfig-source-pin-audit\.mjs/.test(command.command)));
+  assert.ok(spiderMonkey.commands.some(command => /--package-kind release/.test(command.command)));
+  assert.ok(spiderMonkey.commands.some(command => /--package-kind nightly/.test(command.command)));
   assert.ok(spiderMonkey.commands.some(command => /FIREFOX_PATH=/.test(command.command)));
   assert.ok(spiderMonkey.expectedEvidence.some(item => /JIT IR/.test(item)));
   assert.ok(spiderMonkey.scopeGuards.some(item => /no-dump diagnostic audit is a negative result for the installed browser build only/.test(item)));
-  assert.ok(spiderMonkey.scopeGuards.some(item => /JS shell availability is environment evidence only/.test(item)));
+  assert.ok(spiderMonkey.scopeGuards.some(item => /JS shell and official jsshell availability are environment evidence only/.test(item)));
   assert.match(report.note, /not benchmark evidence/);
   assert.match(report.note, /not a runtime-limit conclusion/);
 
@@ -149,6 +155,8 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /No exact Safari\/WebKit source-boundary pin is recorded/);
   assert.match(markdown, /Installed Firefox diagnostic dump audit emitted no JIT diagnostic dump/);
   assert.match(markdown, /No local SpiderMonkey JS shell was found/);
+  assert.match(markdown, /Official Firefox release jsshell is executable/);
+  assert.match(markdown, /Official Firefox nightly jsshell is executable/);
   assert.match(markdown, /Installed Firefox about:buildconfig records --enable-js-shell/);
   assert.match(markdown, /safaridriver/);
   assert.match(markdown, /Source consumption contract/);

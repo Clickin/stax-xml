@@ -169,21 +169,29 @@ function createLocalClosure(activeObligations, audit) {
   if (activeById.has('codegen-traces-open')) {
     const diagnostic = artifactByName.get('firefox-spidermonkey-diagnostic-dump-audit.json') ?? null;
     const jsShell = artifactByName.get('firefox-spidermonkey-js-shell-availability-audit.json') ?? null;
+    const releaseJsShell = artifactByName.get('firefox-spidermonkey-release-jsshell-availability-audit.json') ?? null;
+    const nightlyJsShell = artifactByName.get('firefox-spidermonkey-nightly-jsshell-availability-audit.json') ?? null;
     const buildconfig = artifactByName.get('firefox-spidermonkey-buildconfig-source-pin-audit.json') ?? null;
     const diagnosticNoDump = diagnostic?.outcome?.status === 'no-dump-emitted'
       && diagnostic?.outcome?.emittedDump === false;
     const jsShellMissing = jsShell?.outcome?.status === 'not-found'
       && jsShell?.outcome?.foundCount === 0;
+    const releaseJsShellNoIr = releaseJsShell?.outcome?.status === 'available'
+      && releaseJsShell?.outcome?.closesEmittedIrObligation === false;
+    const nightlyJsShellNoIr = nightlyJsShell?.outcome?.status === 'available'
+      && nightlyJsShell?.outcome?.closesEmittedIrObligation === false;
     const buildconfigNoJitSpew = (audit.coverage?.sourcePins ?? []).some(pin =>
       pin.kind === 'Firefox installed buildconfig JitSpew boundary'
       && /enableJitSpew=false/.test(pin.limitation ?? '')
     );
-    const blocked = diagnosticNoDump && jsShellMissing;
+    const blocked = diagnosticNoDump && jsShellMissing && releaseJsShellNoIr && nightlyJsShellNoIr;
     items.push({
       obligationId: 'codegen-traces-open',
       localStatus: blocked ? 'external-run-required' : 'partial-local-status',
       localRunnable: blocked ? false : null,
-      evidenceArtifacts: [diagnostic, jsShell, buildconfig].filter(Boolean).map(artifact => artifact.sourceArtifact),
+      evidenceArtifacts: [diagnostic, jsShell, releaseJsShell, nightlyJsShell, buildconfig]
+        .filter(Boolean)
+        .map(artifact => artifact.sourceArtifact),
       blockers: [
         diagnosticNoDump
           ? 'Installed Firefox diagnostic dump audit emitted no JIT diagnostic dump.'
@@ -191,11 +199,17 @@ function createLocalClosure(activeObligations, audit) {
         jsShellMissing
           ? 'No local SpiderMonkey JS shell was found for JIT IR probing across env, PATH, and filesystem search-root probes.'
           : 'SpiderMonkey JS shell availability is not confirmed missing.',
+        releaseJsShellNoIr
+          ? 'Official Firefox release jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface and cannot run the current stax full-string benchmark unchanged.'
+          : 'Official Firefox release jsshell diagnostic status is not pinned as available-without-IR.',
+        nightlyJsShellNoIr
+          ? 'Official Firefox nightly jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface and cannot run the current stax full-string benchmark unchanged.'
+          : 'Official Firefox nightly jsshell diagnostic status is not pinned as available-without-IR.',
         buildconfigNoJitSpew
           ? 'Installed Firefox about:buildconfig records --enable-js-shell / MOZ_PACKAGE_JSSHELL but does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW.'
           : 'Installed Firefox buildconfig JitSpew boundary is not pinned as a no-JitSpew release build.',
       ],
-      scopeGuard: 'These are local diagnostic availability facts only; they are not emitted SpiderMonkey JIT IR or optimized-code evidence.',
+      scopeGuard: 'These are local and official-shell diagnostic availability facts only; they are not emitted SpiderMonkey JIT IR or optimized-code evidence.',
     });
   }
 
@@ -300,6 +314,11 @@ function createHandoffs(activeObligations, localClosure) {
           command: 'SPIDERMONKEY_JS_SHELL=/path/to/js node packages/benchmark/firefox-spidermonkey-js-shell-availability-audit.mjs --json-out packages/benchmark/results/release/firefox-spidermonkey-js-shell-availability-audit.json --md-out packages/benchmark/results/release/firefox-spidermonkey-js-shell-availability-audit.md',
         },
         {
+          id: 'spidermonkey-official-jsshell-surface',
+          purpose: 'Repeat the official release/nightly jsshell diagnostic surface audit before assuming a downloaded shell can emit MIR/LIR or optimized code.',
+          command: 'node packages/benchmark/firefox-spidermonkey-release-jsshell-availability-audit.mjs --package-kind release --json-out packages/benchmark/results/release/firefox-spidermonkey-release-jsshell-availability-audit.json --md-out packages/benchmark/results/release/firefox-spidermonkey-release-jsshell-availability-audit.md && node packages/benchmark/firefox-spidermonkey-release-jsshell-availability-audit.mjs --package-kind nightly --json-out packages/benchmark/results/release/firefox-spidermonkey-nightly-jsshell-availability-audit.json --md-out packages/benchmark/results/release/firefox-spidermonkey-nightly-jsshell-availability-audit.md',
+        },
+        {
           id: 'post-spidermonkey-audits',
           purpose: 'Reclassify the codegen obligation after diagnostic artifacts are generated.',
           command: 'node packages/benchmark/runtime-proof-coverage-audit.mjs --json-out packages/benchmark/results/release/runtime-proof-coverage-audit.json --md-out packages/benchmark/results/release/runtime-proof-coverage-audit.md',
@@ -313,7 +332,7 @@ function createHandoffs(activeObligations, localClosure) {
       scopeGuards: [
         'The existing no-dump diagnostic audit is a negative result for the installed browser build only.',
         'The installed buildconfig audit explains the local diagnostic surface but is still not emitted JIT IR.',
-        'JS shell availability is environment evidence only until a dump or IR artifact is captured.',
+        'JS shell and official jsshell availability are environment evidence only until a dump or IR artifact is captured.',
       ],
     });
   }
