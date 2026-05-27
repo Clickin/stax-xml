@@ -190,6 +190,11 @@ const requiredProofRules = [
     description: 'Byte-batch source rows must preserve demand-driven consumption instead of preconsuming the stream.',
   },
   {
+    id: 'raw-frame-source-shapes-backpressure-counted',
+    pattern: /focused audit now includes seven source-shape rows[\s\S]+?async `nextRawBatch\(\)` raw-frame[\s\S]+?direct\s+`ReadableStream` `nextRawBatch\(\)` raw-frame[\s\S]+?same backpressure counter contract/i,
+    description: 'Focused source-shape evidence must include raw-frame async and ReadableStream rows under the same backpressure counters.',
+  },
+  {
     id: 'woodstox-reference-not-identical-input',
     pattern: /fastest aggregated JS row\s+and the 1024 MiB Woodstox reference can come from different corpus fixtures/i,
     description: 'Cross-fixture Woodstox ratios must remain target-distance references, not identical-input target passes.',

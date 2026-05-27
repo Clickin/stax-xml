@@ -245,8 +245,8 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 182 primary release JSON artifacts, recognizes 991
-sample throughput rows and 117 aggregate rows, and finds 648 JavaScript 1 GiB+
+The current scan covers 183 primary release JSON artifacts, recognizes 995
+sample throughput rows and 117 aggregate rows, and finds 652 JavaScript 1 GiB+
 full-string sample rows plus 95 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
 full-string sample row overall is Node/V8 `rawFrameNameId` from
@@ -258,7 +258,7 @@ scan now reports aggregate rows separately from individual child samples so
 fastest-row triage does not blur single-sample and average-throughput evidence.
 
 The scan also preserves or infers source-consumption metadata when release rows
-or their source contract carry it. It now finds 282 JavaScript 1 GiB+
+or their source contract carry it. It now finds 286 JavaScript 1 GiB+
 full-string rows with source mode metadata, including
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
 `complete-js-string`, `sync-iterable-byte-batches`,
@@ -283,20 +283,29 @@ source-mode-classified row is Node/V8 `rawFrameNameId` from
 comparison rows from
 `stream-source-consumption-shapes.json` remain included in the JavaScript
 full-string scan with explicit machine-readable source flags:
-`sync-iterable-byte-batches` now covers four grouped sync rows after the focused
+`sync-iterable-byte-batches` still covers four grouped sync rows after the focused
 `stream-source-consumption-backpressure-counters.json` audit, preserved in
 `packages/benchmark/results/release/stream-source-consumption-backpressure-counters.md`.
 The fastest is
 `sync-iterable-byte-batches-batch-8`, which records parser input
 `synchronous Iterable<Uint8Array[]>`, `directReadableStream=false`, and
-90.56 MiB/s. The same focused audit records source counters on the 1024 MiB
+91.95 MiB/s. The same focused audit now includes seven source-shape rows:
+sync grouped batches, async grouped batches, async `nextRawBatch()` raw-frame
+and short-ASCII raw-frame rows, direct `ReadableStream` batches, and direct
+`ReadableStream` `nextRawBatch()` raw-frame and short-ASCII raw-frame rows.
+The fastest async source row in that focused audit is
+`async-iterable-raw-frame-ascii-batch-8` at 72.94 MiB/s, and the fastest direct
+`ReadableStream` row is `web-readable-stream-raw-frame-ascii-batch-8` at
+75.20 MiB/s. This keeps wrapper-free raw-frame source-shape evidence under the
+same backpressure counter contract rather than inferring it from the broader
+source-shape matrix. The same focused audit records source counters on the 1024 MiB
 fixture: the sync and async grouped-batch rows read 16,384 chunks plus one EOF
 read and yield 2,048 `Uint8Array[]` batches, while the direct
-`ReadableStream` row records 16,385 `pull()` calls and 16,384 enqueues. The
+`ReadableStream` rows record 16,385 `pull()` calls and 16,384 enqueues. The
 fastest backpressure-respecting `web-readable-stream-pull`
 row is `web-readable-stream-raw-frame-ascii-batch-8`; it records parser input
 `Web ReadableStream<Uint8Array>`, `directReadableStream=true`,
-`respectsBackpressure=true`, and 76.87 MiB/s. The scan separates
+`respectsBackpressure=true`, and 75.20 MiB/s in the focused audit. The scan separates
 parser-demand-driven source rows from direct ReadableStream rows and from Web
 Stream backpressure rows, so direct ReadableStream overhead evidence stays
 distinct from synchronous byte-batch rows. The focused Chrome/V8 live fetch rows
@@ -306,7 +315,7 @@ and `respectsBackpressure=true` at 9.68 MiB/s, while
 `fetchAsyncByteBatchFull` is classified as `fetch-async-iterable-byte-batches`
 with `directReadableStream=false` and `respectsBackpressure=true` at
 9.77 MiB/s. It also classifies source-mode rows
-by whether they are a prebuilt full-XML `ArrayBuffer` parser input: all 282
+by whether they are a prebuilt full-XML `ArrayBuffer` parser input: all 286
 JavaScript 1 GiB+ full-string rows with source-mode metadata are now marked as
 not full `ArrayBuffer` parser-input rows. This also fixes the previous scanner
 blind spot where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but
@@ -506,10 +515,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 182 primary release artifacts and recognizes 991
+The current audit scans 183 primary release artifacts and recognizes 995
 measured rows. It records 134 benchmark artifacts, 18 source artifacts, 10
-trace/profile artifacts, 15 allocation artifacts, 3 environment artifacts, and
-18 negative-result artifacts, 648 JavaScript 1 GiB+ full-string rows, and four
+trace/profile artifacts, 15 allocation artifacts, 4 environment artifacts, and
+19 negative-result artifacts, 652 JavaScript 1 GiB+ full-string rows, and four
 release corpus seeds: `books.xml`, `large.xml`, `midsize.xml`, and `treebank_e.xml`. The
 negative-result set now includes
 `concat-buffer-reuse-negative-result.json`, which records that reusable

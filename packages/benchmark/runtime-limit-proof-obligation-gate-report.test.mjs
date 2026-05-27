@@ -55,6 +55,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.proofRules.some(item => item.id === 'source-shapes-separated' && item.satisfied));
   assert.ok(report.proofRules.some(item => item.id === 'byte-batches-not-full-arraybuffer' && item.satisfied));
   assert.ok(report.proofRules.some(item => item.id === 'byte-batch-backpressure-preserved' && item.satisfied));
+  assert.ok(report.proofRules.some(item => item.id === 'raw-frame-source-shapes-backpressure-counted' && item.satisfied));
   assert.ok(report.proofRules.some(item => item.id === 'woodstox-reference-not-identical-input' && item.satisfied));
   assert.ok(report.proofRules.some(item => item.id === 'same-fixture-woodstox-target-unmet' && item.satisfied));
 
@@ -69,6 +70,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /lazy-getters-reopen-burden/);
   assert.match(markdown, /source-shapes-separated/);
   assert.match(markdown, /byte-batch-backpressure-preserved/);
+  assert.match(markdown, /raw-frame-source-shapes-backpressure-counted/);
   assert.match(markdown, /woodstox-reference-not-identical-input/);
   assert.match(markdown, /same-fixture-woodstox-target-unmet/);
   assert.match(markdown, /A future 200 MiB\/s\+ bounded-memory full-string JavaScript row remains a counterexample/);
@@ -152,6 +154,7 @@ function createLedgerFixture(runtimeStatus) {
     '',
     'Source-shape rules: direct ReadableStream overhead evidence stays',
     'distinct from synchronous byte-batch rows. The current large matrix does not prebuild one repeated 1 GiB ArrayBuffer parser input. The byte-batch rows preserve backpressure by pulling at most the next batch on demand.',
+    'The focused audit now includes seven source-shape rows: async `nextRawBatch()` raw-frame rows and direct `ReadableStream` `nextRawBatch()` raw-frame rows under the same backpressure counter contract.',
     '',
     'Woodstox target rules: the fastest aggregated JS row and the 1024 MiB Woodstox reference can come from different corpus fixtures. Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id-chunk-32kib at 0.80x Woodstox, 19.95 MiB/s below 0.9x target.',
     '',
