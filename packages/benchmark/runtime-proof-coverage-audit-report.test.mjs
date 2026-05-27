@@ -797,7 +797,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey local js-shell availability audit present \(status=not-found, found=0, searchRoots=\d+\); no emitted JIT IR is recorded by that audit/);
   assert.match(markdown, /Firefox\/SpiderMonkey official release js-shell audit present \(status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is JIT-status evidence only, not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey official nightly js-shell audit present \(status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is JIT-status evidence only, not emitted JIT IR/);
-  assert.match(markdown, /Firefox\/SpiderMonkey JIT IR or optimized-code dump missing/);
+  assert.match(markdown, /Firefox\/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing/);
   assert.match(markdown, /15 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 4/);
   assert.match(markdown, /Source artifacts: 18/);
@@ -888,6 +888,65 @@ test('runtime proof coverage audit does not close Safari on rows alone', () => {
   assert.match(obligation.evidence, /Safari\/WebKit browser benchmark rows found, but the obligation is not closed/);
   assert.match(obligation.evidence, /closesSafariObligation=false/);
   assert.match(obligation.nextExperiment, /exact Safari\/WebKit build identity and source-boundary pins/);
+});
+
+test('runtime proof coverage audit does not close SpiderMonkey codegen on trace names alone', () => {
+  const syntheticDir = join(tmpDir, 'spidermonkey-trace-without-emitted-ir');
+  const syntheticJsonOut = join(tmpDir, 'spidermonkey-trace-without-emitted-ir.json');
+  const syntheticMdOut = join(tmpDir, 'spidermonkey-trace-without-emitted-ir.md');
+  resetTmp();
+  mkdirSync(syntheticDir, { recursive: true });
+  writeFileSync(join(syntheticDir, 'node-v8-codegen-trace.json'), `${JSON.stringify({
+    objective: 'node-v8-codegen-trace',
+    runtimes: ['node-v8'],
+    traces: [{ kind: 'codegen' }],
+  }, null, 2)}\n`);
+  writeFileSync(join(syntheticDir, 'bun-jsc-codegen-trace.json'), `${JSON.stringify({
+    objective: 'bun-jsc-codegen-trace',
+    runtimes: ['bun-jsc'],
+    traces: [{ kind: 'codegen' }],
+  }, null, 2)}\n`);
+  writeFileSync(join(syntheticDir, 'browser-v8-codegen-trace.json'), `${JSON.stringify({
+    objective: 'browser-v8-codegen-trace',
+    environment: { runtimeName: 'browser', browserName: 'Chrome', javascriptEngine: 'V8' },
+    traces: [{ kind: 'codegen' }],
+  }, null, 2)}\n`);
+  writeFileSync(join(syntheticDir, 'firefox-spidermonkey-jit-codegen-trace.json'), `${JSON.stringify({
+    objective: 'firefox-spidermonkey-jit-codegen-trace',
+    environment: { runtimeName: 'browser', browserName: 'Firefox', javascriptEngine: 'SpiderMonkey' },
+    traces: [{ kind: 'jit-status-only' }],
+    outcome: {
+      status: 'available',
+      hasJitExecutionStatus: true,
+      hasIrDumpSurface: false,
+      nativeDumpComplete: false,
+      closesEmittedIrObligation: false,
+    },
+  }, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-coverage-audit.mjs'),
+    '--release-dir',
+    syntheticDir,
+    '--json-out',
+    syntheticJsonOut,
+    '--md-out',
+    syntheticMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(syntheticJsonOut, 'utf8'));
+  assert.equal(report.coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount, 0);
+  assertObligation(report, 'codegen-traces-open', 'partial');
+  const obligation = report.obligations.find(item => item.id === 'codegen-traces-open');
+  assert.match(obligation.evidence, /Node\/V8 trace evidence present/);
+  assert.match(obligation.evidence, /Bun\/JSC codegen\/IR evidence present/);
+  assert.match(obligation.evidence, /Chrome\/V8 browser codegen trace evidence present/);
+  assert.match(obligation.evidence, /Firefox\/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing/);
 });
 
 function assertObligation(report, id, status) {

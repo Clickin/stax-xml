@@ -550,7 +550,7 @@ function createObligationRows(coverage) {
   const hasChromeCodegen = (runtimeById.get('chrome-v8-browser')?.traceArtifacts ?? []).some(file => /codegen|trace|ir|asm/i.test(file));
   const spiderMonkeyTraceArtifacts = runtimeById.get('firefox-spidermonkey-browser')?.traceArtifacts ?? [];
   const hasSpiderMonkeyProfilerTrace = spiderMonkeyTraceArtifacts.some(file => /profiler-trace/i.test(file));
-  const hasSpiderMonkeyCodegen = spiderMonkeyTraceArtifacts.some(file => /codegen|jit|optimized|optcode|asm/i.test(file));
+  const hasSpiderMonkeyEmittedIrEvidence = coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount > 0;
   const spiderMonkeyDiagnosticDumpAudit = coverage.negativeArtifacts.find(artifact =>
     artifact.sourceArtifact === 'firefox-spidermonkey-diagnostic-dump-audit.json'
   );
@@ -622,7 +622,7 @@ function createObligationRows(coverage) {
     },
     {
       id: 'codegen-traces-open',
-      status: hasNodeCodegen && hasBunCodegen && hasChromeCodegen && hasSpiderMonkeyCodegen ? 'covered' : 'partial',
+      status: hasNodeCodegen && hasBunCodegen && hasChromeCodegen && hasSpiderMonkeyEmittedIrEvidence ? 'covered' : 'partial',
       evidence: [
         hasNodeCodegen ? 'Node/V8 trace evidence present.' : 'Node/V8 trace evidence missing.',
         hasBunCodegen ? 'Bun/JSC codegen/IR evidence present.' : 'Bun/JSC has profiler/source evidence but no codegen/IR artifact.',
@@ -634,7 +634,7 @@ function createObligationRows(coverage) {
         hasSpiderMonkeyJsShellAvailabilityAudit ? `Firefox/SpiderMonkey local js-shell availability audit present (status=${spiderMonkeyJsShellAvailabilityAudit.outcome?.status ?? 'unknown'}, found=${spiderMonkeyJsShellAvailabilityAudit.outcome?.foundCount ?? 'unknown'}, searchRoots=${spiderMonkeyJsShellAvailabilityAudit.parameters?.searchRoots?.length ?? 0}); no emitted JIT IR is recorded by that audit.` : 'Firefox/SpiderMonkey local js-shell availability audit missing.',
         hasSpiderMonkeyReleaseJsShellAvailabilityAudit ? `Firefox/SpiderMonkey official release js-shell audit present (status=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.status ?? 'unknown'}, packageVerified=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.packageVerified ?? 'unknown'}, jitStatus=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.hasJitExecutionStatus ?? 'unknown'}, irDumpSurface=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.hasIrDumpSurface ?? 'unknown'}, nativeDisassemblySurface=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.hasNativeDisassemblySurface ?? 'unknown'}, nativeDumpComplete=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.nativeDumpComplete ?? 'unknown'}, canReadBinaryInput=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.canReadBinaryInput ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}); it is JIT-status evidence only, not emitted JIT IR.` : 'Firefox/SpiderMonkey official release js-shell audit missing.',
         hasSpiderMonkeyNightlyJsShellAvailabilityAudit ? `Firefox/SpiderMonkey official nightly js-shell audit present (status=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.status ?? 'unknown'}, packageVerified=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.packageVerified ?? 'unknown'}, jitStatus=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasJitExecutionStatus ?? 'unknown'}, irDumpSurface=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasIrDumpSurface ?? 'unknown'}, nativeDisassemblySurface=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasNativeDisassemblySurface ?? 'unknown'}, nativeDumpComplete=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.nativeDumpComplete ?? 'unknown'}, canReadBinaryInput=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.canReadBinaryInput ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}); it is JIT-status evidence only, not emitted JIT IR.` : 'Firefox/SpiderMonkey official nightly js-shell audit missing.',
-        hasSpiderMonkeyCodegen ? 'Firefox/SpiderMonkey JIT IR or optimized-code dump present.' : 'Firefox/SpiderMonkey JIT IR or optimized-code dump missing.',
+        hasSpiderMonkeyEmittedIrEvidence ? 'Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence present.' : 'Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.',
       ].join(' '),
       nextExperiment: 'Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows.',
     },
