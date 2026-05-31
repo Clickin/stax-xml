@@ -522,7 +522,7 @@ test('large candidate headroom matrix can isolate materialization counter overhe
     '--warmups',
     '0',
     '--cases',
-    'rawFrameNameId,rawFrameNameIdNoCounters,rawFrameNameIdNoCountersFoldTrim,rawFrameNameIdNoCountersTextCache,rawFrameNameIdNoCountersValueCache,rawFrameNameIdNoCountersNameFoldCache,rawFrameNameIdNoCountersStringFoldCache',
+    'rawFrameNameId,rawFrameNameIdNoCounters,rawFrameNameIdNoCountersFoldTrim,rawFrameNameIdNoCountersTextCache,rawFrameNameIdNoCountersValueCache,rawFrameNameIdNoCountersNameFoldCache,rawFrameNameIdNoCountersStringFoldCache,rawFrameNameIdNoCountersNameFoldCacheFoldTrim',
     '--json-out',
     noCountersJsonOut,
     '--md-out',
@@ -544,6 +544,7 @@ test('large candidate headroom matrix can isolate materialization counter overhe
     'rawFrameNameIdNoCountersValueCache',
     'rawFrameNameIdNoCountersNameFoldCache',
     'rawFrameNameIdNoCountersStringFoldCache',
+    'rawFrameNameIdNoCountersNameFoldCacheFoldTrim',
   ]);
   assert.deepEqual(report.variants.map(entry => entry.id), report.options.cases);
   assert.equal(report.eventCountParity.status, 'ok');
@@ -556,6 +557,7 @@ test('large candidate headroom matrix can isolate materialization counter overhe
     'rawFrameNameIdNoCountersValueCache',
     'rawFrameNameIdNoCountersNameFoldCache',
     'rawFrameNameIdNoCountersStringFoldCache',
+    'rawFrameNameIdNoCountersNameFoldCacheFoldTrim',
   ]);
 
   const rawNameId = report.variants.find(entry => entry.id === 'rawFrameNameId');
@@ -565,6 +567,7 @@ test('large candidate headroom matrix can isolate materialization counter overhe
   const noCountersValueCache = report.variants.find(entry => entry.id === 'rawFrameNameIdNoCountersValueCache');
   const noCountersNameFoldCache = report.variants.find(entry => entry.id === 'rawFrameNameIdNoCountersNameFoldCache');
   const noCountersStringFoldCache = report.variants.find(entry => entry.id === 'rawFrameNameIdNoCountersStringFoldCache');
+  const noCountersNameFoldCacheFoldTrim = report.variants.find(entry => entry.id === 'rawFrameNameIdNoCountersNameFoldCacheFoldTrim');
   assert.equal(noCounters.fullStringParity, true);
   assert.equal(noCounters.contractScope, 'full-string-materialization');
   assert.equal(noCounters.instrumentation, 'materialization-counters-disabled');
@@ -579,7 +582,7 @@ test('large candidate headroom matrix can isolate materialization counter overhe
   assert.equal(noCountersFoldTrim.checksum, rawNameId.checksum);
   assert.equal(noCountersFoldTrim.materializationCounters.stringFieldReads, 0);
   assert.equal(noCountersFoldTrim.runtimeLimitCounterexampleEligible, false);
-  for (const cacheRow of [noCountersTextCache, noCountersValueCache, noCountersNameFoldCache, noCountersStringFoldCache]) {
+  for (const cacheRow of [noCountersTextCache, noCountersValueCache, noCountersNameFoldCache, noCountersStringFoldCache, noCountersNameFoldCacheFoldTrim]) {
     assert.equal(cacheRow.fullStringParity, true);
     assert.equal(cacheRow.contractScope, 'full-string-materialization');
     assert.equal(cacheRow.instrumentation, 'materialization-counters-disabled');
@@ -596,11 +599,13 @@ test('large candidate headroom matrix can isolate materialization counter overhe
   assert.match(markdown, /rawFrameNameIdNoCountersValueCache/);
   assert.match(markdown, /rawFrameNameIdNoCountersNameFoldCache/);
   assert.match(markdown, /rawFrameNameIdNoCountersStringFoldCache/);
+  assert.match(markdown, /rawFrameNameIdNoCountersNameFoldCacheFoldTrim/);
   assert.match(markdown, /materialization-counter-overhead-candidate/);
   assert.match(markdown, /no-counter-fold-trim-candidate/);
   assert.match(markdown, /no-counter-value-cache-candidate/);
   assert.match(markdown, /no-counter-name-fold-cache-candidate/);
   assert.match(markdown, /no-counter-string-fold-cache-candidate/);
+  assert.match(markdown, /no-counter-name-fold-cache-fold-trim-candidate/);
   assert.match(markdown, /instrumentation=materialization-counters-disabled/);
 });
 

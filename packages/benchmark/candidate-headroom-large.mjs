@@ -358,6 +358,17 @@ function createVariants(fixture, requestedCases = null) {
           run: () => consumeRawFrameNameIdNoCountersStyle(fixture, { nameFoldCache: [], stringFoldCache: new Map() }),
         }]
       : []),
+    ...(requested.has('rawFrameNameIdNoCountersNameFoldCacheFoldTrim')
+      ? [{
+          id: 'rawFrameNameIdNoCountersNameFoldCacheFoldTrim',
+          family: 'full-stax-js',
+          implementation: 'nextRawBatch typed arrays with numeric name-id cache, counters disabled, cached checksum transforms for repeated name strings, and direct trimmed text checksum folding',
+          contractScope: 'full-string-materialization',
+          fullStringParity: true,
+          instrumentation: 'materialization-counters-disabled',
+          run: () => consumeRawFrameNameIdNoCountersStyle(fixture, { nameFoldCache: [], foldTrimmedText: true }),
+        }]
+      : []),
     ...(requested.has('rawFrameNameIdNoTrim')
       ? [{
           id: 'rawFrameNameIdNoTrim',
@@ -885,6 +896,7 @@ function createFindings(variants, fixture) {
   const rawNameIdNoCountersValueCache = variants.find((entry) => entry.id === 'rawFrameNameIdNoCountersValueCache');
   const rawNameIdNoCountersNameFoldCache = variants.find((entry) => entry.id === 'rawFrameNameIdNoCountersNameFoldCache');
   const rawNameIdNoCountersStringFoldCache = variants.find((entry) => entry.id === 'rawFrameNameIdNoCountersStringFoldCache');
+  const rawNameIdNoCountersNameFoldCacheFoldTrim = variants.find((entry) => entry.id === 'rawFrameNameIdNoCountersNameFoldCacheFoldTrim');
   const foldTrim = variants.find((entry) => entry.id === 'rawFrameNameIdFoldTrim');
   const findings = [
     {
@@ -1026,6 +1038,19 @@ function createFindings(variants, fixture) {
         `sameChecksum=${rawNameIdNoCountersStringFoldCache.checksum === rawNameIdNoCounters.checksum}`,
         `sameEvents=${rawNameIdNoCountersStringFoldCache.eventCount === rawNameIdNoCounters.eventCount}`,
         `throughputRatio=${(rawNameIdNoCountersStringFoldCache.mibPerSec / rawNameIdNoCounters.mibPerSec).toFixed(2)}x`,
+      ],
+    });
+  }
+  if (rawNameIdNoCountersNameFoldCache && rawNameIdNoCountersNameFoldCacheFoldTrim) {
+    findings.push({
+      id: 'no-counter-name-fold-cache-fold-trim-candidate',
+      summary: 'This row combines the positive repeated-name checksum transform with direct trimmed text checksum folding to test whether independent consumer-side changes compose into a larger full-string speedup.',
+      evidence: [
+        `rawFrameNameIdNoCountersNameFoldCache=${formatRate(rawNameIdNoCountersNameFoldCache.mibPerSec)}`,
+        `rawFrameNameIdNoCountersNameFoldCacheFoldTrim=${formatRate(rawNameIdNoCountersNameFoldCacheFoldTrim.mibPerSec)}`,
+        `sameChecksum=${rawNameIdNoCountersNameFoldCacheFoldTrim.checksum === rawNameIdNoCountersNameFoldCache.checksum}`,
+        `sameEvents=${rawNameIdNoCountersNameFoldCacheFoldTrim.eventCount === rawNameIdNoCountersNameFoldCache.eventCount}`,
+        `throughputRatio=${(rawNameIdNoCountersNameFoldCacheFoldTrim.mibPerSec / rawNameIdNoCountersNameFoldCache.mibPerSec).toFixed(2)}x`,
       ],
     });
   }
