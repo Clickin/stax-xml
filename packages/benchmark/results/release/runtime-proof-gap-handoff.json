@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-31T23:21:05.589Z",
+  "generatedAt": "2026-05-31T23:50:14.805Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
@@ -9,7 +9,7 @@
     "comparisonGeneratedAt": "2026-05-31T23:20:48.612Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
-    "auditGeneratedAt": "2026-05-31T22:54:13.928Z",
+    "auditGeneratedAt": "2026-05-31T23:49:55.274Z",
     "auditObjective": "runtime-proof-coverage-audit",
     "auditContract": "static-release-artifact-proof-coverage"
   },
@@ -37,8 +37,8 @@
     "conclusionBlocker": "Open or partial obligations still require external runtime evidence before any runtime-limit conclusion."
   },
   "auditSummary": {
-    "artifactCount": 198,
-    "measuredRows": 1111,
+    "artifactCount": 201,
+    "measuredRows": 1183,
     "counterexamples": null,
     "activeObligations": [
       {

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-31T23:21:05.936Z",
+  "generatedAt": "2026-05-31T23:49:55.274Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -3643,6 +3643,21 @@
       "measuredRowCount": 3
     },
     {
+      "sourceArtifact": "source-consumption-shape-audit.json",
+      "objective": "source-consumption-shape-audit",
+      "contract": "large-js-full-string-rows-are-not-full-arraybuffer-parser-input",
+      "evidenceKinds": [
+        "SOURCE_FACT"
+      ],
+      "runtimes": [],
+      "availability": null,
+      "outcome": null,
+      "shell": null,
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
       "sourceArtifact": "stax-event-public-object-shape-audit.json",
       "objective": "stax-event-public-object-shape-audit",
       "contract": "source-public-object-row-vs-file-backed-low-memory-scope",
@@ -4568,7 +4583,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 200,
+    "scannedArtifactCount": 201,
     "ignoredArtifactCount": 7,
     "parseErrorCount": 0,
     "measuredRowCount": 1183,
@@ -4590,7 +4605,7 @@
       "rowsWithMemoryCounter": 10
     },
     "benchmarkArtifactCount": 150,
-    "sourceArtifactCount": 18,
+    "sourceArtifactCount": 19,
     "traceArtifactCount": 11,
     "allocationArtifactCount": 16,
     "environmentArtifactCount": 4,

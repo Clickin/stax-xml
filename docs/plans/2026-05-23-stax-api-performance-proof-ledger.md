@@ -266,7 +266,7 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 200 primary release JSON artifacts, recognizes 1,183
+The current scan covers 201 primary release JSON artifacts, recognizes 1,183
 sample throughput rows and 170 aggregate rows, and finds 792 JavaScript 1 GiB+
 full-string sample rows plus 133 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
@@ -350,6 +350,13 @@ JavaScript 1 GiB+ full-string rows with source-mode metadata are now marked as
 not full `ArrayBuffer` parser-input rows. This also fixes the previous scanner
 blind spot where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but
 not counted as JavaScript runtime rows.
+`packages/benchmark/results/release/source-consumption-shape-audit.md` pins
+the same source contract as a standalone non-benchmark source audit: it reads
+`same-contract-runtime-comparison.json`, records 210/210 JavaScript 1 GiB+
+full-string rows with source-mode metadata as not full-target `ArrayBuffer`
+parser input, keeps the single direct `ReadableStream` aggregate row separate
+from 172 sync `Iterable<Uint8Array[]>` aggregate rows, and records backpressure
+coverage as 6/6 focused source-frontier rows plus 2/2 browser live-source rows.
 
 The scan also records 35 threshold-crossing partial/projection rows. The
 fastest is Node/V8 `grouped-segment-scan` at 682.83 MiB/s from
@@ -567,8 +574,8 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 200 primary release artifacts and recognizes 1,183
-measured rows. It records 150 benchmark artifacts, 18 source artifacts, 10
+The current audit scans 201 primary release artifacts and recognizes 1,183
+measured rows. It records 150 benchmark artifacts, 19 source artifacts, 11
 trace/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and
 19 negative-result artifacts, 792 JavaScript 1 GiB+ full-string rows, and four
 release corpus seeds: `books.xml`, `large.xml`, `midsize.xml`, and `treebank_e.xml`. The

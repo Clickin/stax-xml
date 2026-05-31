@@ -1,0 +1,183 @@
+{
+  "generatedAt": "2026-05-31T23:49:12.901Z",
+  "objective": "source-consumption-shape-audit",
+  "contract": "large-js-full-string-rows-are-not-full-arraybuffer-parser-input",
+  "note": "Audits source-consumption metadata from the same-contract aggregate. This is not a benchmark run and not a runtime-limit conclusion.",
+  "inputs": {
+    "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
+    "comparisonGeneratedAt": "2026-05-31T23:20:48.612Z",
+    "comparisonObjective": "same-contract-runtime-comparison",
+    "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape"
+  },
+  "summary": {
+    "status": "classified",
+    "aggregateRowCount": 261,
+    "jsLargeFullRowCount": 216,
+    "sourceModes": [
+      "fetch-async-iterable-byte-batches",
+      "fetch-readable-stream-pull",
+      "file-backed-sync-iterable-byte-batches",
+      "sync-iterable-byte-batches"
+    ],
+    "largeJsFullSourceModeRows": 210,
+    "notFullArrayBufferRows": 210,
+    "fullArrayBufferRows": 0,
+    "unknownArrayBufferRows": 0,
+    "directReadableStreamRows": 1,
+    "corpusSeedReplayRows": 127,
+    "fileBackedSyncIterableRows": 36,
+    "syncIterableRows": 172,
+    "asyncOrReadableRowsRespectBackpressure": true,
+    "browserLiveRowsRespectBackpressure": true,
+    "conclusionAllowed": false
+  },
+  "sourceModeBreakdown": [
+    {
+      "sourceMode": "fetch-async-iterable-byte-batches",
+      "rows": 1,
+      "notFullArrayBufferRows": 1,
+      "fullArrayBufferRows": 0,
+      "unknownArrayBufferRows": 0,
+      "directReadableStreamRows": 0,
+      "corpusSeedReplayRows": 1,
+      "fastestRow": {
+        "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+        "runtimeLabel": "Chrome/V8 browser",
+        "caseId": "fetchAsyncByteBatchFull",
+        "rateMiBPerSec": 9.77,
+        "fullStringParity": true,
+        "boundedMemory": true
+      }
+    },
+    {
+      "sourceMode": "fetch-readable-stream-pull",
+      "rows": 1,
+      "notFullArrayBufferRows": 1,
+      "fullArrayBufferRows": 0,
+      "unknownArrayBufferRows": 0,
+      "directReadableStreamRows": 1,
+      "corpusSeedReplayRows": 1,
+      "fastestRow": {
+        "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+        "runtimeLabel": "Chrome/V8 browser",
+        "caseId": "fetchReadableStreamFull",
+        "rateMiBPerSec": 9.68,
+        "fullStringParity": true,
+        "boundedMemory": true
+      }
+    },
+    {
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "rows": 36,
+      "notFullArrayBufferRows": 36,
+      "fullArrayBufferRows": 0,
+      "unknownArrayBufferRows": 0,
+      "directReadableStreamRows": 0,
+      "corpusSeedReplayRows": 0,
+      "fastestRow": {
+        "sourceArtifact": "file-backed-batch-size-sweep.json",
+        "runtimeLabel": "Node/V8",
+        "caseId": "stax-raw-frame-name-id-batch-8",
+        "rateMiBPerSec": 152.11,
+        "fullStringParity": true,
+        "boundedMemory": true
+      }
+    },
+    {
+      "sourceMode": "sync-iterable-byte-batches",
+      "rows": 172,
+      "notFullArrayBufferRows": 172,
+      "fullArrayBufferRows": 0,
+      "unknownArrayBufferRows": 0,
+      "directReadableStreamRows": 0,
+      "corpusSeedReplayRows": 125,
+      "fastestRow": {
+        "sourceArtifact": "text-trim-cost-decomposition.json",
+        "runtimeLabel": "Node/V8",
+        "caseId": "rawFrameNameId",
+        "rateMiBPerSec": 185.5,
+        "fullStringParity": true,
+        "boundedMemory": true
+      }
+    }
+  ],
+  "sourceConsumptionFrontier": {
+    "sourceArtifact": "stream-source-consumption-backpressure-counters.json",
+    "fastestSyncIterable": {
+      "id": "sync-iterable-byte-batches-batch-8",
+      "parserInput": "synchronous Iterable<Uint8Array[]>",
+      "sourceMode": "sync-iterable-byte-batches",
+      "rateMiBPerSec": 67.94,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "respectsBackpressure": null,
+      "eventCount": 61236571,
+      "checksum": -716099804
+    },
+    "fastestReadableStream": {
+      "id": "web-readable-stream-raw-frame-ascii-batch-8",
+      "parserInput": "Web ReadableStream<Uint8Array>",
+      "sourceMode": "web-readable-stream-pull",
+      "rateMiBPerSec": 75.98,
+      "directReadableStream": true,
+      "fullArrayBufferParserInput": false,
+      "respectsBackpressure": true,
+      "eventCount": 61236571,
+      "checksum": -716099804
+    },
+    "fastestReadableStreamRatioToFastestSyncIterable": 1.12,
+    "backpressureRows": 6,
+    "backpressureRowsRespected": 6,
+    "fullArrayBufferRows": 0
+  },
+  "browserLiveSourceFrontier": {
+    "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+    "fetchReadableStreamRow": {
+      "id": "fetchReadableStreamFull",
+      "parserInput": null,
+      "sourceMode": "fetch-readable-stream-pull",
+      "rateMiBPerSec": 9.68,
+      "directReadableStream": true,
+      "fullArrayBufferParserInput": false,
+      "respectsBackpressure": true,
+      "eventCount": 57096514,
+      "checksum": -540013997
+    },
+    "fetchAsyncByteBatchRow": {
+      "id": "fetchAsyncByteBatchFull",
+      "parserInput": null,
+      "sourceMode": "fetch-async-iterable-byte-batches",
+      "rateMiBPerSec": 9.77,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "respectsBackpressure": true,
+      "eventCount": 57096514,
+      "checksum": -540013997
+    },
+    "liveRows": 2,
+    "liveRowsBackpressureRespected": 2,
+    "liveRowsFullArrayBufferInput": 0
+  },
+  "findings": [
+    {
+      "id": "source-contract-classified",
+      "classification": "SOURCE_FACT",
+      "summary": "All current 1 GiB+ JavaScript full-string rows with source metadata are classified as not full ArrayBuffer parser input."
+    },
+    {
+      "id": "direct-readable-stream-separated",
+      "classification": "SOURCE_FACT",
+      "summary": "Direct ReadableStream rows are counted separately from synchronous byte-batch parser rows."
+    },
+    {
+      "id": "backpressure-respected",
+      "classification": "SOURCE_FACT",
+      "summary": "Rows that exercise async/readable or live fetch source paths record backpressure-respecting counters."
+    },
+    {
+      "id": "corpus-replay-not-full-target-arraybuffer",
+      "classification": "SOURCE_FACT",
+      "summary": "Corpus-cycle rows replay smaller seed buffers and are not classified as one full-target ArrayBuffer parser input."
+    }
+  ]
+}
