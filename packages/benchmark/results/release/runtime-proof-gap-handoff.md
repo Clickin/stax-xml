@@ -1,13 +1,13 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-05-31T14:21:26.885Z
+Generated: 2026-05-31T14:39:37.663Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-05-31T14:21:17.493Z
+- Audit generated: 2026-05-31T14:37:47.244Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
 - Comparison generated: 2026-05-31T14:02:42.888Z
 - Active obligations: 2
@@ -19,7 +19,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - External-run required closures: 2
 - Locally runnable closures: 0
 - Audit artifacts: 183
-- Audit measured rows: 1001
+- Audit measured rows: 1004
 - Primary source consumption: synchronous Iterable<Uint8Array[]> byte batches
 - Direct ReadableStream scope: separate source-overhead evidence only
 - Direct ReadableStream backpressure required: yes
