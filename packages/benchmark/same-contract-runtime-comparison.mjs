@@ -423,6 +423,11 @@ const crossProcessArtifacts = [
     file: 'candidate-headroom-cross-process-midsize-corpus.json',
     cases: candidateCases,
   },
+  {
+    group: 'deno-cross-process-midsize-corpus',
+    file: 'deno-candidate-headroom-cross-process-midsize-corpus.json',
+    cases: ['stringFull', 'eventObjectFull', 'rawFrameNameId'],
+  },
 ];
 
 const fileBackedSweepArtifacts = [

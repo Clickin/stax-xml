@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-31T17:46:39.740Z",
+  "generatedAt": "2026-05-31T18:02:27.289Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -59,6 +59,7 @@
       "candidate-headroom-cross-process-books-corpus-batch16.json",
       "candidate-headroom-cross-process-large-asset-corpus.json",
       "candidate-headroom-cross-process-midsize-corpus.json",
+      "deno-candidate-headroom-cross-process-midsize-corpus.json",
       "file-backed-batch-size-sweep.json",
       "file-backed-source-sweep.json",
       "quick-xml-allocation-count.json",
@@ -71,8 +72,8 @@
     ]
   },
   "summary": {
-    "rowCount": 234,
-    "jsLargeFullRowCount": 201,
+    "rowCount": 237,
+    "jsLargeFullRowCount": 204,
     "jsRuntimeCounterexamples200MiB": 0,
     "fastestJsLargeFullRow": {
       "group": "text-trim-cost-decomposition",
@@ -1890,6 +1891,30 @@
         }
       },
       {
+        "group": "deno-cross-process-midsize-corpus",
+        "fastest": {
+          "group": "deno-cross-process-midsize-corpus",
+          "runtimeId": "deno-v8",
+          "runtimeLabel": "Deno/V8",
+          "caseId": "stringFull",
+          "mibPerSec": 85.42,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 105.69,
+            "maxHeapUsedMiB": 10.7,
+            "note": "max across independent child processes"
+          },
+          "sourceMode": "sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
+          "sourceArtifact": "deno-candidate-headroom-cross-process-midsize-corpus.json",
+          "sampleCount": 3,
+          "sampleMinMiBPerSec": 82.82,
+          "sampleMaxMiBPerSec": 87.87,
+          "sampleSpreadRatio": 0.06
+        }
+      },
+      {
         "group": "file-backed-batch-size-sweep",
         "fastest": {
           "group": "file-backed-batch-size-sweep",
@@ -1964,8 +1989,8 @@
     ],
     "memoryFrontier": {
       "contract": "1gib-plus-js-full-string-memory-frontier",
-      "rows": 201,
-      "boundedRows": 184,
+      "rows": 204,
+      "boundedRows": 187,
       "unboundedRows": 17,
       "memoryKinds": [
         "browser-js-heap",
@@ -2071,8 +2096,8 @@
         },
         {
           "kind": "process-rss",
-          "rows": 172,
-          "boundedRows": 164,
+          "rows": 175,
+          "boundedRows": 167,
           "unboundedRows": 8,
           "maxMiB": 1956.69,
           "fastestRow": {
@@ -2205,11 +2230,11 @@
       "sync-iterable-byte-batches"
     ],
     "sourceShapeSafety": {
-      "largeJsFullSourceModeRows": 195,
-      "notFullArrayBufferRows": 195,
+      "largeJsFullSourceModeRows": 198,
+      "notFullArrayBufferRows": 198,
       "fullArrayBufferRows": 0,
       "unknownArrayBufferRows": 0,
-      "corpusSeedReplayRows": 118,
+      "corpusSeedReplayRows": 121,
       "maxCorpusSeedMiB": 100.26,
       "maxCorpusSeedToTargetRatio": 0.09
     },
@@ -13613,6 +13638,156 @@
       "corpusSeedToTargetRatio": 0.012987012987012988
     },
     {
+      "group": "deno-cross-process-midsize-corpus",
+      "sourceArtifact": "deno-candidate-headroom-cross-process-midsize-corpus.json",
+      "runtimeId": "deno-v8",
+      "runtimeLabel": "Deno/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "14.7.173.20-rusty",
+      "caseId": "stringFull",
+      "implementation": "Deno/V8 cross-process stringFull",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\midsize.xml",
+        "sizeGiB": 1.01,
+        "sizeMiB": 1029.35,
+        "actualBytes": 1079349964,
+        "batchSize": 1,
+        "rowCycleSize": 1,
+        "minRowBytes": 14017532,
+        "maxRowBytes": 14017532,
+        "averageRowBytes": 14017532
+      },
+      "fullStringParity": true,
+      "eventCount": 78059522,
+      "checksum": -34487917,
+      "mibPerSec": 85.42,
+      "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 105.69,
+        "maxHeapUsedMiB": 10.7,
+        "note": "max across independent child processes"
+      },
+      "materializationCounters": null,
+      "sampleCount": 3,
+      "sampleMinMiBPerSec": 82.82,
+      "sampleMaxMiBPerSec": 87.87,
+      "sampleSpreadRatio": 0.06,
+      "woodstoxRatio": null,
+      "targetStatus": null,
+      "runtimeLimitCounterexample": false,
+      "corpusSeedReplay": true,
+      "corpusSeedBytes": 14017532,
+      "corpusSeedToTargetRatio": 0.012987012987012988
+    },
+    {
+      "group": "deno-cross-process-midsize-corpus",
+      "sourceArtifact": "deno-candidate-headroom-cross-process-midsize-corpus.json",
+      "runtimeId": "deno-v8",
+      "runtimeLabel": "Deno/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "14.7.173.20-rusty",
+      "caseId": "eventObjectFull",
+      "implementation": "Deno/V8 cross-process eventObjectFull",
+      "contractScope": "full-event-object-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\midsize.xml",
+        "sizeGiB": 1.01,
+        "sizeMiB": 1029.35,
+        "actualBytes": 1079349964,
+        "batchSize": 1,
+        "rowCycleSize": 1,
+        "minRowBytes": 14017532,
+        "maxRowBytes": 14017532,
+        "averageRowBytes": 14017532
+      },
+      "fullStringParity": true,
+      "eventCount": 78059522,
+      "checksum": -34487917,
+      "mibPerSec": 53.77,
+      "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 170.38,
+        "maxHeapUsedMiB": 17.34,
+        "note": "max across independent child processes"
+      },
+      "materializationCounters": null,
+      "sampleCount": 3,
+      "sampleMinMiBPerSec": 52.56,
+      "sampleMaxMiBPerSec": 54.89,
+      "sampleSpreadRatio": 0.04,
+      "woodstoxRatio": null,
+      "targetStatus": null,
+      "runtimeLimitCounterexample": false,
+      "corpusSeedReplay": true,
+      "corpusSeedBytes": 14017532,
+      "corpusSeedToTargetRatio": 0.012987012987012988
+    },
+    {
+      "group": "deno-cross-process-midsize-corpus",
+      "sourceArtifact": "deno-candidate-headroom-cross-process-midsize-corpus.json",
+      "runtimeId": "deno-v8",
+      "runtimeLabel": "Deno/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "14.7.173.20-rusty",
+      "caseId": "rawFrameNameId",
+      "implementation": "Deno/V8 cross-process rawFrameNameId",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\midsize.xml",
+        "sizeGiB": 1.01,
+        "sizeMiB": 1029.35,
+        "actualBytes": 1079349964,
+        "batchSize": 1,
+        "rowCycleSize": 1,
+        "minRowBytes": 14017532,
+        "maxRowBytes": 14017532,
+        "averageRowBytes": 14017532
+      },
+      "fullStringParity": true,
+      "eventCount": 78059522,
+      "checksum": -34487917,
+      "mibPerSec": 72.37,
+      "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 170.38,
+        "maxHeapUsedMiB": 24.93,
+        "note": "max across independent child processes"
+      },
+      "materializationCounters": null,
+      "sampleCount": 3,
+      "sampleMinMiBPerSec": 71.98,
+      "sampleMaxMiBPerSec": 72.84,
+      "sampleSpreadRatio": 0.01,
+      "woodstoxRatio": null,
+      "targetStatus": null,
+      "runtimeLimitCounterexample": false,
+      "corpusSeedReplay": true,
+      "corpusSeedBytes": 14017532,
+      "corpusSeedToTargetRatio": 0.012987012987012988
+    },
+    {
       "group": "file-backed-batch-size-sweep",
       "sourceArtifact": "file-backed-batch-size-sweep.json",
       "runtimeId": "node-v8",
@@ -14941,8 +15116,8 @@
       "status": "CLASSIFIED",
       "summary": "The same 1 GiB+ JavaScript full-string row set used for counterexample scanning is classified by memory metric and bounded-memory status.",
       "evidence": [
-        "rows=201",
-        "boundedRows=184",
+        "rows=204",
+        "boundedRows=187",
         "unboundedRows=17",
         "fastestBounded=rawFrameNameId@185.50 MiB/s",
         "fastestBoundedMemory=process RSS max 60.45 MiB",
@@ -14954,7 +15129,7 @@
       "status": "NOT_FOUND_IN_AGGREGATED_ARTIFACTS",
       "summary": "The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.",
       "evidence": [
-        "jsLargeFullRows=201",
+        "jsLargeFullRows=204",
         "counterexamples=0"
       ]
     },
@@ -14963,8 +15138,8 @@
       "status": "CLASSIFIED",
       "summary": "Recognized 1 GiB+ JavaScript full-string source-mode rows are classified for full XML ArrayBuffer parser input.",
       "evidence": [
-        "largeJsFullSourceModeRows=195",
-        "notFullArrayBufferRows=195",
+        "largeJsFullSourceModeRows=198",
+        "notFullArrayBufferRows=198",
         "fullArrayBufferRows=0",
         "unknownArrayBufferRows=0"
       ]
