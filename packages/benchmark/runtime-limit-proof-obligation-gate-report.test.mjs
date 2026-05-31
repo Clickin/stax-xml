@@ -59,6 +59,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.proofRules.some(item => item.id === 'raw-frame-source-shapes-backpressure-counted' && item.satisfied));
   assert.ok(report.proofRules.some(item => item.id === 'handoff-source-consumption-classified' && item.satisfied));
   assert.ok(report.proofRules.some(item => item.id === 'handoff-external-target-distance-classified' && item.satisfied));
+  assert.ok(report.proofRules.some(item => item.id === 'handoff-text-materialization-frontier-classified' && item.satisfied));
   assert.ok(report.proofRules.some(item => item.id === 'woodstox-reference-not-identical-input' && item.satisfied));
   assert.ok(report.proofRules.some(item => item.id === 'same-fixture-woodstox-target-unmet' && item.satisfied));
 
@@ -76,6 +77,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /raw-frame-source-shapes-backpressure-counted/);
   assert.match(markdown, /handoff-source-consumption-classified/);
   assert.match(markdown, /handoff-external-target-distance-classified/);
+  assert.match(markdown, /handoff-text-materialization-frontier-classified/);
   assert.match(markdown, /woodstox-reference-not-identical-input/);
   assert.match(markdown, /same-fixture-woodstox-target-unmet/);
   assert.match(markdown, /A future 200 MiB\/s\+ bounded-memory full-string JavaScript row remains a counterexample/);
@@ -162,6 +164,7 @@ function createLedgerFixture(runtimeStatus) {
     'The focused audit now includes seven source-shape rows: async `nextRawBatch()` raw-frame rows and direct `ReadableStream` `nextRawBatch()` raw-frame rows under the same backpressure counter contract.',
     'The handoff source-consumption evidence status is `classified`: all 173 JavaScript 1 GiB+ full-string rows with source-mode metadata are not full `ArrayBuffer` parser-input rows, browser live fetch frontier records `fetchReadableStreamFull` at 9.68 MiB/s and `fetchAsyncByteBatchFull` at 9.77 MiB/s, and Safari/WebKit browser rows and SpiderMonkey emitted IR remain active obligations.',
     'The handoff also carries external target-distance evidence from the same aggregate: the fastest aggregated JavaScript full-string row is 0.93x of the 200 MiB/s threshold and 0.55x of the 1024 MiB Woodstox reference, still 118.67 MiB/s below the 0.9x Woodstox target. Woodstox is 351.56 MiB/s with a 316.40 MiB/s 0.9x target, and quick-xml is 274.63 MiB/s with a 247.17 MiB/s 0.9x target. This is target-distance evidence under the same checksum contract, not object-shape equivalence.',
+    'The handoff also carries the text-materialization frontier: the fastest full-string row remains `rawFrameNameId` from `text-trim-cost-decomposition.json` at 185.50 MiB/s, 14.50 MiB/s below the 200 MiB/s threshold and requiring a 1.08x speedup. The fastest no-text row, `withoutTextStrings` from `text-trim-cost-decomposition-4gib.json`, reaches 252.36 MiB/s but is not full-string parity; four no-text rows cross 200 MiB/s while zero full-string, no-trim, or fold-trim rows do.',
     '',
     'Woodstox target rules: the fastest aggregated JS row and the 1024 MiB Woodstox reference can come from different corpus fixtures. Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id-chunk-32kib at 0.80x Woodstox, 19.95 MiB/s below 0.9x target.',
     '',

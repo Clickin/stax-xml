@@ -104,7 +104,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /all 10 required claim guards are satisfied/);
   assert.match(markdown, /all 35 required artifact mentions\s+are present/);
   assert.match(markdown, /all 5 required open-obligation disclosures are present/);
-  assert.match(markdown, /all 15\s+proof-rule checks are satisfied/);
+  assert.match(markdown, /all 16\s+proof-rule checks are satisfied/);
   assert.match(markdown, /`conclusionAllowed: false`/);
   assert.match(markdown, /treating Woodstox or quick-xml as JavaScript object\s+shape parity/);
   assert.match(markdown, /treating lazy getters as an untried default candidate/);
@@ -116,6 +116,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /same-fixture 1024 MiB JS\s+row is still below the 0\.9x Woodstox target even after the file-backed source\s+and batch-size sweep rows are included/);
   assert.match(markdown, /requires the handoff\s+to carry the external Woodstox and quick-xml target-distance evidence under the\s+same checksum contract/);
   assert.match(markdown, /future external rows are judged against both the\s+200 MiB\/s counterexample threshold and the 0\.9x Woodstox goal/);
+  assert.match(markdown, /requires the text-materialization frontier to stay visible/);
+  assert.match(markdown, /no-text\/CDATA\s+omission can cross 200 MiB\/s as headroom evidence, but it must not be counted\s+as a full-string StAX counterexample/);
   assert.match(markdown, /If the broad\s+runtime-limit claim is upgraded to `CONCLUSION` while these open obligations\s+remain, the gate fails/);
   assert.match(markdown, /object-shape-parity\.md/);
   assert.match(markdown, /materialization-contract-audit\.md/);
@@ -335,6 +337,11 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`stax-raw-frame-name-id-batch-8` reaches 152\.11 MiB\/s; Woodstox is 351\.56 MiB\/s\s+with a 316\.40 MiB\/s 0\.9x target, and quick-xml is 274\.63 MiB\/s with a\s+247\.17 MiB\/s 0\.9x target/);
   assert.match(markdown, /same-fixture process RSS snapshot remains\s+separate endpoint evidence: JavaScript 61\.77 MiB, Woodstox 312\.71 MiB, and\s+quick-xml 4\.78 MiB/);
   assert.match(markdown, /target-distance evidence under the same checksum\s+contract, not object-shape equivalence/);
+  assert.match(markdown, /handoff also carries the text-materialization frontier/);
+  assert.match(markdown, /fastest full-string row remains\s+`rawFrameNameId` from `text-trim-cost-decomposition\.json` at 185\.50 MiB\/s,\s+14\.50 MiB\/s below the 200 MiB\/s threshold and requiring a 1\.08x speedup/);
+  assert.match(markdown, /`withoutTextStrings` from\s+`text-trim-cost-decomposition-4gib\.json`, reaches 252\.36 MiB\/s with bounded\s+memory, but it is not full-string parity/);
+  assert.match(markdown, /four no-text rows cross 200 MiB\/s\s+while zero full-string, no-trim, or fold-trim rows do/);
+  assert.match(markdown, /without reclassifying text omission as\s+a StAX-compatible full-string row/);
   assert.match(markdown, /no unhandled gaps/);
   assert.match(markdown, /structured `localClosure` status/);
   assert.match(markdown, /Safari is\s+`external-run-required` with `localRunnable=false`/);

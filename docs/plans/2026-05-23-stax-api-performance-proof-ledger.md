@@ -120,7 +120,7 @@ and records whether the broad runtime-limit conclusion is currently allowed.
 
 The current gate report passes with status `incomplete-proof-correctly-blocked`:
 all 10 required claim guards are satisfied, all 35 required artifact mentions
-are present, all 5 required open-obligation disclosures are present, and all 15
+are present, all 5 required open-obligation disclosures are present, and all 16
 proof-rule checks are satisfied. The important result is
 `conclusionAllowed: false`, not a proof of impossibility.
 The runtime-limit claim remains `HYPOTHESIS`, while the gate confirms that
@@ -137,7 +137,10 @@ row is still below the 0.9x Woodstox target even after the file-backed source
 and batch-size sweep rows are included. The gate now also requires the handoff
 to carry the external Woodstox and quick-xml target-distance evidence under the
 same checksum contract so future external rows are judged against both the
-200 MiB/s counterexample threshold and the 0.9x Woodstox goal.
+200 MiB/s counterexample threshold and the 0.9x Woodstox goal. Finally, it
+requires the text-materialization frontier to stay visible: no-text/CDATA
+omission can cross 200 MiB/s as headroom evidence, but it must not be counted
+as a full-string StAX counterexample.
 
 This is deliberately a conservative proof-language step: a passing gate means
 the ledger is not overclaiming. It does not run benchmark rows, inspect
@@ -690,6 +693,17 @@ with a 316.40 MiB/s 0.9x target, and quick-xml is 274.63 MiB/s with a
 separate endpoint evidence: JavaScript 61.77 MiB, Woodstox 312.71 MiB, and
 quick-xml 4.78 MiB. This is target-distance evidence under the same checksum
 contract, not object-shape equivalence.
+
+The handoff also carries the text-materialization frontier because it is the
+closest current counterexample boundary. The fastest full-string row remains
+`rawFrameNameId` from `text-trim-cost-decomposition.json` at 185.50 MiB/s,
+14.50 MiB/s below the 200 MiB/s threshold and requiring a 1.08x speedup. The
+fastest no-text/CDATA row, `withoutTextStrings` from
+`text-trim-cost-decomposition-4gib.json`, reaches 252.36 MiB/s with bounded
+memory, but it is not full-string parity; four no-text rows cross 200 MiB/s
+while zero full-string, no-trim, or fold-trim rows do. This keeps the
+counterexample-adjacent headroom visible without reclassifying text omission as
+a StAX-compatible full-string row.
 
 ## Current Evidence: Multi-Chunk Byte Batch Probe
 

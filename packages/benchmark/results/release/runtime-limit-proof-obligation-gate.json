@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-31T13:06:07.497Z",
+  "generatedAt": "2026-05-31T13:10:01.741Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -410,6 +410,12 @@
       "satisfied": true
     },
     {
+      "id": "handoff-text-materialization-frontier-classified",
+      "pattern": {},
+      "description": "The handoff must carry the text-materialization frontier without treating no-text headroom as a full-string counterexample.",
+      "satisfied": true
+    },
+    {
       "id": "woodstox-reference-not-identical-input",
       "pattern": {},
       "description": "Cross-fixture Woodstox ratios must remain target-distance references, not identical-input target passes.",
@@ -429,7 +435,7 @@
     "requiredArtifactMentions": 35,
     "disclosedOpenObligations": 5,
     "requiredOpenObligations": 5,
-    "satisfiedProofRules": 15,
-    "requiredProofRules": 15
+    "satisfiedProofRules": 16,
+    "requiredProofRules": 16
   }
 }

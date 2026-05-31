@@ -1,6 +1,6 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-05-31T13:00:49.837Z
+Generated: 2026-05-31T13:09:02.063Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -26,6 +26,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Source consumption evidence status: classified
 - Memory frontier evidence status: classified
 - External target evidence status: classified
+- Text materialization evidence status: classified
 - Runtime-limit conclusion allowed: no
 - Conclusion blocker: Open or partial obligations still require external runtime evidence before any runtime-limit conclusion.
 
@@ -77,6 +78,25 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Same-fixture process RSS: JS 61.77 MiB; Woodstox 312.71 MiB; quick-xml 4.78 MiB
 - Process RSS caveat: Process RSS values are same-fixture endpoint evidence, not allocation-model equivalence across Java, Rust, and JavaScript runtimes.
 - Interpretation: Woodstox and quick-xml remain same-checksum semantic comparators, not same object-shape comparators; the 0.9x target is evaluated separately from the 200 MiB/s counterexample threshold.
+
+## Text Materialization Evidence
+
+- Status: classified
+- Source artifact: same-contract-runtime-comparison.json
+- Frontier artifact: text-materialization-frontier.json
+- Contract: text-materialization-frontier-counterexample-boundary
+- Target: 200.00 MiB/s
+- Fastest full-string row: rawFrameNameId from text-trim-cost-decomposition.json at 185.50 MiB/s (fullStringParity=yes, boundedMemory=yes)
+- Fastest without text/CDATA strings row: withoutTextStrings from text-trim-cost-decomposition-4gib.json at 252.36 MiB/s (fullStringParity=no, boundedMemory=yes)
+- Fastest no-trim row: rawFrameNameIdNoTrim from text-trim-cost-decomposition-8gib.json at 186.97 MiB/s (fullStringParity=no, boundedMemory=unknown)
+- Fastest fold-trim row: rawFrameNameIdFoldTrim from text-trim-cost-decomposition-2gib.json at 148.58 MiB/s (fullStringParity=yes, boundedMemory=unknown)
+- Fastest full row target distance: 0.93x target, 14.50 MiB/s remaining, 1.08x speedup required
+- Without-text to full ratio: 1.36x
+- No-trim to full ratio: 1.01x
+- Fold-trim to full ratio: 0.80x
+- Rows crossing target: full=0, withoutText=4, noTrim=0, foldTrim=0
+- Negative candidate count: 14
+- Interpretation: Text/CDATA omission crosses the target as headroom evidence, while trim-only, fold-trim, cache, and ASCII candidates remain negative for the current full-string contract.
 
 ## Active Obligations
 

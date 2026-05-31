@@ -206,6 +206,11 @@ const requiredProofRules = [
     description: 'The handoff must carry Woodstox and quick-xml 0.9x target-distance evidence under the same checksum contract.',
   },
   {
+    id: 'handoff-text-materialization-frontier-classified',
+    pattern: /text-materialization frontier[\s\S]+?fastest full-string row remains\s+`rawFrameNameId` from `text-trim-cost-decomposition\.json` at 185\.50 MiB\/s[\s\S]+?14\.50 MiB\/s below the 200 MiB\/s threshold and requiring a 1\.08x speedup[\s\S]+?`withoutTextStrings` from\s+`text-trim-cost-decomposition-4gib\.json`, reaches 252\.36 MiB\/s[\s\S]+?not full-string parity[\s\S]+?four no-text rows cross 200 MiB\/s\s+while zero full-string, no-trim, or fold-trim rows do/i,
+    description: 'The handoff must carry the text-materialization frontier without treating no-text headroom as a full-string counterexample.',
+  },
+  {
     id: 'woodstox-reference-not-identical-input',
     pattern: /fastest aggregated JS row\s+and the 1024 MiB Woodstox reference can come from different corpus fixtures/i,
     description: 'Cross-fixture Woodstox ratios must remain target-distance references, not identical-input target passes.',

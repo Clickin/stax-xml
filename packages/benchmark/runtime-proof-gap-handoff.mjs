@@ -98,6 +98,7 @@ function createReport(audit, comparison, options) {
   const sourceConsumptionEvidence = summarizeSourceConsumptionEvidence(comparison);
   const memoryFrontierEvidence = summarizeMemoryFrontierEvidence(comparison);
   const externalTargetEvidence = summarizeExternalTargetEvidence(comparison);
+  const textMaterializationEvidence = summarizeTextMaterializationEvidence(comparison);
   const summary = createSummary(
     activeObligations,
     localClosure,
@@ -106,6 +107,7 @@ function createReport(audit, comparison, options) {
     sourceConsumptionEvidence,
     memoryFrontierEvidence,
     externalTargetEvidence,
+    textMaterializationEvidence,
   );
 
   return {
@@ -138,6 +140,7 @@ function createReport(audit, comparison, options) {
     sourceConsumptionEvidence,
     memoryFrontierEvidence,
     externalTargetEvidence,
+    textMaterializationEvidence,
     localClosure,
     handoffs,
     unhandledObligations,
@@ -298,6 +301,46 @@ function summarizeMemoryRowForHandoff(row) {
   };
 }
 
+function summarizeTextMaterializationEvidence(comparison) {
+  const frontier = comparison?.summary?.textMaterializationFrontier ?? null;
+  if (!frontier) {
+    return {
+      status: 'missing',
+      sourceArtifact: 'same-contract-runtime-comparison.json',
+      reason: 'same-contract-runtime-comparison text materialization frontier was not available to the handoff generator.',
+    };
+  }
+
+  return {
+    status: frontier.fastestFull?.fullStringParity === true
+      && frontier.fastestWithoutText?.fullStringParity === false
+      && frontier.fullRowsCrossTarget === 0
+      && frontier.noTextRowsCrossTarget > 0
+      ? 'classified'
+      : 'partial',
+    sourceArtifact: 'same-contract-runtime-comparison.json',
+    frontierArtifact: frontier.sourceArtifact,
+    contract: 'text-materialization-frontier-counterexample-boundary',
+    targetMiBPerSec: frontier.targetMiBPerSec,
+    fastestFull: frontier.fastestFull,
+    fastestWithoutText: frontier.fastestWithoutText,
+    fastestNoTrim: frontier.fastestNoTrim,
+    fastestFoldTrim: frontier.fastestFoldTrim,
+    fastestFullToTargetRatio: frontier.fastestFullToTargetRatio,
+    fastestFullRemainingMiBPerSec: frontier.fastestFullRemainingMiBPerSec,
+    requiredSpeedupToTarget: frontier.requiredSpeedupToTarget,
+    fastestWithoutTextToFullRatio: frontier.fastestWithoutTextToFullRatio,
+    fastestNoTrimToFullRatio: frontier.fastestNoTrimToFullRatio,
+    fastestFoldTrimToFullRatio: frontier.fastestFoldTrimToFullRatio,
+    noTextRowsCrossTarget: frontier.noTextRowsCrossTarget,
+    fullRowsCrossTarget: frontier.fullRowsCrossTarget,
+    noTrimRowsCrossTarget: frontier.noTrimRowsCrossTarget,
+    foldTrimRowsCrossTarget: frontier.foldTrimRowsCrossTarget,
+    negativeCandidateCount: frontier.negativeCandidateCount,
+    interpretation: frontier.interpretation,
+  };
+}
+
 function createSummary(
   activeObligations,
   localClosure,
@@ -306,6 +349,7 @@ function createSummary(
   sourceConsumptionEvidence,
   memoryFrontierEvidence,
   externalTargetEvidence,
+  textMaterializationEvidence,
 ) {
   const externalRunRequiredCount = localClosure
     .filter(item => item.localStatus === 'external-run-required' || item.localRunnable === false)
@@ -331,6 +375,7 @@ function createSummary(
     sourceConsumptionEvidenceStatus: sourceConsumptionEvidence.status,
     memoryFrontierEvidenceStatus: memoryFrontierEvidence.status,
     externalTargetEvidenceStatus: externalTargetEvidence.status,
+    textMaterializationEvidenceStatus: textMaterializationEvidence.status,
     conclusionAllowed: false,
     conclusionBlocker: activeObligations.length === 0
       ? 'No active obligations remain, but this handoff report is not a runtime-limit conclusion artifact.'
@@ -607,6 +652,7 @@ function renderMarkdown(report) {
     `- Source consumption evidence status: ${report.summary.sourceConsumptionEvidenceStatus}`,
     `- Memory frontier evidence status: ${report.summary.memoryFrontierEvidenceStatus}`,
     `- External target evidence status: ${report.summary.externalTargetEvidenceStatus}`,
+    `- Text materialization evidence status: ${report.summary.textMaterializationEvidenceStatus}`,
     `- Runtime-limit conclusion allowed: ${report.summary.conclusionAllowed ? 'yes' : 'no'}`,
     `- Conclusion blocker: ${report.summary.conclusionBlocker}`,
     '',
@@ -697,6 +743,36 @@ function renderMarkdown(report) {
       `- 1024 MiB external baseline: stax-stream ${formatNumber(external.staxStreamMiBPerSec)} MiB/s (${formatNumber(external.staxStreamWoodstoxRatio)}x Woodstox); rawFrameNameId ${formatNumber(external.rawFrameNameIdMiBPerSec)} MiB/s (${formatNumber(external.rawFrameNameIdWoodstoxRatio)}x Woodstox); Woodstox ${formatNumber(external.woodstoxMiBPerSec)} MiB/s; quick-xml ${formatNumber(external.quickXmlMiBPerSec)} MiB/s (${formatNumber(external.quickXmlWoodstoxRatio)}x Woodstox)`,
       `- Same-fixture process RSS: JS ${formatNumber(rss.fastestJs?.maxRssMiB)} MiB; Woodstox ${formatNumber(rss.woodstox?.maxRssMiB)} MiB; quick-xml ${formatNumber(rss.quickXml?.maxRssMiB)} MiB`,
       `- Process RSS caveat: ${rss.caveat}`,
+      `- Interpretation: ${evidence.interpretation}`,
+    );
+  }
+
+  lines.push(
+    '',
+    '## Text Materialization Evidence',
+    '',
+    `- Status: ${report.textMaterializationEvidence.status}`,
+    `- Source artifact: ${report.textMaterializationEvidence.sourceArtifact}`,
+  );
+
+  if (report.textMaterializationEvidence.status === 'missing') {
+    lines.push(`- Reason: ${report.textMaterializationEvidence.reason}`);
+  } else {
+    const evidence = report.textMaterializationEvidence;
+    lines.push(
+      `- Frontier artifact: ${evidence.frontierArtifact}`,
+      `- Contract: ${evidence.contract}`,
+      `- Target: ${formatNumber(evidence.targetMiBPerSec)} MiB/s`,
+      `- Fastest full-string row: ${formatTextFrontierRow(evidence.fastestFull)}`,
+      `- Fastest without text/CDATA strings row: ${formatTextFrontierRow(evidence.fastestWithoutText)}`,
+      `- Fastest no-trim row: ${formatTextFrontierRow(evidence.fastestNoTrim)}`,
+      `- Fastest fold-trim row: ${formatTextFrontierRow(evidence.fastestFoldTrim)}`,
+      `- Fastest full row target distance: ${formatNumber(evidence.fastestFullToTargetRatio)}x target, ${formatNumber(evidence.fastestFullRemainingMiBPerSec)} MiB/s remaining, ${formatNumber(evidence.requiredSpeedupToTarget)}x speedup required`,
+      `- Without-text to full ratio: ${formatNumber(evidence.fastestWithoutTextToFullRatio)}x`,
+      `- No-trim to full ratio: ${formatNumber(evidence.fastestNoTrimToFullRatio)}x`,
+      `- Fold-trim to full ratio: ${formatNumber(evidence.fastestFoldTrimToFullRatio)}x`,
+      `- Rows crossing target: full=${evidence.fullRowsCrossTarget}, withoutText=${evidence.noTextRowsCrossTarget}, noTrim=${evidence.noTrimRowsCrossTarget}, foldTrim=${evidence.foldTrimRowsCrossTarget}`,
+      `- Negative candidate count: ${evidence.negativeCandidateCount}`,
       `- Interpretation: ${evidence.interpretation}`,
     );
   }
@@ -822,6 +898,11 @@ function formatTargetEvidenceRow(row) {
     ? row.memoryKind
     : `${row.memoryKind} max ${formatNumber(row.maxMiB)} MiB`;
   return `${row.runtimeLabel} ${row.caseId} ${formatNumber(row.mibPerSec)} MiB/s (${memory})`;
+}
+
+function formatTextFrontierRow(row) {
+  if (!row) return 'none';
+  return `${row.id} from ${row.sourceArtifact} at ${formatNumber(row.mibPerSec)} MiB/s (fullStringParity=${formatNullableBoolean(row.fullStringParity)}, boundedMemory=${formatNullableBoolean(row.boundedMemory)})`;
 }
 
 function countBy(values, keyOf) {

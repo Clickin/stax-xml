@@ -66,6 +66,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.equal(report.summary.sourceConsumptionEvidenceStatus, 'classified');
   assert.equal(report.summary.memoryFrontierEvidenceStatus, 'classified');
   assert.equal(report.summary.externalTargetEvidenceStatus, 'classified');
+  assert.equal(report.summary.textMaterializationEvidenceStatus, 'classified');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.match(report.summary.conclusionBlocker, /external runtime evidence/);
   assert.match(report.inputs.comparisonJson, /same-contract-runtime-comparison\.json/);
@@ -190,6 +191,28 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.equal(report.externalTargetEvidence.sameFixture1024MiBProcessRssSnapshot.woodstox.maxRssMiB, 312.71);
   assert.equal(report.externalTargetEvidence.sameFixture1024MiBProcessRssSnapshot.quickXml.maxRssMiB, 4.78);
   assert.match(report.externalTargetEvidence.interpretation, /not same object-shape comparators/);
+  assert.equal(report.textMaterializationEvidence.status, 'classified');
+  assert.equal(report.textMaterializationEvidence.sourceArtifact, 'same-contract-runtime-comparison.json');
+  assert.equal(report.textMaterializationEvidence.frontierArtifact, 'text-materialization-frontier.json');
+  assert.equal(report.textMaterializationEvidence.contract, 'text-materialization-frontier-counterexample-boundary');
+  assert.equal(report.textMaterializationEvidence.targetMiBPerSec, 200);
+  assert.equal(report.textMaterializationEvidence.fastestFull.id, 'rawFrameNameId');
+  assert.equal(report.textMaterializationEvidence.fastestFull.mibPerSec, 185.5);
+  assert.equal(report.textMaterializationEvidence.fastestFull.fullStringParity, true);
+  assert.equal(report.textMaterializationEvidence.fastestWithoutText.id, 'withoutTextStrings');
+  assert.equal(report.textMaterializationEvidence.fastestWithoutText.mibPerSec, 252.36);
+  assert.equal(report.textMaterializationEvidence.fastestWithoutText.fullStringParity, false);
+  assert.equal(report.textMaterializationEvidence.fastestNoTrim.id, 'rawFrameNameIdNoTrim');
+  assert.equal(report.textMaterializationEvidence.fastestNoTrim.mibPerSec, 186.97);
+  assert.equal(report.textMaterializationEvidence.fastestFoldTrim.id, 'rawFrameNameIdFoldTrim');
+  assert.equal(report.textMaterializationEvidence.fastestFoldTrim.mibPerSec, 148.58);
+  assert.equal(report.textMaterializationEvidence.fastestFullToTargetRatio, 0.93);
+  assert.equal(report.textMaterializationEvidence.fastestFullRemainingMiBPerSec, 14.5);
+  assert.equal(report.textMaterializationEvidence.requiredSpeedupToTarget, 1.08);
+  assert.equal(report.textMaterializationEvidence.fastestWithoutTextToFullRatio, 1.36);
+  assert.equal(report.textMaterializationEvidence.fullRowsCrossTarget, 0);
+  assert.equal(report.textMaterializationEvidence.noTextRowsCrossTarget, 4);
+  assert.match(report.textMaterializationEvidence.interpretation, /Text\/CDATA omission crosses the target/);
   assert.equal(report.auditSummary.artifactCount, audit.scannedArtifacts.length);
   assert.equal(report.auditSummary.measuredRows, audit.summary.measuredRowCount);
   assert.deepEqual(
@@ -281,6 +304,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Source consumption evidence status: classified/);
   assert.match(markdown, /Memory frontier evidence status: classified/);
   assert.match(markdown, /External target evidence status: classified/);
+  assert.match(markdown, /Text materialization evidence status: classified/);
   assert.match(markdown, /## Source Consumption Evidence/);
   assert.match(markdown, /Source modes: fetch-async-iterable-byte-batches, fetch-readable-stream-pull, file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches/);
   assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 173\/173/);
@@ -302,6 +326,11 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Same-fixture Woodstox target: stax-raw-frame-name-id-batch-8 152\.11 MiB\/s vs Woodstox 351\.56 MiB\/s; 0\.9x target 316\.40 MiB\/s; remaining 164\.29 MiB\/s; targetMet=no/);
   assert.match(markdown, /Same-fixture quick-xml target: stax-raw-frame-name-id-batch-8 152\.11 MiB\/s vs quick-xml 274\.63 MiB\/s; 0\.9x target 247\.17 MiB\/s; remaining 95\.06 MiB\/s; targetMet=no/);
   assert.match(markdown, /Same-fixture process RSS: JS 61\.77 MiB; Woodstox 312\.71 MiB; quick-xml 4\.78 MiB/);
+  assert.match(markdown, /## Text Materialization Evidence/);
+  assert.match(markdown, /Fastest full-string row: rawFrameNameId from text-trim-cost-decomposition\.json at 185\.50 MiB\/s \(fullStringParity=yes, boundedMemory=yes\)/);
+  assert.match(markdown, /Fastest without text\/CDATA strings row: withoutTextStrings from text-trim-cost-decomposition-4gib\.json at 252\.36 MiB\/s \(fullStringParity=no, boundedMemory=yes\)/);
+  assert.match(markdown, /Fastest full row target distance: 0\.93x target, 14\.50 MiB\/s remaining, 1\.08x speedup required/);
+  assert.match(markdown, /Rows crossing target: full=0, withoutText=4, noTrim=0, foldTrim=0/);
   assert.match(markdown, /Runtime-limit conclusion allowed: no/);
   assert.match(markdown, /safari-webkit-browser-row-handoff/);
   assert.match(markdown, /spidermonkey-codegen-handoff/);
