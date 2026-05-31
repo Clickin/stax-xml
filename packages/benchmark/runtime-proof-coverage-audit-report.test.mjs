@@ -163,6 +163,53 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.equal(report.summary.measuredRowCount, 1111);
   assert.equal(report.summary.largeJsFullRowCount, 756);
+  assert.deepEqual(
+    {
+      rows: report.summary.largeJsFullSourceInputSafety.rows,
+      sourceModeRows: report.summary.largeJsFullSourceInputSafety.sourceModeRows,
+      notFullArrayBufferRows: report.summary.largeJsFullSourceInputSafety.notFullArrayBufferRows,
+      fullArrayBufferRows: report.summary.largeJsFullSourceInputSafety.fullArrayBufferRows,
+      unknownArrayBufferRows: report.summary.largeJsFullSourceInputSafety.unknownArrayBufferRows,
+      directReadableStreamRows: report.summary.largeJsFullSourceInputSafety.directReadableStreamRows,
+      demandDrivenRows: report.summary.largeJsFullSourceInputSafety.demandDrivenRows,
+    },
+    {
+      rows: 756,
+      sourceModeRows: 397,
+      notFullArrayBufferRows: 397,
+      fullArrayBufferRows: 0,
+      unknownArrayBufferRows: 0,
+      directReadableStreamRows: 17,
+      demandDrivenRows: 396,
+    },
+  );
+  assert.ok(report.summary.largeJsFullSourceInputSafety.sourceModeBreakdown.some(entry =>
+    entry.sourceMode === 'generated-sync-iterable-byte-batches'
+    && entry.rows === 305
+    && entry.notFullArrayBufferRows === 305
+    && entry.directReadableStreamRows === 0
+    && entry.fastestRow.id === 'rawFrameNameId'
+    && entry.fastestRow.mibPerSec === 185.5
+  ));
+  assert.ok(report.summary.largeJsFullSourceInputSafety.sourceModeBreakdown.some(entry =>
+    entry.sourceMode === 'file-backed-sync-iterable-byte-batches'
+    && entry.rows === 53
+    && entry.notFullArrayBufferRows === 53
+    && entry.directReadableStreamRows === 0
+    && entry.fastestRow.id === 'stax-raw-frame-name-id-batch-8'
+    && entry.fastestRow.mibPerSec === 152.11
+  ));
+  assert.ok(report.summary.largeJsFullSourceInputSafety.sourceModeBreakdown.some(entry =>
+    entry.sourceMode === 'web-readable-stream-pull'
+    && entry.rows === 15
+    && entry.directReadableStreamRows === 15
+    && entry.notFullArrayBufferRows === 15
+  ));
+  assert.ok(report.summary.largeJsFullSourceInputSafety.sourceModeBreakdown.some(entry =>
+    entry.sourceMode === 'complete-js-string'
+    && entry.rows === 1
+    && entry.demandDrivenRows === 0
+  ));
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
   assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 20);
   assert.deepEqual(report.summary.unknownBoundedMemoryBreakdown, {
@@ -858,6 +905,14 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Unknown bounded-memory non-JS allocator-counter rows: 10/);
   assert.match(markdown, /Unknown bounded-memory non-JS rows without peak-memory counters: 6/);
   assert.match(markdown, /not an impossibility proof/);
+  assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 397\/397/);
+  assert.match(markdown, /1 GiB\+ JS full-string direct ReadableStream rows: 17/);
+  assert.match(markdown, /## Source Input Safety/);
+  assert.match(markdown, /Direct ReadableStream rows remain source-overhead evidence/);
+  assert.match(markdown, /\| `generated-sync-iterable-byte-batches` \| 305 \| 305 \| 0 \| 0 \| 0 \| 305 \| rawFrameNameId 185\.50 MiB\/s from text-trim-cost-decomposition\.json \|/);
+  assert.match(markdown, /\| `file-backed-sync-iterable-byte-batches` \| 53 \| 53 \| 0 \| 0 \| 0 \| 53 \| stax-raw-frame-name-id-batch-8 152\.11 MiB\/s from file-backed-batch-size-sweep\.json \|/);
+  assert.match(markdown, /\| `web-readable-stream-pull` \| 15 \| 15 \| 0 \| 0 \| 15 \| 15 \| web-readable-stream-raw-frame-ascii-batch-8 76\.87 MiB\/s from stream-source-consumption-shapes\.json \|/);
+  assert.match(markdown, /\| `complete-js-string` \| 1 \| 1 \| 0 \| 0 \| 0 \| 0 \| 3 41\.10 MiB\/s from bun-event-reader-string-large\.json \|/);
   assert.match(markdown, /82 Firefox\/SpiderMonkey browser benchmark rows found/);
   assert.match(markdown, /Firefox benchmark rows and exact tested-build JS string, TextDecoder, and page memory API source pins are now present/);
   assert.match(markdown, /no Safari\/WebKit browser benchmark row was found/);

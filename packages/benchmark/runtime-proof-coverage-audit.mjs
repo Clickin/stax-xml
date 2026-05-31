@@ -124,6 +124,7 @@ function createReport(options) {
     environmentArtifactCount: artifacts.filter(artifact => artifact.evidenceKinds.includes('ENVIRONMENT_FACT')).length,
     negativeArtifactCount: artifacts.filter(artifact => artifact.evidenceKinds.includes('NEGATIVE_RESULT')).length,
     largeJsFullRowCount: coverage.largeJsFullRowCount,
+    largeJsFullSourceInputSafety: coverage.largeJsFullSourceInputSafety,
     runtimeCount: coverage.runtimes.length,
     corpusSeedCount: coverage.corpusSeeds.length,
     openObligationCount: obligations.filter(row => row.status !== 'covered').length,
@@ -240,6 +241,7 @@ function extractMeasuredRows(sourceArtifact, root) {
     if (typeof node.mibPerSec !== 'number' || !Number.isFinite(node.mibPerSec)) return;
     const fixture = normalizeFixture(node.fixture) ?? context.fixture;
     const memoryKind = classifyMemoryKind(node);
+    const sourceMode = classifySourceMode(sourceArtifact, node, context);
     rows.push({
       sourceArtifact,
       jsonPath: path.join('.'),
@@ -257,9 +259,79 @@ function extractMeasuredRows(sourceArtifact, root) {
       eventCount: normalizeEventCount(node),
       checksum: node.checksum ?? null,
       contractScope: node.contractScope ?? node.workload ?? context.contract ?? null,
+      sourceMode,
+      demandDrivenSource: classifyDemandDrivenSource(node, sourceMode),
+      directReadableStream: classifyDirectReadableStream(node, sourceMode),
+      fullArrayBufferParserInput: classifyFullArrayBufferParserInput(node, sourceMode, context),
     });
   });
   return rows;
+}
+
+function classifySourceMode(sourceArtifact, node, context) {
+  if (typeof node.sourceMode === 'string') return normalizeSourceMode(node.sourceMode);
+
+  const sourceContract = context.sourceContract?.childSourceContract ?? context.sourceContract;
+  const parserInput = sourceContract?.parserInput;
+  const arrayBufferConsumption = sourceContract?.arrayBufferConsumption;
+  const combined = `${parserInput ?? ''} ${arrayBufferConsumption ?? ''}`;
+  if (/StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/.test(combined)
+    && /byteBatches\(fixture\)/.test(combined)) {
+    return 'generated-sync-iterable-byte-batches';
+  }
+
+  if (context.objective === 'candidate-headroom-cross-process'
+    && context.options?.fixtureShape === 'corpus-cycle') {
+    return 'generated-sync-iterable-byte-batches';
+  }
+
+  if (/file-sync-batches/.test(sourceArtifact)) {
+    return typeof node.tool === 'string' && !node.tool.startsWith('stax-')
+      ? null
+      : 'file-backed-sync-iterable-byte-batches';
+  }
+  return null;
+}
+
+function normalizeSourceMode(sourceMode) {
+  return sourceMode === 'file-sync-batches'
+    ? 'file-backed-sync-iterable-byte-batches'
+    : sourceMode;
+}
+
+function classifyDemandDrivenSource(node, sourceMode = null) {
+  if (typeof node.demandDrivenSource === 'boolean') return node.demandDrivenSource;
+  const mode = typeof sourceMode === 'string' ? sourceMode : '';
+  if (mode === 'complete-js-string') return false;
+  return /(?:^|-)sync-|(?:^|-)async-|readable-stream-pull/.test(mode);
+}
+
+function classifyDirectReadableStream(node, sourceMode = null) {
+  if (typeof node.directReadableStream === 'boolean') return node.directReadableStream;
+  const mode = typeof sourceMode === 'string' ? sourceMode : '';
+  if (/readable-stream-pull|fetchReadableStream/i.test(mode) || /readable-stream/i.test(mode)) return true;
+  if (/sync.*iterable-byte-batches|async.*iterable-byte-batches|complete-js-string/.test(mode)) return false;
+  return null;
+}
+
+function classifyFullArrayBufferParserInput(node, sourceMode = null, context = null) {
+  if (typeof node.fullArrayBufferParserInput === 'boolean') return node.fullArrayBufferParserInput;
+  const mode = typeof sourceMode === 'string' ? sourceMode : '';
+  if (/sync-iterable-byte-batches|async-iterable-byte-batches|readable-stream-pull|complete-js-string/.test(mode)) {
+    return false;
+  }
+
+  const sourceContract = context?.sourceContract?.childSourceContract ?? context?.sourceContract;
+  const parserInput = sourceContract?.parserInput ?? '';
+  const arrayBufferConsumption = sourceContract?.arrayBufferConsumption ?? '';
+  const combined = `${parserInput} ${arrayBufferConsumption}`;
+  if (/does not prebuild|does not use a full XML ArrayBuffer|Neither measured row constructs/i.test(combined)) {
+    return false;
+  }
+  if (/full XML ArrayBuffer parser input|complete XML ArrayBuffer/i.test(combined)) {
+    return true;
+  }
+  return null;
 }
 
 function isDerivedProjectionPath(path) {
@@ -288,7 +360,10 @@ function createInitialContext(sourceArtifact, root) {
     fixture: null,
     environment: null,
     runtime: null,
+    objective: root?.objective ?? null,
     contract: root?.contract ?? null,
+    sourceContract: root?.sourceContract ?? null,
+    options: root?.options ?? null,
   });
 }
 
@@ -298,7 +373,10 @@ function extendContext(node, context) {
     fixture: normalizeFixture(node.fixture) ?? context.fixture,
     environment: node.environment ?? context.environment,
     runtime: node.runtime ?? context.runtime,
+    objective: node.objective ?? context.objective,
     contract: node.contract ?? context.contract,
+    sourceContract: node.sourceContract ?? context.sourceContract,
+    options: node.options ?? context.options,
   };
 }
 
@@ -330,6 +408,7 @@ function createCoverage(artifacts, options) {
     corpusSeeds,
     corpusRows: summarizeRows(corpusRows),
     largeJsFullRowCount: largeJsFullRows.length,
+    largeJsFullSourceInputSafety: summarizeSourceInputSafety(largeJsFullRows),
     fastestLargeJsFullRows: summarizeRows(largeJsFullRows
       .slice()
       .sort((left, right) => right.mibPerSec - left.mibPerSec)
@@ -349,6 +428,35 @@ function createCoverage(artifacts, options) {
     negativeArtifacts: artifacts
       .filter(artifact => artifact.evidenceKinds.includes('NEGATIVE_RESULT'))
       .map(artifact => summarizeArtifact(artifact)),
+  };
+}
+
+function summarizeSourceInputSafety(rows) {
+  const sourceRows = rows.filter(row => row.sourceMode);
+  const breakdown = Array.from(groupBy(sourceRows, row => row.sourceMode).entries())
+    .map(([sourceMode, groupRows]) => ({
+      sourceMode,
+      rows: groupRows.length,
+      notFullArrayBufferRows: groupRows.filter(row => row.fullArrayBufferParserInput === false).length,
+      fullArrayBufferRows: groupRows.filter(row => row.fullArrayBufferParserInput === true).length,
+      unknownArrayBufferRows: groupRows.filter(row => row.fullArrayBufferParserInput === null).length,
+      directReadableStreamRows: groupRows.filter(row => row.directReadableStream === true).length,
+      demandDrivenRows: groupRows.filter(row => row.demandDrivenSource === true).length,
+      fastestRow: summarizeRows(groupRows
+        .slice()
+        .sort((left, right) => right.mibPerSec - left.mibPerSec)
+        .slice(0, 1))[0] ?? null,
+    }))
+    .sort((left, right) => left.sourceMode.localeCompare(right.sourceMode));
+  return {
+    rows: rows.length,
+    sourceModeRows: sourceRows.length,
+    notFullArrayBufferRows: sourceRows.filter(row => row.fullArrayBufferParserInput === false).length,
+    fullArrayBufferRows: sourceRows.filter(row => row.fullArrayBufferParserInput === true).length,
+    unknownArrayBufferRows: sourceRows.filter(row => row.fullArrayBufferParserInput === null).length,
+    directReadableStreamRows: sourceRows.filter(row => row.directReadableStream === true).length,
+    demandDrivenRows: sourceRows.filter(row => row.demandDrivenSource === true).length,
+    sourceModeBreakdown: breakdown,
   };
 }
 
@@ -1090,6 +1198,8 @@ function renderMarkdown(report) {
     `- Environment artifacts: ${report.summary.environmentArtifactCount}`,
     `- Negative-result artifacts: ${report.summary.negativeArtifactCount}`,
     `- 1 GiB+ JS full-string rows: ${report.summary.largeJsFullRowCount}`,
+    `- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: ${report.summary.largeJsFullSourceInputSafety.notFullArrayBufferRows}/${report.summary.largeJsFullSourceInputSafety.sourceModeRows}`,
+    `- 1 GiB+ JS full-string direct ReadableStream rows: ${report.summary.largeJsFullSourceInputSafety.directReadableStreamRows}`,
     `- Corpus seeds: ${report.summary.corpusSeedCount}`,
     `- Open or partial obligations: ${report.summary.openObligationCount}`,
     '',
@@ -1116,6 +1226,23 @@ function renderMarkdown(report) {
   } else {
     for (const row of report.unknownBoundedMemoryRows) {
       lines.push(`| \`${row.sourceArtifact}\` | ${row.runtimeLabel} | \`${row.id}\` | ${formatNumber(row.sizeGiB)} | ${row.memoryKind} | ${formatBoolean(row.fullStringParity)} | ${formatNumber(row.mibPerSec)} |`);
+    }
+  }
+  lines.push('');
+
+  lines.push(
+    '## Source Input Safety',
+    '',
+    'This classifies the parser input shape for 1 GiB+ JavaScript full-string rows that expose source-mode metadata. Direct ReadableStream rows remain source-overhead evidence, separate from the primary synchronous byte-batch baseline.',
+    '',
+    '| Source mode | Rows | Not full ArrayBuffer | Full ArrayBuffer | Unknown | Direct ReadableStream | Demand-driven | Fastest row |',
+    '| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |',
+  );
+  if (report.summary.largeJsFullSourceInputSafety.sourceModeBreakdown.length === 0) {
+    lines.push('| none | 0 | 0 | 0 | 0 | 0 | 0 | n/a |');
+  } else {
+    for (const row of report.summary.largeJsFullSourceInputSafety.sourceModeBreakdown) {
+      lines.push(sourceInputSafetyMarkdownRow(row));
     }
   }
   lines.push('');
@@ -1266,6 +1393,20 @@ function sum(values) {
   return values.reduce((total, value) => total + value, 0);
 }
 
+function groupBy(values, keyOf) {
+  const groups = new Map();
+  for (const value of values) {
+    const key = keyOf(value);
+    const group = groups.get(key);
+    if (group) {
+      group.push(value);
+    } else {
+      groups.set(key, [value]);
+    }
+  }
+  return groups;
+}
+
 function parsePositiveNumber(value, flag) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed) || parsed <= 0) throw new Error(`${flag} must be a positive number.`);
@@ -1283,6 +1424,10 @@ function round(value) {
 function formatFastest(row) {
   if (!row) return 'none';
   return `${row.id} ${formatNumber(row.mibPerSec)} MiB/s from ${row.sourceArtifact}`;
+}
+
+function sourceInputSafetyMarkdownRow(entry) {
+  return `| \`${entry.sourceMode}\` | ${entry.rows} | ${entry.notFullArrayBufferRows} | ${entry.fullArrayBufferRows} | ${entry.unknownArrayBufferRows} | ${entry.directReadableStreamRows} | ${entry.demandDrivenRows} | ${formatFastest(entry.fastestRow)} |`;
 }
 
 function formatNumber(value) {
