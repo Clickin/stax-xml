@@ -143,7 +143,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.summary.textMaterializationFrontier.fastestWithoutTextToFullRatio, 1.36);
   assert.equal(report.summary.textMaterializationFrontier.noTextRowsCrossTarget, 4);
   assert.equal(report.summary.textMaterializationFrontier.fullRowsCrossTarget, 0);
-  assert.equal(report.summary.textMaterializationFrontier.negativeCandidateCount, 14);
+  assert.equal(report.summary.textMaterializationFrontier.negativeCandidateCount, 17);
   assert.equal(report.summary.textMaterializationFrontier.conclusionAllowed, false);
   assert.ok(report.metadata.sourceArtifacts.includes('text-materialization-frontier.json'));
   assert.ok(report.findings.some(finding =>
@@ -817,7 +817,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /Same-fixture 1024 MiB JS row vs quick-xml target: stax-raw-frame-name-id-batch-8 at 0\.55x quick-xml, 95\.06 MiB\/s below 0\.9x target/);
   assert.match(markdown, /Same-fixture 1024 MiB process RSS snapshot: JS 61\.77 MiB, Woodstox 312\.71 MiB, quick-xml 4\.78 MiB/);
   assert.match(markdown, /1 GiB\+ JS full-string memory frontier: 162\/179 bounded rows; fastest bounded row Node\/V8 rawFrameNameId at 185\.50 MiB\/s \(process RSS max 60\.45 MiB\)/);
-  assert.match(markdown, /Text materialization frontier: fastest full row rawFrameNameId at 185\.50 MiB\/s, 14\.50 MiB\/s below 200 MiB\/s; without-text rows crossing target: 4; negative candidates: 14/);
+  assert.match(markdown, /Text materialization frontier: fastest full row rawFrameNameId at 185\.50 MiB\/s, 14\.50 MiB\/s below 200 MiB\/s; without-text rows crossing target: 4; negative candidates: 17/);
   assert.match(markdown, /Source consumption frontier: sync byte batches sync-iterable-byte-batches-batch-8 at 91\.95 MiB\/s; direct ReadableStream web-readable-stream-raw-frame-ascii-batch-8 at 75\.20 MiB\/s \(0\.82x sync\); backpressure rows 6\/6/);
   assert.match(markdown, /1024 MiB Books Fixture Woodstox 0\.9x Target Distances/);
   assert.match(markdown, /\| `file-backed-batch-size-sweep` \| `stax-raw-frame-name-id-batch-8` \| 152\.11 \| process RSS max 61\.77 MiB \| `file-backed-sync-iterable-byte-batches` \| 351\.56 \| 316\.40 \| 164\.29 \| 0\.43 \| no \| `file-backed-trim-boundary-check-candidate\.json` \| same books 1024 MiB fixture family/);

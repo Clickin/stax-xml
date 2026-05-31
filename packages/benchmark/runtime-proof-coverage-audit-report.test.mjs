@@ -92,6 +92,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.runtimes.includes('node-v8')
   ));
   assert.ok(report.scannedArtifacts.some(artifact =>
+    artifact.sourceArtifact === 'text-folding-cost-candidate.json'
+    && artifact.measuredRowCount === 4
+    && artifact.runtimes.includes('node-v8')
+  ));
+  assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'segment-tokenizer-full-checksum-candidate.json'
     && artifact.measuredRowCount === 3
     && artifact.runtimes.includes('node-v8')
@@ -114,8 +119,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.runtimes.includes('bun-jsc')
     && artifact.runtimes.includes('deno-v8')
   ));
-  assert.equal(report.summary.measuredRowCount, 995);
-  assert.equal(report.summary.largeJsFullRowCount, 652);
+  assert.equal(report.summary.measuredRowCount, 999);
+  assert.equal(report.summary.largeJsFullRowCount, 653);
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
   assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 20);
   assert.deepEqual(report.summary.unknownBoundedMemoryBreakdown, {
@@ -154,7 +159,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assertUnknownBoundedMemoryRow(report, 'firefox-spidermonkey-diagnostic-dump-audit.json', 'rawFrameNameId');
   assert.equal(report.summary.corpusSeedCount, 4);
   assert.equal(report.summary.openObligationCount, 2);
-  assert.equal(report.summary.benchmarkArtifactCount, 134);
+  assert.equal(report.summary.benchmarkArtifactCount, 135);
   assert.equal(report.summary.sourceArtifactCount, 18);
   assert.equal(report.summary.traceArtifactCount, 10);
   assert.equal(report.summary.allocationArtifactCount, 15);
@@ -414,8 +419,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'node-v8'
-    && row.measuredRowCount === 468
-    && row.largeFullStringRowCount === 309
+    && row.measuredRowCount === 472
+    && row.largeFullStringRowCount === 310
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'bun-jsc'
@@ -802,7 +807,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Environment artifacts: 4/);
   assert.match(markdown, /Source artifacts: 18/);
   assert.match(markdown, /Negative-result artifacts: 19/);
-  assert.match(markdown, /\| Node\/V8 \| 94 \| 468 \| 309 \|/);
+  assert.match(markdown, /\| Node\/V8 \| 95 \| 472 \| 310 \|/);
   assert.match(markdown, /\| Bun\/JSC \| 35 \| 253 \| 161 \|/);
   assert.match(markdown, /\| Deno\/V8 \| 10 \| 62 \| 56 \|/);
   assert.match(markdown, /\| Firefox\/SpiderMonkey browser \| 22 \| 82 \| 70 \|/);

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-27T01:06:14.066Z",
+  "generatedAt": "2026-05-31T13:26:34.113Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -3039,20 +3039,6 @@
       "measuredRowCount": 18
     },
     {
-      "sourceArtifact": "runtime-proof-gap-handoff.json",
-      "objective": "runtime-proof-gap-handoff",
-      "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
-      "evidenceKinds": [
-        "SCOPE_GUARD"
-      ],
-      "runtimes": [],
-      "availability": null,
-      "outcome": null,
-      "fixture": null,
-      "corpusSeed": null,
-      "measuredRowCount": 0
-    },
-    {
       "sourceArtifact": "safari-webkit-availability-audit.json",
       "objective": "safari-webkit-availability-audit",
       "contract": "local-safari-webkit-browser-row-availability",
@@ -3554,6 +3540,29 @@
       "measuredRowCount": 4
     },
     {
+      "sourceArtifact": "text-folding-cost-candidate.json",
+      "objective": "candidate-headroom-large",
+      "contract": "byte-batch-mixed-materialization-headroom-matrix",
+      "evidenceKinds": [
+        "BENCH_FACT"
+      ],
+      "runtimes": [
+        "node-v8"
+      ],
+      "availability": null,
+      "outcome": null,
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073744736
+      },
+      "corpusSeed": "books.xml",
+      "measuredRowCount": 4
+    },
+    {
       "sourceArtifact": "text-materialization-frontier.json",
       "objective": "text-materialization-frontier",
       "contract": "same-corpus-text-materialization-headroom-synthesis",
@@ -4002,16 +4011,17 @@
     "runtime-counterexample-scan.json",
     "runtime-limit-proof-obligation-gate.json",
     "runtime-proof-coverage-audit.json",
+    "runtime-proof-gap-handoff.json",
     "same-contract-runtime-comparison.json"
   ],
   "parseErrors": [],
   "summary": {
     "scannedArtifactCount": 183,
-    "ignoredArtifactCount": 5,
+    "ignoredArtifactCount": 6,
     "parseErrorCount": 0,
-    "measuredRowCount": 995,
+    "measuredRowCount": 999,
     "rowClassificationCompleteness": {
-      "measuredRows": 995,
+      "measuredRows": 999,
       "unknownFullStringParityRows": 0,
       "unknownBoundedMemoryRows": 20
     },
@@ -4027,13 +4037,13 @@
       "nonJsNoPeakMemoryRows": 6,
       "rowsWithMemoryCounter": 10
     },
-    "benchmarkArtifactCount": 134,
+    "benchmarkArtifactCount": 135,
     "sourceArtifactCount": 18,
     "traceArtifactCount": 10,
     "allocationArtifactCount": 15,
     "environmentArtifactCount": 4,
     "negativeArtifactCount": 19,
-    "largeJsFullRowCount": 652,
+    "largeJsFullRowCount": 653,
     "runtimeCount": 8,
     "corpusSeedCount": 4,
     "openObligationCount": 2,
@@ -4044,9 +4054,9 @@
       {
         "runtimeId": "node-v8",
         "runtimeLabel": "Node/V8",
-        "artifactCount": 94,
-        "measuredRowCount": 468,
-        "largeFullStringRowCount": 309,
+        "artifactCount": 95,
+        "measuredRowCount": 472,
+        "largeFullStringRowCount": 310,
         "fastestLargeFullStringRow": {
           "sourceArtifact": "text-trim-cost-decomposition.json",
           "id": "rawFrameNameId",
@@ -17638,6 +17648,74 @@
         "contractScope": "full-materialization-minus-text-cdata"
       },
       {
+        "sourceArtifact": "text-folding-cost-candidate.json",
+        "id": "rawFrameNameId",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "books.xml",
+        "mibPerSec": 150.6,
+        "fullStringParity": true,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 57096514,
+        "checksum": -540013997,
+        "contractScope": "full-string-materialization"
+      },
+      {
+        "sourceArtifact": "text-folding-cost-candidate.json",
+        "id": "rawFrameNameIdTextNoFold",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "books.xml",
+        "mibPerSec": 162.7,
+        "fullStringParity": false,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 57096514,
+        "checksum": 1372281363,
+        "contractScope": "full-materialization-minus-text-checksum"
+      },
+      {
+        "sourceArtifact": "text-folding-cost-candidate.json",
+        "id": "rawFrameNameIdTextLengthOnly",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "books.xml",
+        "mibPerSec": 155.89,
+        "fullStringParity": false,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 57096514,
+        "checksum": 1149246483,
+        "contractScope": "full-materialization-minus-text-code-unit-fold"
+      },
+      {
+        "sourceArtifact": "text-folding-cost-candidate.json",
+        "id": "withoutTextStrings",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "sizeGiB": 1,
+        "fixtureSource": "corpus-file",
+        "fixtureShape": "corpus-cycle",
+        "corpusSeed": "books.xml",
+        "mibPerSec": 160.29,
+        "fullStringParity": false,
+        "boundedMemory": true,
+        "memoryKind": "process-rss",
+        "eventCount": 57096514,
+        "checksum": 1372281363,
+        "contractScope": "full-materialization-minus-text-cdata"
+      },
+      {
         "sourceArtifact": "text-trim-cost-decomposition-2gib.json",
         "id": "rawFrameNameId",
         "runtimeId": "node-v8",
@@ -18420,7 +18498,7 @@
         "contractScope": "full-materialization-minus-text-cdata"
       }
     ],
-    "largeJsFullRowCount": 652,
+    "largeJsFullRowCount": 653,
     "fastestLargeJsFullRows": [
       {
         "sourceArtifact": "text-trim-cost-decomposition.json",
@@ -19954,7 +20032,7 @@
     {
       "id": "codegen-traces-open",
       "status": "partial",
-      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=not-found, found=0, searchRoots=0); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey JIT IR or optimized-code dump missing.",
+      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=not-found, found=0, searchRoots=0); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.",
       "nextExperiment": "Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows."
     },
     {

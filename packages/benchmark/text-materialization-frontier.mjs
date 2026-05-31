@@ -100,6 +100,24 @@ const negativeArtifacts = [
     candidateId: 'rawFrameSemanticChecksum',
     family: 'direct-semantic-byte-checksum',
   },
+  {
+    file: 'text-folding-cost-candidate.json',
+    controlId: 'rawFrameNameId',
+    candidateId: 'rawFrameNameIdTextNoFold',
+    family: 'text-checksum-folding-omitted',
+  },
+  {
+    file: 'text-folding-cost-candidate.json',
+    controlId: 'rawFrameNameId',
+    candidateId: 'rawFrameNameIdTextLengthOnly',
+    family: 'text-length-only-checksum',
+  },
+  {
+    file: 'text-folding-cost-candidate.json',
+    controlId: 'rawFrameNameId',
+    candidateId: 'withoutTextStrings',
+    family: 'same-run-text-omission-control',
+  },
 ];
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -153,7 +171,11 @@ function main() {
 function createReport(options) {
   const scaledReports = scaledArtifacts.map(file => ({ file, report: readReleaseJson(options.releaseDir, file) }));
   const scaledRows = scaledReports.flatMap(({ file, report }) => extractScaledRows(report, file));
-  const negativeRows = negativeArtifacts.map(spec => extractNegativeRow(readReleaseJson(options.releaseDir, spec.file), spec));
+  const negativeReports = negativeArtifacts.map(spec => ({
+    spec,
+    report: readReleaseJson(options.releaseDir, spec.file),
+  }));
+  const negativeRows = negativeReports.map(({ report, spec }) => extractNegativeRow(report, spec));
   const fullRows = scaledRows.filter(row => row.role === 'full');
   const noTextRows = scaledRows.filter(row => row.role === 'without-text');
   const noTrimRows = scaledRows.filter(row => row.role === 'no-trim');
@@ -206,7 +228,10 @@ function createReport(options) {
     maximumNoTrimSpeedup: round(Math.max(...sameScalePairs.map(pair => pair.noTrimSpeedup).filter(isFiniteNumber))),
     maximumFoldTrimSpeedup: round(Math.max(...sameScalePairs.map(pair => pair.foldTrimSpeedup).filter(isFiniteNumber))),
     conclusionAllowed: false,
-    sourceConsumption: summarizeSourceConsumption(scaledReports.map(entry => entry.report)),
+    sourceConsumption: summarizeSourceConsumption([
+      ...scaledReports.map(entry => entry.report),
+      ...negativeReports.map(entry => entry.report),
+    ]),
   };
   return {
     generatedAt: new Date().toISOString(),
@@ -314,6 +339,9 @@ function pickCounters(counters = {}) {
     unrolledMediumAsciiTextFallbacks: counters.unrolledMediumAsciiTextFallbacks ?? null,
     textTrimGuardSkips: counters.textTrimGuardSkips ?? null,
     textTrimGuardFallbacks: counters.textTrimGuardFallbacks ?? null,
+    textChecksumBypassReads: counters.textChecksumBypassReads ?? null,
+    textLengthChecksumReads: counters.textLengthChecksumReads ?? null,
+    textMaterializedCodeUnits: counters.textMaterializedCodeUnits ?? null,
   };
 }
 
@@ -352,6 +380,14 @@ function createFindings(summary, sameScalePairs, negativeRows) {
       classification: 'NEGATIVE_RESULT',
       summary: 'The current repeated text cache, bounded long-text cache, ASCII text fast paths, and fold-trim candidate rows do not reach the full target row.',
       evidence: negativeRows.map(row => `${row.family}: candidate/control=${formatNumber(row.candidateToControlRatio)}x, candidate=${formatNumber(row.candidate.mibPerSec)} MiB/s`),
+    },
+    {
+      id: 'text-folding-only-still-below-target',
+      classification: 'NEGATIVE_RESULT',
+      summary: 'Reducing text checksum folding while still materializing text strings stayed below the 200 MiB/s target in the same 1 GiB books corpus run.',
+      evidence: negativeRows
+        .filter(row => row.sourceArtifact === 'text-folding-cost-candidate.json')
+        .map(row => `${row.family}: control=${formatNumber(row.control.mibPerSec)} MiB/s, candidate=${formatNumber(row.candidate.mibPerSec)} MiB/s, candidate/control=${formatNumber(row.candidateToControlRatio)}x, textReads=${formatInteger(row.candidate.textStringReads)}`),
     },
     {
       id: 'not-a-counterexample',

@@ -259,8 +259,8 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 183 primary release JSON artifacts, recognizes 995
-sample throughput rows and 117 aggregate rows, and finds 652 JavaScript 1 GiB+
+The current scan covers 183 primary release JSON artifacts, recognizes 999
+sample throughput rows and 117 aggregate rows, and finds 653 JavaScript 1 GiB+
 full-string sample rows plus 95 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
 full-string sample row overall is Node/V8 `rawFrameNameId` from
@@ -272,7 +272,7 @@ scan now reports aggregate rows separately from individual child samples so
 fastest-row triage does not blur single-sample and average-throughput evidence.
 
 The scan also preserves or infers source-consumption metadata when release rows
-or their source contract carry it. It now finds 286 JavaScript 1 GiB+
+or their source contract carry it. It now finds 287 JavaScript 1 GiB+
 full-string rows with source mode metadata, including
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
 `complete-js-string`, `sync-iterable-byte-batches`,
@@ -281,7 +281,7 @@ full-string rows with source mode metadata, including
 the fastest access-shape rows plus the local `large.xml` fresh-process corpus
 rows plus the `midsize.xml` fresh-process corpus rows plus the new trim-cost decompositions and the same-contract batch-shape
 comparison artifacts plus the all-ASCII span materialization negative row; the
-generated-sync bucket now has 196 JavaScript 1 GiB+ full-string rows, 187 of
+generated-sync bucket now has 197 JavaScript 1 GiB+ full-string rows, 188 of
 them bounded. The file-backed sync byte-batch bucket adds 53 full-string rows,
 52 of them bounded, with fastest row 152.11 MiB/s. The focused
 `file-backed-public-consumer-shape-sweep.json` stable-shape event-object row
@@ -329,7 +329,7 @@ and `respectsBackpressure=true` at 9.68 MiB/s, while
 `fetchAsyncByteBatchFull` is classified as `fetch-async-iterable-byte-batches`
 with `directReadableStream=false` and `respectsBackpressure=true` at
 9.77 MiB/s. It also classifies source-mode rows
-by whether they are a prebuilt full-XML `ArrayBuffer` parser input: all 286
+by whether they are a prebuilt full-XML `ArrayBuffer` parser input: all 287
 JavaScript 1 GiB+ full-string rows with source-mode metadata are now marked as
 not full `ArrayBuffer` parser-input rows. This also fixes the previous scanner
 blind spot where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but
@@ -481,6 +481,20 @@ fold-trim checksum at 0.84x of its control, the byte-boundary trim guard at
 1.00x of its control, ASCII byte pre-trim before decode at 0.99x of its control,
 manual ASCII materialization for all string spans at 0.63x of its control, and
 direct semantic byte checksum at 0.97x of its same-condition control.
+`packages/benchmark/results/release/text-folding-cost-candidate.md` then
+separates text string creation from text checksum folding on the 1 GiB
+`books.xml` corpus-cycle. The control `rawFrameNameId` row averaged
+150.60 MiB/s with 62,758,976 string-field reads and checksum `-540013997`.
+`rawFrameNameIdTextNoFold` kept the same 62,758,976 string-field reads and
+16,987,392 text string reads, but bypassed text checksum folding and changed
+the checksum to `1372281363`; it reached only 162.70 MiB/s, or 1.08x its
+control, still below 200 MiB/s. `rawFrameNameIdTextLengthOnly` also kept the
+text string reads while folding only text lengths, changed the checksum to
+`1149246483`, and reached 155.89 MiB/s, or 1.04x control. The same-run
+`withoutTextStrings` control reached 160.29 MiB/s with zero text string reads,
+also below 200 MiB/s in this corpus run. This is negative evidence against
+text checksum folding alone explaining the remaining gap; because all three
+candidate rows change full-string parity, none is a full-StAX counterexample.
 `packages/benchmark/results/release/text-trim-guard-candidate.md`
 records the guard as a 1 GiB 3-run full-string parity row: `rawFrameNameId`
 averaged 109.66 MiB/s and `rawFrameNameIdTrimGuard` averaged 109.56 MiB/s,
@@ -529,10 +543,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 183 primary release artifacts and recognizes 995
-measured rows. It records 134 benchmark artifacts, 18 source artifacts, 10
+The current audit scans 183 primary release artifacts and recognizes 999
+measured rows. It records 135 benchmark artifacts, 18 source artifacts, 10
 trace/profile artifacts, 15 allocation artifacts, 4 environment artifacts, and
-19 negative-result artifacts, 652 JavaScript 1 GiB+ full-string rows, and four
+19 negative-result artifacts, 653 JavaScript 1 GiB+ full-string rows, and four
 release corpus seeds: `books.xml`, `large.xml`, `midsize.xml`, and `treebank_e.xml`. The
 negative-result set now includes
 `concat-buffer-reuse-negative-result.json`, which records that reusable
