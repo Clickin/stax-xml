@@ -1,15 +1,15 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-05-31T16:11:50.495Z
+Generated: 2026-05-31T16:25:59.886Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-05-31T16:07:39.162Z
+- Audit generated: 2026-05-31T16:25:47.339Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
-- Comparison generated: 2026-05-31T16:07:14.921Z
+- Comparison generated: 2026-05-31T16:25:20.187Z
 - Active obligations: 2
 
 ## Summary
@@ -40,7 +40,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Full ArrayBuffer parser-input rows: 0
 - Unknown parser-input rows: 0
 - Corpus seed replay rows: 101
-- Node source frontier: sync-iterable-byte-batches-batch-8 91.95 MiB/s vs web-readable-stream-raw-frame-ascii-batch-8 75.20 MiB/s (0.82x); backpressure 6/6; fullArrayBufferRows=0
+- Node source frontier: sync-iterable-byte-batches-batch-8 67.94 MiB/s vs web-readable-stream-raw-frame-ascii-batch-8 75.98 MiB/s (1.12x); backpressure 6/6; fullArrayBufferRows=0
 - Browser live fetch frontier: fetchReadableStreamFull 9.68 MiB/s; fetchAsyncByteBatchFull 9.77 MiB/s; backpressure 2/2; fullArrayBufferRows=0
 
 ## Memory Frontier Evidence

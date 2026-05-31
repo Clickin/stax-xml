@@ -1,6 +1,6 @@
 # Stream Source Consumption Shapes
 
-Generated: 2026-05-27T01:05:55.081Z
+Generated: 2026-05-31T16:25:04.507Z
 
 Compares demand-driven sync Iterable<Uint8Array[]>, async Iterable<Uint8Array[]>, and direct Web ReadableStream<Uint8Array> consumption under the same full-string checksum contract. The ReadableStream source reads only from pull(), and StreamReader groups at most the configured batch size per nextBatch() operation, so it stays bounded by consumer demand and does not pre-materialize the file.
 
@@ -78,59 +78,59 @@ Compares demand-driven sync Iterable<Uint8Array[]>, async Iterable<Uint8Array[]>
 - Chunk KiB: 64
 - Sync Iterable batch sizes: 8
 - Async Iterable batch sizes: 8
-- Fastest row: sync-iterable-byte-batches-batch-8 91.95 MiB/s, RSS 129.46 MiB
-- Fastest sync Iterable row: sync-iterable-byte-batches-batch-8 91.95 MiB/s, RSS 129.46 MiB
-- Fastest async Iterable row: async-iterable-raw-frame-ascii-batch-8 72.94 MiB/s, RSS 87.18 MiB
-- Fastest ReadableStream row: web-readable-stream-raw-frame-ascii-batch-8 75.20 MiB/s, RSS 87.65 MiB
+- Fastest row: async-iterable-raw-frame-ascii-batch-8 76.90 MiB/s, RSS 251.78 MiB
+- Fastest sync Iterable row: sync-iterable-byte-batches-batch-8 67.94 MiB/s, RSS 239.91 MiB
+- Fastest async Iterable row: async-iterable-raw-frame-ascii-batch-8 76.90 MiB/s, RSS 251.78 MiB
+- Fastest ReadableStream row: web-readable-stream-raw-frame-ascii-batch-8 75.98 MiB/s, RSS 257.61 MiB
 - Async Iterable / batch-1 sync Iterable ratio: n/ax
-- Fastest async Iterable / fastest sync Iterable ratio: 0.79x
+- Fastest async Iterable / fastest sync Iterable ratio: 1.13x
 - ReadableStream / batch-1 sync Iterable ratio: n/ax
 - ReadableStream / fastest sync Iterable ratio: n/ax
-- Fastest ReadableStream / fastest sync Iterable ratio: 0.82x
+- Fastest ReadableStream / fastest sync Iterable ratio: 1.12x
 - 200 MiB/s bounded full-string counterexamples: 0
 
 ## Rows
 
 | Row | Source shape | Batch size | MiB/s | Samples | Spread | Bounded | Max RSS | Events | Checksum | Source reads | Source batches | Stream pulls | Demand-driven | Stream backpressure |
 | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| `sync-iterable-byte-batches-batch-8` | Node + stax-xml StreamReaderSync over demand-driven Iterable<Uint8Array[]> file batches (batchSize=8) | 8 | 91.95 | 1 | 0.0% | yes | 129.46 MiB | 61236571 | -716099804 | 16385 | 2048 | 0 | yes | n/a |
-| `async-iterable-byte-batches-batch-8` | Node + stax-xml StreamReader over demand-driven AsyncIterable<Uint8Array[]> file batches (batchSize=8) | 8 | 66.32 | 1 | 0.0% | yes | 75.46 MiB | 61236571 | -716099804 | 16385 | 2048 | 0 | yes | yes |
-| `async-iterable-raw-frame-batch-8` | Node + stax-xml StreamReader.nextRawBatch over demand-driven AsyncIterable<Uint8Array[]> file batches (batchSize=8) | 8 | 60.71 | 1 | 0.0% | yes | 74.63 MiB | 61236571 | -716099804 | 16385 | 2048 | 0 | yes | yes |
-| `async-iterable-raw-frame-ascii-batch-8` | Node + stax-xml StreamReader.nextRawBatch over demand-driven AsyncIterable<Uint8Array[]> file batches with short ASCII span materialization (batchSize=8) | 8 | 72.94 | 1 | 0.0% | yes | 87.18 MiB | 61236571 | -716099804 | 16385 | 2048 | 0 | yes | yes |
-| `web-readable-stream-pull-batch-8` | Node + stax-xml StreamReader over backpressure-respecting ReadableStream<Uint8Array> pull source (batchSize=8) | 8 | 73.34 | 1 | 0.0% | yes | 87.46 MiB | 61236571 | -716099804 | 16385 | 0 | 16385 | yes | yes |
-| `web-readable-stream-raw-frame-batch-8` | Node + stax-xml StreamReader.nextRawBatch over backpressure-respecting ReadableStream<Uint8Array> pull source (batchSize=8) | 8 | 62.87 | 1 | 0.0% | yes | 81.35 MiB | 61236571 | -716099804 | 16385 | 0 | 16385 | yes | yes |
-| `web-readable-stream-raw-frame-ascii-batch-8` | Node + stax-xml StreamReader.nextRawBatch over backpressure-respecting ReadableStream<Uint8Array> pull source with short ASCII span materialization (batchSize=8) | 8 | 75.20 | 1 | 0.0% | yes | 87.65 MiB | 61236571 | -716099804 | 16385 | 0 | 16385 | yes | yes |
+| `sync-iterable-byte-batches-batch-8` | Node + stax-xml StreamReaderSync over demand-driven Iterable<Uint8Array[]> file batches (batchSize=8) | 8 | 67.94 | 3 | 2.9% | yes | 239.91 MiB | 61236571 | -716099804 | 16385 | 2048 | 0 | yes | n/a |
+| `async-iterable-byte-batches-batch-8` | Node + stax-xml StreamReader over demand-driven AsyncIterable<Uint8Array[]> file batches (batchSize=8) | 8 | 75.58 | 3 | 1.6% | yes | 250.44 MiB | 61236571 | -716099804 | 16385 | 2048 | 0 | yes | yes |
+| `async-iterable-raw-frame-batch-8` | Node + stax-xml StreamReader.nextRawBatch over demand-driven AsyncIterable<Uint8Array[]> file batches (batchSize=8) | 8 | 64.93 | 3 | 3.7% | yes | 237.80 MiB | 61236571 | -716099804 | 16385 | 2048 | 0 | yes | yes |
+| `async-iterable-raw-frame-ascii-batch-8` | Node + stax-xml StreamReader.nextRawBatch over demand-driven AsyncIterable<Uint8Array[]> file batches with short ASCII span materialization (batchSize=8) | 8 | 76.90 | 3 | 2.8% | yes | 251.78 MiB | 61236571 | -716099804 | 16385 | 2048 | 0 | yes | yes |
+| `web-readable-stream-pull-batch-8` | Node + stax-xml StreamReader over backpressure-respecting ReadableStream<Uint8Array> pull source (batchSize=8) | 8 | 74.50 | 3 | 1.8% | yes | 259.57 MiB | 61236571 | -716099804 | 16385 | 0 | 16385 | yes | yes |
+| `web-readable-stream-raw-frame-batch-8` | Node + stax-xml StreamReader.nextRawBatch over backpressure-respecting ReadableStream<Uint8Array> pull source (batchSize=8) | 8 | 64.08 | 3 | 7.7% | yes | 234.70 MiB | 61236571 | -716099804 | 16385 | 0 | 16385 | yes | yes |
+| `web-readable-stream-raw-frame-ascii-batch-8` | Node + stax-xml StreamReader.nextRawBatch over backpressure-respecting ReadableStream<Uint8Array> pull source with short ASCII span materialization (batchSize=8) | 8 | 75.98 | 3 | 3.2% | yes | 257.61 MiB | 61236571 | -716099804 | 16385 | 0 | 16385 | yes | yes |
 
 ## Findings
 
 - same-contract-preserved (CONTRACT_FACT): All source-shape rows preserve the same full-string checksum contract.
   - 61236571:-716099804
 - current-release-source-shape (CONTRACT_FACT): The current file-backed release comparison uses the sync Iterable<Uint8Array[]> shape, not direct Web ReadableStream consumption; grouped sync rows remain demand-driven parser pulls.
-  - sync-iterable-byte-batches-batch-8: batchSize=8, 91.95 MiB/s
-- sync-batch-size-headroom (BENCH_FACT): The fastest sync Iterable<Uint8Array[]> row was sync-iterable-byte-batches-batch-8 at 91.95 MiB/s; this isolates grouped byte-batch source shape from direct ReadableStream async overhead.
-  - sync-iterable-byte-batches-batch-8: batchSize=8, rss=129.46 MiB, checksum=-716099804
-- async-byte-batch-source-shape (BENCH_FACT): The fastest AsyncIterable<Uint8Array[]> row was async-iterable-raw-frame-ascii-batch-8 at 72.94 MiB/s (0.79x of the fastest sync row); this isolates an async batch boundary without direct ReadableStream reads.
-  - async-iterable-byte-batches-batch-8: batchSize=8, rss=75.46 MiB, checksum=-716099804
-  - async-iterable-raw-frame-batch-8: batchSize=8, rss=74.63 MiB, checksum=-716099804
-  - async-iterable-raw-frame-ascii-batch-8: batchSize=8, rss=87.18 MiB, checksum=-716099804
-- async-raw-frame-source-shape (BENCH_FACT): The fastest AsyncIterable nextRawBatch row was async-iterable-raw-frame-ascii-batch-8 at 72.94 MiB/s; this tests the async source with wrapper-free raw frame traversal.
-  - async-iterable-raw-frame-batch-8: batchSize=8, rss=74.63 MiB, checksum=-716099804
-  - async-iterable-raw-frame-ascii-batch-8: batchSize=8, rss=87.18 MiB, checksum=-716099804
-- readable-stream-direct-source-shape (BENCH_FACT): Direct ReadableStream consumption reached 75.20 MiB/s (0.82x of the fastest sync Iterable<Uint8Array[]> row); this is a separate source-shape row, not the current release comparison source.
-  - sync-iterable-byte-batches-batch-8=91.95 MiB/s rss=129.46 MiB
-  - async-iterable-byte-batches-batch-8=66.32 MiB/s rss=75.46 MiB
-  - async-iterable-raw-frame-batch-8=60.71 MiB/s rss=74.63 MiB
-  - async-iterable-raw-frame-ascii-batch-8=72.94 MiB/s rss=87.18 MiB
-  - web-readable-stream-pull-batch-8=73.34 MiB/s rss=87.46 MiB
-  - web-readable-stream-raw-frame-batch-8=62.87 MiB/s rss=81.35 MiB
-  - web-readable-stream-raw-frame-ascii-batch-8=75.20 MiB/s rss=87.65 MiB
-- readable-stream-batch-size-headroom (BENCH_FACT): The fastest bounded ReadableStream batch row was web-readable-stream-raw-frame-ascii-batch-8 at 75.20 MiB/s; this tests whether grouping chunks behind the ReadableStream async boundary exposes headroom.
-  - web-readable-stream-pull-batch-8: batchSize=8, rss=87.46 MiB, checksum=-716099804
-  - web-readable-stream-raw-frame-batch-8: batchSize=8, rss=81.35 MiB, checksum=-716099804
-  - web-readable-stream-raw-frame-ascii-batch-8: batchSize=8, rss=87.65 MiB, checksum=-716099804
-- readable-stream-raw-frame-source-shape (BENCH_FACT): The fastest ReadableStream nextRawBatch row was web-readable-stream-raw-frame-ascii-batch-8 at 75.20 MiB/s; this tests whether direct ReadableStream rows gain from wrapper-free raw frame traversal.
-  - web-readable-stream-raw-frame-batch-8: batchSize=8, rss=81.35 MiB, checksum=-716099804
-  - web-readable-stream-raw-frame-ascii-batch-8: batchSize=8, rss=87.65 MiB, checksum=-716099804
+  - sync-iterable-byte-batches-batch-8: batchSize=8, 67.94 MiB/s
+- sync-batch-size-headroom (BENCH_FACT): The fastest sync Iterable<Uint8Array[]> row was sync-iterable-byte-batches-batch-8 at 67.94 MiB/s; this isolates grouped byte-batch source shape from direct ReadableStream async overhead.
+  - sync-iterable-byte-batches-batch-8: batchSize=8, rss=239.91 MiB, checksum=-716099804
+- async-byte-batch-source-shape (BENCH_FACT): The fastest AsyncIterable<Uint8Array[]> row was async-iterable-raw-frame-ascii-batch-8 at 76.90 MiB/s (1.13x of the fastest sync row); this isolates an async batch boundary without direct ReadableStream reads.
+  - async-iterable-byte-batches-batch-8: batchSize=8, rss=250.44 MiB, checksum=-716099804
+  - async-iterable-raw-frame-batch-8: batchSize=8, rss=237.80 MiB, checksum=-716099804
+  - async-iterable-raw-frame-ascii-batch-8: batchSize=8, rss=251.78 MiB, checksum=-716099804
+- async-raw-frame-source-shape (BENCH_FACT): The fastest AsyncIterable nextRawBatch row was async-iterable-raw-frame-ascii-batch-8 at 76.90 MiB/s; this tests the async source with wrapper-free raw frame traversal.
+  - async-iterable-raw-frame-batch-8: batchSize=8, rss=237.80 MiB, checksum=-716099804
+  - async-iterable-raw-frame-ascii-batch-8: batchSize=8, rss=251.78 MiB, checksum=-716099804
+- readable-stream-direct-source-shape (BENCH_FACT): Direct ReadableStream consumption reached 75.98 MiB/s (1.12x of the fastest sync Iterable<Uint8Array[]> row); this is a separate source-shape row, not the current release comparison source.
+  - sync-iterable-byte-batches-batch-8=67.94 MiB/s rss=239.91 MiB
+  - async-iterable-byte-batches-batch-8=75.58 MiB/s rss=250.44 MiB
+  - async-iterable-raw-frame-batch-8=64.93 MiB/s rss=237.80 MiB
+  - async-iterable-raw-frame-ascii-batch-8=76.90 MiB/s rss=251.78 MiB
+  - web-readable-stream-pull-batch-8=74.50 MiB/s rss=259.57 MiB
+  - web-readable-stream-raw-frame-batch-8=64.08 MiB/s rss=234.70 MiB
+  - web-readable-stream-raw-frame-ascii-batch-8=75.98 MiB/s rss=257.61 MiB
+- readable-stream-batch-size-headroom (BENCH_FACT): The fastest bounded ReadableStream batch row was web-readable-stream-raw-frame-ascii-batch-8 at 75.98 MiB/s; this tests whether grouping chunks behind the ReadableStream async boundary exposes headroom.
+  - web-readable-stream-pull-batch-8: batchSize=8, rss=259.57 MiB, checksum=-716099804
+  - web-readable-stream-raw-frame-batch-8: batchSize=8, rss=234.70 MiB, checksum=-716099804
+  - web-readable-stream-raw-frame-ascii-batch-8: batchSize=8, rss=257.61 MiB, checksum=-716099804
+- readable-stream-raw-frame-source-shape (BENCH_FACT): The fastest ReadableStream nextRawBatch row was web-readable-stream-raw-frame-ascii-batch-8 at 75.98 MiB/s; this tests whether direct ReadableStream rows gain from wrapper-free raw frame traversal.
+  - web-readable-stream-raw-frame-batch-8: batchSize=8, rss=234.70 MiB, checksum=-716099804
+  - web-readable-stream-raw-frame-ascii-batch-8: batchSize=8, rss=257.61 MiB, checksum=-716099804
 - backpressure-respected (CONTRACT_FACT): The async byte-batch rows advance the source iterator only from StreamReader.nextBatch(), and the ReadableStream rows read from the file only in pull(). Source counters record stable per-run read, batch/yield, pull, and enqueue counts.
   - async-iterable-byte-batches-batch-8: demandDrivenSource=true, respectsBackpressure=true, batchSize=8, reads=16385, batches=2048, pulls=0, enqueues=0, stable=true
   - async-iterable-raw-frame-batch-8: demandDrivenSource=true, respectsBackpressure=true, batchSize=8, reads=16385, batches=2048, pulls=0, enqueues=0, stable=true

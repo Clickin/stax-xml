@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-27T01:05:55.081Z",
+  "generatedAt": "2026-05-31T16:25:04.507Z",
   "objective": "stream-source-consumption-shapes",
   "contract": "same-full-string-checksum-source-consumption-shapes",
   "note": "Compares demand-driven sync Iterable<Uint8Array[]>, async Iterable<Uint8Array[]>, and direct Web ReadableStream<Uint8Array> consumption under the same full-string checksum contract. The ReadableStream source reads only from pull(), and StreamReader groups at most the configured batch size per nextBatch() operation, so it stays bounded by consumer demand and does not pre-materialize the file.",
@@ -185,8 +185,8 @@
     "readableBatchSizes": [
       8
     ],
-    "runs": 1,
-    "warmups": 0,
+    "runs": 3,
+    "warmups": 1,
     "boundedRssMiB": 512
   },
   "rows": [
@@ -206,34 +206,64 @@
       "directReadableStream": false,
       "fullArrayBufferParserInput": false,
       "respectsBackpressure": null,
-      "mibPerSec": 91.95112666940805,
-      "avgMs": 11136.348899999999,
-      "minMs": 11136.348899999999,
-      "maxMs": 11136.348899999999,
-      "sampleCount": 1,
-      "sampleSpreadRatio": 0,
+      "mibPerSec": 67.93791317204321,
+      "avgMs": 15072.5829,
+      "minMs": 14817.7936,
+      "maxMs": 15253.049599999998,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.028877333293685026,
       "samplesMs": [
-        11136.348899999999
+        15146.9055,
+        14817.7936,
+        15253.049599999998
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 135745536,
-        "maxHeapUsedBytes": 6588496,
+        "maxRssBytes": 251568128,
+        "maxHeapUsedBytes": 66065512,
         "samples": [
           {
             "before": {
-              "rssBytes": 62541824,
-              "heapUsedBytes": 4726264,
-              "externalBytes": 1986309,
-              "arrayBuffersBytes": 22895
+              "rssBytes": 83701760,
+              "heapUsedBytes": 5996464,
+              "externalBytes": 15850007,
+              "arrayBuffersBytes": 14011713
             },
             "after": {
-              "rssBytes": 135745536,
-              "heapUsedBytes": 6588496,
-              "externalBytes": 66245580,
-              "arrayBuffersBytes": 64344307
+              "rssBytes": 157716480,
+              "heapUsedBytes": 16148160,
+              "externalBytes": 10145745,
+              "arrayBuffersBytes": 8244493
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 157716480,
+              "heapUsedBytes": 16154080,
+              "externalBytes": 10145745,
+              "arrayBuffersBytes": 8244493
+            },
+            "after": {
+              "rssBytes": 231354368,
+              "heapUsedBytes": 44458488,
+              "externalBytes": 30360582,
+              "arrayBuffersBytes": 28459330
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 231354368,
+              "heapUsedBytes": 44459024,
+              "externalBytes": 30360582,
+              "arrayBuffersBytes": 28459330
+            },
+            "after": {
+              "rssBytes": 251568128,
+              "heapUsedBytes": 66065512,
+              "externalBytes": 46381008,
+              "arrayBuffersBytes": 44479756
             }
           }
         ]
@@ -251,6 +281,26 @@
           "closeCalls": 1
         },
         "samples": [
+          {
+            "readCalls": 16385,
+            "chunkCount": 16384,
+            "byteCount": 1073741644,
+            "batchCount": 2048,
+            "iteratorYields": 2048,
+            "pullCalls": 0,
+            "enqueueCalls": 0,
+            "closeCalls": 1
+          },
+          {
+            "readCalls": 16385,
+            "chunkCount": 16384,
+            "byteCount": 1073741644,
+            "batchCount": 2048,
+            "iteratorYields": 2048,
+            "pullCalls": 0,
+            "enqueueCalls": 0,
+            "closeCalls": 1
+          },
           {
             "readCalls": 16385,
             "chunkCount": 16384,
@@ -280,34 +330,64 @@
       "directReadableStream": false,
       "fullArrayBufferParserInput": false,
       "respectsBackpressure": true,
-      "mibPerSec": 66.3199687178644,
-      "avgMs": 15440.2942,
-      "minMs": 15440.2942,
-      "maxMs": 15440.2942,
-      "sampleCount": 1,
-      "sampleSpreadRatio": 0,
+      "mibPerSec": 75.57765887853776,
+      "avgMs": 13548.97523333333,
+      "minMs": 13448.425600000002,
+      "maxMs": 13664.212,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.015926400062280525,
       "samplesMs": [
-        15440.2942
+        13534.28809999999,
+        13664.212,
+        13448.425600000002
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 79130624,
-        "maxHeapUsedBytes": 7132544,
+        "maxRssBytes": 262602752,
+        "maxHeapUsedBytes": 49331960,
         "samples": [
           {
             "before": {
-              "rssBytes": 130088960,
-              "heapUsedBytes": 5243912,
-              "externalBytes": 66245580,
-              "arrayBuffersBytes": 57171298
+              "rssBytes": 253407232,
+              "heapUsedBytes": 14744320,
+              "externalBytes": 11360510,
+              "arrayBuffersBytes": 9293086
             },
             "after": {
-              "rssBytes": 79130624,
-              "heapUsedBytes": 7132544,
-              "externalBytes": 5068978,
-              "arrayBuffersBytes": 3001533
+              "rssBytes": 255426560,
+              "heapUsedBytes": 26497056,
+              "externalBytes": 21613777,
+              "arrayBuffersBytes": 19546353
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 255426560,
+              "heapUsedBytes": 26498200,
+              "externalBytes": 21613777,
+              "arrayBuffersBytes": 19546353
+            },
+            "after": {
+              "rssBytes": 258617344,
+              "heapUsedBytes": 38185928,
+              "externalBytes": 31866997,
+              "arrayBuffersBytes": 29799573
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 258621440,
+              "heapUsedBytes": 38030472,
+              "externalBytes": 31866997,
+              "arrayBuffersBytes": 29799573
+            },
+            "after": {
+              "rssBytes": 262602752,
+              "heapUsedBytes": 49331960,
+              "externalBytes": 42120199,
+              "arrayBuffersBytes": 40052775
             }
           }
         ]
@@ -325,6 +405,26 @@
           "closeCalls": 1
         },
         "samples": [
+          {
+            "readCalls": 16385,
+            "chunkCount": 16384,
+            "byteCount": 1073741644,
+            "batchCount": 2048,
+            "iteratorYields": 2048,
+            "pullCalls": 0,
+            "enqueueCalls": 0,
+            "closeCalls": 1
+          },
+          {
+            "readCalls": 16385,
+            "chunkCount": 16384,
+            "byteCount": 1073741644,
+            "batchCount": 2048,
+            "iteratorYields": 2048,
+            "pullCalls": 0,
+            "enqueueCalls": 0,
+            "closeCalls": 1
+          },
           {
             "readCalls": 16385,
             "chunkCount": 16384,
@@ -354,34 +454,64 @@
       "directReadableStream": false,
       "fullArrayBufferParserInput": false,
       "respectsBackpressure": true,
-      "mibPerSec": 60.70975431959597,
-      "avgMs": 16867.1384,
-      "minMs": 16867.1384,
-      "maxMs": 16867.1384,
-      "sampleCount": 1,
-      "sampleSpreadRatio": 0,
+      "mibPerSec": 64.9326359302685,
+      "avgMs": 15770.18726666667,
+      "minMs": 15536.722000000009,
+      "maxMs": 16127.372499999998,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.03745361358190353,
       "samplesMs": [
-        16867.1384
+        15646.467300000004,
+        15536.722000000009,
+        16127.372499999998
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 78249984,
-        "maxHeapUsedBytes": 9007672,
+        "maxRssBytes": 249356288,
+        "maxHeapUsedBytes": 61122696,
         "samples": [
           {
             "before": {
-              "rssBytes": 79192064,
-              "heapUsedBytes": 5429648,
-              "externalBytes": 5068978,
-              "arrayBuffersBytes": 3001533
+              "rssBytes": 245137408,
+              "heapUsedBytes": 35762752,
+              "externalBytes": 25584278,
+              "arrayBuffersBytes": 23516854
             },
             "after": {
-              "rssBytes": 78249984,
-              "heapUsedBytes": 9007672,
-              "externalBytes": 5543111,
-              "arrayBuffersBytes": 3475666
+              "rssBytes": 244940800,
+              "heapUsedBytes": 21957456,
+              "externalBytes": 22679940,
+              "arrayBuffersBytes": 20612516
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 244940800,
+              "heapUsedBytes": 21958632,
+              "externalBytes": 22679940,
+              "arrayBuffersBytes": 20612516
+            },
+            "after": {
+              "rssBytes": 248291328,
+              "heapUsedBytes": 8095832,
+              "externalBytes": 19775633,
+              "arrayBuffersBytes": 17708209
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 248291328,
+              "heapUsedBytes": 8096496,
+              "externalBytes": 19775633,
+              "arrayBuffersBytes": 17708209
+            },
+            "after": {
+              "rssBytes": 249356288,
+              "heapUsedBytes": 61122696,
+              "externalBytes": 42037460,
+              "arrayBuffersBytes": 39970036
             }
           }
         ]
@@ -399,6 +529,26 @@
           "closeCalls": 1
         },
         "samples": [
+          {
+            "readCalls": 16385,
+            "chunkCount": 16384,
+            "byteCount": 1073741644,
+            "batchCount": 2048,
+            "iteratorYields": 2048,
+            "pullCalls": 0,
+            "enqueueCalls": 0,
+            "closeCalls": 1
+          },
+          {
+            "readCalls": 16385,
+            "chunkCount": 16384,
+            "byteCount": 1073741644,
+            "batchCount": 2048,
+            "iteratorYields": 2048,
+            "pullCalls": 0,
+            "enqueueCalls": 0,
+            "closeCalls": 1
+          },
           {
             "readCalls": 16385,
             "chunkCount": 16384,
@@ -428,34 +578,64 @@
       "directReadableStream": false,
       "fullArrayBufferParserInput": false,
       "respectsBackpressure": true,
-      "mibPerSec": 72.9380224107399,
-      "avgMs": 14039.314399999996,
-      "minMs": 14039.314399999996,
-      "maxMs": 14039.314399999996,
-      "sampleCount": 1,
-      "sampleSpreadRatio": 0,
+      "mibPerSec": 76.90195180780846,
+      "avgMs": 13315.6546,
+      "minMs": 13191.356699999975,
+      "maxMs": 13563.812800000014,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.027971294779607716,
       "samplesMs": [
-        14039.314399999996
+        13191.356699999975,
+        13563.812800000014,
+        13191.794300000009
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 91418624,
-        "maxHeapUsedBytes": 6860560,
+        "maxRssBytes": 264011776,
+        "maxHeapUsedBytes": 38136624,
         "samples": [
           {
             "before": {
-              "rssBytes": 78385152,
-              "heapUsedBytes": 5457696,
-              "externalBytes": 5543111,
-              "arrayBuffersBytes": 1300847
+              "rssBytes": 258887680,
+              "heapUsedBytes": 6233200,
+              "externalBytes": 6067451,
+              "arrayBuffersBytes": 4000027
             },
             "after": {
-              "rssBytes": 91418624,
-              "heapUsedBytes": 6860560,
-              "externalBytes": 4494514,
-              "arrayBuffersBytes": 2427069
+              "rssBytes": 258453504,
+              "heapUsedBytes": 17031072,
+              "externalBytes": 15746203,
+              "arrayBuffersBytes": 13678779
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 258453504,
+              "heapUsedBytes": 17032248,
+              "externalBytes": 15746203,
+              "arrayBuffersBytes": 13678779
+            },
+            "after": {
+              "rssBytes": 259354624,
+              "heapUsedBytes": 27373968,
+              "externalBytes": 25424995,
+              "arrayBuffersBytes": 23357571
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 259354624,
+              "heapUsedBytes": 27374536,
+              "externalBytes": 25424995,
+              "arrayBuffersBytes": 23357571
+            },
+            "after": {
+              "rssBytes": 264011776,
+              "heapUsedBytes": 38136624,
+              "externalBytes": 35103751,
+              "arrayBuffersBytes": 33036327
             }
           }
         ]
@@ -473,6 +653,26 @@
           "closeCalls": 1
         },
         "samples": [
+          {
+            "readCalls": 16385,
+            "chunkCount": 16384,
+            "byteCount": 1073741644,
+            "batchCount": 2048,
+            "iteratorYields": 2048,
+            "pullCalls": 0,
+            "enqueueCalls": 0,
+            "closeCalls": 1
+          },
+          {
+            "readCalls": 16385,
+            "chunkCount": 16384,
+            "byteCount": 1073741644,
+            "batchCount": 2048,
+            "iteratorYields": 2048,
+            "pullCalls": 0,
+            "enqueueCalls": 0,
+            "closeCalls": 1
+          },
           {
             "readCalls": 16385,
             "chunkCount": 16384,
@@ -502,34 +702,64 @@
       "directReadableStream": true,
       "fullArrayBufferParserInput": false,
       "respectsBackpressure": true,
-      "mibPerSec": 73.34107375479877,
-      "avgMs": 13962.160299999996,
-      "minMs": 13962.160299999996,
-      "maxMs": 13962.160299999996,
-      "sampleCount": 1,
-      "sampleSpreadRatio": 0,
+      "mibPerSec": 74.49610710768512,
+      "avgMs": 13745.68240000001,
+      "minMs": 13624.466799999995,
+      "maxMs": 13867.59500000003,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.017687604945683555,
       "samplesMs": [
-        13962.160299999996
+        13624.466799999995,
+        13867.59500000003,
+        13744.985400000005
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 91705344,
-        "maxHeapUsedBytes": 10231592,
+        "maxRssBytes": 272183296,
+        "maxHeapUsedBytes": 70144856,
         "samples": [
           {
             "before": {
-              "rssBytes": 91574272,
-              "heapUsedBytes": 5491536,
-              "externalBytes": 4494514,
-              "arrayBuffersBytes": 1902959
+              "rssBytes": 265572352,
+              "heapUsedBytes": 65209448,
+              "externalBytes": 54794244,
+              "arrayBuffersBytes": 52726820
             },
             "after": {
-              "rssBytes": 91705344,
-              "heapUsedBytes": 10231592,
-              "externalBytes": 6641869,
-              "arrayBuffersBytes": 4574424
+              "rssBytes": 269922304,
+              "heapUsedBytes": 23175464,
+              "externalBytes": 28871202,
+              "arrayBuffersBytes": 26803778
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 269922304,
+              "heapUsedBytes": 23176736,
+              "externalBytes": 28871202,
+              "arrayBuffersBytes": 26803778
+            },
+            "after": {
+              "rssBytes": 272183296,
+              "heapUsedBytes": 46852784,
+              "externalBytes": 46988813,
+              "arrayBuffersBytes": 44921389
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 272183296,
+              "heapUsedBytes": 46853552,
+              "externalBytes": 46988813,
+              "arrayBuffersBytes": 44921389
+            },
+            "after": {
+              "rssBytes": 259801088,
+              "heapUsedBytes": 70144856,
+              "externalBytes": 48650983,
+              "arrayBuffersBytes": 46583559
             }
           }
         ]
@@ -547,6 +777,26 @@
           "closeCalls": 1
         },
         "samples": [
+          {
+            "readCalls": 16385,
+            "chunkCount": 16384,
+            "byteCount": 1073741644,
+            "batchCount": 0,
+            "iteratorYields": 0,
+            "pullCalls": 16385,
+            "enqueueCalls": 16384,
+            "closeCalls": 1
+          },
+          {
+            "readCalls": 16385,
+            "chunkCount": 16384,
+            "byteCount": 1073741644,
+            "batchCount": 0,
+            "iteratorYields": 0,
+            "pullCalls": 16385,
+            "enqueueCalls": 16384,
+            "closeCalls": 1
+          },
           {
             "readCalls": 16385,
             "chunkCount": 16384,
@@ -576,34 +826,64 @@
       "directReadableStream": true,
       "fullArrayBufferParserInput": false,
       "respectsBackpressure": true,
-      "mibPerSec": 62.86955961803909,
-      "avgMs": 16287.688899999994,
-      "minMs": 16287.688899999994,
-      "maxMs": 16287.688899999994,
-      "sampleCount": 1,
-      "sampleSpreadRatio": 0,
+      "mibPerSec": 64.07965202656925,
+      "avgMs": 15980.109066666648,
+      "minMs": 15422.556199999992,
+      "maxMs": 16648.549899999984,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.0767199832545152,
       "samplesMs": [
-        16287.688899999994
+        15869.221099999966,
+        16648.549899999984,
+        15422.556199999992
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 85299200,
-        "maxHeapUsedBytes": 7473888,
+        "maxRssBytes": 246095872,
+        "maxHeapUsedBytes": 66365680,
         "samples": [
           {
             "before": {
-              "rssBytes": 82685952,
-              "heapUsedBytes": 5679736,
-              "externalBytes": 6641869,
-              "arrayBuffersBytes": 22895
+              "rssBytes": 236605440,
+              "heapUsedBytes": 68294496,
+              "externalBytes": 31066431,
+              "arrayBuffersBytes": 28999007
             },
             "after": {
-              "rssBytes": 85299200,
-              "heapUsedBytes": 7473888,
-              "externalBytes": 7640277,
-              "arrayBuffersBytes": 2361533
+              "rssBytes": 241070080,
+              "heapUsedBytes": 66365680,
+              "externalBytes": 32356487,
+              "arrayBuffersBytes": 30289063
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 241070080,
+              "heapUsedBytes": 66367112,
+              "externalBytes": 32356487,
+              "arrayBuffersBytes": 30289063
+            },
+            "after": {
+              "rssBytes": 243183616,
+              "heapUsedBytes": 64598064,
+              "externalBytes": 33646543,
+              "arrayBuffersBytes": 31579119
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 243183616,
+              "heapUsedBytes": 64598648,
+              "externalBytes": 33646543,
+              "arrayBuffersBytes": 31579119
+            },
+            "after": {
+              "rssBytes": 246095872,
+              "heapUsedBytes": 63743776,
+              "externalBytes": 35985181,
+              "arrayBuffersBytes": 33917757
             }
           }
         ]
@@ -621,6 +901,26 @@
           "closeCalls": 1
         },
         "samples": [
+          {
+            "readCalls": 16385,
+            "chunkCount": 16384,
+            "byteCount": 1073741644,
+            "batchCount": 0,
+            "iteratorYields": 0,
+            "pullCalls": 16385,
+            "enqueueCalls": 16384,
+            "closeCalls": 1
+          },
+          {
+            "readCalls": 16385,
+            "chunkCount": 16384,
+            "byteCount": 1073741644,
+            "batchCount": 0,
+            "iteratorYields": 0,
+            "pullCalls": 16385,
+            "enqueueCalls": 16384,
+            "closeCalls": 1
+          },
           {
             "readCalls": 16385,
             "chunkCount": 16384,
@@ -650,34 +950,64 @@
       "directReadableStream": true,
       "fullArrayBufferParserInput": false,
       "respectsBackpressure": true,
-      "mibPerSec": 75.19943612300126,
-      "avgMs": 13617.121100000004,
-      "minMs": 13617.121100000004,
-      "maxMs": 13617.121100000004,
-      "sampleCount": 1,
-      "sampleSpreadRatio": 0,
+      "mibPerSec": 75.97562876065479,
+      "avgMs": 13478.004000000035,
+      "minMs": 13272.83640000003,
+      "maxMs": 13703.425800000026,
+      "sampleCount": 3,
+      "sampleSpreadRatio": 0.03194756434261305,
       "samplesMs": [
-        13617.121100000004
+        13703.425800000026,
+        13457.749800000049,
+        13272.83640000003
       ],
       "eventCount": 61236571,
       "checksum": -716099804,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 91910144,
-        "maxHeapUsedBytes": 13982232,
+        "maxRssBytes": 270118912,
+        "maxHeapUsedBytes": 63428760,
         "samples": [
           {
             "before": {
-              "rssBytes": 84303872,
-              "heapUsedBytes": 5660968,
-              "externalBytes": 4428978,
-              "arrayBuffersBytes": 1300847
+              "rssBytes": 270417920,
+              "heapUsedBytes": 19282664,
+              "externalBytes": 25740714,
+              "arrayBuffersBytes": 23673290
             },
             "after": {
-              "rssBytes": 91910144,
-              "heapUsedBytes": 13982232,
-              "externalBytes": 9737459,
-              "arrayBuffersBytes": 7670014
+              "rssBytes": 270118912,
+              "heapUsedBytes": 41966984,
+              "externalBytes": 43808203,
+              "arrayBuffersBytes": 41740779
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 270118912,
+              "heapUsedBytes": 41968176,
+              "externalBytes": 43808203,
+              "arrayBuffersBytes": 41740779
+            },
+            "after": {
+              "rssBytes": 261046272,
+              "heapUsedBytes": 63428760,
+              "externalBytes": 44930676,
+              "arrayBuffersBytes": 42863252
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 261046272,
+              "heapUsedBytes": 63429344,
+              "externalBytes": 44930676,
+              "arrayBuffersBytes": 42863252
+            },
+            "after": {
+              "rssBytes": 258031616,
+              "heapUsedBytes": 18778136,
+              "externalBytes": 17908813,
+              "arrayBuffersBytes": 15841389
             }
           }
         ]
@@ -704,6 +1034,26 @@
             "pullCalls": 16385,
             "enqueueCalls": 16384,
             "closeCalls": 1
+          },
+          {
+            "readCalls": 16385,
+            "chunkCount": 16384,
+            "byteCount": 1073741644,
+            "batchCount": 0,
+            "iteratorYields": 0,
+            "pullCalls": 16385,
+            "enqueueCalls": 16384,
+            "closeCalls": 1
+          },
+          {
+            "readCalls": 16385,
+            "chunkCount": 16384,
+            "byteCount": 1073741644,
+            "batchCount": 0,
+            "iteratorYields": 0,
+            "pullCalls": 16385,
+            "enqueueCalls": 16384,
+            "closeCalls": 1
           }
         ]
       }
@@ -712,45 +1062,45 @@
   "summary": {
     "rowCount": 7,
     "fastest": {
-      "id": "sync-iterable-byte-batches-batch-8",
-      "mibPerSec": 91.95112666940805,
-      "maxRssBytes": 135745536,
+      "id": "async-iterable-raw-frame-ascii-batch-8",
+      "mibPerSec": 76.90195180780846,
+      "maxRssBytes": 264011776,
       "eventCount": 61236571,
       "checksum": -716099804
     },
     "slowest": {
-      "id": "async-iterable-raw-frame-batch-8",
-      "mibPerSec": 60.70975431959597,
-      "maxRssBytes": 78249984,
+      "id": "web-readable-stream-raw-frame-batch-8",
+      "mibPerSec": 64.07965202656925,
+      "maxRssBytes": 246095872,
       "eventCount": 61236571,
       "checksum": -716099804
     },
     "fastestSyncIterable": {
       "id": "sync-iterable-byte-batches-batch-8",
-      "mibPerSec": 91.95112666940805,
-      "maxRssBytes": 135745536,
+      "mibPerSec": 67.93791317204321,
+      "maxRssBytes": 251568128,
       "eventCount": 61236571,
       "checksum": -716099804
     },
     "fastestAsyncIterable": {
       "id": "async-iterable-raw-frame-ascii-batch-8",
-      "mibPerSec": 72.9380224107399,
-      "maxRssBytes": 91418624,
+      "mibPerSec": 76.90195180780846,
+      "maxRssBytes": 264011776,
       "eventCount": 61236571,
       "checksum": -716099804
     },
     "fastestReadableStream": {
       "id": "web-readable-stream-raw-frame-ascii-batch-8",
-      "mibPerSec": 75.19943612300126,
-      "maxRssBytes": 91910144,
+      "mibPerSec": 75.97562876065479,
+      "maxRssBytes": 270118912,
       "eventCount": 61236571,
       "checksum": -716099804
     },
     "readableStreamRatioToSyncIterable": null,
     "readableStreamRatioToFastestSyncIterable": null,
-    "fastestReadableStreamRatioToFastestSyncIterable": 0.8178196270869615,
+    "fastestReadableStreamRatioToFastestSyncIterable": 1.118309721528496,
     "asyncIterableRatioToSyncIterable": null,
-    "fastestAsyncIterableRatioToFastestSyncIterable": 0.7932259783284007,
+    "fastestAsyncIterableRatioToFastestSyncIterable": 1.1319445684630478,
     "counterexamples200MiB": 0
   },
   "findings": [
@@ -767,67 +1117,67 @@
       "classification": "CONTRACT_FACT",
       "summary": "The current file-backed release comparison uses the sync Iterable<Uint8Array[]> shape, not direct Web ReadableStream consumption; grouped sync rows remain demand-driven parser pulls.",
       "evidence": [
-        "sync-iterable-byte-batches-batch-8: batchSize=8, 91.95 MiB/s"
+        "sync-iterable-byte-batches-batch-8: batchSize=8, 67.94 MiB/s"
       ]
     },
     {
       "id": "sync-batch-size-headroom",
       "classification": "BENCH_FACT",
-      "summary": "The fastest sync Iterable<Uint8Array[]> row was sync-iterable-byte-batches-batch-8 at 91.95 MiB/s; this isolates grouped byte-batch source shape from direct ReadableStream async overhead.",
+      "summary": "The fastest sync Iterable<Uint8Array[]> row was sync-iterable-byte-batches-batch-8 at 67.94 MiB/s; this isolates grouped byte-batch source shape from direct ReadableStream async overhead.",
       "evidence": [
-        "sync-iterable-byte-batches-batch-8: batchSize=8, rss=129.46 MiB, checksum=-716099804"
+        "sync-iterable-byte-batches-batch-8: batchSize=8, rss=239.91 MiB, checksum=-716099804"
       ]
     },
     {
       "id": "async-byte-batch-source-shape",
       "classification": "BENCH_FACT",
-      "summary": "The fastest AsyncIterable<Uint8Array[]> row was async-iterable-raw-frame-ascii-batch-8 at 72.94 MiB/s (0.79x of the fastest sync row); this isolates an async batch boundary without direct ReadableStream reads.",
+      "summary": "The fastest AsyncIterable<Uint8Array[]> row was async-iterable-raw-frame-ascii-batch-8 at 76.90 MiB/s (1.13x of the fastest sync row); this isolates an async batch boundary without direct ReadableStream reads.",
       "evidence": [
-        "async-iterable-byte-batches-batch-8: batchSize=8, rss=75.46 MiB, checksum=-716099804",
-        "async-iterable-raw-frame-batch-8: batchSize=8, rss=74.63 MiB, checksum=-716099804",
-        "async-iterable-raw-frame-ascii-batch-8: batchSize=8, rss=87.18 MiB, checksum=-716099804"
+        "async-iterable-byte-batches-batch-8: batchSize=8, rss=250.44 MiB, checksum=-716099804",
+        "async-iterable-raw-frame-batch-8: batchSize=8, rss=237.80 MiB, checksum=-716099804",
+        "async-iterable-raw-frame-ascii-batch-8: batchSize=8, rss=251.78 MiB, checksum=-716099804"
       ]
     },
     {
       "id": "async-raw-frame-source-shape",
       "classification": "BENCH_FACT",
-      "summary": "The fastest AsyncIterable nextRawBatch row was async-iterable-raw-frame-ascii-batch-8 at 72.94 MiB/s; this tests the async source with wrapper-free raw frame traversal.",
+      "summary": "The fastest AsyncIterable nextRawBatch row was async-iterable-raw-frame-ascii-batch-8 at 76.90 MiB/s; this tests the async source with wrapper-free raw frame traversal.",
       "evidence": [
-        "async-iterable-raw-frame-batch-8: batchSize=8, rss=74.63 MiB, checksum=-716099804",
-        "async-iterable-raw-frame-ascii-batch-8: batchSize=8, rss=87.18 MiB, checksum=-716099804"
+        "async-iterable-raw-frame-batch-8: batchSize=8, rss=237.80 MiB, checksum=-716099804",
+        "async-iterable-raw-frame-ascii-batch-8: batchSize=8, rss=251.78 MiB, checksum=-716099804"
       ]
     },
     {
       "id": "readable-stream-direct-source-shape",
       "classification": "BENCH_FACT",
-      "summary": "Direct ReadableStream consumption reached 75.20 MiB/s (0.82x of the fastest sync Iterable<Uint8Array[]> row); this is a separate source-shape row, not the current release comparison source.",
+      "summary": "Direct ReadableStream consumption reached 75.98 MiB/s (1.12x of the fastest sync Iterable<Uint8Array[]> row); this is a separate source-shape row, not the current release comparison source.",
       "evidence": [
-        "sync-iterable-byte-batches-batch-8=91.95 MiB/s rss=129.46 MiB",
-        "async-iterable-byte-batches-batch-8=66.32 MiB/s rss=75.46 MiB",
-        "async-iterable-raw-frame-batch-8=60.71 MiB/s rss=74.63 MiB",
-        "async-iterable-raw-frame-ascii-batch-8=72.94 MiB/s rss=87.18 MiB",
-        "web-readable-stream-pull-batch-8=73.34 MiB/s rss=87.46 MiB",
-        "web-readable-stream-raw-frame-batch-8=62.87 MiB/s rss=81.35 MiB",
-        "web-readable-stream-raw-frame-ascii-batch-8=75.20 MiB/s rss=87.65 MiB"
+        "sync-iterable-byte-batches-batch-8=67.94 MiB/s rss=239.91 MiB",
+        "async-iterable-byte-batches-batch-8=75.58 MiB/s rss=250.44 MiB",
+        "async-iterable-raw-frame-batch-8=64.93 MiB/s rss=237.80 MiB",
+        "async-iterable-raw-frame-ascii-batch-8=76.90 MiB/s rss=251.78 MiB",
+        "web-readable-stream-pull-batch-8=74.50 MiB/s rss=259.57 MiB",
+        "web-readable-stream-raw-frame-batch-8=64.08 MiB/s rss=234.70 MiB",
+        "web-readable-stream-raw-frame-ascii-batch-8=75.98 MiB/s rss=257.61 MiB"
       ]
     },
     {
       "id": "readable-stream-batch-size-headroom",
       "classification": "BENCH_FACT",
-      "summary": "The fastest bounded ReadableStream batch row was web-readable-stream-raw-frame-ascii-batch-8 at 75.20 MiB/s; this tests whether grouping chunks behind the ReadableStream async boundary exposes headroom.",
+      "summary": "The fastest bounded ReadableStream batch row was web-readable-stream-raw-frame-ascii-batch-8 at 75.98 MiB/s; this tests whether grouping chunks behind the ReadableStream async boundary exposes headroom.",
       "evidence": [
-        "web-readable-stream-pull-batch-8: batchSize=8, rss=87.46 MiB, checksum=-716099804",
-        "web-readable-stream-raw-frame-batch-8: batchSize=8, rss=81.35 MiB, checksum=-716099804",
-        "web-readable-stream-raw-frame-ascii-batch-8: batchSize=8, rss=87.65 MiB, checksum=-716099804"
+        "web-readable-stream-pull-batch-8: batchSize=8, rss=259.57 MiB, checksum=-716099804",
+        "web-readable-stream-raw-frame-batch-8: batchSize=8, rss=234.70 MiB, checksum=-716099804",
+        "web-readable-stream-raw-frame-ascii-batch-8: batchSize=8, rss=257.61 MiB, checksum=-716099804"
       ]
     },
     {
       "id": "readable-stream-raw-frame-source-shape",
       "classification": "BENCH_FACT",
-      "summary": "The fastest ReadableStream nextRawBatch row was web-readable-stream-raw-frame-ascii-batch-8 at 75.20 MiB/s; this tests whether direct ReadableStream rows gain from wrapper-free raw frame traversal.",
+      "summary": "The fastest ReadableStream nextRawBatch row was web-readable-stream-raw-frame-ascii-batch-8 at 75.98 MiB/s; this tests whether direct ReadableStream rows gain from wrapper-free raw frame traversal.",
       "evidence": [
-        "web-readable-stream-raw-frame-batch-8: batchSize=8, rss=81.35 MiB, checksum=-716099804",
-        "web-readable-stream-raw-frame-ascii-batch-8: batchSize=8, rss=87.65 MiB, checksum=-716099804"
+        "web-readable-stream-raw-frame-batch-8: batchSize=8, rss=234.70 MiB, checksum=-716099804",
+        "web-readable-stream-raw-frame-ascii-batch-8: batchSize=8, rss=257.61 MiB, checksum=-716099804"
       ]
     },
     {

@@ -1,6 +1,6 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-31T16:07:14.921Z
+Generated: 2026-05-31T16:25:20.187Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
@@ -28,7 +28,7 @@ This report aggregates existing release artifacts. It compares rows only through
 - 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 178/178
 - 1 GiB+ source-mode rows replaying a corpus seed buffer: 101 (max seed 100.26 MiB, max seed/target 0.09)
 - Text materialization frontier: fastest full row rawFrameNameId at 185.50 MiB/s, 14.50 MiB/s below 200 MiB/s; without-text rows crossing target: 4; negative candidates: 17
-- Source consumption frontier: sync byte batches sync-iterable-byte-batches-batch-8 at 91.95 MiB/s; direct ReadableStream web-readable-stream-raw-frame-ascii-batch-8 at 75.20 MiB/s (0.82x sync); backpressure rows 6/6
+- Source consumption frontier: sync byte batches sync-iterable-byte-batches-batch-8 at 67.94 MiB/s; direct ReadableStream web-readable-stream-raw-frame-ascii-batch-8 at 75.98 MiB/s (1.12x sync); backpressure rows 6/6
 - Browser live fetch source frontier: fetch ReadableStream fetchReadableStreamFull at 9.68 MiB/s; fetch async byte batches fetchAsyncByteBatchFull at 9.77 MiB/s; live backpressure rows 2/2
 
 ## Fastest JS Rows By Group
@@ -125,12 +125,12 @@ This separates the current large-file Iterable<Uint8Array[]> baseline from direc
 
 | Scope | Row | Input | MiB/s | RSS | Batch size | Direct ReadableStream | Full ArrayBuffer input | Backpressure | Counters |
 | --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | --- |
-| Fastest sync byte batches | `sync-iterable-byte-batches-batch-8` | synchronous Iterable<Uint8Array[]> | 91.95 | 129.46 MiB | 8 | no | no | n/a | reads=16385, batches=2048, pulls=0, enqueues=0 |
-| Fastest async byte batches | `async-iterable-raw-frame-ascii-batch-8` | async Iterable<Uint8Array[]> | 72.94 | 87.18 MiB | 8 | no | no | yes | reads=16385, batches=2048, pulls=0, enqueues=0 |
-| Fastest direct ReadableStream | `web-readable-stream-raw-frame-ascii-batch-8` | Web ReadableStream<Uint8Array> | 75.20 | 87.65 MiB | 8 | yes | no | yes | reads=16385, batches=0, pulls=16385, enqueues=16384 |
+| Fastest sync byte batches | `sync-iterable-byte-batches-batch-8` | synchronous Iterable<Uint8Array[]> | 67.94 | 239.91 MiB | 8 | no | no | n/a | reads=16385, batches=2048, pulls=0, enqueues=0 |
+| Fastest async byte batches | `async-iterable-raw-frame-ascii-batch-8` | async Iterable<Uint8Array[]> | 76.90 | 251.78 MiB | 8 | no | no | yes | reads=16385, batches=2048, pulls=0, enqueues=0 |
+| Fastest direct ReadableStream | `web-readable-stream-raw-frame-ascii-batch-8` | Web ReadableStream<Uint8Array> | 75.98 | 257.61 MiB | 8 | yes | no | yes | reads=16385, batches=0, pulls=16385, enqueues=16384 |
 
-- Direct ReadableStream / sync byte-batch ratio: 0.82x
-- Async byte-batch / sync byte-batch ratio: 0.79x
+- Direct ReadableStream / sync byte-batch ratio: 1.12x
+- Async byte-batch / sync byte-batch ratio: 1.13x
 - Backpressure-respecting async/readable rows: 6/6
 - Full ArrayBuffer parser-input rows in source-consumption artifact: 0
 - Primary large comparison input: The file-backed release comparison rows call external-baseline with --stax-stream-source file-sync-batches, which records synchronous Iterable<Uint8Array[]> parser input and directReadableStream=false.
@@ -452,10 +452,10 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - withoutTextRowsCrossTarget=4
   - negativeCandidates=17
 - source-consumption-frontier-visible (CLASSIFIED): The aggregate comparison links the sync byte-batch baseline, async byte-batch rows, direct ReadableStream rows, and backpressure counters.
-  - sync=sync-iterable-byte-batches-batch-8@91.95 MiB/s
-  - async=async-iterable-raw-frame-ascii-batch-8@72.94 MiB/s
-  - readable=web-readable-stream-raw-frame-ascii-batch-8@75.20 MiB/s
-  - readable/sync=0.82x
+  - sync=sync-iterable-byte-batches-batch-8@67.94 MiB/s
+  - async=async-iterable-raw-frame-ascii-batch-8@76.90 MiB/s
+  - readable=web-readable-stream-raw-frame-ascii-batch-8@75.98 MiB/s
+  - readable/sync=1.12x
   - backpressureRows=6/6
   - fullArrayBufferRows=0
 - browser-live-fetch-source-visible (CLASSIFIED): Chrome live fetch ReadableStream and grouped async byte-batch rows remain visible separately from prepared corpus-seed replay rows.

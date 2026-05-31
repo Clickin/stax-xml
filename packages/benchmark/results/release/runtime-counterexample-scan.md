@@ -1,6 +1,6 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-05-31T16:07:13.803Z
+Generated: 2026-05-31T16:25:33.449Z
 
 This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
@@ -107,9 +107,9 @@ This table records input-consumption metadata when release rows or their source 
 | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |
 | `generated-sync-iterable-byte-batches` | 242 | 242 | 233 | 185.50 | Node/V8 rawFrameNameId from text-trim-cost-decomposition.json | 242 | 0 | 0 | 242 |
 | `file-backed-sync-iterable-byte-batches` | 53 | 53 | 52 | 152.11 | Node/V8 stax-raw-frame-name-id stax-raw-frame-name-id-batch-8 from file-backed-batch-size-sweep.json | 53 | 0 | 0 | 53 |
-| `async-iterable-byte-batches` | 15 | 15 | 15 | 76.20 | Node/V8 async-iterable-raw-frame-ascii-batch-8 from stream-source-consumption-shapes.json | 15 | 0 | 15 | 15 |
+| `async-iterable-byte-batches` | 15 | 15 | 15 | 76.90 | Node/V8 async-iterable-raw-frame-ascii-batch-8 from stream-source-consumption-backpressure-counters.json | 15 | 0 | 15 | 15 |
 | `web-readable-stream-pull` | 15 | 15 | 15 | 76.87 | Node/V8 web-readable-stream-raw-frame-ascii-batch-8 from stream-source-consumption-shapes.json | 15 | 15 | 15 | 15 |
-| `sync-iterable-byte-batches` | 4 | 4 | 4 | 91.95 | Node/V8 sync-iterable-byte-batches-batch-8 from stream-source-consumption-backpressure-counters.json | 4 | 0 | 0 | 4 |
+| `sync-iterable-byte-batches` | 4 | 4 | 4 | 75.36 | Node/V8 sync-iterable-byte-batches from stream-source-consumption-shapes.json | 4 | 0 | 0 | 4 |
 | `fetch-async-iterable-byte-batches` | 2 | 2 | 2 | 13.52 | Chrome/V8 fetchAsyncByteBatchFull from browser-candidate-headroom-books-corpus.json | 2 | 0 | 2 | 2 |
 | `fetch-readable-stream-pull` | 2 | 2 | 2 | 14.64 | Chrome/V8 fetchReadableStreamFull from browser-candidate-headroom-books-corpus.json | 2 | 2 | 2 | 2 |
 | `complete-js-string` | 1 | 1 | 0 | 41.10 | Bun/JSC 3 from bun-event-reader-string-large.json | 0 | 0 | 0 | 1 |

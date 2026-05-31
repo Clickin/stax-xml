@@ -89,10 +89,10 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
     corpusSeedReplayRows: 101,
   });
   assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestSyncIterable, 'sync-iterable-byte-batches-batch-8');
-  assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestSyncIterableMiBPerSec, 91.95);
+  assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestSyncIterableMiBPerSec, 67.94);
   assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestReadableStream, 'web-readable-stream-raw-frame-ascii-batch-8');
-  assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestReadableStreamMiBPerSec, 75.2);
-  assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestReadableStreamRatioToFastestSyncIterable, 0.82);
+  assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestReadableStreamMiBPerSec, 75.98);
+  assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestReadableStreamRatioToFastestSyncIterable, 1.12);
   assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.backpressureRowsRespected, 6);
   assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.backpressureRows, 6);
   assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fullArrayBufferRows, 0);
@@ -313,7 +313,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 178\/178/);
   assert.match(markdown, /Full ArrayBuffer parser-input rows: 0/);
   assert.match(markdown, /Unknown parser-input rows: 0/);
-  assert.match(markdown, /Node source frontier: sync-iterable-byte-batches-batch-8 91\.95 MiB\/s vs web-readable-stream-raw-frame-ascii-batch-8 75\.20 MiB\/s \(0\.82x\); backpressure 6\/6; fullArrayBufferRows=0/);
+  assert.match(markdown, /Node source frontier: sync-iterable-byte-batches-batch-8 67\.94 MiB\/s vs web-readable-stream-raw-frame-ascii-batch-8 75\.98 MiB\/s \(1\.12x\); backpressure 6\/6; fullArrayBufferRows=0/);
   assert.match(markdown, /Browser live fetch frontier: fetchReadableStreamFull 9\.68 MiB\/s; fetchAsyncByteBatchFull 9\.77 MiB\/s; backpressure 2\/2; fullArrayBufferRows=0/);
   assert.match(markdown, /## Memory Frontier Evidence/);
   assert.match(markdown, /1 GiB\+ JS full-string memory rows: 184/);
