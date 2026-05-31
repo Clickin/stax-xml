@@ -1,14 +1,14 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-05-31T15:16:37.790Z
+Generated: 2026-05-31T15:22:28.340Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 186
+- Scanned primary artifacts: 187
 - Ignored derived artifacts: 6
-- Measured rows recognized: 1013
+- Measured rows recognized: 1016
 - Rows with unknown full-string parity: 0
 - Rows with unknown bounded-memory flag: 20
   - Unknown bounded-memory JS rows: 4
@@ -19,13 +19,13 @@ This audit scans current release artifacts to show which proof obligations are c
   - Unknown bounded-memory non-JS allocator-counter rows: 10
   - Unknown bounded-memory non-JS rows without peak-memory counters: 6
   - Unknown bounded-memory rows with memory counters: 10
-- Benchmark artifacts: 138
+- Benchmark artifacts: 139
 - Source artifacts: 18
 - Trace/profile artifacts: 10
 - Allocation artifacts: 15
 - Environment artifacts: 4
 - Negative-result artifacts: 19
-- 1 GiB+ JS full-string rows: 667
+- 1 GiB+ JS full-string rows: 670
 - Corpus seeds: 4
 - Open or partial obligations: 2
 
@@ -60,7 +60,7 @@ These rows have enough throughput/parity metadata to be recognized, but no row-l
 
 | Runtime | Artifacts | Measured Rows | 1 GiB+ Full Rows | Fastest 1 GiB+ Full Row | Source Pins | Trace/Profile | Allocation |
 | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
-| Node/V8 | 98 | 484 | 322 | rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json | 2 | 2 | 5 |
+| Node/V8 | 99 | 487 | 325 | rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json | 2 | 2 | 5 |
 | Bun/JSC | 35 | 253 | 161 | rawFrameNameId 179.70 MiB/s from access-shape-candidate-cross-process.json | 3 | 4 | 2 |
 | Deno/V8 | 10 | 62 | 56 | shortAsciiSubarraySharedDecoder 90.83 MiB/s from deno-textdecoder-span-variants-corpus.json | 1 | 1 | 1 |
 | Chrome/V8 browser | 15 | 100 | 58 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |

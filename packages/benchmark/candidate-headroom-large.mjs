@@ -336,6 +336,17 @@ function createVariants(fixture, requestedCases = null) {
           run: () => consumeRawFrameNameIdNoCountersStyle(fixture, { valueCache: new SpanStringCache() }),
         }]
       : []),
+    ...(requested.has('rawFrameNameIdNoCountersNameFoldCache')
+      ? [{
+          id: 'rawFrameNameIdNoCountersNameFoldCache',
+          family: 'full-stax-js',
+          implementation: 'nextRawBatch typed arrays with numeric name-id cache, counters disabled, and cached checksum transforms for repeated name strings',
+          contractScope: 'full-string-materialization',
+          fullStringParity: true,
+          instrumentation: 'materialization-counters-disabled',
+          run: () => consumeRawFrameNameIdNoCountersStyle(fixture, { nameFoldCache: [] }),
+        }]
+      : []),
     ...(requested.has('rawFrameNameIdNoTrim')
       ? [{
           id: 'rawFrameNameIdNoTrim',
@@ -861,6 +872,7 @@ function createFindings(variants, fixture) {
   const rawNameIdNoCountersFoldTrim = variants.find((entry) => entry.id === 'rawFrameNameIdNoCountersFoldTrim');
   const rawNameIdNoCountersTextCache = variants.find((entry) => entry.id === 'rawFrameNameIdNoCountersTextCache');
   const rawNameIdNoCountersValueCache = variants.find((entry) => entry.id === 'rawFrameNameIdNoCountersValueCache');
+  const rawNameIdNoCountersNameFoldCache = variants.find((entry) => entry.id === 'rawFrameNameIdNoCountersNameFoldCache');
   const foldTrim = variants.find((entry) => entry.id === 'rawFrameNameIdFoldTrim');
   const findings = [
     {
@@ -976,6 +988,19 @@ function createFindings(variants, fixture) {
         rawNameIdNoCountersValueCache
           ? `rawFrameNameIdNoCountersValueCache=${formatRate(rawNameIdNoCountersValueCache.mibPerSec)}, sameChecksum=${rawNameIdNoCountersValueCache.checksum === rawNameIdNoCounters.checksum}, sameEvents=${rawNameIdNoCountersValueCache.eventCount === rawNameIdNoCounters.eventCount}`
           : 'rawFrameNameIdNoCountersValueCache=missing',
+      ],
+    });
+  }
+  if (rawNameIdNoCounters && rawNameIdNoCountersNameFoldCache) {
+    findings.push({
+      id: 'no-counter-name-fold-cache-candidate',
+      summary: 'rawFrameNameIdNoCountersNameFoldCache still materializes cached name strings, but reuses checksum transforms for repeated name ids to isolate benchmark consumer folding cost from parser/string creation cost.',
+      evidence: [
+        `rawFrameNameIdNoCounters=${formatRate(rawNameIdNoCounters.mibPerSec)}`,
+        `rawFrameNameIdNoCountersNameFoldCache=${formatRate(rawNameIdNoCountersNameFoldCache.mibPerSec)}`,
+        `sameChecksum=${rawNameIdNoCountersNameFoldCache.checksum === rawNameIdNoCounters.checksum}`,
+        `sameEvents=${rawNameIdNoCountersNameFoldCache.eventCount === rawNameIdNoCounters.eventCount}`,
+        `throughputRatio=${(rawNameIdNoCountersNameFoldCache.mibPerSec / rawNameIdNoCounters.mibPerSec).toFixed(2)}x`,
       ],
     });
   }
@@ -1603,10 +1628,11 @@ function consumeRawFrameNameIdNoCounters(frame, checksum, eventCount, decoder, n
     checksum = mixChecksum(checksum, type);
 
     if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
-      checksum = foldString(
-        checksum,
-        materializeNameNoCounters(buffer, nameStarts[index], nameEnds[index], nameIds[index], decoder, nameCache),
-      );
+      const nameId = nameIds[index];
+      const value = materializeNameNoCounters(buffer, nameStarts[index], nameEnds[index], nameId, decoder, nameCache);
+      checksum = options.nameFoldCache
+        ? foldNameWithTransformCache(checksum, value, nameId, options.nameFoldCache)
+        : foldString(checksum, value);
     }
     if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
       const start = textStarts[index];
@@ -1621,17 +1647,18 @@ function consumeRawFrameNameIdNoCounters(frame, checksum, eventCount, decoder, n
       checksum = mixChecksum(checksum, attrCount);
       const attrEnd = attrStart + attrCount;
       for (let attrIndex = attrStart; attrIndex < attrEnd; attrIndex++) {
-        checksum = foldString(
-          checksum,
-          materializeNameNoCounters(
-            buffer,
-            attrNameStarts[attrIndex],
-            attrNameEnds[attrIndex],
-            attrNameIds[attrIndex],
-            decoder,
-            nameCache,
-          ),
+        const attrNameId = attrNameIds[attrIndex];
+        const attrName = materializeNameNoCounters(
+          buffer,
+          attrNameStarts[attrIndex],
+          attrNameEnds[attrIndex],
+          attrNameId,
+          decoder,
+          nameCache,
         );
+        checksum = options.nameFoldCache
+          ? foldNameWithTransformCache(checksum, attrName, attrNameId, options.nameFoldCache)
+          : foldString(checksum, attrName);
         const value = isImplicitAttributeValue(attrNameStarts, attrNameEnds, attrValueStarts, attrValueEnds, attrIndex)
           ? undefined
           : materializeValueNoCounters(buffer, attrValueStarts[attrIndex], attrValueEnds[attrIndex], decoder, options.attrValueCache ?? options.valueCache);
@@ -1641,6 +1668,31 @@ function consumeRawFrameNameIdNoCounters(frame, checksum, eventCount, decoder, n
   }
 
   return { eventCount, checksum };
+}
+
+function foldNameWithTransformCache(seed, value, nameId, transformCache) {
+  if (!value) {
+    return seed;
+  }
+  if (nameId < 0) {
+    return foldString(seed, value);
+  }
+  let transform = transformCache[nameId];
+  if (transform === undefined) {
+    transform = createFoldTransform(value);
+    transformCache[nameId] = transform;
+  }
+  return (Math.imul(seed, transform.multiplier) + transform.addend) | 0;
+}
+
+function createFoldTransform(value) {
+  let multiplier = 1;
+  let addend = 0;
+  for (let index = 0; index < value.length; index++) {
+    multiplier = Math.imul(multiplier, 31) | 0;
+    addend = (Math.imul(addend, 31) + value.charCodeAt(index)) | 0;
+  }
+  return { multiplier, addend };
 }
 
 function consumeRawFrameTextUse(frame, checksum, eventCount, decoder, nameCache, materializationCounters, textChecksumMode) {
