@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-05-31T22:54:34.596Z",
+  "generatedAt": "2026-05-31T23:21:05.589Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
   "inputs": {
     "auditJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-coverage-audit.json",
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
-    "comparisonGeneratedAt": "2026-05-31T18:18:12.298Z",
+    "comparisonGeneratedAt": "2026-05-31T23:20:48.612Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
     "auditGeneratedAt": "2026-05-31T22:54:13.928Z",
@@ -58,7 +58,7 @@
   "sourceConsumptionEvidence": {
     "status": "classified",
     "sourceArtifact": "same-contract-runtime-comparison.json",
-    "rowCount": 237,
+    "rowCount": 261,
     "sourceModes": [
       "fetch-async-iterable-byte-batches",
       "fetch-readable-stream-pull",
@@ -66,11 +66,11 @@
       "sync-iterable-byte-batches"
     ],
     "sourceShapeSafety": {
-      "largeJsFullSourceModeRows": 198,
-      "notFullArrayBufferRows": 198,
+      "largeJsFullSourceModeRows": 210,
+      "notFullArrayBufferRows": 210,
       "fullArrayBufferRows": 0,
       "unknownArrayBufferRows": 0,
-      "corpusSeedReplayRows": 121,
+      "corpusSeedReplayRows": 127,
       "fileBackedSyncIterableRows": 36,
       "directReadableStreamRows": 1,
       "sourceModeBreakdown": [
@@ -127,12 +127,12 @@
         },
         {
           "sourceMode": "sync-iterable-byte-batches",
-          "rows": 160,
-          "notFullArrayBufferRows": 160,
+          "rows": 172,
+          "notFullArrayBufferRows": 172,
           "fullArrayBufferRows": 0,
           "unknownArrayBufferRows": 0,
           "directReadableStreamRows": 0,
-          "corpusSeedReplayRows": 119,
+          "corpusSeedReplayRows": 125,
           "fastestRow": {
             "sourceArtifact": "text-trim-cost-decomposition.json",
             "runtimeLabel": "Node/V8",
@@ -170,8 +170,8 @@
     "status": "classified",
     "sourceArtifact": "same-contract-runtime-comparison.json",
     "contract": "1gib-plus-js-full-string-memory-frontier",
-    "rows": 204,
-    "boundedRows": 187,
+    "rows": 216,
+    "boundedRows": 199,
     "unboundedRows": 17,
     "memoryKinds": [
       "browser-js-heap",
@@ -250,8 +250,8 @@
       },
       {
         "kind": "process-rss",
-        "rows": 175,
-        "boundedRows": 167,
+        "rows": 187,
+        "boundedRows": 179,
         "unboundedRows": 8,
         "maxMiB": 1956.69,
         "fastestRow": {

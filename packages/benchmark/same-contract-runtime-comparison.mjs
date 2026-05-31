@@ -409,6 +409,16 @@ const crossProcessArtifacts = [
     cases: ['rawFrameNameId', 'rawFrameNameIdNoCounters', 'rawFrameNameIdNoCountersMediumAsciiText', 'rawFrameNameIdNoCountersUnrolledMediumAsciiText'],
   },
   {
+    group: 'text-trim-cost-cross-process-books-corpus',
+    file: 'text-trim-cost-cross-process-books-corpus.json',
+    cases: ['rawFrameNameId', 'rawFrameNameIdNoTrim', 'rawFrameNameIdFoldTrim', 'withoutTextStrings'],
+  },
+  {
+    group: 'text-trim-cost-cross-process-diverse-cycle',
+    file: 'text-trim-cost-cross-process-diverse-cycle.json',
+    cases: ['rawFrameNameId', 'rawFrameNameIdNoTrim', 'rawFrameNameIdFoldTrim', 'withoutTextStrings'],
+  },
+  {
     group: 'cross-process-books-corpus-batch16',
     file: 'candidate-headroom-cross-process-books-corpus-batch16.json',
     cases: candidateCases,

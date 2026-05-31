@@ -1,6 +1,6 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-05-31T22:54:34.596Z
+Generated: 2026-05-31T23:21:05.589Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -9,7 +9,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
 - Audit generated: 2026-05-31T22:54:13.928Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
-- Comparison generated: 2026-05-31T18:18:12.298Z
+- Comparison generated: 2026-05-31T23:20:48.612Z
 - Active obligations: 2
 
 ## Summary
@@ -34,12 +34,12 @@ Turns current open or partial runtime proof obligations into concrete external-r
 
 - Status: classified
 - Source artifact: same-contract-runtime-comparison.json
-- Aggregate rows: 237
+- Aggregate rows: 261
 - Source modes: fetch-async-iterable-byte-batches, fetch-readable-stream-pull, file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches
-- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 198/198
+- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 210/210
 - Full ArrayBuffer parser-input rows: 0
 - Unknown parser-input rows: 0
-- Corpus seed replay rows: 121
+- Corpus seed replay rows: 127
 - File-backed sync Iterable<Uint8Array[]> rows: 36
 - Direct ReadableStream rows: 1
 
@@ -48,7 +48,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 | fetch-async-iterable-byte-batches | 1 | 1 | 0 | 1 | Chrome/V8 browser fetchAsyncByteBatchFull 9.77 MiB/s from browser-fetch-readable-stream-books-corpus.json |
 | fetch-readable-stream-pull | 1 | 1 | 1 | 1 | Chrome/V8 browser fetchReadableStreamFull 9.68 MiB/s from browser-fetch-readable-stream-books-corpus.json |
 | file-backed-sync-iterable-byte-batches | 36 | 36 | 0 | 0 | Node/V8 stax-raw-frame-name-id-batch-8 152.11 MiB/s from file-backed-batch-size-sweep.json |
-| sync-iterable-byte-batches | 160 | 160 | 0 | 119 | Node/V8 rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json |
+| sync-iterable-byte-batches | 172 | 172 | 0 | 125 | Node/V8 rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json |
 - Node source frontier: sync-iterable-byte-batches-batch-8 67.94 MiB/s vs web-readable-stream-raw-frame-ascii-batch-8 75.98 MiB/s (1.12x); backpressure 6/6; fullArrayBufferRows=0
 - Browser live fetch frontier: fetchReadableStreamFull 9.68 MiB/s; fetchAsyncByteBatchFull 9.77 MiB/s; backpressure 2/2; fullArrayBufferRows=0
 
@@ -57,8 +57,8 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Status: classified
 - Source artifact: same-contract-runtime-comparison.json
 - Contract: 1gib-plus-js-full-string-memory-frontier
-- 1 GiB+ JS full-string memory rows: 204
-- Bounded rows: 187
+- 1 GiB+ JS full-string memory rows: 216
+- Bounded rows: 199
 - Unbounded or unproven rows: 17
 - Memory kinds: browser-js-heap, browser-js-heap-unavailable, process-rss
 - Fastest bounded row: Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB)
@@ -69,7 +69,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 | --- | ---: | ---: | ---: | ---: | --- | --- |
 | browser-js-heap | 20 | 20 | 0 | 358.37 MiB | Chrome/V8 browser rawFrameNameId 69.90 MiB/s (browser-js-heap max 39.55 MiB) | Chrome/V8 browser rawFrameNameId 69.90 MiB/s (browser-js-heap max 39.55 MiB) |
 | browser-js-heap-unavailable | 9 | 0 | 9 | n/a MiB | Firefox/SpiderMonkey browser rawFrameNameId 64.24 MiB/s (browser-js-heap-unavailable) | none |
-| process-rss | 175 | 167 | 8 | 1956.69 MiB | Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB) | Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB) |
+| process-rss | 187 | 179 | 8 | 1956.69 MiB | Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB) | Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB) |
 
 - Interpretation: Memory is classified on the same 1 GiB+ JavaScript full-string row set used for counterexample scanning; process RSS, browser JS heap, and browser host-probe-only rows are not normalized into one allocation model.
 
