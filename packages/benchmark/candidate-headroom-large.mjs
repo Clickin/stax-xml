@@ -303,6 +303,17 @@ function createVariants(fixture, requestedCases = null) {
           run: () => consumeRawFrameNameIdNoCountersStyle(fixture),
         }]
       : []),
+    ...(requested.has('rawFrameNameIdNoCountersFoldTrim')
+      ? [{
+          id: 'rawFrameNameIdNoCountersFoldTrim',
+          family: 'full-stax-js',
+          implementation: 'nextRawBatch typed arrays with numeric name-id cache, counters disabled, and direct trimmed text checksum folding',
+          contractScope: 'full-string-materialization',
+          fullStringParity: true,
+          instrumentation: 'materialization-counters-disabled',
+          run: () => consumeRawFrameNameIdNoCountersStyle(fixture, { foldTrimmedText: true }),
+        }]
+      : []),
     ...(requested.has('rawFrameNameIdNoTrim')
       ? [{
           id: 'rawFrameNameIdNoTrim',
@@ -825,6 +836,7 @@ function createFindings(variants, fixture) {
   const fastestFull = maxBy(fullRows, (entry) => entry.mibPerSec);
   const rawNameId = variants.find((entry) => entry.id === 'rawFrameNameId');
   const rawNameIdNoCounters = variants.find((entry) => entry.id === 'rawFrameNameIdNoCounters');
+  const rawNameIdNoCountersFoldTrim = variants.find((entry) => entry.id === 'rawFrameNameIdNoCountersFoldTrim');
   const foldTrim = variants.find((entry) => entry.id === 'rawFrameNameIdFoldTrim');
   const findings = [
     {
@@ -911,6 +923,20 @@ function createFindings(variants, fixture) {
         `sameEvents=${rawNameIdNoCounters.eventCount === rawNameId.eventCount}`,
         `throughputRatio=${(rawNameIdNoCounters.mibPerSec / rawNameId.mibPerSec).toFixed(2)}x`,
         `instrumentation=${rawNameIdNoCounters.instrumentation}`,
+      ],
+    });
+  }
+  if (rawNameIdNoCounters && rawNameIdNoCountersFoldTrim) {
+    findings.push({
+      id: 'no-counter-fold-trim-candidate',
+      summary: 'rawFrameNameIdNoCountersFoldTrim keeps text strings materialized but folds trimmed text checksums without allocating value.trim(), testing whether trim allocation was hidden by counter overhead.',
+      evidence: [
+        `rawFrameNameIdNoCounters=${formatRate(rawNameIdNoCounters.mibPerSec)}`,
+        `rawFrameNameIdNoCountersFoldTrim=${formatRate(rawNameIdNoCountersFoldTrim.mibPerSec)}`,
+        `sameChecksum=${rawNameIdNoCountersFoldTrim.checksum === rawNameIdNoCounters.checksum}`,
+        `sameEvents=${rawNameIdNoCountersFoldTrim.eventCount === rawNameIdNoCounters.eventCount}`,
+        `throughputRatio=${(rawNameIdNoCountersFoldTrim.mibPerSec / rawNameIdNoCounters.mibPerSec).toFixed(2)}x`,
+        `instrumentation=${rawNameIdNoCountersFoldTrim.instrumentation}`,
       ],
     });
   }
@@ -1328,7 +1354,7 @@ function consumeRawFrameStyle(fixture, nameCache, valueCache, options = {}) {
   return { eventCount, checksum, materializationCounters };
 }
 
-function consumeRawFrameNameIdNoCountersStyle(fixture) {
+function consumeRawFrameNameIdNoCountersStyle(fixture, options = {}) {
   const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
   const parser = new StreamReaderSync(byteBatches(fixture));
   const nameCache = [];
@@ -1337,7 +1363,7 @@ function consumeRawFrameNameIdNoCountersStyle(fixture) {
   let frame;
 
   while ((frame = parser.nextRawBatch()) !== null) {
-    const result = consumeRawFrameNameIdNoCounters(frame, checksum, eventCount, decoder, nameCache);
+    const result = consumeRawFrameNameIdNoCounters(frame, checksum, eventCount, decoder, nameCache, options);
     checksum = result.checksum;
     eventCount = result.eventCount;
   }
@@ -1511,7 +1537,7 @@ function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, valueC
   return { eventCount, checksum };
 }
 
-function consumeRawFrameNameIdNoCounters(frame, checksum, eventCount, decoder, nameCache) {
+function consumeRawFrameNameIdNoCounters(frame, checksum, eventCount, decoder, nameCache, options = {}) {
   if (frame.kind !== 'frame') {
     throw new Error(`Unsupported raw batch kind in large candidate matrix: ${frame.kind}`);
   }
@@ -1547,7 +1573,7 @@ function consumeRawFrameNameIdNoCounters(frame, checksum, eventCount, decoder, n
       const start = textStarts[index];
       if (start >= 0) {
         const value = decodeSpanNoCounters(buffer, start, textEnds[index], decoder);
-        checksum = foldString(checksum, value.trim());
+        checksum = options.foldTrimmedText ? foldTrimmedString(checksum, value) : foldString(checksum, value.trim());
       }
     }
     if (type === StreamEventType.START_ELEMENT) {

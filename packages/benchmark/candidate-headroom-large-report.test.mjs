@@ -522,7 +522,7 @@ test('large candidate headroom matrix can isolate materialization counter overhe
     '--warmups',
     '0',
     '--cases',
-    'rawFrameNameId,rawFrameNameIdNoCounters',
+    'rawFrameNameId,rawFrameNameIdNoCounters,rawFrameNameIdNoCountersFoldTrim',
     '--json-out',
     noCountersJsonOut,
     '--md-out',
@@ -536,14 +536,15 @@ test('large candidate headroom matrix can isolate materialization counter overhe
   assert.equal(result.status, 0, result.stderr || result.stdout);
 
   const report = JSON.parse(readFileSync(noCountersJsonOut, 'utf8'));
-  assert.deepEqual(report.options.cases, ['rawFrameNameId', 'rawFrameNameIdNoCounters']);
+  assert.deepEqual(report.options.cases, ['rawFrameNameId', 'rawFrameNameIdNoCounters', 'rawFrameNameIdNoCountersFoldTrim']);
   assert.deepEqual(report.variants.map(entry => entry.id), report.options.cases);
   assert.equal(report.eventCountParity.status, 'ok');
   assert.equal(report.fullStringParity.status, 'ok');
-  assert.deepEqual(report.fullStringParity.rowIds, ['rawFrameNameId', 'rawFrameNameIdNoCounters']);
+  assert.deepEqual(report.fullStringParity.rowIds, ['rawFrameNameId', 'rawFrameNameIdNoCounters', 'rawFrameNameIdNoCountersFoldTrim']);
 
   const rawNameId = report.variants.find(entry => entry.id === 'rawFrameNameId');
   const noCounters = report.variants.find(entry => entry.id === 'rawFrameNameIdNoCounters');
+  const noCountersFoldTrim = report.variants.find(entry => entry.id === 'rawFrameNameIdNoCountersFoldTrim');
   assert.equal(noCounters.fullStringParity, true);
   assert.equal(noCounters.contractScope, 'full-string-materialization');
   assert.equal(noCounters.instrumentation, 'materialization-counters-disabled');
@@ -551,10 +552,19 @@ test('large candidate headroom matrix can isolate materialization counter overhe
   assert.equal(noCounters.checksum, rawNameId.checksum);
   assert.equal(noCounters.materializationCounters.stringFieldReads, 0);
   assert.equal(noCounters.runtimeLimitCounterexampleEligible, false);
+  assert.equal(noCountersFoldTrim.fullStringParity, true);
+  assert.equal(noCountersFoldTrim.contractScope, 'full-string-materialization');
+  assert.equal(noCountersFoldTrim.instrumentation, 'materialization-counters-disabled');
+  assert.equal(noCountersFoldTrim.eventCount, rawNameId.eventCount);
+  assert.equal(noCountersFoldTrim.checksum, rawNameId.checksum);
+  assert.equal(noCountersFoldTrim.materializationCounters.stringFieldReads, 0);
+  assert.equal(noCountersFoldTrim.runtimeLimitCounterexampleEligible, false);
 
   const markdown = readFileSync(noCountersMdOut, 'utf8');
   assert.match(markdown, /rawFrameNameIdNoCounters/);
+  assert.match(markdown, /rawFrameNameIdNoCountersFoldTrim/);
   assert.match(markdown, /materialization-counter-overhead-candidate/);
+  assert.match(markdown, /no-counter-fold-trim-candidate/);
   assert.match(markdown, /instrumentation=materialization-counters-disabled/);
 });
 
