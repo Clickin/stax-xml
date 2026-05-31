@@ -1,6 +1,6 @@
 # Text Materialization Frontier
 
-Generated: 2026-05-31T13:18:18.361Z
+Generated: 2026-05-31T16:44:36.332Z
 
 Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.
 

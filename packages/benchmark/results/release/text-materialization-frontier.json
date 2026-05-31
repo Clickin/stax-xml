@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-31T13:18:18.361Z",
+  "generatedAt": "2026-05-31T16:44:36.332Z",
   "objective": "text-materialization-frontier",
   "contract": "same-corpus-text-materialization-headroom-synthesis",
   "note": "Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.",
