@@ -76,6 +76,10 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     fullStringRows: 20,
     jsFullStringRows: 4,
     largeJsFullStringRows: 0,
+    counterexampleRelevantRows: 0,
+    smallOrDiagnosticJsRows: 4,
+    nonJsAllocatorCounterRows: 10,
+    nonJsNoPeakMemoryRows: 6,
     rowsWithMemoryCounter: 10,
   });
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.hasMemoryProof, true);

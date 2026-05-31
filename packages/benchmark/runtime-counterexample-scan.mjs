@@ -442,16 +442,30 @@ function summarizeRowClassificationCompleteness(rows) {
 
 function summarizeUnknownBoundedMemoryRows(rows, options) {
   const unknownRows = rows.filter(row => row.boundedMemory === null);
+  const counterexampleRelevantRows = unknownRows.filter(row =>
+    row.jsRuntime
+    && row.fullStringParity === true
+    && row.sizeGiB !== null
+    && row.sizeGiB >= options.minSizeGiB
+  );
   return {
     total: unknownRows.length,
     jsRows: unknownRows.filter(row => row.jsRuntime).length,
     fullStringRows: unknownRows.filter(row => row.fullStringParity === true).length,
     jsFullStringRows: unknownRows.filter(row => row.jsRuntime && row.fullStringParity === true).length,
-    largeJsFullStringRows: unknownRows.filter(row =>
+    largeJsFullStringRows: counterexampleRelevantRows.length,
+    counterexampleRelevantRows: counterexampleRelevantRows.length,
+    smallOrDiagnosticJsRows: unknownRows.filter(row =>
       row.jsRuntime
-      && row.fullStringParity === true
-      && row.sizeGiB !== null
-      && row.sizeGiB >= options.minSizeGiB
+      && (row.sizeGiB === null || row.sizeGiB < options.minSizeGiB)
+    ).length,
+    nonJsAllocatorCounterRows: unknownRows.filter(row =>
+      !row.jsRuntime
+      && row.memoryKind === 'allocator-counters'
+    ).length,
+    nonJsNoPeakMemoryRows: unknownRows.filter(row =>
+      !row.jsRuntime
+      && row.memoryKind === 'not-recorded'
     ).length,
     rowsWithMemoryCounter: unknownRows.filter(row => row.hasMemoryProof).length,
   };
@@ -759,6 +773,10 @@ function renderMarkdown(report) {
     `  - Unknown bounded-memory JS rows: ${report.summary.unknownBoundedMemoryBreakdown.jsRows}`,
     `  - Unknown bounded-memory full-string rows: ${report.summary.unknownBoundedMemoryBreakdown.fullStringRows}`,
     `  - Unknown bounded-memory 1 GiB+ JS full-string rows: ${report.summary.unknownBoundedMemoryBreakdown.largeJsFullStringRows}`,
+    `  - Unknown bounded-memory counterexample-relevant rows: ${report.summary.unknownBoundedMemoryBreakdown.counterexampleRelevantRows}`,
+    `  - Unknown bounded-memory small/diagnostic JS rows: ${report.summary.unknownBoundedMemoryBreakdown.smallOrDiagnosticJsRows}`,
+    `  - Unknown bounded-memory non-JS allocator-counter rows: ${report.summary.unknownBoundedMemoryBreakdown.nonJsAllocatorCounterRows}`,
+    `  - Unknown bounded-memory non-JS rows without peak-memory counters: ${report.summary.unknownBoundedMemoryBreakdown.nonJsNoPeakMemoryRows}`,
     `  - Unknown bounded-memory rows with memory counters: ${report.summary.unknownBoundedMemoryBreakdown.rowsWithMemoryCounter}`,
     `- Counterexamples found: ${report.summary.counterexampleCount}`,
     `- Partial/projection threshold rows: ${report.summary.partialHeadroomRowCount}`,
