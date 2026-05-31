@@ -1,6 +1,6 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-05-31T18:18:49.808Z
+Generated: 2026-05-31T18:23:52.833Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -40,6 +40,15 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Full ArrayBuffer parser-input rows: 0
 - Unknown parser-input rows: 0
 - Corpus seed replay rows: 121
+- File-backed sync Iterable<Uint8Array[]> rows: 36
+- Direct ReadableStream rows: 1
+
+| Source mode | Rows | Not full ArrayBuffer | Direct ReadableStream | Corpus seed replay | Fastest row |
+| --- | ---: | ---: | ---: | ---: | --- |
+| fetch-async-iterable-byte-batches | 1 | 1 | 0 | 1 | Chrome/V8 browser fetchAsyncByteBatchFull 9.77 MiB/s from browser-fetch-readable-stream-books-corpus.json |
+| fetch-readable-stream-pull | 1 | 1 | 1 | 1 | Chrome/V8 browser fetchReadableStreamFull 9.68 MiB/s from browser-fetch-readable-stream-books-corpus.json |
+| file-backed-sync-iterable-byte-batches | 36 | 36 | 0 | 0 | Node/V8 stax-raw-frame-name-id-batch-8 152.11 MiB/s from file-backed-batch-size-sweep.json |
+| sync-iterable-byte-batches | 160 | 160 | 0 | 119 | Node/V8 rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json |
 - Node source frontier: sync-iterable-byte-batches-batch-8 67.94 MiB/s vs web-readable-stream-raw-frame-ascii-batch-8 75.98 MiB/s (1.12x); backpressure 6/6; fullArrayBufferRows=0
 - Browser live fetch frontier: fetchReadableStreamFull 9.68 MiB/s; fetchAsyncByteBatchFull 9.77 MiB/s; backpressure 2/2; fullArrayBufferRows=0
 

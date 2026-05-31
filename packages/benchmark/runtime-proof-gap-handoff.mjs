@@ -224,6 +224,25 @@ function summarizeSourceConsumptionEvidence(comparison) {
       fullArrayBufferRows: sourceShapeSafety.fullArrayBufferRows ?? null,
       unknownArrayBufferRows: sourceShapeSafety.unknownArrayBufferRows ?? null,
       corpusSeedReplayRows: sourceShapeSafety.corpusSeedReplayRows ?? null,
+      fileBackedSyncIterableRows: sourceShapeSafety.fileBackedSyncIterableRows ?? null,
+      directReadableStreamRows: sourceShapeSafety.directReadableStreamRows ?? null,
+      sourceModeBreakdown: (sourceShapeSafety.sourceModeBreakdown ?? []).map(entry => ({
+        sourceMode: entry.sourceMode,
+        rows: entry.rows,
+        notFullArrayBufferRows: entry.notFullArrayBufferRows,
+        fullArrayBufferRows: entry.fullArrayBufferRows,
+        unknownArrayBufferRows: entry.unknownArrayBufferRows,
+        directReadableStreamRows: entry.directReadableStreamRows,
+        corpusSeedReplayRows: entry.corpusSeedReplayRows,
+        fastestRow: entry.fastestRow ? {
+          sourceArtifact: entry.fastestRow.sourceArtifact,
+          runtimeLabel: entry.fastestRow.runtimeLabel,
+          caseId: entry.fastestRow.caseId,
+          mibPerSec: entry.fastestRow.mibPerSec,
+          fullStringParity: entry.fastestRow.fullStringParity,
+          boundedMemory: entry.fastestRow.boundedMemory,
+        } : null,
+      })),
     },
     sourceConsumptionFrontier: sourceConsumptionFrontier ? {
       sourceArtifact: sourceConsumptionFrontier.sourceArtifact,
@@ -675,7 +694,17 @@ function renderMarkdown(report) {
       `- Full ArrayBuffer parser-input rows: ${evidence.sourceShapeSafety.fullArrayBufferRows}`,
       `- Unknown parser-input rows: ${evidence.sourceShapeSafety.unknownArrayBufferRows}`,
       `- Corpus seed replay rows: ${evidence.sourceShapeSafety.corpusSeedReplayRows}`,
+      `- File-backed sync Iterable<Uint8Array[]> rows: ${evidence.sourceShapeSafety.fileBackedSyncIterableRows}`,
+      `- Direct ReadableStream rows: ${evidence.sourceShapeSafety.directReadableStreamRows}`,
     );
+    if (evidence.sourceShapeSafety.sourceModeBreakdown.length > 0) {
+      lines.push(
+        '',
+        '| Source mode | Rows | Not full ArrayBuffer | Direct ReadableStream | Corpus seed replay | Fastest row |',
+        '| --- | ---: | ---: | ---: | ---: | --- |',
+        ...evidence.sourceShapeSafety.sourceModeBreakdown.map(sourceShapeMarkdownRow),
+      );
+    }
     if (evidence.sourceConsumptionFrontier) {
       lines.push(
         `- Node source frontier: ${evidence.sourceConsumptionFrontier.fastestSyncIterable} ${formatNumber(evidence.sourceConsumptionFrontier.fastestSyncIterableMiBPerSec)} MiB/s vs ${evidence.sourceConsumptionFrontier.fastestReadableStream} ${formatNumber(evidence.sourceConsumptionFrontier.fastestReadableStreamMiBPerSec)} MiB/s (${formatNumber(evidence.sourceConsumptionFrontier.fastestReadableStreamRatioToFastestSyncIterable)}x); backpressure ${evidence.sourceConsumptionFrontier.backpressureRowsRespected}/${evidence.sourceConsumptionFrontier.backpressureRows}; fullArrayBufferRows=${evidence.sourceConsumptionFrontier.fullArrayBufferRows}`,
@@ -884,6 +913,14 @@ function formatNullableBoolean(value) {
 
 function formatNumber(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value.toFixed(2) : 'n/a';
+}
+
+function sourceShapeMarkdownRow(entry) {
+  const fastest = entry.fastestRow;
+  const fastestText = fastest
+    ? `${fastest.runtimeLabel} ${fastest.caseId} ${formatNumber(fastest.mibPerSec)} MiB/s from ${fastest.sourceArtifact}`
+    : 'n/a';
+  return `| ${entry.sourceMode} | ${entry.rows} | ${entry.notFullArrayBufferRows} | ${entry.directReadableStreamRows} | ${entry.corpusSeedReplayRows} | ${fastestText} |`;
 }
 
 function formatMemoryEvidenceRow(row) {
