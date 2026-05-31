@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-31T14:02:44.332Z",
+  "generatedAt": "2026-05-31T14:32:28.424Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -206,9 +206,9 @@
     "scannedArtifactCount": 183,
     "ignoredArtifactCount": 6,
     "parseErrorCount": 0,
-    "measuredRowCount": 1001,
+    "measuredRowCount": 1004,
     "aggregateRowCount": 117,
-    "largeJsFullRowCount": 655,
+    "largeJsFullRowCount": 658,
     "largeJsFullAggregateRowCount": 95,
     "sourceModeRowCount": 406,
     "largeJsFullSourceModeRowCount": 299,
@@ -778,7 +778,7 @@
       }
     ],
     "rowClassificationCompleteness": {
-      "measuredRows": 1001,
+      "measuredRows": 1004,
       "unknownFullStringParityRows": 0,
       "unknownBoundedMemoryRows": 20
     },
@@ -19612,7 +19612,7 @@
     {
       "id": "measured-row-classification-complete",
       "status": "LIMITED_EVIDENCE_PRESENT",
-      "summary": "1001 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 20 have unknown boundedMemory."
+      "summary": "1004 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 20 have unknown boundedMemory."
     },
     {
       "id": "cross-process-aggregate-rows-separated",
