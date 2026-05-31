@@ -1278,6 +1278,7 @@ function summarize(rows, allocationEvidence, textMaterializationFrontier, source
       target90MiBPerSec: targetWoodstox90MiBPerSec,
     },
     memoryMetricKinds: Array.from(new Set(rows.map(row => row.memory?.primaryKind).filter(Boolean))).sort(),
+    memoryFrontier: summarizeMemoryFrontier(jsLargeFullRows),
     sourceModes: Array.from(new Set(rows.map(row => row.sourceMode).filter(Boolean))).sort(),
     sourceShapeSafety: summarizeSourceShapeSafety(jsLargeFullRows),
     textMaterializationFrontier,
@@ -1313,6 +1314,42 @@ function summarizeBrowserLiveSourceFrontier(rows) {
   };
 }
 
+function summarizeMemoryFrontier(rows) {
+  const memoryRows = rows.filter(row => row.memory?.primaryKind);
+  const boundedRows = memoryRows.filter(row => row.boundedMemory);
+  const buckets = Array.from(groupBy(memoryRows, row => row.memory.primaryKind), ([kind, bucketRows]) => {
+    const numericMaxRows = bucketRows.filter(row => typeof row.memory.maxMiB === 'number');
+    return {
+      kind,
+      rows: bucketRows.length,
+      boundedRows: bucketRows.filter(row => row.boundedMemory).length,
+      unboundedRows: bucketRows.filter(row => !row.boundedMemory).length,
+      maxMiB: round(maxBy(numericMaxRows, row => row.memory.maxMiB)?.memory?.maxMiB),
+      fastestRow: summarizeRow(maxBy(bucketRows, row => row.mibPerSec)),
+      fastestBoundedRow: summarizeRow(maxBy(bucketRows.filter(row => row.boundedMemory), row => row.mibPerSec)),
+    };
+  }).sort((left, right) => left.kind.localeCompare(right.kind));
+
+  return {
+    contract: '1gib-plus-js-full-string-memory-frontier',
+    rows: memoryRows.length,
+    boundedRows: boundedRows.length,
+    unboundedRows: memoryRows.length - boundedRows.length,
+    memoryKinds: buckets.map(bucket => bucket.kind),
+    buckets,
+    fastestBoundedRow: summarizeRow(maxBy(boundedRows, row => row.mibPerSec)),
+    fastestProcessRssUnder128MiB: summarizeRow(maxBy(
+      boundedRows.filter(row => row.memory.primaryKind === 'process-rss' && row.memory.maxMiB <= 128),
+      row => row.mibPerSec,
+    )),
+    fastestBrowserJsHeapRow: summarizeRow(maxBy(
+      boundedRows.filter(row => row.memory.primaryKind === 'browser-js-heap'),
+      row => row.mibPerSec,
+    )),
+    interpretation: 'Memory is classified on the same 1 GiB+ JavaScript full-string row set used for counterexample scanning; process RSS, browser JS heap, and browser host-probe-only rows are not normalized into one allocation model.',
+  };
+}
+
 function summarizeBrowserLiveSourceRow(row) {
   if (!row) return null;
   return {
@@ -1338,6 +1375,23 @@ function createFindings(summary) {
       status: 'SOURCE_AGGREGATION',
       summary: 'Rows are grouped by semantic checksum contract, while memory counters remain runtime-specific.',
       evidence: summary.memoryMetricKinds,
+    },
+    {
+      id: 'large-js-full-memory-frontier-visible',
+      status: summary.memoryFrontier
+        && summary.memoryFrontier.rows === summary.jsLargeFullRowCount
+        && summary.memoryFrontier.fastestBoundedRow?.mibPerSec === summary.fastestJsLargeFullRow?.mibPerSec
+        ? 'CLASSIFIED'
+        : 'PARTIAL',
+      summary: 'The same 1 GiB+ JavaScript full-string row set used for counterexample scanning is classified by memory metric and bounded-memory status.',
+      evidence: summary.memoryFrontier ? [
+        `rows=${summary.memoryFrontier.rows}`,
+        `boundedRows=${summary.memoryFrontier.boundedRows}`,
+        `unboundedRows=${summary.memoryFrontier.unboundedRows}`,
+        `fastestBounded=${summary.memoryFrontier.fastestBoundedRow?.caseId}@${formatNumber(summary.memoryFrontier.fastestBoundedRow?.mibPerSec)} MiB/s`,
+        `fastestBoundedMemory=${formatMemory(summary.memoryFrontier.fastestBoundedRow?.memory)}`,
+        `memoryKinds=${summary.memoryFrontier.memoryKinds.join(',')}`,
+      ] : [],
     },
     {
       id: 'no-js-200mib-large-full-counterexample-in-aggregated-artifacts',
@@ -1466,6 +1520,7 @@ function renderMarkdown(report) {
     `- Same-fixture 1024 MiB process RSS snapshot: JS ${formatNumber(report.summary.sameFixture1024MiBProcessRssSnapshot.fastestJs?.maxRssMiB)} MiB, Woodstox ${formatNumber(report.summary.sameFixture1024MiBProcessRssSnapshot.woodstox?.maxRssMiB)} MiB, quick-xml ${formatNumber(report.summary.sameFixture1024MiBProcessRssSnapshot.quickXml?.maxRssMiB)} MiB`,
     `- Fastest 1 GiB+ JS public event-object row: ${formatSummaryRow(report.summary.fastestJsLargePublicEventRow)}`,
     `- Fastest bounded 1 GiB+ JS public event-object row: ${formatSummaryRow(report.summary.fastestBoundedJsLargePublicEventRow)}`,
+    `- 1 GiB+ JS full-string memory frontier: ${report.summary.memoryFrontier.boundedRows}/${report.summary.memoryFrontier.rows} bounded rows; fastest bounded row ${formatSummaryRow(report.summary.memoryFrontier.fastestBoundedRow)}`,
     `- 16 MiB Woodstox baseline: ${formatNumber(report.summary.externalBaseline16MiB.woodstoxMiBPerSec)} MiB/s`,
     `- 16 MiB quick-xml baseline: ${formatNumber(report.summary.externalBaseline16MiB.quickXmlMiBPerSec)} MiB/s (${formatNumber(report.summary.externalBaseline16MiB.quickXmlWoodstoxRatio)}x Woodstox)`,
     `- 1024 MiB file-backed stax-stream baseline: ${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamMiBPerSec)} MiB/s (${formatNumber(report.summary.externalBaseline1024MiBFileSyncBatches.staxStreamWoodstoxRatio)}x Woodstox)`,
@@ -1601,6 +1656,27 @@ function renderMarkdown(report) {
       `Interpretation: ${frontier.interpretation}`,
     );
   }
+
+  lines.push(
+    '',
+    '## Memory Frontier',
+    '',
+    'This classifies memory only within the same 1 GiB+ JavaScript full-string row set used by the counterexample scan. Metric kinds stay separate; process RSS, browser JS heap, and browser host-probe-only rows are not allocation-model equivalents.',
+    '',
+    `- Rows classified: ${report.summary.memoryFrontier.rows}`,
+    `- Bounded rows: ${report.summary.memoryFrontier.boundedRows}`,
+    `- Unbounded or unproven rows: ${report.summary.memoryFrontier.unboundedRows}`,
+    `- Fastest bounded row: ${formatSummaryRow(report.summary.memoryFrontier.fastestBoundedRow)}`,
+    `- Fastest bounded process RSS row under 128 MiB: ${formatSummaryRow(report.summary.memoryFrontier.fastestProcessRssUnder128MiB)}`,
+    `- Fastest bounded browser JS heap row: ${formatSummaryRow(report.summary.memoryFrontier.fastestBrowserJsHeapRow)}`,
+    '',
+    '| Memory kind | Rows | Bounded | Unbounded/unproven | Max recorded | Fastest row | Fastest bounded row |',
+    '| --- | ---: | ---: | ---: | ---: | --- | --- |',
+  );
+  for (const bucket of report.summary.memoryFrontier.buckets) {
+    lines.push(`| ${bucket.kind} | ${bucket.rows} | ${bucket.boundedRows} | ${bucket.unboundedRows} | ${formatNumber(bucket.maxMiB)} MiB | ${formatSummaryRow(bucket.fastestRow)} | ${formatSummaryRow(bucket.fastestBoundedRow)} |`);
+  }
+  lines.push('', `Interpretation: ${report.summary.memoryFrontier.interpretation}`);
 
   lines.push(
     '',

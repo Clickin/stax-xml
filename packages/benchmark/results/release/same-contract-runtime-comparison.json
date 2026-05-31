@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-27T02:14:20.669Z",
+  "generatedAt": "2026-05-31T12:48:37.548Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -1808,6 +1808,242 @@
       "browser-js-heap-unavailable",
       "process-rss"
     ],
+    "memoryFrontier": {
+      "contract": "1gib-plus-js-full-string-memory-frontier",
+      "rows": 179,
+      "boundedRows": 162,
+      "unboundedRows": 17,
+      "memoryKinds": [
+        "browser-js-heap",
+        "browser-js-heap-unavailable",
+        "process-rss"
+      ],
+      "buckets": [
+        {
+          "kind": "browser-js-heap",
+          "rows": 20,
+          "boundedRows": 20,
+          "unboundedRows": 0,
+          "maxMiB": 358.37,
+          "fastestRow": {
+            "group": "browser-fetch-readable-stream-books-corpus",
+            "runtimeId": "chrome-v8-browser",
+            "runtimeLabel": "Chrome/V8 browser",
+            "caseId": "eventObjectFull",
+            "mibPerSec": 64.56,
+            "boundedMemory": true,
+            "memory": {
+              "primaryKind": "browser-js-heap",
+              "maxMiB": 16.54,
+              "deltaMiB": 9.49,
+              "hostProcessTree": {
+                "kind": "windows-process-tree",
+                "maxWorkingSetMiB": 644.96,
+                "maxPrivateMiB": 221.21,
+                "note": "host process-tree counters are report-level, not per-variant memory"
+              },
+              "hostProcessTreeProbe": null
+            },
+            "sourceMode": "sync-iterable-byte-batches",
+            "fullArrayBufferParserInput": false,
+            "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+            "sampleCount": 1,
+            "sampleMinMiBPerSec": 64.56,
+            "sampleMaxMiBPerSec": 64.56,
+            "sampleSpreadRatio": 0
+          },
+          "fastestBoundedRow": {
+            "group": "browser-fetch-readable-stream-books-corpus",
+            "runtimeId": "chrome-v8-browser",
+            "runtimeLabel": "Chrome/V8 browser",
+            "caseId": "eventObjectFull",
+            "mibPerSec": 64.56,
+            "boundedMemory": true,
+            "memory": {
+              "primaryKind": "browser-js-heap",
+              "maxMiB": 16.54,
+              "deltaMiB": 9.49,
+              "hostProcessTree": {
+                "kind": "windows-process-tree",
+                "maxWorkingSetMiB": 644.96,
+                "maxPrivateMiB": 221.21,
+                "note": "host process-tree counters are report-level, not per-variant memory"
+              },
+              "hostProcessTreeProbe": null
+            },
+            "sourceMode": "sync-iterable-byte-batches",
+            "fullArrayBufferParserInput": false,
+            "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+            "sampleCount": 1,
+            "sampleMinMiBPerSec": 64.56,
+            "sampleMaxMiBPerSec": 64.56,
+            "sampleSpreadRatio": 0
+          }
+        },
+        {
+          "kind": "browser-js-heap-unavailable",
+          "rows": 9,
+          "boundedRows": 0,
+          "unboundedRows": 9,
+          "maxMiB": null,
+          "fastestRow": {
+            "group": "projection-1gib-full",
+            "runtimeId": "firefox-spidermonkey-browser",
+            "runtimeLabel": "Firefox/SpiderMonkey browser",
+            "caseId": "rawFrameNameId",
+            "mibPerSec": 64.24,
+            "boundedMemory": false,
+            "memory": {
+              "primaryKind": "browser-js-heap-unavailable",
+              "note": "this browser did not expose performance.memory heap counters to page JavaScript",
+              "hostProcessTreeProbe": {
+                "kind": "windows-process-tree",
+                "maxWorkingSetMiB": 702.56,
+                "maxPrivateMiB": 564.32,
+                "maxProcessCount": 12,
+                "probeMibPerSec": 67.28,
+                "note": "fresh-browser per-variant host process-tree probe; not portable browser RSS or JS heap proof"
+              }
+            },
+            "sourceMode": "sync-iterable-byte-batches",
+            "fullArrayBufferParserInput": false,
+            "sourceArtifact": "firefox-bidi-candidate-headroom-projection.json",
+            "sampleCount": 1,
+            "sampleMinMiBPerSec": 64.24,
+            "sampleMaxMiBPerSec": 64.24,
+            "sampleSpreadRatio": 0
+          },
+          "fastestBoundedRow": null
+        },
+        {
+          "kind": "process-rss",
+          "rows": 150,
+          "boundedRows": 142,
+          "unboundedRows": 8,
+          "maxMiB": 1956.69,
+          "fastestRow": {
+            "group": "text-trim-cost-decomposition",
+            "runtimeId": "node-v8",
+            "runtimeLabel": "Node/V8",
+            "caseId": "rawFrameNameId",
+            "mibPerSec": 185.5,
+            "boundedMemory": true,
+            "memory": {
+              "primaryKind": "process-rss",
+              "maxMiB": 60.45,
+              "deltaMiB": 2.62,
+              "maxHeapUsedMiB": 7.44,
+              "maxExternalMiB": 2.69,
+              "maxArrayBuffersMiB": 0.88
+            },
+            "sourceMode": "sync-iterable-byte-batches",
+            "fullArrayBufferParserInput": false,
+            "sourceArtifact": "text-trim-cost-decomposition.json",
+            "sampleCount": 3,
+            "sampleMinMiBPerSec": 184.09,
+            "sampleMaxMiBPerSec": 186.66,
+            "sampleSpreadRatio": 0.01
+          },
+          "fastestBoundedRow": {
+            "group": "text-trim-cost-decomposition",
+            "runtimeId": "node-v8",
+            "runtimeLabel": "Node/V8",
+            "caseId": "rawFrameNameId",
+            "mibPerSec": 185.5,
+            "boundedMemory": true,
+            "memory": {
+              "primaryKind": "process-rss",
+              "maxMiB": 60.45,
+              "deltaMiB": 2.62,
+              "maxHeapUsedMiB": 7.44,
+              "maxExternalMiB": 2.69,
+              "maxArrayBuffersMiB": 0.88
+            },
+            "sourceMode": "sync-iterable-byte-batches",
+            "fullArrayBufferParserInput": false,
+            "sourceArtifact": "text-trim-cost-decomposition.json",
+            "sampleCount": 3,
+            "sampleMinMiBPerSec": 184.09,
+            "sampleMaxMiBPerSec": 186.66,
+            "sampleSpreadRatio": 0.01
+          }
+        }
+      ],
+      "fastestBoundedRow": {
+        "group": "text-trim-cost-decomposition",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "caseId": "rawFrameNameId",
+        "mibPerSec": 185.5,
+        "boundedMemory": true,
+        "memory": {
+          "primaryKind": "process-rss",
+          "maxMiB": 60.45,
+          "deltaMiB": 2.62,
+          "maxHeapUsedMiB": 7.44,
+          "maxExternalMiB": 2.69,
+          "maxArrayBuffersMiB": 0.88
+        },
+        "sourceMode": "sync-iterable-byte-batches",
+        "fullArrayBufferParserInput": false,
+        "sourceArtifact": "text-trim-cost-decomposition.json",
+        "sampleCount": 3,
+        "sampleMinMiBPerSec": 184.09,
+        "sampleMaxMiBPerSec": 186.66,
+        "sampleSpreadRatio": 0.01
+      },
+      "fastestProcessRssUnder128MiB": {
+        "group": "text-trim-cost-decomposition",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "caseId": "rawFrameNameId",
+        "mibPerSec": 185.5,
+        "boundedMemory": true,
+        "memory": {
+          "primaryKind": "process-rss",
+          "maxMiB": 60.45,
+          "deltaMiB": 2.62,
+          "maxHeapUsedMiB": 7.44,
+          "maxExternalMiB": 2.69,
+          "maxArrayBuffersMiB": 0.88
+        },
+        "sourceMode": "sync-iterable-byte-batches",
+        "fullArrayBufferParserInput": false,
+        "sourceArtifact": "text-trim-cost-decomposition.json",
+        "sampleCount": 3,
+        "sampleMinMiBPerSec": 184.09,
+        "sampleMaxMiBPerSec": 186.66,
+        "sampleSpreadRatio": 0.01
+      },
+      "fastestBrowserJsHeapRow": {
+        "group": "browser-fetch-readable-stream-books-corpus",
+        "runtimeId": "chrome-v8-browser",
+        "runtimeLabel": "Chrome/V8 browser",
+        "caseId": "eventObjectFull",
+        "mibPerSec": 64.56,
+        "boundedMemory": true,
+        "memory": {
+          "primaryKind": "browser-js-heap",
+          "maxMiB": 16.54,
+          "deltaMiB": 9.49,
+          "hostProcessTree": {
+            "kind": "windows-process-tree",
+            "maxWorkingSetMiB": 644.96,
+            "maxPrivateMiB": 221.21,
+            "note": "host process-tree counters are report-level, not per-variant memory"
+          },
+          "hostProcessTreeProbe": null
+        },
+        "sourceMode": "sync-iterable-byte-batches",
+        "fullArrayBufferParserInput": false,
+        "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+        "sampleCount": 1,
+        "sampleMinMiBPerSec": 64.56,
+        "sampleMaxMiBPerSec": 64.56,
+        "sampleSpreadRatio": 0
+      },
+      "interpretation": "Memory is classified on the same 1 GiB+ JavaScript full-string row set used for counterexample scanning; process RSS, browser JS heap, and browser host-probe-only rows are not normalized into one allocation model."
+    },
     "sourceModes": [
       "fetch-async-iterable-byte-batches",
       "fetch-readable-stream-pull",
@@ -13344,6 +13580,19 @@
         "browser-js-heap",
         "browser-js-heap-unavailable",
         "process-rss"
+      ]
+    },
+    {
+      "id": "large-js-full-memory-frontier-visible",
+      "status": "CLASSIFIED",
+      "summary": "The same 1 GiB+ JavaScript full-string row set used for counterexample scanning is classified by memory metric and bounded-memory status.",
+      "evidence": [
+        "rows=179",
+        "boundedRows=162",
+        "unboundedRows=17",
+        "fastestBounded=rawFrameNameId@185.50 MiB/s",
+        "fastestBoundedMemory=process RSS max 60.45 MiB",
+        "memoryKinds=browser-js-heap,browser-js-heap-unavailable,process-rss"
       ]
     },
     {

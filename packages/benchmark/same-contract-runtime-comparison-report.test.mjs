@@ -151,6 +151,62 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     && finding.status === 'HEADROOM_CLASSIFIED'
   ));
   assert.deepEqual(report.summary.memoryMetricKinds, ['browser-js-heap', 'browser-js-heap-unavailable', 'process-rss']);
+  assert.equal(report.summary.memoryFrontier.contract, '1gib-plus-js-full-string-memory-frontier');
+  assert.equal(report.summary.memoryFrontier.rows, 179);
+  assert.equal(report.summary.memoryFrontier.boundedRows, 162);
+  assert.equal(report.summary.memoryFrontier.unboundedRows, 17);
+  assert.deepEqual(report.summary.memoryFrontier.memoryKinds, ['browser-js-heap', 'browser-js-heap-unavailable', 'process-rss']);
+  assert.equal(report.summary.memoryFrontier.fastestBoundedRow.caseId, 'rawFrameNameId');
+  assert.equal(report.summary.memoryFrontier.fastestBoundedRow.mibPerSec, 185.5);
+  assert.equal(report.summary.memoryFrontier.fastestBoundedRow.memory.primaryKind, 'process-rss');
+  assert.equal(report.summary.memoryFrontier.fastestBoundedRow.memory.maxMiB, 60.45);
+  assert.equal(report.summary.memoryFrontier.fastestProcessRssUnder128MiB.caseId, 'rawFrameNameId');
+  assert.equal(report.summary.memoryFrontier.fastestProcessRssUnder128MiB.memory.maxMiB, 60.45);
+  assert.equal(report.summary.memoryFrontier.fastestBrowserJsHeapRow.caseId, 'eventObjectFull');
+  assert.equal(report.summary.memoryFrontier.fastestBrowserJsHeapRow.mibPerSec, 64.56);
+  assert.equal(report.summary.memoryFrontier.fastestBrowserJsHeapRow.memory.maxMiB, 16.54);
+  assert.deepEqual(report.summary.memoryFrontier.buckets.map(bucket => ({
+    kind: bucket.kind,
+    rows: bucket.rows,
+    boundedRows: bucket.boundedRows,
+    unboundedRows: bucket.unboundedRows,
+    maxMiB: bucket.maxMiB,
+    fastestCase: bucket.fastestRow.caseId,
+    fastestBoundedCase: bucket.fastestBoundedRow?.caseId ?? null,
+  })), [
+    {
+      kind: 'browser-js-heap',
+      rows: 20,
+      boundedRows: 20,
+      unboundedRows: 0,
+      maxMiB: 358.37,
+      fastestCase: 'eventObjectFull',
+      fastestBoundedCase: 'eventObjectFull',
+    },
+    {
+      kind: 'browser-js-heap-unavailable',
+      rows: 9,
+      boundedRows: 0,
+      unboundedRows: 9,
+      maxMiB: null,
+      fastestCase: 'rawFrameNameId',
+      fastestBoundedCase: null,
+    },
+    {
+      kind: 'process-rss',
+      rows: 150,
+      boundedRows: 142,
+      unboundedRows: 8,
+      maxMiB: 1956.69,
+      fastestCase: 'rawFrameNameId',
+      fastestBoundedCase: 'rawFrameNameId',
+    },
+  ]);
+  assert.match(report.summary.memoryFrontier.interpretation, /same 1 GiB\+ JavaScript full-string row set/);
+  assert.ok(report.findings.some(finding =>
+    finding.id === 'large-js-full-memory-frontier-visible'
+    && finding.status === 'CLASSIFIED'
+  ));
   assert.deepEqual(report.summary.sourceModes, [
     'fetch-async-iterable-byte-batches',
     'fetch-readable-stream-pull',
@@ -760,6 +816,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id-batch-8 at 0\.43x Woodstox, 164\.29 MiB\/s below 0\.9x target/);
   assert.match(markdown, /Same-fixture 1024 MiB JS row vs quick-xml target: stax-raw-frame-name-id-batch-8 at 0\.55x quick-xml, 95\.06 MiB\/s below 0\.9x target/);
   assert.match(markdown, /Same-fixture 1024 MiB process RSS snapshot: JS 61\.77 MiB, Woodstox 312\.71 MiB, quick-xml 4\.78 MiB/);
+  assert.match(markdown, /1 GiB\+ JS full-string memory frontier: 162\/179 bounded rows; fastest bounded row Node\/V8 rawFrameNameId at 185\.50 MiB\/s \(process RSS max 60\.45 MiB\)/);
   assert.match(markdown, /Text materialization frontier: fastest full row rawFrameNameId at 185\.50 MiB\/s, 14\.50 MiB\/s below 200 MiB\/s; without-text rows crossing target: 4; negative candidates: 14/);
   assert.match(markdown, /Source consumption frontier: sync byte batches sync-iterable-byte-batches-batch-8 at 91\.95 MiB\/s; direct ReadableStream web-readable-stream-raw-frame-ascii-batch-8 at 75\.20 MiB\/s \(0\.82x sync\); backpressure rows 6\/6/);
   assert.match(markdown, /1024 MiB Books Fixture Woodstox 0\.9x Target Distances/);
@@ -789,6 +846,17 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /\| Fetch async byte batches \| `fetchAsyncByteBatchFull` \| `fetch-async-iterable-byte-batches` \| 9\.77 \| 17\.75 MiB \| no \| no \| yes \| 57096514 \| -540013997 \|/);
   assert.match(markdown, /Live fetch rows respecting backpressure: 2\/2/);
   assert.match(markdown, /Live fetch rows with full ArrayBuffer parser input: 0/);
+  assert.match(markdown, /## Memory Frontier/);
+  assert.match(markdown, /This classifies memory only within the same 1 GiB\+ JavaScript full-string row set used by the counterexample scan/);
+  assert.match(markdown, /Rows classified: 179/);
+  assert.match(markdown, /Bounded rows: 162/);
+  assert.match(markdown, /Unbounded or unproven rows: 17/);
+  assert.match(markdown, /Fastest bounded process RSS row under 128 MiB: Node\/V8 rawFrameNameId at 185\.50 MiB\/s \(process RSS max 60\.45 MiB\)/);
+  assert.match(markdown, /Fastest bounded browser JS heap row: Chrome\/V8 browser eventObjectFull at 64\.56 MiB\/s \(JS heap max 16\.54 MiB; host working set 644\.96 MiB\)/);
+  assert.match(markdown, /\| browser-js-heap \| 20 \| 20 \| 0 \| 358\.37 MiB \| Chrome\/V8 browser eventObjectFull at 64\.56 MiB\/s/);
+  assert.match(markdown, /\| browser-js-heap-unavailable \| 9 \| 0 \| 9 \| n\/a MiB \| Firefox\/SpiderMonkey browser rawFrameNameId at 64\.24 MiB\/s/);
+  assert.match(markdown, /\| process-rss \| 150 \| 142 \| 8 \| 1956\.69 MiB \| Node\/V8 rawFrameNameId at 185\.50 MiB\/s/);
+  assert.match(markdown, /large-js-full-memory-frontier-visible \(CLASSIFIED\)/);
   assert.match(markdown, /different corpus fixtures/);
   assert.match(markdown, /access-shape-cross-process-books-corpus/);
   assert.match(markdown, /books-corpus-stability/);

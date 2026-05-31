@@ -1,6 +1,6 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-27T02:14:20.669Z
+Generated: 2026-05-31T12:48:37.548Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
@@ -17,6 +17,7 @@ This report aggregates existing release artifacts. It compares rows only through
 - Same-fixture 1024 MiB process RSS snapshot: JS 61.77 MiB, Woodstox 312.71 MiB, quick-xml 4.78 MiB
 - Fastest 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 141.62 MiB/s (process RSS max 203.27 MiB)
 - Fastest bounded 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 141.62 MiB/s (process RSS max 203.27 MiB)
+- 1 GiB+ JS full-string memory frontier: 162/179 bounded rows; fastest bounded row Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB)
 - 16 MiB Woodstox baseline: 303.10 MiB/s
 - 16 MiB quick-xml baseline: 243.43 MiB/s (0.80x Woodstox)
 - 1024 MiB file-backed stax-stream baseline: 124.62 MiB/s (0.37x Woodstox)
@@ -148,6 +149,25 @@ This keeps Chrome fetch Response.body rows separate from prepared corpus-seed re
 - Fetch ReadableStream / prepared replay ratio: 0.15x
 - Fetch async byte-batch / prepared replay ratio: 0.15x
 Interpretation: Browser live fetch rows consume Response.body directly or through grouped AsyncIterable<Uint8Array[]> batches under the same checksum contract; they are intentionally separate from prepared corpus-seed replay rows.
+
+## Memory Frontier
+
+This classifies memory only within the same 1 GiB+ JavaScript full-string row set used by the counterexample scan. Metric kinds stay separate; process RSS, browser JS heap, and browser host-probe-only rows are not allocation-model equivalents.
+
+- Rows classified: 179
+- Bounded rows: 162
+- Unbounded or unproven rows: 17
+- Fastest bounded row: Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB)
+- Fastest bounded process RSS row under 128 MiB: Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB)
+- Fastest bounded browser JS heap row: Chrome/V8 browser eventObjectFull at 64.56 MiB/s (JS heap max 16.54 MiB; host working set 644.96 MiB)
+
+| Memory kind | Rows | Bounded | Unbounded/unproven | Max recorded | Fastest row | Fastest bounded row |
+| --- | ---: | ---: | ---: | ---: | --- | --- |
+| browser-js-heap | 20 | 20 | 0 | 358.37 MiB | Chrome/V8 browser eventObjectFull at 64.56 MiB/s (JS heap max 16.54 MiB; host working set 644.96 MiB) | Chrome/V8 browser eventObjectFull at 64.56 MiB/s (JS heap max 16.54 MiB; host working set 644.96 MiB) |
+| browser-js-heap-unavailable | 9 | 0 | 9 | n/a MiB | Firefox/SpiderMonkey browser rawFrameNameId at 64.24 MiB/s (browser-js-heap-unavailable; fresh host probe 702.56 MiB) | none |
+| process-rss | 150 | 142 | 8 | 1956.69 MiB | Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB) | Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB) |
+
+Interpretation: Memory is classified on the same 1 GiB+ JavaScript full-string row set used for counterexample scanning; process RSS, browser JS heap, and browser host-probe-only rows are not normalized into one allocation model.
 
 ## Selected Comparison Rows
 
@@ -382,6 +402,13 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - browser-js-heap
   - browser-js-heap-unavailable
   - process-rss
+- large-js-full-memory-frontier-visible (CLASSIFIED): The same 1 GiB+ JavaScript full-string row set used for counterexample scanning is classified by memory metric and bounded-memory status.
+  - rows=179
+  - boundedRows=162
+  - unboundedRows=17
+  - fastestBounded=rawFrameNameId@185.50 MiB/s
+  - fastestBoundedMemory=process RSS max 60.45 MiB
+  - memoryKinds=browser-js-heap,browser-js-heap-unavailable,process-rss
 - no-js-200mib-large-full-counterexample-in-aggregated-artifacts (NOT_FOUND_IN_AGGREGATED_ARTIFACTS): The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.
   - jsLargeFullRows=179
   - counterexamples=0

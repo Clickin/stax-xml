@@ -184,7 +184,15 @@ rows with source-mode metadata in this aggregate are marked as not full
 `ArrayBuffer` parser-input rows. It separately records 96 corpus-seed replay
 rows, with a maximum seed size of 100.26 MiB and a maximum seed/target ratio of
 0.09, so corpus replay is not collapsed into the full-target `ArrayBuffer`
-parser-input claim. That is 0.93x of the 200 MiB/s target and
+parser-input claim. The report now also classifies memory on the same 179
+JavaScript 1 GiB+ full-string rows used by the counterexample scan: 162 rows
+are bounded, 17 are unbounded or unproven, and metric kinds remain separate as
+`process-rss`, `browser-js-heap`, and `browser-js-heap-unavailable`. The
+fastest bounded row is still Node/V8 `rawFrameNameId` at 185.50 MiB/s with
+process RSS max 60.45 MiB; the fastest bounded browser JS heap row is Chrome/V8
+browser `eventObjectFull` at 64.56 MiB/s with JS heap max 16.54 MiB. Firefox
+rows with unavailable page heap counters remain unbounded/unproven rather than
+being normalized through host-process probes. The fastest bounded row is 0.93x of the 200 MiB/s target and
 0.55x of the 1024 MiB Woodstox reference, but the fastest aggregated JS row
 and the 1024 MiB Woodstox reference can come from different corpus fixtures, so
 that ratio is a target-distance reference rather than an identical-input target

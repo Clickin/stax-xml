@@ -137,6 +137,11 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /text-checksum consumer decomposition, and semantic checksum\s+upper-bound artifacts under the same checksum contract/);
   assert.match(markdown, /all 173 JavaScript 1 GiB\+ full-string\s+rows with source-mode metadata in this aggregate are marked as not full\s+`ArrayBuffer` parser-input rows/);
   assert.match(markdown, /separately records 96 corpus-seed replay\s+rows, with a maximum seed size of 100\.26 MiB and a maximum seed\/target ratio of\s+0\.09/);
+  assert.match(markdown, /classifies memory on the same 179\s+JavaScript 1 GiB\+ full-string rows used by the counterexample scan: 162 rows\s+are bounded, 17 are unbounded or unproven/);
+  assert.match(markdown, /metric kinds remain separate as\s+`process-rss`, `browser-js-heap`, and `browser-js-heap-unavailable`/);
+  assert.match(markdown, /fastest bounded row is still Node\/V8 `rawFrameNameId` at 185\.50 MiB\/s with\s+process RSS max 60\.45 MiB/);
+  assert.match(markdown, /fastest bounded browser JS heap row is Chrome\/V8\s+browser `eventObjectFull` at 64\.56 MiB\/s with JS heap max 16\.54 MiB/);
+  assert.match(markdown, /Firefox\s+rows with unavailable page heap counters remain unbounded\/unproven rather than\s+being normalized through host-process probes/);
   assert.match(markdown, /name-collision-safe-interning-perf\.md/);
   assert.match(markdown, /`aSd3njyge` and `aSXRYquSd`/);
   assert.match(markdown, /`rawFrameNameId` at 96\.99 MiB\/s/);
