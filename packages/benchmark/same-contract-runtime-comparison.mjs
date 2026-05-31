@@ -379,6 +379,11 @@ const crossProcessArtifacts = [
     cases: candidateCases,
   },
   {
+    group: 'deno-cross-process-books-corpus',
+    file: 'deno-candidate-headroom-cross-process-books-corpus.json',
+    cases: candidateCases,
+  },
+  {
     group: 'no-counter-name-fold-cache-cross-process-books-corpus',
     file: 'no-counter-name-fold-cache-cross-process-books-corpus.json',
     cases: ['rawFrameNameId', 'rawFrameNameIdNoCounters', 'rawFrameNameIdNoCountersNameFoldCache'],
@@ -884,6 +889,8 @@ function normalizeCrossProcessRuntime(runtimeReport) {
       return { id: 'node-v8', label: 'Node/V8' };
     case 'bun':
       return { id: 'bun-jsc', label: 'Bun/JSC' };
+    case 'deno':
+      return { id: 'deno-v8', label: 'Deno/V8' };
     default:
       return {
         id: runtimeReport.runtime ?? 'unknown',

@@ -1,15 +1,15 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-05-31T17:12:40.816Z
+Generated: 2026-05-31T17:32:46.172Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-05-31T17:12:32.347Z
+- Audit generated: 2026-05-31T17:32:30.638Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
-- Comparison generated: 2026-05-31T17:12:20.008Z
+- Comparison generated: 2026-05-31T17:32:16.935Z
 - Active obligations: 2
 
 ## Summary
@@ -18,8 +18,8 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Unhandled obligations: 0
 - External-run required closures: 2
 - Locally runnable closures: 0
-- Audit artifacts: 193
-- Audit measured rows: 1081
+- Audit artifacts: 194
+- Audit measured rows: 1096
 - Primary source consumption: synchronous Iterable<Uint8Array[]> byte batches
 - Direct ReadableStream scope: separate source-overhead evidence only
 - Direct ReadableStream backpressure required: yes
@@ -34,12 +34,12 @@ Turns current open or partial runtime proof obligations into concrete external-r
 
 - Status: classified
 - Source artifact: same-contract-runtime-comparison.json
-- Aggregate rows: 229
+- Aggregate rows: 232
 - Source modes: fetch-async-iterable-byte-batches, fetch-readable-stream-pull, file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches
-- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 190/190
+- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 193/193
 - Full ArrayBuffer parser-input rows: 0
 - Unknown parser-input rows: 0
-- Corpus seed replay rows: 113
+- Corpus seed replay rows: 116
 - Node source frontier: sync-iterable-byte-batches-batch-8 67.94 MiB/s vs web-readable-stream-raw-frame-ascii-batch-8 75.98 MiB/s (1.12x); backpressure 6/6; fullArrayBufferRows=0
 - Browser live fetch frontier: fetchReadableStreamFull 9.68 MiB/s; fetchAsyncByteBatchFull 9.77 MiB/s; backpressure 2/2; fullArrayBufferRows=0
 
@@ -48,8 +48,8 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Status: classified
 - Source artifact: same-contract-runtime-comparison.json
 - Contract: 1gib-plus-js-full-string-memory-frontier
-- 1 GiB+ JS full-string memory rows: 196
-- Bounded rows: 179
+- 1 GiB+ JS full-string memory rows: 199
+- Bounded rows: 182
 - Unbounded or unproven rows: 17
 - Memory kinds: browser-js-heap, browser-js-heap-unavailable, process-rss
 - Fastest bounded row: Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB)
@@ -60,7 +60,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 | --- | ---: | ---: | ---: | ---: | --- | --- |
 | browser-js-heap | 20 | 20 | 0 | 358.37 MiB | Chrome/V8 browser rawFrameNameId 69.90 MiB/s (browser-js-heap max 39.55 MiB) | Chrome/V8 browser rawFrameNameId 69.90 MiB/s (browser-js-heap max 39.55 MiB) |
 | browser-js-heap-unavailable | 9 | 0 | 9 | n/a MiB | Firefox/SpiderMonkey browser rawFrameNameId 64.24 MiB/s (browser-js-heap-unavailable) | none |
-| process-rss | 167 | 159 | 8 | 1956.69 MiB | Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB) | Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB) |
+| process-rss | 170 | 162 | 8 | 1956.69 MiB | Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB) | Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB) |
 
 - Interpretation: Memory is classified on the same 1 GiB+ JavaScript full-string row set used for counterexample scanning; process RSS, browser JS heap, and browser host-probe-only rows are not normalized into one allocation model.
 
