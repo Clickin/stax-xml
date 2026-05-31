@@ -522,7 +522,7 @@ test('large candidate headroom matrix can isolate materialization counter overhe
     '--warmups',
     '0',
     '--cases',
-    'rawFrameNameId,rawFrameNameIdNoCounters,rawFrameNameIdNoCountersFoldTrim',
+    'rawFrameNameId,rawFrameNameIdNoCounters,rawFrameNameIdNoCountersFoldTrim,rawFrameNameIdNoCountersTextCache,rawFrameNameIdNoCountersValueCache',
     '--json-out',
     noCountersJsonOut,
     '--md-out',
@@ -536,15 +536,29 @@ test('large candidate headroom matrix can isolate materialization counter overhe
   assert.equal(result.status, 0, result.stderr || result.stdout);
 
   const report = JSON.parse(readFileSync(noCountersJsonOut, 'utf8'));
-  assert.deepEqual(report.options.cases, ['rawFrameNameId', 'rawFrameNameIdNoCounters', 'rawFrameNameIdNoCountersFoldTrim']);
+  assert.deepEqual(report.options.cases, [
+    'rawFrameNameId',
+    'rawFrameNameIdNoCounters',
+    'rawFrameNameIdNoCountersFoldTrim',
+    'rawFrameNameIdNoCountersTextCache',
+    'rawFrameNameIdNoCountersValueCache',
+  ]);
   assert.deepEqual(report.variants.map(entry => entry.id), report.options.cases);
   assert.equal(report.eventCountParity.status, 'ok');
   assert.equal(report.fullStringParity.status, 'ok');
-  assert.deepEqual(report.fullStringParity.rowIds, ['rawFrameNameId', 'rawFrameNameIdNoCounters', 'rawFrameNameIdNoCountersFoldTrim']);
+  assert.deepEqual(report.fullStringParity.rowIds, [
+    'rawFrameNameId',
+    'rawFrameNameIdNoCounters',
+    'rawFrameNameIdNoCountersFoldTrim',
+    'rawFrameNameIdNoCountersTextCache',
+    'rawFrameNameIdNoCountersValueCache',
+  ]);
 
   const rawNameId = report.variants.find(entry => entry.id === 'rawFrameNameId');
   const noCounters = report.variants.find(entry => entry.id === 'rawFrameNameIdNoCounters');
   const noCountersFoldTrim = report.variants.find(entry => entry.id === 'rawFrameNameIdNoCountersFoldTrim');
+  const noCountersTextCache = report.variants.find(entry => entry.id === 'rawFrameNameIdNoCountersTextCache');
+  const noCountersValueCache = report.variants.find(entry => entry.id === 'rawFrameNameIdNoCountersValueCache');
   assert.equal(noCounters.fullStringParity, true);
   assert.equal(noCounters.contractScope, 'full-string-materialization');
   assert.equal(noCounters.instrumentation, 'materialization-counters-disabled');
@@ -559,12 +573,24 @@ test('large candidate headroom matrix can isolate materialization counter overhe
   assert.equal(noCountersFoldTrim.checksum, rawNameId.checksum);
   assert.equal(noCountersFoldTrim.materializationCounters.stringFieldReads, 0);
   assert.equal(noCountersFoldTrim.runtimeLimitCounterexampleEligible, false);
+  for (const cacheRow of [noCountersTextCache, noCountersValueCache]) {
+    assert.equal(cacheRow.fullStringParity, true);
+    assert.equal(cacheRow.contractScope, 'full-string-materialization');
+    assert.equal(cacheRow.instrumentation, 'materialization-counters-disabled');
+    assert.equal(cacheRow.eventCount, rawNameId.eventCount);
+    assert.equal(cacheRow.checksum, rawNameId.checksum);
+    assert.equal(cacheRow.materializationCounters.stringFieldReads, 0);
+    assert.equal(cacheRow.runtimeLimitCounterexampleEligible, false);
+  }
 
   const markdown = readFileSync(noCountersMdOut, 'utf8');
   assert.match(markdown, /rawFrameNameIdNoCounters/);
   assert.match(markdown, /rawFrameNameIdNoCountersFoldTrim/);
+  assert.match(markdown, /rawFrameNameIdNoCountersTextCache/);
+  assert.match(markdown, /rawFrameNameIdNoCountersValueCache/);
   assert.match(markdown, /materialization-counter-overhead-candidate/);
   assert.match(markdown, /no-counter-fold-trim-candidate/);
+  assert.match(markdown, /no-counter-value-cache-candidate/);
   assert.match(markdown, /instrumentation=materialization-counters-disabled/);
 });
 

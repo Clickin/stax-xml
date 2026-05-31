@@ -314,6 +314,28 @@ function createVariants(fixture, requestedCases = null) {
           run: () => consumeRawFrameNameIdNoCountersStyle(fixture, { foldTrimmedText: true }),
         }]
       : []),
+    ...(requested.has('rawFrameNameIdNoCountersTextCache')
+      ? [{
+          id: 'rawFrameNameIdNoCountersTextCache',
+          family: 'full-stax-js',
+          implementation: 'nextRawBatch typed arrays with numeric name-id cache, counters disabled, and bounded text/CDATA span string cache',
+          contractScope: 'full-string-materialization',
+          fullStringParity: true,
+          instrumentation: 'materialization-counters-disabled',
+          run: () => consumeRawFrameNameIdNoCountersStyle(fixture, { textCache: new SpanStringCache() }),
+        }]
+      : []),
+    ...(requested.has('rawFrameNameIdNoCountersValueCache')
+      ? [{
+          id: 'rawFrameNameIdNoCountersValueCache',
+          family: 'full-stax-js',
+          implementation: 'nextRawBatch typed arrays with numeric name-id cache, counters disabled, and bounded text/attribute-value span string cache',
+          contractScope: 'full-string-materialization',
+          fullStringParity: true,
+          instrumentation: 'materialization-counters-disabled',
+          run: () => consumeRawFrameNameIdNoCountersStyle(fixture, { valueCache: new SpanStringCache() }),
+        }]
+      : []),
     ...(requested.has('rawFrameNameIdNoTrim')
       ? [{
           id: 'rawFrameNameIdNoTrim',
@@ -837,6 +859,8 @@ function createFindings(variants, fixture) {
   const rawNameId = variants.find((entry) => entry.id === 'rawFrameNameId');
   const rawNameIdNoCounters = variants.find((entry) => entry.id === 'rawFrameNameIdNoCounters');
   const rawNameIdNoCountersFoldTrim = variants.find((entry) => entry.id === 'rawFrameNameIdNoCountersFoldTrim');
+  const rawNameIdNoCountersTextCache = variants.find((entry) => entry.id === 'rawFrameNameIdNoCountersTextCache');
+  const rawNameIdNoCountersValueCache = variants.find((entry) => entry.id === 'rawFrameNameIdNoCountersValueCache');
   const foldTrim = variants.find((entry) => entry.id === 'rawFrameNameIdFoldTrim');
   const findings = [
     {
@@ -937,6 +961,21 @@ function createFindings(variants, fixture) {
         `sameEvents=${rawNameIdNoCountersFoldTrim.eventCount === rawNameIdNoCounters.eventCount}`,
         `throughputRatio=${(rawNameIdNoCountersFoldTrim.mibPerSec / rawNameIdNoCounters.mibPerSec).toFixed(2)}x`,
         `instrumentation=${rawNameIdNoCountersFoldTrim.instrumentation}`,
+      ],
+    });
+  }
+  if (rawNameIdNoCounters && (rawNameIdNoCountersTextCache || rawNameIdNoCountersValueCache)) {
+    findings.push({
+      id: 'no-counter-value-cache-candidate',
+      summary: 'No-counter cache rows test whether repeated text or attribute value spans become useful once materialization counter increments are removed from the measured loop.',
+      evidence: [
+        `rawFrameNameIdNoCounters=${formatRate(rawNameIdNoCounters.mibPerSec)}`,
+        rawNameIdNoCountersTextCache
+          ? `rawFrameNameIdNoCountersTextCache=${formatRate(rawNameIdNoCountersTextCache.mibPerSec)}, sameChecksum=${rawNameIdNoCountersTextCache.checksum === rawNameIdNoCounters.checksum}, sameEvents=${rawNameIdNoCountersTextCache.eventCount === rawNameIdNoCounters.eventCount}`
+          : 'rawFrameNameIdNoCountersTextCache=missing',
+        rawNameIdNoCountersValueCache
+          ? `rawFrameNameIdNoCountersValueCache=${formatRate(rawNameIdNoCountersValueCache.mibPerSec)}, sameChecksum=${rawNameIdNoCountersValueCache.checksum === rawNameIdNoCounters.checksum}, sameEvents=${rawNameIdNoCountersValueCache.eventCount === rawNameIdNoCounters.eventCount}`
+          : 'rawFrameNameIdNoCountersValueCache=missing',
       ],
     });
   }
@@ -1572,7 +1611,7 @@ function consumeRawFrameNameIdNoCounters(frame, checksum, eventCount, decoder, n
     if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
       const start = textStarts[index];
       if (start >= 0) {
-        const value = decodeSpanNoCounters(buffer, start, textEnds[index], decoder);
+        const value = materializeValueNoCounters(buffer, start, textEnds[index], decoder, options.textCache ?? options.valueCache);
         checksum = options.foldTrimmedText ? foldTrimmedString(checksum, value) : foldString(checksum, value.trim());
       }
     }
@@ -1595,7 +1634,7 @@ function consumeRawFrameNameIdNoCounters(frame, checksum, eventCount, decoder, n
         );
         const value = isImplicitAttributeValue(attrNameStarts, attrNameEnds, attrValueStarts, attrValueEnds, attrIndex)
           ? undefined
-          : decodeSpanNoCounters(buffer, attrValueStarts[attrIndex], attrValueEnds[attrIndex], decoder);
+          : materializeValueNoCounters(buffer, attrValueStarts[attrIndex], attrValueEnds[attrIndex], decoder, options.attrValueCache ?? options.valueCache);
         checksum = foldString(checksum, value);
       }
     }
@@ -1784,6 +1823,19 @@ function materializeNameNoCounters(buffer, start, end, nameId, decoder, nameCach
   }
   const value = decodeSpanNoCounters(buffer, start, end, decoder);
   nameCache[nameId] = value;
+  return value;
+}
+
+function materializeValueNoCounters(buffer, start, end, decoder, valueCache) {
+  if (!valueCache) {
+    return decodeSpanNoCounters(buffer, start, end, decoder);
+  }
+  const cached = valueCache.get(buffer, start, end);
+  if (cached !== undefined) {
+    return cached;
+  }
+  const value = decodeSpanNoCounters(buffer, start, end, decoder);
+  valueCache.set(buffer, start, end, value);
   return value;
 }
 
