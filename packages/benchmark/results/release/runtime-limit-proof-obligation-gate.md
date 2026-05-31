@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-05-31T12:50:46.771Z
+Generated: 2026-05-31T13:06:07.497Z
 
 ## Scope
 
@@ -98,6 +98,7 @@ These checks keep known semantic distinctions from being collapsed into a strong
 | `byte-batch-backpressure-preserved` | yes | Byte-batch source rows must preserve demand-driven consumption instead of preconsuming the stream. |
 | `raw-frame-source-shapes-backpressure-counted` | yes | Focused source-shape evidence must include raw-frame async and ReadableStream rows under the same backpressure counters. |
 | `handoff-source-consumption-classified` | yes | The handoff must carry classified source-consumption evidence without closing Safari/WebKit or SpiderMonkey obligations. |
+| `handoff-external-target-distance-classified` | yes | The handoff must carry Woodstox and quick-xml 0.9x target-distance evidence under the same checksum contract. |
 | `woodstox-reference-not-identical-input` | yes | Cross-fixture Woodstox ratios must remain target-distance references, not identical-input target passes. |
 | `same-fixture-woodstox-target-unmet` | yes | The current same-fixture 1024 MiB JS row must stay recorded as below the 0.9x Woodstox target. |
 

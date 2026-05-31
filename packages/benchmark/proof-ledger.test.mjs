@@ -104,7 +104,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /all 10 required claim guards are satisfied/);
   assert.match(markdown, /all 35 required artifact mentions\s+are present/);
   assert.match(markdown, /all 5 required open-obligation disclosures are present/);
-  assert.match(markdown, /all 14\s+proof-rule checks are satisfied/);
+  assert.match(markdown, /all 15\s+proof-rule checks are satisfied/);
   assert.match(markdown, /`conclusionAllowed: false`/);
   assert.match(markdown, /treating Woodstox or quick-xml as JavaScript object\s+shape parity/);
   assert.match(markdown, /treating lazy getters as an untried default candidate/);
@@ -114,6 +114,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /byte-batch rows must preserve demand-driven\s+pulls/);
   assert.match(markdown, /cross-fixture ratios\s+remain target-distance references/);
   assert.match(markdown, /same-fixture 1024 MiB JS\s+row is still below the 0\.9x Woodstox target even after the file-backed source\s+and batch-size sweep rows are included/);
+  assert.match(markdown, /requires the handoff\s+to carry the external Woodstox and quick-xml target-distance evidence under the\s+same checksum contract/);
+  assert.match(markdown, /future external rows are judged against both the\s+200 MiB\/s counterexample threshold and the 0\.9x Woodstox goal/);
   assert.match(markdown, /If the broad\s+runtime-limit claim is upgraded to `CONCLUSION` while these open obligations\s+remain, the gate fails/);
   assert.match(markdown, /object-shape-parity\.md/);
   assert.match(markdown, /materialization-contract-audit\.md/);

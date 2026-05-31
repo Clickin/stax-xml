@@ -120,7 +120,7 @@ and records whether the broad runtime-limit conclusion is currently allowed.
 
 The current gate report passes with status `incomplete-proof-correctly-blocked`:
 all 10 required claim guards are satisfied, all 35 required artifact mentions
-are present, all 5 required open-obligation disclosures are present, and all 14
+are present, all 5 required open-obligation disclosures are present, and all 15
 proof-rule checks are satisfied. The important result is
 `conclusionAllowed: false`, not a proof of impossibility.
 The runtime-limit claim remains `HYPOTHESIS`, while the gate confirms that
@@ -134,7 +134,10 @@ large byte-batch matrices must not be described as one prebuilt 1 GiB
 pulls. It also requires the Woodstox target distinction: cross-fixture ratios
 remain target-distance references, while the current same-fixture 1024 MiB JS
 row is still below the 0.9x Woodstox target even after the file-backed source
-and batch-size sweep rows are included.
+and batch-size sweep rows are included. The gate now also requires the handoff
+to carry the external Woodstox and quick-xml target-distance evidence under the
+same checksum contract so future external rows are judged against both the
+200 MiB/s counterexample threshold and the 0.9x Woodstox goal.
 
 This is deliberately a conservative proof-language step: a passing gate means
 the ledger is not overclaiming. It does not run benchmark rows, inspect

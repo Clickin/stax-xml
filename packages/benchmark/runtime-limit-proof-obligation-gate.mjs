@@ -201,6 +201,11 @@ const requiredProofRules = [
     description: 'The handoff must carry classified source-consumption evidence without closing Safari/WebKit or SpiderMonkey obligations.',
   },
   {
+    id: 'handoff-external-target-distance-classified',
+    pattern: /external target-distance evidence from the same\s+aggregate[\s\S]+?fastest aggregated\s+JavaScript full-string row is 0\.93x of the 200 MiB\/s threshold and 0\.55x of the\s+1024 MiB Woodstox reference[\s\S]+?118\.67 MiB\/s below the 0\.9x Woodstox target[\s\S]+?Woodstox is 351\.56 MiB\/s\s+with a 316\.40 MiB\/s 0\.9x target, and quick-xml is 274\.63 MiB\/s with a\s+247\.17 MiB\/s 0\.9x target[\s\S]+?not object-shape equivalence/i,
+    description: 'The handoff must carry Woodstox and quick-xml 0.9x target-distance evidence under the same checksum contract.',
+  },
+  {
     id: 'woodstox-reference-not-identical-input',
     pattern: /fastest aggregated JS row\s+and the 1024 MiB Woodstox reference can come from different corpus fixtures/i,
     description: 'Cross-fixture Woodstox ratios must remain target-distance references, not identical-input target passes.',
