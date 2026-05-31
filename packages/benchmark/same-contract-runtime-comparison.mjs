@@ -379,6 +379,11 @@ const crossProcessArtifacts = [
     cases: candidateCases,
   },
   {
+    group: 'no-counter-name-fold-cache-cross-process-books-corpus',
+    file: 'no-counter-name-fold-cache-cross-process-books-corpus.json',
+    cases: ['rawFrameNameId', 'rawFrameNameIdNoCounters', 'rawFrameNameIdNoCountersNameFoldCache'],
+  },
+  {
     group: 'cross-process-books-corpus-batch16',
     file: 'candidate-headroom-cross-process-books-corpus-batch16.json',
     cases: candidateCases,

@@ -131,7 +131,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /The traced rows preserved the full-string contract across\s+`subarraySharedDecoder`, `viewSharedDecoder`, `sliceCopySharedDecoder`,\s+`subarrayNewDecoder`, and `shortAsciiSubarraySharedDecoder`/);
   assert.match(markdown, /18\s+generated DFG JIT lines, 675 bytecode lines, 1,880 DFG node lines, and 59 target\s+mentions/);
   assert.match(markdown, /does\s+not prove generated native code inside Bun Zig `TextDecoder`/);
-  assert.match(markdown, /210 aggregated rows and 179 JavaScript 1 GiB\+\s+full-string rows/);
+  assert.match(markdown, /213 aggregated rows and 182 JavaScript 1 GiB\+\s+full-string rows/);
   assert.match(markdown, /zero 200 MiB\/s\+ bounded-memory JavaScript\s+counterexamples/);
   assert.match(markdown, /fastest aggregated 1 GiB\+ JavaScript\s+full-string row is Node\/V8 `rawFrameNameId` from\s+`text-trim-cost-decomposition\.json` at 185\.50 MiB\/s/);
   assert.match(markdown, /184\.09 to 186\.66 MiB\/s/);
@@ -139,9 +139,9 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /fastest public event-object row is also\s+`sync-iterable-byte-batches`/);
   assert.match(markdown, /1024 MiB file-backed stax baseline is\s+`file-backed-sync-iterable-byte-batches`/);
   assert.match(markdown, /text-checksum consumer decomposition, and semantic checksum\s+upper-bound artifacts under the same checksum contract/);
-  assert.match(markdown, /all 173 JavaScript 1 GiB\+ full-string\s+rows with source-mode metadata in this aggregate are marked as not full\s+`ArrayBuffer` parser-input rows/);
-  assert.match(markdown, /separately records 96 corpus-seed replay\s+rows, with a maximum seed size of 100\.26 MiB and a maximum seed\/target ratio of\s+0\.09/);
-  assert.match(markdown, /classifies memory on the same 179\s+JavaScript 1 GiB\+ full-string rows used by the counterexample scan: 162 rows\s+are bounded, 17 are unbounded or unproven/);
+  assert.match(markdown, /all 176 JavaScript 1 GiB\+ full-string\s+rows with source-mode metadata in this aggregate are marked as not full\s+`ArrayBuffer` parser-input rows/);
+  assert.match(markdown, /separately records 99 corpus-seed replay\s+rows, with a maximum seed size of 100\.26 MiB and a maximum seed\/target ratio of\s+0\.09/);
+  assert.match(markdown, /classifies memory on the same 182\s+JavaScript 1 GiB\+ full-string rows used by the counterexample scan: 165 rows\s+are bounded, 17 are unbounded or unproven/);
   assert.match(markdown, /metric kinds remain separate as\s+`process-rss`, `browser-js-heap`, and `browser-js-heap-unavailable`/);
   assert.match(markdown, /fastest bounded row is still Node\/V8 `rawFrameNameId` at 185\.50 MiB\/s with\s+process RSS max 60\.45 MiB/);
   assert.match(markdown, /fastest bounded browser JS heap row is Chrome\/V8\s+browser `eventObjectFull` at 64\.56 MiB\/s with JS heap max 16\.54 MiB/);
@@ -178,7 +178,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /Node\/V8 `rawFrameNameId` from\s+`text-trim-cost-decomposition\.json` at 185\.50 MiB\/s/);
   assert.match(markdown, /fastest cross-process aggregate full-string row with memory proof remains\s+the Bun\/JSC `rawFrameNameId` family at 177\.34 MiB\/s average over 3 samples with\s+3\.23% spread/);
   assert.match(markdown, /aggregate rows separately from\s+individual child samples/);
-  assert.match(markdown, /287 JavaScript 1 GiB\+\s+full-string rows with source mode metadata/);
+  assert.match(markdown, /328 JavaScript 1 GiB\+\s+full-string rows with source mode metadata/);
   assert.match(markdown, /generated-sync bucket now has 197 JavaScript 1 GiB\+ full-string rows, 188 of\s+them bounded/);
   assert.match(markdown, /file-backed sync byte-batch bucket adds 53 full-string rows,\s+52 of them bounded, with fastest row 152\.11 MiB\/s/);
   assert.match(markdown, /stable-shape event-object row\s+keeps the same file-backed `Iterable<Uint8Array\[\]>` source, 61,236,571 events,\s+checksum `-716099804`, and stable own-property shape/);
@@ -198,7 +198,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /separates\s+parser-demand-driven source rows from direct ReadableStream rows and from Web\s+Stream backpressure rows/);
   assert.match(markdown, /`fetchReadableStreamFull`\s+is classified as `fetch-readable-stream-pull` with `directReadableStream=true`\s+and `respectsBackpressure=true` at 9\.68 MiB\/s/);
   assert.match(markdown, /`fetchAsyncByteBatchFull` is classified as `fetch-async-iterable-byte-batches`\s+with `directReadableStream=false` and `respectsBackpressure=true` at\s+9\.77 MiB\/s/);
-  assert.match(markdown, /all 287\s+JavaScript 1 GiB\+ full-string rows with source-mode metadata are now marked as\s+not full `ArrayBuffer` parser-input rows/);
+  assert.match(markdown, /all 328\s+JavaScript 1 GiB\+ full-string rows with source-mode metadata are now marked as\s+not full `ArrayBuffer` parser-input rows/);
   assert.match(markdown, /fixes the previous scanner\s+blind spot/);
   assert.match(markdown, /non-`stax-\*` Node\/V8 row tools could be labeled `Node\/V8` but\s+not counted as JavaScript runtime rows/);
   assert.match(markdown, /remain below the 200 MiB\/s\s+counterexample threshold/);
@@ -329,11 +329,11 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /spidermonkey-codegen-handoff/);
   assert.match(markdown, /source-consumption evidence status is\s+`classified`/);
   assert.match(markdown, /source modes\s+`fetch-async-iterable-byte-batches`, `fetch-readable-stream-pull`,\s+`file-backed-sync-iterable-byte-batches`, and `sync-iterable-byte-batches`/);
-  assert.match(markdown, /all\s+173 JavaScript 1 GiB\+ full-string rows with source-mode metadata are not full\s+`ArrayBuffer` parser-input rows/);
+  assert.match(markdown, /all\s+176 JavaScript 1 GiB\+ full-string rows with source-mode metadata are not full\s+`ArrayBuffer` parser-input rows/);
   assert.match(markdown, /`sync-iterable-byte-batches-batch-8` at 91\.95 MiB\/s versus\s+`web-readable-stream-raw-frame-ascii-batch-8` at 75\.20 MiB\/s/);
   assert.match(markdown, /browser live fetch frontier records `fetchReadableStreamFull` at 9\.68\s+MiB\/s and `fetchAsyncByteBatchFull` at 9\.77 MiB\/s with backpressure 2\/2/);
   assert.match(markdown, /classification closes only the source-consumption guard; Safari\/WebKit browser\s+rows and SpiderMonkey emitted IR remain active obligations/);
-  assert.match(markdown, /same-contract memory frontier from that\s+aggregate: 179 JavaScript 1 GiB\+ full-string memory rows, 162 bounded rows, and\s+17 unbounded or unproven rows/);
+  assert.match(markdown, /same-contract memory frontier from that\s+aggregate: 182 JavaScript 1 GiB\+ full-string memory rows, 165 bounded rows, and\s+17 unbounded or unproven rows/);
   assert.match(markdown, /across `process-rss`, `browser-js-heap`, and\s+`browser-js-heap-unavailable` memory kinds/);
   assert.match(markdown, /fastest bounded row is Node\/V8\s+`rawFrameNameId` at 185\.50 MiB\/s with 60\.45 MiB process RSS/);
   assert.match(markdown, /fastest browser\s+JS heap row is Chrome\/V8 browser `eventObjectFull` at 64\.56 MiB\/s with 16\.54 MiB\s+JS heap/);

@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-05-31T15:43:50.077Z",
+  "generatedAt": "2026-05-31T15:59:18.910Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
   "inputs": {
     "auditJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-coverage-audit.json",
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
-    "comparisonGeneratedAt": "2026-05-31T14:02:42.888Z",
+    "comparisonGeneratedAt": "2026-05-31T15:57:38.573Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
     "auditGeneratedAt": "2026-05-31T15:42:30.032Z",
@@ -58,7 +58,7 @@
   "sourceConsumptionEvidence": {
     "status": "classified",
     "sourceArtifact": "same-contract-runtime-comparison.json",
-    "rowCount": 210,
+    "rowCount": 213,
     "sourceModes": [
       "fetch-async-iterable-byte-batches",
       "fetch-readable-stream-pull",
@@ -66,11 +66,11 @@
       "sync-iterable-byte-batches"
     ],
     "sourceShapeSafety": {
-      "largeJsFullSourceModeRows": 173,
-      "notFullArrayBufferRows": 173,
+      "largeJsFullSourceModeRows": 176,
+      "notFullArrayBufferRows": 176,
       "fullArrayBufferRows": 0,
       "unknownArrayBufferRows": 0,
-      "corpusSeedReplayRows": 96
+      "corpusSeedReplayRows": 99
     },
     "sourceConsumptionFrontier": {
       "sourceArtifact": "stream-source-consumption-backpressure-counters.json",
@@ -98,8 +98,8 @@
     "status": "classified",
     "sourceArtifact": "same-contract-runtime-comparison.json",
     "contract": "1gib-plus-js-full-string-memory-frontier",
-    "rows": 179,
-    "boundedRows": 162,
+    "rows": 182,
+    "boundedRows": 165,
     "unboundedRows": 17,
     "memoryKinds": [
       "browser-js-heap",
@@ -178,8 +178,8 @@
       },
       {
         "kind": "process-rss",
-        "rows": 150,
-        "boundedRows": 142,
+        "rows": 153,
+        "boundedRows": 145,
         "unboundedRows": 8,
         "maxMiB": 1956.69,
         "fastestRow": {
