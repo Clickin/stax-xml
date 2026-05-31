@@ -347,6 +347,17 @@ function createVariants(fixture, requestedCases = null) {
           run: () => consumeRawFrameNameIdNoCountersStyle(fixture, { nameFoldCache: [] }),
         }]
       : []),
+    ...(requested.has('rawFrameNameIdNoCountersStringFoldCache')
+      ? [{
+          id: 'rawFrameNameIdNoCountersStringFoldCache',
+          family: 'full-stax-js',
+          implementation: 'nextRawBatch typed arrays with numeric name-id cache, counters disabled, and cached checksum transforms for repeated string values',
+          contractScope: 'full-string-materialization',
+          fullStringParity: true,
+          instrumentation: 'materialization-counters-disabled',
+          run: () => consumeRawFrameNameIdNoCountersStyle(fixture, { nameFoldCache: [], stringFoldCache: new Map() }),
+        }]
+      : []),
     ...(requested.has('rawFrameNameIdNoTrim')
       ? [{
           id: 'rawFrameNameIdNoTrim',
@@ -873,6 +884,7 @@ function createFindings(variants, fixture) {
   const rawNameIdNoCountersTextCache = variants.find((entry) => entry.id === 'rawFrameNameIdNoCountersTextCache');
   const rawNameIdNoCountersValueCache = variants.find((entry) => entry.id === 'rawFrameNameIdNoCountersValueCache');
   const rawNameIdNoCountersNameFoldCache = variants.find((entry) => entry.id === 'rawFrameNameIdNoCountersNameFoldCache');
+  const rawNameIdNoCountersStringFoldCache = variants.find((entry) => entry.id === 'rawFrameNameIdNoCountersStringFoldCache');
   const foldTrim = variants.find((entry) => entry.id === 'rawFrameNameIdFoldTrim');
   const findings = [
     {
@@ -1001,6 +1013,19 @@ function createFindings(variants, fixture) {
         `sameChecksum=${rawNameIdNoCountersNameFoldCache.checksum === rawNameIdNoCounters.checksum}`,
         `sameEvents=${rawNameIdNoCountersNameFoldCache.eventCount === rawNameIdNoCounters.eventCount}`,
         `throughputRatio=${(rawNameIdNoCountersNameFoldCache.mibPerSec / rawNameIdNoCounters.mibPerSec).toFixed(2)}x`,
+      ],
+    });
+  }
+  if (rawNameIdNoCounters && rawNameIdNoCountersStringFoldCache) {
+    findings.push({
+      id: 'no-counter-string-fold-cache-candidate',
+      summary: 'rawFrameNameIdNoCountersStringFoldCache keeps string materialization intact while caching checksum transforms for repeated text and attribute value strings after decode.',
+      evidence: [
+        `rawFrameNameIdNoCounters=${formatRate(rawNameIdNoCounters.mibPerSec)}`,
+        `rawFrameNameIdNoCountersStringFoldCache=${formatRate(rawNameIdNoCountersStringFoldCache.mibPerSec)}`,
+        `sameChecksum=${rawNameIdNoCountersStringFoldCache.checksum === rawNameIdNoCounters.checksum}`,
+        `sameEvents=${rawNameIdNoCountersStringFoldCache.eventCount === rawNameIdNoCounters.eventCount}`,
+        `throughputRatio=${(rawNameIdNoCountersStringFoldCache.mibPerSec / rawNameIdNoCounters.mibPerSec).toFixed(2)}x`,
       ],
     });
   }
@@ -1638,7 +1663,14 @@ function consumeRawFrameNameIdNoCounters(frame, checksum, eventCount, decoder, n
       const start = textStarts[index];
       if (start >= 0) {
         const value = materializeValueNoCounters(buffer, start, textEnds[index], decoder, options.textCache ?? options.valueCache);
-        checksum = options.foldTrimmedText ? foldTrimmedString(checksum, value) : foldString(checksum, value.trim());
+        if (options.foldTrimmedText) {
+          checksum = foldTrimmedString(checksum, value);
+        } else {
+          const textForChecksum = value.trim();
+          checksum = options.stringFoldCache
+            ? foldStringWithTransformCache(checksum, textForChecksum, options.stringFoldCache)
+            : foldString(checksum, textForChecksum);
+        }
       }
     }
     if (type === StreamEventType.START_ELEMENT) {
@@ -1662,7 +1694,9 @@ function consumeRawFrameNameIdNoCounters(frame, checksum, eventCount, decoder, n
         const value = isImplicitAttributeValue(attrNameStarts, attrNameEnds, attrValueStarts, attrValueEnds, attrIndex)
           ? undefined
           : materializeValueNoCounters(buffer, attrValueStarts[attrIndex], attrValueEnds[attrIndex], decoder, options.attrValueCache ?? options.valueCache);
-        checksum = foldString(checksum, value);
+        checksum = options.stringFoldCache
+          ? foldStringWithTransformCache(checksum, value, options.stringFoldCache)
+          : foldString(checksum, value);
       }
     }
   }
@@ -1681,6 +1715,18 @@ function foldNameWithTransformCache(seed, value, nameId, transformCache) {
   if (transform === undefined) {
     transform = createFoldTransform(value);
     transformCache[nameId] = transform;
+  }
+  return (Math.imul(seed, transform.multiplier) + transform.addend) | 0;
+}
+
+function foldStringWithTransformCache(seed, value, transformCache) {
+  if (!value) {
+    return seed;
+  }
+  let transform = transformCache.get(value);
+  if (transform === undefined) {
+    transform = createFoldTransform(value);
+    transformCache.set(value, transform);
   }
   return (Math.imul(seed, transform.multiplier) + transform.addend) | 0;
 }
