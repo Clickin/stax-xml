@@ -11,6 +11,7 @@ const defaultMdOut = resolve(defaultReleaseDir, 'runtime-proof-coverage-audit.md
 
 const ignoredArtifacts = new Set([
   'latest-summary.json',
+  'access-shape-candidate-cross-process.json',
   'runtime-limit-proof-obligation-gate.json',
   'runtime-proof-gap-handoff.json',
   'same-contract-runtime-comparison.json',

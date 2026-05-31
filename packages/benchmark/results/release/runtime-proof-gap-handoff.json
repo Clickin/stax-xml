@@ -1,15 +1,15 @@
 {
-  "generatedAt": "2026-05-31T17:32:46.172Z",
+  "generatedAt": "2026-05-31T17:46:53.160Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
   "inputs": {
     "auditJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-coverage-audit.json",
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
-    "comparisonGeneratedAt": "2026-05-31T17:32:16.935Z",
+    "comparisonGeneratedAt": "2026-05-31T17:46:39.740Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
-    "auditGeneratedAt": "2026-05-31T17:32:30.638Z",
+    "auditGeneratedAt": "2026-05-31T17:46:40.992Z",
     "auditObjective": "runtime-proof-coverage-audit",
     "auditContract": "static-release-artifact-proof-coverage"
   },
@@ -37,8 +37,8 @@
     "conclusionBlocker": "Open or partial obligations still require external runtime evidence before any runtime-limit conclusion."
   },
   "auditSummary": {
-    "artifactCount": 194,
-    "measuredRows": 1096,
+    "artifactCount": 195,
+    "measuredRows": 1102,
     "counterexamples": null,
     "activeObligations": [
       {
@@ -58,7 +58,7 @@
   "sourceConsumptionEvidence": {
     "status": "classified",
     "sourceArtifact": "same-contract-runtime-comparison.json",
-    "rowCount": 232,
+    "rowCount": 234,
     "sourceModes": [
       "fetch-async-iterable-byte-batches",
       "fetch-readable-stream-pull",
@@ -66,11 +66,11 @@
       "sync-iterable-byte-batches"
     ],
     "sourceShapeSafety": {
-      "largeJsFullSourceModeRows": 193,
-      "notFullArrayBufferRows": 193,
+      "largeJsFullSourceModeRows": 195,
+      "notFullArrayBufferRows": 195,
       "fullArrayBufferRows": 0,
       "unknownArrayBufferRows": 0,
-      "corpusSeedReplayRows": 116
+      "corpusSeedReplayRows": 118
     },
     "sourceConsumptionFrontier": {
       "sourceArtifact": "stream-source-consumption-backpressure-counters.json",
@@ -98,8 +98,8 @@
     "status": "classified",
     "sourceArtifact": "same-contract-runtime-comparison.json",
     "contract": "1gib-plus-js-full-string-memory-frontier",
-    "rows": 199,
-    "boundedRows": 182,
+    "rows": 201,
+    "boundedRows": 184,
     "unboundedRows": 17,
     "memoryKinds": [
       "browser-js-heap",
@@ -178,8 +178,8 @@
       },
       {
         "kind": "process-rss",
-        "rows": 170,
-        "boundedRows": 162,
+        "rows": 172,
+        "boundedRows": 164,
         "unboundedRows": 8,
         "maxMiB": 1956.69,
         "fastestRow": {

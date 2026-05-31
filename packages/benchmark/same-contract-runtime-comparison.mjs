@@ -369,9 +369,14 @@ const variantArtifacts = [
 
 const crossProcessArtifacts = [
   {
-    group: 'access-shape-cross-process-books-corpus',
-    file: 'access-shape-candidate-cross-process.json',
+    group: 'access-shape-rerun-cross-process-books-corpus',
+    file: 'access-shape-rerun-cross-process-books-corpus.json',
     cases: ['cursorAccessor', 'rawFrameDirect', 'rawFrameNameId'],
+  },
+  {
+    group: 'raw-frame-nameid-alone-cross-process-books-corpus',
+    file: 'raw-frame-nameid-alone-cross-process-books-corpus.json',
+    cases: ['rawFrameNameId'],
   },
   {
     group: 'cross-process-books-corpus',
