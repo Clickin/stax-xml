@@ -1,6 +1,6 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-31T18:02:27.289Z
+Generated: 2026-05-31T18:18:12.298Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
@@ -120,9 +120,16 @@ Interpretation: Text/CDATA omission crosses the target as headroom evidence, whi
 
 ## Source Shape Safety
 
-| Scope | Rows | Not full ArrayBuffer parser input | Full ArrayBuffer parser input | Unknown parser input | Corpus seed replay rows | Max corpus seed |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 1 GiB+ JS full-string rows with source mode metadata | 198 | 198 | 0 | 0 | 121 | 100.26 MiB |
+| Scope | Rows | Not full ArrayBuffer parser input | Full ArrayBuffer parser input | Unknown parser input | File-backed sync iterable rows | Direct ReadableStream rows | Corpus seed replay rows | Max corpus seed |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 GiB+ JS full-string rows with source mode metadata | 198 | 198 | 0 | 0 | 36 | 1 | 121 | 100.26 MiB |
+
+| Source mode | Rows | Not full ArrayBuffer | Full ArrayBuffer | Unknown | Direct ReadableStream | Corpus seed replay | Fastest row |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| `fetch-async-iterable-byte-batches` | 1 | 1 | 0 | 0 | 0 | 1 | Chrome/V8 browser `fetchAsyncByteBatchFull` 9.77 MiB/s from `browser-fetch-readable-stream-books-corpus.json` |
+| `fetch-readable-stream-pull` | 1 | 1 | 0 | 0 | 1 | 1 | Chrome/V8 browser `fetchReadableStreamFull` 9.68 MiB/s from `browser-fetch-readable-stream-books-corpus.json` |
+| `file-backed-sync-iterable-byte-batches` | 36 | 36 | 0 | 0 | 0 | 0 | Node/V8 `stax-raw-frame-name-id-batch-8` 152.11 MiB/s from `file-backed-batch-size-sweep.json` |
+| `sync-iterable-byte-batches` | 160 | 160 | 0 | 0 | 0 | 119 | Node/V8 `rawFrameNameId` 185.50 MiB/s from `text-trim-cost-decomposition.json` |
 
 ## Source Consumption Frontier
 

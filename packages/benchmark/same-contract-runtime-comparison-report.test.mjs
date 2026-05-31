@@ -219,8 +219,80 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     fullArrayBufferRows: 0,
     unknownArrayBufferRows: 0,
     corpusSeedReplayRows: 121,
+    fileBackedSyncIterableRows: 36,
+    directReadableStreamRows: 1,
     maxCorpusSeedMiB: 100.26,
     maxCorpusSeedToTargetRatio: 0.09,
+    sourceModeBreakdown: [
+      {
+        sourceMode: 'fetch-async-iterable-byte-batches',
+        rows: 1,
+        notFullArrayBufferRows: 1,
+        fullArrayBufferRows: 0,
+        unknownArrayBufferRows: 0,
+        directReadableStreamRows: 0,
+        corpusSeedReplayRows: 1,
+        fastestRow: {
+          sourceArtifact: 'browser-fetch-readable-stream-books-corpus.json',
+          runtimeLabel: 'Chrome/V8 browser',
+          caseId: 'fetchAsyncByteBatchFull',
+          mibPerSec: 9.77,
+          fullStringParity: true,
+          boundedMemory: true,
+        },
+      },
+      {
+        sourceMode: 'fetch-readable-stream-pull',
+        rows: 1,
+        notFullArrayBufferRows: 1,
+        fullArrayBufferRows: 0,
+        unknownArrayBufferRows: 0,
+        directReadableStreamRows: 1,
+        corpusSeedReplayRows: 1,
+        fastestRow: {
+          sourceArtifact: 'browser-fetch-readable-stream-books-corpus.json',
+          runtimeLabel: 'Chrome/V8 browser',
+          caseId: 'fetchReadableStreamFull',
+          mibPerSec: 9.68,
+          fullStringParity: true,
+          boundedMemory: true,
+        },
+      },
+      {
+        sourceMode: 'file-backed-sync-iterable-byte-batches',
+        rows: 36,
+        notFullArrayBufferRows: 36,
+        fullArrayBufferRows: 0,
+        unknownArrayBufferRows: 0,
+        directReadableStreamRows: 0,
+        corpusSeedReplayRows: 0,
+        fastestRow: {
+          sourceArtifact: 'file-backed-batch-size-sweep.json',
+          runtimeLabel: 'Node/V8',
+          caseId: 'stax-raw-frame-name-id-batch-8',
+          mibPerSec: 152.11,
+          fullStringParity: true,
+          boundedMemory: true,
+        },
+      },
+      {
+        sourceMode: 'sync-iterable-byte-batches',
+        rows: 160,
+        notFullArrayBufferRows: 160,
+        fullArrayBufferRows: 0,
+        unknownArrayBufferRows: 0,
+        directReadableStreamRows: 0,
+        corpusSeedReplayRows: 119,
+        fastestRow: {
+          sourceArtifact: 'text-trim-cost-decomposition.json',
+          runtimeLabel: 'Node/V8',
+          caseId: 'rawFrameNameId',
+          mibPerSec: 185.5,
+          fullStringParity: true,
+          boundedMemory: true,
+        },
+      },
+    ],
   });
   assert.ok(report.metadata.sourceArtifacts.includes('no-counter-name-fold-cache-cross-process-books-corpus.json'));
   assert.ok(report.metadata.sourceArtifacts.includes('deno-candidate-headroom-cross-process-books-corpus.json'));
@@ -900,7 +972,10 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /Recognized JS source modes: fetch-async-iterable-byte-batches, fetch-readable-stream-pull, file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches/);
   assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 198\/198/);
   assert.match(markdown, /1 GiB\+ source-mode rows replaying a corpus seed buffer: 121 \(max seed 100\.26 MiB, max seed\/target 0\.09\)/);
-  assert.match(markdown, /\| 1 GiB\+ JS full-string rows with source mode metadata \| 198 \| 198 \| 0 \| 0 \| 121 \| 100\.26 MiB \|/);
+  assert.match(markdown, /\| 1 GiB\+ JS full-string rows with source mode metadata \| 198 \| 198 \| 0 \| 0 \| 36 \| 1 \| 121 \| 100\.26 MiB \|/);
+  assert.match(markdown, /\| `file-backed-sync-iterable-byte-batches` \| 36 \| 36 \| 0 \| 0 \| 0 \| 0 \| Node\/V8 `stax-raw-frame-name-id-batch-8` 152\.11 MiB\/s from `file-backed-batch-size-sweep\.json` \|/);
+  assert.match(markdown, /\| `sync-iterable-byte-batches` \| 160 \| 160 \| 0 \| 0 \| 0 \| 119 \| Node\/V8 `rawFrameNameId` 185\.50 MiB\/s from `text-trim-cost-decomposition\.json` \|/);
+  assert.match(markdown, /\| `fetch-readable-stream-pull` \| 1 \| 1 \| 0 \| 0 \| 1 \| 1 \| Chrome\/V8 browser `fetchReadableStreamFull` 9\.68 MiB\/s from `browser-fetch-readable-stream-books-corpus\.json` \|/);
   assert.match(markdown, /## Text Materialization Frontier/);
   assert.match(markdown, /\| Fastest full row \| `rawFrameNameId` \| 185\.50 \| yes \| yes \| `text-trim-cost-decomposition\.json` \| 14\.50 MiB\/s below 200 MiB\/s; 1\.08x speedup required \|/);
   assert.match(markdown, /\| Fastest without text\/CDATA strings \| `withoutTextStrings` \| 252\.36 \| no \| yes \| `text-trim-cost-decomposition-4gib\.json` \| 1\.36x fastest full row; 4 row\(s\) cross 200 MiB\/s \|/);

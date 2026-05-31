@@ -976,14 +976,49 @@ function summarizeSourceShapeSafety(rows) {
   const corpusSeedReplayRows = sourceModeRows.filter(row => row.corpusSeedReplay === true);
   const maxCorpusSeedBytes = maxNullable(corpusSeedReplayRows.map(row => row.corpusSeedBytes));
   const maxCorpusSeedToTargetRatio = maxNullable(corpusSeedReplayRows.map(row => row.corpusSeedToTargetRatio));
+  const sourceModeBreakdown = summarizeSourceShapeBreakdown(sourceModeRows);
   return {
     largeJsFullSourceModeRows: sourceModeRows.length,
     notFullArrayBufferRows: sourceModeRows.filter(row => row.fullArrayBufferParserInput === false).length,
     fullArrayBufferRows: sourceModeRows.filter(row => row.fullArrayBufferParserInput === true).length,
     unknownArrayBufferRows: sourceModeRows.filter(row => row.fullArrayBufferParserInput === null).length,
     corpusSeedReplayRows: corpusSeedReplayRows.length,
+    fileBackedSyncIterableRows: sourceModeBreakdown
+      .filter(entry => entry.sourceMode === 'file-backed-sync-iterable-byte-batches')
+      .reduce((sum, entry) => sum + entry.rows, 0),
+    directReadableStreamRows: sourceModeBreakdown
+      .reduce((sum, entry) => sum + entry.directReadableStreamRows, 0),
     maxCorpusSeedMiB: round(bytesToMiB(maxCorpusSeedBytes)),
     maxCorpusSeedToTargetRatio: round(maxCorpusSeedToTargetRatio),
+    sourceModeBreakdown,
+  };
+}
+
+function summarizeSourceShapeBreakdown(rows) {
+  const groups = groupBy(rows, row => row.sourceMode);
+  return [...groups.entries()]
+    .map(([sourceMode, groupRows]) => ({
+      sourceMode,
+      rows: groupRows.length,
+      notFullArrayBufferRows: groupRows.filter(row => row.fullArrayBufferParserInput === false).length,
+      fullArrayBufferRows: groupRows.filter(row => row.fullArrayBufferParserInput === true).length,
+      unknownArrayBufferRows: groupRows.filter(row => row.fullArrayBufferParserInput === null).length,
+      directReadableStreamRows: groupRows.filter(row => row.directReadableStream === true).length,
+      corpusSeedReplayRows: groupRows.filter(row => row.corpusSeedReplay === true).length,
+      fastestRow: summarizeSourceShapeFastestRow(maxBy(groupRows, row => row.mibPerSec)),
+    }))
+    .sort((left, right) => left.sourceMode.localeCompare(right.sourceMode));
+}
+
+function summarizeSourceShapeFastestRow(row) {
+  if (!row) return null;
+  return {
+    sourceArtifact: row.sourceArtifact,
+    runtimeLabel: row.runtimeLabel,
+    caseId: row.caseId,
+    mibPerSec: row.mibPerSec,
+    fullStringParity: row.fullStringParity,
+    boundedMemory: row.boundedMemory,
   };
 }
 
@@ -1644,9 +1679,13 @@ function renderMarkdown(report) {
     '',
     '## Source Shape Safety',
     '',
-    '| Scope | Rows | Not full ArrayBuffer parser input | Full ArrayBuffer parser input | Unknown parser input | Corpus seed replay rows | Max corpus seed |',
-    '| --- | ---: | ---: | ---: | ---: | ---: | ---: |',
-    `| 1 GiB+ JS full-string rows with source mode metadata | ${report.summary.sourceShapeSafety.largeJsFullSourceModeRows} | ${report.summary.sourceShapeSafety.notFullArrayBufferRows} | ${report.summary.sourceShapeSafety.fullArrayBufferRows} | ${report.summary.sourceShapeSafety.unknownArrayBufferRows} | ${report.summary.sourceShapeSafety.corpusSeedReplayRows} | ${formatNumber(report.summary.sourceShapeSafety.maxCorpusSeedMiB)} MiB |`,
+    '| Scope | Rows | Not full ArrayBuffer parser input | Full ArrayBuffer parser input | Unknown parser input | File-backed sync iterable rows | Direct ReadableStream rows | Corpus seed replay rows | Max corpus seed |',
+    '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
+    `| 1 GiB+ JS full-string rows with source mode metadata | ${report.summary.sourceShapeSafety.largeJsFullSourceModeRows} | ${report.summary.sourceShapeSafety.notFullArrayBufferRows} | ${report.summary.sourceShapeSafety.fullArrayBufferRows} | ${report.summary.sourceShapeSafety.unknownArrayBufferRows} | ${report.summary.sourceShapeSafety.fileBackedSyncIterableRows} | ${report.summary.sourceShapeSafety.directReadableStreamRows} | ${report.summary.sourceShapeSafety.corpusSeedReplayRows} | ${formatNumber(report.summary.sourceShapeSafety.maxCorpusSeedMiB)} MiB |`,
+    '',
+    '| Source mode | Rows | Not full ArrayBuffer | Full ArrayBuffer | Unknown | Direct ReadableStream | Corpus seed replay | Fastest row |',
+    '| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |',
+    ...report.summary.sourceShapeSafety.sourceModeBreakdown.map(sourceShapeMarkdownRow),
   );
 
   if (report.summary.sourceConsumptionFrontier) {
@@ -2027,6 +2066,14 @@ function formatFullArrayBufferInput(value) {
 function formatCorpusSeedReplay(row) {
   if (!row?.corpusSeedReplay) return 'no';
   return `yes (${formatNumber(bytesToMiB(row.corpusSeedBytes))} MiB)`;
+}
+
+function sourceShapeMarkdownRow(entry) {
+  const fastest = entry.fastestRow;
+  const fastestText = fastest
+    ? `${fastest.runtimeLabel} \`${fastest.caseId}\` ${formatNumber(fastest.mibPerSec)} MiB/s from \`${fastest.sourceArtifact}\``
+    : 'n/a';
+  return `| \`${entry.sourceMode}\` | ${entry.rows} | ${entry.notFullArrayBufferRows} | ${entry.fullArrayBufferRows} | ${entry.unknownArrayBufferRows} | ${entry.directReadableStreamRows} | ${entry.corpusSeedReplayRows} | ${fastestText} |`;
 }
 
 function sourceConsumptionMarkdownRow(scope, row) {

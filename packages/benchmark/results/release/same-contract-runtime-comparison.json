@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-31T18:02:27.289Z",
+  "generatedAt": "2026-05-31T18:18:12.298Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -2235,8 +2235,80 @@
       "fullArrayBufferRows": 0,
       "unknownArrayBufferRows": 0,
       "corpusSeedReplayRows": 121,
+      "fileBackedSyncIterableRows": 36,
+      "directReadableStreamRows": 1,
       "maxCorpusSeedMiB": 100.26,
-      "maxCorpusSeedToTargetRatio": 0.09
+      "maxCorpusSeedToTargetRatio": 0.09,
+      "sourceModeBreakdown": [
+        {
+          "sourceMode": "fetch-async-iterable-byte-batches",
+          "rows": 1,
+          "notFullArrayBufferRows": 1,
+          "fullArrayBufferRows": 0,
+          "unknownArrayBufferRows": 0,
+          "directReadableStreamRows": 0,
+          "corpusSeedReplayRows": 1,
+          "fastestRow": {
+            "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+            "runtimeLabel": "Chrome/V8 browser",
+            "caseId": "fetchAsyncByteBatchFull",
+            "mibPerSec": 9.77,
+            "fullStringParity": true,
+            "boundedMemory": true
+          }
+        },
+        {
+          "sourceMode": "fetch-readable-stream-pull",
+          "rows": 1,
+          "notFullArrayBufferRows": 1,
+          "fullArrayBufferRows": 0,
+          "unknownArrayBufferRows": 0,
+          "directReadableStreamRows": 1,
+          "corpusSeedReplayRows": 1,
+          "fastestRow": {
+            "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+            "runtimeLabel": "Chrome/V8 browser",
+            "caseId": "fetchReadableStreamFull",
+            "mibPerSec": 9.68,
+            "fullStringParity": true,
+            "boundedMemory": true
+          }
+        },
+        {
+          "sourceMode": "file-backed-sync-iterable-byte-batches",
+          "rows": 36,
+          "notFullArrayBufferRows": 36,
+          "fullArrayBufferRows": 0,
+          "unknownArrayBufferRows": 0,
+          "directReadableStreamRows": 0,
+          "corpusSeedReplayRows": 0,
+          "fastestRow": {
+            "sourceArtifact": "file-backed-batch-size-sweep.json",
+            "runtimeLabel": "Node/V8",
+            "caseId": "stax-raw-frame-name-id-batch-8",
+            "mibPerSec": 152.11,
+            "fullStringParity": true,
+            "boundedMemory": true
+          }
+        },
+        {
+          "sourceMode": "sync-iterable-byte-batches",
+          "rows": 160,
+          "notFullArrayBufferRows": 160,
+          "fullArrayBufferRows": 0,
+          "unknownArrayBufferRows": 0,
+          "directReadableStreamRows": 0,
+          "corpusSeedReplayRows": 119,
+          "fastestRow": {
+            "sourceArtifact": "text-trim-cost-decomposition.json",
+            "runtimeLabel": "Node/V8",
+            "caseId": "rawFrameNameId",
+            "mibPerSec": 185.5,
+            "fullStringParity": true,
+            "boundedMemory": true
+          }
+        }
+      ]
     },
     "textMaterializationFrontier": {
       "sourceArtifact": "text-materialization-frontier.json",
