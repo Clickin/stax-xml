@@ -1,13 +1,13 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-05-31T14:02:59.941Z
+Generated: 2026-05-31T14:21:26.885Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-05-31T14:02:43.294Z
+- Audit generated: 2026-05-31T14:21:17.493Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
 - Comparison generated: 2026-05-31T14:02:42.888Z
 - Active obligations: 2
@@ -102,7 +102,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 
 - safari-jsc-source-and-browser-rows-open (open): Bun/JSC and Bun-patched WebKit evidence is present, but no Safari/WebKit browser benchmark row was found. Local Safari/WebKit availability audit is present and records that the current host cannot run Safari rows even though the repository has a safaridriver harness when safaridriver is available.
   - Next: Run same-contract Safari/WebKit rows on a macOS host through the safaridriver wrapper and cross-process stability runner.
-- codegen-traces-open (partial): Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=not-found, found=0, searchRoots=0); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.
+- codegen-traces-open (partial): Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=not-found, found=0, searchRoots=0); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.
   - Next: Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows.
 
 ## Handoffs
@@ -182,8 +182,8 @@ Scope guards:
 - Local blockers:
   - Installed Firefox diagnostic dump audit emitted no JIT diagnostic dump.
   - No local SpiderMonkey JS shell was found for JIT IR probing across env, PATH, and filesystem search-root probes.
-  - Official Firefox release jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface and cannot run the current stax full-string benchmark unchanged.
-  - Official Firefox nightly jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface and cannot run the current stax full-string benchmark unchanged.
+  - Official Firefox release jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface, bytecode dump status is no-bytecode-output, and it cannot run the current stax full-string benchmark unchanged.
+  - Official Firefox nightly jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface, bytecode dump status is no-bytecode-output, and it cannot run the current stax full-string benchmark unchanged.
   - Installed Firefox about:buildconfig records --enable-js-shell / MOZ_PACKAGE_JSSHELL but does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW.
 - Local evidence artifacts: firefox-spidermonkey-diagnostic-dump-audit.json, firefox-spidermonkey-js-shell-availability-audit.json, firefox-spidermonkey-release-jsshell-availability-audit.json, firefox-spidermonkey-nightly-jsshell-availability-audit.json, firefox-spidermonkey-buildconfig-source-pin-audit.json
 

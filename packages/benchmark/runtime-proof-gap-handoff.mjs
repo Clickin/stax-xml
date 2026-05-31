@@ -424,6 +424,8 @@ function createLocalClosure(activeObligations, audit) {
       && releaseJsShell?.outcome?.closesEmittedIrObligation === false;
     const nightlyJsShellNoIr = nightlyJsShell?.outcome?.status === 'available'
       && nightlyJsShell?.outcome?.closesEmittedIrObligation === false;
+    const releaseBytecodeStatus = releaseJsShell?.shell?.bytecodeDumpProbe?.status ?? 'unknown';
+    const nightlyBytecodeStatus = nightlyJsShell?.shell?.bytecodeDumpProbe?.status ?? 'unknown';
     const buildconfigNoJitSpew = (audit.coverage?.sourcePins ?? []).some(pin =>
       pin.kind === 'Firefox installed buildconfig JitSpew boundary'
       && /enableJitSpew=false/.test(pin.limitation ?? '')
@@ -444,10 +446,10 @@ function createLocalClosure(activeObligations, audit) {
           ? 'No local SpiderMonkey JS shell was found for JIT IR probing across env, PATH, and filesystem search-root probes.'
           : 'SpiderMonkey JS shell availability is not confirmed missing.',
         releaseJsShellNoIr
-          ? 'Official Firefox release jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface and cannot run the current stax full-string benchmark unchanged.'
+          ? `Official Firefox release jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface, bytecode dump status is ${releaseBytecodeStatus}, and it cannot run the current stax full-string benchmark unchanged.`
           : 'Official Firefox release jsshell diagnostic status is not pinned as available-without-IR.',
         nightlyJsShellNoIr
-          ? 'Official Firefox nightly jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface and cannot run the current stax full-string benchmark unchanged.'
+          ? `Official Firefox nightly jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface, bytecode dump status is ${nightlyBytecodeStatus}, and it cannot run the current stax full-string benchmark unchanged.`
           : 'Official Firefox nightly jsshell diagnostic status is not pinned as available-without-IR.',
         buildconfigNoJitSpew
           ? 'Installed Firefox about:buildconfig records --enable-js-shell / MOZ_PACKAGE_JSSHELL but does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW.'

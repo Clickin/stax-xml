@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T23:50:48.954Z",
+  "generatedAt": "2026-05-31T14:14:07.261Z",
   "objective": "firefox-spidermonkey-release-jsshell-availability-audit",
   "contract": "official-firefox-release-jsshell-jit-status-and-diagnostic-surface",
   "note": "Checks an official Firefox release SpiderMonkey JavaScript shell package for local JIT execution status and diagnostic surface. This is not emitted JIT IR, optimized-code, throughput, or browser evidence.",
@@ -72,10 +72,23 @@
       "error": null,
       "fileCreated": true,
       "fileBytes": 93,
-      "fileSha256": "5540675892aa0df3da49acfdffa767f264cb7ae0c175822e03ed8d378b1ca5c4",
+      "fileSha256": "8aae95ca7a404d0aadbf44a264f3d1e7f696bd81a47e7da84067bfa340e9c22c",
       "hasDisassembler": "false",
       "disnativeWriteError": "Error: Did not write all function bytes to the file.",
       "stdout": "hasDisassembler=false\r\ndisnativeWriteError=Error: Did not write all function bytes to the file.\r\n",
+      "stderr": ""
+    },
+    "bytecodeDumpProbe": {
+      "status": "no-bytecode-output",
+      "exitCode": 0,
+      "error": null,
+      "scriptPathBasename": "bytecode-probe.js",
+      "outputBytes": 15,
+      "bytecodeMarkerCount": 0,
+      "checksum": 210,
+      "stdoutLineCount": 1,
+      "stderrLineCount": 0,
+      "stdout": "checksum=210\r\n",
       "stderr": ""
     },
     "apiProbe": {
@@ -117,6 +130,7 @@
     "packageVerified": true,
     "hasJitExecutionStatus": true,
     "hasIrDumpSurface": false,
+    "hasBytecodeDumpOutput": false,
     "hasNativeDisassemblySurface": false,
     "nativeDumpComplete": false,
     "canReadBinaryInput": true,
@@ -157,6 +171,8 @@
         "hasDisnativeBuiltin=true",
         "hasDisblicBuiltin=true",
         "hasDisassembler=false",
+        "bytecodeDumpStatus=no-bytecode-output",
+        "bytecodeDumpMarkers=0",
         "nativeDumpBytes=93",
         "nativeDumpError=Error: Did not write all function bytes to the file.",
         "This narrows the local diagnostic path but does not close the emitted JIT IR obligation."
@@ -182,7 +198,8 @@
       "classification": "SCOPE_GUARD",
       "summary": "This audit is shell JIT-status evidence only; it is not browser throughput, allocation, emitted IR, or optimized-code evidence.",
       "evidence": [
-        "A diagnostic-capable SpiderMonkey shell or Firefox build is still required for emitted MIR/LIR/codegen dump evidence."
+        "A diagnostic-capable SpiderMonkey shell or Firefox build is still required for emitted MIR/LIR/codegen dump evidence.",
+        "--dump-bytecode output, if available, is bytecode diagnostic evidence and is not MIR/LIR or optimized native code."
       ]
     }
   ]

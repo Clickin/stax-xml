@@ -36,6 +36,7 @@ test('Firefox SpiderMonkey release jsshell audit records JIT status without clos
   assert.equal(report.outcome.packageVerified, true);
   assert.equal(report.outcome.hasJitExecutionStatus, true);
   assert.equal(report.outcome.hasIrDumpSurface, false);
+  assert.equal(report.outcome.hasBytecodeDumpOutput, false);
   assert.equal(report.outcome.hasNativeDisassemblySurface, false);
   assert.equal(report.outcome.nativeDumpComplete, false);
   assert.equal(report.outcome.canReadBinaryInput, true);
@@ -49,6 +50,9 @@ test('Firefox SpiderMonkey release jsshell audit records JIT status without clos
   assert.equal(report.shell.nativeDumpProbe.fileCreated, true);
   assert.equal(report.shell.nativeDumpProbe.fileBytes, 93);
   assert.match(report.shell.nativeDumpProbe.disnativeWriteError, /Did not write all function bytes/);
+  assert.equal(report.shell.bytecodeDumpProbe.status, 'no-bytecode-output');
+  assert.equal(report.shell.bytecodeDumpProbe.bytecodeMarkerCount, 0);
+  assert.equal(report.shell.bytecodeDumpProbe.checksum, 210);
   assert.equal(report.shell.apiProbe.TextDecoder, 'undefined');
   assert.equal(report.shell.apiProbe.ReadableStream, 'undefined');
   assert.equal(report.shell.apiProbe.Uint8Array, 'function');
@@ -69,6 +73,7 @@ test('Firefox SpiderMonkey release jsshell audit records JIT status without clos
   assert.match(markdown, /Firefox SpiderMonkey Release JS Shell Availability Audit/);
   assert.match(markdown, /JIT execution status observed: true/);
   assert.match(markdown, /IR dump surface present: false/);
+  assert.match(markdown, /Bytecode dump output emitted: false/);
   assert.match(markdown, /Native disassembly surface present: false/);
   assert.match(markdown, /Native dump complete: false/);
   assert.match(markdown, /Binary XML input readable: true/);
@@ -77,6 +82,9 @@ test('Firefox SpiderMonkey release jsshell audit records JIT status without clos
   assert.match(markdown, /Ion hits: 4988/);
   assert.match(markdown, /has disnative builtin: true/);
   assert.match(markdown, /hasDisassembler\(\): false/);
+  assert.match(markdown, /Bytecode Dump Probe/);
+  assert.match(markdown, /Status: no-bytecode-output/);
+  assert.match(markdown, /Bytecode marker count: 0/);
   assert.match(markdown, /File bytes: 93/);
   assert.match(markdown, /Did not write all function bytes/);
   assert.match(markdown, /TextDecoder: undefined/);

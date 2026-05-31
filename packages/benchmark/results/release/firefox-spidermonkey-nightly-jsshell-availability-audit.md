@@ -1,6 +1,6 @@
 # Firefox SpiderMonkey Nightly JS Shell Availability Audit
 
-Generated: 2026-05-26T23:50:52.444Z
+Generated: 2026-05-31T14:14:20.747Z
 
 Checks an official Firefox nightly SpiderMonkey JavaScript shell package for local JIT execution status and diagnostic surface. This is not emitted JIT IR, optimized-code, throughput, or browser evidence.
 
@@ -10,6 +10,7 @@ Checks an official Firefox nightly SpiderMonkey JavaScript shell package for loc
 - Package verified: false
 - JIT execution status observed: true
 - IR dump surface present: false
+- Bytecode dump output emitted: false
 - Native disassembly surface present: false
 - Native dump complete: false
 - Binary XML input readable: true
@@ -52,11 +53,21 @@ Checks an official Firefox nightly SpiderMonkey JavaScript shell package for loc
 - ion.enable: 1
 - ion.warmup.trigger: 0
 
+## Bytecode Dump Probe
+
+- Status: no-bytecode-output
+- Exit code: 0
+- Checksum: 210
+- Output bytes: 15
+- Bytecode marker count: 0
+- Stdout lines: 1
+- Stderr lines: 0
+
 ## Native Dump Probe
 
 - File created: true
 - File bytes: 93
-- File SHA256: e77a6fb36ee90f3ba28614e7cd8be94ddd9651f6be0b1d025141cf8274d3437b
+- File SHA256: edb5b48779b87d11350d00505a57e4bf743c580a96862af2d39f67f813710ee1
 - hasDisassembler: false
 - disnative write error: Error: Did not write all function bytes to the file.
 
@@ -87,6 +98,8 @@ Checks an official Firefox nightly SpiderMonkey JavaScript shell package for loc
   - hasDisnativeBuiltin=true
   - hasDisblicBuiltin=true
   - hasDisassembler=false
+  - bytecodeDumpStatus=no-bytecode-output
+  - bytecodeDumpMarkers=0
   - nativeDumpBytes=93
   - nativeDumpError=Error: Did not write all function bytes to the file.
   - This narrows the local diagnostic path but does not close the emitted JIT IR obligation.
@@ -101,4 +114,5 @@ Checks an official Firefox nightly SpiderMonkey JavaScript shell package for loc
   - canRunCurrentStaxFullStringBenchmark=false
 - nightly-jsshell-scope (SCOPE_GUARD): This audit is shell JIT-status evidence only; it is not browser throughput, allocation, emitted IR, or optimized-code evidence.
   - A diagnostic-capable SpiderMonkey shell or Firefox build is still required for emitted MIR/LIR/codegen dump evidence.
+  - --dump-bytecode output, if available, is bytecode diagnostic evidence and is not MIR/LIR or optimized native code.
 

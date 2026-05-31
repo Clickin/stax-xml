@@ -735,6 +735,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.packageVerified === true
     && row.hasJitExecutionStatus === true
     && row.irDumpSurface === false
+    && row.bytecodeDumpOutput === false
+    && row.bytecodeDumpStatus === 'no-bytecode-output'
+    && row.bytecodeDumpMarkers === 0
     && row.nativeDumpComplete === false
     && row.canReadBinaryInput === true
     && row.canRunCurrentStaxFullStringBenchmark === false
@@ -747,6 +750,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.packageVerified === false
     && row.hasJitExecutionStatus === true
     && row.irDumpSurface === false
+    && row.bytecodeDumpOutput === false
+    && row.bytecodeDumpStatus === 'no-bytecode-output'
+    && row.bytecodeDumpMarkers === 0
     && row.nativeDumpComplete === false
     && row.canReadBinaryInput === true
     && row.canRunCurrentStaxFullStringBenchmark === false
@@ -793,15 +799,15 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /## SpiderMonkey Diagnostic Surface/);
   assert.match(markdown, /Emitted SpiderMonkey IR\/codegen evidence artifacts: 0/);
   assert.match(markdown, /JIT-status-only SpiderMonkey shell artifacts: 2/);
-  assert.match(markdown, /\| `official-release-jsshell` \| `firefox-spidermonkey-release-jsshell-availability-audit\.json` \| available \| jit-status-only \| yes \| no \| no \| no \| no \|/);
-  assert.match(markdown, /\| `official-nightly-jsshell` \| `firefox-spidermonkey-nightly-jsshell-availability-audit\.json` \| available \| jit-status-only \| yes \| no \| no \| no \| no \|/);
+  assert.match(markdown, /\| `official-release-jsshell` \| `firefox-spidermonkey-release-jsshell-availability-audit\.json` \| available \| jit-status-only \| yes \| no \| no \(no-bytecode-output, markers=0\) \| no \| no \| no \|/);
+  assert.match(markdown, /\| `official-nightly-jsshell` \| `firefox-spidermonkey-nightly-jsshell-availability-audit\.json` \| available \| jit-status-only \| yes \| no \| no \(no-bytecode-output, markers=0\) \| no \| no \| no \|/);
   assert.match(markdown, /Firefox\/SpiderMonkey Gecko Profiler trace evidence present/);
   assert.match(markdown, /Firefox\/SpiderMonkey JitSpew\/IONFLAGS source gate evidence present, but it is not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey installed buildconfig source pin present \(buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true\)/);
   assert.match(markdown, /Firefox\/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build \(status=no-dump-emitted, dumpFiles=0\)/);
   assert.match(markdown, /Firefox\/SpiderMonkey local js-shell availability audit present \(status=not-found, found=0, searchRoots=\d+\); no emitted JIT IR is recorded by that audit/);
-  assert.match(markdown, /Firefox\/SpiderMonkey official release js-shell audit present \(status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is JIT-status evidence only, not emitted JIT IR/);
-  assert.match(markdown, /Firefox\/SpiderMonkey official nightly js-shell audit present \(status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is JIT-status evidence only, not emitted JIT IR/);
+  assert.match(markdown, /Firefox\/SpiderMonkey official release js-shell audit present \(status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is JIT-status evidence only, not emitted JIT IR/);
+  assert.match(markdown, /Firefox\/SpiderMonkey official nightly js-shell audit present \(status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is JIT-status evidence only, not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing/);
   assert.match(markdown, /15 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 4/);

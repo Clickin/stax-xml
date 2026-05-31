@@ -181,6 +181,7 @@ function probeShell(options) {
     jitProbeSource,
   ]);
   const nativeDumpProbe = runNativeDumpProbe(jsShell);
+  const bytecodeDumpProbe = runBytecodeDumpProbe(jsShell);
   const apiProbe = runApiProbe(jsShell);
   const binaryInputProbe = runBinaryInputProbe(jsShell, options.binaryProbeFile);
   return {
@@ -191,6 +192,7 @@ function probeShell(options) {
     builtinProbe: summarizeBuiltinProbe(builtinProbe),
     jitProbe: summarizeJitProbe(jitProbe),
     nativeDumpProbe,
+    bytecodeDumpProbe,
     apiProbe,
     binaryInputProbe,
   };
@@ -292,6 +294,44 @@ function runNativeDumpProbe(jsShell) {
   }
 }
 
+function runBytecodeDumpProbe(jsShell) {
+  const tempDir = mkdtempSync(join(tmpdir(), 'stax-spidermonkey-bytecode-dump-'));
+  const scriptPath = join(tempDir, 'bytecode-probe.js');
+  try {
+    writeFileSync(scriptPath, [
+      'function f(x) { return ((x + 1) | 0); }',
+      'let checksum = 0;',
+      'for (let i = 0; i < 20; i++) checksum = (checksum + f(i)) | 0;',
+      "print('checksum=' + checksum);",
+    ].join('\n'));
+    const result = run(jsShell, ['--dump-bytecode', scriptPath]);
+    const combined = `${result.stdout}\n${result.stderr}`;
+    const bytecodeMarkerCount = countMatches(
+      combined,
+      /\b(?:Bytecode|loc\s+op|main:\s+script|function f|JSOp|JOF_|ICEntry|JumpTarget)\b/g,
+    );
+    const checksum = Number(firstMatch(combined, /checksum=(-?\d+)/)?.[1] ?? NaN);
+    const outputBytes = Buffer.byteLength(combined, 'utf8');
+    return {
+      status: result.exitCode === 0
+        ? bytecodeMarkerCount > 0 ? 'bytecode-output-emitted' : 'no-bytecode-output'
+        : 'failed',
+      exitCode: result.exitCode,
+      error: result.error,
+      scriptPathBasename: 'bytecode-probe.js',
+      outputBytes,
+      bytecodeMarkerCount,
+      checksum: Number.isFinite(checksum) ? checksum : null,
+      stdoutLineCount: lineCount(result.stdout),
+      stderrLineCount: lineCount(result.stderr),
+      stdout: keepShort(result.stdout, 4000),
+      stderr: keepShort(result.stderr, 4000),
+    };
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
 function runApiProbe(jsShell) {
   const script = [
     "const names = ['TextDecoder','TextEncoder','ReadableStream','TransformStream','fetch','performance','console','setTimeout','Promise','URL','ArrayBuffer','Uint8Array','DataView','read','snarf','os'];",
@@ -370,6 +410,16 @@ function firstMatch(text, pattern) {
   return text.match(pattern) ?? null;
 }
 
+function countMatches(text, pattern) {
+  return Array.from(text.matchAll(pattern)).length;
+}
+
+function lineCount(text) {
+  const value = String(text ?? '');
+  if (value.length === 0) return 0;
+  return value.split(/\r?\n/).filter(line => line.length > 0).length;
+}
+
 function createSelfTestReport(options) {
   return createReport(
     options,
@@ -427,6 +477,19 @@ function createSelfTestReport(options) {
         stdout: 'hasDisassembler=false\ndisnativeWriteError=Error: Did not write all function bytes to the file.\n',
         stderr: '',
       },
+      bytecodeDumpProbe: {
+        status: 'no-bytecode-output',
+        exitCode: 0,
+        error: null,
+        scriptPathBasename: 'bytecode-probe.js',
+        outputBytes: 13,
+        bytecodeMarkerCount: 0,
+        checksum: 210,
+        stdoutLineCount: 1,
+        stderrLineCount: 0,
+        stdout: 'checksum=210\n',
+        stderr: '',
+      },
       apiProbe: {
         exitCode: 0,
         error: null,
@@ -469,6 +532,7 @@ function createReport(options, packageVerification, shell) {
   const contract = `official-firefox-${options.packageKind}-jsshell-jit-status-and-diagnostic-surface`;
   const hasJitExecutionStatus = shell.jitProbe?.ionHits > 0 && shell.jitProbe?.ionEnable === 1;
   const hasIrDumpSurface = shell.help?.hasJitSpewFlag === true;
+  const hasBytecodeDumpOutput = shell.bytecodeDumpProbe?.status === 'bytecode-output-emitted';
   const report = {
     generatedAt: new Date().toISOString(),
     objective,
@@ -491,6 +555,7 @@ function createReport(options, packageVerification, shell) {
       packageVerified: packageVerification.hashMatches === true,
       hasJitExecutionStatus,
       hasIrDumpSurface,
+      hasBytecodeDumpOutput,
       hasNativeDisassemblySurface: shell.builtinProbe?.hasDisassemblerValue === 'true',
       nativeDumpComplete: shell.nativeDumpProbe?.fileCreated === true && shell.nativeDumpProbe?.disnativeWriteError === null,
       canReadBinaryInput: shell.binaryInputProbe?.status === 'ok',
@@ -547,6 +612,8 @@ function createFindings(report) {
         `hasDisnativeBuiltin=${report.shell.builtinProbe?.hasDisnativeBuiltin ?? 'unknown'}`,
         `hasDisblicBuiltin=${report.shell.builtinProbe?.hasDisblicBuiltin ?? 'unknown'}`,
         `hasDisassembler=${report.shell.builtinProbe?.hasDisassemblerValue ?? 'unknown'}`,
+        `bytecodeDumpStatus=${report.shell.bytecodeDumpProbe?.status ?? 'unknown'}`,
+        `bytecodeDumpMarkers=${report.shell.bytecodeDumpProbe?.bytecodeMarkerCount ?? 'unknown'}`,
         `nativeDumpBytes=${report.shell.nativeDumpProbe?.fileBytes ?? 'unknown'}`,
         `nativeDumpError=${report.shell.nativeDumpProbe?.disnativeWriteError ?? 'none'}`,
         'This narrows the local diagnostic path but does not close the emitted JIT IR obligation.',
@@ -573,6 +640,7 @@ function createFindings(report) {
       summary: 'This audit is shell JIT-status evidence only; it is not browser throughput, allocation, emitted IR, or optimized-code evidence.',
       evidence: [
         'A diagnostic-capable SpiderMonkey shell or Firefox build is still required for emitted MIR/LIR/codegen dump evidence.',
+        '--dump-bytecode output, if available, is bytecode diagnostic evidence and is not MIR/LIR or optimized native code.',
       ],
     },
   ];
@@ -593,6 +661,7 @@ function renderMarkdown(report) {
     `- Package verified: ${report.outcome.packageVerified}`,
     `- JIT execution status observed: ${report.outcome.hasJitExecutionStatus}`,
     `- IR dump surface present: ${report.outcome.hasIrDumpSurface}`,
+    `- Bytecode dump output emitted: ${report.outcome.hasBytecodeDumpOutput}`,
     `- Native disassembly surface present: ${report.outcome.hasNativeDisassemblySurface}`,
     `- Native dump complete: ${report.outcome.nativeDumpComplete}`,
     `- Binary XML input readable: ${report.outcome.canReadBinaryInput}`,
@@ -634,6 +703,16 @@ function renderMarkdown(report) {
     `- Checksum: ${report.shell.jitProbe?.checksum ?? 'not-recorded'}`,
     `- ion.enable: ${report.shell.jitProbe?.ionEnable ?? 'not-recorded'}`,
     `- ion.warmup.trigger: ${report.shell.jitProbe?.ionWarmup ?? 'not-recorded'}`,
+    '',
+    '## Bytecode Dump Probe',
+    '',
+    `- Status: ${report.shell.bytecodeDumpProbe?.status ?? 'not-run'}`,
+    `- Exit code: ${report.shell.bytecodeDumpProbe?.exitCode ?? 'not-run'}`,
+    `- Checksum: ${report.shell.bytecodeDumpProbe?.checksum ?? 'not-recorded'}`,
+    `- Output bytes: ${report.shell.bytecodeDumpProbe?.outputBytes ?? 'not-recorded'}`,
+    `- Bytecode marker count: ${report.shell.bytecodeDumpProbe?.bytecodeMarkerCount ?? 'not-recorded'}`,
+    `- Stdout lines: ${report.shell.bytecodeDumpProbe?.stdoutLineCount ?? 'not-recorded'}`,
+    `- Stderr lines: ${report.shell.bytecodeDumpProbe?.stderrLineCount ?? 'not-recorded'}`,
     '',
     '## Native Dump Probe',
     '',

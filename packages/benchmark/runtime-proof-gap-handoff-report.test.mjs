@@ -251,6 +251,8 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /No local SpiderMonkey JS shell was found/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /Official Firefox release jsshell is executable/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /Official Firefox nightly jsshell is executable/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /release jsshell.*bytecode dump status is no-bytecode-output/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /nightly jsshell.*bytecode dump status is no-bytecode-output/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /about:buildconfig records --enable-js-shell/.test(item)));
   assert.match(spiderMonkey.localClosure.scopeGuard, /official-shell diagnostic availability facts/);
   assert.match(safari.sourceConsumptionContract.primaryParserInput, /StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/);
@@ -344,6 +346,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /No local SpiderMonkey JS shell was found/);
   assert.match(markdown, /Official Firefox release jsshell is executable/);
   assert.match(markdown, /Official Firefox nightly jsshell is executable/);
+  assert.match(markdown, /bytecode dump status is no-bytecode-output/);
   assert.match(markdown, /Installed Firefox about:buildconfig records --enable-js-shell/);
   assert.match(markdown, /safaridriver/);
   assert.match(markdown, /Source consumption contract/);
