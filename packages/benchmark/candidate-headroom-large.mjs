@@ -292,6 +292,17 @@ function createVariants(fixture, requestedCases = null) {
       fullStringParity: true,
       run: () => consumeRawFrameStyle(fixture, []),
     },
+    ...(requested.has('rawFrameNameIdNoCounters')
+      ? [{
+          id: 'rawFrameNameIdNoCounters',
+          family: 'full-stax-js',
+          implementation: 'nextRawBatch typed arrays with numeric name-id cache and materialization counters disabled',
+          contractScope: 'full-string-materialization',
+          fullStringParity: true,
+          instrumentation: 'materialization-counters-disabled',
+          run: () => consumeRawFrameNameIdNoCountersStyle(fixture),
+        }]
+      : []),
     ...(requested.has('rawFrameNameIdNoTrim')
       ? [{
           id: 'rawFrameNameIdNoTrim',
@@ -535,6 +546,7 @@ function measureVariant(variant, fixture, options) {
     family: variant.family,
     implementation: variant.implementation,
     contractScope: variant.contractScope,
+    instrumentation: variant.instrumentation ?? 'materialization-counters-enabled',
     eventCountKind: variant.eventCountKind ?? 'stream-events',
     fullStringParity: variant.fullStringParity,
     avgMs,
@@ -812,6 +824,7 @@ function createFindings(variants, fixture) {
   const fastestPartial = maxBy(partialRows, (entry) => entry.mibPerSec);
   const fastestFull = maxBy(fullRows, (entry) => entry.mibPerSec);
   const rawNameId = variants.find((entry) => entry.id === 'rawFrameNameId');
+  const rawNameIdNoCounters = variants.find((entry) => entry.id === 'rawFrameNameIdNoCounters');
   const foldTrim = variants.find((entry) => entry.id === 'rawFrameNameIdFoldTrim');
   const findings = [
     {
@@ -884,6 +897,20 @@ function createFindings(variants, fixture) {
         `sameChecksum=${foldTrim.checksum === rawNameId.checksum}`,
         `sameStringReads=${foldTrim.materializationCounters.stringFieldReads === rawNameId.materializationCounters.stringFieldReads}`,
         `sameRawSpanMaterializations=${foldTrim.materializationCounters.rawSpanMaterializations === rawNameId.materializationCounters.rawSpanMaterializations}`,
+      ],
+    });
+  }
+  if (rawNameId && rawNameIdNoCounters) {
+    findings.push({
+      id: 'materialization-counter-overhead-candidate',
+      summary: 'rawFrameNameIdNoCounters keeps the full-string checksum while removing in-loop materialization counter increments, isolating benchmark instrumentation overhead from parser/string cost.',
+      evidence: [
+        `rawFrameNameId=${formatRate(rawNameId.mibPerSec)}`,
+        `rawFrameNameIdNoCounters=${formatRate(rawNameIdNoCounters.mibPerSec)}`,
+        `sameChecksum=${rawNameIdNoCounters.checksum === rawNameId.checksum}`,
+        `sameEvents=${rawNameIdNoCounters.eventCount === rawNameId.eventCount}`,
+        `throughputRatio=${(rawNameIdNoCounters.mibPerSec / rawNameId.mibPerSec).toFixed(2)}x`,
+        `instrumentation=${rawNameIdNoCounters.instrumentation}`,
       ],
     });
   }
@@ -1301,6 +1328,27 @@ function consumeRawFrameStyle(fixture, nameCache, valueCache, options = {}) {
   return { eventCount, checksum, materializationCounters };
 }
 
+function consumeRawFrameNameIdNoCountersStyle(fixture) {
+  const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
+  const parser = new StreamReaderSync(byteBatches(fixture));
+  const nameCache = [];
+  let eventCount = 0;
+  let checksum = 0;
+  let frame;
+
+  while ((frame = parser.nextRawBatch()) !== null) {
+    const result = consumeRawFrameNameIdNoCounters(frame, checksum, eventCount, decoder, nameCache);
+    checksum = result.checksum;
+    eventCount = result.eventCount;
+  }
+
+  return {
+    eventCount,
+    checksum,
+    materializationCounters: createMaterializationCounters(),
+  };
+}
+
 function consumeRawFrameTextUseStyle(fixture, textChecksumMode) {
   const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
   const parser = new StreamReaderSync(byteBatches(fixture));
@@ -1455,6 +1503,73 @@ function consumeRawFrame(frame, checksum, eventCount, decoder, nameCache, valueC
             'attrValue',
             options.asciiAllSpans,
           );
+        checksum = foldString(checksum, value);
+      }
+    }
+  }
+
+  return { eventCount, checksum };
+}
+
+function consumeRawFrameNameIdNoCounters(frame, checksum, eventCount, decoder, nameCache) {
+  if (frame.kind !== 'frame') {
+    throw new Error(`Unsupported raw batch kind in large candidate matrix: ${frame.kind}`);
+  }
+
+  const eventTypes = frame.eventTypes;
+  const nameStarts = frame.nameStarts;
+  const nameEnds = frame.nameEnds;
+  const nameIds = frame.nameIds;
+  const textStarts = frame.textStarts;
+  const textEnds = frame.textEnds;
+  const attrStarts = frame.attrStarts;
+  const attrCounts = frame.attrCounts;
+  const attrNameStarts = frame.attrNameStarts;
+  const attrNameEnds = frame.attrNameEnds;
+  const attrNameIds = frame.attrNameIds;
+  const attrValueStarts = frame.attrValueStarts;
+  const attrValueEnds = frame.attrValueEnds;
+  const buffer = frame.buffer;
+  const count = frame.eventCount;
+
+  for (let index = 0; index < count; index++) {
+    const type = eventTypes[index];
+    eventCount++;
+    checksum = mixChecksum(checksum, type);
+
+    if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
+      checksum = foldString(
+        checksum,
+        materializeNameNoCounters(buffer, nameStarts[index], nameEnds[index], nameIds[index], decoder, nameCache),
+      );
+    }
+    if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
+      const start = textStarts[index];
+      if (start >= 0) {
+        const value = decodeSpanNoCounters(buffer, start, textEnds[index], decoder);
+        checksum = foldString(checksum, value.trim());
+      }
+    }
+    if (type === StreamEventType.START_ELEMENT) {
+      const attrStart = attrStarts[index];
+      const attrCount = attrCounts[index];
+      checksum = mixChecksum(checksum, attrCount);
+      const attrEnd = attrStart + attrCount;
+      for (let attrIndex = attrStart; attrIndex < attrEnd; attrIndex++) {
+        checksum = foldString(
+          checksum,
+          materializeNameNoCounters(
+            buffer,
+            attrNameStarts[attrIndex],
+            attrNameEnds[attrIndex],
+            attrNameIds[attrIndex],
+            decoder,
+            nameCache,
+          ),
+        );
+        const value = isImplicitAttributeValue(attrNameStarts, attrNameEnds, attrValueStarts, attrValueEnds, attrIndex)
+          ? undefined
+          : decodeSpanNoCounters(buffer, attrValueStarts[attrIndex], attrValueEnds[attrIndex], decoder);
         checksum = foldString(checksum, value);
       }
     }
@@ -1631,6 +1746,19 @@ function materializeName(buffer, start, end, nameId, decoder, nameCache, materia
     return value;
   }
   return decodeSpan(buffer, start, end, decoder, materializationCounters, kind, asciiAllSpans);
+}
+
+function materializeNameNoCounters(buffer, start, end, nameId, decoder, nameCache) {
+  if (nameId < 0 || start < 0) {
+    return undefined;
+  }
+  const cached = nameCache[nameId];
+  if (cached !== undefined) {
+    return cached;
+  }
+  const value = decodeSpanNoCounters(buffer, start, end, decoder);
+  nameCache[nameId] = value;
+  return value;
 }
 
 function materializeValue(buffer, start, end, decoder, valueCache, materializationCounters, kind, asciiAllSpans = false) {
@@ -1856,6 +1984,11 @@ function decodeSpan(buffer, start, end, decoder, materializationCounters, kind, 
     materializationCounters.asciiSpanMaterializationFallbacks++;
   }
   return decoder.decode(buffer.subarray(start, end));
+}
+
+function decodeSpanNoCounters(buffer, start, end, decoder) {
+  const ascii = decodeShortAsciiSpan(buffer, start, end);
+  return ascii === undefined ? decoder.decode(buffer.subarray(start, end)) : ascii;
 }
 
 function decodeLongAsciiTextSpan(buffer, start, end, decoder, materializationCounters) {
@@ -2703,12 +2836,12 @@ function renderMarkdown(report) {
     '',
     '## Results',
     '',
-    '| Variant | Family | Contract scope | Count kind | Throughput | Relative to stringFull | Woodstox ratio | 0.9x target | Bounded memory | Counterexample | Events | Checksum | Full parity |',
-    '| --- | --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | ---: | ---: | --- |',
+    '| Variant | Family | Contract scope | Count kind | Instrumentation | Throughput | Relative to stringFull | Woodstox ratio | 0.9x target | Bounded memory | Counterexample | Events | Checksum | Full parity |',
+    '| --- | --- | --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | ---: | ---: | --- |',
   ];
   for (const entry of report.variants) {
     lines.push(
-      `| ${entry.id} | ${entry.family} | ${entry.contractScope} | ${entry.eventCountKind} | ${formatRate(entry.mibPerSec)} | `
+      `| ${entry.id} | ${entry.family} | ${entry.contractScope} | ${entry.eventCountKind} | ${entry.instrumentation} | ${formatRate(entry.mibPerSec)} | `
       + `${entry.relativeToStringFull.toFixed(2)}x | ${formatOptionalRatio(entry.woodstoxRatio)} | ${entry.targetStatus} | `
       + `${entry.boundedMemory ? 'yes' : 'no'} | ${entry.counterexampleStatus} | ${entry.eventCount} | ${entry.checksum} | `
       + `${entry.fullStringParity ? 'yes' : 'no'} |`,
