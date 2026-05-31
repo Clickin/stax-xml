@@ -675,6 +675,19 @@ JS heap. Firefox/SpiderMonkey rows whose page heap counters are unavailable
 remain classified as unbounded or unproven rather than being normalized through
 Windows host process-tree probes.
 
+The handoff also carries external target-distance evidence from the same
+aggregate so future Safari/WebKit and SpiderMonkey follow-up rows are compared
+against the same Woodstox and quick-xml targets. The fastest aggregated
+JavaScript full-string row is 0.93x of the 200 MiB/s threshold and 0.55x of the
+1024 MiB Woodstox reference, still 118.67 MiB/s below the 0.9x Woodstox target.
+On the same 1024 MiB books fixture family, the fastest JavaScript row
+`stax-raw-frame-name-id-batch-8` reaches 152.11 MiB/s; Woodstox is 351.56 MiB/s
+with a 316.40 MiB/s 0.9x target, and quick-xml is 274.63 MiB/s with a
+247.17 MiB/s 0.9x target. The same-fixture process RSS snapshot remains
+separate endpoint evidence: JavaScript 61.77 MiB, Woodstox 312.71 MiB, and
+quick-xml 4.78 MiB. This is target-distance evidence under the same checksum
+contract, not object-shape equivalence.
+
 ## Current Evidence: Multi-Chunk Byte Batch Probe
 
 `packages/benchmark/results/release/candidate-headroom-cross-process-books-corpus-batch16.md`

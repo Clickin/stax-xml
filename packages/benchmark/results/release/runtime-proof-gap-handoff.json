@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-31T12:55:58.380Z",
+  "generatedAt": "2026-05-31T13:00:49.837Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
@@ -31,6 +31,7 @@
     "directReadableStreamBackpressureRequired": true,
     "sourceConsumptionEvidenceStatus": "classified",
     "memoryFrontierEvidenceStatus": "classified",
+    "externalTargetEvidenceStatus": "classified",
     "conclusionAllowed": false,
     "conclusionBlocker": "Open or partial obligations still require external runtime evidence before any runtime-limit conclusion."
   },
@@ -201,6 +202,98 @@
       }
     ],
     "interpretation": "Memory is classified on the same 1 GiB+ JavaScript full-string row set used for counterexample scanning; process RSS, browser JS heap, and browser host-probe-only rows are not normalized into one allocation model."
+  },
+  "externalTargetEvidence": {
+    "status": "classified",
+    "sourceArtifact": "same-contract-runtime-comparison.json",
+    "contract": "woodstox-and-quickxml-0.9x-target-distance",
+    "fastestJsLargeFullRow": {
+      "runtimeLabel": "Node/V8",
+      "caseId": "rawFrameNameId",
+      "mibPerSec": 185.5,
+      "sourceArtifact": "text-trim-cost-decomposition.json",
+      "memoryKind": "process-rss",
+      "maxMiB": 60.45,
+      "boundedMemory": true
+    },
+    "fastestJsLargeFullRowTo200MiBPerSec": {
+      "ratio": 0.93,
+      "remainingMiBPerSec": 14.5
+    },
+    "fastestJsLargeFullRowTo1024MiBWoodstoxReference": {
+      "ratio": 0.55,
+      "remainingTo90PercentMiBPerSec": 118.67,
+      "comparableFixture": false,
+      "caveat": "ratio uses the 1024 MiB Woodstox reference throughput, but the fastest aggregated JS row may come from a different corpus fixture."
+    },
+    "sameFixture1024MiBWoodstoxTarget": {
+      "group": "file-backed-batch-size-sweep",
+      "sourceArtifact": "file-backed-batch-size-sweep.json",
+      "fastestJsCaseId": "stax-raw-frame-name-id-batch-8",
+      "fastestJsMiBPerSec": 152.11,
+      "woodstoxSourceArtifact": "file-backed-trim-boundary-check-candidate.json",
+      "woodstoxMiBPerSec": 351.56,
+      "target90MiBPerSec": 316.4,
+      "fastestJsWoodstoxRatio": 0.43,
+      "remainingTo90PercentMiBPerSec": 164.29,
+      "targetMet": false
+    },
+    "sameFixture1024MiBQuickXmlTarget": {
+      "group": "file-backed-batch-size-sweep",
+      "sourceArtifact": "file-backed-batch-size-sweep.json",
+      "fastestJsCaseId": "stax-raw-frame-name-id-batch-8",
+      "fastestJsMiBPerSec": 152.11,
+      "quickXmlSourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
+      "quickXmlMiBPerSec": 274.63,
+      "target90MiBPerSec": 247.17,
+      "fastestJsQuickXmlRatio": 0.55,
+      "remainingTo90PercentMiBPerSec": 95.06,
+      "targetMet": false
+    },
+    "sameFixture1024MiBProcessRssSnapshot": {
+      "caveat": "Process RSS values are same-fixture endpoint evidence, not allocation-model equivalence across Java, Rust, and JavaScript runtimes.",
+      "fastestJs": {
+        "group": "file-backed-batch-size-sweep",
+        "sourceArtifact": "file-backed-batch-size-sweep.json",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "caseId": "stax-raw-frame-name-id-batch-8",
+        "mibPerSec": 152.11,
+        "memoryKind": "process-rss",
+        "maxRssMiB": 61.77
+      },
+      "woodstox": {
+        "group": "file-backed-trim-boundary-check-candidate",
+        "sourceArtifact": "file-backed-trim-boundary-check-candidate.json",
+        "runtimeId": "woodstox-jvm",
+        "runtimeLabel": "Java/Woodstox",
+        "caseId": "woodstox",
+        "mibPerSec": 351.56,
+        "memoryKind": "process-rss",
+        "maxRssMiB": 312.71
+      },
+      "quickXml": {
+        "group": "file-backed-short-attr-value-cache-candidate",
+        "sourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
+        "runtimeId": "quick-xml-rust",
+        "runtimeLabel": "Rust/quick-xml",
+        "caseId": "quick-xml",
+        "mibPerSec": 274.63,
+        "memoryKind": "process-rss",
+        "maxRssMiB": 4.78
+      }
+    },
+    "externalBaseline1024MiBFileSyncBatches": {
+      "staxStreamMiBPerSec": 124.62,
+      "staxStreamWoodstoxRatio": 0.37,
+      "rawFrameNameIdMiBPerSec": 132.54,
+      "rawFrameNameIdWoodstoxRatio": 0.39,
+      "woodstoxMiBPerSec": 337.97,
+      "quickXmlMiBPerSec": 270.26,
+      "quickXmlWoodstoxRatio": 0.8,
+      "target90MiBPerSec": 304.17
+    },
+    "interpretation": "Woodstox and quick-xml remain same-checksum semantic comparators, not same object-shape comparators; the 0.9x target is evaluated separately from the 200 MiB/s counterexample threshold."
   },
   "localClosure": [
     {

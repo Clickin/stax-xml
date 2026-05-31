@@ -97,6 +97,7 @@ function createReport(audit, comparison, options) {
     }));
   const sourceConsumptionEvidence = summarizeSourceConsumptionEvidence(comparison);
   const memoryFrontierEvidence = summarizeMemoryFrontierEvidence(comparison);
+  const externalTargetEvidence = summarizeExternalTargetEvidence(comparison);
   const summary = createSummary(
     activeObligations,
     localClosure,
@@ -104,6 +105,7 @@ function createReport(audit, comparison, options) {
     unhandledObligations,
     sourceConsumptionEvidence,
     memoryFrontierEvidence,
+    externalTargetEvidence,
   );
 
   return {
@@ -135,10 +137,60 @@ function createReport(audit, comparison, options) {
     },
     sourceConsumptionEvidence,
     memoryFrontierEvidence,
+    externalTargetEvidence,
     localClosure,
     handoffs,
     unhandledObligations,
     findings: createFindings(activeObligations, handoffs, unhandledObligations),
+  };
+}
+
+function summarizeExternalTargetEvidence(comparison) {
+  const summary = comparison?.summary ?? null;
+  if (!summary) {
+    return {
+      status: 'missing',
+      sourceArtifact: 'same-contract-runtime-comparison.json',
+      reason: 'same-contract-runtime-comparison JSON was not available to the handoff generator.',
+    };
+  }
+
+  const woodstoxTarget = summary.sameFixture1024MiBWoodstoxTarget ?? null;
+  const quickXmlTarget = summary.sameFixture1024MiBQuickXmlTarget ?? null;
+  const processRss = summary.sameFixture1024MiBProcessRssSnapshot ?? null;
+  const externalBaseline = summary.externalBaseline1024MiBFileSyncBatches ?? null;
+  const status = woodstoxTarget?.targetMet === false
+    && quickXmlTarget?.targetMet === false
+    && externalBaseline?.woodstoxMiBPerSec
+    && externalBaseline?.quickXmlMiBPerSec
+    ? 'classified'
+    : 'partial';
+
+  return {
+    status,
+    sourceArtifact: 'same-contract-runtime-comparison.json',
+    contract: 'woodstox-and-quickxml-0.9x-target-distance',
+    fastestJsLargeFullRow: summarizeTargetRow(summary.fastestJsLargeFullRow),
+    fastestJsLargeFullRowTo200MiBPerSec: summary.fastestJsLargeFullRowTo200MiBPerSec ?? null,
+    fastestJsLargeFullRowTo1024MiBWoodstoxReference: summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference ?? null,
+    sameFixture1024MiBWoodstoxTarget: woodstoxTarget,
+    sameFixture1024MiBQuickXmlTarget: quickXmlTarget,
+    sameFixture1024MiBProcessRssSnapshot: processRss,
+    externalBaseline1024MiBFileSyncBatches: externalBaseline,
+    interpretation: 'Woodstox and quick-xml remain same-checksum semantic comparators, not same object-shape comparators; the 0.9x target is evaluated separately from the 200 MiB/s counterexample threshold.',
+  };
+}
+
+function summarizeTargetRow(row) {
+  if (!row) return null;
+  return {
+    runtimeLabel: row.runtimeLabel,
+    caseId: row.caseId,
+    mibPerSec: row.mibPerSec,
+    sourceArtifact: row.sourceArtifact,
+    memoryKind: row.memory?.primaryKind ?? null,
+    maxMiB: row.memory?.maxMiB ?? row.maxRssMiB ?? null,
+    boundedMemory: row.boundedMemory === true,
   };
 }
 
@@ -253,6 +305,7 @@ function createSummary(
   unhandledObligations,
   sourceConsumptionEvidence,
   memoryFrontierEvidence,
+  externalTargetEvidence,
 ) {
   const externalRunRequiredCount = localClosure
     .filter(item => item.localStatus === 'external-run-required' || item.localRunnable === false)
@@ -277,6 +330,7 @@ function createSummary(
     directReadableStreamBackpressureRequired: true,
     sourceConsumptionEvidenceStatus: sourceConsumptionEvidence.status,
     memoryFrontierEvidenceStatus: memoryFrontierEvidence.status,
+    externalTargetEvidenceStatus: externalTargetEvidence.status,
     conclusionAllowed: false,
     conclusionBlocker: activeObligations.length === 0
       ? 'No active obligations remain, but this handoff report is not a runtime-limit conclusion artifact.'
@@ -552,6 +606,7 @@ function renderMarkdown(report) {
     `- Direct ReadableStream backpressure required: ${report.summary.directReadableStreamBackpressureRequired ? 'yes' : 'no'}`,
     `- Source consumption evidence status: ${report.summary.sourceConsumptionEvidenceStatus}`,
     `- Memory frontier evidence status: ${report.summary.memoryFrontierEvidenceStatus}`,
+    `- External target evidence status: ${report.summary.externalTargetEvidenceStatus}`,
     `- Runtime-limit conclusion allowed: ${report.summary.conclusionAllowed ? 'yes' : 'no'}`,
     `- Conclusion blocker: ${report.summary.conclusionBlocker}`,
     '',
@@ -614,6 +669,36 @@ function renderMarkdown(report) {
       lines.push(`| ${bucket.kind} | ${bucket.rows} | ${bucket.boundedRows} | ${bucket.unboundedRows} | ${formatNumber(bucket.maxMiB)} MiB | ${formatMemoryEvidenceRow(bucket.fastestRow)} | ${formatMemoryEvidenceRow(bucket.fastestBoundedRow)} |`);
     }
     lines.push('', `- Interpretation: ${evidence.interpretation}`);
+  }
+
+  lines.push(
+    '',
+    '## External Target Evidence',
+    '',
+    `- Status: ${report.externalTargetEvidence.status}`,
+    `- Source artifact: ${report.externalTargetEvidence.sourceArtifact}`,
+  );
+
+  if (report.externalTargetEvidence.status === 'missing') {
+    lines.push(`- Reason: ${report.externalTargetEvidence.reason}`);
+  } else {
+    const evidence = report.externalTargetEvidence;
+    const woodstox = evidence.sameFixture1024MiBWoodstoxTarget;
+    const quickXml = evidence.sameFixture1024MiBQuickXmlTarget;
+    const external = evidence.externalBaseline1024MiBFileSyncBatches;
+    const rss = evidence.sameFixture1024MiBProcessRssSnapshot;
+    lines.push(
+      `- Contract: ${evidence.contract}`,
+      `- Fastest aggregated JS full row: ${formatTargetEvidenceRow(evidence.fastestJsLargeFullRow)}`,
+      `- Fastest JS full row vs 200 MiB/s: ${formatNumber(evidence.fastestJsLargeFullRowTo200MiBPerSec?.ratio)}x, ${formatNumber(evidence.fastestJsLargeFullRowTo200MiBPerSec?.remainingMiBPerSec)} MiB/s remaining`,
+      `- Fastest JS full row vs 1024 MiB Woodstox reference: ${formatNumber(evidence.fastestJsLargeFullRowTo1024MiBWoodstoxReference?.ratio)}x, ${formatNumber(evidence.fastestJsLargeFullRowTo1024MiBWoodstoxReference?.remainingTo90PercentMiBPerSec)} MiB/s below 0.9x target`,
+      `- Same-fixture Woodstox target: ${woodstox.fastestJsCaseId} ${formatNumber(woodstox.fastestJsMiBPerSec)} MiB/s vs Woodstox ${formatNumber(woodstox.woodstoxMiBPerSec)} MiB/s; 0.9x target ${formatNumber(woodstox.target90MiBPerSec)} MiB/s; remaining ${formatNumber(woodstox.remainingTo90PercentMiBPerSec)} MiB/s; targetMet=${formatNullableBoolean(woodstox.targetMet)}`,
+      `- Same-fixture quick-xml target: ${quickXml.fastestJsCaseId} ${formatNumber(quickXml.fastestJsMiBPerSec)} MiB/s vs quick-xml ${formatNumber(quickXml.quickXmlMiBPerSec)} MiB/s; 0.9x target ${formatNumber(quickXml.target90MiBPerSec)} MiB/s; remaining ${formatNumber(quickXml.remainingTo90PercentMiBPerSec)} MiB/s; targetMet=${formatNullableBoolean(quickXml.targetMet)}`,
+      `- 1024 MiB external baseline: stax-stream ${formatNumber(external.staxStreamMiBPerSec)} MiB/s (${formatNumber(external.staxStreamWoodstoxRatio)}x Woodstox); rawFrameNameId ${formatNumber(external.rawFrameNameIdMiBPerSec)} MiB/s (${formatNumber(external.rawFrameNameIdWoodstoxRatio)}x Woodstox); Woodstox ${formatNumber(external.woodstoxMiBPerSec)} MiB/s; quick-xml ${formatNumber(external.quickXmlMiBPerSec)} MiB/s (${formatNumber(external.quickXmlWoodstoxRatio)}x Woodstox)`,
+      `- Same-fixture process RSS: JS ${formatNumber(rss.fastestJs?.maxRssMiB)} MiB; Woodstox ${formatNumber(rss.woodstox?.maxRssMiB)} MiB; quick-xml ${formatNumber(rss.quickXml?.maxRssMiB)} MiB`,
+      `- Process RSS caveat: ${rss.caveat}`,
+      `- Interpretation: ${evidence.interpretation}`,
+    );
   }
 
   lines.push(
@@ -724,6 +809,14 @@ function formatNumber(value) {
 }
 
 function formatMemoryEvidenceRow(row) {
+  if (!row) return 'none';
+  const memory = row.maxMiB === null || row.maxMiB === undefined
+    ? row.memoryKind
+    : `${row.memoryKind} max ${formatNumber(row.maxMiB)} MiB`;
+  return `${row.runtimeLabel} ${row.caseId} ${formatNumber(row.mibPerSec)} MiB/s (${memory})`;
+}
+
+function formatTargetEvidenceRow(row) {
   if (!row) return 'none';
   const memory = row.maxMiB === null || row.maxMiB === undefined
     ? row.memoryKind

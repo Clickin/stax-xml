@@ -65,6 +65,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.equal(report.summary.directReadableStreamBackpressureRequired, true);
   assert.equal(report.summary.sourceConsumptionEvidenceStatus, 'classified');
   assert.equal(report.summary.memoryFrontierEvidenceStatus, 'classified');
+  assert.equal(report.summary.externalTargetEvidenceStatus, 'classified');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.match(report.summary.conclusionBlocker, /external runtime evidence/);
   assert.match(report.inputs.comparisonJson, /same-contract-runtime-comparison\.json/);
@@ -164,6 +165,31 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
     ],
   );
   assert.match(report.memoryFrontierEvidence.interpretation, /not normalized into one allocation model/);
+  assert.equal(report.externalTargetEvidence.status, 'classified');
+  assert.equal(report.externalTargetEvidence.sourceArtifact, 'same-contract-runtime-comparison.json');
+  assert.equal(report.externalTargetEvidence.contract, 'woodstox-and-quickxml-0.9x-target-distance');
+  assert.equal(report.externalTargetEvidence.fastestJsLargeFullRow.caseId, 'rawFrameNameId');
+  assert.equal(report.externalTargetEvidence.fastestJsLargeFullRow.mibPerSec, 185.5);
+  assert.equal(report.externalTargetEvidence.fastestJsLargeFullRowTo200MiBPerSec.ratio, 0.93);
+  assert.equal(report.externalTargetEvidence.fastestJsLargeFullRowTo200MiBPerSec.remainingMiBPerSec, 14.5);
+  assert.equal(report.externalTargetEvidence.fastestJsLargeFullRowTo1024MiBWoodstoxReference.ratio, 0.55);
+  assert.equal(report.externalTargetEvidence.fastestJsLargeFullRowTo1024MiBWoodstoxReference.remainingTo90PercentMiBPerSec, 118.67);
+  assert.equal(report.externalTargetEvidence.sameFixture1024MiBWoodstoxTarget.fastestJsCaseId, 'stax-raw-frame-name-id-batch-8');
+  assert.equal(report.externalTargetEvidence.sameFixture1024MiBWoodstoxTarget.fastestJsMiBPerSec, 152.11);
+  assert.equal(report.externalTargetEvidence.sameFixture1024MiBWoodstoxTarget.woodstoxMiBPerSec, 351.56);
+  assert.equal(report.externalTargetEvidence.sameFixture1024MiBWoodstoxTarget.target90MiBPerSec, 316.4);
+  assert.equal(report.externalTargetEvidence.sameFixture1024MiBWoodstoxTarget.remainingTo90PercentMiBPerSec, 164.29);
+  assert.equal(report.externalTargetEvidence.sameFixture1024MiBWoodstoxTarget.targetMet, false);
+  assert.equal(report.externalTargetEvidence.sameFixture1024MiBQuickXmlTarget.quickXmlMiBPerSec, 274.63);
+  assert.equal(report.externalTargetEvidence.sameFixture1024MiBQuickXmlTarget.target90MiBPerSec, 247.17);
+  assert.equal(report.externalTargetEvidence.sameFixture1024MiBQuickXmlTarget.remainingTo90PercentMiBPerSec, 95.06);
+  assert.equal(report.externalTargetEvidence.sameFixture1024MiBQuickXmlTarget.targetMet, false);
+  assert.equal(report.externalTargetEvidence.externalBaseline1024MiBFileSyncBatches.woodstoxMiBPerSec, 337.97);
+  assert.equal(report.externalTargetEvidence.externalBaseline1024MiBFileSyncBatches.quickXmlMiBPerSec, 270.26);
+  assert.equal(report.externalTargetEvidence.sameFixture1024MiBProcessRssSnapshot.fastestJs.maxRssMiB, 61.77);
+  assert.equal(report.externalTargetEvidence.sameFixture1024MiBProcessRssSnapshot.woodstox.maxRssMiB, 312.71);
+  assert.equal(report.externalTargetEvidence.sameFixture1024MiBProcessRssSnapshot.quickXml.maxRssMiB, 4.78);
+  assert.match(report.externalTargetEvidence.interpretation, /not same object-shape comparators/);
   assert.equal(report.auditSummary.artifactCount, audit.scannedArtifacts.length);
   assert.equal(report.auditSummary.measuredRows, audit.summary.measuredRowCount);
   assert.deepEqual(
@@ -254,6 +280,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Direct ReadableStream backpressure required: yes/);
   assert.match(markdown, /Source consumption evidence status: classified/);
   assert.match(markdown, /Memory frontier evidence status: classified/);
+  assert.match(markdown, /External target evidence status: classified/);
   assert.match(markdown, /## Source Consumption Evidence/);
   assert.match(markdown, /Source modes: fetch-async-iterable-byte-batches, fetch-readable-stream-pull, file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches/);
   assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 173\/173/);
@@ -269,6 +296,12 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Fastest bounded row: Node\/V8 rawFrameNameId 185\.50 MiB\/s \(process-rss max 60\.45 MiB\)/);
   assert.match(markdown, /Fastest browser JS heap row: Chrome\/V8 browser eventObjectFull 64\.56 MiB\/s \(browser-js-heap max 16\.54 MiB\)/);
   assert.match(markdown, /\| browser-js-heap-unavailable \| 9 \| 0 \| 9 \| n\/a MiB \| Firefox\/SpiderMonkey browser rawFrameNameId 64\.24 MiB\/s \(browser-js-heap-unavailable\) \| none \|/);
+  assert.match(markdown, /## External Target Evidence/);
+  assert.match(markdown, /Fastest JS full row vs 200 MiB\/s: 0\.93x, 14\.50 MiB\/s remaining/);
+  assert.match(markdown, /Fastest JS full row vs 1024 MiB Woodstox reference: 0\.55x, 118\.67 MiB\/s below 0\.9x target/);
+  assert.match(markdown, /Same-fixture Woodstox target: stax-raw-frame-name-id-batch-8 152\.11 MiB\/s vs Woodstox 351\.56 MiB\/s; 0\.9x target 316\.40 MiB\/s; remaining 164\.29 MiB\/s; targetMet=no/);
+  assert.match(markdown, /Same-fixture quick-xml target: stax-raw-frame-name-id-batch-8 152\.11 MiB\/s vs quick-xml 274\.63 MiB\/s; 0\.9x target 247\.17 MiB\/s; remaining 95\.06 MiB\/s; targetMet=no/);
+  assert.match(markdown, /Same-fixture process RSS: JS 61\.77 MiB; Woodstox 312\.71 MiB; quick-xml 4\.78 MiB/);
   assert.match(markdown, /Runtime-limit conclusion allowed: no/);
   assert.match(markdown, /safari-webkit-browser-row-handoff/);
   assert.match(markdown, /spidermonkey-codegen-handoff/);

@@ -1,6 +1,6 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-05-31T12:55:58.380Z
+Generated: 2026-05-31T13:00:49.837Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -25,6 +25,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Direct ReadableStream backpressure required: yes
 - Source consumption evidence status: classified
 - Memory frontier evidence status: classified
+- External target evidence status: classified
 - Runtime-limit conclusion allowed: no
 - Conclusion blocker: Open or partial obligations still require external runtime evidence before any runtime-limit conclusion.
 
@@ -61,6 +62,21 @@ Turns current open or partial runtime proof obligations into concrete external-r
 | process-rss | 150 | 142 | 8 | 1956.69 MiB | Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB) | Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB) |
 
 - Interpretation: Memory is classified on the same 1 GiB+ JavaScript full-string row set used for counterexample scanning; process RSS, browser JS heap, and browser host-probe-only rows are not normalized into one allocation model.
+
+## External Target Evidence
+
+- Status: classified
+- Source artifact: same-contract-runtime-comparison.json
+- Contract: woodstox-and-quickxml-0.9x-target-distance
+- Fastest aggregated JS full row: Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB)
+- Fastest JS full row vs 200 MiB/s: 0.93x, 14.50 MiB/s remaining
+- Fastest JS full row vs 1024 MiB Woodstox reference: 0.55x, 118.67 MiB/s below 0.9x target
+- Same-fixture Woodstox target: stax-raw-frame-name-id-batch-8 152.11 MiB/s vs Woodstox 351.56 MiB/s; 0.9x target 316.40 MiB/s; remaining 164.29 MiB/s; targetMet=no
+- Same-fixture quick-xml target: stax-raw-frame-name-id-batch-8 152.11 MiB/s vs quick-xml 274.63 MiB/s; 0.9x target 247.17 MiB/s; remaining 95.06 MiB/s; targetMet=no
+- 1024 MiB external baseline: stax-stream 124.62 MiB/s (0.37x Woodstox); rawFrameNameId 132.54 MiB/s (0.39x Woodstox); Woodstox 337.97 MiB/s; quick-xml 270.26 MiB/s (0.80x Woodstox)
+- Same-fixture process RSS: JS 61.77 MiB; Woodstox 312.71 MiB; quick-xml 4.78 MiB
+- Process RSS caveat: Process RSS values are same-fixture endpoint evidence, not allocation-model equivalence across Java, Rust, and JavaScript runtimes.
+- Interpretation: Woodstox and quick-xml remain same-checksum semantic comparators, not same object-shape comparators; the 0.9x target is evaluated separately from the 200 MiB/s counterexample threshold.
 
 ## Active Obligations
 

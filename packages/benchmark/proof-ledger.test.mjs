@@ -327,6 +327,12 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /fastest bounded row is Node\/V8\s+`rawFrameNameId` at 185\.50 MiB\/s with 60\.45 MiB process RSS/);
   assert.match(markdown, /fastest browser\s+JS heap row is Chrome\/V8 browser `eventObjectFull` at 64\.56 MiB\/s with 16\.54 MiB\s+JS heap/);
   assert.match(markdown, /Firefox\/SpiderMonkey rows whose page heap counters are unavailable\s+remain classified as unbounded or unproven rather than being normalized through\s+Windows host process-tree probes/);
+  assert.match(markdown, /external target-distance evidence from the same\s+aggregate/);
+  assert.match(markdown, /fastest aggregated\s+JavaScript full-string row is 0\.93x of the 200 MiB\/s threshold and 0\.55x of the\s+1024 MiB Woodstox reference/);
+  assert.match(markdown, /118\.67 MiB\/s below the 0\.9x Woodstox target/);
+  assert.match(markdown, /`stax-raw-frame-name-id-batch-8` reaches 152\.11 MiB\/s; Woodstox is 351\.56 MiB\/s\s+with a 316\.40 MiB\/s 0\.9x target, and quick-xml is 274\.63 MiB\/s with a\s+247\.17 MiB\/s 0\.9x target/);
+  assert.match(markdown, /same-fixture process RSS snapshot remains\s+separate endpoint evidence: JavaScript 61\.77 MiB, Woodstox 312\.71 MiB, and\s+quick-xml 4\.78 MiB/);
+  assert.match(markdown, /target-distance evidence under the same checksum\s+contract, not object-shape equivalence/);
   assert.match(markdown, /no unhandled gaps/);
   assert.match(markdown, /structured `localClosure` status/);
   assert.match(markdown, /Safari is\s+`external-run-required` with `localRunnable=false`/);
