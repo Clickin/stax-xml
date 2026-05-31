@@ -565,9 +565,9 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 196 primary release artifacts and recognizes 1,111
+The current audit scans 197 primary release artifacts and recognizes 1,111
 measured rows. It records 148 benchmark artifacts, 18 source artifacts, 10
-trace/profile artifacts, 15 allocation artifacts, 4 environment artifacts, and
+trace/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and
 19 negative-result artifacts, 756 JavaScript 1 GiB+ full-string rows, and four
 release corpus seeds: `books.xml`, `large.xml`, `midsize.xml`, and `treebank_e.xml`. The
 negative-result set now includes
@@ -3044,6 +3044,20 @@ This closes the narrow "Deno/V8 has no allocation evidence" coverage gap in
 the release audit. It is still statistical sampling on a 16 MiB generated
 fixture, not a deterministic allocation census, not a 1 GiB profile, not
 browser evidence, and not a JavaScript runtime ceiling proof.
+
+`packages/benchmark/results/release/deno-v8-allocation-sampling-midsize-corpus.md`
+adds a `midsize.xml` corpus-seed allocation-sampling follow-up under the same
+Deno/V8 build and inspector sampler. It samples the 13.37 MiB file-backed
+`midsize.xml` seed with `warmups=0`, `iterations=1`, and an 8 KiB sampling
+interval for `event-reader-object` and `raw-frame-name-id-cache`. Both rows
+preserved 1,013,762 events and checksum `1553514899`. `event-reader-object`
+sampled `98.9 KiB` across 10 samples, including `8.0 KiB` attributed to the
+target function and `32.9 KiB` to bundled `stax-xml` source frames.
+`raw-frame-name-id-cache` sampled `124.4 KiB` across 13 samples, including
+`26.7 KiB` attributed to the target function and `61.3 KiB` to bundled
+`stax-xml` source frames. This brings Deno/V8 allocation evidence closer to the
+local midsize corpus benchmark seed, but it is still statistical sampling on a
+13.37 MiB seed, not a 1 GiB allocation census and not browser/Safari evidence.
 
 ## Current Evidence: Bun/JSC String Limit Audit
 

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-31T18:02:41.251Z",
+  "generatedAt": "2026-05-31T18:09:29.550Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -79,6 +79,7 @@
     "deno-textdecoder-source-pin-audit.json",
     "deno-textdecoder-span-variants-corpus.json",
     "deno-textdecoder-span-variants.json",
+    "deno-v8-allocation-sampling-midsize-corpus.json",
     "deno-v8-allocation-sampling.json",
     "deno-v8-codegen-trace.json",
     "event-reader-byte-batch-corpus.json",
@@ -217,7 +218,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 196,
+    "scannedArtifactCount": 197,
     "ignoredArtifactCount": 7,
     "parseErrorCount": 0,
     "measuredRowCount": 1111,

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-31T18:02:41.372Z",
+  "generatedAt": "2026-05-31T18:09:29.663Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -1537,6 +1537,30 @@
       },
       "corpusSeed": null,
       "measuredRowCount": 5
+    },
+    {
+      "sourceArtifact": "deno-v8-allocation-sampling-midsize-corpus.json",
+      "objective": "v8-allocation-sampling",
+      "contract": "inspector-heapprofiler-sampling",
+      "evidenceKinds": [
+        "ALLOCATION_FACT"
+      ],
+      "runtimes": [
+        "deno-v8"
+      ],
+      "availability": null,
+      "outcome": null,
+      "shell": null,
+      "fixture": {
+        "source": "file",
+        "shape": "runtime-comparison",
+        "sourceFile": null,
+        "sizeGiB": null,
+        "sizeMiB": 13.37,
+        "actualBytes": null
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 0
     },
     {
       "sourceArtifact": "deno-v8-allocation-sampling.json",
@@ -4481,7 +4505,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 196,
+    "scannedArtifactCount": 197,
     "ignoredArtifactCount": 7,
     "parseErrorCount": 0,
     "measuredRowCount": 1111,
@@ -4505,7 +4529,7 @@
     "benchmarkArtifactCount": 148,
     "sourceArtifactCount": 18,
     "traceArtifactCount": 10,
-    "allocationArtifactCount": 15,
+    "allocationArtifactCount": 16,
     "environmentArtifactCount": 4,
     "negativeArtifactCount": 19,
     "largeJsFullRowCount": 756,
@@ -4627,7 +4651,7 @@
       {
         "runtimeId": "deno-v8",
         "runtimeLabel": "Deno/V8",
-        "artifactCount": 12,
+        "artifactCount": 13,
         "measuredRowCount": 86,
         "largeFullStringRowCount": 77,
         "fastestLargeFullStringRow": {
@@ -4660,6 +4684,7 @@
           "deno-v8-codegen-trace.json"
         ],
         "allocationArtifacts": [
+          "deno-v8-allocation-sampling-midsize-corpus.json",
           "deno-v8-allocation-sampling.json"
         ]
       },
@@ -21627,6 +21652,30 @@
         "measuredRowCount": 4
       },
       {
+        "sourceArtifact": "deno-v8-allocation-sampling-midsize-corpus.json",
+        "objective": "v8-allocation-sampling",
+        "contract": "inspector-heapprofiler-sampling",
+        "evidenceKinds": [
+          "ALLOCATION_FACT"
+        ],
+        "runtimes": [
+          "deno-v8"
+        ],
+        "availability": null,
+        "outcome": null,
+        "shell": null,
+        "fixture": {
+          "source": "file",
+          "shape": "runtime-comparison",
+          "sourceFile": null,
+          "sizeGiB": null,
+          "sizeMiB": 13.37,
+          "actualBytes": null
+        },
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
         "sourceArtifact": "deno-v8-allocation-sampling.json",
         "objective": "v8-allocation-sampling",
         "contract": "inspector-heapprofiler-sampling",
@@ -22515,7 +22564,7 @@
     {
       "id": "allocation-profiles-open",
       "status": "covered",
-      "evidence": "15 allocation/profile artifacts found. Bun/JSC allocation evidence present. Non-V8 browser allocation evidence present.",
+      "evidence": "16 allocation/profile artifacts found. Bun/JSC allocation evidence present. Non-V8 browser allocation evidence present.",
       "nextExperiment": "Add Bun/JSC and non-V8 browser allocation or heap-profile artifacts for the same full-string rows."
     },
     {

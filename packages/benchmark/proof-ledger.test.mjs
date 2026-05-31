@@ -293,7 +293,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`sourceMode: "complete-js-string"` and\s+`boundedMemory: false` under the 512 MiB RSS gate/);
   assert.match(markdown, /headroom evidence rather than runtime-limit\s+counterexamples/);
   assert.match(markdown, /recognizes 1,111\s+measured rows/);
-  assert.match(markdown, /148 benchmark artifacts, 18 source artifacts, 10\s+trace\/profile artifacts, 15 allocation artifacts, 4 environment artifacts, and\s+19 negative-result artifacts, 756 JavaScript 1 GiB\+ full-string rows/);
+  assert.match(markdown, /148 benchmark artifacts, 18 source artifacts, 10\s+trace\/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and\s+19 negative-result artifacts, 756 JavaScript 1 GiB\+ full-string rows/);
   assert.match(markdown, /concat-buffer-reuse-negative-result\.json/);
   assert.match(markdown, /stax-raw-frame-span-stats/);
   assert.match(markdown, /segment-scan-headroom\.json/);
@@ -644,6 +644,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /bun-event-reader-string-large\.md/);
   assert.match(markdown, /v8-monomorphic-shape-trace\.md/);
   assert.match(markdown, /v8-allocation-sampling\.md/);
+  assert.match(markdown, /deno-v8-allocation-sampling-midsize-corpus\.md/);
   assert.match(markdown, /v8-allocation-sampling-diverse\.md/);
   assert.match(markdown, /v8-allocation-sampling-projection\.md/);
   assert.match(markdown, /event-reader-object/);
@@ -685,6 +686,10 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /takes `\#\[anybuffer\] zero_copy: &\[u8\]` at line 496/);
   assert.match(markdown, /`v8::String::new_from_utf8` at line\s+520/);
   assert.match(markdown, /does not inspect\s+optimized V8 code, does not count allocations, does not cover browser engines/);
+  assert.match(markdown, /midsize\.xml` corpus-seed allocation-sampling follow-up/);
+  assert.match(markdown, /Both rows\s+preserved 1,013,762 events and checksum `1553514899`/);
+  assert.match(markdown, /`event-reader-object`\s+sampled `98\.9 KiB` across 10 samples/);
+  assert.match(markdown, /`raw-frame-name-id-cache` sampled `124\.4 KiB` across 13 samples/);
   assert.match(markdown, /HeadlessChrome 148\.0\.0\.0 \/ browser V8/);
   assert.match(markdown, /Pure `TextDecoder\.decode` rows reported 16\.63 MiB\/s for\s+`subarraySharedDecoder`/);
   assert.match(markdown, /`shortAsciiSubarraySharedDecoder` row reported 39\.42 MiB\/s/);

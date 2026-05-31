@@ -32,7 +32,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 196);
+  assert.equal(report.summary.scannedArtifactCount, 197);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'firefox-spidermonkey-nightly-jsshell-availability-audit.json'
     && artifact.objective === 'firefox-spidermonkey-nightly-jsshell-availability-audit'
@@ -204,7 +204,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.benchmarkArtifactCount, 148);
   assert.equal(report.summary.sourceArtifactCount, 18);
   assert.equal(report.summary.traceArtifactCount, 10);
-  assert.equal(report.summary.allocationArtifactCount, 15);
+  assert.equal(report.summary.allocationArtifactCount, 16);
   assert.equal(report.summary.environmentArtifactCount, 4);
   assert.equal(report.summary.negativeArtifactCount, 19);
   assert.ok(report.scannedArtifacts.some(artifact =>
@@ -471,6 +471,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'deno-v8'
+    && row.artifactCount === 13
     && row.measuredRowCount === 86
     && row.largeFullStringRowCount === 77
   ));
@@ -485,6 +486,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.runtimes.includes('deno-v8')
     && row.evidenceKinds.includes('BENCH_FACT')
     && row.measuredRowCount === 9
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'deno-v8-allocation-sampling-midsize-corpus.json'
+    && row.runtimes.includes('deno-v8')
+    && row.evidenceKinds.includes('ALLOCATION_FACT')
+    && row.measuredRowCount === 0
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'medium-ascii-text-materialization-candidate.json'
@@ -749,6 +756,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'deno-v8'
     && row.allocationArtifacts.includes('deno-v8-allocation-sampling.json')
+    && row.allocationArtifacts.includes('deno-v8-allocation-sampling-midsize-corpus.json')
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'node-v8'
@@ -876,13 +884,13 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey official release js-shell audit present \(status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is JIT-status evidence only, not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey official nightly js-shell audit present \(status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is JIT-status evidence only, not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing/);
-  assert.match(markdown, /15 allocation\/profile artifacts found/);
+  assert.match(markdown, /16 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 4/);
   assert.match(markdown, /Source artifacts: 18/);
   assert.match(markdown, /Negative-result artifacts: 19/);
   assert.match(markdown, /\| Node\/V8 \| 106 \| 534 \| 369 \|/);
   assert.match(markdown, /\| Bun\/JSC \| 38 \| 277 \| 182 \|/);
-  assert.match(markdown, /\| Deno\/V8 \| 12 \| 86 \| 77 \|/);
+  assert.match(markdown, /\| Deno\/V8 \| 13 \| 86 \| 77 \|/);
   assert.match(markdown, /\| Firefox\/SpiderMonkey browser \| 22 \| 82 \| 70 \|/);
   assert.match(markdown, /\| Java\/Woodstox \| 12 \| 13 \| 5 \|/);
   assert.match(markdown, /\| Rust\/quick-xml \| 11 \| 19 \| 5 \|/);
