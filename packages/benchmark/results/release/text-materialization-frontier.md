@@ -1,6 +1,6 @@
 # Text Materialization Frontier
 
-Generated: 2026-05-31T16:44:36.332Z
+Generated: 2026-05-31T17:12:12.056Z
 
 Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.
 
@@ -43,6 +43,10 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
 | long-ascii-text-fast-path | 172.85 | 71.21 | 0.41x | yes | no | yes |
 | medium-ascii-text-fast-path | 164.31 | 170.16 | 1.04x | yes | no | yes |
 | unrolled-medium-ascii-text-fast-path | 164.13 | 170.59 | 1.04x | yes | no | yes |
+| node-no-counter-medium-ascii-text-fresh-process | 92.63 | 94.43 | 1.02x | yes | no | yes |
+| node-no-counter-unrolled-medium-ascii-text-fresh-process | 92.63 | 93.35 | 1.01x | yes | no | yes |
+| bun-no-counter-medium-ascii-text-fresh-process | 96.82 | 93.40 | 0.96x | yes | no | yes |
+| bun-no-counter-unrolled-medium-ascii-text-fresh-process | 96.82 | 94.75 | 0.98x | yes | no | yes |
 | treebank-medium-ascii-text-fast-path | 68.84 | 61.38 | 0.89x | yes | no | yes |
 | treebank-unrolled-medium-ascii-text-fast-path | 68.84 | 74.77 | 1.09x | yes | no | yes |
 | unrolled-medium-ascii-text-trim-guard | 136.23 | 164.14 | 1.20x | yes | no | yes |
@@ -77,6 +81,10 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
   - long-ascii-text-fast-path: candidate/control=0.41x, candidate=71.21 MiB/s
   - medium-ascii-text-fast-path: candidate/control=1.04x, candidate=170.16 MiB/s
   - unrolled-medium-ascii-text-fast-path: candidate/control=1.04x, candidate=170.59 MiB/s
+  - node-no-counter-medium-ascii-text-fresh-process: candidate/control=1.02x, candidate=94.43 MiB/s
+  - node-no-counter-unrolled-medium-ascii-text-fresh-process: candidate/control=1.01x, candidate=93.35 MiB/s
+  - bun-no-counter-medium-ascii-text-fresh-process: candidate/control=0.96x, candidate=93.40 MiB/s
+  - bun-no-counter-unrolled-medium-ascii-text-fresh-process: candidate/control=0.98x, candidate=94.75 MiB/s
   - treebank-medium-ascii-text-fast-path: candidate/control=0.89x, candidate=61.38 MiB/s
   - treebank-unrolled-medium-ascii-text-fast-path: candidate/control=1.09x, candidate=74.77 MiB/s
   - unrolled-medium-ascii-text-trim-guard: candidate/control=1.20x, candidate=164.14 MiB/s

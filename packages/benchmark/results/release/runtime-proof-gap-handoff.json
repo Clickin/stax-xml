@@ -1,15 +1,15 @@
 {
-  "generatedAt": "2026-05-31T16:45:13.650Z",
+  "generatedAt": "2026-05-31T17:12:40.816Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
   "inputs": {
     "auditJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-coverage-audit.json",
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
-    "comparisonGeneratedAt": "2026-05-31T16:44:32.811Z",
+    "comparisonGeneratedAt": "2026-05-31T17:12:20.008Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
-    "auditGeneratedAt": "2026-05-31T16:44:53.936Z",
+    "auditGeneratedAt": "2026-05-31T17:12:32.347Z",
     "auditObjective": "runtime-proof-coverage-audit",
     "auditContract": "static-release-artifact-proof-coverage"
   },
@@ -37,8 +37,8 @@
     "conclusionBlocker": "Open or partial obligations still require external runtime evidence before any runtime-limit conclusion."
   },
   "auditSummary": {
-    "artifactCount": 192,
-    "measuredRows": 1057,
+    "artifactCount": 193,
+    "measuredRows": 1081,
     "counterexamples": null,
     "activeObligations": [
       {
@@ -58,7 +58,7 @@
   "sourceConsumptionEvidence": {
     "status": "classified",
     "sourceArtifact": "same-contract-runtime-comparison.json",
-    "rowCount": 221,
+    "rowCount": 229,
     "sourceModes": [
       "fetch-async-iterable-byte-batches",
       "fetch-readable-stream-pull",
@@ -66,11 +66,11 @@
       "sync-iterable-byte-batches"
     ],
     "sourceShapeSafety": {
-      "largeJsFullSourceModeRows": 182,
-      "notFullArrayBufferRows": 182,
+      "largeJsFullSourceModeRows": 190,
+      "notFullArrayBufferRows": 190,
       "fullArrayBufferRows": 0,
       "unknownArrayBufferRows": 0,
-      "corpusSeedReplayRows": 105
+      "corpusSeedReplayRows": 113
     },
     "sourceConsumptionFrontier": {
       "sourceArtifact": "stream-source-consumption-backpressure-counters.json",
@@ -98,8 +98,8 @@
     "status": "classified",
     "sourceArtifact": "same-contract-runtime-comparison.json",
     "contract": "1gib-plus-js-full-string-memory-frontier",
-    "rows": 188,
-    "boundedRows": 171,
+    "rows": 196,
+    "boundedRows": 179,
     "unboundedRows": 17,
     "memoryKinds": [
       "browser-js-heap",
@@ -178,8 +178,8 @@
       },
       {
         "kind": "process-rss",
-        "rows": 159,
-        "boundedRows": 151,
+        "rows": 167,
+        "boundedRows": 159,
         "unboundedRows": 8,
         "maxMiB": 1956.69,
         "fastestRow": {
@@ -342,7 +342,7 @@
     "fullRowsCrossTarget": 0,
     "noTrimRowsCrossTarget": 0,
     "foldTrimRowsCrossTarget": 0,
-    "negativeCandidateCount": 17,
+    "negativeCandidateCount": 21,
     "interpretation": "Text/CDATA omission crosses the target as headroom evidence, while trim-only, fold-trim, cache, and ASCII candidates remain negative for the current full-string contract."
   },
   "localClosure": [

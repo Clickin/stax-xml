@@ -394,6 +394,11 @@ const crossProcessArtifacts = [
     cases: ['rawFrameNameId', 'rawFrameNameIdMediumAsciiText', 'withoutTextStrings'],
   },
   {
+    group: 'no-counter-medium-ascii-text-cross-process-books-corpus-warmup',
+    file: 'no-counter-medium-ascii-text-cross-process-books-corpus-warmup.json',
+    cases: ['rawFrameNameId', 'rawFrameNameIdNoCounters', 'rawFrameNameIdNoCountersMediumAsciiText', 'rawFrameNameIdNoCountersUnrolledMediumAsciiText'],
+  },
+  {
     group: 'cross-process-books-corpus-batch16',
     file: 'candidate-headroom-cross-process-books-corpus-batch16.json',
     cases: candidateCases,

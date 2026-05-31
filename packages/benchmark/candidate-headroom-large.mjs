@@ -314,6 +314,28 @@ function createVariants(fixture, requestedCases = null) {
           run: () => consumeRawFrameNameIdNoCountersStyle(fixture, { foldTrimmedText: true }),
         }]
       : []),
+    ...(requested.has('rawFrameNameIdNoCountersMediumAsciiText')
+      ? [{
+          id: 'rawFrameNameIdNoCountersMediumAsciiText',
+          family: 'full-stax-js',
+          implementation: 'nextRawBatch typed arrays with numeric name-id cache, counters disabled, and split short ASCII text materialization for 13-24 byte spans',
+          contractScope: 'full-string-materialization',
+          fullStringParity: true,
+          instrumentation: 'materialization-counters-disabled',
+          run: () => consumeRawFrameNameIdNoCountersStyle(fixture, { mediumAsciiText: true }),
+        }]
+      : []),
+    ...(requested.has('rawFrameNameIdNoCountersUnrolledMediumAsciiText')
+      ? [{
+          id: 'rawFrameNameIdNoCountersUnrolledMediumAsciiText',
+          family: 'full-stax-js',
+          implementation: 'nextRawBatch typed arrays with numeric name-id cache, counters disabled, and direct unrolled ASCII text materialization for 13-24 byte spans',
+          contractScope: 'full-string-materialization',
+          fullStringParity: true,
+          instrumentation: 'materialization-counters-disabled',
+          run: () => consumeRawFrameNameIdNoCountersStyle(fixture, { unrolledMediumAsciiText: true }),
+        }]
+      : []),
     ...(requested.has('rawFrameNameIdNoCountersTextCache')
       ? [{
           id: 'rawFrameNameIdNoCountersTextCache',
@@ -1687,7 +1709,7 @@ function consumeRawFrameNameIdNoCounters(frame, checksum, eventCount, decoder, n
     if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
       const start = textStarts[index];
       if (start >= 0) {
-        const value = materializeValueNoCounters(buffer, start, textEnds[index], decoder, options.textCache ?? options.valueCache);
+        const value = materializeValueNoCounters(buffer, start, textEnds[index], decoder, options.textCache ?? options.valueCache, options);
         if (options.foldTrimmedText) {
           checksum = foldTrimmedString(checksum, value);
         } else {
@@ -1949,15 +1971,15 @@ function materializeNameNoCounters(buffer, start, end, nameId, decoder, nameCach
   return value;
 }
 
-function materializeValueNoCounters(buffer, start, end, decoder, valueCache) {
+function materializeValueNoCounters(buffer, start, end, decoder, valueCache, options = {}) {
   if (!valueCache) {
-    return decodeSpanNoCounters(buffer, start, end, decoder);
+    return decodeSpanNoCounters(buffer, start, end, decoder, options);
   }
   const cached = valueCache.get(buffer, start, end);
   if (cached !== undefined) {
     return cached;
   }
-  const value = decodeSpanNoCounters(buffer, start, end, decoder);
+  const value = decodeSpanNoCounters(buffer, start, end, decoder, options);
   valueCache.set(buffer, start, end, value);
   return value;
 }
@@ -2187,9 +2209,25 @@ function decodeSpan(buffer, start, end, decoder, materializationCounters, kind, 
   return decoder.decode(buffer.subarray(start, end));
 }
 
-function decodeSpanNoCounters(buffer, start, end, decoder) {
+function decodeSpanNoCounters(buffer, start, end, decoder, options = {}) {
   const ascii = decodeShortAsciiSpan(buffer, start, end);
-  return ascii === undefined ? decoder.decode(buffer.subarray(start, end)) : ascii;
+  if (ascii !== undefined) {
+    return ascii;
+  }
+  if (options.unrolledMediumAsciiText) {
+    return decodeUnrolledAsciiSpanUpTo24(buffer, start, end) ?? decoder.decode(buffer.subarray(start, end));
+  }
+  if (options.mediumAsciiText) {
+    const length = end - start;
+    if (length > 12 && length <= 24) {
+      const head = decodeShortAsciiSpan(buffer, start, start + 12);
+      const tail = decodeShortAsciiSpan(buffer, start + 12, end);
+      if (head !== undefined && tail !== undefined) {
+        return head + tail;
+      }
+    }
+  }
+  return decoder.decode(buffer.subarray(start, end));
 }
 
 function decodeLongAsciiTextSpan(buffer, start, end, decoder, materializationCounters) {

@@ -522,7 +522,7 @@ test('large candidate headroom matrix can isolate materialization counter overhe
     '--warmups',
     '0',
     '--cases',
-    'rawFrameNameId,rawFrameNameIdNoCounters,rawFrameNameIdNoCountersFoldTrim,rawFrameNameIdNoCountersTextCache,rawFrameNameIdNoCountersValueCache,rawFrameNameIdNoCountersNameFoldCache,rawFrameNameIdNoCountersStringFoldCache,rawFrameNameIdNoCountersNameFoldCacheFoldTrim',
+    'rawFrameNameId,rawFrameNameIdNoCounters,rawFrameNameIdNoCountersFoldTrim,rawFrameNameIdNoCountersMediumAsciiText,rawFrameNameIdNoCountersUnrolledMediumAsciiText,rawFrameNameIdNoCountersTextCache,rawFrameNameIdNoCountersValueCache,rawFrameNameIdNoCountersNameFoldCache,rawFrameNameIdNoCountersStringFoldCache,rawFrameNameIdNoCountersNameFoldCacheFoldTrim',
     '--json-out',
     noCountersJsonOut,
     '--md-out',
@@ -540,6 +540,8 @@ test('large candidate headroom matrix can isolate materialization counter overhe
     'rawFrameNameId',
     'rawFrameNameIdNoCounters',
     'rawFrameNameIdNoCountersFoldTrim',
+    'rawFrameNameIdNoCountersMediumAsciiText',
+    'rawFrameNameIdNoCountersUnrolledMediumAsciiText',
     'rawFrameNameIdNoCountersTextCache',
     'rawFrameNameIdNoCountersValueCache',
     'rawFrameNameIdNoCountersNameFoldCache',
@@ -553,6 +555,8 @@ test('large candidate headroom matrix can isolate materialization counter overhe
     'rawFrameNameId',
     'rawFrameNameIdNoCounters',
     'rawFrameNameIdNoCountersFoldTrim',
+    'rawFrameNameIdNoCountersMediumAsciiText',
+    'rawFrameNameIdNoCountersUnrolledMediumAsciiText',
     'rawFrameNameIdNoCountersTextCache',
     'rawFrameNameIdNoCountersValueCache',
     'rawFrameNameIdNoCountersNameFoldCache',
@@ -563,6 +567,8 @@ test('large candidate headroom matrix can isolate materialization counter overhe
   const rawNameId = report.variants.find(entry => entry.id === 'rawFrameNameId');
   const noCounters = report.variants.find(entry => entry.id === 'rawFrameNameIdNoCounters');
   const noCountersFoldTrim = report.variants.find(entry => entry.id === 'rawFrameNameIdNoCountersFoldTrim');
+  const noCountersMediumAsciiText = report.variants.find(entry => entry.id === 'rawFrameNameIdNoCountersMediumAsciiText');
+  const noCountersUnrolledMediumAsciiText = report.variants.find(entry => entry.id === 'rawFrameNameIdNoCountersUnrolledMediumAsciiText');
   const noCountersTextCache = report.variants.find(entry => entry.id === 'rawFrameNameIdNoCountersTextCache');
   const noCountersValueCache = report.variants.find(entry => entry.id === 'rawFrameNameIdNoCountersValueCache');
   const noCountersNameFoldCache = report.variants.find(entry => entry.id === 'rawFrameNameIdNoCountersNameFoldCache');
@@ -582,7 +588,7 @@ test('large candidate headroom matrix can isolate materialization counter overhe
   assert.equal(noCountersFoldTrim.checksum, rawNameId.checksum);
   assert.equal(noCountersFoldTrim.materializationCounters.stringFieldReads, 0);
   assert.equal(noCountersFoldTrim.runtimeLimitCounterexampleEligible, false);
-  for (const cacheRow of [noCountersTextCache, noCountersValueCache, noCountersNameFoldCache, noCountersStringFoldCache, noCountersNameFoldCacheFoldTrim]) {
+  for (const cacheRow of [noCountersMediumAsciiText, noCountersUnrolledMediumAsciiText, noCountersTextCache, noCountersValueCache, noCountersNameFoldCache, noCountersStringFoldCache, noCountersNameFoldCacheFoldTrim]) {
     assert.equal(cacheRow.fullStringParity, true);
     assert.equal(cacheRow.contractScope, 'full-string-materialization');
     assert.equal(cacheRow.instrumentation, 'materialization-counters-disabled');
@@ -595,6 +601,8 @@ test('large candidate headroom matrix can isolate materialization counter overhe
   const markdown = readFileSync(noCountersMdOut, 'utf8');
   assert.match(markdown, /rawFrameNameIdNoCounters/);
   assert.match(markdown, /rawFrameNameIdNoCountersFoldTrim/);
+  assert.match(markdown, /rawFrameNameIdNoCountersMediumAsciiText/);
+  assert.match(markdown, /rawFrameNameIdNoCountersUnrolledMediumAsciiText/);
   assert.match(markdown, /rawFrameNameIdNoCountersTextCache/);
   assert.match(markdown, /rawFrameNameIdNoCountersValueCache/);
   assert.match(markdown, /rawFrameNameIdNoCountersNameFoldCache/);

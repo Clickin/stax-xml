@@ -53,6 +53,34 @@ const negativeArtifacts = [
     family: 'unrolled-medium-ascii-text-fast-path',
   },
   {
+    file: 'no-counter-medium-ascii-text-cross-process-books-corpus-warmup.json',
+    runtime: 'node',
+    controlId: 'rawFrameNameIdNoCounters',
+    candidateId: 'rawFrameNameIdNoCountersMediumAsciiText',
+    family: 'node-no-counter-medium-ascii-text-fresh-process',
+  },
+  {
+    file: 'no-counter-medium-ascii-text-cross-process-books-corpus-warmup.json',
+    runtime: 'node',
+    controlId: 'rawFrameNameIdNoCounters',
+    candidateId: 'rawFrameNameIdNoCountersUnrolledMediumAsciiText',
+    family: 'node-no-counter-unrolled-medium-ascii-text-fresh-process',
+  },
+  {
+    file: 'no-counter-medium-ascii-text-cross-process-books-corpus-warmup.json',
+    runtime: 'bun',
+    controlId: 'rawFrameNameIdNoCounters',
+    candidateId: 'rawFrameNameIdNoCountersMediumAsciiText',
+    family: 'bun-no-counter-medium-ascii-text-fresh-process',
+  },
+  {
+    file: 'no-counter-medium-ascii-text-cross-process-books-corpus-warmup.json',
+    runtime: 'bun',
+    controlId: 'rawFrameNameIdNoCounters',
+    candidateId: 'rawFrameNameIdNoCountersUnrolledMediumAsciiText',
+    family: 'bun-no-counter-unrolled-medium-ascii-text-fresh-process',
+  },
+  {
     file: 'medium-ascii-text-treebank-corpus.json',
     controlId: 'rawFrameNameId',
     candidateId: 'rawFrameNameIdMediumAsciiText',
@@ -268,19 +296,21 @@ function extractScaledRows(report, sourceArtifact) {
 }
 
 function extractNegativeRow(report, spec) {
-  const control = findVariant(report, spec.controlId);
-  const candidate = findVariant(report, spec.candidateId);
+  const control = findVariant(report, spec.controlId, spec.runtime);
+  const candidate = findVariant(report, spec.candidateId, spec.runtime);
+  const controlRow = createRow(report, control, spec.file, 'full');
+  const candidateRow = createRow(report, candidate, spec.file, 'negative-candidate');
   return {
     family: spec.family,
     sourceArtifact: spec.file,
-    control: summarizeRow(createRow(report, control, spec.file, 'full')),
-    candidate: summarizeRow(createRow(report, candidate, spec.file, 'negative-candidate')),
-    candidateToControlRatio: ratio(candidate.mibPerSec, control.mibPerSec),
-    candidatePreservesFullStringParity: candidate.fullStringParity === true,
-    candidateCrossesTarget: candidate.mibPerSec >= targetMiBPerSec,
-    rejectedForFullTarget: candidate.fullStringParity !== true
-      || candidate.mibPerSec < targetMiBPerSec
-      || candidate.mibPerSec < control.mibPerSec,
+    control: summarizeRow(controlRow),
+    candidate: summarizeRow(candidateRow),
+    candidateToControlRatio: ratio(candidateRow.mibPerSec, controlRow.mibPerSec),
+    candidatePreservesFullStringParity: candidateRow.fullStringParity === true,
+    candidateCrossesTarget: candidateRow.mibPerSec >= targetMiBPerSec,
+    rejectedForFullTarget: candidateRow.fullStringParity !== true
+      || candidateRow.mibPerSec < targetMiBPerSec
+      || candidateRow.mibPerSec < controlRow.mibPerSec,
   };
 }
 
@@ -304,20 +334,38 @@ function createRow(report, row, sourceArtifact, role) {
     id: row.id,
     role,
     sourceArtifact,
-    sizeGiB: round(report.fixture?.sizeGiB),
-    mibPerSec: round(row.mibPerSec),
+    runtimeLabel: row.runtimeLabel ?? null,
+    sizeGiB: round(report.fixture?.sizeGiB ?? report.options?.sizeGiB),
+    mibPerSec: round(row.mibPerSec ?? row.avgMiBPerSec),
     fullStringParity: row.fullStringParity === true,
-    boundedMemory: row.boundedMemory === true,
-    eventCount: row.eventCount,
-    checksum: row.checksum,
+    boundedMemory: row.boundedMemory === true || row.boundedMemoryAll === true,
+    eventCount: row.eventCount ?? singletonValue(row.eventCounts),
+    checksum: row.checksum ?? singletonValue(row.checksums),
     counters: pickCounters(row.materializationCounters),
   };
 }
 
-function findVariant(report, id) {
-  const row = (report.variants ?? []).find(variant => variant.id === id);
+function findVariant(report, id, runtime = null) {
+  const row = runtime
+    ? findRuntimeVariant(report, runtime, id)
+    : (report.variants ?? []).find(variant => variant.id === id);
   if (!row) throw new Error(`Missing variant ${id}.`);
   return row;
+}
+
+function findRuntimeVariant(report, runtime, id) {
+  const runtimeReport = (report.runtimes ?? []).find(entry => entry.runtime === runtime);
+  if (!runtimeReport) return null;
+  const row = (runtimeReport.variants ?? []).find(variant => variant.id === id);
+  if (!row) return null;
+  return {
+    ...row,
+    runtimeLabel: runtimeReport.runtimeLabel ?? runtime,
+  };
+}
+
+function singletonValue(values) {
+  return Array.isArray(values) && values.length === 1 ? values[0] : null;
 }
 
 function pickCounters(counters = {}) {
@@ -484,6 +532,7 @@ function summarizeRow(row) {
     boundedMemory: row.boundedMemory,
     eventCount: row.eventCount,
     checksum: row.checksum,
+    runtimeLabel: row.runtimeLabel ?? null,
     textStringReads: row.counters?.textStringReads ?? null,
     stringFieldReads: row.counters?.stringFieldReads ?? null,
     counters: row.counters ?? null,
