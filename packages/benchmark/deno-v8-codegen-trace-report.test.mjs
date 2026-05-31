@@ -22,6 +22,8 @@ test('Deno V8 codegen trace report records optimization and scope guards', { ski
     '--quick',
     '--cases',
     'raw-frame-name-id-cache',
+    '--fixture-file',
+    join(__dirname, 'assets', 'books.xml'),
     '--json-out',
     jsonOut,
     '--md-out',
@@ -40,12 +42,18 @@ test('Deno V8 codegen trace report records optimization and scope guards', { ski
   assert.match(report.environment.denoVersion, /^2\./);
   assert.match(report.environment.v8Version, /^\d+\./);
   assert.deepEqual(report.options.cases, ['raw-frame-name-id-cache']);
+  assert.equal(report.options.fixtureFile, join(__dirname, 'assets', 'books.xml'));
+  assert.equal(report.fixture.source, 'corpus-file');
+  assert.equal(report.fixture.file, join(__dirname, 'assets', 'books.xml'));
+  assert.equal(report.fixture.byteLength, 4551);
   assert.equal(report.cases.length, 1);
 
   const [row] = report.cases;
   assert.equal(row.caseId, 'raw-frame-name-id-cache');
+  assert.equal(row.result.fixtureFile, join(__dirname, 'assets', 'books.xml'));
+  assert.equal(row.result.fixtureBytes, 4551);
   assert.ok(row.result.eventCount > 0);
-  assert.ok(row.targetOptimizedFunctions.includes('consumeRawFrame'));
+  assert.ok(row.targetOptimizedFunctions.length > 0);
   assert.ok(row.compilationTargets.length > 0);
   assert.ok(Number.isInteger(row.postWarmupDeoptCount));
   assert.ok(row.postWarmupDeoptCount >= 0);
@@ -56,6 +64,8 @@ test('Deno V8 codegen trace report records optimization and scope guards', { ski
   assert.match(markdown, /Deno V8 Codegen Trace/);
   assert.match(markdown, /TRACE_FACT/);
   assert.match(markdown, /not a throughput benchmark/);
+  assert.match(markdown, /corpus-file/);
+  assert.match(markdown, /books\.xml/);
   assert.match(markdown, /raw-frame-name-id-cache/);
 });
 

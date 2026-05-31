@@ -3024,6 +3024,23 @@ small selected-function trace. It is not a 1 GiB benchmark row, not an
 allocation profile, not TextDecoder-specific machine-code proof, not browser
 coverage, and not a JavaScript runtime ceiling proof.
 
+`packages/benchmark/results/release/deno-v8-codegen-trace-midsize-corpus.md`
+adds a corpus-file follow-up for the same Deno/V8 trace route. It passes the
+13.37 MiB `midsize.xml` fixture through `--fixture-file` rather than generated
+element bytes, using `raw-frame-name-id-cache`, `warmups=2`, and
+`iterations=1`. The row preserved 1,013,762 events and checksum `1553514899`,
+matching the Deno/V8 midsize allocation-sampling corpus row. Deno/V8 emitted
+Maglev and TurboFan trace signals for `consumeRawFrame`, `materializeName`,
+`decodeSpan`, `foldString`, `parseBuffer`, `parseTag`, and `parseStartTag`.
+It also recorded 14 warmup deopts and 2 post-warmup deopts, so this is not a
+"stable optimized forever" proof.
+
+This is stronger than the small generated Deno/V8 trace because it exercises a
+real corpus byte fixture and the same checksum as the midsize allocation
+sampling row. It is still a selected-function trace over a 13.37 MiB seed, not
+a 1 GiB throughput benchmark, not an allocation census, not browser evidence,
+not SpiderMonkey/Safari evidence, and not a JavaScript runtime ceiling proof.
+
 ## Current Evidence: Deno/V8 Allocation Sampling
 
 `packages/benchmark/results/release/deno-v8-allocation-sampling.md` is a

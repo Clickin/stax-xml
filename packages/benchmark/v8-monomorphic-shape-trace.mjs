@@ -64,6 +64,7 @@ function parseArgs(argv) {
     warmups: 120,
     iterations: 24,
     elements: 512,
+    fixtureFile: null,
     quick: false,
     skipOptCode: false,
     skipTrace: false,
@@ -128,6 +129,9 @@ function parseArgs(argv) {
       case '--elements':
         options.elements = parsePositiveInteger(readValue(), name);
         break;
+      case '--fixture-file':
+        options.fixtureFile = resolve(process.cwd(), readValue());
+        break;
       default:
         throw new Error(`Unknown argument: ${arg}`);
     }
@@ -181,6 +185,7 @@ function runDriver(options) {
     warmups: options.warmups,
     iterations: options.iterations,
     elements: options.elements,
+    fixtureFile: options.fixtureFile,
     quick: options.quick,
     artifacts: [],
   };
@@ -231,6 +236,7 @@ function runTraceProcess(options, trace) {
     `--warmups=${options.warmups}`,
     `--iterations=${options.iterations}`,
     `--elements=${options.elements}`,
+    ...(options.fixtureFile ? [`--fixture-file=${options.fixtureFile}`] : []),
   ];
   const startedAt = Date.now();
   const result = spawnSync(process.execPath, args, {
@@ -282,9 +288,13 @@ function buildSummary(manifest, rawManifestPath) {
       platform: manifest.platform,
     },
     fixture: {
-      source: 'self-generated',
+      source: manifest.fixtureFile ? 'corpus-file' : 'self-generated',
+      file: manifest.fixtureFile,
       elements: manifest.elements,
-      byteLength: textEncoder.encode(makeXml(manifest.elements)).byteLength,
+      byteLength: loadFixtureBytes({
+        elements: manifest.elements,
+        fixtureFile: manifest.fixtureFile,
+      }).byteLength,
     },
     options: {
       warmups: manifest.warmups,
@@ -431,7 +441,7 @@ function renderMarkdown(summary) {
     `- V8: ${summary.environment.v8}`,
     `- Platform: ${summary.environment.platform}`,
     `- CPU: ${summary.environment.cpuName}`,
-    `- Fixture: ${summary.fixture.elements} generated elements, ${summary.fixture.byteLength} bytes`,
+    `- Fixture: ${summary.fixture.source}${summary.fixture.file ? ` (${summary.fixture.file})` : `, ${summary.fixture.elements} generated elements`}, ${summary.fixture.byteLength} bytes`,
     `- Runs: warmups=${summary.options.warmups}, iterations=${summary.options.iterations}`,
     '',
     '## Raw Artifacts',
@@ -483,7 +493,7 @@ function formatSignals(counts) {
 }
 
 function runTraceCase(options) {
-  const bytes = textEncoder.encode(makeXml(options.elements));
+  const bytes = loadFixtureBytes(options);
   let last;
   for (let index = 0; index < options.warmups + options.iterations; index++) {
     last = consumeCase(options.caseId, bytes);
@@ -500,6 +510,8 @@ function runTraceCase(options) {
     warmups: options.warmups,
     iterations: options.iterations,
     elements: options.elements,
+    fixtureFile: options.fixtureFile,
+    fixtureBytes: bytes.byteLength,
     eventCount: last.eventCount,
     checksum: last.checksum,
     sink: globalThis.__staxXmlMonomorphicTraceSink >>> 0,
@@ -507,7 +519,9 @@ function runTraceCase(options) {
 }
 
 function runSelfTest(options) {
-  const bytes = textEncoder.encode(makeXml(Math.min(options.elements, 16)));
+  const bytes = options.fixtureFile
+    ? loadFixtureBytes(options)
+    : textEncoder.encode(makeXml(Math.min(options.elements, 16)));
   const results = caseIds.map((caseId) => [caseId, consumeCase(caseId, bytes)]);
   const [, first] = results[0];
   for (const [caseId, result] of results) {
@@ -520,6 +534,13 @@ function runSelfTest(options) {
     eventCount: first.eventCount,
     checksum: first.checksum,
   }));
+}
+
+function loadFixtureBytes(options) {
+  if (options.fixtureFile) {
+    return readFileSync(options.fixtureFile);
+  }
+  return textEncoder.encode(makeXml(options.elements));
 }
 
 function consumeCase(caseId, bytes) {

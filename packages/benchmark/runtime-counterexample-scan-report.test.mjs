@@ -33,7 +33,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 197);
+  assert.equal(report.summary.scannedArtifactCount, 198);
   assert.ok(report.scannedArtifacts.includes('concat-buffer-reuse-negative-result.json'));
   assert.ok(report.scannedArtifacts.includes('firefox-spidermonkey-nightly-jsshell-availability-audit.json'));
   assert.ok(report.scannedArtifacts.includes('firefox-spidermonkey-release-jsshell-availability-audit.json'));
@@ -128,6 +128,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('deno-event-reader-byte-batch.json'));
   assert.ok(report.scannedArtifacts.includes('deno-textdecoder-source-pin-audit.json'));
   assert.ok(report.scannedArtifacts.includes('deno-v8-codegen-trace.json'));
+  assert.ok(report.scannedArtifacts.includes('deno-v8-codegen-trace-midsize-corpus.json'));
   assert.ok(report.scannedArtifacts.includes('deno-v8-allocation-sampling.json'));
   assert.ok(report.scannedArtifacts.includes('deno-v8-allocation-sampling-midsize-corpus.json'));
   assert.ok(report.scannedArtifacts.includes('firefox-spidermonkey-profiler-trace.json'));
@@ -841,7 +842,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Runtime Counterexample Scan/);
   assert.match(markdown, /Counterexamples found: 0/);
-  assert.match(markdown, /Scanned artifacts: 197/);
+  assert.match(markdown, /Scanned artifacts: 198/);
   assert.match(markdown, /Measured rows recognized: 1111/);
   assert.match(markdown, /Aggregate rows recognized: 146/);
   assert.match(markdown, /1 GiB\+ JS full-string aggregate rows recognized: 121/);

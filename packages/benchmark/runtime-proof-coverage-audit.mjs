@@ -1067,13 +1067,13 @@ function extractPeakMemoryBytes(node, memoryKind) {
 
 function normalizeFixture(fixture) {
   if (!fixture || typeof fixture !== 'object') return null;
-  const actualBytes = numberOrNull(fixture.actualBytes ?? fixture.sizeBytes);
+  const actualBytes = numberOrNull(fixture.actualBytes ?? fixture.sizeBytes ?? fixture.byteLength);
   const sizeGiB = numberOrNull(fixture.sizeGiB) ?? (actualBytes !== null ? actualBytes / GIB : null);
   const sizeMiB = numberOrNull(fixture.sizeMiB) ?? (actualBytes !== null ? actualBytes / MIB : null);
   return {
     source: fixture.source ?? null,
     shape: fixture.shape ?? null,
-    sourceFile: fixture.sourceFile ?? null,
+    sourceFile: fixture.sourceFile ?? fixture.file ?? null,
     sizeGiB: round(sizeGiB),
     sizeMiB: round(sizeMiB),
     actualBytes,

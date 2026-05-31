@@ -32,7 +32,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 197);
+  assert.equal(report.summary.scannedArtifactCount, 198);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'firefox-spidermonkey-nightly-jsshell-availability-audit.json'
     && artifact.objective === 'firefox-spidermonkey-nightly-jsshell-availability-audit'
@@ -250,7 +250,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.openObligationCount, 2);
   assert.equal(report.summary.benchmarkArtifactCount, 148);
   assert.equal(report.summary.sourceArtifactCount, 18);
-  assert.equal(report.summary.traceArtifactCount, 10);
+  assert.equal(report.summary.traceArtifactCount, 11);
   assert.equal(report.summary.allocationArtifactCount, 16);
   assert.equal(report.summary.environmentArtifactCount, 4);
   assert.equal(report.summary.negativeArtifactCount, 19);
@@ -518,9 +518,17 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'deno-v8'
-    && row.artifactCount === 13
+    && row.artifactCount === 14
     && row.measuredRowCount === 86
     && row.largeFullStringRowCount === 77
+  ));
+  assert.ok(report.scannedArtifacts.some(row =>
+    row.sourceArtifact === 'deno-v8-codegen-trace-midsize-corpus.json'
+    && row.runtimes.includes('deno-v8')
+    && row.evidenceKinds.includes('TRACE_FACT')
+    && row.measuredRowCount === 0
+    && row.fixture.source === 'corpus-file'
+    && row.fixture.sourceFile.endsWith('midsize.xml')
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'deno-candidate-headroom-cross-process-books-corpus.json'
@@ -799,6 +807,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'deno-v8'
     && row.traceArtifacts.includes('deno-v8-codegen-trace.json')
+    && row.traceArtifacts.includes('deno-v8-codegen-trace-midsize-corpus.json')
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'deno-v8'
@@ -945,7 +954,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Negative-result artifacts: 19/);
   assert.match(markdown, /\| Node\/V8 \| 106 \| 534 \| 369 \|/);
   assert.match(markdown, /\| Bun\/JSC \| 38 \| 277 \| 182 \|/);
-  assert.match(markdown, /\| Deno\/V8 \| 13 \| 86 \| 77 \|/);
+  assert.match(markdown, /\| Deno\/V8 \| 14 \| 86 \| 77 \|/);
   assert.match(markdown, /\| Firefox\/SpiderMonkey browser \| 22 \| 82 \| 70 \|/);
   assert.match(markdown, /\| Java\/Woodstox \| 12 \| 13 \| 5 \|/);
   assert.match(markdown, /\| Rust\/quick-xml \| 11 \| 19 \| 5 \|/);

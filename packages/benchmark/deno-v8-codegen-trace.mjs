@@ -29,6 +29,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     warmups: 24,
     iterations: 6,
     elements: 128,
+    fixtureFile: null,
     quick: false,
   };
 
@@ -75,6 +76,9 @@ function parseArgs(argv = process.argv.slice(2)) {
         break;
       case '--elements':
         options.elements = parsePositiveInteger(readValue(), name);
+        break;
+      case '--fixture-file':
+        options.fixtureFile = resolve(process.cwd(), readValue());
         break;
       default:
         throw new Error(`Unknown argument: ${arg}`);
@@ -124,6 +128,7 @@ function main() {
     warmups: options.warmups,
     iterations: options.iterations,
     elements: options.elements,
+    fixtureFile: options.fixtureFile,
     quick: options.quick,
     artifacts: options.cases.map(caseId => runTraceProcess(options, caseId)),
   };
@@ -164,6 +169,7 @@ function runTraceProcess(options, caseId) {
     `--warmups=${options.warmups}`,
     `--iterations=${options.iterations}`,
     `--elements=${options.elements}`,
+    ...(options.fixtureFile ? [`--fixture-file=${options.fixtureFile}`] : []),
   ];
   const startedAt = Date.now();
   const result = spawnSync(options.denoBin, args, {
@@ -213,13 +219,18 @@ function buildSummary(manifest, manifestPath) {
       platform: manifest.platform,
     },
     fixture: {
-      source: 'self-generated',
+      source: manifest.fixtureFile ? 'corpus-file' : 'self-generated',
+      file: manifest.fixtureFile,
       elements: manifest.elements,
-      byteLength: textEncoder.encode(makeXml(manifest.elements)).byteLength,
+      byteLength: loadFixtureBytes({
+        elements: manifest.elements,
+        fixtureFile: manifest.fixtureFile,
+      }).byteLength,
     },
     options: {
       warmups: manifest.warmups,
       iterations: manifest.iterations,
+      fixtureFile: manifest.fixtureFile,
       quick: manifest.quick,
       cases: manifest.cases,
     },
@@ -303,7 +314,9 @@ function createFindings(cases) {
     {
       id: 'deno-v8-optimization-seen',
       classification: 'TRACE_FACT',
-      summary: 'Deno/V8 emitted trace-opt signals for selected stax-xml parser and reader functions in this small generated workload.',
+      summary: cases.some(entry => entry.result?.fixtureFile)
+        ? 'Deno/V8 emitted trace-opt signals for selected stax-xml parser and reader functions over a corpus-file byte fixture.'
+        : 'Deno/V8 emitted trace-opt signals for selected stax-xml parser and reader functions in this small generated workload.',
       evidence: cases.map(entry =>
         `${entry.caseId}: targets=${entry.compilationTargets.join('/') || 'none'}, optimizedTargets=${entry.targetOptimizedFunctions.join(',') || 'none'}`,
       ),
@@ -319,7 +332,9 @@ function createFindings(cases) {
     {
       id: 'scope-guard',
       classification: 'SCOPE_GUARD',
-      summary: 'This trace is a small selected-function Deno/V8 run, not a 1 GiB benchmark, allocation profile, browser trace, or impossibility proof.',
+      summary: cases.some(entry => entry.result?.fixtureFile)
+        ? 'This trace is a selected-function Deno/V8 corpus-file run, not a 1 GiB throughput benchmark, allocation profile, browser trace, or impossibility proof.'
+        : 'This trace is a small selected-function Deno/V8 run, not a 1 GiB benchmark, allocation profile, browser trace, or impossibility proof.',
       evidence: ['Deno trace flags used: --trace-opt,--trace-deopt,--trace-file-names'],
     },
   ];
@@ -340,7 +355,7 @@ function renderMarkdown(summary) {
     `- TypeScript: ${summary.environment.typescriptVersion}`,
     `- Platform: ${summary.environment.platform}`,
     `- CPU: ${summary.environment.cpuName}`,
-    `- Fixture: ${summary.fixture.elements} generated elements, ${summary.fixture.byteLength} bytes`,
+    `- Fixture: ${summary.fixture.source}${summary.fixture.file ? ` (${summary.fixture.file})` : `, ${summary.fixture.elements} generated elements`}, ${summary.fixture.byteLength} bytes`,
     `- Runs: warmups=${summary.options.warmups}, iterations=${summary.options.iterations}`,
     '',
     '## Raw Artifacts',
@@ -382,6 +397,13 @@ function makeXml(elements) {
     xml += `<item id="${index}" code="c${index % 17}"><name>Name ${index}</name><value>${index * 3}</value></item>`;
   }
   return `${xml}</root>`;
+}
+
+function loadFixtureBytes(options) {
+  if (options.fixtureFile) {
+    return readFileSync(options.fixtureFile);
+  }
+  return textEncoder.encode(makeXml(options.elements));
 }
 
 main();
