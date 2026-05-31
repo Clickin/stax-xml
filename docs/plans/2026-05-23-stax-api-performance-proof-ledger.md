@@ -171,7 +171,7 @@ text, trim-guard, offset text-cache, attribute-value cache, Bun/JSC cache
 candidate, text-checksum consumer decomposition, and semantic checksum
 upper-bound artifacts under the same checksum contract.
 
-The current aggregate has 213 aggregated rows and 182 JavaScript 1 GiB+
+The current aggregate has 215 aggregated rows and 184 JavaScript 1 GiB+
 full-string rows. It finds zero 200 MiB/s+ bounded-memory JavaScript
 counterexamples in those artifacts. The fastest aggregated 1 GiB+ JavaScript
 full-string row is Node/V8 `rawFrameNameId` from
@@ -185,13 +185,13 @@ row is `sync-iterable-byte-batches`, the fastest public event-object row is also
 `sync-iterable-byte-batches`, and the 1024 MiB file-backed stax baseline is
 `file-backed-sync-iterable-byte-batches`; older artifacts without source
 metadata remain `n/a` rather than inferred. The same-contract report now also
-classifies the source-shape guard locally: all 176 JavaScript 1 GiB+ full-string
+classifies the source-shape guard locally: all 178 JavaScript 1 GiB+ full-string
 rows with source-mode metadata in this aggregate are marked as not full
-`ArrayBuffer` parser-input rows. It separately records 99 corpus-seed replay
+`ArrayBuffer` parser-input rows. It separately records 101 corpus-seed replay
 rows, with a maximum seed size of 100.26 MiB and a maximum seed/target ratio of
 0.09, so corpus replay is not collapsed into the full-target `ArrayBuffer`
-parser-input claim. The report now also classifies memory on the same 182
-JavaScript 1 GiB+ full-string rows used by the counterexample scan: 165 rows
+parser-input claim. The report now also classifies memory on the same 184
+JavaScript 1 GiB+ full-string rows used by the counterexample scan: 167 rows
 are bounded, 17 are unbounded or unproven, and metric kinds remain separate as
 `process-rss`, `browser-js-heap`, and `browser-js-heap-unavailable`. The
 fastest bounded row is still Node/V8 `rawFrameNameId` at 185.50 MiB/s with
@@ -272,7 +272,7 @@ scan now reports aggregate rows separately from individual child samples so
 fastest-row triage does not blur single-sample and average-throughput evidence.
 
 The scan also preserves or infers source-consumption metadata when release rows
-or their source contract carry it. It now finds 328 JavaScript 1 GiB+
+or their source contract carry it. It now finds 334 JavaScript 1 GiB+
 full-string rows with source mode metadata, including
 `file-backed-sync-iterable-byte-batches`, `generated-sync-iterable-byte-batches`,
 `complete-js-string`, `sync-iterable-byte-batches`,
@@ -329,7 +329,7 @@ and `respectsBackpressure=true` at 9.68 MiB/s, while
 `fetchAsyncByteBatchFull` is classified as `fetch-async-iterable-byte-batches`
 with `directReadableStream=false` and `respectsBackpressure=true` at
 9.77 MiB/s. It also classifies source-mode rows
-by whether they are a prebuilt full-XML `ArrayBuffer` parser input: all 328
+by whether they are a prebuilt full-XML `ArrayBuffer` parser input: all 334
 JavaScript 1 GiB+ full-string rows with source-mode metadata are now marked as
 not full `ArrayBuffer` parser-input rows. This also fixes the previous scanner
 blind spot where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but
@@ -673,10 +673,10 @@ SpiderMonkey JIT IR, and not runtime-limit proof.
 
 The handoff also consumes `same-contract-runtime-comparison.json` as structured
 source-consumption evidence. Its source-consumption evidence status is
-`classified`: the aggregate has 213 rows, source modes
+`classified`: the aggregate has 215 rows, source modes
 `fetch-async-iterable-byte-batches`, `fetch-readable-stream-pull`,
 `file-backed-sync-iterable-byte-batches`, and `sync-iterable-byte-batches`; all
-176 JavaScript 1 GiB+ full-string rows with source-mode metadata are not full
+178 JavaScript 1 GiB+ full-string rows with source-mode metadata are not full
 `ArrayBuffer` parser-input rows; Node source frontier records
 `sync-iterable-byte-batches-batch-8` at 91.95 MiB/s versus
 `web-readable-stream-raw-frame-ascii-batch-8` at 75.20 MiB/s with backpressure
@@ -686,7 +686,7 @@ classification closes only the source-consumption guard; Safari/WebKit browser
 rows and SpiderMonkey emitted IR remain active obligations.
 
 The same handoff now carries the same-contract memory frontier from that
-aggregate: 182 JavaScript 1 GiB+ full-string memory rows, 165 bounded rows, and
+aggregate: 184 JavaScript 1 GiB+ full-string memory rows, 167 bounded rows, and
 17 unbounded or unproven rows across `process-rss`, `browser-js-heap`, and
 `browser-js-heap-unavailable` memory kinds. The fastest bounded row is Node/V8
 `rawFrameNameId` at 185.50 MiB/s with 60.45 MiB process RSS; the fastest browser
@@ -2221,6 +2221,16 @@ spread, `rawFrameNameId` averaged `97.84 MiB/s` with `4.3%` spread, and
 `45.42 MiB/s`. These fresh runtime processes repeated the same selected rows
 without finding a 200 MiB/s full-string counterexample, and the checksum-folding
 partial row no longer appears in full-string parity comparisons.
+
+`packages/benchmark/results/release/warmup-full-cross-process-books-corpus.md`
+then repeats the strongest Node/V8 full-string corpus rows in fresh runtime
+processes with `processRuns=3`, child `runs=1`, and `warmups=1`. This keeps
+the fresh-process boundary while allowing one child-local JIT warmup parse. The
+full-parity `rawFrameNameId` row averaged `86.60 MiB/s` with `1.7%` spread, and
+`rawFrameNameIdNoCounters` averaged `93.96 MiB/s` with `2.9%` spread. Both
+rows preserved 57,096,514 events and checksum `-540013997`, stayed bounded,
+used synchronous `Iterable<Uint8Array[]>` byte batches rather than a direct
+`ReadableStream`, and did not produce a 200 MiB/s counterexample.
 
 `packages/benchmark/results/release/candidate-headroom-cross-process-books-corpus-partial.md`
 then repeats the partial-only `books.xml` rows in fresh Node/Bun processes. Only

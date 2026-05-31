@@ -197,7 +197,7 @@ const requiredProofRules = [
   },
   {
     id: 'handoff-source-consumption-classified',
-    pattern: /source-consumption evidence status is\s+`classified`[\s\S]+?all\s+176 JavaScript 1 GiB\+ full-string rows with source-mode metadata are not full\s+`ArrayBuffer` parser-input rows[\s\S]+?browser live fetch frontier records `fetchReadableStreamFull` at 9\.68\s+MiB\/s and `fetchAsyncByteBatchFull` at 9\.77 MiB\/s[\s\S]+?Safari\/WebKit browser\s+rows and SpiderMonkey emitted IR remain active obligations/i,
+    pattern: /source-consumption evidence status is\s+`classified`[\s\S]+?all\s+178 JavaScript 1 GiB\+ full-string rows with source-mode metadata are not full\s+`ArrayBuffer` parser-input rows[\s\S]+?browser live fetch frontier records `fetchReadableStreamFull` at 9\.68\s+MiB\/s and `fetchAsyncByteBatchFull` at 9\.77 MiB\/s[\s\S]+?Safari\/WebKit browser\s+rows and SpiderMonkey emitted IR remain active obligations/i,
     description: 'The handoff must carry classified source-consumption evidence without closing Safari/WebKit or SpiderMonkey obligations.',
   },
   {

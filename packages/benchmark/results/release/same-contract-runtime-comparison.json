@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-31T15:57:38.573Z",
+  "generatedAt": "2026-05-31T16:07:14.921Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -51,6 +51,7 @@
       "access-shape-candidate-cross-process.json",
       "candidate-headroom-cross-process-books-corpus.json",
       "no-counter-name-fold-cache-cross-process-books-corpus.json",
+      "warmup-full-cross-process-books-corpus.json",
       "candidate-headroom-cross-process-books-corpus-batch16.json",
       "candidate-headroom-cross-process-large-asset-corpus.json",
       "candidate-headroom-cross-process-midsize-corpus.json",
@@ -66,8 +67,8 @@
     ]
   },
   "summary": {
-    "rowCount": 213,
-    "jsLargeFullRowCount": 182,
+    "rowCount": 215,
+    "jsLargeFullRowCount": 184,
     "jsRuntimeCounterexamples200MiB": 0,
     "fastestJsLargeFullRow": {
       "group": "text-trim-cost-decomposition",
@@ -1693,6 +1694,30 @@
         }
       },
       {
+        "group": "warmup-full-cross-process-books-corpus",
+        "fastest": {
+          "group": "warmup-full-cross-process-books-corpus",
+          "runtimeId": "node-v8",
+          "runtimeLabel": "Node/V8",
+          "caseId": "rawFrameNameIdNoCounters",
+          "mibPerSec": 93.96,
+          "boundedMemory": true,
+          "memory": {
+            "primaryKind": "process-rss",
+            "maxMiB": 73,
+            "maxHeapUsedMiB": 9.32,
+            "note": "max across independent child processes"
+          },
+          "sourceMode": "sync-iterable-byte-batches",
+          "fullArrayBufferParserInput": false,
+          "sourceArtifact": "warmup-full-cross-process-books-corpus.json",
+          "sampleCount": 3,
+          "sampleMinMiBPerSec": 92.76,
+          "sampleMaxMiBPerSec": 95.47,
+          "sampleSpreadRatio": 0.03
+        }
+      },
+      {
         "group": "cross-process-books-corpus-batch16",
         "fastest": {
           "group": "cross-process-books-corpus-batch16",
@@ -1839,8 +1864,8 @@
     ],
     "memoryFrontier": {
       "contract": "1gib-plus-js-full-string-memory-frontier",
-      "rows": 182,
-      "boundedRows": 165,
+      "rows": 184,
+      "boundedRows": 167,
       "unboundedRows": 17,
       "memoryKinds": [
         "browser-js-heap",
@@ -1946,8 +1971,8 @@
         },
         {
           "kind": "process-rss",
-          "rows": 153,
-          "boundedRows": 145,
+          "rows": 155,
+          "boundedRows": 147,
           "unboundedRows": 8,
           "maxMiB": 1956.69,
           "fastestRow": {
@@ -2080,11 +2105,11 @@
       "sync-iterable-byte-batches"
     ],
     "sourceShapeSafety": {
-      "largeJsFullSourceModeRows": 176,
-      "notFullArrayBufferRows": 176,
+      "largeJsFullSourceModeRows": 178,
+      "notFullArrayBufferRows": 178,
       "fullArrayBufferRows": 0,
       "unknownArrayBufferRows": 0,
-      "corpusSeedReplayRows": 99,
+      "corpusSeedReplayRows": 101,
       "maxCorpusSeedMiB": 100.26,
       "maxCorpusSeedToTargetRatio": 0.09
     },
@@ -11538,6 +11563,106 @@
       "corpusSeedToTargetRatio": 0.000004238437542384375
     },
     {
+      "group": "warmup-full-cross-process-books-corpus",
+      "sourceArtifact": "warmup-full-cross-process-books-corpus.json",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "13.6.233.17-node.48",
+      "caseId": "rawFrameNameId",
+      "implementation": "Node/V8 cross-process rawFrameNameId",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073744736,
+        "batchSize": 1,
+        "rowCycleSize": 1,
+        "minRowBytes": 4551,
+        "maxRowBytes": 4551,
+        "averageRowBytes": 4551
+      },
+      "fullStringParity": true,
+      "eventCount": 57096514,
+      "checksum": -540013997,
+      "mibPerSec": 86.6,
+      "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 66.51,
+        "maxHeapUsedMiB": 7.07,
+        "note": "max across independent child processes"
+      },
+      "materializationCounters": null,
+      "sampleCount": 3,
+      "sampleMinMiBPerSec": 86.04,
+      "sampleMaxMiBPerSec": 87.54,
+      "sampleSpreadRatio": 0.02,
+      "woodstoxRatio": null,
+      "targetStatus": null,
+      "runtimeLimitCounterexample": false,
+      "corpusSeedReplay": true,
+      "corpusSeedBytes": 4551,
+      "corpusSeedToTargetRatio": 0.000004238437542384375
+    },
+    {
+      "group": "warmup-full-cross-process-books-corpus",
+      "sourceArtifact": "warmup-full-cross-process-books-corpus.json",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "V8",
+      "engineVersion": "13.6.233.17-node.48",
+      "caseId": "rawFrameNameIdNoCounters",
+      "implementation": "Node/V8 cross-process rawFrameNameIdNoCounters",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "corpus-cycle",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 1,
+        "sizeMiB": 1024,
+        "actualBytes": 1073744736,
+        "batchSize": 1,
+        "rowCycleSize": 1,
+        "minRowBytes": 4551,
+        "maxRowBytes": 4551,
+        "averageRowBytes": 4551
+      },
+      "fullStringParity": true,
+      "eventCount": 57096514,
+      "checksum": -540013997,
+      "mibPerSec": 93.96,
+      "boundedMemory": true,
+      "sourceMode": "sync-iterable-byte-batches",
+      "fullArrayBufferParserInput": false,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 73,
+        "maxHeapUsedMiB": 9.32,
+        "note": "max across independent child processes"
+      },
+      "materializationCounters": null,
+      "sampleCount": 3,
+      "sampleMinMiBPerSec": 92.76,
+      "sampleMaxMiBPerSec": 95.47,
+      "sampleSpreadRatio": 0.03,
+      "woodstoxRatio": null,
+      "targetStatus": null,
+      "runtimeLimitCounterexample": false,
+      "corpusSeedReplay": true,
+      "corpusSeedBytes": 4551,
+      "corpusSeedToTargetRatio": 0.000004238437542384375
+    },
+    {
       "group": "cross-process-books-corpus-batch16",
       "sourceArtifact": "candidate-headroom-cross-process-books-corpus-batch16.json",
       "runtimeId": "node-v8",
@@ -13766,8 +13891,8 @@
       "status": "CLASSIFIED",
       "summary": "The same 1 GiB+ JavaScript full-string row set used for counterexample scanning is classified by memory metric and bounded-memory status.",
       "evidence": [
-        "rows=182",
-        "boundedRows=165",
+        "rows=184",
+        "boundedRows=167",
         "unboundedRows=17",
         "fastestBounded=rawFrameNameId@185.50 MiB/s",
         "fastestBoundedMemory=process RSS max 60.45 MiB",
@@ -13779,7 +13904,7 @@
       "status": "NOT_FOUND_IN_AGGREGATED_ARTIFACTS",
       "summary": "The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.",
       "evidence": [
-        "jsLargeFullRows=182",
+        "jsLargeFullRows=184",
         "counterexamples=0"
       ]
     },
@@ -13788,8 +13913,8 @@
       "status": "CLASSIFIED",
       "summary": "Recognized 1 GiB+ JavaScript full-string source-mode rows are classified for full XML ArrayBuffer parser input.",
       "evidence": [
-        "largeJsFullSourceModeRows=176",
-        "notFullArrayBufferRows=176",
+        "largeJsFullSourceModeRows=178",
+        "notFullArrayBufferRows=178",
         "fullArrayBufferRows=0",
         "unknownArrayBufferRows=0"
       ]

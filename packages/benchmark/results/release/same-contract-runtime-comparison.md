@@ -1,13 +1,13 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-31T15:57:38.573Z
+Generated: 2026-05-31T16:07:14.921Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
 ## Summary
 
-- Aggregated rows: 213
-- 1 GiB+ JavaScript full-string rows: 182
+- Aggregated rows: 215
+- 1 GiB+ JavaScript full-string rows: 184
 - 200 MiB/s+ bounded-memory JavaScript counterexamples found: 0
 - Fastest aggregated 1 GiB+ JS full-string row: Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB)
 - Fastest JS full-string row vs 200 MiB/s: 0.93x, 14.50 MiB/s remaining
@@ -17,7 +17,7 @@ This report aggregates existing release artifacts. It compares rows only through
 - Same-fixture 1024 MiB process RSS snapshot: JS 61.77 MiB, Woodstox 312.71 MiB, quick-xml 4.78 MiB
 - Fastest 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 141.62 MiB/s (process RSS max 203.27 MiB)
 - Fastest bounded 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 141.62 MiB/s (process RSS max 203.27 MiB)
-- 1 GiB+ JS full-string memory frontier: 165/182 bounded rows; fastest bounded row Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB)
+- 1 GiB+ JS full-string memory frontier: 167/184 bounded rows; fastest bounded row Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB)
 - 16 MiB Woodstox baseline: 303.10 MiB/s
 - 16 MiB quick-xml baseline: 243.43 MiB/s (0.80x Woodstox)
 - 1024 MiB file-backed stax-stream baseline: 124.62 MiB/s (0.37x Woodstox)
@@ -25,8 +25,8 @@ This report aggregates existing release artifacts. It compares rows only through
 - 1024 MiB Woodstox baseline: 337.97 MiB/s
 - 1024 MiB quick-xml baseline: 270.26 MiB/s (0.80x Woodstox)
 - Recognized JS source modes: fetch-async-iterable-byte-batches, fetch-readable-stream-pull, file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches
-- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 176/176
-- 1 GiB+ source-mode rows replaying a corpus seed buffer: 99 (max seed 100.26 MiB, max seed/target 0.09)
+- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 178/178
+- 1 GiB+ source-mode rows replaying a corpus seed buffer: 101 (max seed 100.26 MiB, max seed/target 0.09)
 - Text materialization frontier: fastest full row rawFrameNameId at 185.50 MiB/s, 14.50 MiB/s below 200 MiB/s; without-text rows crossing target: 4; negative candidates: 17
 - Source consumption frontier: sync byte batches sync-iterable-byte-batches-batch-8 at 91.95 MiB/s; direct ReadableStream web-readable-stream-raw-frame-ascii-batch-8 at 75.20 MiB/s (0.82x sync); backpressure rows 6/6
 - Browser live fetch source frontier: fetch ReadableStream fetchReadableStreamFull at 9.68 MiB/s; fetch async byte batches fetchAsyncByteBatchFull at 9.77 MiB/s; live backpressure rows 2/2
@@ -67,6 +67,7 @@ This report aggregates existing release artifacts. It compares rows only through
 | `access-shape-cross-process-books-corpus` | Bun/JSC | `rawFrameNameId` | 177.34 | yes | process RSS max 189.37 MiB | `sync-iterable-byte-batches` | no |
 | `cross-process-books-corpus` | Bun/JSC | `stringFull` | 120.18 | yes | process RSS max 190.20 MiB | `sync-iterable-byte-batches` | no |
 | `no-counter-name-fold-cache-cross-process-books-corpus` | Node/V8 | `rawFrameNameIdNoCounters` | 141.64 | yes | process RSS max 66.28 MiB | `sync-iterable-byte-batches` | no |
+| `warmup-full-cross-process-books-corpus` | Node/V8 | `rawFrameNameIdNoCounters` | 93.96 | yes | process RSS max 73.00 MiB | `sync-iterable-byte-batches` | no |
 | `cross-process-books-corpus-batch16` | Bun/JSC | `stringFull` | 123.45 | yes | process RSS max 199.61 MiB | `sync-iterable-byte-batches` | no |
 | `cross-process-large-asset-corpus` | Node/V8 | `rawFrameNameId` | 146.11 | yes | process RSS max 495.31 MiB | `sync-iterable-byte-batches` | no |
 | `cross-process-midsize-corpus` | Bun/JSC | `stringFull` | 91.17 | yes | process RSS max 420.17 MiB | `sync-iterable-byte-batches` | no |
@@ -116,7 +117,7 @@ Interpretation: Text/CDATA omission crosses the target as headroom evidence, whi
 
 | Scope | Rows | Not full ArrayBuffer parser input | Full ArrayBuffer parser input | Unknown parser input | Corpus seed replay rows | Max corpus seed |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 1 GiB+ JS full-string rows with source mode metadata | 176 | 176 | 0 | 0 | 99 | 100.26 MiB |
+| 1 GiB+ JS full-string rows with source mode metadata | 178 | 178 | 0 | 0 | 101 | 100.26 MiB |
 
 ## Source Consumption Frontier
 
@@ -155,8 +156,8 @@ Interpretation: Browser live fetch rows consume Response.body directly or throug
 
 This classifies memory only within the same 1 GiB+ JavaScript full-string row set used by the counterexample scan. Metric kinds stay separate; process RSS, browser JS heap, and browser host-probe-only rows are not allocation-model equivalents.
 
-- Rows classified: 182
-- Bounded rows: 165
+- Rows classified: 184
+- Bounded rows: 167
 - Unbounded or unproven rows: 17
 - Fastest bounded row: Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB)
 - Fastest bounded process RSS row under 128 MiB: Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB)
@@ -166,7 +167,7 @@ This classifies memory only within the same 1 GiB+ JavaScript full-string row se
 | --- | ---: | ---: | ---: | ---: | --- | --- |
 | browser-js-heap | 20 | 20 | 0 | 358.37 MiB | Chrome/V8 browser rawFrameNameId at 69.90 MiB/s (JS heap max 39.55 MiB; host working set 500.10 MiB) | Chrome/V8 browser rawFrameNameId at 69.90 MiB/s (JS heap max 39.55 MiB; host working set 500.10 MiB) |
 | browser-js-heap-unavailable | 9 | 0 | 9 | n/a MiB | Firefox/SpiderMonkey browser rawFrameNameId at 64.24 MiB/s (browser-js-heap-unavailable; fresh host probe 702.56 MiB) | none |
-| process-rss | 153 | 145 | 8 | 1956.69 MiB | Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB) | Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB) |
+| process-rss | 155 | 147 | 8 | 1956.69 MiB | Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB) | Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB) |
 
 Interpretation: Memory is classified on the same 1 GiB+ JavaScript full-string row set used for counterexample scanning; process RSS, browser JS heap, and browser host-probe-only rows are not normalized into one allocation model.
 
@@ -343,6 +344,8 @@ Interpretation: Memory is classified on the same 1 GiB+ JavaScript full-string r
 | `no-counter-name-fold-cache-cross-process-books-corpus` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 138.96 | yes | process RSS max 65.59 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `no-counter-name-fold-cache-cross-process-books-corpus.json` |
 | `no-counter-name-fold-cache-cross-process-books-corpus` | Node/V8 | `rawFrameNameIdNoCounters` | 57096514 | -540013997 | 141.64 | yes | process RSS max 66.28 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `no-counter-name-fold-cache-cross-process-books-corpus.json` |
 | `no-counter-name-fold-cache-cross-process-books-corpus` | Node/V8 | `rawFrameNameIdNoCountersNameFoldCache` | 57096514 | -540013997 | 132.06 | yes | process RSS max 66.67 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `no-counter-name-fold-cache-cross-process-books-corpus.json` |
+| `warmup-full-cross-process-books-corpus` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 86.60 | yes | process RSS max 66.51 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `warmup-full-cross-process-books-corpus.json` |
+| `warmup-full-cross-process-books-corpus` | Node/V8 | `rawFrameNameIdNoCounters` | 57096514 | -540013997 | 93.96 | yes | process RSS max 73.00 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `warmup-full-cross-process-books-corpus.json` |
 | `cross-process-books-corpus-batch16` | Node/V8 | `stringFull` | 57096514 | -540013997 | 119.66 | yes | process RSS max 67.73 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `candidate-headroom-cross-process-books-corpus-batch16.json` |
 | `cross-process-books-corpus-batch16` | Node/V8 | `eventObjectFull` | 57096514 | -540013997 | 78.90 | yes | process RSS max 132.04 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `candidate-headroom-cross-process-books-corpus-batch16.json` |
 | `cross-process-books-corpus-batch16` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 99.83 | yes | process RSS max 137.17 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `candidate-headroom-cross-process-books-corpus-batch16.json` |
@@ -407,18 +410,18 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - browser-js-heap-unavailable
   - process-rss
 - large-js-full-memory-frontier-visible (CLASSIFIED): The same 1 GiB+ JavaScript full-string row set used for counterexample scanning is classified by memory metric and bounded-memory status.
-  - rows=182
-  - boundedRows=165
+  - rows=184
+  - boundedRows=167
   - unboundedRows=17
   - fastestBounded=rawFrameNameId@185.50 MiB/s
   - fastestBoundedMemory=process RSS max 60.45 MiB
   - memoryKinds=browser-js-heap,browser-js-heap-unavailable,process-rss
 - no-js-200mib-large-full-counterexample-in-aggregated-artifacts (NOT_FOUND_IN_AGGREGATED_ARTIFACTS): The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.
-  - jsLargeFullRows=182
+  - jsLargeFullRows=184
   - counterexamples=0
 - source-shape-not-full-arraybuffer (CLASSIFIED): Recognized 1 GiB+ JavaScript full-string source-mode rows are classified for full XML ArrayBuffer parser input.
-  - largeJsFullSourceModeRows=176
-  - notFullArrayBufferRows=176
+  - largeJsFullSourceModeRows=178
+  - notFullArrayBufferRows=178
   - fullArrayBufferRows=0
   - unknownArrayBufferRows=0
 - external-target-remains-visible (BENCH_FACT): The external baselines keep Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.
