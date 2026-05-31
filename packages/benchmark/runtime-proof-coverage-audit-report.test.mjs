@@ -935,6 +935,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Bun\/JSC allocation evidence present/);
   assert.match(markdown, /Bun\/JSC codegen\/IR evidence present/);
   assert.match(markdown, /Chrome\/V8 browser codegen trace evidence present/);
+  assert.match(markdown, /Deno\/V8 codegen trace evidence present \(2 artifacts\)/);
   assert.match(markdown, /## SpiderMonkey Diagnostic Surface/);
   assert.match(markdown, /Emitted SpiderMonkey IR\/codegen evidence artifacts: 0/);
   assert.match(markdown, /JIT-status-only SpiderMonkey shell artifacts: 2/);
@@ -1061,6 +1062,17 @@ test('runtime proof coverage audit does not close SpiderMonkey codegen on trace 
     environment: { runtimeName: 'browser', browserName: 'Chrome', javascriptEngine: 'V8' },
     traces: [{ kind: 'codegen' }],
   }, null, 2)}\n`);
+  writeFileSync(join(syntheticDir, 'deno-v8-codegen-trace.json'), `${JSON.stringify({
+    objective: 'deno-v8-codegen-trace',
+    runtimes: ['deno-v8'],
+    traces: [{ kind: 'codegen' }],
+  }, null, 2)}\n`);
+  writeFileSync(join(syntheticDir, 'deno-v8-codegen-trace-midsize-corpus.json'), `${JSON.stringify({
+    objective: 'deno-v8-codegen-trace',
+    runtimes: ['deno-v8'],
+    fixture: { source: 'corpus-file', file: 'midsize.xml' },
+    traces: [{ kind: 'codegen' }],
+  }, null, 2)}\n`);
   writeFileSync(join(syntheticDir, 'firefox-spidermonkey-jit-codegen-trace.json'), `${JSON.stringify({
     objective: 'firefox-spidermonkey-jit-codegen-trace',
     environment: { runtimeName: 'browser', browserName: 'Firefox', javascriptEngine: 'SpiderMonkey' },
@@ -1096,6 +1108,7 @@ test('runtime proof coverage audit does not close SpiderMonkey codegen on trace 
   assert.match(obligation.evidence, /Node\/V8 trace evidence present/);
   assert.match(obligation.evidence, /Bun\/JSC codegen\/IR evidence present/);
   assert.match(obligation.evidence, /Chrome\/V8 browser codegen trace evidence present/);
+  assert.match(obligation.evidence, /Deno\/V8 codegen trace evidence present \(2 artifacts\)/);
   assert.match(obligation.evidence, /Firefox\/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing/);
 });
 
