@@ -67,6 +67,7 @@ test('browser candidate headroom matrix records the same byte-batch contract', (
   assert.equal(report.environment.gcStrategy, 'window.gc');
   assert.match(report.sourceContract.parserInput, /Iterable<Uint8Array\[\]>/);
   assert.match(report.sourceContract.batchBackpressure, /per synchronous parser pull/);
+  assert.match(report.sourceContract.batchBackpressure, /does not eagerly drain the stream/);
   assert.equal(report.fixture.generated, true);
   assert.equal(report.fixture.shape, 'diverse-cycle');
   assert.equal(report.fixture.rowCycleSize, 16);
@@ -166,6 +167,7 @@ test('browser candidate headroom matrix supports a corpus-cycle fixture seed', (
   assert.equal(report.fixture.batchSize, 1);
   assert.match(report.fixture.sourceFile, /books\.xml$/);
   assert.match(report.sourceContract.fetchReadableStream, /Response\.body/);
+  assert.match(report.sourceContract.batchBackpressure, /reader\.read\(\) only while filling the next yielded Uint8Array\[\] batch/);
   assert.equal(report.eventCountParity.status, 'ok');
   assert.equal(report.fullStringParity.status, 'ok');
   assert.ok(report.variants.every(entry => entry.memory?.scope === 'browser-js-heap'));
@@ -203,6 +205,7 @@ test('browser candidate headroom matrix supports a corpus-cycle fixture seed', (
   assert.match(markdown, /Fetch ReadableStream:/);
   assert.match(markdown, /fetchReadableStreamFull/);
   assert.match(markdown, /fetchAsyncByteBatchFull/);
+  assert.match(markdown, /reader\.read\(\) demand/);
   assert.match(markdown, /arrayBuffer\(\) as a seed/);
   assert.match(markdown, /Fixture source: corpus-file/);
   assert.match(markdown, /Source file: .*books\.xml/);

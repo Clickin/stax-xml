@@ -1,15 +1,15 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-05-31T13:26:41.823Z
+Generated: 2026-05-31T14:02:59.941Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-05-31T13:26:34.113Z
+- Audit generated: 2026-05-31T14:02:43.294Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
-- Comparison generated: 2026-05-31T13:18:39.419Z
+- Comparison generated: 2026-05-31T14:02:42.888Z
 - Active obligations: 2
 
 ## Summary
@@ -19,7 +19,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - External-run required closures: 2
 - Locally runnable closures: 0
 - Audit artifacts: 183
-- Audit measured rows: 999
+- Audit measured rows: 1001
 - Primary source consumption: synchronous Iterable<Uint8Array[]> byte batches
 - Direct ReadableStream scope: separate source-overhead evidence only
 - Direct ReadableStream backpressure required: yes
@@ -54,11 +54,11 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Memory kinds: browser-js-heap, browser-js-heap-unavailable, process-rss
 - Fastest bounded row: Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB)
 - Fastest process RSS row under 128 MiB: Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB)
-- Fastest browser JS heap row: Chrome/V8 browser eventObjectFull 64.56 MiB/s (browser-js-heap max 16.54 MiB)
+- Fastest browser JS heap row: Chrome/V8 browser rawFrameNameId 69.90 MiB/s (browser-js-heap max 39.55 MiB)
 
 | Memory kind | Rows | Bounded | Unbounded/unproven | Max recorded | Fastest row | Fastest bounded row |
 | --- | ---: | ---: | ---: | ---: | --- | --- |
-| browser-js-heap | 20 | 20 | 0 | 358.37 MiB | Chrome/V8 browser eventObjectFull 64.56 MiB/s (browser-js-heap max 16.54 MiB) | Chrome/V8 browser eventObjectFull 64.56 MiB/s (browser-js-heap max 16.54 MiB) |
+| browser-js-heap | 20 | 20 | 0 | 358.37 MiB | Chrome/V8 browser rawFrameNameId 69.90 MiB/s (browser-js-heap max 39.55 MiB) | Chrome/V8 browser rawFrameNameId 69.90 MiB/s (browser-js-heap max 39.55 MiB) |
 | browser-js-heap-unavailable | 9 | 0 | 9 | n/a MiB | Firefox/SpiderMonkey browser rawFrameNameId 64.24 MiB/s (browser-js-heap-unavailable) | none |
 | process-rss | 150 | 142 | 8 | 1956.69 MiB | Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB) | Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB) |
 

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-31T13:18:39.419Z",
+  "generatedAt": "2026-05-31T14:02:42.888Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -991,25 +991,29 @@
         "group": "generated-1gib-candidate",
         "fastest": {
           "group": "generated-1gib-candidate",
-          "runtimeId": "bun-jsc",
-          "runtimeLabel": "Bun/JSC",
+          "runtimeId": "chrome-v8-browser",
+          "runtimeLabel": "Chrome/V8 browser",
           "caseId": "rawFrameNameId",
-          "mibPerSec": 57.99,
+          "mibPerSec": 69.9,
           "boundedMemory": true,
           "memory": {
-            "primaryKind": "process-rss",
-            "maxMiB": 192.98,
-            "deltaMiB": -19.54,
-            "maxHeapUsedMiB": 45.72,
-            "maxExternalMiB": 9.01,
-            "maxArrayBuffersMiB": 8.18
+            "primaryKind": "browser-js-heap",
+            "maxMiB": 39.55,
+            "deltaMiB": 31.79,
+            "hostProcessTree": {
+              "kind": "windows-process-tree",
+              "maxWorkingSetMiB": 500.1,
+              "maxPrivateMiB": 267.88,
+              "note": "host process-tree counters are report-level, not per-variant memory"
+            },
+            "hostProcessTreeProbe": null
           },
           "sourceMode": "sync-iterable-byte-batches",
           "fullArrayBufferParserInput": false,
-          "sourceArtifact": "bun-candidate-headroom-large.json",
+          "sourceArtifact": "browser-candidate-headroom-large.json",
           "sampleCount": 1,
-          "sampleMinMiBPerSec": 57.99,
-          "sampleMaxMiBPerSec": 57.99,
+          "sampleMinMiBPerSec": 69.9,
+          "sampleMaxMiBPerSec": 69.9,
           "sampleSpreadRatio": 0
         }
       },
@@ -1826,57 +1830,57 @@
           "unboundedRows": 0,
           "maxMiB": 358.37,
           "fastestRow": {
-            "group": "browser-fetch-readable-stream-books-corpus",
+            "group": "generated-1gib-candidate",
             "runtimeId": "chrome-v8-browser",
             "runtimeLabel": "Chrome/V8 browser",
-            "caseId": "eventObjectFull",
-            "mibPerSec": 64.56,
+            "caseId": "rawFrameNameId",
+            "mibPerSec": 69.9,
             "boundedMemory": true,
             "memory": {
               "primaryKind": "browser-js-heap",
-              "maxMiB": 16.54,
-              "deltaMiB": 9.49,
+              "maxMiB": 39.55,
+              "deltaMiB": 31.79,
               "hostProcessTree": {
                 "kind": "windows-process-tree",
-                "maxWorkingSetMiB": 644.96,
-                "maxPrivateMiB": 221.21,
+                "maxWorkingSetMiB": 500.1,
+                "maxPrivateMiB": 267.88,
                 "note": "host process-tree counters are report-level, not per-variant memory"
               },
               "hostProcessTreeProbe": null
             },
             "sourceMode": "sync-iterable-byte-batches",
             "fullArrayBufferParserInput": false,
-            "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+            "sourceArtifact": "browser-candidate-headroom-large.json",
             "sampleCount": 1,
-            "sampleMinMiBPerSec": 64.56,
-            "sampleMaxMiBPerSec": 64.56,
+            "sampleMinMiBPerSec": 69.9,
+            "sampleMaxMiBPerSec": 69.9,
             "sampleSpreadRatio": 0
           },
           "fastestBoundedRow": {
-            "group": "browser-fetch-readable-stream-books-corpus",
+            "group": "generated-1gib-candidate",
             "runtimeId": "chrome-v8-browser",
             "runtimeLabel": "Chrome/V8 browser",
-            "caseId": "eventObjectFull",
-            "mibPerSec": 64.56,
+            "caseId": "rawFrameNameId",
+            "mibPerSec": 69.9,
             "boundedMemory": true,
             "memory": {
               "primaryKind": "browser-js-heap",
-              "maxMiB": 16.54,
-              "deltaMiB": 9.49,
+              "maxMiB": 39.55,
+              "deltaMiB": 31.79,
               "hostProcessTree": {
                 "kind": "windows-process-tree",
-                "maxWorkingSetMiB": 644.96,
-                "maxPrivateMiB": 221.21,
+                "maxWorkingSetMiB": 500.1,
+                "maxPrivateMiB": 267.88,
                 "note": "host process-tree counters are report-level, not per-variant memory"
               },
               "hostProcessTreeProbe": null
             },
             "sourceMode": "sync-iterable-byte-batches",
             "fullArrayBufferParserInput": false,
-            "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+            "sourceArtifact": "browser-candidate-headroom-large.json",
             "sampleCount": 1,
-            "sampleMinMiBPerSec": 64.56,
-            "sampleMaxMiBPerSec": 64.56,
+            "sampleMinMiBPerSec": 69.9,
+            "sampleMaxMiBPerSec": 69.9,
             "sampleSpreadRatio": 0
           }
         },
@@ -2016,30 +2020,30 @@
         "sampleSpreadRatio": 0.01
       },
       "fastestBrowserJsHeapRow": {
-        "group": "browser-fetch-readable-stream-books-corpus",
+        "group": "generated-1gib-candidate",
         "runtimeId": "chrome-v8-browser",
         "runtimeLabel": "Chrome/V8 browser",
-        "caseId": "eventObjectFull",
-        "mibPerSec": 64.56,
+        "caseId": "rawFrameNameId",
+        "mibPerSec": 69.9,
         "boundedMemory": true,
         "memory": {
           "primaryKind": "browser-js-heap",
-          "maxMiB": 16.54,
-          "deltaMiB": 9.49,
+          "maxMiB": 39.55,
+          "deltaMiB": 31.79,
           "hostProcessTree": {
             "kind": "windows-process-tree",
-            "maxWorkingSetMiB": 644.96,
-            "maxPrivateMiB": 221.21,
+            "maxWorkingSetMiB": 500.1,
+            "maxPrivateMiB": 267.88,
             "note": "host process-tree counters are report-level, not per-variant memory"
           },
           "hostProcessTreeProbe": null
         },
         "sourceMode": "sync-iterable-byte-batches",
         "fullArrayBufferParserInput": false,
-        "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+        "sourceArtifact": "browser-candidate-headroom-large.json",
         "sampleCount": 1,
-        "sampleMinMiBPerSec": 64.56,
-        "sampleMaxMiBPerSec": 64.56,
+        "sampleMinMiBPerSec": 69.9,
+        "sampleMaxMiBPerSec": 69.9,
         "sampleSpreadRatio": 0
       },
       "interpretation": "Memory is classified on the same 1 GiB+ JavaScript full-string row set used for counterexample scanning; process RSS, browser JS heap, and browser host-probe-only rows are not normalized into one allocation model."
@@ -3875,7 +3879,7 @@
       "fullStringParity": true,
       "eventCount": 45189256,
       "checksum": 1421012805,
-      "mibPerSec": 34.46,
+      "mibPerSec": 67.42,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
       "demandDrivenSource": null,
@@ -3884,12 +3888,12 @@
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap",
-        "maxMiB": 14.66,
-        "deltaMiB": 7.1,
+        "maxMiB": 20.29,
+        "deltaMiB": 12.64,
         "hostProcessTree": {
           "kind": "windows-process-tree",
-          "maxWorkingSetMiB": 522.09,
-          "maxPrivateMiB": 283.91,
+          "maxWorkingSetMiB": 500.1,
+          "maxPrivateMiB": 267.88,
           "note": "host process-tree counters are report-level, not per-variant memory"
         },
         "hostProcessTreeProbe": null
@@ -3901,10 +3905,10 @@
         "attributePairs": 28756798
       },
       "sampleCount": 1,
-      "sampleMinMiBPerSec": 34.46,
-      "sampleMaxMiBPerSec": 34.46,
+      "sampleMinMiBPerSec": 67.42,
+      "sampleMaxMiBPerSec": 67.42,
       "sampleSpreadRatio": 0,
-      "woodstoxRatio": 0.1,
+      "woodstoxRatio": 0.22,
       "targetStatus": "below",
       "runtimeLimitCounterexample": false
     },
@@ -3936,7 +3940,7 @@
       "fullStringParity": true,
       "eventCount": 45189256,
       "checksum": 1421012805,
-      "mibPerSec": 33.1,
+      "mibPerSec": 56.52,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
       "demandDrivenSource": null,
@@ -3945,12 +3949,12 @@
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap",
-        "maxMiB": 38.78,
-        "deltaMiB": 31.22,
+        "maxMiB": 36.1,
+        "deltaMiB": 28.44,
         "hostProcessTree": {
           "kind": "windows-process-tree",
-          "maxWorkingSetMiB": 522.09,
-          "maxPrivateMiB": 283.91,
+          "maxWorkingSetMiB": 500.1,
+          "maxPrivateMiB": 267.88,
           "note": "host process-tree counters are report-level, not per-variant memory"
         },
         "hostProcessTreeProbe": null
@@ -3962,10 +3966,10 @@
         "attributePairs": 28756798
       },
       "sampleCount": 1,
-      "sampleMinMiBPerSec": 33.1,
-      "sampleMaxMiBPerSec": 33.1,
+      "sampleMinMiBPerSec": 56.52,
+      "sampleMaxMiBPerSec": 56.52,
       "sampleSpreadRatio": 0,
-      "woodstoxRatio": 0.1,
+      "woodstoxRatio": 0.19,
       "targetStatus": "below",
       "runtimeLimitCounterexample": false
     },
@@ -3997,7 +4001,7 @@
       "fullStringParity": true,
       "eventCount": 45189256,
       "checksum": 1421012805,
-      "mibPerSec": 40.05,
+      "mibPerSec": 66.58,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
       "demandDrivenSource": null,
@@ -4006,12 +4010,12 @@
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap",
-        "maxMiB": 42.84,
-        "deltaMiB": 35.25,
+        "maxMiB": 56.29,
+        "deltaMiB": 48.61,
         "hostProcessTree": {
           "kind": "windows-process-tree",
-          "maxWorkingSetMiB": 522.09,
-          "maxPrivateMiB": 283.91,
+          "maxWorkingSetMiB": 500.1,
+          "maxPrivateMiB": 267.88,
           "note": "host process-tree counters are report-level, not per-variant memory"
         },
         "hostProcessTreeProbe": null
@@ -4023,10 +4027,10 @@
         "attributePairs": 28756798
       },
       "sampleCount": 1,
-      "sampleMinMiBPerSec": 40.05,
-      "sampleMaxMiBPerSec": 40.05,
+      "sampleMinMiBPerSec": 66.58,
+      "sampleMaxMiBPerSec": 66.58,
       "sampleSpreadRatio": 0,
-      "woodstoxRatio": 0.12,
+      "woodstoxRatio": 0.22,
       "targetStatus": "below",
       "runtimeLimitCounterexample": false
     },
@@ -4058,7 +4062,7 @@
       "fullStringParity": true,
       "eventCount": 45189256,
       "checksum": 1421012805,
-      "mibPerSec": 42.35,
+      "mibPerSec": 67.77,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
       "demandDrivenSource": null,
@@ -4067,12 +4071,12 @@
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap",
-        "maxMiB": 31.7,
-        "deltaMiB": 24.11,
+        "maxMiB": 33.07,
+        "deltaMiB": 25.39,
         "hostProcessTree": {
           "kind": "windows-process-tree",
-          "maxWorkingSetMiB": 522.09,
-          "maxPrivateMiB": 283.91,
+          "maxWorkingSetMiB": 500.1,
+          "maxPrivateMiB": 267.88,
           "note": "host process-tree counters are report-level, not per-variant memory"
         },
         "hostProcessTreeProbe": null
@@ -4084,10 +4088,10 @@
         "attributePairs": 28756798
       },
       "sampleCount": 1,
-      "sampleMinMiBPerSec": 42.35,
-      "sampleMaxMiBPerSec": 42.35,
+      "sampleMinMiBPerSec": 67.77,
+      "sampleMaxMiBPerSec": 67.77,
       "sampleSpreadRatio": 0,
-      "woodstoxRatio": 0.13,
+      "woodstoxRatio": 0.22,
       "targetStatus": "below",
       "runtimeLimitCounterexample": false
     },
@@ -4119,7 +4123,7 @@
       "fullStringParity": true,
       "eventCount": 45189256,
       "checksum": 1421012805,
-      "mibPerSec": 43.45,
+      "mibPerSec": 69.9,
       "boundedMemory": true,
       "sourceMode": "sync-iterable-byte-batches",
       "demandDrivenSource": null,
@@ -4128,12 +4132,12 @@
       "fullArrayBufferParserInput": false,
       "memory": {
         "primaryKind": "browser-js-heap",
-        "maxMiB": 17.86,
-        "deltaMiB": 10.19,
+        "maxMiB": 39.55,
+        "deltaMiB": 31.79,
         "hostProcessTree": {
           "kind": "windows-process-tree",
-          "maxWorkingSetMiB": 522.09,
-          "maxPrivateMiB": 283.91,
+          "maxWorkingSetMiB": 500.1,
+          "maxPrivateMiB": 267.88,
           "note": "host process-tree counters are report-level, not per-variant memory"
         },
         "hostProcessTreeProbe": null
@@ -4145,10 +4149,10 @@
         "attributePairs": 28756798
       },
       "sampleCount": 1,
-      "sampleMinMiBPerSec": 43.45,
-      "sampleMaxMiBPerSec": 43.45,
+      "sampleMinMiBPerSec": 69.9,
+      "sampleMaxMiBPerSec": 69.9,
       "sampleSpreadRatio": 0,
-      "woodstoxRatio": 0.13,
+      "woodstoxRatio": 0.23,
       "targetStatus": "below",
       "runtimeLimitCounterexample": false
     },

@@ -121,10 +121,10 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.equal(report.memoryFrontierEvidence.fastestBoundedRow.maxMiB, 60.45);
   assert.equal(report.memoryFrontierEvidence.fastestProcessRssUnder128MiB.maxMiB, 60.45);
   assert.equal(report.memoryFrontierEvidence.fastestBrowserJsHeapRow.runtimeLabel, 'Chrome/V8 browser');
-  assert.equal(report.memoryFrontierEvidence.fastestBrowserJsHeapRow.caseId, 'eventObjectFull');
-  assert.equal(report.memoryFrontierEvidence.fastestBrowserJsHeapRow.mibPerSec, 64.56);
+  assert.equal(report.memoryFrontierEvidence.fastestBrowserJsHeapRow.caseId, 'rawFrameNameId');
+  assert.equal(report.memoryFrontierEvidence.fastestBrowserJsHeapRow.mibPerSec, 69.9);
   assert.equal(report.memoryFrontierEvidence.fastestBrowserJsHeapRow.memoryKind, 'browser-js-heap');
-  assert.equal(report.memoryFrontierEvidence.fastestBrowserJsHeapRow.maxMiB, 16.54);
+  assert.equal(report.memoryFrontierEvidence.fastestBrowserJsHeapRow.maxMiB, 39.55);
   assert.deepEqual(
     report.memoryFrontierEvidence.buckets.map(bucket => ({
       kind: bucket.kind,
@@ -142,8 +142,8 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
         boundedRows: 20,
         unboundedRows: 0,
         maxMiB: 358.37,
-        fastestRow: 'eventObjectFull',
-        fastestBoundedRow: 'eventObjectFull',
+        fastestRow: 'rawFrameNameId',
+        fastestBoundedRow: 'rawFrameNameId',
       },
       {
         kind: 'browser-js-heap-unavailable',
@@ -319,7 +319,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Unbounded or unproven rows: 17/);
   assert.match(markdown, /Memory kinds: browser-js-heap, browser-js-heap-unavailable, process-rss/);
   assert.match(markdown, /Fastest bounded row: Node\/V8 rawFrameNameId 185\.50 MiB\/s \(process-rss max 60\.45 MiB\)/);
-  assert.match(markdown, /Fastest browser JS heap row: Chrome\/V8 browser eventObjectFull 64\.56 MiB\/s \(browser-js-heap max 16\.54 MiB\)/);
+  assert.match(markdown, /Fastest browser JS heap row: Chrome\/V8 browser rawFrameNameId 69\.90 MiB\/s \(browser-js-heap max 39\.55 MiB\)/);
   assert.match(markdown, /\| browser-js-heap-unavailable \| 9 \| 0 \| 9 \| n\/a MiB \| Firefox\/SpiderMonkey browser rawFrameNameId 64\.24 MiB\/s \(browser-js-heap-unavailable\) \| none \|/);
   assert.match(markdown, /## External Target Evidence/);
   assert.match(markdown, /Fastest JS full row vs 200 MiB\/s: 0\.93x, 14\.50 MiB\/s remaining/);

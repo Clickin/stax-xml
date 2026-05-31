@@ -162,9 +162,9 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.summary.memoryFrontier.fastestBoundedRow.memory.maxMiB, 60.45);
   assert.equal(report.summary.memoryFrontier.fastestProcessRssUnder128MiB.caseId, 'rawFrameNameId');
   assert.equal(report.summary.memoryFrontier.fastestProcessRssUnder128MiB.memory.maxMiB, 60.45);
-  assert.equal(report.summary.memoryFrontier.fastestBrowserJsHeapRow.caseId, 'eventObjectFull');
-  assert.equal(report.summary.memoryFrontier.fastestBrowserJsHeapRow.mibPerSec, 64.56);
-  assert.equal(report.summary.memoryFrontier.fastestBrowserJsHeapRow.memory.maxMiB, 16.54);
+  assert.equal(report.summary.memoryFrontier.fastestBrowserJsHeapRow.caseId, 'rawFrameNameId');
+  assert.equal(report.summary.memoryFrontier.fastestBrowserJsHeapRow.mibPerSec, 69.9);
+  assert.equal(report.summary.memoryFrontier.fastestBrowserJsHeapRow.memory.maxMiB, 39.55);
   assert.deepEqual(report.summary.memoryFrontier.buckets.map(bucket => ({
     kind: bucket.kind,
     rows: bucket.rows,
@@ -180,8 +180,8 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
       boundedRows: 20,
       unboundedRows: 0,
       maxMiB: 358.37,
-      fastestCase: 'eventObjectFull',
-      fastestBoundedCase: 'eventObjectFull',
+      fastestCase: 'rawFrameNameId',
+      fastestBoundedCase: 'rawFrameNameId',
     },
     {
       kind: 'browser-js-heap-unavailable',
@@ -852,8 +852,8 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /Bounded rows: 162/);
   assert.match(markdown, /Unbounded or unproven rows: 17/);
   assert.match(markdown, /Fastest bounded process RSS row under 128 MiB: Node\/V8 rawFrameNameId at 185\.50 MiB\/s \(process RSS max 60\.45 MiB\)/);
-  assert.match(markdown, /Fastest bounded browser JS heap row: Chrome\/V8 browser eventObjectFull at 64\.56 MiB\/s \(JS heap max 16\.54 MiB; host working set 644\.96 MiB\)/);
-  assert.match(markdown, /\| browser-js-heap \| 20 \| 20 \| 0 \| 358\.37 MiB \| Chrome\/V8 browser eventObjectFull at 64\.56 MiB\/s/);
+  assert.match(markdown, /Fastest bounded browser JS heap row: Chrome\/V8 browser rawFrameNameId at 69\.90 MiB\/s \(JS heap max 39\.55 MiB; host working set 500\.10 MiB\)/);
+  assert.match(markdown, /\| browser-js-heap \| 20 \| 20 \| 0 \| 358\.37 MiB \| Chrome\/V8 browser rawFrameNameId at 69\.90 MiB\/s/);
   assert.match(markdown, /\| browser-js-heap-unavailable \| 9 \| 0 \| 9 \| n\/a MiB \| Firefox\/SpiderMonkey browser rawFrameNameId at 64\.24 MiB\/s/);
   assert.match(markdown, /\| process-rss \| 150 \| 142 \| 8 \| 1956\.69 MiB \| Node\/V8 rawFrameNameId at 185\.50 MiB\/s/);
   assert.match(markdown, /large-js-full-memory-frontier-visible \(CLASSIFIED\)/);
