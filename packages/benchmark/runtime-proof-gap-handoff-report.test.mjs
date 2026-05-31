@@ -64,6 +64,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.equal(report.summary.directReadableStreamScope, 'separate source-overhead evidence only');
   assert.equal(report.summary.directReadableStreamBackpressureRequired, true);
   assert.equal(report.summary.sourceConsumptionEvidenceStatus, 'classified');
+  assert.equal(report.summary.memoryFrontierEvidenceStatus, 'classified');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.match(report.summary.conclusionBlocker, /external runtime evidence/);
   assert.match(report.inputs.comparisonJson, /same-contract-runtime-comparison\.json/);
@@ -100,6 +101,69 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.equal(report.sourceConsumptionEvidence.browserLiveSourceFrontier.liveRowsBackpressureRespected, 2);
   assert.equal(report.sourceConsumptionEvidence.browserLiveSourceFrontier.liveRows, 2);
   assert.equal(report.sourceConsumptionEvidence.browserLiveSourceFrontier.liveRowsFullArrayBufferInput, 0);
+  assert.equal(report.memoryFrontierEvidence.status, 'classified');
+  assert.equal(report.memoryFrontierEvidence.sourceArtifact, 'same-contract-runtime-comparison.json');
+  assert.equal(report.memoryFrontierEvidence.contract, '1gib-plus-js-full-string-memory-frontier');
+  assert.equal(report.memoryFrontierEvidence.rows, 179);
+  assert.equal(report.memoryFrontierEvidence.boundedRows, 162);
+  assert.equal(report.memoryFrontierEvidence.unboundedRows, 17);
+  assert.deepEqual(report.memoryFrontierEvidence.memoryKinds, [
+    'browser-js-heap',
+    'browser-js-heap-unavailable',
+    'process-rss',
+  ]);
+  assert.equal(report.memoryFrontierEvidence.fastestBoundedRow.runtimeLabel, 'Node/V8');
+  assert.equal(report.memoryFrontierEvidence.fastestBoundedRow.caseId, 'rawFrameNameId');
+  assert.equal(report.memoryFrontierEvidence.fastestBoundedRow.mibPerSec, 185.5);
+  assert.equal(report.memoryFrontierEvidence.fastestBoundedRow.memoryKind, 'process-rss');
+  assert.equal(report.memoryFrontierEvidence.fastestBoundedRow.maxMiB, 60.45);
+  assert.equal(report.memoryFrontierEvidence.fastestProcessRssUnder128MiB.maxMiB, 60.45);
+  assert.equal(report.memoryFrontierEvidence.fastestBrowserJsHeapRow.runtimeLabel, 'Chrome/V8 browser');
+  assert.equal(report.memoryFrontierEvidence.fastestBrowserJsHeapRow.caseId, 'eventObjectFull');
+  assert.equal(report.memoryFrontierEvidence.fastestBrowserJsHeapRow.mibPerSec, 64.56);
+  assert.equal(report.memoryFrontierEvidence.fastestBrowserJsHeapRow.memoryKind, 'browser-js-heap');
+  assert.equal(report.memoryFrontierEvidence.fastestBrowserJsHeapRow.maxMiB, 16.54);
+  assert.deepEqual(
+    report.memoryFrontierEvidence.buckets.map(bucket => ({
+      kind: bucket.kind,
+      rows: bucket.rows,
+      boundedRows: bucket.boundedRows,
+      unboundedRows: bucket.unboundedRows,
+      maxMiB: bucket.maxMiB,
+      fastestRow: bucket.fastestRow?.caseId ?? null,
+      fastestBoundedRow: bucket.fastestBoundedRow?.caseId ?? null,
+    })),
+    [
+      {
+        kind: 'browser-js-heap',
+        rows: 20,
+        boundedRows: 20,
+        unboundedRows: 0,
+        maxMiB: 358.37,
+        fastestRow: 'eventObjectFull',
+        fastestBoundedRow: 'eventObjectFull',
+      },
+      {
+        kind: 'browser-js-heap-unavailable',
+        rows: 9,
+        boundedRows: 0,
+        unboundedRows: 9,
+        maxMiB: null,
+        fastestRow: 'rawFrameNameId',
+        fastestBoundedRow: null,
+      },
+      {
+        kind: 'process-rss',
+        rows: 150,
+        boundedRows: 142,
+        unboundedRows: 8,
+        maxMiB: 1956.69,
+        fastestRow: 'rawFrameNameId',
+        fastestBoundedRow: 'rawFrameNameId',
+      },
+    ],
+  );
+  assert.match(report.memoryFrontierEvidence.interpretation, /not normalized into one allocation model/);
   assert.equal(report.auditSummary.artifactCount, audit.scannedArtifacts.length);
   assert.equal(report.auditSummary.measuredRows, audit.summary.measuredRowCount);
   assert.deepEqual(
@@ -189,6 +253,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Direct ReadableStream scope: separate source-overhead evidence only/);
   assert.match(markdown, /Direct ReadableStream backpressure required: yes/);
   assert.match(markdown, /Source consumption evidence status: classified/);
+  assert.match(markdown, /Memory frontier evidence status: classified/);
   assert.match(markdown, /## Source Consumption Evidence/);
   assert.match(markdown, /Source modes: fetch-async-iterable-byte-batches, fetch-readable-stream-pull, file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches/);
   assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 173\/173/);
@@ -196,6 +261,14 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Unknown parser-input rows: 0/);
   assert.match(markdown, /Node source frontier: sync-iterable-byte-batches-batch-8 91\.95 MiB\/s vs web-readable-stream-raw-frame-ascii-batch-8 75\.20 MiB\/s \(0\.82x\); backpressure 6\/6; fullArrayBufferRows=0/);
   assert.match(markdown, /Browser live fetch frontier: fetchReadableStreamFull 9\.68 MiB\/s; fetchAsyncByteBatchFull 9\.77 MiB\/s; backpressure 2\/2; fullArrayBufferRows=0/);
+  assert.match(markdown, /## Memory Frontier Evidence/);
+  assert.match(markdown, /1 GiB\+ JS full-string memory rows: 179/);
+  assert.match(markdown, /Bounded rows: 162/);
+  assert.match(markdown, /Unbounded or unproven rows: 17/);
+  assert.match(markdown, /Memory kinds: browser-js-heap, browser-js-heap-unavailable, process-rss/);
+  assert.match(markdown, /Fastest bounded row: Node\/V8 rawFrameNameId 185\.50 MiB\/s \(process-rss max 60\.45 MiB\)/);
+  assert.match(markdown, /Fastest browser JS heap row: Chrome\/V8 browser eventObjectFull 64\.56 MiB\/s \(browser-js-heap max 16\.54 MiB\)/);
+  assert.match(markdown, /\| browser-js-heap-unavailable \| 9 \| 0 \| 9 \| n\/a MiB \| Firefox\/SpiderMonkey browser rawFrameNameId 64\.24 MiB\/s \(browser-js-heap-unavailable\) \| none \|/);
   assert.match(markdown, /Runtime-limit conclusion allowed: no/);
   assert.match(markdown, /safari-webkit-browser-row-handoff/);
   assert.match(markdown, /spidermonkey-codegen-handoff/);

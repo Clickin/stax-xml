@@ -322,6 +322,11 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`sync-iterable-byte-batches-batch-8` at 91\.95 MiB\/s versus\s+`web-readable-stream-raw-frame-ascii-batch-8` at 75\.20 MiB\/s/);
   assert.match(markdown, /browser live fetch frontier records `fetchReadableStreamFull` at 9\.68\s+MiB\/s and `fetchAsyncByteBatchFull` at 9\.77 MiB\/s with backpressure 2\/2/);
   assert.match(markdown, /classification closes only the source-consumption guard; Safari\/WebKit browser\s+rows and SpiderMonkey emitted IR remain active obligations/);
+  assert.match(markdown, /same-contract memory frontier from that\s+aggregate: 179 JavaScript 1 GiB\+ full-string memory rows, 162 bounded rows, and\s+17 unbounded or unproven rows/);
+  assert.match(markdown, /across `process-rss`, `browser-js-heap`, and\s+`browser-js-heap-unavailable` memory kinds/);
+  assert.match(markdown, /fastest bounded row is Node\/V8\s+`rawFrameNameId` at 185\.50 MiB\/s with 60\.45 MiB process RSS/);
+  assert.match(markdown, /fastest browser\s+JS heap row is Chrome\/V8 browser `eventObjectFull` at 64\.56 MiB\/s with 16\.54 MiB\s+JS heap/);
+  assert.match(markdown, /Firefox\/SpiderMonkey rows whose page heap counters are unavailable\s+remain classified as unbounded or unproven rather than being normalized through\s+Windows host process-tree probes/);
   assert.match(markdown, /no unhandled gaps/);
   assert.match(markdown, /structured `localClosure` status/);
   assert.match(markdown, /Safari is\s+`external-run-required` with `localRunnable=false`/);

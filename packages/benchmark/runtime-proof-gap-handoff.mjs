@@ -96,7 +96,15 @@ function createReport(audit, comparison, options) {
       nextExperiment: obligation.nextExperiment ?? null,
     }));
   const sourceConsumptionEvidence = summarizeSourceConsumptionEvidence(comparison);
-  const summary = createSummary(activeObligations, localClosure, handoffs, unhandledObligations, sourceConsumptionEvidence);
+  const memoryFrontierEvidence = summarizeMemoryFrontierEvidence(comparison);
+  const summary = createSummary(
+    activeObligations,
+    localClosure,
+    handoffs,
+    unhandledObligations,
+    sourceConsumptionEvidence,
+    memoryFrontierEvidence,
+  );
 
   return {
     generatedAt: new Date().toISOString(),
@@ -126,6 +134,7 @@ function createReport(audit, comparison, options) {
       })),
     },
     sourceConsumptionEvidence,
+    memoryFrontierEvidence,
     localClosure,
     handoffs,
     unhandledObligations,
@@ -185,7 +194,66 @@ function summarizeSourceConsumptionEvidence(comparison) {
   };
 }
 
-function createSummary(activeObligations, localClosure, handoffs, unhandledObligations, sourceConsumptionEvidence) {
+function summarizeMemoryFrontierEvidence(comparison) {
+  const frontier = comparison?.summary?.memoryFrontier ?? null;
+  if (!frontier) {
+    return {
+      status: 'missing',
+      sourceArtifact: 'same-contract-runtime-comparison.json',
+      reason: 'same-contract-runtime-comparison memory frontier was not available to the handoff generator.',
+    };
+  }
+
+  const comparisonLargeFullRows = comparison.summary?.jsLargeFullRowCount ?? null;
+  const fastestComparisonRow = comparison.summary?.fastestJsLargeFullRow ?? null;
+  return {
+    status: frontier.rows === comparisonLargeFullRows
+      && frontier.fastestBoundedRow?.mibPerSec === fastestComparisonRow?.mibPerSec
+      ? 'classified'
+      : 'partial',
+    sourceArtifact: 'same-contract-runtime-comparison.json',
+    contract: frontier.contract,
+    rows: frontier.rows,
+    boundedRows: frontier.boundedRows,
+    unboundedRows: frontier.unboundedRows,
+    memoryKinds: frontier.memoryKinds ?? [],
+    fastestBoundedRow: summarizeMemoryRowForHandoff(frontier.fastestBoundedRow),
+    fastestProcessRssUnder128MiB: summarizeMemoryRowForHandoff(frontier.fastestProcessRssUnder128MiB),
+    fastestBrowserJsHeapRow: summarizeMemoryRowForHandoff(frontier.fastestBrowserJsHeapRow),
+    buckets: (frontier.buckets ?? []).map(bucket => ({
+      kind: bucket.kind,
+      rows: bucket.rows,
+      boundedRows: bucket.boundedRows,
+      unboundedRows: bucket.unboundedRows,
+      maxMiB: bucket.maxMiB,
+      fastestRow: summarizeMemoryRowForHandoff(bucket.fastestRow),
+      fastestBoundedRow: summarizeMemoryRowForHandoff(bucket.fastestBoundedRow),
+    })),
+    interpretation: frontier.interpretation,
+  };
+}
+
+function summarizeMemoryRowForHandoff(row) {
+  if (!row) return null;
+  return {
+    runtimeLabel: row.runtimeLabel,
+    caseId: row.caseId,
+    mibPerSec: row.mibPerSec,
+    memoryKind: row.memory?.primaryKind ?? null,
+    maxMiB: row.memory?.maxMiB ?? null,
+    sourceArtifact: row.sourceArtifact,
+    boundedMemory: row.boundedMemory === true,
+  };
+}
+
+function createSummary(
+  activeObligations,
+  localClosure,
+  handoffs,
+  unhandledObligations,
+  sourceConsumptionEvidence,
+  memoryFrontierEvidence,
+) {
   const externalRunRequiredCount = localClosure
     .filter(item => item.localStatus === 'external-run-required' || item.localRunnable === false)
     .length;
@@ -208,6 +276,7 @@ function createSummary(activeObligations, localClosure, handoffs, unhandledOblig
     directReadableStreamScope: 'separate source-overhead evidence only',
     directReadableStreamBackpressureRequired: true,
     sourceConsumptionEvidenceStatus: sourceConsumptionEvidence.status,
+    memoryFrontierEvidenceStatus: memoryFrontierEvidence.status,
     conclusionAllowed: false,
     conclusionBlocker: activeObligations.length === 0
       ? 'No active obligations remain, but this handoff report is not a runtime-limit conclusion artifact.'
@@ -482,6 +551,7 @@ function renderMarkdown(report) {
     `- Direct ReadableStream scope: ${report.summary.directReadableStreamScope}`,
     `- Direct ReadableStream backpressure required: ${report.summary.directReadableStreamBackpressureRequired ? 'yes' : 'no'}`,
     `- Source consumption evidence status: ${report.summary.sourceConsumptionEvidenceStatus}`,
+    `- Memory frontier evidence status: ${report.summary.memoryFrontierEvidenceStatus}`,
     `- Runtime-limit conclusion allowed: ${report.summary.conclusionAllowed ? 'yes' : 'no'}`,
     `- Conclusion blocker: ${report.summary.conclusionBlocker}`,
     '',
@@ -513,6 +583,37 @@ function renderMarkdown(report) {
         `- Browser live fetch frontier: ${evidence.browserLiveSourceFrontier.fetchReadableStreamRow} ${formatNumber(evidence.browserLiveSourceFrontier.fetchReadableStreamMiBPerSec)} MiB/s; ${evidence.browserLiveSourceFrontier.fetchAsyncByteBatchRow} ${formatNumber(evidence.browserLiveSourceFrontier.fetchAsyncByteBatchMiBPerSec)} MiB/s; backpressure ${evidence.browserLiveSourceFrontier.liveRowsBackpressureRespected}/${evidence.browserLiveSourceFrontier.liveRows}; fullArrayBufferRows=${evidence.browserLiveSourceFrontier.liveRowsFullArrayBufferInput}`,
       );
     }
+  }
+
+  lines.push(
+    '',
+    '## Memory Frontier Evidence',
+    '',
+    `- Status: ${report.memoryFrontierEvidence.status}`,
+    `- Source artifact: ${report.memoryFrontierEvidence.sourceArtifact}`,
+  );
+
+  if (report.memoryFrontierEvidence.status === 'missing') {
+    lines.push(`- Reason: ${report.memoryFrontierEvidence.reason}`);
+  } else {
+    const evidence = report.memoryFrontierEvidence;
+    lines.push(
+      `- Contract: ${evidence.contract}`,
+      `- 1 GiB+ JS full-string memory rows: ${evidence.rows}`,
+      `- Bounded rows: ${evidence.boundedRows}`,
+      `- Unbounded or unproven rows: ${evidence.unboundedRows}`,
+      `- Memory kinds: ${evidence.memoryKinds.join(', ') || 'none'}`,
+      `- Fastest bounded row: ${formatMemoryEvidenceRow(evidence.fastestBoundedRow)}`,
+      `- Fastest process RSS row under 128 MiB: ${formatMemoryEvidenceRow(evidence.fastestProcessRssUnder128MiB)}`,
+      `- Fastest browser JS heap row: ${formatMemoryEvidenceRow(evidence.fastestBrowserJsHeapRow)}`,
+      '',
+      '| Memory kind | Rows | Bounded | Unbounded/unproven | Max recorded | Fastest row | Fastest bounded row |',
+      '| --- | ---: | ---: | ---: | ---: | --- | --- |',
+    );
+    for (const bucket of evidence.buckets) {
+      lines.push(`| ${bucket.kind} | ${bucket.rows} | ${bucket.boundedRows} | ${bucket.unboundedRows} | ${formatNumber(bucket.maxMiB)} MiB | ${formatMemoryEvidenceRow(bucket.fastestRow)} | ${formatMemoryEvidenceRow(bucket.fastestBoundedRow)} |`);
+    }
+    lines.push('', `- Interpretation: ${evidence.interpretation}`);
   }
 
   lines.push(
@@ -620,6 +721,14 @@ function formatNullableBoolean(value) {
 
 function formatNumber(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value.toFixed(2) : 'n/a';
+}
+
+function formatMemoryEvidenceRow(row) {
+  if (!row) return 'none';
+  const memory = row.maxMiB === null || row.maxMiB === undefined
+    ? row.memoryKind
+    : `${row.memoryKind} max ${formatNumber(row.maxMiB)} MiB`;
+  return `${row.runtimeLabel} ${row.caseId} ${formatNumber(row.mibPerSec)} MiB/s (${memory})`;
 }
 
 function countBy(values, keyOf) {

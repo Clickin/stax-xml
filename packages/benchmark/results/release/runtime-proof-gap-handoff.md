@@ -1,6 +1,6 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-05-27T02:20:24.427Z
+Generated: 2026-05-31T12:55:58.380Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -9,7 +9,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
 - Audit generated: 2026-05-27T01:06:14.066Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
-- Comparison generated: 2026-05-27T02:14:20.669Z
+- Comparison generated: 2026-05-31T12:48:37.548Z
 - Active obligations: 2
 
 ## Summary
@@ -24,6 +24,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Direct ReadableStream scope: separate source-overhead evidence only
 - Direct ReadableStream backpressure required: yes
 - Source consumption evidence status: classified
+- Memory frontier evidence status: classified
 - Runtime-limit conclusion allowed: no
 - Conclusion blocker: Open or partial obligations still require external runtime evidence before any runtime-limit conclusion.
 
@@ -39,6 +40,27 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Corpus seed replay rows: 96
 - Node source frontier: sync-iterable-byte-batches-batch-8 91.95 MiB/s vs web-readable-stream-raw-frame-ascii-batch-8 75.20 MiB/s (0.82x); backpressure 6/6; fullArrayBufferRows=0
 - Browser live fetch frontier: fetchReadableStreamFull 9.68 MiB/s; fetchAsyncByteBatchFull 9.77 MiB/s; backpressure 2/2; fullArrayBufferRows=0
+
+## Memory Frontier Evidence
+
+- Status: classified
+- Source artifact: same-contract-runtime-comparison.json
+- Contract: 1gib-plus-js-full-string-memory-frontier
+- 1 GiB+ JS full-string memory rows: 179
+- Bounded rows: 162
+- Unbounded or unproven rows: 17
+- Memory kinds: browser-js-heap, browser-js-heap-unavailable, process-rss
+- Fastest bounded row: Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB)
+- Fastest process RSS row under 128 MiB: Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB)
+- Fastest browser JS heap row: Chrome/V8 browser eventObjectFull 64.56 MiB/s (browser-js-heap max 16.54 MiB)
+
+| Memory kind | Rows | Bounded | Unbounded/unproven | Max recorded | Fastest row | Fastest bounded row |
+| --- | ---: | ---: | ---: | ---: | --- | --- |
+| browser-js-heap | 20 | 20 | 0 | 358.37 MiB | Chrome/V8 browser eventObjectFull 64.56 MiB/s (browser-js-heap max 16.54 MiB) | Chrome/V8 browser eventObjectFull 64.56 MiB/s (browser-js-heap max 16.54 MiB) |
+| browser-js-heap-unavailable | 9 | 0 | 9 | n/a MiB | Firefox/SpiderMonkey browser rawFrameNameId 64.24 MiB/s (browser-js-heap-unavailable) | none |
+| process-rss | 150 | 142 | 8 | 1956.69 MiB | Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB) | Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB) |
+
+- Interpretation: Memory is classified on the same 1 GiB+ JavaScript full-string row set used for counterexample scanning; process RSS, browser JS heap, and browser host-probe-only rows are not normalized into one allocation model.
 
 ## Active Obligations
 

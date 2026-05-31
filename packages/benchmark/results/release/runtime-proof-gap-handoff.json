@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-05-27T02:20:24.427Z",
+  "generatedAt": "2026-05-31T12:55:58.380Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
   "inputs": {
     "auditJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-coverage-audit.json",
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
-    "comparisonGeneratedAt": "2026-05-27T02:14:20.669Z",
+    "comparisonGeneratedAt": "2026-05-31T12:48:37.548Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
     "auditGeneratedAt": "2026-05-27T01:06:14.066Z",
@@ -30,6 +30,7 @@
     "directReadableStreamScope": "separate source-overhead evidence only",
     "directReadableStreamBackpressureRequired": true,
     "sourceConsumptionEvidenceStatus": "classified",
+    "memoryFrontierEvidenceStatus": "classified",
     "conclusionAllowed": false,
     "conclusionBlocker": "Open or partial obligations still require external runtime evidence before any runtime-limit conclusion."
   },
@@ -90,6 +91,116 @@
       "liveRowsBackpressureRespected": 2,
       "liveRowsFullArrayBufferInput": 0
     }
+  },
+  "memoryFrontierEvidence": {
+    "status": "classified",
+    "sourceArtifact": "same-contract-runtime-comparison.json",
+    "contract": "1gib-plus-js-full-string-memory-frontier",
+    "rows": 179,
+    "boundedRows": 162,
+    "unboundedRows": 17,
+    "memoryKinds": [
+      "browser-js-heap",
+      "browser-js-heap-unavailable",
+      "process-rss"
+    ],
+    "fastestBoundedRow": {
+      "runtimeLabel": "Node/V8",
+      "caseId": "rawFrameNameId",
+      "mibPerSec": 185.5,
+      "memoryKind": "process-rss",
+      "maxMiB": 60.45,
+      "sourceArtifact": "text-trim-cost-decomposition.json",
+      "boundedMemory": true
+    },
+    "fastestProcessRssUnder128MiB": {
+      "runtimeLabel": "Node/V8",
+      "caseId": "rawFrameNameId",
+      "mibPerSec": 185.5,
+      "memoryKind": "process-rss",
+      "maxMiB": 60.45,
+      "sourceArtifact": "text-trim-cost-decomposition.json",
+      "boundedMemory": true
+    },
+    "fastestBrowserJsHeapRow": {
+      "runtimeLabel": "Chrome/V8 browser",
+      "caseId": "eventObjectFull",
+      "mibPerSec": 64.56,
+      "memoryKind": "browser-js-heap",
+      "maxMiB": 16.54,
+      "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+      "boundedMemory": true
+    },
+    "buckets": [
+      {
+        "kind": "browser-js-heap",
+        "rows": 20,
+        "boundedRows": 20,
+        "unboundedRows": 0,
+        "maxMiB": 358.37,
+        "fastestRow": {
+          "runtimeLabel": "Chrome/V8 browser",
+          "caseId": "eventObjectFull",
+          "mibPerSec": 64.56,
+          "memoryKind": "browser-js-heap",
+          "maxMiB": 16.54,
+          "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+          "boundedMemory": true
+        },
+        "fastestBoundedRow": {
+          "runtimeLabel": "Chrome/V8 browser",
+          "caseId": "eventObjectFull",
+          "mibPerSec": 64.56,
+          "memoryKind": "browser-js-heap",
+          "maxMiB": 16.54,
+          "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+          "boundedMemory": true
+        }
+      },
+      {
+        "kind": "browser-js-heap-unavailable",
+        "rows": 9,
+        "boundedRows": 0,
+        "unboundedRows": 9,
+        "maxMiB": null,
+        "fastestRow": {
+          "runtimeLabel": "Firefox/SpiderMonkey browser",
+          "caseId": "rawFrameNameId",
+          "mibPerSec": 64.24,
+          "memoryKind": "browser-js-heap-unavailable",
+          "maxMiB": null,
+          "sourceArtifact": "firefox-bidi-candidate-headroom-projection.json",
+          "boundedMemory": false
+        },
+        "fastestBoundedRow": null
+      },
+      {
+        "kind": "process-rss",
+        "rows": 150,
+        "boundedRows": 142,
+        "unboundedRows": 8,
+        "maxMiB": 1956.69,
+        "fastestRow": {
+          "runtimeLabel": "Node/V8",
+          "caseId": "rawFrameNameId",
+          "mibPerSec": 185.5,
+          "memoryKind": "process-rss",
+          "maxMiB": 60.45,
+          "sourceArtifact": "text-trim-cost-decomposition.json",
+          "boundedMemory": true
+        },
+        "fastestBoundedRow": {
+          "runtimeLabel": "Node/V8",
+          "caseId": "rawFrameNameId",
+          "mibPerSec": 185.5,
+          "memoryKind": "process-rss",
+          "maxMiB": 60.45,
+          "sourceArtifact": "text-trim-cost-decomposition.json",
+          "boundedMemory": true
+        }
+      }
+    ],
+    "interpretation": "Memory is classified on the same 1 GiB+ JavaScript full-string row set used for counterexample scanning; process RSS, browser JS heap, and browser host-probe-only rows are not normalized into one allocation model."
   },
   "localClosure": [
     {

@@ -665,6 +665,16 @@ MiB/s and `fetchAsyncByteBatchFull` at 9.77 MiB/s with backpressure 2/2. This
 classification closes only the source-consumption guard; Safari/WebKit browser
 rows and SpiderMonkey emitted IR remain active obligations.
 
+The same handoff now carries the same-contract memory frontier from that
+aggregate: 179 JavaScript 1 GiB+ full-string memory rows, 162 bounded rows, and
+17 unbounded or unproven rows across `process-rss`, `browser-js-heap`, and
+`browser-js-heap-unavailable` memory kinds. The fastest bounded row is Node/V8
+`rawFrameNameId` at 185.50 MiB/s with 60.45 MiB process RSS; the fastest browser
+JS heap row is Chrome/V8 browser `eventObjectFull` at 64.56 MiB/s with 16.54 MiB
+JS heap. Firefox/SpiderMonkey rows whose page heap counters are unavailable
+remain classified as unbounded or unproven rather than being normalized through
+Windows host process-tree probes.
+
 ## Current Evidence: Multi-Chunk Byte Batch Probe
 
 `packages/benchmark/results/release/candidate-headroom-cross-process-books-corpus-batch16.md`
