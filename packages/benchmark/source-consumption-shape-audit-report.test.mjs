@@ -65,6 +65,24 @@ test('source consumption shape audit classifies ArrayBuffer and ReadableStream s
   assert.equal(report.summary.primaryFastestRow.sourceArtifact, 'text-trim-cost-decomposition.json');
   assert.equal(report.summary.asyncOrReadableRowsRespectBackpressure, true);
   assert.equal(report.summary.browserLiveRowsRespectBackpressure, true);
+  assert.equal(report.coverageCrosscheck.status, 'consistent');
+  assert.equal(report.coverageCrosscheck.sourceArtifact, 'runtime-proof-coverage-audit.json');
+  assert.equal(report.coverageCrosscheck.sourceModeRows, 474);
+  assert.equal(report.coverageCrosscheck.notFullArrayBufferRows, 474);
+  assert.equal(report.coverageCrosscheck.fullArrayBufferRows, 0);
+  assert.equal(report.coverageCrosscheck.directReadableStreamRows, 17);
+  assert.equal(report.coverageCrosscheck.demandDrivenRows, 473);
+  assert.ok(report.coverageCrosscheck.sourceModeBreakdown.some(entry =>
+    entry.sourceMode === 'generated-sync-iterable-byte-batches'
+    && entry.rows === 382
+    && entry.notFullArrayBufferRows === 382
+    && entry.fullArrayBufferRows === 0
+  ));
+  assert.ok(report.coverageCrosscheck.sourceModeBreakdown.some(entry =>
+    entry.sourceMode === 'web-readable-stream-pull'
+    && entry.rows === 15
+    && entry.directReadableStreamRows === 15
+  ));
 
   assert.deepEqual(report.summary.sourceModes, [
     'fetch-async-iterable-byte-batches',
@@ -141,6 +159,11 @@ test('source consumption shape audit classifies ArrayBuffer and ReadableStream s
   assert.match(markdown, /Primary full ArrayBuffer parser-input rows: 0/);
   assert.match(markdown, /Primary unknown source-mode rows: 0/);
   assert.match(markdown, /Primary fastest row: Node\/V8 `rawFrameNameId` 185\.50 MiB\/s from `text-trim-cost-decomposition\.json`/);
+  assert.match(markdown, /Coverage source-mode rows: 474/);
+  assert.match(markdown, /Coverage not-full-ArrayBuffer rows: 474\/474/);
+  assert.match(markdown, /Coverage direct ReadableStream rows: 17/);
+  assert.match(markdown, /`generated-sync-iterable-byte-batches` \| 382 \| 382 \| 0/);
+  assert.match(markdown, /`web-readable-stream-pull` \| 15 \| 15 \| 0 \| 0 \| 15 \| 15/);
   assert.match(markdown, /`direct-readable-stream` \| 1 \| Chrome\/V8 browser `fetchReadableStreamFull` 9\.68 MiB\/s/);
   assert.match(markdown, /Backpressure rows respected: 6\/6/);
   assert.match(markdown, /Live rows respecting backpressure: 2\/2/);

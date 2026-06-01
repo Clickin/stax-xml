@@ -1,6 +1,6 @@
 # Source Consumption Shape Audit
 
-Generated: 2026-06-01T10:22:11.615Z
+Generated: 2026-06-01T10:44:57.207Z
 
 Audits source-consumption metadata from the same-contract aggregate. This is not a benchmark run and not a runtime-limit conclusion.
 
@@ -64,6 +64,28 @@ Audits source-consumption metadata from the same-contract aggregate. This is not
 - Fetch async byte-batch row: `fetchAsyncByteBatchFull` (fetch-async-iterable-byte-batches, 9.77 MiB/s, directReadableStream=false, fullArrayBufferParserInput=false, respectsBackpressure=true)
 - Live rows respecting backpressure: 2/2
 - Live rows using full ArrayBuffer parser input: 0
+
+## Coverage Crosscheck
+
+- Source artifact: runtime-proof-coverage-audit.json
+- Status: consistent
+- Coverage source-mode rows: 474
+- Coverage not-full-ArrayBuffer rows: 474/474
+- Coverage full ArrayBuffer rows: 0
+- Coverage unknown ArrayBuffer rows: 0
+- Coverage direct ReadableStream rows: 17
+- Coverage demand-driven rows: 473
+
+| Source mode | Rows | Not full ArrayBuffer | Full ArrayBuffer | Unknown | Direct ReadableStream | Demand-driven | Fastest row |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| `async-iterable-byte-batches` | 15 | 15 | 0 | 0 | 0 | 15 | Node/V8 `async-iterable-raw-frame-ascii-batch-8` 77.56 MiB/s from `stream-source-consumption-backpressure-counters.json` |
+| `complete-js-string` | 1 | 1 | 0 | 0 | 0 | 0 | Bun/JSC `3` 41.10 MiB/s from `bun-event-reader-string-large.json` |
+| `fetch-async-iterable-byte-batches` | 2 | 2 | 0 | 0 | 0 | 2 | Chrome/V8 browser `fetchAsyncByteBatchFull` 13.52 MiB/s from `browser-candidate-headroom-books-corpus.json` |
+| `fetch-readable-stream-pull` | 2 | 2 | 0 | 0 | 2 | 2 | Chrome/V8 browser `fetchReadableStreamFull` 14.64 MiB/s from `browser-candidate-headroom-books-corpus.json` |
+| `file-backed-sync-iterable-byte-batches` | 53 | 53 | 0 | 0 | 0 | 53 | Node/V8 `stax-raw-frame-name-id-batch-8` 152.11 MiB/s from `file-backed-batch-size-sweep.json` |
+| `generated-sync-iterable-byte-batches` | 382 | 382 | 0 | 0 | 0 | 382 | Node/V8 `rawFrameNameId` 185.50 MiB/s from `text-trim-cost-decomposition.json` |
+| `sync-iterable-byte-batches` | 4 | 4 | 0 | 0 | 0 | 4 | Node/V8 `sync-iterable-byte-batches` 76.22 MiB/s from `stream-source-consumption-shapes.json` |
+| `web-readable-stream-pull` | 15 | 15 | 0 | 0 | 15 | 15 | Node/V8 `web-readable-stream-raw-frame-ascii-batch-8` 77.86 MiB/s from `stream-source-consumption-shapes.json` |
 
 ## Findings
 

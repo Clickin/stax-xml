@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T10:22:11.615Z",
+  "generatedAt": "2026-06-01T10:44:57.207Z",
   "objective": "source-consumption-shape-audit",
   "contract": "large-js-full-string-rows-are-not-full-arraybuffer-parser-input",
   "note": "Audits source-consumption metadata from the same-contract aggregate. This is not a benchmark run and not a runtime-limit conclusion.",
@@ -7,7 +7,10 @@
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
     "comparisonGeneratedAt": "2026-06-01T10:21:54.633Z",
     "comparisonObjective": "same-contract-runtime-comparison",
-    "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape"
+    "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
+    "coverageJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-coverage-audit.json",
+    "coverageGeneratedAt": "2026-06-01T10:28:54.396Z",
+    "coverageObjective": "runtime-proof-coverage-audit"
   },
   "summary": {
     "status": "classified",
@@ -217,6 +220,154 @@
     "liveRows": 2,
     "liveRowsBackpressureRespected": 2,
     "liveRowsFullArrayBufferInput": 0
+  },
+  "coverageCrosscheck": {
+    "status": "consistent",
+    "sourceArtifact": "runtime-proof-coverage-audit.json",
+    "sourceModeRows": 474,
+    "notFullArrayBufferRows": 474,
+    "fullArrayBufferRows": 0,
+    "unknownArrayBufferRows": 0,
+    "directReadableStreamRows": 17,
+    "demandDrivenRows": 473,
+    "sourceModeBreakdown": [
+      {
+        "sourceMode": "async-iterable-byte-batches",
+        "rows": 15,
+        "notFullArrayBufferRows": 15,
+        "fullArrayBufferRows": 0,
+        "unknownArrayBufferRows": 0,
+        "directReadableStreamRows": 0,
+        "demandDrivenRows": 15,
+        "fastestRow": {
+          "sourceArtifact": "stream-source-consumption-backpressure-counters.json",
+          "runtimeLabel": "Node/V8",
+          "caseId": "async-iterable-raw-frame-ascii-batch-8",
+          "rateMiBPerSec": 77.56,
+          "fullStringParity": true,
+          "boundedMemory": true
+        }
+      },
+      {
+        "sourceMode": "complete-js-string",
+        "rows": 1,
+        "notFullArrayBufferRows": 1,
+        "fullArrayBufferRows": 0,
+        "unknownArrayBufferRows": 0,
+        "directReadableStreamRows": 0,
+        "demandDrivenRows": 0,
+        "fastestRow": {
+          "sourceArtifact": "bun-event-reader-string-large.json",
+          "runtimeLabel": "Bun/JSC",
+          "caseId": "3",
+          "rateMiBPerSec": 41.1,
+          "fullStringParity": true,
+          "boundedMemory": false
+        }
+      },
+      {
+        "sourceMode": "fetch-async-iterable-byte-batches",
+        "rows": 2,
+        "notFullArrayBufferRows": 2,
+        "fullArrayBufferRows": 0,
+        "unknownArrayBufferRows": 0,
+        "directReadableStreamRows": 0,
+        "demandDrivenRows": 2,
+        "fastestRow": {
+          "sourceArtifact": "browser-candidate-headroom-books-corpus.json",
+          "runtimeLabel": "Chrome/V8 browser",
+          "caseId": "fetchAsyncByteBatchFull",
+          "rateMiBPerSec": 13.52,
+          "fullStringParity": true,
+          "boundedMemory": true
+        }
+      },
+      {
+        "sourceMode": "fetch-readable-stream-pull",
+        "rows": 2,
+        "notFullArrayBufferRows": 2,
+        "fullArrayBufferRows": 0,
+        "unknownArrayBufferRows": 0,
+        "directReadableStreamRows": 2,
+        "demandDrivenRows": 2,
+        "fastestRow": {
+          "sourceArtifact": "browser-candidate-headroom-books-corpus.json",
+          "runtimeLabel": "Chrome/V8 browser",
+          "caseId": "fetchReadableStreamFull",
+          "rateMiBPerSec": 14.64,
+          "fullStringParity": true,
+          "boundedMemory": true
+        }
+      },
+      {
+        "sourceMode": "file-backed-sync-iterable-byte-batches",
+        "rows": 53,
+        "notFullArrayBufferRows": 53,
+        "fullArrayBufferRows": 0,
+        "unknownArrayBufferRows": 0,
+        "directReadableStreamRows": 0,
+        "demandDrivenRows": 53,
+        "fastestRow": {
+          "sourceArtifact": "file-backed-batch-size-sweep.json",
+          "runtimeLabel": "Node/V8",
+          "caseId": "stax-raw-frame-name-id-batch-8",
+          "rateMiBPerSec": 152.11,
+          "fullStringParity": true,
+          "boundedMemory": true
+        }
+      },
+      {
+        "sourceMode": "generated-sync-iterable-byte-batches",
+        "rows": 382,
+        "notFullArrayBufferRows": 382,
+        "fullArrayBufferRows": 0,
+        "unknownArrayBufferRows": 0,
+        "directReadableStreamRows": 0,
+        "demandDrivenRows": 382,
+        "fastestRow": {
+          "sourceArtifact": "text-trim-cost-decomposition.json",
+          "runtimeLabel": "Node/V8",
+          "caseId": "rawFrameNameId",
+          "rateMiBPerSec": 185.5,
+          "fullStringParity": true,
+          "boundedMemory": true
+        }
+      },
+      {
+        "sourceMode": "sync-iterable-byte-batches",
+        "rows": 4,
+        "notFullArrayBufferRows": 4,
+        "fullArrayBufferRows": 0,
+        "unknownArrayBufferRows": 0,
+        "directReadableStreamRows": 0,
+        "demandDrivenRows": 4,
+        "fastestRow": {
+          "sourceArtifact": "stream-source-consumption-shapes.json",
+          "runtimeLabel": "Node/V8",
+          "caseId": "sync-iterable-byte-batches",
+          "rateMiBPerSec": 76.22,
+          "fullStringParity": true,
+          "boundedMemory": true
+        }
+      },
+      {
+        "sourceMode": "web-readable-stream-pull",
+        "rows": 15,
+        "notFullArrayBufferRows": 15,
+        "fullArrayBufferRows": 0,
+        "unknownArrayBufferRows": 0,
+        "directReadableStreamRows": 15,
+        "demandDrivenRows": 15,
+        "fastestRow": {
+          "sourceArtifact": "stream-source-consumption-shapes.json",
+          "runtimeLabel": "Node/V8",
+          "caseId": "web-readable-stream-raw-frame-ascii-batch-8",
+          "rateMiBPerSec": 77.86,
+          "fullStringParity": true,
+          "boundedMemory": true
+        }
+      }
+    ]
   },
   "findings": [
     {

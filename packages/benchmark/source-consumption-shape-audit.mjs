@@ -1,15 +1,17 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { basename, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const defaultComparisonJson = resolve(__dirname, 'results', 'release', 'same-contract-runtime-comparison.json');
+const defaultCoverageJson = resolve(__dirname, 'results', 'release', 'runtime-proof-coverage-audit.json');
 const defaultJsonOut = resolve(__dirname, 'results', 'release', 'source-consumption-shape-audit.json');
 const defaultMdOut = resolve(__dirname, 'results', 'release', 'source-consumption-shape-audit.md');
 
 function parseArgs(argv = process.argv.slice(2)) {
   const options = {
     comparisonJson: defaultComparisonJson,
+    coverageJson: defaultCoverageJson,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
   };
@@ -30,6 +32,9 @@ function parseArgs(argv = process.argv.slice(2)) {
       case '--comparison-json':
         options.comparisonJson = resolve(process.cwd(), readValue());
         break;
+      case '--coverage-json':
+        options.coverageJson = resolve(process.cwd(), readValue());
+        break;
       case '--json-out':
         options.jsonOut = resolve(process.cwd(), readValue());
         break;
@@ -47,7 +52,8 @@ function parseArgs(argv = process.argv.slice(2)) {
 function main() {
   const options = parseArgs();
   const comparison = readComparison(options.comparisonJson);
-  const report = createReport(comparison, options);
+  const coverage = readCoverage(options.coverageJson);
+  const report = createReport(comparison, coverage, options);
   writeOutput(options.jsonOut, `${JSON.stringify(report, null, 2)}\n`);
   writeOutput(options.mdOut, renderMarkdown(report));
   console.log(`source-consumption-shape-audit: status=${report.summary.status} rows=${report.summary.largeJsFullSourceModeRows}`);
@@ -64,7 +70,16 @@ function readComparison(comparisonJson) {
   return comparison;
 }
 
-function createReport(comparison, options) {
+function readCoverage(coverageJson) {
+  if (!coverageJson || !existsSync(coverageJson)) return null;
+  const coverage = JSON.parse(readFileSync(coverageJson, 'utf8'));
+  if (coverage.objective !== 'runtime-proof-coverage-audit') {
+    throw new Error(`expected runtime-proof-coverage-audit JSON, got ${coverage.objective ?? 'unknown'}`);
+  }
+  return coverage;
+}
+
+function createReport(comparison, coverage, options) {
   const summary = comparison.summary ?? {};
   const sourceShape = summary.sourceShapeSafety ?? {};
   const primarySourceShape = summary.primarySourceShapeSafety ?? {};
@@ -107,6 +122,9 @@ function createReport(comparison, options) {
       comparisonGeneratedAt: comparison.generatedAt ?? null,
       comparisonObjective: comparison.objective,
       comparisonContract: comparison.contract,
+      coverageJson: options.coverageJson,
+      coverageGeneratedAt: coverage?.generatedAt ?? null,
+      coverageObjective: coverage?.objective ?? null,
     },
     summary: {
       status,
@@ -170,7 +188,60 @@ function createReport(comparison, options) {
       liveRowsBackpressureRespected,
       liveRowsFullArrayBufferInput: browserFrontier.liveRowsFullArrayBufferInput ?? null,
     } : null,
+    coverageCrosscheck: createCoverageCrosscheck(coverage, options),
     findings: createFindings(status, sourceShape, primarySourceShape, sourceFrontier, browserFrontier),
+  };
+}
+
+function createCoverageCrosscheck(coverage, options) {
+  if (!coverage) {
+    return {
+      status: 'missing',
+      sourceArtifact: basename(options.coverageJson),
+      reason: 'runtime-proof-coverage-audit JSON was not available.',
+      sourceModeRows: 0,
+      notFullArrayBufferRows: 0,
+      fullArrayBufferRows: 0,
+      unknownArrayBufferRows: 0,
+      directReadableStreamRows: 0,
+      demandDrivenRows: 0,
+      sourceModeBreakdown: [],
+    };
+  }
+
+  const sourceInputSafety = coverage.summary?.largeJsFullSourceInputSafety ?? {};
+  const sourceModeRows = sourceInputSafety.sourceModeRows ?? 0;
+  const notFullArrayBufferRows = sourceInputSafety.notFullArrayBufferRows ?? 0;
+  const fullArrayBufferRows = sourceInputSafety.fullArrayBufferRows ?? 0;
+  const unknownArrayBufferRows = sourceInputSafety.unknownArrayBufferRows ?? 0;
+  const directReadableStreamRows = sourceInputSafety.directReadableStreamRows ?? 0;
+  const demandDrivenRows = sourceInputSafety.demandDrivenRows ?? 0;
+  const status = sourceModeRows > 0
+    && notFullArrayBufferRows === sourceModeRows
+    && fullArrayBufferRows === 0
+    && unknownArrayBufferRows === 0
+    ? 'consistent'
+    : 'partial';
+
+  return {
+    status,
+    sourceArtifact: basename(options.coverageJson),
+    sourceModeRows,
+    notFullArrayBufferRows,
+    fullArrayBufferRows,
+    unknownArrayBufferRows,
+    directReadableStreamRows,
+    demandDrivenRows,
+    sourceModeBreakdown: (sourceInputSafety.sourceModeBreakdown ?? []).map(entry => ({
+      sourceMode: entry.sourceMode,
+      rows: entry.rows,
+      notFullArrayBufferRows: entry.notFullArrayBufferRows,
+      fullArrayBufferRows: entry.fullArrayBufferRows,
+      unknownArrayBufferRows: entry.unknownArrayBufferRows,
+      directReadableStreamRows: entry.directReadableStreamRows,
+      demandDrivenRows: entry.demandDrivenRows,
+      fastestRow: entry.fastestRow ? summarizeCoverageRow(entry.fastestRow) : null,
+    })),
   };
 }
 
@@ -203,6 +274,17 @@ function summarizeFrontierRow(row) {
     respectsBackpressure: row.respectsBackpressure ?? null,
     eventCount: row.eventCount ?? null,
     checksum: row.checksum ?? null,
+  };
+}
+
+function summarizeCoverageRow(row) {
+  return {
+    sourceArtifact: row.sourceArtifact,
+    runtimeLabel: row.runtimeLabel,
+    caseId: row.id,
+    rateMiBPerSec: row.mibPerSec,
+    fullStringParity: row.fullStringParity,
+    boundedMemory: row.boundedMemory,
   };
 }
 
@@ -333,6 +415,21 @@ function renderMarkdown(report) {
   }
 
   lines.push(
+    '## Coverage Crosscheck',
+    '',
+    `- Source artifact: ${report.coverageCrosscheck.sourceArtifact}`,
+    `- Status: ${report.coverageCrosscheck.status}`,
+    `- Coverage source-mode rows: ${report.coverageCrosscheck.sourceModeRows}`,
+    `- Coverage not-full-ArrayBuffer rows: ${report.coverageCrosscheck.notFullArrayBufferRows}/${report.coverageCrosscheck.sourceModeRows}`,
+    `- Coverage full ArrayBuffer rows: ${report.coverageCrosscheck.fullArrayBufferRows}`,
+    `- Coverage unknown ArrayBuffer rows: ${report.coverageCrosscheck.unknownArrayBufferRows}`,
+    `- Coverage direct ReadableStream rows: ${report.coverageCrosscheck.directReadableStreamRows}`,
+    `- Coverage demand-driven rows: ${report.coverageCrosscheck.demandDrivenRows}`,
+    '',
+    '| Source mode | Rows | Not full ArrayBuffer | Full ArrayBuffer | Unknown | Direct ReadableStream | Demand-driven | Fastest row |',
+    '| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |',
+    ...report.coverageCrosscheck.sourceModeBreakdown.map(coverageSourceModeMarkdownRow),
+    '',
     '## Findings',
     '',
     '| ID | Classification | Summary |',
@@ -349,6 +446,13 @@ function sourceModeMarkdownRow(entry) {
     ? formatSummaryRow(entry.fastestRow)
     : 'n/a';
   return `| \`${entry.sourceMode}\` | ${entry.rows} | ${entry.notFullArrayBufferRows} | ${entry.fullArrayBufferRows} | ${entry.unknownArrayBufferRows} | ${entry.directReadableStreamRows} | ${entry.corpusSeedReplayRows} | ${fastest} |`;
+}
+
+function coverageSourceModeMarkdownRow(entry) {
+  const fastest = entry.fastestRow
+    ? formatSummaryRow(entry.fastestRow)
+    : 'n/a';
+  return `| \`${entry.sourceMode}\` | ${entry.rows} | ${entry.notFullArrayBufferRows} | ${entry.fullArrayBufferRows} | ${entry.unknownArrayBufferRows} | ${entry.directReadableStreamRows} | ${entry.demandDrivenRows} | ${fastest} |`;
 }
 
 function primaryExcludedMarkdownRow(entry) {
