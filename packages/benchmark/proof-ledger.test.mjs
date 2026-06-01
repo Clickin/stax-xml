@@ -24,6 +24,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /## Current Evidence: Same-Contract Runtime Comparison/);
   assert.match(markdown, /## Current Evidence: Runtime Counterexample Scan/);
   assert.match(markdown, /## Current Evidence: Runtime Proof Coverage Audit/);
+  assert.match(markdown, /## Current Evidence: Runtime Proof Handoff Validation/);
   assert.match(markdown, /## Current Evidence: Safari\/WebKit Availability Audit/);
   assert.match(markdown, /## Current Evidence: Object-Shape Parity/);
   assert.match(markdown, /## Current Evidence: Materialization Contract Audit/);
@@ -137,6 +138,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /does\s+not prove generated native code inside Bun Zig `TextDecoder`/);
   assert.match(markdown, /261 aggregated rows and 216 JavaScript 1 GiB\+\s+full-string rows/);
   assert.match(markdown, /zero 200 MiB\/s\+ bounded-memory JavaScript\s+counterexamples/);
+  assert.match(markdown, /current scan covers 205 primary release JSON artifacts/);
   assert.match(markdown, /fastest aggregated 1 GiB\+ JavaScript\s+full-string row is Node\/V8 `rawFrameNameId` from\s+`text-trim-cost-decomposition\.json` at 185\.50 MiB\/s/);
   assert.match(markdown, /184\.09 to 186\.66 MiB\/s/);
   assert.match(markdown, /fastest aggregate\s+row is `sync-iterable-byte-batches`/);
@@ -297,7 +299,14 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`sourceMode: "complete-js-string"` and\s+`boundedMemory: false` under the 512 MiB RSS gate/);
   assert.match(markdown, /headroom evidence rather than runtime-limit\s+counterexamples/);
   assert.match(markdown, /recognizes 1,183\s+measured rows/);
+  assert.match(markdown, /current audit scans 205 primary release artifacts/);
   assert.match(markdown, /150 benchmark artifacts, 22 source artifacts, 11\s+trace\/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and\s+19 negative-result artifacts, 792 JavaScript 1 GiB\+ full-string rows/);
+  assert.match(markdown, /runtime-proof-handoff-validation\.md/);
+  assert.match(markdown, /statically validates the two external-run handoffs/);
+  assert.match(markdown, /12\s+referenced scripts exist, 28 release output paths are under the curated release\s+directory/);
+  assert.match(markdown, /zero missing scripts or output-path policy violations/);
+  assert.match(markdown, /synchronous `Iterable<Uint8Array\[\]>` byte batches are the\s+primary parser input/);
+  assert.match(markdown, /does not emit SpiderMonkey IR or optimized code/);
   assert.match(markdown, /concat-buffer-reuse-negative-result\.json/);
   assert.match(markdown, /stax-raw-frame-span-stats/);
   assert.match(markdown, /segment-scan-headroom\.json/);

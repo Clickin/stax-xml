@@ -1,12 +1,12 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-06-01T00:21:18.047Z
+Generated: 2026-06-01T00:35:48.949Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 204
+- Scanned primary artifacts: 205
 - Ignored derived artifacts: 7
 - Measured rows recognized: 1183
 - Rows with unknown full-string parity: 0

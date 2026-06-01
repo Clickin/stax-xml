@@ -266,7 +266,7 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 204 primary release JSON artifacts, recognizes 1,183
+The current scan covers 205 primary release JSON artifacts, recognizes 1,183
 sample throughput rows and 170 aggregate rows, and finds 792 JavaScript 1 GiB+
 full-string sample rows plus 133 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
@@ -593,7 +593,7 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 204 primary release artifacts and recognizes 1,183
+The current audit scans 205 primary release artifacts and recognizes 1,183
 measured rows. It records 150 benchmark artifacts, 22 source artifacts, 11
 trace/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and
 19 negative-result artifacts, 792 JavaScript 1 GiB+ full-string rows, and four
@@ -768,6 +768,36 @@ memory, but it is not full-string parity; four no-text rows cross 200 MiB/s
 while zero full-string, no-trim, or fold-trim rows do. This keeps the
 counterexample-adjacent headroom visible without reclassifying text omission as
 a StAX-compatible full-string row.
+
+## Current Evidence: Runtime Proof Handoff Validation
+
+`packages/benchmark/results/release/runtime-proof-handoff-validation.md`
+statically validates the two external-run handoffs from
+`runtime-proof-gap-handoff.md`. It checks that the current Safari/WebKit and
+SpiderMonkey handoff commands reference existing local benchmark entrypoint
+scripts, write curated JSON/Markdown summaries under
+`packages/benchmark/results/release`, keep raw cross-process or diagnostic dump
+output under separated results directories, and retain required closure
+contracts.
+
+The validation currently passes over two handoffs and nine commands: 12
+referenced scripts exist, 28 release output paths are under the curated release
+directory, the two raw output directories are separated under
+`results/cross-process` or the Firefox diagnostic dump directory, and there are
+zero missing scripts or output-path policy violations. It also pins that the
+Safari handoff still requires `safari-webdriver`, `/usr/bin/safaridriver`,
+`process-runs=3`, a 1 GiB `books.xml` corpus-cycle row, and the
+`stringFull,eventObjectFull,rawFrameNameId` full-string cases; the source
+contract still says synchronous `Iterable<Uint8Array[]>` byte batches are the
+primary parser input, direct `ReadableStream` rows are separate
+source-overhead evidence, and backpressure must be recorded. The SpiderMonkey
+handoff still requires a `FIREFOX_PATH` diagnostic build or shell path, release
+and nightly js-shell surface probes, emitted IR/optimized-code metadata, event
+count, and checksum parity.
+
+This is runbook-quality evidence only. It does not execute Safari/WebKit
+benchmarks, does not emit SpiderMonkey IR or optimized code, and cannot close
+either active external proof obligation.
 
 ## Current Evidence: Multi-Chunk Byte Batch Probe
 
