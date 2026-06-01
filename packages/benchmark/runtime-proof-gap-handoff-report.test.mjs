@@ -15,6 +15,9 @@ const mdOut = join(tmpDir, 'runtime-proof-gap-handoff-report-test.md');
 const badComparisonJson = join(tmpDir, 'runtime-proof-gap-handoff-bad-source-comparison.json');
 const badSourceJsonOut = join(tmpDir, 'runtime-proof-gap-handoff-bad-source-test.json');
 const badSourceMdOut = join(tmpDir, 'runtime-proof-gap-handoff-bad-source-test.md');
+const badMemoryComparisonJson = join(tmpDir, 'runtime-proof-gap-handoff-bad-memory-comparison.json');
+const badMemoryJsonOut = join(tmpDir, 'runtime-proof-gap-handoff-bad-memory-test.json');
+const badMemoryMdOut = join(tmpDir, 'runtime-proof-gap-handoff-bad-memory-test.md');
 
 test('runtime proof gap handoff tracks current open coverage obligations', () => {
   mkdirSync(tmpDir, { recursive: true });
@@ -655,6 +658,73 @@ test('runtime proof gap handoff downgrades source evidence if primary rows mix d
   const markdown = readFileSync(badSourceMdOut, 'utf8');
   assert.match(markdown, /Source consumption evidence status: partial/);
   assert.match(markdown, /Primary excluded direct\/async\/full-ArrayBuffer\/unknown rows: 1\/0\/0\/0/);
+});
+
+test('runtime proof gap handoff treats bounded flags without numeric memory proof as unproven', () => {
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [auditJsonOut, auditMdOut, badMemoryComparisonJson, badMemoryJsonOut, badMemoryMdOut]) {
+    if (existsSync(filePath)) rmSync(filePath);
+  }
+
+  const auditResult = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-coverage-audit.mjs'),
+    '--json-out',
+    auditJsonOut,
+    '--md-out',
+    auditMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  assert.equal(auditResult.status, 0, auditResult.stderr || auditResult.stdout);
+
+  const comparison = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'same-contract-runtime-comparison.json'), 'utf8'));
+  const row = comparison.comparisonRows.find(entry =>
+    entry.jsRuntime
+    && entry.fullStringParity === true
+    && (entry.fixture?.sizeGiB ?? 0) >= 0.999
+    && entry.boundedMemory === true
+    && entry.caseId === 'rawFrameNameId'
+  );
+  assert.ok(row, 'expected a bounded rawFrameNameId comparison row');
+  row.mibPerSec = 205;
+  row.memory = {
+    primaryKind: 'not-recorded',
+    note: 'synthetic flag-only memory row',
+  };
+  writeFileSync(badMemoryComparisonJson, `${JSON.stringify(comparison, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-gap-handoff.mjs'),
+    '--audit-json',
+    auditJsonOut,
+    '--comparison-json',
+    badMemoryComparisonJson,
+    '--json-out',
+    badMemoryJsonOut,
+    '--md-out',
+    badMemoryMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(badMemoryJsonOut, 'utf8'));
+  assert.equal(report.summary.memoryFrontierEvidenceStatus, 'partial');
+  assert.equal(report.memoryFrontierEvidence.status, 'partial');
+  assert.equal(report.memoryFrontierEvidence.unboundedRowsAtOrAbove200MiBPerSec, 1);
+  assert.equal(report.memoryFrontierEvidence.fastestUnboundedRow.caseId, 'rawFrameNameId');
+  assert.equal(report.memoryFrontierEvidence.fastestUnboundedRow.mibPerSec, 205);
+  assert.equal(report.memoryFrontierEvidence.fastestUnboundedRow.memoryKind, 'not-recorded');
+  assert.equal(report.memoryFrontierEvidence.fastestUnboundedRow.boundedMemory, false);
+
+  const markdown = readFileSync(badMemoryMdOut, 'utf8');
+  assert.match(markdown, /Memory frontier evidence status: partial/);
+  assert.match(markdown, /Unbounded or unproven rows at or above 200 MiB\/s: 1/);
+  assert.match(markdown, /Fastest unbounded or unproven row: Node\/V8 rawFrameNameId 205\.00 MiB\/s \(not-recorded\)/);
 });
 
 function escapeRegExp(value) {

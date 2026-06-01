@@ -350,7 +350,7 @@ function summarizeMemoryFrontierEvidence(comparison) {
     && (row.fixture?.sizeGiB ?? 0) >= 0.999
     && row.memory?.primaryKind
   );
-  const unboundedMemoryRows = memoryRows.filter(row => row.boundedMemory !== true);
+  const unboundedMemoryRows = memoryRows.filter(row => !hasAcceptedBoundedMemoryProof(row));
   const unboundedRowsAtOrAbove200MiBPerSec = unboundedMemoryRows
     .filter(row => typeof row.mibPerSec === 'number' && row.mibPerSec >= 200)
     .length;
@@ -395,8 +395,18 @@ function summarizeMemoryRowForHandoff(row) {
     memoryKind: row.memory?.primaryKind ?? null,
     maxMiB: row.memory?.maxMiB ?? null,
     sourceArtifact: row.sourceArtifact,
-    boundedMemory: row.boundedMemory === true,
+    boundedMemory: hasAcceptedBoundedMemoryProof(row),
   };
+}
+
+function hasAcceptedBoundedMemoryProof(row) {
+  return row?.boundedMemory === true && hasNumericMemoryProof(row.memory);
+}
+
+function hasNumericMemoryProof(memory) {
+  return (memory?.primaryKind === 'process-rss' || memory?.primaryKind === 'browser-js-heap')
+    && typeof memory.maxMiB === 'number'
+    && Number.isFinite(memory.maxMiB);
 }
 
 function summarizeTextMaterializationEvidence(comparison) {

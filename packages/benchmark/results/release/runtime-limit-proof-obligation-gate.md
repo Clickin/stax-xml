@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T16:59:51.767Z
+Generated: 2026-06-01T17:06:04.811Z
 
 ## Scope
 
@@ -107,7 +107,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-01T16:59:37.220Z)
+- Handoff loaded: yes (2026-06-01T17:05:56.414Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
