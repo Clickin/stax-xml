@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T00:58:38.174Z",
+  "generatedAt": "2026-06-01T01:40:32.803Z",
   "objective": "firefox-spidermonkey-jsshell-stax-api-gap-audit",
   "contract": "spidermonkey-jsshell-current-stax-full-string-api-surface-gap",
   "note": "Synthesizes the official release/nightly SpiderMonkey js-shell API probes against the unchanged current full-string stax benchmark surface. This is not benchmark evidence, emitted JIT IR, optimized-code evidence, or a runtime-limit conclusion.",
@@ -34,6 +34,52 @@
       "reason": "Neutral byte-batch parser input is Uint8Array-based."
     }
   ],
+  "requiredSurfaces": [
+    {
+      "id": "sync-byte-batch-full-string",
+      "label": "StreamReaderSync Iterable<Uint8Array[]> full-string rows",
+      "contract": "Primary same-contract StAX rows over synchronous byte batches.",
+      "requiredGlobals": [
+        "Uint8Array",
+        "TextDecoder",
+        "TextEncoder"
+      ],
+      "reason": "Uint8Array carries parser input, TextDecoder materializes StAX strings, and TextEncoder is used by the current generated-fixture harness."
+    },
+    {
+      "id": "async-byte-batch-full-string",
+      "label": "createEventReaderFromAsyncByteBatches full-string rows",
+      "contract": "Async byte-batch public event rows without direct ReadableStream consumption.",
+      "requiredGlobals": [
+        "Uint8Array",
+        "TextDecoder"
+      ],
+      "reason": "The parser input is Uint8Array[] and public event-object materialization still depends on TextDecoder."
+    },
+    {
+      "id": "readable-stream-full-string",
+      "label": "EventReader ReadableStream<Uint8Array> full-string rows",
+      "contract": "Direct Web ReadableStream source-overhead rows.",
+      "requiredGlobals": [
+        "Uint8Array",
+        "TextDecoder",
+        "ReadableStream"
+      ],
+      "reason": "The public EventReader constructor checks for a Web ReadableStream and materializes strings through the same decoder-backed event path."
+    },
+    {
+      "id": "browser-fetch-live-source",
+      "label": "browser fetch live-source rows",
+      "contract": "Live fetch Response.body rows such as fetchReadableStreamFull and fetchAsyncByteBatchFull.",
+      "requiredGlobals": [
+        "Uint8Array",
+        "TextDecoder",
+        "ReadableStream",
+        "fetch"
+      ],
+      "reason": "The live browser source rows require fetch, Response.body ReadableStream support, byte input, and full string materialization."
+    }
+  ],
   "summary": {
     "status": "blocked-by-host-api-surface",
     "shellCount": 2,
@@ -48,6 +94,7 @@
       "fetch"
     ],
     "commonMissingGlobalCount": 4,
+    "blockedSurfaceCount": 4,
     "canCloseEmittedIrObligation": false,
     "conclusionAllowed": false
   },
@@ -103,6 +150,132 @@
       ]
     }
   ],
+  "blockedSurfaces": [
+    {
+      "id": "sync-byte-batch-full-string",
+      "label": "StreamReaderSync Iterable<Uint8Array[]> full-string rows",
+      "contract": "Primary same-contract StAX rows over synchronous byte batches.",
+      "requiredGlobals": [
+        "Uint8Array",
+        "TextDecoder",
+        "TextEncoder"
+      ],
+      "reason": "Uint8Array carries parser input, TextDecoder materializes StAX strings, and TextEncoder is used by the current generated-fixture harness.",
+      "blockedShellCount": 2,
+      "runnableShellCount": 0,
+      "shellBlockers": [
+        {
+          "packageKind": "release",
+          "blocked": true,
+          "missingGlobals": [
+            "TextDecoder",
+            "TextEncoder"
+          ]
+        },
+        {
+          "packageKind": "nightly",
+          "blocked": true,
+          "missingGlobals": [
+            "TextDecoder",
+            "TextEncoder"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "async-byte-batch-full-string",
+      "label": "createEventReaderFromAsyncByteBatches full-string rows",
+      "contract": "Async byte-batch public event rows without direct ReadableStream consumption.",
+      "requiredGlobals": [
+        "Uint8Array",
+        "TextDecoder"
+      ],
+      "reason": "The parser input is Uint8Array[] and public event-object materialization still depends on TextDecoder.",
+      "blockedShellCount": 2,
+      "runnableShellCount": 0,
+      "shellBlockers": [
+        {
+          "packageKind": "release",
+          "blocked": true,
+          "missingGlobals": [
+            "TextDecoder"
+          ]
+        },
+        {
+          "packageKind": "nightly",
+          "blocked": true,
+          "missingGlobals": [
+            "TextDecoder"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "readable-stream-full-string",
+      "label": "EventReader ReadableStream<Uint8Array> full-string rows",
+      "contract": "Direct Web ReadableStream source-overhead rows.",
+      "requiredGlobals": [
+        "Uint8Array",
+        "TextDecoder",
+        "ReadableStream"
+      ],
+      "reason": "The public EventReader constructor checks for a Web ReadableStream and materializes strings through the same decoder-backed event path.",
+      "blockedShellCount": 2,
+      "runnableShellCount": 0,
+      "shellBlockers": [
+        {
+          "packageKind": "release",
+          "blocked": true,
+          "missingGlobals": [
+            "TextDecoder",
+            "ReadableStream"
+          ]
+        },
+        {
+          "packageKind": "nightly",
+          "blocked": true,
+          "missingGlobals": [
+            "TextDecoder",
+            "ReadableStream"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "browser-fetch-live-source",
+      "label": "browser fetch live-source rows",
+      "contract": "Live fetch Response.body rows such as fetchReadableStreamFull and fetchAsyncByteBatchFull.",
+      "requiredGlobals": [
+        "Uint8Array",
+        "TextDecoder",
+        "ReadableStream",
+        "fetch"
+      ],
+      "reason": "The live browser source rows require fetch, Response.body ReadableStream support, byte input, and full string materialization.",
+      "blockedShellCount": 2,
+      "runnableShellCount": 0,
+      "shellBlockers": [
+        {
+          "packageKind": "release",
+          "blocked": true,
+          "missingGlobals": [
+            "TextDecoder",
+            "ReadableStream",
+            "fetch"
+          ]
+        },
+        {
+          "packageKind": "nightly",
+          "blocked": true,
+          "missingGlobals": [
+            "TextDecoder",
+            "ReadableStream",
+            "fetch"
+          ]
+        }
+      ]
+    }
+  ],
   "findings": [
     {
       "id": "spidermonkey-jsshell-api-gap",
@@ -110,6 +283,7 @@
       "summary": "The official release and nightly SpiderMonkey js-shells are executable and can read binary XML, but both lack required Web-compatible globals for the current full-string stax benchmark unchanged.",
       "evidence": [
         "commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch",
+        "blockedSurfaces=4/4",
         "unchangedRunnableShells=0/2"
       ]
     },

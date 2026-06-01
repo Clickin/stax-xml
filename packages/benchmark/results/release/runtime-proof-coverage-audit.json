@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T01:31:07.032Z",
+  "generatedAt": "2026-06-01T01:40:41.896Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -153,6 +153,7 @@
         "binaryReadableShellCount": null,
         "unchangedRunnableShellCount": null,
         "commonMissingGlobals": null,
+        "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
         "conclusionAllowed": false
       },
@@ -183,6 +184,7 @@
         "binaryReadableShellCount": null,
         "unchangedRunnableShellCount": null,
         "commonMissingGlobals": null,
+        "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
         "conclusionAllowed": false
       },
@@ -213,6 +215,7 @@
         "binaryReadableShellCount": null,
         "unchangedRunnableShellCount": null,
         "commonMissingGlobals": null,
+        "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
         "conclusionAllowed": false
       },
@@ -2932,6 +2935,7 @@
           "ReadableStream",
           "fetch"
         ],
+        "blockedSurfaceCount": 4,
         "canCloseEmittedIrObligation": false,
         "conclusionAllowed": false
       },
@@ -3408,6 +3412,7 @@
         "binaryReadableShellCount": null,
         "unchangedRunnableShellCount": null,
         "commonMissingGlobals": null,
+        "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
         "conclusionAllowed": false
       },
@@ -3512,6 +3517,7 @@
         "binaryReadableShellCount": null,
         "unchangedRunnableShellCount": null,
         "commonMissingGlobals": null,
+        "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
         "conclusionAllowed": false
       },
@@ -3569,6 +3575,7 @@
         "binaryReadableShellCount": null,
         "unchangedRunnableShellCount": null,
         "commonMissingGlobals": null,
+        "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
         "conclusionAllowed": null
       },
@@ -4100,6 +4107,7 @@
         "binaryReadableShellCount": null,
         "unchangedRunnableShellCount": null,
         "commonMissingGlobals": null,
+        "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
         "conclusionAllowed": false
       },
@@ -4298,6 +4306,7 @@
         "binaryReadableShellCount": null,
         "unchangedRunnableShellCount": null,
         "commonMissingGlobals": null,
+        "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
         "conclusionAllowed": false
       },
@@ -4612,6 +4621,7 @@
         "binaryReadableShellCount": null,
         "unchangedRunnableShellCount": null,
         "commonMissingGlobals": null,
+        "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
         "conclusionAllowed": false
       },
@@ -4803,6 +4813,7 @@
         "binaryReadableShellCount": null,
         "unchangedRunnableShellCount": null,
         "commonMissingGlobals": null,
+        "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
         "conclusionAllowed": false
       },
@@ -4835,6 +4846,7 @@
         "binaryReadableShellCount": null,
         "unchangedRunnableShellCount": null,
         "commonMissingGlobals": null,
+        "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
         "conclusionAllowed": false
       },
@@ -24251,6 +24263,7 @@
           "binaryReadableShellCount": null,
           "unchangedRunnableShellCount": null,
           "commonMissingGlobals": null,
+          "blockedSurfaceCount": null,
           "canCloseEmittedIrObligation": null,
           "conclusionAllowed": false
         },
@@ -24281,6 +24294,7 @@
           "binaryReadableShellCount": null,
           "unchangedRunnableShellCount": null,
           "commonMissingGlobals": null,
+          "blockedSurfaceCount": null,
           "canCloseEmittedIrObligation": null,
           "conclusionAllowed": false
         },
@@ -24311,6 +24325,7 @@
           "binaryReadableShellCount": null,
           "unchangedRunnableShellCount": null,
           "commonMissingGlobals": null,
+          "blockedSurfaceCount": null,
           "canCloseEmittedIrObligation": null,
           "conclusionAllowed": false
         },
@@ -24463,6 +24478,7 @@
             "ReadableStream",
             "fetch"
           ],
+          "blockedSurfaceCount": 4,
           "canCloseEmittedIrObligation": false,
           "conclusionAllowed": false
         },
@@ -24660,6 +24676,7 @@
           "binaryReadableShellCount": null,
           "unchangedRunnableShellCount": null,
           "commonMissingGlobals": null,
+          "blockedSurfaceCount": null,
           "canCloseEmittedIrObligation": null,
           "conclusionAllowed": false
         },
@@ -24764,6 +24781,7 @@
           "binaryReadableShellCount": null,
           "unchangedRunnableShellCount": null,
           "commonMissingGlobals": null,
+          "blockedSurfaceCount": null,
           "canCloseEmittedIrObligation": null,
           "conclusionAllowed": false
         },
@@ -24790,7 +24808,7 @@
     {
       "id": "codegen-traces-open",
       "status": "partial",
-      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Deno/V8 codegen trace evidence present (2 artifacts). Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=available, found=2, searchRoots=2); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey js-shell StAX API gap audit present (status=blocked-by-host-api-surface, unchangedRunnableShells=0/2, commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch); it is host API surface evidence only, not emitted JIT IR. Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.",
+      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Deno/V8 codegen trace evidence present (2 artifacts). Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=available, found=2, searchRoots=2); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey js-shell StAX API gap audit present (status=blocked-by-host-api-surface, unchangedRunnableShells=0/2, blockedSurfaces=4, commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch); it is host API surface evidence only, not emitted JIT IR. Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.",
       "nextExperiment": "Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows."
     },
     {

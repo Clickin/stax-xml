@@ -16,6 +16,37 @@ const requiredGlobals = [
   { name: 'Uint8Array', expected: 'function', reason: 'Neutral byte-batch parser input is Uint8Array-based.' },
 ];
 
+const requiredSurfaces = [
+  {
+    id: 'sync-byte-batch-full-string',
+    label: 'StreamReaderSync Iterable<Uint8Array[]> full-string rows',
+    contract: 'Primary same-contract StAX rows over synchronous byte batches.',
+    requiredGlobals: ['Uint8Array', 'TextDecoder', 'TextEncoder'],
+    reason: 'Uint8Array carries parser input, TextDecoder materializes StAX strings, and TextEncoder is used by the current generated-fixture harness.',
+  },
+  {
+    id: 'async-byte-batch-full-string',
+    label: 'createEventReaderFromAsyncByteBatches full-string rows',
+    contract: 'Async byte-batch public event rows without direct ReadableStream consumption.',
+    requiredGlobals: ['Uint8Array', 'TextDecoder'],
+    reason: 'The parser input is Uint8Array[] and public event-object materialization still depends on TextDecoder.',
+  },
+  {
+    id: 'readable-stream-full-string',
+    label: 'EventReader ReadableStream<Uint8Array> full-string rows',
+    contract: 'Direct Web ReadableStream source-overhead rows.',
+    requiredGlobals: ['Uint8Array', 'TextDecoder', 'ReadableStream'],
+    reason: 'The public EventReader constructor checks for a Web ReadableStream and materializes strings through the same decoder-backed event path.',
+  },
+  {
+    id: 'browser-fetch-live-source',
+    label: 'browser fetch live-source rows',
+    contract: 'Live fetch Response.body rows such as fetchReadableStreamFull and fetchAsyncByteBatchFull.',
+    requiredGlobals: ['Uint8Array', 'TextDecoder', 'ReadableStream', 'fetch'],
+    reason: 'The live browser source rows require fetch, Response.body ReadableStream support, byte input, and full string materialization.',
+  },
+];
+
 function parseArgs(argv = process.argv.slice(2)) {
   const options = {
     releaseJson: defaultReleaseJson,
@@ -85,6 +116,7 @@ function createReport(inputs, options) {
   const commonMissingGlobals = requiredGlobals
     .map(item => item.name)
     .filter(name => missingByShell.every(missing => missing.includes(name)));
+  const blockedSurfaces = summarizeBlockedSurfaces(shellRows);
   const report = {
     generatedAt: new Date().toISOString(),
     objective: 'firefox-spidermonkey-jsshell-stax-api-gap-audit',
@@ -95,6 +127,7 @@ function createReport(inputs, options) {
       nightlyJson: options.nightlyJson,
     },
     requiredGlobals,
+    requiredSurfaces,
     summary: {
       status: allAvailable && allCanReadBinary && allHaveJitStatus && !allCanRunUnchanged
         ? 'blocked-by-host-api-surface'
@@ -106,13 +139,34 @@ function createReport(inputs, options) {
       unchangedRunnableShellCount: shellRows.filter(row => row.canRunCurrentStaxFullStringBenchmark === true).length,
       commonMissingGlobals,
       commonMissingGlobalCount: commonMissingGlobals.length,
+      blockedSurfaceCount: blockedSurfaces.filter(surface => surface.blockedShellCount > 0).length,
       canCloseEmittedIrObligation: false,
       conclusionAllowed: false,
     },
     shells: shellRows,
+    blockedSurfaces,
   };
   report.findings = createFindings(report);
   return report;
+}
+
+function summarizeBlockedSurfaces(shellRows) {
+  return requiredSurfaces.map(surface => {
+    const shellBlockers = shellRows.map(shell => {
+      const missingGlobals = surface.requiredGlobals.filter(name => shell.apiSurface[name] !== 'function');
+      return {
+        packageKind: shell.packageKind,
+        blocked: missingGlobals.length > 0,
+        missingGlobals,
+      };
+    });
+    return {
+      ...surface,
+      blockedShellCount: shellBlockers.filter(shell => shell.blocked).length,
+      runnableShellCount: shellBlockers.filter(shell => !shell.blocked).length,
+      shellBlockers,
+    };
+  });
 }
 
 function summarizeShell(input) {
@@ -145,6 +199,7 @@ function createFindings(report) {
       summary: 'The official release and nightly SpiderMonkey js-shells are executable and can read binary XML, but both lack required Web-compatible globals for the current full-string stax benchmark unchanged.',
       evidence: [
         `commonMissingGlobals=${report.summary.commonMissingGlobals.join(', ') || 'none'}`,
+        `blockedSurfaces=${report.summary.blockedSurfaceCount}/${report.blockedSurfaces.length}`,
         `unchangedRunnableShells=${report.summary.unchangedRunnableShellCount}/${report.summary.shellCount}`,
       ],
     },
@@ -177,6 +232,7 @@ function renderMarkdown(report) {
     `- Binary-readable shells: ${report.summary.binaryReadableShellCount}`,
     `- Unchanged current StAX full-string runnable shells: ${report.summary.unchangedRunnableShellCount}`,
     `- Common missing globals: ${report.summary.commonMissingGlobals.join(', ') || 'none'}`,
+    `- Blocked current StAX surfaces: ${report.summary.blockedSurfaceCount}/${report.blockedSurfaces.length}`,
     `- Closes emitted IR obligation: ${report.summary.canCloseEmittedIrObligation ? 'yes' : 'no'}`,
     `- Runtime-limit conclusion allowed: ${report.summary.conclusionAllowed ? 'yes' : 'no'}`,
     '',
@@ -191,6 +247,11 @@ function renderMarkdown(report) {
   lines.push('', '## Required Globals', '', '| Global | Expected | Reason |', '| --- | --- | --- |');
   for (const item of report.requiredGlobals) {
     lines.push(`| ${item.name} | ${item.expected} | ${item.reason} |`);
+  }
+  lines.push('', '## Blocked StAX Surfaces', '', '| Surface | Contract | Required globals | Blocked shells | Missing globals |', '| --- | --- | --- | ---: | --- |');
+  for (const surface of report.blockedSurfaces) {
+    const missing = Array.from(new Set(surface.shellBlockers.flatMap(shell => shell.missingGlobals)));
+    lines.push(`| ${surface.label} | ${surface.contract} | ${surface.requiredGlobals.join(', ')} | ${surface.blockedShellCount}/${report.summary.shellCount} | ${missing.join(', ') || 'none'} |`);
   }
   lines.push('', '## Findings', '');
   for (const finding of report.findings) {
