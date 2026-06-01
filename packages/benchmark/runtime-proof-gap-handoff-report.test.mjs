@@ -463,6 +463,8 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(safari.closureChecks.some(item => /boundedPrimarySyncByteBatchRowsRecorded must be greater than 0/.test(item)));
   assert.ok(safari.closureChecks.some(item => /closesSafariObligation must be true/.test(item)));
   assert.ok(safari.closureChecks.some(item => /200 MiB\/s\+ bounded-memory row as a counterexample/.test(item)));
+  assert.ok(safari.closureChecks.some(item => /target-distance-audit\.json must be regenerated/.test(item)));
+  assert.ok(safari.closureChecks.some(item => /Woodstox and quick-xml 0\.9x target distances/.test(item)));
   assert.ok(safari.scopeGuards.some(item => /direct ReadableStream throughput/.test(item)));
   assert.ok(safari.scopeGuards.some(item => /must not be reused as Safari source-boundary evidence/.test(item)));
   assert.ok(spiderMonkey.commands.some(command => /firefox-spidermonkey-diagnostic-dump-audit\.mjs/.test(command.command)));
@@ -576,6 +578,8 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /directReadableStreamRowsAreSeparateEvidence must be true/);
   assert.match(markdown, /must not substitute for primarySyncByteBatchRowsRecorded/);
   assert.match(markdown, /coverage\.safariWebKitStatus\.closesSafariObligation must be true/);
+  assert.match(markdown, /target-distance-audit\.json must be regenerated/);
+  assert.match(markdown, /Woodstox and quick-xml 0\.9x target distances/);
   assert.match(markdown, /coverage\.spiderMonkeyDiagnostics\.emittedIrEvidenceCount must be greater than 0/);
   assert.match(markdown, /summary\.closureRequirementsBlocked must be 0/);
   assert.match(markdown, /summary\.closesCodegenObligation must be true/);

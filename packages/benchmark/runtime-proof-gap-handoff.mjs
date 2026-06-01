@@ -690,6 +690,7 @@ function createHandoffs(activeObligations, localClosure) {
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.sourceBoundaryPinned must be true.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.closesSafariObligation must be true before safari-jsc-source-and-browser-rows-open can be marked covered.',
         'runtime-counterexample-scan.json must include any Safari/WebKit full-string rows and classify any 200 MiB/s+ bounded-memory row as a counterexample.',
+        'target-distance-audit.json must be regenerated after Safari/WebKit rows so Woodstox and quick-xml 0.9x target distances use the same updated JavaScript comparison set.',
       ],
       scopeGuards: [
         'Safari rows are browser JSC evidence; they do not replace Bun/JSC rows.',

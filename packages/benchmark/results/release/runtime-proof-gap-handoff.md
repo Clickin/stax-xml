@@ -1,6 +1,6 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-01T12:56:10.134Z
+Generated: 2026-06-01T13:00:58.050Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -198,6 +198,7 @@ Closure checks:
 - runtime-proof-coverage-audit.json coverage.safariWebKitStatus.sourceBoundaryPinned must be true.
 - runtime-proof-coverage-audit.json coverage.safariWebKitStatus.closesSafariObligation must be true before safari-jsc-source-and-browser-rows-open can be marked covered.
 - runtime-counterexample-scan.json must include any Safari/WebKit full-string rows and classify any 200 MiB/s+ bounded-memory row as a counterexample.
+- target-distance-audit.json must be regenerated after Safari/WebKit rows so Woodstox and quick-xml 0.9x target distances use the same updated JavaScript comparison set.
 
 Scope guards:
 - Safari rows are browser JSC evidence; they do not replace Bun/JSC rows.
