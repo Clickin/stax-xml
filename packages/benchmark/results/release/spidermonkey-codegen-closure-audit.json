@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T21:16:31.170Z",
+  "generatedAt": "2026-06-01T21:21:53.773Z",
   "objective": "spidermonkey-codegen-closure-audit",
   "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
   "note": "Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.",
@@ -19,6 +19,11 @@
         "selectedRowId",
         "selectedEventCount",
         "selectedChecksum"
+      ],
+      "closingMetadataMissingFields": [
+        "runtimeBuildIdentity",
+        "diagnosticFlags",
+        "emittedDumpMetadata"
       ],
       "requirements": {
         "emittedCodegenSurface": {
@@ -92,6 +97,11 @@
         "selectedEventCount",
         "selectedChecksum"
       ],
+      "closingMetadataMissingFields": [
+        "runtimeBuildIdentity",
+        "diagnosticFlags",
+        "emittedDumpMetadata"
+      ],
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -163,6 +173,11 @@
         "selectedRowId",
         "selectedEventCount",
         "selectedChecksum"
+      ],
+      "closingMetadataMissingFields": [
+        "runtimeBuildIdentity",
+        "diagnosticFlags",
+        "emittedDumpMetadata"
       ],
       "requirements": {
         "emittedCodegenSurface": {
@@ -236,6 +251,11 @@
         "selectedEventCount",
         "selectedChecksum"
       ],
+      "closingMetadataMissingFields": [
+        "runtimeBuildIdentity",
+        "diagnosticFlags",
+        "emittedDumpMetadata"
+      ],
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -306,6 +326,11 @@
         "selectedRowId",
         "selectedEventCount",
         "selectedChecksum"
+      ],
+      "closingMetadataMissingFields": [
+        "runtimeBuildIdentity",
+        "diagnosticFlags",
+        "emittedDumpMetadata"
       ],
       "requirements": {
         "emittedCodegenSurface": {
@@ -379,6 +404,11 @@
         "selectedEventCount",
         "selectedChecksum"
       ],
+      "closingMetadataMissingFields": [
+        "runtimeBuildIdentity",
+        "diagnosticFlags",
+        "emittedDumpMetadata"
+      ],
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -451,6 +481,9 @@
         "selectedEventCount",
         "selectedChecksum"
       ],
+      "closingMetadataMissingFields": [
+        "runtimeBuildIdentity"
+      ],
       "requirements": {
         "emittedCodegenSurface": {
           "met": true,
@@ -521,6 +554,11 @@
         "selectedRowId",
         "selectedEventCount",
         "selectedChecksum"
+      ],
+      "closingMetadataMissingFields": [
+        "runtimeBuildIdentity",
+        "diagnosticFlags",
+        "emittedDumpMetadata"
       ],
       "requirements": {
         "emittedCodegenSurface": {
@@ -593,6 +631,11 @@
         "selectedEventCount",
         "selectedChecksum"
       ],
+      "closingMetadataMissingFields": [
+        "runtimeBuildIdentity",
+        "diagnosticFlags",
+        "emittedDumpMetadata"
+      ],
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -663,6 +706,11 @@
         "selectedRowId",
         "selectedEventCount",
         "selectedChecksum"
+      ],
+      "closingMetadataMissingFields": [
+        "runtimeBuildIdentity",
+        "diagnosticFlags",
+        "emittedDumpMetadata"
       ],
       "requirements": {
         "emittedCodegenSurface": {
@@ -735,6 +783,7 @@
         "selectedEventCount",
         "selectedChecksum"
       ],
+      "closingMetadataMissingFields": [],
       "requirements": {
         "emittedCodegenSurface": {
           "met": true,
@@ -805,6 +854,7 @@
         "selectedEventCount",
         "selectedChecksum"
       ],
+      "closingMetadataMissingFields": [],
       "requirements": {
         "emittedCodegenSurface": {
           "met": true,
@@ -875,6 +925,7 @@
         "selectedEventCount",
         "selectedChecksum"
       ],
+      "closingMetadataMissingFields": [],
       "requirements": {
         "emittedCodegenSurface": {
           "met": true,
@@ -945,6 +996,7 @@
         "selectedEventCount",
         "selectedChecksum"
       ],
+      "closingMetadataMissingFields": [],
       "requirements": {
         "emittedCodegenSurface": {
           "met": true,
@@ -1015,6 +1067,7 @@
         "selectedEventCount",
         "selectedChecksum"
       ],
+      "closingMetadataMissingFields": [],
       "requirements": {
         "emittedCodegenSurface": {
           "met": true,
@@ -1162,6 +1215,11 @@
       "selectedChecksum": 15,
       "selectedEventCount": 15,
       "selectedRowId": 15
+    },
+    "closingMetadataMissingFieldCounts": {
+      "diagnosticFlags": 9,
+      "emittedDumpMetadata": 9,
+      "runtimeBuildIdentity": 10
     },
     "blockedCandidateCount": 15,
     "minimumBlockedRequirementCount": 4,

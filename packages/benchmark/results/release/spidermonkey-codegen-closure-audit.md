@@ -1,6 +1,6 @@
 # SpiderMonkey Codegen Closure Audit
 
-Generated: 2026-06-01T21:16:31.170Z
+Generated: 2026-06-01T21:21:53.773Z
 
 Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.
 
@@ -17,6 +17,7 @@ Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requi
 - Contradicted closure claims: 0
 - Selected row identity statuses: not-claimed-non-stax-diagnostic=15
 - Selected row metadata missing fields: selectedChecksum=15, selectedEventCount=15, selectedRowId=15
+- Closing metadata missing fields: diagnosticFlags=9, emittedDumpMetadata=9, runtimeBuildIdentity=10
 - Minimum blocked requirement count: 4
 - Closest blocked candidate count: 5
 - Conclusion allowed: no

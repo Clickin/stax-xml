@@ -235,6 +235,7 @@ function buildReport(options, artifacts) {
       contradictedClosureClaimCount: contradicted.length,
       selectedRowIdentityStatusCounts: countStringValues(candidates.map(candidate => candidate.selectedRowIdentityStatus)),
       selectedRowMetadataMissingFieldCounts: countStringValues(candidates.flatMap(candidate => candidate.selectedRowMetadataMissingFields)),
+      closingMetadataMissingFieldCounts: countStringValues(candidates.flatMap(candidate => candidate.closingMetadataMissingFields)),
       blockedCandidateCount: blocked.length,
       minimumBlockedRequirementCount: closestBlockedCandidates[0]?.unmetRequirementCount ?? 0,
       closestBlockedCandidateCount: closestBlockedCandidates.length,
@@ -283,6 +284,11 @@ function createCandidate(artifact) {
   const runtimeBuildIdentityRecorded = hasSpiderMonkeyRuntimeBuildIdentity(root);
   const diagnosticFlagsRecorded = hasSpiderMonkeyDiagnosticFlags(root);
   const emittedDumpMetadataRecorded = hasSpiderMonkeyEmittedDumpMetadata(root, outcome);
+  const closingMetadataMissingFields = [
+    runtimeBuildIdentityRecorded ? null : 'runtimeBuildIdentity',
+    diagnosticFlagsRecorded ? null : 'diagnosticFlags',
+    emittedDumpMetadataRecorded ? null : 'emittedDumpMetadata',
+  ].filter(Boolean);
   const requirements = {
     emittedCodegenSurface: {
       met: hasCodegenDumpOutput || irDumpSurface || nativeDumpComplete,
@@ -356,6 +362,7 @@ function createCandidate(artifact) {
     hasAnyDiagnosticSurface: hasCodegenDumpOutput || irDumpSurface || nativeDumpComplete || codegenMarkerCount > 0,
     selectedRowIdentityStatus,
     selectedRowMetadataMissingFields,
+    closingMetadataMissingFields,
     requirements,
     unmetRequirements,
     declaresClosure,
@@ -475,6 +482,7 @@ function renderMarkdown(report) {
     `- Contradicted closure claims: ${report.summary.contradictedClosureClaimCount}`,
     `- Selected row identity statuses: ${formatCountMap(report.summary.selectedRowIdentityStatusCounts)}`,
     `- Selected row metadata missing fields: ${formatCountMap(report.summary.selectedRowMetadataMissingFieldCounts)}`,
+    `- Closing metadata missing fields: ${formatCountMap(report.summary.closingMetadataMissingFieldCounts)}`,
     `- Minimum blocked requirement count: ${report.summary.minimumBlockedRequirementCount}`,
     `- Closest blocked candidate count: ${report.summary.closestBlockedCandidateCount}`,
     `- Conclusion allowed: ${report.summary.conclusionAllowed ? 'yes' : 'no'}`,

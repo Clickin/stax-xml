@@ -965,6 +965,13 @@ function createHandoffGuards(byId) {
       ),
     },
     {
+      id: 'spidermonkey-closing-metadata-missing-fields',
+      description: 'SpiderMonkey closure audit must preserve which closing metadata subfields are missing from closure-matrix candidates.',
+      satisfied: spiderBlockers.some(item =>
+        /closingMetadataMissingFieldCounts diagnosticFlags=\d+, emittedDumpMetadata=\d+, runtimeBuildIdentity=\d+/.test(item)
+      ),
+    },
+    {
       id: 'spidermonkey-closure-frontier-blockers',
       description: 'SpiderMonkey handoff must preserve closest blocked candidates and common missing requirements from the closure audit frontier.',
       satisfied: spiderBlockers.some(item =>

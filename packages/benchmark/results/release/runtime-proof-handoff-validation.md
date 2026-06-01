@@ -1,6 +1,6 @@
 # Runtime Proof Handoff Validation
 
-Generated: 2026-06-01T21:18:20.756Z
+Generated: 2026-06-01T21:23:39.910Z
 
 Static validation for runtime-proof-gap-handoff external runbooks. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
