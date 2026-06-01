@@ -244,6 +244,18 @@ function summarizeArtifactSummary(summary = {}) {
     throughputCountsAsTargetEvidence: typeof summary.throughputCountsAsTargetEvidence === 'boolean'
       ? summary.throughputCountsAsTargetEvidence
       : null,
+    primarySyncByteBatchRequiresTextDecoder: typeof summary.primarySyncByteBatchRequiresTextDecoder === 'boolean'
+      ? summary.primarySyncByteBatchRequiresTextDecoder
+      : null,
+    directReadableStreamRequiresReadableStream: typeof summary.directReadableStreamRequiresReadableStream === 'boolean'
+      ? summary.directReadableStreamRequiresReadableStream
+      : null,
+    stringInputRequiresTextEncoder: typeof summary.stringInputRequiresTextEncoder === 'boolean'
+      ? summary.stringInputRequiresTextEncoder
+      : null,
+    alternateDecoderWouldBeUnchangedClosure: typeof summary.alternateDecoderWouldBeUnchangedClosure === 'boolean'
+      ? summary.alternateDecoderWouldBeUnchangedClosure
+      : null,
     conclusionAllowed: typeof summary.conclusionAllowed === 'boolean' ? summary.conclusionAllowed : null,
   };
   return Object.values(result).some(value => value !== null) ? result : null;
@@ -281,7 +293,7 @@ function summarizeParameters(parameters = {}) {
 function classifyEvidenceKinds(sourceArtifact, root, measuredRows) {
   const kinds = new Set();
   if (measuredRows.length > 0) kinds.add('BENCH_FACT');
-  if (/source-pin-audit|shape-audit|materialization-contract-audit|scope-distance-audit|memory-frontier-audit|target-distance-audit|text-materialization-boundary-audit/.test(sourceArtifact)) kinds.add('SOURCE_FACT');
+  if (/source-pin-audit|shape-audit|materialization-contract-audit|scope-distance-audit|host-api-boundary-audit|memory-frontier-audit|target-distance-audit|text-materialization-boundary-audit/.test(sourceArtifact)) kinds.add('SOURCE_FACT');
   if (/availability-audit/.test(sourceArtifact)) kinds.add('ENVIRONMENT_FACT');
   if (/trace|profiler-trace|cpu-profile|hotspot|machine-code|codegen/.test(sourceArtifact)) kinds.add('TRACE_FACT');
   if (/allocation|jfr/.test(sourceArtifact)) kinds.add('ALLOCATION_FACT');
@@ -1095,6 +1107,10 @@ function createObligationRows(coverage) {
     artifact.sourceArtifact === 'spidermonkey-ascii-scope-distance-audit.json'
   );
   const hasSpiderMonkeyAsciiScopeDistance = Boolean(spiderMonkeyAsciiScopeDistance);
+  const staxPublicReaderHostApiBoundary = coverage.sourceArtifacts.find(artifact =>
+    artifact.sourceArtifact === 'stax-public-reader-host-api-boundary-audit.json'
+  );
+  const hasStaxPublicReaderHostApiBoundary = Boolean(staxPublicReaderHostApiBoundary);
   const hasSpiderMonkeyJitSpewSourcePin = coverage.sourcePins.some(pin =>
     pin.sourceArtifact === 'firefox-spidermonkey-jitspew-source-pin-audit.json'
   );
@@ -1157,6 +1173,7 @@ function createObligationRows(coverage) {
         hasSpiderMonkeyJsShellAvailabilityAudit ? `Firefox/SpiderMonkey local js-shell availability audit present (status=${spiderMonkeyJsShellAvailabilityAudit.outcome?.status ?? 'unknown'}, found=${spiderMonkeyJsShellAvailabilityAudit.outcome?.foundCount ?? 'unknown'}, searchRoots=${spiderMonkeyJsShellAvailabilityAudit.parameters?.searchRoots?.length ?? 0}); no emitted JIT IR is recorded by that audit.` : 'Firefox/SpiderMonkey local js-shell availability audit missing.',
         hasSpiderMonkeyReleaseJsShellAvailabilityAudit ? `Firefox/SpiderMonkey official release js-shell audit present (status=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.status ?? 'unknown'}, packageVerified=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.packageVerified ?? 'unknown'}, jitStatus=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.hasJitExecutionStatus ?? 'unknown'}, irDumpSurface=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.hasIrDumpSurface ?? 'unknown'}, bytecodeDumpOutput=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.hasBytecodeDumpOutput ?? 'unknown'}, bytecodeDumpStatus=${spiderMonkeyReleaseJsShellAvailabilityAudit.shell?.bytecodeDumpProbe?.status ?? 'unknown'}, nativeDisassemblySurface=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.hasNativeDisassemblySurface ?? 'unknown'}, nativeDumpComplete=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.nativeDumpComplete ?? 'unknown'}, canReadBinaryInput=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.canReadBinaryInput ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}); it is JIT-status evidence only, not emitted JIT IR.` : 'Firefox/SpiderMonkey official release js-shell audit missing.',
         hasSpiderMonkeyNightlyJsShellAvailabilityAudit ? `Firefox/SpiderMonkey official nightly js-shell audit present (status=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.status ?? 'unknown'}, packageVerified=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.packageVerified ?? 'unknown'}, jitStatus=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasJitExecutionStatus ?? 'unknown'}, irDumpSurface=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasIrDumpSurface ?? 'unknown'}, bytecodeDumpOutput=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasBytecodeDumpOutput ?? 'unknown'}, bytecodeDumpStatus=${spiderMonkeyNightlyJsShellAvailabilityAudit.shell?.bytecodeDumpProbe?.status ?? 'unknown'}, nativeDisassemblySurface=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasNativeDisassemblySurface ?? 'unknown'}, nativeDumpComplete=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.nativeDumpComplete ?? 'unknown'}, canReadBinaryInput=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.canReadBinaryInput ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}); it is JIT-status evidence only, not emitted JIT IR.` : 'Firefox/SpiderMonkey official nightly js-shell audit missing.',
+        hasStaxPublicReaderHostApiBoundary ? `Current StAX public reader host API boundary audit present (primarySyncByteBatchRequiresTextDecoder=${staxPublicReaderHostApiBoundary.summary?.primarySyncByteBatchRequiresTextDecoder ?? 'unknown'}, directReadableStreamRequiresReadableStream=${staxPublicReaderHostApiBoundary.summary?.directReadableStreamRequiresReadableStream ?? 'unknown'}, stringInputRequiresTextEncoder=${staxPublicReaderHostApiBoundary.summary?.stringInputRequiresTextEncoder ?? 'unknown'}, alternateDecoderWouldBeUnchangedClosure=${staxPublicReaderHostApiBoundary.summary?.alternateDecoderWouldBeUnchangedClosure ?? 'unknown'}); it pins why a js-shell alternate decoder or polyfill is not unchanged StAX public-reader closure evidence.` : 'Current StAX public reader host API boundary audit missing.',
         hasSpiderMonkeyJsShellApiGapAudit ? `Firefox/SpiderMonkey js-shell StAX API gap audit present (status=${spiderMonkeyJsShellApiGapAudit.summary?.status ?? 'unknown'}, unchangedRunnableShells=${spiderMonkeyJsShellApiGapAudit.summary?.unchangedRunnableShellCount ?? 'unknown'}/${spiderMonkeyJsShellApiGapAudit.summary?.shellCount ?? 'unknown'}, blockedSurfaces=${spiderMonkeyJsShellApiGapAudit.summary?.blockedSurfaceCount ?? 'unknown'}, commonMissingGlobals=${(spiderMonkeyJsShellApiGapAudit.summary?.commonMissingGlobals ?? []).join(', ') || 'none'}); it is host API surface evidence only, not emitted JIT IR.` : 'Firefox/SpiderMonkey js-shell StAX API gap audit missing.',
         hasSpiderMonkeyJsShellDiagnosticFlagSweep ? `Firefox/SpiderMonkey public js-shell diagnostic flag sweep present (bytecodeProbes=${spiderMonkeyJsShellDiagnosticFlagSweep.outcome?.bytecodeProbeCount ?? 'unknown'}, bytecodeOutputProbes=${spiderMonkeyJsShellDiagnosticFlagSweep.outcome?.bytecodeOutputProbeCount ?? 'unknown'}, diagnosticPrefSurface=${spiderMonkeyJsShellDiagnosticFlagSweep.outcome?.hasDiagnosticPrefSurface ?? 'unknown'}); it rules out easy public-shell bytecode/dump flag paths but is not emitted JIT IR.` : 'Firefox/SpiderMonkey public js-shell diagnostic flag sweep missing.',
         hasSpiderMonkeyTaskclusterDebugCodegen ? `Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present (taskId=${spiderMonkeyTaskclusterDebugCodegen.taskId ?? 'unknown'}, buildId=${spiderMonkeyTaskclusterDebugCodegen.buildId ?? 'unknown'}, sourceRevision=${spiderMonkeyTaskclusterDebugCodegen.sourceRevision ?? 'unknown'}, codegenDump=${spiderMonkeyTaskclusterDebugCodegen.hasCodegenDumpOutput ?? 'unknown'}, sameContractStaxRow=${spiderMonkeyTaskclusterDebugCodegen.sameContractStaxRow ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyTaskclusterDebugCodegen.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, selectedRowIdentityStatus=${spiderMonkeyTaskclusterDebugCodegen.selectedRowIdentityStatus ?? 'unknown'}); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row.` : 'Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit missing.',

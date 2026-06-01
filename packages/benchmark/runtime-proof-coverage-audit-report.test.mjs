@@ -32,7 +32,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 217);
+  assert.equal(report.summary.scannedArtifactCount, 218);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'runtime-proof-handoff-validation.json'
     && artifact.objective === 'runtime-proof-handoff-validation'
@@ -48,6 +48,17 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.measuredRowCount === 0
     && artifact.evidenceKinds.includes('NEGATIVE_RESULT')
     && artifact.evidenceKinds.includes('SCOPE_GUARD')
+  ));
+  assert.ok(report.scannedArtifacts.some(artifact =>
+    artifact.sourceArtifact === 'stax-public-reader-host-api-boundary-audit.json'
+    && artifact.objective === 'stax-public-reader-host-api-boundary-audit'
+    && artifact.measuredRowCount === 0
+    && artifact.evidenceKinds.includes('SOURCE_FACT')
+    && artifact.evidenceKinds.includes('SCOPE_GUARD')
+    && artifact.summary.primarySyncByteBatchRequiresTextDecoder === true
+    && artifact.summary.directReadableStreamRequiresReadableStream === true
+    && artifact.summary.stringInputRequiresTextEncoder === true
+    && artifact.summary.alternateDecoderWouldBeUnchangedClosure === false
   ));
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'spidermonkey-jsshell-tokenizer-headroom.json'
@@ -456,7 +467,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.corpusSeedCount, 4);
   assert.equal(report.summary.openObligationCount, 2);
   assert.equal(report.summary.benchmarkArtifactCount, 155);
-  assert.equal(report.summary.sourceArtifactCount, 24);
+  assert.equal(report.summary.sourceArtifactCount, 25);
   assert.equal(report.summary.traceArtifactCount, 15);
   assert.equal(report.summary.allocationArtifactCount, 16);
   assert.equal(report.summary.environmentArtifactCount, 4);
@@ -1258,6 +1269,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey local js-shell availability audit present \(status=available, found=2, searchRoots=2\); no emitted JIT IR is recorded by that audit/);
   assert.match(markdown, /Firefox\/SpiderMonkey official release js-shell audit present \(status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is JIT-status evidence only, not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey official nightly js-shell audit present \(status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is JIT-status evidence only, not emitted JIT IR/);
+  assert.match(markdown, /Current StAX public reader host API boundary audit present \(primarySyncByteBatchRequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, alternateDecoderWouldBeUnchangedClosure=false\); it pins why a js-shell alternate decoder or polyfill is not unchanged StAX public-reader closure evidence/);
   assert.match(markdown, /\| `official-jsshell-stax-api-gap` \| `firefox-spidermonkey-jsshell-stax-api-gap-audit\.json` \| blocked-by-host-api-surface \| host-api-surface-gap \| yes \| unknown \| unknown \| unknown \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
   assert.match(markdown, /Firefox\/SpiderMonkey js-shell StAX API gap audit present \(status=blocked-by-host-api-surface, unchangedRunnableShells=0\/2, blockedSurfaces=5, commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch\); it is host API surface evidence only, not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey public js-shell diagnostic flag sweep present \(bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false\); it rules out easy public-shell bytecode\/dump flag paths but is not emitted JIT IR/);
@@ -1269,8 +1281,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing/);
   assert.match(markdown, /16 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 4/);
-  assert.match(markdown, /Source artifacts: 24/);
-  assert.match(markdown, /Scanned primary artifacts: 217/);
+  assert.match(markdown, /Source artifacts: 25/);
+  assert.match(markdown, /Scanned primary artifacts: 218/);
   assert.equal(report.summary.traceArtifactCount, 15);
   assert.match(markdown, /Negative-result artifacts: 24/);
   assert.match(markdown, /\| Node\/V8 \| 111 \| 589 \| 407 \|/);

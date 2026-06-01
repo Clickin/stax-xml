@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T18:10:32.539Z
+Generated: 2026-06-01T18:25:17.043Z
 
 ## Scope
 
@@ -61,6 +61,7 @@ This is a static gate over the proof ledger for the broad `CLAIM-JS-RUNTIME-LIMI
 | `chrome-blink-textdecoder-source-pin-audit.md` | yes |
 | `bun-textdecoder-dispatch-source-pin-audit.md` | yes |
 | `firefox-spidermonkey-textdecoder-source-pin-audit.md` | yes |
+| `stax-public-reader-host-api-boundary-audit.md` | yes |
 | `bun-jsc-partial-codegen-trace.md` | yes |
 | `bun-jsc-textdecoder-codegen-trace.md` | yes |
 | `stream-source-consumption-shapes.md` | yes |
@@ -86,7 +87,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-01T17:40:40.458Z)
+- Coverage audit loaded: yes (2026-06-01T18:20:41.904Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7
@@ -103,9 +104,9 @@ These are static disclosure guards. They must stay disclosed while the broad run
 - Same-contract comparison contract: same-full-string-checksum-contract-not-same-object-shape; publicEventCase=eventObjectFull; objectShapeEquivalence=false; memoryEquivalence=false
 - Same-contract comparison rows: 289/289; largeFullJsRows=239
 - Same-contract comparison counterexamples: 0
-- Runtime counterexample scan loaded: yes (2026-06-01T17:12:49.119Z)
+- Runtime counterexample scan loaded: yes (2026-06-01T18:21:42.158Z)
 - Counterexample scan contract: threshold=200.00 MiB/s, minSizeGiB=1.00, parseErrors=0
-- Counterexample scan coverage shape: artifacts=217/217, measuredRows=1253/1253
+- Counterexample scan coverage shape: artifacts=218/218, measuredRows=1253/1253
 - Runtime counterexample scan counterexamples: 0
 - Current release counterexamples: 0
 - [x] same-contract-comparison-loaded: same-contract-runtime-comparison.json must be loaded by the gate.
@@ -119,7 +120,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-01T17:56:56.489Z)
+- Handoff loaded: yes (2026-06-01T18:21:06.225Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -139,8 +140,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-01T17:57:05.916Z)
-- Handoff validation target handoff generatedAt: 2026-06-01T17:56:56.489Z (current 2026-06-01T17:56:56.489Z)
+- Handoff validation loaded: yes (2026-06-01T18:21:17.310Z)
+- Handoff validation target handoff generatedAt: 2026-06-01T18:21:06.225Z (current 2026-06-01T18:21:06.225Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes
 - Required contracts present: yes
@@ -158,8 +159,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-01T17:40:53.121Z)
-- Source audit inputs: comparison=2026-06-01T17:12:20.521Z (current 2026-06-01T17:12:20.521Z), coverage=2026-06-01T17:40:40.458Z (current 2026-06-01T17:40:40.458Z)
+- Source audit loaded: yes (2026-06-01T18:20:55.217Z)
+- Source audit inputs: comparison=2026-06-01T17:12:20.521Z (current 2026-06-01T17:12:20.521Z), coverage=2026-06-01T18:20:41.904Z (current 2026-06-01T18:20:41.904Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary sync byte-batch rows: 231

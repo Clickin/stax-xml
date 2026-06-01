@@ -1795,6 +1795,11 @@ current full-string StAX benchmark host API surface. It records
 `status=blocked-by-host-api-surface`, two available shells, two shells with JIT
 status probes, two shells that can read binary XML input, and zero shells that
 can run the current full-string StAX benchmark unchanged.
+`packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.md`
+pins the current StAX public reader source boundary behind that gap: primary
+synchronous `Iterable<Uint8Array[]>` full-string rows require `TextDecoder`,
+direct `ReadableStream` rows require `ReadableStream`, string-input rows require
+`TextEncoder`, and an alternate decoder is not unchanged closure evidence.
 
 Both shells have `Uint8Array`, but both lack `TextDecoder`, `TextEncoder`,
 `ReadableStream`, and `fetch`. This is a `NEGATIVE_RESULT` plus `SCOPE_GUARD`:

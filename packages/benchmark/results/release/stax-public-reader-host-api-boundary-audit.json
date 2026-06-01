@@ -1,0 +1,104 @@
+{
+  "generatedAt": "2026-06-01T18:20:32.057Z",
+  "objective": "stax-public-reader-host-api-boundary-audit",
+  "contract": "current-stax-public-reader-host-api-boundary",
+  "note": "Static source-boundary audit for the current StAX public reader host API surface. It pins the TextDecoder/ReadableStream/TextEncoder boundary used by same-contract full-string rows; it is not benchmark evidence, codegen evidence, or a runtime-limit conclusion.",
+  "sources": {
+    "iterableReader": {
+      "path": "packages/stax-xml/src/IterableReader.ts",
+      "bytes": 44376
+    },
+    "eventReader": {
+      "path": "packages/stax-xml/src/EventReader.ts",
+      "bytes": 11836
+    },
+    "eventReaderSync": {
+      "path": "packages/stax-xml/src/EventReaderSync.ts",
+      "bytes": 6901
+    },
+    "streamReaderCore": {
+      "path": "packages/stax-xml/src/stream-reader-core.ts",
+      "bytes": 9330
+    }
+  },
+  "checks": [
+    {
+      "id": "iterable-reader-constructs-textdecoder",
+      "source": "IterableReader.ts",
+      "expected": "IterableReader constructs a native TextDecoder for byte-span string materialization.",
+      "matched": true
+    },
+    {
+      "id": "iterable-reader-decodes-non-ascii-spans",
+      "source": "IterableReader.ts",
+      "expected": "decodeSpan falls back to TextDecoder.decode(currentBuffer.subarray(start, end)).",
+      "matched": true
+    },
+    {
+      "id": "iterable-reader-public-copy-methods-use-decoder",
+      "source": "IterableReader.ts",
+      "expected": "copyText, copyAttrValue, and copyAttributesObject route public string values through decodeSpan/materializeName.",
+      "matched": true
+    },
+    {
+      "id": "stream-batch-public-accessors-call-copy-methods",
+      "source": "stream-reader-core.ts",
+      "expected": "StreamBatch public name/text/attribute accessors call source copy methods.",
+      "matched": true
+    },
+    {
+      "id": "event-reader-requires-web-readable-stream",
+      "source": "EventReader.ts",
+      "expected": "The async public EventReader constructor requires a Web ReadableStream and consumes it through getReader().",
+      "matched": true
+    },
+    {
+      "id": "event-reader-sync-string-input-uses-textencoder",
+      "source": "EventReaderSync.ts",
+      "expected": "String-input EventReaderSync encodes document-mode strings through a native TextEncoder before StreamReaderSync.",
+      "matched": true
+    }
+  ],
+  "summary": {
+    "allChecksPass": true,
+    "primarySyncByteBatchRequiresTextDecoder": true,
+    "directReadableStreamRequiresReadableStream": true,
+    "stringInputRequiresTextEncoder": true,
+    "primarySyncByteBatchRequiredGlobals": [
+      "Uint8Array",
+      "TextDecoder"
+    ],
+    "directReadableStreamRequiredGlobals": [
+      "Uint8Array",
+      "TextDecoder",
+      "ReadableStream"
+    ],
+    "stringInputRequiredGlobals": [
+      "TextEncoder",
+      "TextDecoder"
+    ],
+    "alternateDecoderWouldBeUnchangedClosure": false,
+    "conclusionAllowed": false
+  },
+  "findings": [
+    {
+      "id": "stax-primary-sync-byte-batch-textdecoder-boundary",
+      "classification": "SOURCE_FACT",
+      "summary": "Current primary synchronous Iterable<Uint8Array[]> full-string rows require TextDecoder for public string materialization.",
+      "evidence": [
+        "primarySyncByteBatchRequiresTextDecoder=true",
+        "primarySyncByteBatchRequiredGlobals=Uint8Array, TextDecoder"
+      ]
+    },
+    {
+      "id": "stax-host-api-substitution-scope-guard",
+      "classification": "SCOPE_GUARD",
+      "summary": "A js-shell polyfill or alternate decoder can be useful diagnostic evidence, but it is not unchanged StAX public-reader closure evidence.",
+      "evidence": [
+        "directReadableStreamRequiresReadableStream=true",
+        "stringInputRequiresTextEncoder=true",
+        "alternateDecoderWouldBeUnchangedClosure=false"
+      ]
+    }
+  ]
+}
