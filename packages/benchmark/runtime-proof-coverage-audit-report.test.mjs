@@ -159,6 +159,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.measuredRowCount === 0
     && artifact.evidenceKinds.includes('SOURCE_FACT')
     && artifact.evidenceKinds.includes('SCOPE_GUARD')
+    && artifact.summary.corpusFileCount === 3
+    && artifact.summary.allCorpusFilesAscii === true
+    && artifact.summary.asciiByteToStringEquivalentToUtf8 === true
+    && artifact.summary.semanticMaterializedWorkload === true
+    && artifact.summary.reducesScopeDistance === true
     && artifact.summary.closesCodegenObligation === false
     && artifact.summary.conclusionAllowed === false
   ));
@@ -1259,6 +1264,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey current Taskcluster debug js-shell codegen audit present \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic\); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row/);
   assert.match(markdown, /Firefox\/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic\); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row/);
   assert.match(markdown, /Firefox\/SpiderMonkey current Taskcluster debug js-shell materialized string\/object codegen audit present \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic\); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark/);
+  assert.match(markdown, /Firefox\/SpiderMonkey ASCII scope-distance audit present \(corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, reducesScopeDistance=true, closesCodegenObligation=false\); it narrows ASCII materialized js-shell scope but is not unchanged StAX closure evidence/);
   assert.match(markdown, /Firefox\/SpiderMonkey materialized scope-distance audit present \(semanticEquivalentForAsciiFields=true, closureRequirementsMet=2, closureRequirementsBlocked=4, primarySyncByteBatchMissingGlobals=TextDecoder, asciiTextDecoderEquivalent=true, diagnosticThroughputMiBPerSec=0\.4909373604499916, throughputCountsAsTargetEvidence=false, closesCodegenObligation=false\); it records why the materialized js-shell codegen artifact is useful but still not closure evidence/);
   assert.match(markdown, /Firefox\/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing/);
   assert.match(markdown, /16 allocation\/profile artifacts found/);

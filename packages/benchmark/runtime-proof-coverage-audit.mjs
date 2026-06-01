@@ -211,6 +211,21 @@ function summarizeArtifactSummary(summary = {}) {
     semanticEquivalentForAsciiFields: typeof summary.semanticEquivalentForAsciiFields === 'boolean'
       ? summary.semanticEquivalentForAsciiFields
       : null,
+    allCorpusFilesAscii: typeof summary.allCorpusFilesAscii === 'boolean'
+      ? summary.allCorpusFilesAscii
+      : null,
+    corpusFileCount: typeof summary.corpusFileCount === 'number'
+      ? summary.corpusFileCount
+      : null,
+    asciiByteToStringEquivalentToUtf8: typeof summary.asciiByteToStringEquivalentToUtf8 === 'boolean'
+      ? summary.asciiByteToStringEquivalentToUtf8
+      : null,
+    semanticMaterializedWorkload: typeof summary.semanticMaterializedWorkload === 'boolean'
+      ? summary.semanticMaterializedWorkload
+      : null,
+    reducesScopeDistance: typeof summary.reducesScopeDistance === 'boolean'
+      ? summary.reducesScopeDistance
+      : null,
     closesCodegenObligation: typeof summary.closesCodegenObligation === 'boolean'
       ? summary.closesCodegenObligation
       : null,
@@ -1076,6 +1091,10 @@ function createObligationRows(coverage) {
     artifact.sourceArtifact === 'spidermonkey-materialized-scope-distance-audit.json'
   );
   const hasSpiderMonkeyMaterializedScopeDistance = Boolean(spiderMonkeyMaterializedScopeDistance);
+  const spiderMonkeyAsciiScopeDistance = coverage.sourceArtifacts.find(artifact =>
+    artifact.sourceArtifact === 'spidermonkey-ascii-scope-distance-audit.json'
+  );
+  const hasSpiderMonkeyAsciiScopeDistance = Boolean(spiderMonkeyAsciiScopeDistance);
   const hasSpiderMonkeyJitSpewSourcePin = coverage.sourcePins.some(pin =>
     pin.sourceArtifact === 'firefox-spidermonkey-jitspew-source-pin-audit.json'
   );
@@ -1143,6 +1162,7 @@ function createObligationRows(coverage) {
         hasSpiderMonkeyTaskclusterDebugCodegen ? `Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present (taskId=${spiderMonkeyTaskclusterDebugCodegen.taskId ?? 'unknown'}, buildId=${spiderMonkeyTaskclusterDebugCodegen.buildId ?? 'unknown'}, sourceRevision=${spiderMonkeyTaskclusterDebugCodegen.sourceRevision ?? 'unknown'}, codegenDump=${spiderMonkeyTaskclusterDebugCodegen.hasCodegenDumpOutput ?? 'unknown'}, sameContractStaxRow=${spiderMonkeyTaskclusterDebugCodegen.sameContractStaxRow ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyTaskclusterDebugCodegen.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, selectedRowIdentityStatus=${spiderMonkeyTaskclusterDebugCodegen.selectedRowIdentityStatus ?? 'unknown'}); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row.` : 'Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit missing.',
         hasSpiderMonkeyTaskclusterDebugXmlCodegen ? `Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present (taskId=${spiderMonkeyTaskclusterDebugXmlCodegen.taskId ?? 'unknown'}, buildId=${spiderMonkeyTaskclusterDebugXmlCodegen.buildId ?? 'unknown'}, sourceRevision=${spiderMonkeyTaskclusterDebugXmlCodegen.sourceRevision ?? 'unknown'}, codegenDump=${spiderMonkeyTaskclusterDebugXmlCodegen.hasCodegenDumpOutput ?? 'unknown'}, sameContractStaxRow=${spiderMonkeyTaskclusterDebugXmlCodegen.sameContractStaxRow ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyTaskclusterDebugXmlCodegen.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, selectedRowIdentityStatus=${spiderMonkeyTaskclusterDebugXmlCodegen.selectedRowIdentityStatus ?? 'unknown'}); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row.` : 'Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit missing.',
         hasSpiderMonkeyTaskclusterDebugMaterializedCodegen ? `Firefox/SpiderMonkey current Taskcluster debug js-shell materialized string/object codegen audit present (taskId=${spiderMonkeyTaskclusterDebugMaterializedCodegen.taskId ?? 'unknown'}, buildId=${spiderMonkeyTaskclusterDebugMaterializedCodegen.buildId ?? 'unknown'}, sourceRevision=${spiderMonkeyTaskclusterDebugMaterializedCodegen.sourceRevision ?? 'unknown'}, codegenDump=${spiderMonkeyTaskclusterDebugMaterializedCodegen.hasCodegenDumpOutput ?? 'unknown'}, sameContractStaxRow=${spiderMonkeyTaskclusterDebugMaterializedCodegen.sameContractStaxRow ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyTaskclusterDebugMaterializedCodegen.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, selectedRowIdentityStatus=${spiderMonkeyTaskclusterDebugMaterializedCodegen.selectedRowIdentityStatus ?? 'unknown'}); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark.` : 'Firefox/SpiderMonkey current Taskcluster debug js-shell materialized string/object codegen audit missing.',
+        hasSpiderMonkeyAsciiScopeDistance ? `Firefox/SpiderMonkey ASCII scope-distance audit present (corpusFileCount=${spiderMonkeyAsciiScopeDistance.summary?.corpusFileCount ?? 'unknown'}, allCorpusFilesAscii=${spiderMonkeyAsciiScopeDistance.summary?.allCorpusFilesAscii ?? 'unknown'}, asciiByteToStringEquivalentToUtf8=${spiderMonkeyAsciiScopeDistance.summary?.asciiByteToStringEquivalentToUtf8 ?? 'unknown'}, semanticMaterializedWorkload=${spiderMonkeyAsciiScopeDistance.summary?.semanticMaterializedWorkload ?? 'unknown'}, reducesScopeDistance=${spiderMonkeyAsciiScopeDistance.summary?.reducesScopeDistance ?? 'unknown'}, closesCodegenObligation=${spiderMonkeyAsciiScopeDistance.summary?.closesCodegenObligation ?? 'unknown'}); it narrows ASCII materialized js-shell scope but is not unchanged StAX closure evidence.` : 'Firefox/SpiderMonkey ASCII scope-distance audit missing.',
         hasSpiderMonkeyMaterializedScopeDistance ? `Firefox/SpiderMonkey materialized scope-distance audit present (semanticEquivalentForAsciiFields=${spiderMonkeyMaterializedScopeDistance.outcome?.semanticEquivalentForAsciiFields ?? spiderMonkeyMaterializedScopeDistance.summary?.semanticEquivalentForAsciiFields ?? 'unknown'}, closureRequirementsMet=${spiderMonkeyMaterializedScopeDistance.summary?.closureRequirementsMet ?? 'unknown'}, closureRequirementsBlocked=${spiderMonkeyMaterializedScopeDistance.summary?.closureRequirementsBlocked ?? 'unknown'}, primarySyncByteBatchMissingGlobals=${(spiderMonkeyMaterializedScopeDistance.hostApiSurface?.primarySyncByteBatchMissingGlobals ?? []).join(', ') || 'unknown'}, asciiTextDecoderEquivalent=${spiderMonkeyMaterializedScopeDistance.asciiScopeDistance?.asciiByteToStringEquivalentToUtf8 ?? 'unknown'}, diagnosticThroughputMiBPerSec=${spiderMonkeyMaterializedScopeDistance.summary?.diagnosticThroughputMiBPerSec ?? 'unknown'}, throughputCountsAsTargetEvidence=${spiderMonkeyMaterializedScopeDistance.summary?.throughputCountsAsTargetEvidence ?? 'unknown'}, closesCodegenObligation=${spiderMonkeyMaterializedScopeDistance.outcome?.closesCodegenObligation ?? spiderMonkeyMaterializedScopeDistance.summary?.closesCodegenObligation ?? 'unknown'}); it records why the materialized js-shell codegen artifact is useful but still not closure evidence.` : 'Firefox/SpiderMonkey materialized scope-distance audit missing.',
         hasSpiderMonkeyEmittedIrEvidence ? 'Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence present.' : 'Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.',
       ].join(' '),

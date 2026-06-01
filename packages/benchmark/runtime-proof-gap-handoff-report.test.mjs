@@ -421,6 +421,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
     'spidermonkey-taskcluster-debug-jsshell-codegen-audit.json',
     'spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json',
     'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json',
+    'spidermonkey-ascii-scope-distance-audit.json',
     'spidermonkey-materialized-scope-distance-audit.json',
     'spidermonkey-archival-debug-jsshell-codegen-audit.json',
     'firefox-spidermonkey-buildconfig-source-pin-audit.json',
@@ -443,6 +444,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
     'not-claimed-non-stax-diagnostic': 7,
   });
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /selectedRowIdentityStatusCounts not-claimed=4, not-claimed-non-stax-diagnostic=7/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /ASCII scope-distance audit pins corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, and reducesScopeDistance=true while closesCodegenObligation=false/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=2 and closureRequirementsBlocked=4; primarySyncByteBatchMissingGlobals=TextDecoder; asciiTextDecoderEquivalent=true; diagnosticThroughputMiBPerSec=0\.4909373604499916; throughputCountsAsTargetEvidence=false; closesCodegenObligation=false/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /about:buildconfig records --enable-js-shell/.test(item)));
   assert.match(spiderMonkey.localClosure.scopeGuard, /Taskcluster debug-shell diagnostic facts/);

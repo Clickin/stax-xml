@@ -532,6 +532,7 @@ function createLocalClosure(activeObligations, audit) {
     const taskclusterDebugJsShell = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-codegen-audit.json') ?? null;
     const taskclusterDebugJsShellXml = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json') ?? null;
     const taskclusterDebugJsShellMaterialized = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json') ?? null;
+    const asciiScopeDistance = artifactByName.get('spidermonkey-ascii-scope-distance-audit.json') ?? null;
     const materializedScopeDistance = artifactByName.get('spidermonkey-materialized-scope-distance-audit.json') ?? null;
     const archivalDebugJsShell = artifactByName.get('spidermonkey-archival-debug-jsshell-codegen-audit.json') ?? null;
     const buildconfig = artifactByName.get('firefox-spidermonkey-buildconfig-source-pin-audit.json') ?? null;
@@ -570,6 +571,11 @@ function createLocalClosure(activeObligations, audit) {
       && taskclusterDebugJsShellMaterialized?.outcome?.closesEmittedIrObligation === false;
     const materializedScopeDistancePinned = materializedScopeDistance?.summary?.semanticEquivalentForAsciiFields === true
       && materializedScopeDistance?.summary?.closesCodegenObligation === false;
+    const asciiScopeDistancePinned = asciiScopeDistance?.summary?.allCorpusFilesAscii === true
+      && asciiScopeDistance?.summary?.asciiByteToStringEquivalentToUtf8 === true
+      && asciiScopeDistance?.summary?.semanticMaterializedWorkload === true
+      && asciiScopeDistance?.summary?.reducesScopeDistance === true
+      && asciiScopeDistance?.summary?.closesCodegenObligation === false;
     const jsShellCommonMissing = Array.isArray(jsShellApiGap?.summary?.commonMissingGlobals)
       ? jsShellApiGap.summary.commonMissingGlobals.join(', ')
       : 'unknown';
@@ -582,7 +588,7 @@ function createLocalClosure(activeObligations, audit) {
       obligationId: 'codegen-traces-open',
       localStatus: blocked ? 'external-run-required' : 'partial-local-status',
       localRunnable: blocked ? false : null,
-      evidenceArtifacts: [diagnostic, jsShell, releaseJsShell, nightlyJsShell, jsShellApiGap, jsShellDiagnosticFlagSweep, taskclusterDebugJsShell, taskclusterDebugJsShellXml, taskclusterDebugJsShellMaterialized, materializedScopeDistance, archivalDebugJsShell, buildconfig]
+      evidenceArtifacts: [diagnostic, jsShell, releaseJsShell, nightlyJsShell, jsShellApiGap, jsShellDiagnosticFlagSweep, taskclusterDebugJsShell, taskclusterDebugJsShellXml, taskclusterDebugJsShellMaterialized, asciiScopeDistance, materializedScopeDistance, archivalDebugJsShell, buildconfig]
         .filter(Boolean)
         .map(artifact => artifact.sourceArtifact),
       blockers: [
@@ -619,6 +625,9 @@ function createLocalClosure(activeObligations, audit) {
           ? `A current Taskcluster debug js-shell emits JitSpew codegen output while materializing JS strings and public event-shaped objects (taskId=${taskclusterDebugJsShellMaterialized.shell?.provenance?.taskId ?? 'unknown'}, buildId=${taskclusterDebugJsShellMaterialized.shell?.provenance?.buildId ?? 'unknown'}), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=${taskclusterDebugJsShellMaterialized.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, and selectedRowIdentityStatus=${spiderMonkeyDiagnosticById.get('taskcluster-debug-jsshell-materialized-codegen')?.selectedRowIdentityStatus ?? 'unknown'}.`
           : 'No current Taskcluster debug js-shell materialized string/object codegen scope guard is recorded.',
         `Coverage diagnostic identity status counts: selectedRowIdentityStatusCounts ${formatCountMap(diagnosticIdentityStatusCounts)}.`,
+        asciiScopeDistancePinned
+          ? `The ASCII scope-distance audit pins corpusFileCount=${asciiScopeDistance.summary?.corpusFileCount ?? 'unknown'}, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, and reducesScopeDistance=true while closesCodegenObligation=false, so ASCII corpus equivalence narrows materialized js-shell scope but does not supply unchanged StAX closure evidence.`
+          : 'No ASCII scope-distance audit pins corpus UTF-8 equivalence and materialized workload scope narrowing.',
         materializedScopeDistancePinned
           ? `The materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=${materializedScopeDistance.summary?.closureRequirementsMet ?? 'unknown'} and closureRequirementsBlocked=${materializedScopeDistance.summary?.closureRequirementsBlocked ?? 'unknown'}; primarySyncByteBatchMissingGlobals=${(materializedScopeDistance.hostApiSurface?.primarySyncByteBatchMissingGlobals ?? []).join(', ') || 'unknown'}; asciiTextDecoderEquivalent=${materializedScopeDistance.asciiScopeDistance?.asciiByteToStringEquivalentToUtf8 ?? 'unknown'}; diagnosticThroughputMiBPerSec=${materializedScopeDistance.summary?.diagnosticThroughputMiBPerSec ?? 'unknown'}; throughputCountsAsTargetEvidence=${materializedScopeDistance.summary?.throughputCountsAsTargetEvidence ?? 'unknown'}; closesCodegenObligation=false, preventing the materialized js-shell artifact from being cited as unchanged StAX closure evidence.`
           : 'No materialized scope-distance audit pins the semantic-equivalence and closure boundary.',
