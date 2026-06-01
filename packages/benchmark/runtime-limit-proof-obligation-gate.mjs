@@ -10,6 +10,9 @@ const defaultComparisonJson = resolve(__dirname, 'results', 'release', 'same-con
 const defaultCounterexampleScanJson = resolve(__dirname, 'results', 'release', 'runtime-counterexample-scan.json');
 const defaultHandoffJson = resolve(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json');
 const defaultSourceAuditJson = resolve(__dirname, 'results', 'release', 'source-consumption-shape-audit.json');
+const defaultMemoryFrontierJson = resolve(__dirname, 'results', 'release', 'memory-frontier-audit.json');
+const defaultTargetDistanceJson = resolve(__dirname, 'results', 'release', 'target-distance-audit.json');
+const defaultTextMaterializationBoundaryJson = resolve(__dirname, 'results', 'release', 'text-materialization-boundary-audit.json');
 const defaultJsonOut = resolve(__dirname, 'results', 'release', 'runtime-limit-proof-obligation-gate.json');
 const defaultMdOut = resolve(__dirname, 'results', 'release', 'runtime-limit-proof-obligation-gate.md');
 
@@ -248,6 +251,9 @@ function parseArgs(argv = process.argv.slice(2)) {
     counterexampleScanJson: defaultCounterexampleScanJson,
     handoffJson: defaultHandoffJson,
     sourceAuditJson: defaultSourceAuditJson,
+    memoryFrontierJson: defaultMemoryFrontierJson,
+    targetDistanceJson: defaultTargetDistanceJson,
+    textMaterializationBoundaryJson: defaultTextMaterializationBoundaryJson,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
   };
@@ -283,6 +289,15 @@ function parseArgs(argv = process.argv.slice(2)) {
       case '--source-audit-json':
         options.sourceAuditJson = resolve(process.cwd(), readValue());
         break;
+      case '--memory-frontier-json':
+        options.memoryFrontierJson = resolve(process.cwd(), readValue());
+        break;
+      case '--target-distance-json':
+        options.targetDistanceJson = resolve(process.cwd(), readValue());
+        break;
+      case '--text-materialization-boundary-json':
+        options.textMaterializationBoundaryJson = resolve(process.cwd(), readValue());
+        break;
       case '--json-out':
         options.jsonOut = resolve(process.cwd(), readValue());
         break;
@@ -308,7 +323,10 @@ function main() {
   const counterexampleScan = readOptionalJson(options.counterexampleScanJson, 'runtime-counterexample-scan');
   const handoff = readOptionalJson(options.handoffJson, 'runtime-proof-gap-handoff');
   const sourceAudit = readOptionalJson(options.sourceAuditJson, 'source-consumption-shape-audit');
-  const report = createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan, handoff, sourceAudit });
+  const memoryFrontier = readOptionalJson(options.memoryFrontierJson, 'memory-frontier-audit');
+  const targetDistance = readOptionalJson(options.targetDistanceJson, 'target-distance-audit');
+  const textMaterializationBoundary = readOptionalJson(options.textMaterializationBoundaryJson, 'text-materialization-boundary-audit');
+  const report = createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan, handoff, sourceAudit, memoryFrontier, targetDistance, textMaterializationBoundary });
   writeOutput(options.jsonOut, `${JSON.stringify(report, null, 2)}\n`);
   writeOutput(options.mdOut, renderMarkdown(report));
   printSummary(report);
@@ -335,12 +353,13 @@ function readCoverageAudit(coverageJson) {
   return audit;
 }
 
-function createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan, handoff, sourceAudit }) {
+function createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan, handoff, sourceAudit, memoryFrontier, targetDistance, textMaterializationBoundary }) {
   const claims = parseClaimRows(ledgerMarkdown);
   const coverageSnapshot = createCoverageSnapshot(coverageAudit);
   const counterexampleSnapshot = createCounterexampleSnapshot(comparison, counterexampleScan);
   const handoffSnapshot = createHandoffSnapshot(handoff);
   const sourceAuditSnapshot = createSourceAuditSnapshot(sourceAudit);
+  const frontierAuditSnapshot = createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMaterializationBoundary);
   const claimGuards = requiredClaimGuards.map(requirement => evaluateClaimGuard(requirement, claims));
   const artifactMentions = requiredArtifactMentions.map(file => ({
     id: file,
@@ -391,6 +410,9 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
   for (const guard of sourceAuditSnapshot.guards.filter(item => !item.satisfied)) {
     errors.push(`Missing source audit guard ${guard.id}: ${guard.description}`);
   }
+  for (const guard of frontierAuditSnapshot.guards.filter(item => !item.satisfied)) {
+    errors.push(`Missing frontier audit guard ${guard.id}: ${guard.description}`);
+  }
 
   const pass = errors.length === 0;
   return {
@@ -405,11 +427,17 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
       counterexampleScanJson: options.counterexampleScanJson,
       handoffJson: options.handoffJson,
       sourceAuditJson: options.sourceAuditJson,
+      memoryFrontierJson: options.memoryFrontierJson,
+      targetDistanceJson: options.targetDistanceJson,
+      textMaterializationBoundaryJson: options.textMaterializationBoundaryJson,
       coverageLoaded: coverageSnapshot.loaded,
       comparisonLoaded: counterexampleSnapshot.comparisonLoaded,
       counterexampleScanLoaded: counterexampleSnapshot.counterexampleScanLoaded,
       handoffLoaded: handoffSnapshot.loaded,
       sourceAuditLoaded: sourceAuditSnapshot.loaded,
+      memoryFrontierLoaded: frontierAuditSnapshot.memory.loaded,
+      targetDistanceLoaded: frontierAuditSnapshot.targetDistance.loaded,
+      textMaterializationBoundaryLoaded: frontierAuditSnapshot.textMaterialization.loaded,
     },
     conclusionClaim: runtimeLimitClaimId,
     conclusionAllowed: false,
@@ -428,6 +456,7 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
     counterexampleSnapshot,
     handoffSnapshot,
     sourceAuditSnapshot,
+    frontierAuditSnapshot,
     coverageSnapshot,
     openObligations,
     proofRules,
@@ -445,8 +474,93 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
       requiredHandoffGuards: handoffSnapshot.guards.length,
       satisfiedSourceAuditGuards: sourceAuditSnapshot.guards.filter(item => item.satisfied).length,
       requiredSourceAuditGuards: sourceAuditSnapshot.guards.length,
+      satisfiedFrontierAuditGuards: frontierAuditSnapshot.guards.filter(item => item.satisfied).length,
+      requiredFrontierAuditGuards: frontierAuditSnapshot.guards.length,
     },
   };
+}
+
+function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMaterializationBoundary) {
+  const memory = {
+    loaded: Boolean(memoryFrontier),
+    generatedAt: memoryFrontier?.generatedAt ?? null,
+    status: memoryFrontier?.summary?.status ?? null,
+    fastestBoundedRateMiBPerSec: memoryFrontier?.summary?.fastestBoundedRow?.rateMiBPerSec ?? null,
+    fastestBoundedMaxMiB: memoryFrontier?.summary?.fastestBoundedRow?.maxMiB ?? null,
+    unboundedRows: memoryFrontier?.summary?.unboundedRows ?? null,
+    conclusionAllowed: memoryFrontier?.summary?.conclusionAllowed ?? null,
+  };
+  const woodstox = targetDistance?.summary?.sameFixture1024MiBWoodstoxTarget ?? {};
+  const quickXml = targetDistance?.summary?.sameFixture1024MiBQuickXmlTarget ?? {};
+  const target = {
+    loaded: Boolean(targetDistance),
+    generatedAt: targetDistance?.generatedAt ?? null,
+    status: targetDistance?.summary?.status ?? null,
+    woodstoxTargetMet: woodstox.targetMet ?? null,
+    quickXmlTargetMet: quickXml.targetMet ?? null,
+    woodstoxRemainingMiBPerSec: woodstox.remainingTo90PercentMiBPerSec ?? null,
+    quickXmlRemainingMiBPerSec: quickXml.remainingTo90PercentMiBPerSec ?? null,
+    fastestJsCaseId: woodstox.fastestJsCaseId ?? null,
+    fastestJsRateMiBPerSec: woodstox.fastestJsRateMiBPerSec ?? null,
+    conclusionAllowed: targetDistance?.summary?.conclusionAllowed ?? null,
+  };
+  const text = {
+    loaded: Boolean(textMaterializationBoundary),
+    generatedAt: textMaterializationBoundary?.generatedAt ?? null,
+    status: textMaterializationBoundary?.summary?.status ?? null,
+    fastestFullRateMiBPerSec: textMaterializationBoundary?.summary?.fastestFull?.rateMiBPerSec ?? null,
+    fullRowsCrossTarget: textMaterializationBoundary?.summary?.fullRowsCrossTarget ?? null,
+    noTextRowsCrossTarget: textMaterializationBoundary?.summary?.noTextRowsCrossTarget ?? null,
+    fastestFullRemainingMiBPerSec: textMaterializationBoundary?.summary?.fastestFullRemainingMiBPerSec ?? null,
+    conclusionAllowed: textMaterializationBoundary?.summary?.conclusionAllowed ?? null,
+  };
+  return {
+    memory,
+    targetDistance: target,
+    textMaterialization: text,
+    guards: createFrontierAuditGuards(memory, target, text),
+  };
+}
+
+function createFrontierAuditGuards(memory, target, text) {
+  return [
+    {
+      id: 'memory-frontier-classified',
+      description: 'memory-frontier-audit.json must classify 1 GiB+ JavaScript full-string memory rows and keep unbounded rows visible.',
+      satisfied: memory.loaded
+        && memory.status === 'classified'
+        && typeof memory.fastestBoundedRateMiBPerSec === 'number'
+        && typeof memory.fastestBoundedMaxMiB === 'number'
+        && typeof memory.unboundedRows === 'number'
+        && memory.unboundedRows > 0
+        && memory.conclusionAllowed === false,
+    },
+    {
+      id: 'target-distance-not-met',
+      description: 'target-distance-audit.json must show same-fixture JavaScript remains below both Woodstox and quick-xml 0.9x targets.',
+      satisfied: target.loaded
+        && target.status === 'classified'
+        && target.woodstoxTargetMet === false
+        && target.quickXmlTargetMet === false
+        && typeof target.woodstoxRemainingMiBPerSec === 'number'
+        && target.woodstoxRemainingMiBPerSec > 0
+        && typeof target.quickXmlRemainingMiBPerSec === 'number'
+        && target.quickXmlRemainingMiBPerSec > 0
+        && target.conclusionAllowed === false,
+    },
+    {
+      id: 'text-frontier-no-full-counterexample',
+      description: 'text-materialization-boundary-audit.json must show no full-string rows cross 200 MiB/s while no-text rows remain partial headroom.',
+      satisfied: text.loaded
+        && text.status === 'classified'
+        && typeof text.fastestFullRateMiBPerSec === 'number'
+        && text.fastestFullRateMiBPerSec < 200
+        && text.fullRowsCrossTarget === 0
+        && typeof text.noTextRowsCrossTarget === 'number'
+        && text.noTextRowsCrossTarget > 0
+        && text.conclusionAllowed === false,
+    },
+  ];
 }
 
 function createSourceAuditSnapshot(sourceAudit) {
@@ -790,6 +904,36 @@ function renderMarkdown(report) {
 
   lines.push(
     '',
+    '## Frontier Audit Snapshot',
+    '',
+    report.frontierAuditSnapshot.memory.loaded
+      ? `- Memory frontier loaded: yes (${report.frontierAuditSnapshot.memory.generatedAt ?? 'unknown generatedAt'})`
+      : '- Memory frontier loaded: no',
+    `- Fastest bounded JS row: ${formatNullableRate(report.frontierAuditSnapshot.memory.fastestBoundedRateMiBPerSec)} MiB/s at ${formatNullableRate(report.frontierAuditSnapshot.memory.fastestBoundedMaxMiB)} MiB`,
+    `- Unbounded or unproven memory rows: ${formatNullableCount(report.frontierAuditSnapshot.memory.unboundedRows)}`,
+    report.frontierAuditSnapshot.targetDistance.loaded
+      ? `- Target distance loaded: yes (${report.frontierAuditSnapshot.targetDistance.generatedAt ?? 'unknown generatedAt'})`
+      : '- Target distance loaded: no',
+    `- Woodstox 0.9x target met: ${formatYesNo(report.frontierAuditSnapshot.targetDistance.woodstoxTargetMet)}`,
+    `- Woodstox 0.9x remaining: ${formatNullableRate(report.frontierAuditSnapshot.targetDistance.woodstoxRemainingMiBPerSec)} MiB/s`,
+    `- quick-xml 0.9x target met: ${formatYesNo(report.frontierAuditSnapshot.targetDistance.quickXmlTargetMet)}`,
+    `- quick-xml 0.9x remaining: ${formatNullableRate(report.frontierAuditSnapshot.targetDistance.quickXmlRemainingMiBPerSec)} MiB/s`,
+    report.frontierAuditSnapshot.textMaterialization.loaded
+      ? `- Text materialization boundary loaded: yes (${report.frontierAuditSnapshot.textMaterialization.generatedAt ?? 'unknown generatedAt'})`
+      : '- Text materialization boundary loaded: no',
+    `- Fastest full-string row: ${formatNullableRate(report.frontierAuditSnapshot.textMaterialization.fastestFullRateMiBPerSec)} MiB/s`,
+    `- Full-string rows crossing 200 MiB/s: ${formatNullableCount(report.frontierAuditSnapshot.textMaterialization.fullRowsCrossTarget)}`,
+    `- No-text rows crossing 200 MiB/s: ${formatNullableCount(report.frontierAuditSnapshot.textMaterialization.noTextRowsCrossTarget)}`,
+    '',
+    '| ID | Satisfied | Meaning |',
+    '| --- | --- | --- |',
+  );
+  for (const item of report.frontierAuditSnapshot.guards) {
+    lines.push(`| \`${item.id}\` | ${item.satisfied ? 'yes' : 'no'} | ${item.description} |`);
+  }
+
+  lines.push(
+    '',
     '## Proof Rules',
     '',
     'These checks keep known semantic distinctions from being collapsed into a stronger runtime-limit claim.',
@@ -813,6 +957,16 @@ function renderMarkdown(report) {
 
 function formatNullableCount(value) {
   return typeof value === 'number' ? String(value) : 'unknown';
+}
+
+function formatNullableRate(value) {
+  return typeof value === 'number' && Number.isFinite(value) ? value.toFixed(2) : 'unknown';
+}
+
+function formatYesNo(value) {
+  if (value === true) return 'yes';
+  if (value === false) return 'no';
+  return 'unknown';
 }
 
 function createInterpretation(report) {

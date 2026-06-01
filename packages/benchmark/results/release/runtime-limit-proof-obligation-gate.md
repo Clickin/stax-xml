@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T11:01:19.038Z
+Generated: 2026-06-01T11:07:26.864Z
 
 ## Scope
 
@@ -128,6 +128,27 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `coverage-crosscheck-consistent` | yes | Source audit coverage crosscheck must be consistent with the wider coverage source-mode scan. |
 | `coverage-crosscheck-not-full-arraybuffer` | yes | Coverage crosscheck must report every source-mode row as not full ArrayBuffer parser input. |
 | `coverage-crosscheck-readable-stream-separated` | yes | Coverage crosscheck must keep direct ReadableStream rows visible as separate source-overhead evidence. |
+
+## Frontier Audit Snapshot
+
+- Memory frontier loaded: yes (2026-06-01T08:13:24.956Z)
+- Fastest bounded JS row: 185.50 MiB/s at 60.45 MiB
+- Unbounded or unproven memory rows: 17
+- Target distance loaded: yes (2026-06-01T10:06:06.862Z)
+- Woodstox 0.9x target met: no
+- Woodstox 0.9x remaining: 164.29 MiB/s
+- quick-xml 0.9x target met: no
+- quick-xml 0.9x remaining: 95.06 MiB/s
+- Text materialization boundary loaded: yes (2026-06-01T08:13:27.247Z)
+- Fastest full-string row: 185.50 MiB/s
+- Full-string rows crossing 200 MiB/s: 0
+- No-text rows crossing 200 MiB/s: 4
+
+| ID | Satisfied | Meaning |
+| --- | --- | --- |
+| `memory-frontier-classified` | yes | memory-frontier-audit.json must classify 1 GiB+ JavaScript full-string memory rows and keep unbounded rows visible. |
+| `target-distance-not-met` | yes | target-distance-audit.json must show same-fixture JavaScript remains below both Woodstox and quick-xml 0.9x targets. |
+| `text-frontier-no-full-counterexample` | yes | text-materialization-boundary-audit.json must show no full-string rows cross 200 MiB/s while no-text rows remain partial headroom. |
 
 ## Proof Rules
 

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T11:01:19.038Z",
+  "generatedAt": "2026-06-01T11:07:26.864Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -10,11 +10,17 @@
     "counterexampleScanJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-counterexample-scan.json",
     "handoffJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-gap-handoff.json",
     "sourceAuditJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\source-consumption-shape-audit.json",
+    "memoryFrontierJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\memory-frontier-audit.json",
+    "targetDistanceJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\target-distance-audit.json",
+    "textMaterializationBoundaryJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\text-materialization-boundary-audit.json",
     "coverageLoaded": true,
     "comparisonLoaded": true,
     "counterexampleScanLoaded": true,
     "handoffLoaded": true,
-    "sourceAuditLoaded": true
+    "sourceAuditLoaded": true,
+    "memoryFrontierLoaded": true,
+    "targetDistanceLoaded": true,
+    "textMaterializationBoundaryLoaded": true
   },
   "conclusionClaim": "CLAIM-JS-RUNTIME-LIMIT-200MIB",
   "conclusionAllowed": false,
@@ -415,6 +421,56 @@
       }
     ]
   },
+  "frontierAuditSnapshot": {
+    "memory": {
+      "loaded": true,
+      "generatedAt": "2026-06-01T08:13:24.956Z",
+      "status": "classified",
+      "fastestBoundedRateMiBPerSec": 185.5,
+      "fastestBoundedMaxMiB": 60.45,
+      "unboundedRows": 17,
+      "conclusionAllowed": false
+    },
+    "targetDistance": {
+      "loaded": true,
+      "generatedAt": "2026-06-01T10:06:06.862Z",
+      "status": "classified",
+      "woodstoxTargetMet": false,
+      "quickXmlTargetMet": false,
+      "woodstoxRemainingMiBPerSec": 164.29,
+      "quickXmlRemainingMiBPerSec": 95.06,
+      "fastestJsCaseId": "stax-raw-frame-name-id-batch-8",
+      "fastestJsRateMiBPerSec": 152.11,
+      "conclusionAllowed": false
+    },
+    "textMaterialization": {
+      "loaded": true,
+      "generatedAt": "2026-06-01T08:13:27.247Z",
+      "status": "classified",
+      "fastestFullRateMiBPerSec": 185.5,
+      "fullRowsCrossTarget": 0,
+      "noTextRowsCrossTarget": 4,
+      "fastestFullRemainingMiBPerSec": 14.5,
+      "conclusionAllowed": false
+    },
+    "guards": [
+      {
+        "id": "memory-frontier-classified",
+        "description": "memory-frontier-audit.json must classify 1 GiB+ JavaScript full-string memory rows and keep unbounded rows visible.",
+        "satisfied": true
+      },
+      {
+        "id": "target-distance-not-met",
+        "description": "target-distance-audit.json must show same-fixture JavaScript remains below both Woodstox and quick-xml 0.9x targets.",
+        "satisfied": true
+      },
+      {
+        "id": "text-frontier-no-full-counterexample",
+        "description": "text-materialization-boundary-audit.json must show no full-string rows cross 200 MiB/s while no-text rows remain partial headroom.",
+        "satisfied": true
+      }
+    ]
+  },
   "coverageSnapshot": {
     "loaded": true,
     "generatedAt": "2026-06-01T10:28:54.396Z",
@@ -639,6 +695,8 @@
     "satisfiedHandoffGuards": 6,
     "requiredHandoffGuards": 6,
     "satisfiedSourceAuditGuards": 4,
-    "requiredSourceAuditGuards": 4
+    "requiredSourceAuditGuards": 4,
+    "satisfiedFrontierAuditGuards": 3,
+    "requiredFrontierAuditGuards": 3
   }
 }

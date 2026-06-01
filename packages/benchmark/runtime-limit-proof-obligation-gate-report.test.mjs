@@ -49,9 +49,13 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.metadata.counterexampleScanLoaded, true);
   assert.equal(report.metadata.handoffLoaded, true);
   assert.equal(report.metadata.sourceAuditLoaded, true);
+  assert.equal(report.metadata.memoryFrontierLoaded, true);
+  assert.equal(report.metadata.targetDistanceLoaded, true);
+  assert.equal(report.metadata.textMaterializationBoundaryLoaded, true);
   assert.equal(report.summary.currentCounterexamples, 0);
   assert.equal(report.summary.satisfiedHandoffGuards, report.summary.requiredHandoffGuards);
   assert.equal(report.summary.satisfiedSourceAuditGuards, report.summary.requiredSourceAuditGuards);
+  assert.equal(report.summary.satisfiedFrontierAuditGuards, report.summary.requiredFrontierAuditGuards);
   assert.equal(report.counterexampleSnapshot.comparisonCounterexampleCount, 0);
   assert.equal(report.counterexampleSnapshot.scanCounterexampleCount, 0);
   assert.equal(report.counterexampleSnapshot.currentCounterexampleCount, 0);
@@ -65,6 +69,23 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.sourceAuditSnapshot.guards.some(item => item.id === 'coverage-crosscheck-consistent' && item.satisfied));
   assert.ok(report.sourceAuditSnapshot.guards.some(item => item.id === 'coverage-crosscheck-not-full-arraybuffer' && item.satisfied));
   assert.ok(report.sourceAuditSnapshot.guards.some(item => item.id === 'coverage-crosscheck-readable-stream-separated' && item.satisfied));
+  assert.ok(report.frontierAuditSnapshot.memory.loaded);
+  assert.equal(report.frontierAuditSnapshot.memory.status, 'classified');
+  assert.equal(report.frontierAuditSnapshot.memory.fastestBoundedRateMiBPerSec, 185.5);
+  assert.equal(report.frontierAuditSnapshot.memory.fastestBoundedMaxMiB, 60.45);
+  assert.equal(report.frontierAuditSnapshot.memory.unboundedRows, 17);
+  assert.ok(report.frontierAuditSnapshot.targetDistance.loaded);
+  assert.equal(report.frontierAuditSnapshot.targetDistance.woodstoxTargetMet, false);
+  assert.equal(report.frontierAuditSnapshot.targetDistance.quickXmlTargetMet, false);
+  assert.equal(report.frontierAuditSnapshot.targetDistance.woodstoxRemainingMiBPerSec, 164.29);
+  assert.equal(report.frontierAuditSnapshot.targetDistance.quickXmlRemainingMiBPerSec, 95.06);
+  assert.ok(report.frontierAuditSnapshot.textMaterialization.loaded);
+  assert.equal(report.frontierAuditSnapshot.textMaterialization.fastestFullRateMiBPerSec, 185.5);
+  assert.equal(report.frontierAuditSnapshot.textMaterialization.fullRowsCrossTarget, 0);
+  assert.equal(report.frontierAuditSnapshot.textMaterialization.noTextRowsCrossTarget, 4);
+  assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'memory-frontier-classified' && item.satisfied));
+  assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'target-distance-not-met' && item.satisfied));
+  assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'text-frontier-no-full-counterexample' && item.satisfied));
   assert.ok(report.coverageSnapshot.loaded);
   assert.deepEqual(report.coverageSnapshot.activeObligationIds, [
     'safari-jsc-source-and-browser-rows-open',
@@ -139,6 +160,11 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /Coverage source-mode rows: 474/);
   assert.match(markdown, /coverage-crosscheck-not-full-arraybuffer/);
   assert.match(markdown, /coverage-crosscheck-readable-stream-separated/);
+  assert.match(markdown, /## Frontier Audit Snapshot/);
+  assert.match(markdown, /Fastest bounded JS row: 185\.50 MiB\/s at 60\.45 MiB/);
+  assert.match(markdown, /Woodstox 0\.9x target met: no/);
+  assert.match(markdown, /quick-xml 0\.9x target met: no/);
+  assert.match(markdown, /Full-string rows crossing 200 MiB\/s: 0/);
   assert.match(markdown, /## Proof Rules/);
   assert.match(markdown, /target-contract-not-object-shape/);
   assert.match(markdown, /lazy-getters-reopen-burden/);
