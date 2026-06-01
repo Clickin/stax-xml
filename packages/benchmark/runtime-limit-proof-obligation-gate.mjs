@@ -18,6 +18,12 @@ const defaultJsonOut = resolve(__dirname, 'results', 'release', 'runtime-limit-p
 const defaultMdOut = resolve(__dirname, 'results', 'release', 'runtime-limit-proof-obligation-gate.md');
 
 const runtimeLimitClaimId = 'CLAIM-JS-RUNTIME-LIMIT-200MIB';
+const expectedSpiderMonkeyClosureGapArtifacts = [
+  'spidermonkey-jsshell-materialized-headroom.json',
+  'spidermonkey-jsshell-tokenizer-headroom.json',
+  'spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json',
+  'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json',
+];
 
 const requiredClaimGuards = [
   {
@@ -1122,8 +1128,12 @@ function createCoverageSnapshot(audit) {
       spiderMonkeyDiagnostics: {
         selectedRowIdentityStatusCounts: {},
         diagnosticRowCount: null,
+        diagnosticRowSourceArtifacts: [],
         closureAuditCandidateCount: null,
+        closureAuditCandidateSourceArtifacts: [],
         closureAuditDiagnosticRowGap: null,
+        closureAuditCandidateSourcesOutsideDiagnostics: [],
+        diagnosticSourcesOutsideClosureAudit: [],
         closureAuditQualifiedClosureCount: null,
       },
       guards: createCoverageGuards(null),
@@ -1134,8 +1144,12 @@ function createCoverageSnapshot(audit) {
   const spiderMonkeyDiagnostics = {
     selectedRowIdentityStatusCounts: audit.coverage?.spiderMonkeyDiagnostics?.selectedRowIdentityStatusCounts ?? {},
     diagnosticRowCount: audit.coverage?.spiderMonkeyDiagnostics?.diagnosticRowCount ?? null,
+    diagnosticRowSourceArtifacts: audit.coverage?.spiderMonkeyDiagnostics?.diagnosticRowSourceArtifacts ?? [],
     closureAuditCandidateCount: audit.coverage?.spiderMonkeyDiagnostics?.closureAuditCandidateCount ?? null,
+    closureAuditCandidateSourceArtifacts: audit.coverage?.spiderMonkeyDiagnostics?.closureAuditCandidateSourceArtifacts ?? [],
     closureAuditDiagnosticRowGap: audit.coverage?.spiderMonkeyDiagnostics?.closureAuditDiagnosticRowGap ?? null,
+    closureAuditCandidateSourcesOutsideDiagnostics: audit.coverage?.spiderMonkeyDiagnostics?.closureAuditCandidateSourcesOutsideDiagnostics ?? [],
+    diagnosticSourcesOutsideClosureAudit: audit.coverage?.spiderMonkeyDiagnostics?.diagnosticSourcesOutsideClosureAudit ?? [],
     closureAuditQualifiedClosureCount: audit.coverage?.spiderMonkeyDiagnostics?.closureAuditQualifiedClosureCount ?? null,
   };
   const snapshot = {
@@ -1193,6 +1207,16 @@ function createCoverageGuards(snapshot) {
         && spiderMonkeyDiagnostics.closureAuditCandidateCount >= spiderMonkeyDiagnostics.diagnosticRowCount
         && spiderMonkeyDiagnostics.closureAuditCandidateCount - spiderMonkeyDiagnostics.diagnosticRowCount === spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap
         && typeof spiderMonkeyDiagnostics.closureAuditQualifiedClosureCount === 'number',
+    },
+    {
+      id: 'spidermonkey-closure-audit-gap-artifacts-visible',
+      description: 'Coverage audit must name the SpiderMonkey closure candidates outside curated diagnostics rows and report no diagnostic rows outside the closure audit.',
+      satisfied: hasSameStringSet(
+        spiderMonkeyDiagnostics.closureAuditCandidateSourcesOutsideDiagnostics,
+        expectedSpiderMonkeyClosureGapArtifacts,
+      )
+        && Array.isArray(spiderMonkeyDiagnostics.diagnosticSourcesOutsideClosureAudit)
+        && spiderMonkeyDiagnostics.diagnosticSourcesOutsideClosureAudit.length === 0,
     },
   ];
 }
@@ -1303,6 +1327,8 @@ function renderMarkdown(report) {
   `- Active coverage obligations: ${report.coverageSnapshot.activeObligationIds.join(', ') || 'none'}`,
   `- Covered coverage obligations: ${report.coverageSnapshot.coveredObligationIds.join(', ') || 'none'}`,
   `- SpiderMonkey diagnostics rows vs closure candidates: ${report.coverageSnapshot.spiderMonkeyDiagnostics.diagnosticRowCount ?? 'unknown'}/${report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditCandidateCount ?? 'unknown'} (gap=${report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap ?? 'unknown'}, closureQualified=${report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditQualifiedClosureCount ?? 'unknown'})`,
+  `- SpiderMonkey closure candidates outside coverage diagnostics: ${formatStringList(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditCandidateSourcesOutsideDiagnostics)}`,
+  `- SpiderMonkey coverage diagnostics outside closure candidates: ${formatStringList(report.coverageSnapshot.spiderMonkeyDiagnostics.diagnosticSourcesOutsideClosureAudit)}`,
   `- SpiderMonkey selected row identity statuses: ${formatCountMap(report.coverageSnapshot.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts)}`,
     '',
     '| ID | Satisfied | Meaning |',
@@ -1479,6 +1505,18 @@ function formatCountMap(counts) {
   const entries = Object.entries(counts ?? {}).sort(([left], [right]) => left.localeCompare(right));
   return entries.length > 0
     ? entries.map(([key, value]) => `${key}=${value}`).join(', ')
+    : 'none';
+}
+
+function hasSameStringSet(actual, expected) {
+  if (!Array.isArray(actual)) return false;
+  const actualSet = new Set(actual.filter(value => typeof value === 'string'));
+  return actualSet.size === expected.length && expected.every(value => actualSet.has(value));
+}
+
+function formatStringList(values) {
+  return Array.isArray(values) && values.length > 0
+    ? values.map(value => `\`${value}\``).join(', ')
     : 'none';
 }
 

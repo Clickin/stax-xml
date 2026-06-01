@@ -264,6 +264,7 @@ function buildReport(options, artifacts) {
     contradictedClosureClaims,
     summary: {
       candidateCount: candidates.length,
+      candidateSourceArtifacts: candidates.map(candidate => candidate.sourceArtifact),
       diagnosticSurfaceCount: candidates.filter(candidate => candidate.hasAnyDiagnosticSurface).length,
       emittedCodegenSurfaceCount: candidates.filter(candidate => candidate.requirements.emittedCodegenSurface.met).length,
       sameContractStaxRowCount: candidates.filter(candidate => candidate.requirements.sameContractStaxRow.met).length,

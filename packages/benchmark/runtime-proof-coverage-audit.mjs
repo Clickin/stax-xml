@@ -250,6 +250,9 @@ function summarizeArtifactSummary(summary = {}) {
     candidateCount: typeof summary.candidateCount === 'number'
       ? summary.candidateCount
       : null,
+    candidateSourceArtifacts: Array.isArray(summary.candidateSourceArtifacts)
+      ? uniqueStrings(summary.candidateSourceArtifacts)
+      : null,
     qualifiedClosureCount: typeof summary.qualifiedClosureCount === 'number'
       ? summary.qualifiedClosureCount
       : null,
@@ -706,15 +709,27 @@ function summarizeSpiderMonkeyDiagnostics(artifacts, sameContractComparisonRows 
     summarizeSpiderMonkeyDiagnostic('installed-buildconfig-source-pin', buildconfig, sameContractComparisonRows),
   ].filter(Boolean);
   const closureAuditCandidateCount = closureAudit?.summary?.candidateCount ?? null;
+  const diagnosticRowSourceArtifacts = uniqueStrings(rows.map(row => row.sourceArtifact));
+  const closureAuditCandidateSourceArtifacts = uniqueStrings(closureAudit?.summary?.candidateSourceArtifacts ?? []);
+  const diagnosticRowSourceArtifactSet = new Set(diagnosticRowSourceArtifacts);
+  const closureAuditCandidateSourceArtifactSet = new Set(closureAuditCandidateSourceArtifacts);
+  const closureAuditCandidateSourcesOutsideDiagnostics = closureAuditCandidateSourceArtifacts
+    .filter(sourceArtifact => !diagnosticRowSourceArtifactSet.has(sourceArtifact));
+  const diagnosticSourcesOutsideClosureAudit = diagnosticRowSourceArtifacts
+    .filter(sourceArtifact => !closureAuditCandidateSourceArtifactSet.has(sourceArtifact));
   const closureAuditQualifiedClosureCount = closureAudit?.summary?.qualifiedClosureCount ?? null;
   const closureAuditConclusionAllowed = closureAudit?.summary?.conclusionAllowed ?? null;
   return {
     rows,
     diagnosticRowCount: rows.length,
+    diagnosticRowSourceArtifacts,
     closureAuditCandidateCount,
+    closureAuditCandidateSourceArtifacts,
     closureAuditDiagnosticRowGap: typeof closureAuditCandidateCount === 'number'
       ? closureAuditCandidateCount - rows.length
       : null,
+    closureAuditCandidateSourcesOutsideDiagnostics,
+    diagnosticSourcesOutsideClosureAudit,
     closureAuditQualifiedClosureCount,
     closureAuditConclusionAllowed,
     emittedIrEvidenceCount: rows.filter(row => row.emittedIrClosureQualified === true).length,
@@ -1861,6 +1876,8 @@ function renderMarkdown(report) {
     `Emitted SpiderMonkey IR/codegen evidence artifacts: ${report.coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount}`,
     `Raw SpiderMonkey emitted-IR closure claims: ${report.coverage.spiderMonkeyDiagnostics.emittedIrClaimCount}`,
     `SpiderMonkey diagnostics rows vs closure candidates: ${report.coverage.spiderMonkeyDiagnostics.diagnosticRowCount ?? 'unknown'}/${report.coverage.spiderMonkeyDiagnostics.closureAuditCandidateCount ?? 'unknown'} (gap=${report.coverage.spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap ?? 'unknown'}, closureQualified=${report.coverage.spiderMonkeyDiagnostics.closureAuditQualifiedClosureCount ?? 'unknown'})`,
+    `SpiderMonkey closure candidates outside coverage diagnostics: ${formatStringList(report.coverage.spiderMonkeyDiagnostics.closureAuditCandidateSourcesOutsideDiagnostics)}`,
+    `SpiderMonkey coverage diagnostics outside closure candidates: ${formatStringList(report.coverage.spiderMonkeyDiagnostics.diagnosticSourcesOutsideClosureAudit)}`,
     `SpiderMonkey selected row identity statuses: ${formatCountMap(report.coverage.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts)}`,
     `JIT-status-only SpiderMonkey shell artifacts: ${report.coverage.spiderMonkeyDiagnostics.jitStatusOnlyCount}`,
     '',
@@ -2043,10 +2060,22 @@ function countStringValues(values) {
   return counts;
 }
 
+function uniqueStrings(values) {
+  return Array.from(new Set((Array.isArray(values) ? values : [])
+    .filter(value => typeof value === 'string' && value.length > 0)))
+    .sort();
+}
+
 function formatCountMap(counts) {
   const entries = Object.entries(counts ?? {}).sort(([left], [right]) => left.localeCompare(right));
   return entries.length > 0
     ? entries.map(([key, value]) => `${key}=${value}`).join(', ')
+    : 'none';
+}
+
+function formatStringList(values) {
+  return Array.isArray(values) && values.length > 0
+    ? values.map(value => `\`${value}\``).join(', ')
     : 'none';
 }
 

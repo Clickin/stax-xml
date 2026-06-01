@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T21:55:08.472Z",
+  "generatedAt": "2026-06-01T22:03:10.994Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -578,11 +578,11 @@
   },
   "sourceAuditSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-01T21:54:58.070Z",
+    "generatedAt": "2026-06-01T22:02:59.763Z",
     "inputComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
     "currentComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
-    "inputCoverageGeneratedAt": "2026-06-01T21:54:47.756Z",
-    "currentCoverageGeneratedAt": "2026-06-01T21:54:47.756Z",
+    "inputCoverageGeneratedAt": "2026-06-01T22:02:49.465Z",
+    "currentCoverageGeneratedAt": "2026-06-01T22:02:49.465Z",
     "status": "classified",
     "primarySourceContract": "primary-sync-iterable-byte-batches",
     "primaryParserInput": "synchronous Iterable<Uint8Array[]>",
@@ -727,7 +727,7 @@
   },
   "coverageSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-01T21:54:47.756Z",
+    "generatedAt": "2026-06-01T22:02:49.465Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -789,8 +789,45 @@
         "not-claimed-non-stax-diagnostic": 7
       },
       "diagnosticRowCount": 11,
+      "diagnosticRowSourceArtifacts": [
+        "firefox-spidermonkey-buildconfig-source-pin-audit.json",
+        "firefox-spidermonkey-diagnostic-dump-audit.json",
+        "firefox-spidermonkey-js-shell-availability-audit.json",
+        "firefox-spidermonkey-jsshell-stax-api-gap-audit.json",
+        "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
+        "firefox-spidermonkey-release-jsshell-availability-audit.json",
+        "spidermonkey-archival-debug-jsshell-codegen-audit.json",
+        "spidermonkey-jsshell-diagnostic-flag-sweep.json",
+        "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
+        "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
+        "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
+      ],
       "closureAuditCandidateCount": 15,
+      "closureAuditCandidateSourceArtifacts": [
+        "firefox-spidermonkey-buildconfig-source-pin-audit.json",
+        "firefox-spidermonkey-diagnostic-dump-audit.json",
+        "firefox-spidermonkey-js-shell-availability-audit.json",
+        "firefox-spidermonkey-jsshell-stax-api-gap-audit.json",
+        "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
+        "firefox-spidermonkey-release-jsshell-availability-audit.json",
+        "spidermonkey-archival-debug-jsshell-codegen-audit.json",
+        "spidermonkey-jsshell-diagnostic-flag-sweep.json",
+        "spidermonkey-jsshell-materialized-headroom.json",
+        "spidermonkey-jsshell-tokenizer-headroom.json",
+        "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
+        "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
+        "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
+        "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
+        "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
+      ],
       "closureAuditDiagnosticRowGap": 4,
+      "closureAuditCandidateSourcesOutsideDiagnostics": [
+        "spidermonkey-jsshell-materialized-headroom.json",
+        "spidermonkey-jsshell-tokenizer-headroom.json",
+        "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
+        "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json"
+      ],
+      "diagnosticSourcesOutsideClosureAudit": [],
       "closureAuditQualifiedClosureCount": 0
     },
     "guards": [
@@ -812,6 +849,11 @@
       {
         "id": "spidermonkey-closure-audit-surface-visible",
         "description": "Coverage audit must expose SpiderMonkey diagnostic row count, closure-audit candidate count, their gap, and qualifiedClosureCount so gate review sees the curated coverage surface is not the full closure matrix.",
+        "satisfied": true
+      },
+      {
+        "id": "spidermonkey-closure-audit-gap-artifacts-visible",
+        "description": "Coverage audit must name the SpiderMonkey closure candidates outside curated diagnostics rows and report no diagnostic rows outside the closure audit.",
         "satisfied": true
       }
     ]
@@ -980,8 +1022,8 @@
     "currentCounterexamples": 0,
     "satisfiedCounterexampleScanGuards": 8,
     "requiredCounterexampleScanGuards": 8,
-    "satisfiedCoverageGuards": 4,
-    "requiredCoverageGuards": 4,
+    "satisfiedCoverageGuards": 5,
+    "requiredCoverageGuards": 5,
     "satisfiedHandoffGuards": 19,
     "requiredHandoffGuards": 19,
     "satisfiedHandoffValidationGuards": 6,

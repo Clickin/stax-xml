@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T21:48:28.178Z",
+  "generatedAt": "2026-06-01T22:02:36.501Z",
   "objective": "spidermonkey-codegen-closure-audit",
   "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
   "note": "Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.",
@@ -1204,6 +1204,23 @@
   "contradictedClosureClaims": [],
   "summary": {
     "candidateCount": 15,
+    "candidateSourceArtifacts": [
+      "firefox-spidermonkey-buildconfig-source-pin-audit.json",
+      "firefox-spidermonkey-diagnostic-dump-audit.json",
+      "firefox-spidermonkey-js-shell-availability-audit.json",
+      "firefox-spidermonkey-jsshell-stax-api-gap-audit.json",
+      "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
+      "firefox-spidermonkey-release-jsshell-availability-audit.json",
+      "spidermonkey-archival-debug-jsshell-codegen-audit.json",
+      "spidermonkey-jsshell-diagnostic-flag-sweep.json",
+      "spidermonkey-jsshell-materialized-headroom.json",
+      "spidermonkey-jsshell-tokenizer-headroom.json",
+      "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
+      "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
+      "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
+      "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
+      "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
+    ],
     "diagnosticSurfaceCount": 6,
     "emittedCodegenSurfaceCount": 6,
     "sameContractStaxRowCount": 0,

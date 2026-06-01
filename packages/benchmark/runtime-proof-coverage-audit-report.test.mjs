@@ -1177,6 +1177,13 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.coverage.spiderMonkeyDiagnostics.diagnosticRowCount, 11);
   assert.equal(report.coverage.spiderMonkeyDiagnostics.closureAuditCandidateCount, 15);
   assert.equal(report.coverage.spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap, 4);
+  assert.deepEqual(report.coverage.spiderMonkeyDiagnostics.closureAuditCandidateSourcesOutsideDiagnostics, [
+    'spidermonkey-jsshell-materialized-headroom.json',
+    'spidermonkey-jsshell-tokenizer-headroom.json',
+    'spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json',
+    'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json',
+  ]);
+  assert.deepEqual(report.coverage.spiderMonkeyDiagnostics.diagnosticSourcesOutsideClosureAudit, []);
   assert.equal(report.coverage.spiderMonkeyDiagnostics.closureAuditQualifiedClosureCount, 0);
   assert.equal(report.coverage.spiderMonkeyDiagnostics.closureAuditConclusionAllowed, false);
   assert.equal(report.coverage.spiderMonkeyDiagnostics.jitStatusOnlyCount, 2);
@@ -1269,6 +1276,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Emitted SpiderMonkey IR\/codegen evidence artifacts: 0/);
   assert.match(markdown, /Raw SpiderMonkey emitted-IR closure claims: 0/);
   assert.match(markdown, /SpiderMonkey diagnostics rows vs closure candidates: 11\/15 \(gap=4, closureQualified=0\)/);
+  assert.match(markdown, /SpiderMonkey closure candidates outside coverage diagnostics: `spidermonkey-jsshell-materialized-headroom\.json`, `spidermonkey-jsshell-tokenizer-headroom\.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun\.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun\.json`/);
+  assert.match(markdown, /SpiderMonkey coverage diagnostics outside closure candidates: none/);
   assert.match(markdown, /SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7/);
   assert.match(markdown, /Selected row identity/);
   assert.match(markdown, /Selected row metadata/);
