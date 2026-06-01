@@ -1,0 +1,105 @@
+{
+  "generatedAt": "2026-06-01T20:10:26.976Z",
+  "objective": "spidermonkey-codegen-rerun-stability-audit",
+  "contract": "spidermonkey-debug-jsshell-codegen-rerun-reproducibility-not-closure",
+  "note": "Compares original and rerun Taskcluster debug SpiderMonkey js-shell codegen artifacts. This is reproducibility evidence for emitted JitSpew/codegen diagnostics, not same-contract StAX closure evidence.",
+  "parameters": {
+    "baselineCodegen": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
+    "rerunCodegen": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
+    "baselineMaterialized": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
+    "rerunMaterialized": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
+    "closureAudit": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\spidermonkey-codegen-closure-audit.json",
+    "selfTest": false
+  },
+  "pairs": [
+    {
+      "id": "taskcluster-debug-basic-codegen",
+      "baselineArtifact": null,
+      "rerunArtifact": null,
+      "sameTaskclusterBuild": true,
+      "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
+      "buildId": "20260531212007",
+      "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+      "baselineCodegenMarkers": 54756,
+      "rerunCodegenMarkers": 54756,
+      "sameCodegenMarkerCount": true,
+      "markerRatio": 1,
+      "baselineThroughputMiBPerSec": null,
+      "rerunThroughputMiBPerSec": null,
+      "throughputRatio": null,
+      "reproducibleCodegen": true,
+      "sameContractStaxRow": false,
+      "unchangedStaxBenchmark": false,
+      "canRunCurrentStaxFullStringBenchmark": false,
+      "closesEmittedIrObligation": false
+    },
+    {
+      "id": "taskcluster-debug-materialized-codegen",
+      "baselineArtifact": null,
+      "rerunArtifact": null,
+      "sameTaskclusterBuild": true,
+      "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
+      "buildId": "20260531212007",
+      "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+      "baselineCodegenMarkers": 234522,
+      "rerunCodegenMarkers": 234522,
+      "sameCodegenMarkerCount": true,
+      "markerRatio": 1,
+      "baselineThroughputMiBPerSec": 0.4909373604499916,
+      "rerunThroughputMiBPerSec": 0.47301434947809484,
+      "throughputRatio": 0.96,
+      "reproducibleCodegen": true,
+      "sameContractStaxRow": false,
+      "unchangedStaxBenchmark": false,
+      "canRunCurrentStaxFullStringBenchmark": false,
+      "closesEmittedIrObligation": false
+    }
+  ],
+  "closureAudit": {
+    "objective": "spidermonkey-codegen-closure-audit",
+    "candidateCount": 15,
+    "emittedCodegenSurfaceCount": 6,
+    "qualifiedClosureCount": 0,
+    "conclusionAllowed": false
+  },
+  "summary": {
+    "pairCount": 2,
+    "reproduciblePairs": 2,
+    "sameTaskclusterBuildPairs": 2,
+    "sameCodegenMarkerPairs": 2,
+    "allReproducible": true,
+    "allRemainNonClosure": true,
+    "throughputCountsAsTargetEvidence": false,
+    "qualifiedClosureCount": 0,
+    "conclusionAllowed": false
+  },
+  "findings": [
+    {
+      "id": "spidermonkey-debug-codegen-rerun-reproduced",
+      "classification": "TRACE_FACT",
+      "summary": "Taskcluster debug SpiderMonkey js-shell codegen output was reproduced by rerun artifacts.",
+      "evidence": [
+        "taskcluster-debug-basic-codegen: reproducibleCodegen=true, markerRatio=1.00",
+        "taskcluster-debug-materialized-codegen: reproducibleCodegen=true, markerRatio=1.00"
+      ]
+    },
+    {
+      "id": "spidermonkey-debug-rerun-not-same-contract-closure",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "The reproduced debug js-shell codegen artifacts still do not close the same-contract StAX codegen obligation.",
+      "evidence": [
+        "allRemainNonClosure=true",
+        "qualifiedClosureCount=0",
+        "throughputCountsAsTargetEvidence=false"
+      ]
+    },
+    {
+      "id": "spidermonkey-debug-rerun-scope",
+      "classification": "SCOPE_GUARD",
+      "summary": "Rerun reproducibility is diagnostic-surface evidence only; it is not a throughput target row or same-contract StAX closure.",
+      "evidence": [
+        "sameContractStaxRow=false remains required for non-closure classification."
+      ]
+    }
+  ]
+}

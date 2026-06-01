@@ -74,6 +74,7 @@ function createReport(options) {
     .filter(file => file.endsWith('.json'))
     .filter(file => /spidermonkey|firefox/i.test(file))
     .filter(file => file !== 'spidermonkey-codegen-closure-audit.json')
+    .filter(file => file !== 'spidermonkey-codegen-rerun-stability-audit.json')
     .sort()
     .map(file => readArtifact(options.releaseDir, file));
   return buildReport(options, artifacts);
@@ -88,6 +89,17 @@ function createSelfTestReport(options) {
         summary: {
           candidateCount: 2,
           qualifiedClosureCount: 1,
+        },
+      },
+    },
+    {
+      sourceArtifact: 'spidermonkey-codegen-rerun-stability-audit.json',
+      root: {
+        objective: 'spidermonkey-codegen-rerun-stability-audit',
+        summary: {
+          pairCount: 2,
+          reproduciblePairs: 2,
+          qualifiedClosureCount: 0,
         },
       },
     },
@@ -159,6 +171,7 @@ function buildReport(options, artifacts) {
   const candidates = artifacts
     .map(createCandidate)
     .filter(candidate => candidate.objective !== 'spidermonkey-codegen-closure-audit')
+    .filter(candidate => candidate.objective !== 'spidermonkey-codegen-rerun-stability-audit')
     .filter(candidate => candidate.hasAnyDiagnosticSurface || /codegen|diagnostic|jsshell|js-shell|buildconfig/i.test(candidate.sourceArtifact))
     .sort((left, right) => left.sourceArtifact.localeCompare(right.sourceArtifact));
   const qualified = candidates.filter(candidate => candidate.qualifiedClosure);

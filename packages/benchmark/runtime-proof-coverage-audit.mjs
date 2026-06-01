@@ -235,6 +235,21 @@ function summarizeArtifactSummary(summary = {}) {
     closureRequirementsBlocked: typeof summary.closureRequirementsBlocked === 'number'
       ? summary.closureRequirementsBlocked
       : null,
+    pairCount: typeof summary.pairCount === 'number'
+      ? summary.pairCount
+      : null,
+    reproduciblePairs: typeof summary.reproduciblePairs === 'number'
+      ? summary.reproduciblePairs
+      : null,
+    sameTaskclusterBuildPairs: typeof summary.sameTaskclusterBuildPairs === 'number'
+      ? summary.sameTaskclusterBuildPairs
+      : null,
+    sameCodegenMarkerPairs: typeof summary.sameCodegenMarkerPairs === 'number'
+      ? summary.sameCodegenMarkerPairs
+      : null,
+    qualifiedClosureCount: typeof summary.qualifiedClosureCount === 'number'
+      ? summary.qualifiedClosureCount
+      : null,
     diagnosticThroughputMiBPerSec: typeof summary.diagnosticThroughputMiBPerSec === 'number'
       ? summary.diagnosticThroughputMiBPerSec
       : null,
