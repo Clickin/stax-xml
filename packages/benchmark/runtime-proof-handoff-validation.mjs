@@ -166,10 +166,12 @@ function validateHandoff(handoff) {
       ? [
           /emitted Firefox\/SpiderMonkey JIT IR/,
           /runtime\/build identity/,
+          /diagnostic flags/,
           /selected row id/,
           /same-contract-runtime-comparison\.json/,
           /event count/,
           /checksum parity/,
+          /emitted IR or optimized-code dump metadata/,
           /jit-status-only/,
           /environment evidence only/,
         ]

@@ -794,6 +794,15 @@ function createHandoffGuards(byId) {
         && spiderChecks.some(item => /same-contract-runtime-comparison\.json/.test(item))
         && spiderChecks.some(item => /event count and checksum parity/.test(item)),
     },
+    {
+      id: 'spidermonkey-closing-metadata-required',
+      description: 'SpiderMonkey closing artifacts must require runtime/build identity, diagnostic flags, row identity, checksum parity, and emitted IR or optimized-code dump metadata.',
+      satisfied: spiderChecks.some(item => /closing artifact must include runtime\/build identity/.test(item))
+        && spiderChecks.some(item => /diagnostic flags/.test(item))
+        && spiderChecks.some(item => /selected row id/.test(item))
+        && spiderChecks.some(item => /checksum parity/.test(item))
+        && spiderChecks.some(item => /emitted IR or optimized-code dump metadata/.test(item)),
+    },
   ];
 }
 
