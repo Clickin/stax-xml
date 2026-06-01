@@ -1,0 +1,88 @@
+{
+  "generatedAt": "2026-06-01T00:20:35.497Z",
+  "objective": "text-materialization-boundary-audit",
+  "contract": "text-cdata-materialization-headroom-is-not-full-string-counterexample",
+  "note": "Audits the current text/CDATA materialization boundary from the same-contract aggregate. This is not a benchmark run and does not prove a JavaScript runtime ceiling.",
+  "inputs": {
+    "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
+    "comparisonGeneratedAt": "2026-05-31T23:20:48.612Z",
+    "comparisonObjective": "same-contract-runtime-comparison",
+    "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
+    "frontierArtifact": "text-materialization-frontier.json"
+  },
+  "summary": {
+    "status": "classified",
+    "targetMiBPerSec": 200,
+    "fastestFull": {
+      "id": "rawFrameNameId",
+      "sourceArtifact": "text-trim-cost-decomposition.json",
+      "rateMiBPerSec": 185.5,
+      "boundedMemory": true,
+      "fullStringParity": true,
+      "textStringReads": 16987392,
+      "stringFieldReads": 62758976
+    },
+    "fastestWithoutText": {
+      "id": "withoutTextStrings",
+      "sourceArtifact": "text-trim-cost-decomposition-4gib.json",
+      "rateMiBPerSec": 252.36,
+      "boundedMemory": true,
+      "fullStringParity": false,
+      "textStringReads": 0,
+      "stringFieldReads": 183085948
+    },
+    "fastestNoTrim": {
+      "id": "rawFrameNameIdNoTrim",
+      "sourceArtifact": "text-trim-cost-decomposition-8gib.json",
+      "rateMiBPerSec": 186.97,
+      "boundedMemory": null,
+      "fullStringParity": false,
+      "textStringReads": null,
+      "stringFieldReads": null
+    },
+    "fastestFoldTrim": {
+      "id": "rawFrameNameIdFoldTrim",
+      "sourceArtifact": "text-trim-cost-decomposition-2gib.json",
+      "rateMiBPerSec": 148.58,
+      "boundedMemory": null,
+      "fullStringParity": true,
+      "textStringReads": null,
+      "stringFieldReads": null
+    },
+    "fastestFullToTargetRatio": 0.93,
+    "fastestFullRemainingMiBPerSec": 14.5,
+    "requiredSpeedupToTarget": 1.08,
+    "fastestWithoutTextToFullRatio": 1.36,
+    "fastestNoTrimToFullRatio": 1.01,
+    "fastestFoldTrimToFullRatio": 0.8,
+    "noTextRowsCrossTarget": 4,
+    "fullRowsCrossTarget": 0,
+    "noTrimRowsCrossTarget": 0,
+    "foldTrimRowsCrossTarget": 0,
+    "negativeCandidateCount": 21,
+    "conclusionAllowed": false
+  },
+  "interpretation": "Text/CDATA omission crosses the target as headroom evidence, while trim-only, fold-trim, cache, and ASCII candidates remain negative for the current full-string contract.",
+  "findings": [
+    {
+      "id": "full-string-target-not-crossed",
+      "classification": "SOURCE_FACT",
+      "summary": "Current full-string rows crossing 200 MiB/s: 0."
+    },
+    {
+      "id": "without-text-is-partial-headroom",
+      "classification": "SOURCE_FACT",
+      "summary": "Text/CDATA omission crosses the target in 4 rows but is not full-string parity."
+    },
+    {
+      "id": "trim-only-not-counterexample",
+      "classification": "SOURCE_FACT",
+      "summary": "No no-trim or fold-trim row crosses the target under the current frontier."
+    },
+    {
+      "id": "negative-candidate-set-recorded",
+      "classification": "SOURCE_FACT",
+      "summary": "21 text/materialization candidates are recorded as negative or partial frontier evidence."
+    }
+  ]
+}

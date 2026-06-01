@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T00:12:19.791Z",
+  "generatedAt": "2026-06-01T00:21:18.047Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -4084,6 +4084,21 @@
       "measuredRowCount": 4
     },
     {
+      "sourceArtifact": "text-materialization-boundary-audit.json",
+      "objective": "text-materialization-boundary-audit",
+      "contract": "text-cdata-materialization-headroom-is-not-full-string-counterexample",
+      "evidenceKinds": [
+        "SOURCE_FACT"
+      ],
+      "runtimes": [],
+      "availability": null,
+      "outcome": null,
+      "shell": null,
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
       "sourceArtifact": "text-materialization-frontier.json",
       "objective": "text-materialization-frontier",
       "contract": "same-corpus-text-materialization-headroom-synthesis",
@@ -4613,7 +4628,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 203,
+    "scannedArtifactCount": 204,
     "ignoredArtifactCount": 7,
     "parseErrorCount": 0,
     "measuredRowCount": 1183,
@@ -4635,7 +4650,7 @@
       "rowsWithMemoryCounter": 10
     },
     "benchmarkArtifactCount": 150,
-    "sourceArtifactCount": 21,
+    "sourceArtifactCount": 22,
     "traceArtifactCount": 11,
     "allocationArtifactCount": 16,
     "environmentArtifactCount": 4,

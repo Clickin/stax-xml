@@ -33,7 +33,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 203);
+  assert.equal(report.summary.scannedArtifactCount, 204);
   assert.ok(report.scannedArtifacts.includes('concat-buffer-reuse-negative-result.json'));
   assert.ok(report.scannedArtifacts.includes('firefox-spidermonkey-nightly-jsshell-availability-audit.json'));
   assert.ok(report.scannedArtifacts.includes('firefox-spidermonkey-release-jsshell-availability-audit.json'));
@@ -50,6 +50,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('source-consumption-shape-audit.json'));
   assert.ok(report.scannedArtifacts.includes('memory-frontier-audit.json'));
   assert.ok(report.scannedArtifacts.includes('target-distance-audit.json'));
+  assert.ok(report.scannedArtifacts.includes('text-materialization-boundary-audit.json'));
   assert.ok(report.scannedArtifacts.includes('candidate-headroom-cross-process-midsize-corpus.json'));
   assert.ok(report.scannedArtifacts.includes('event-reader-byte-batch-cross-process-midsize-corpus.json'));
   assert.ok(report.scannedArtifacts.includes('firefox-spidermonkey-buildconfig-source-pin-audit.json'));
@@ -847,7 +848,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Runtime Counterexample Scan/);
   assert.match(markdown, /Counterexamples found: 0/);
-  assert.match(markdown, /Scanned artifacts: 203/);
+  assert.match(markdown, /Scanned artifacts: 204/);
   assert.match(markdown, /Measured rows recognized: 1183/);
   assert.match(markdown, /Aggregate rows recognized: 170/);
   assert.match(markdown, /1 GiB\+ JS full-string aggregate rows recognized: 133/);

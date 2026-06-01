@@ -266,7 +266,7 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 203 primary release JSON artifacts, recognizes 1,183
+The current scan covers 204 primary release JSON artifacts, recognizes 1,183
 sample throughput rows and 170 aggregate rows, and finds 792 JavaScript 1 GiB+
 full-string sample rows plus 133 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
@@ -370,6 +370,12 @@ source audit: the fastest same-fixture JS row remains
 with a 316.40 MiB/s 0.9x target, quick-xml is 274.63 MiB/s with a
 247.17 MiB/s 0.9x target, and the JS row is still 164.29 MiB/s below the
 Woodstox 0.9x target and 95.06 MiB/s below the quick-xml 0.9x target.
+`packages/benchmark/results/release/text-materialization-boundary-audit.md`
+pins the nearest 200 MiB/s materialization boundary as standalone source
+evidence: the fastest full-string row remains `rawFrameNameId` at
+185.50 MiB/s and needs another 14.50 MiB/s, while four `withoutTextStrings`
+rows cross the target only after dropping text/CDATA string parity; no
+full-string, no-trim, or fold-trim row crosses the target.
 
 The scan also records 35 threshold-crossing partial/projection rows. The
 fastest is Node/V8 `grouped-segment-scan` at 682.83 MiB/s from
@@ -587,8 +593,8 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 203 primary release artifacts and recognizes 1,183
-measured rows. It records 150 benchmark artifacts, 21 source artifacts, 11
+The current audit scans 204 primary release artifacts and recognizes 1,183
+measured rows. It records 150 benchmark artifacts, 22 source artifacts, 11
 trace/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and
 19 negative-result artifacts, 792 JavaScript 1 GiB+ full-string rows, and four
 release corpus seeds: `books.xml`, `large.xml`, `midsize.xml`, and `treebank_e.xml`. The
