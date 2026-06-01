@@ -77,7 +77,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.equal(report.inputs.comparisonContract, 'same-full-string-checksum-contract-not-same-object-shape');
   assert.equal(report.sourceConsumptionEvidence.status, 'classified');
   assert.equal(report.sourceConsumptionEvidence.sourceArtifact, 'same-contract-runtime-comparison.json');
-  assert.equal(report.sourceConsumptionEvidence.rowCount, 261);
+  assert.equal(report.sourceConsumptionEvidence.rowCount, 269);
   assert.deepEqual(report.sourceConsumptionEvidence.sourceModes, [
     'fetch-async-iterable-byte-batches',
     'fetch-readable-stream-pull',
@@ -85,11 +85,11 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
     'sync-iterable-byte-batches',
   ]);
   assert.deepEqual(report.sourceConsumptionEvidence.sourceShapeSafety, {
-    largeJsFullSourceModeRows: 210,
-    notFullArrayBufferRows: 210,
+    largeJsFullSourceModeRows: 217,
+    notFullArrayBufferRows: 217,
     fullArrayBufferRows: 0,
     unknownArrayBufferRows: 0,
-    corpusSeedReplayRows: 127,
+    corpusSeedReplayRows: 134,
     fileBackedSyncIterableRows: 36,
     directReadableStreamRows: 1,
     sourceModeBreakdown: [
@@ -146,12 +146,12 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
       },
       {
         sourceMode: 'sync-iterable-byte-batches',
-        rows: 172,
-        notFullArrayBufferRows: 172,
+        rows: 179,
+        notFullArrayBufferRows: 179,
         fullArrayBufferRows: 0,
         unknownArrayBufferRows: 0,
         directReadableStreamRows: 0,
-        corpusSeedReplayRows: 125,
+        corpusSeedReplayRows: 132,
         fastestRow: {
           sourceArtifact: 'text-trim-cost-decomposition.json',
           runtimeLabel: 'Node/V8',
@@ -181,8 +181,8 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.equal(report.memoryFrontierEvidence.status, 'classified');
   assert.equal(report.memoryFrontierEvidence.sourceArtifact, 'same-contract-runtime-comparison.json');
   assert.equal(report.memoryFrontierEvidence.contract, '1gib-plus-js-full-string-memory-frontier');
-  assert.equal(report.memoryFrontierEvidence.rows, 216);
-  assert.equal(report.memoryFrontierEvidence.boundedRows, 199);
+  assert.equal(report.memoryFrontierEvidence.rows, 223);
+  assert.equal(report.memoryFrontierEvidence.boundedRows, 206);
   assert.equal(report.memoryFrontierEvidence.unboundedRows, 17);
   assert.deepEqual(report.memoryFrontierEvidence.memoryKinds, [
     'browser-js-heap',
@@ -231,8 +231,8 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
       },
       {
         kind: 'process-rss',
-        rows: 187,
-        boundedRows: 179,
+        rows: 194,
+        boundedRows: 186,
         unboundedRows: 8,
         maxMiB: 1956.69,
         fastestRow: 'rawFrameNameId',
@@ -403,19 +403,19 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Text materialization evidence status: classified/);
   assert.match(markdown, /## Source Consumption Evidence/);
   assert.match(markdown, /Source modes: fetch-async-iterable-byte-batches, fetch-readable-stream-pull, file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches/);
-  assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 210\/210/);
+  assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 217\/217/);
   assert.match(markdown, /Full ArrayBuffer parser-input rows: 0/);
   assert.match(markdown, /Unknown parser-input rows: 0/);
   assert.match(markdown, /File-backed sync Iterable<Uint8Array\[\]> rows: 36/);
   assert.match(markdown, /Separate direct ReadableStream source-overhead rows: 1/);
   assert.match(markdown, /\| file-backed-sync-iterable-byte-batches \| 36 \| 36 \| 0 \| 0 \| Node\/V8 stax-raw-frame-name-id-batch-8 152\.11 MiB\/s from file-backed-batch-size-sweep\.json \|/);
-  assert.match(markdown, /\| sync-iterable-byte-batches \| 172 \| 172 \| 0 \| 125 \| Node\/V8 rawFrameNameId 185\.50 MiB\/s from text-trim-cost-decomposition\.json \|/);
+  assert.match(markdown, /\| sync-iterable-byte-batches \| 179 \| 179 \| 0 \| 132 \| Node\/V8 rawFrameNameId 185\.50 MiB\/s from text-trim-cost-decomposition\.json \|/);
   assert.match(markdown, /\| fetch-readable-stream-pull \| 1 \| 1 \| 1 \| 1 \| Chrome\/V8 browser fetchReadableStreamFull 9\.68 MiB\/s from browser-fetch-readable-stream-books-corpus\.json \|/);
   assert.match(markdown, /Node source frontier: sync-iterable-byte-batches-batch-8 71\.96 MiB\/s vs web-readable-stream-raw-frame-ascii-batch-8 76\.53 MiB\/s \(1\.06x\); backpressure 6\/6; fullArrayBufferRows=0/);
   assert.match(markdown, /Browser live fetch frontier: fetchReadableStreamFull 9\.68 MiB\/s; fetchAsyncByteBatchFull 9\.77 MiB\/s; backpressure 2\/2; fullArrayBufferRows=0/);
   assert.match(markdown, /## Memory Frontier Evidence/);
-  assert.match(markdown, /1 GiB\+ JS full-string memory rows: 216/);
-  assert.match(markdown, /Bounded rows: 199/);
+  assert.match(markdown, /1 GiB\+ JS full-string memory rows: 223/);
+  assert.match(markdown, /Bounded rows: 206/);
   assert.match(markdown, /Unbounded or unproven rows: 17/);
   assert.match(markdown, /Memory kinds: browser-js-heap, browser-js-heap-unavailable, process-rss/);
   assert.match(markdown, /Fastest bounded row: Node\/V8 rawFrameNameId 185\.50 MiB\/s \(process-rss max 60\.45 MiB\)/);
