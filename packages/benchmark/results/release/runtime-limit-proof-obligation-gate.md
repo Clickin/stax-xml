@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T20:46:50.464Z
+Generated: 2026-06-01T20:49:57.242Z
 
 ## Scope
 
@@ -137,6 +137,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `spidermonkey-same-contract-comparison-required` | yes | SpiderMonkey closing artifacts must require the selected row id to match same-contract-runtime-comparison.json with event count and checksum parity. |
 | `spidermonkey-closing-metadata-required` | yes | SpiderMonkey closing artifacts must require runtime/build identity, diagnostic flags, row identity, checksum parity, and emitted IR or optimized-code dump metadata. |
 | `spidermonkey-diagnostic-row-identity-blocker` | yes | SpiderMonkey diagnostic rows must remain blocked with selectedRowIdentityStatus=not-claimed-non-stax-diagnostic until they are same-contract StAX closure evidence. |
+| `spidermonkey-closure-frontier-blockers` | yes | SpiderMonkey handoff must preserve closest blocked candidates and common missing requirements from the closure audit frontier. |
 
 ## Handoff Validation Snapshot
 

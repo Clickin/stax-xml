@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T20:46:50.464Z",
+  "generatedAt": "2026-06-01T20:49:57.242Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -487,6 +487,11 @@
         "id": "spidermonkey-diagnostic-row-identity-blocker",
         "description": "SpiderMonkey diagnostic rows must remain blocked with selectedRowIdentityStatus=not-claimed-non-stax-diagnostic until they are same-contract StAX closure evidence.",
         "satisfied": true
+      },
+      {
+        "id": "spidermonkey-closure-frontier-blockers",
+        "description": "SpiderMonkey handoff must preserve closest blocked candidates and common missing requirements from the closure audit frontier.",
+        "satisfied": true
       }
     ]
   },
@@ -933,8 +938,8 @@
     "requiredCounterexampleScanGuards": 8,
     "satisfiedCoverageGuards": 3,
     "requiredCoverageGuards": 3,
-    "satisfiedHandoffGuards": 11,
-    "requiredHandoffGuards": 11,
+    "satisfiedHandoffGuards": 12,
+    "requiredHandoffGuards": 12,
     "satisfiedHandoffValidationGuards": 6,
     "requiredHandoffValidationGuards": 6,
     "satisfiedSourceAuditGuards": 7,

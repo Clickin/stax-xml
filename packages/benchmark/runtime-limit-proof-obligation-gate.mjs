@@ -945,6 +945,17 @@ function createHandoffGuards(byId) {
       description: 'SpiderMonkey diagnostic rows must remain blocked with selectedRowIdentityStatus=not-claimed-non-stax-diagnostic until they are same-contract StAX closure evidence.',
       satisfied: spiderBlockers.some(item => /selectedRowIdentityStatus=not-claimed-non-stax-diagnostic/.test(item)),
     },
+    {
+      id: 'spidermonkey-closure-frontier-blockers',
+      description: 'SpiderMonkey handoff must preserve closest blocked candidates and common missing requirements from the closure audit frontier.',
+      satisfied: spiderBlockers.some(item =>
+        /closestBlockedCandidateCount=\d+/.test(item)
+        && /minimumBlockedRequirementCount=\d+/.test(item)
+        && /sameContractStaxRow=\d+/.test(item)
+        && /selectedRowMetadata=\d+/.test(item)
+        && /unchangedRunnable=\d+/.test(item)
+      ),
+    },
   ];
 }
 
