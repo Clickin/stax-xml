@@ -1,6 +1,6 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-01T22:20:59.605Z
+Generated: 2026-06-01T22:34:03.020Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -237,7 +237,7 @@ Scope guards:
   - A current Taskcluster debug js-shell emits JitSpew codegen output while running the XML byte-tokenizer workload (taskId=MUZBnP38TzWA6MfuY9BfzQ, buildId=20260601210056), but fullStringParity=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic.
   - A current Taskcluster debug js-shell emits JitSpew codegen output while materializing JS strings and public event-shaped objects (taskId=MUZBnP38TzWA6MfuY9BfzQ, buildId=20260601210056), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic.
   - A rerun of the current Taskcluster debug js-shell codegen probe reproduces JitSpew output (taskId=MUZBnP38TzWA6MfuY9BfzQ, codegenMarkers=54756), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and closesEmittedIrObligation=false.
-  - A rerun of the current Taskcluster debug js-shell materialized string/object probe reproduces JitSpew output (taskId=MUZBnP38TzWA6MfuY9BfzQ, codegenMarkers=234522, throughputMiBPerSec=n/a), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and closesEmittedIrObligation=false.
+  - A rerun of the current Taskcluster debug js-shell materialized string/object probe reproduces JitSpew output (taskId=MUZBnP38TzWA6MfuY9BfzQ, codegenMarkers=234522, throughputMiBPerSec=0.25), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and closesEmittedIrObligation=false.
   - Coverage diagnostic identity status counts: selectedRowIdentityStatusCounts not-claimed=4, not-claimed-non-stax-diagnostic=7.
   - The ASCII scope-distance audit pins corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, and reducesScopeDistance=true while closesCodegenObligation=false, so ASCII corpus equivalence narrows materialized js-shell scope but does not supply unchanged StAX closure evidence.
   - The materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=2 and closureRequirementsBlocked=4; primarySyncByteBatchMissingGlobals=TextDecoder; asciiTextDecoderEquivalent=true; diagnosticThroughputMiBPerSec=0.25002012796318257; throughputCountsAsTargetEvidence=false; closesCodegenObligation=false, preventing the materialized js-shell artifact from being cited as unchanged StAX closure evidence.
