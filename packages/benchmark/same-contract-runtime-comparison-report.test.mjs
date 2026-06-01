@@ -30,6 +30,32 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
   assert.equal(report.objective, 'same-contract-runtime-comparison');
   assert.equal(report.contract, 'same-full-string-checksum-contract-not-same-object-shape');
+  assert.equal(report.comparisonContract.semanticBasis, 'Rows are comparable only through the same full-string event count and checksum contract.');
+  assert.equal(report.comparisonContract.objectShapeEquivalence, false);
+  assert.match(report.comparisonContract.objectShapeScope, /JavaScript public event objects/);
+  assert.equal(report.comparisonContract.targetDistanceOnly, true);
+  assert.equal(report.comparisonContract.primaryJsPublicEventCase, 'eventObjectFull');
+  assert.equal(report.comparisonContract.fastestJsRowsMayUseRawFrameCases, true);
+  assert.equal(report.comparisonContract.memoryEquivalence, false);
+  assert.match(report.comparisonContract.sourceModeEquivalence, /file-backed JavaScript rows use synchronous Iterable<Uint8Array\[\]>/);
+  assert.deepEqual(report.comparisonContract.externalBaselines.map(entry => ({
+    runtimeId: entry.runtimeId,
+    sameJsPublicEventObjectShape: entry.sameJsPublicEventObjectShape,
+    sourceEvidence: entry.sourceEvidence,
+  })), [
+    {
+      runtimeId: 'woodstox-jvm',
+      sameJsPublicEventObjectShape: false,
+      sourceEvidence: 'packages/benchmark/external/woodstox/src/main/java/com/staxxml/benchmark/WoodstoxBench.java',
+    },
+    {
+      runtimeId: 'quick-xml-rust',
+      sameJsPublicEventObjectShape: false,
+      sourceEvidence: 'packages/benchmark/external/quick-xml/src/main.rs',
+    },
+  ]);
+  assert.match(report.comparisonContract.externalBaselines[0].shape, /XMLStreamReader cursor API/);
+  assert.match(report.comparisonContract.externalBaselines[1].shape, /quick_xml::events::Event/);
   assert.equal(report.summary.jsRuntimeCounterexamples200MiB, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.rowCount, 289);
@@ -1070,6 +1096,14 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /1 GiB\+ JS full-string memory frontier: 222\/239 bounded rows; fastest bounded row Node\/V8 rawFrameNameId at 185\.50 MiB\/s \(process RSS max 60\.45 MiB\)/);
   assert.match(markdown, /Text materialization frontier: fastest full row rawFrameNameId at 185\.50 MiB\/s, 14\.50 MiB\/s below 200 MiB\/s; without-text rows crossing target: 4; negative candidates: 27/);
   assert.match(markdown, /Source consumption frontier: sync byte batches sync-iterable-byte-batches-batch-8 at 71\.96 MiB\/s; direct ReadableStream web-readable-stream-raw-frame-ascii-batch-8 at 76\.53 MiB\/s \(1\.06x sync\); backpressure rows 6\/6/);
+  assert.match(markdown, /## Comparison Contract/);
+  assert.match(markdown, /Semantic basis: Rows are comparable only through the same full-string event count and checksum contract/);
+  assert.match(markdown, /Object-shape equivalence: no/);
+  assert.match(markdown, /JavaScript public event objects, Java\/Woodstox XMLStreamReader cursor events, and Rust\/quick-xml Event values are separate implementation shapes/);
+  assert.match(markdown, /Target-distance only: yes/);
+  assert.match(markdown, /Primary JS public event case: `eventObjectFull`/);
+  assert.match(markdown, /\| Java\/Woodstox \| XMLStreamReader cursor API; benchmark folds event type, names, attributes, text, and CDATA without constructing JavaScript public event objects\. \| no \| `packages\/benchmark\/external\/woodstox\/src\/main\/java\/com\/staxxml\/benchmark\/WoodstoxBench\.java` \|/);
+  assert.match(markdown, /\| Rust\/quick-xml \| quick_xml::events::Event and BytesStart path; benchmark folds borrowed\/decoded event data without constructing JavaScript public event objects\. \| no \| `packages\/benchmark\/external\/quick-xml\/src\/main\.rs` \|/);
   assert.match(markdown, /1024 MiB Books Fixture Woodstox 0\.9x Target Distances/);
   assert.match(markdown, /\| `file-backed-batch-size-sweep` \| `stax-raw-frame-name-id-batch-8` \| 152\.11 \| process RSS max 61\.77 MiB \| `file-backed-sync-iterable-byte-batches` \| 351\.56 \| 316\.40 \| 164\.29 \| 0\.43 \| no \| `file-backed-trim-boundary-check-candidate\.json` \| same books 1024 MiB fixture family/);
   assert.match(markdown, /\| `external-baseline-1024mib-file-sync-batches` \| `stax-raw-frame-name-id` \| 132\.54 \| process RSS max 67\.59 MiB \| `file-backed-sync-iterable-byte-batches` \| 337\.97 \| 304\.17 \| 171\.63 \| 0\.39 \| no \| `external-baseline-1024mib-file-sync-batches\.json` \| same artifact Woodstox reference \|/);

@@ -1,8 +1,35 @@
 {
-  "generatedAt": "2026-06-01T08:12:51.043Z",
+  "generatedAt": "2026-06-01T09:33:02.839Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
+  "comparisonContract": {
+    "semanticBasis": "Rows are comparable only through the same full-string event count and checksum contract.",
+    "objectShapeEquivalence": false,
+    "objectShapeScope": "JavaScript public event objects, Java/Woodstox XMLStreamReader cursor events, and Rust/quick-xml Event values are separate implementation shapes.",
+    "targetDistanceOnly": true,
+    "primaryJsPublicEventCase": "eventObjectFull",
+    "fastestJsRowsMayUseRawFrameCases": true,
+    "externalBaselines": [
+      {
+        "runtimeId": "woodstox-jvm",
+        "runtimeLabel": "Java/Woodstox",
+        "shape": "XMLStreamReader cursor API; benchmark folds event type, names, attributes, text, and CDATA without constructing JavaScript public event objects.",
+        "sourceEvidence": "packages/benchmark/external/woodstox/src/main/java/com/staxxml/benchmark/WoodstoxBench.java",
+        "sameJsPublicEventObjectShape": false
+      },
+      {
+        "runtimeId": "quick-xml-rust",
+        "runtimeLabel": "Rust/quick-xml",
+        "shape": "quick_xml::events::Event and BytesStart path; benchmark folds borrowed/decoded event data without constructing JavaScript public event objects.",
+        "sourceEvidence": "packages/benchmark/external/quick-xml/src/main.rs",
+        "sameJsPublicEventObjectShape": false
+      }
+    ],
+    "sourceModeEquivalence": "Source modes are reported separately; file-backed JavaScript rows use synchronous Iterable<Uint8Array[]> byte batches while external native baselines read their own file/input stream.",
+    "memoryEquivalence": false,
+    "memoryScope": "Process RSS, browser JS heap, Woodstox JFR allocation samples, and quick-xml allocator traffic are not normalized into one allocation model."
+  },
   "metadata": {
     "releaseDir": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release",
     "sourceArtifacts": [

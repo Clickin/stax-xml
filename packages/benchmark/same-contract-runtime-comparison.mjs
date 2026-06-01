@@ -611,6 +611,7 @@ function createReport(options) {
     objective: 'same-contract-runtime-comparison',
     contract: 'same-full-string-checksum-contract-not-same-object-shape',
     note: 'Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.',
+    comparisonContract: createComparisonContract(),
     metadata: {
       releaseDir: options.releaseDir,
       sourceArtifacts: [
@@ -627,6 +628,36 @@ function createReport(options) {
     comparisonRows,
     allocationEvidence,
     findings: createFindings(summary),
+  };
+}
+
+function createComparisonContract() {
+  return {
+    semanticBasis: 'Rows are comparable only through the same full-string event count and checksum contract.',
+    objectShapeEquivalence: false,
+    objectShapeScope: 'JavaScript public event objects, Java/Woodstox XMLStreamReader cursor events, and Rust/quick-xml Event values are separate implementation shapes.',
+    targetDistanceOnly: true,
+    primaryJsPublicEventCase: 'eventObjectFull',
+    fastestJsRowsMayUseRawFrameCases: true,
+    externalBaselines: [
+      {
+        runtimeId: 'woodstox-jvm',
+        runtimeLabel: 'Java/Woodstox',
+        shape: 'XMLStreamReader cursor API; benchmark folds event type, names, attributes, text, and CDATA without constructing JavaScript public event objects.',
+        sourceEvidence: 'packages/benchmark/external/woodstox/src/main/java/com/staxxml/benchmark/WoodstoxBench.java',
+        sameJsPublicEventObjectShape: false,
+      },
+      {
+        runtimeId: 'quick-xml-rust',
+        runtimeLabel: 'Rust/quick-xml',
+        shape: 'quick_xml::events::Event and BytesStart path; benchmark folds borrowed/decoded event data without constructing JavaScript public event objects.',
+        sourceEvidence: 'packages/benchmark/external/quick-xml/src/main.rs',
+        sameJsPublicEventObjectShape: false,
+      },
+    ],
+    sourceModeEquivalence: 'Source modes are reported separately; file-backed JavaScript rows use synchronous Iterable<Uint8Array[]> byte batches while external native baselines read their own file/input stream.',
+    memoryEquivalence: false,
+    memoryScope: 'Process RSS, browser JS heap, Woodstox JFR allocation samples, and quick-xml allocator traffic are not normalized into one allocation model.',
   };
 }
 
@@ -1702,6 +1733,23 @@ function renderMarkdown(report) {
     report.summary.browserLiveSourceFrontier
       ? `- Browser live fetch source frontier: fetch ReadableStream ${report.summary.browserLiveSourceFrontier.fetchReadableStreamRow.id} at ${formatNumber(report.summary.browserLiveSourceFrontier.fetchReadableStreamRow.mibPerSec)} MiB/s; fetch async byte batches ${report.summary.browserLiveSourceFrontier.fetchAsyncByteBatchRow.id} at ${formatNumber(report.summary.browserLiveSourceFrontier.fetchAsyncByteBatchRow.mibPerSec)} MiB/s; live backpressure rows ${report.summary.browserLiveSourceFrontier.liveRowsBackpressureRespected}/${report.summary.browserLiveSourceFrontier.liveRows}`
       : '- Browser live fetch source frontier: not recorded',
+    '',
+    '## Comparison Contract',
+    '',
+    `- Semantic basis: ${report.comparisonContract.semanticBasis}`,
+    `- Object-shape equivalence: ${report.comparisonContract.objectShapeEquivalence ? 'yes' : 'no'}`,
+    `- Object-shape scope: ${report.comparisonContract.objectShapeScope}`,
+    `- Target-distance only: ${report.comparisonContract.targetDistanceOnly ? 'yes' : 'no'}`,
+    `- Primary JS public event case: \`${report.comparisonContract.primaryJsPublicEventCase}\``,
+    `- Source-mode equivalence: ${report.comparisonContract.sourceModeEquivalence}`,
+    `- Memory equivalence: ${report.comparisonContract.memoryEquivalence ? 'yes' : 'no'}`,
+    `- Memory scope: ${report.comparisonContract.memoryScope}`,
+    '',
+    '| Runtime | Comparator shape | Same JS public event object shape | Source evidence |',
+    '| --- | --- | --- | --- |',
+    ...report.comparisonContract.externalBaselines.map(entry =>
+      `| ${entry.runtimeLabel} | ${entry.shape} | ${entry.sameJsPublicEventObjectShape ? 'yes' : 'no'} | \`${entry.sourceEvidence}\` |`
+    ),
     '',
     '## Fastest JS Rows By Group',
     '',

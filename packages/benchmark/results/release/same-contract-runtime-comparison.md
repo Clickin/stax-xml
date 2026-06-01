@@ -1,6 +1,6 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-06-01T08:12:51.043Z
+Generated: 2026-06-01T09:33:02.839Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
@@ -32,6 +32,22 @@ This report aggregates existing release artifacts. It compares rows only through
 - Text materialization frontier: fastest full row rawFrameNameId at 185.50 MiB/s, 14.50 MiB/s below 200 MiB/s; without-text rows crossing target: 4; negative candidates: 27
 - Source consumption frontier: sync byte batches sync-iterable-byte-batches-batch-8 at 71.96 MiB/s; direct ReadableStream web-readable-stream-raw-frame-ascii-batch-8 at 76.53 MiB/s (1.06x sync); backpressure rows 6/6
 - Browser live fetch source frontier: fetch ReadableStream fetchReadableStreamFull at 9.68 MiB/s; fetch async byte batches fetchAsyncByteBatchFull at 9.77 MiB/s; live backpressure rows 2/2
+
+## Comparison Contract
+
+- Semantic basis: Rows are comparable only through the same full-string event count and checksum contract.
+- Object-shape equivalence: no
+- Object-shape scope: JavaScript public event objects, Java/Woodstox XMLStreamReader cursor events, and Rust/quick-xml Event values are separate implementation shapes.
+- Target-distance only: yes
+- Primary JS public event case: `eventObjectFull`
+- Source-mode equivalence: Source modes are reported separately; file-backed JavaScript rows use synchronous Iterable<Uint8Array[]> byte batches while external native baselines read their own file/input stream.
+- Memory equivalence: no
+- Memory scope: Process RSS, browser JS heap, Woodstox JFR allocation samples, and quick-xml allocator traffic are not normalized into one allocation model.
+
+| Runtime | Comparator shape | Same JS public event object shape | Source evidence |
+| --- | --- | --- | --- |
+| Java/Woodstox | XMLStreamReader cursor API; benchmark folds event type, names, attributes, text, and CDATA without constructing JavaScript public event objects. | no | `packages/benchmark/external/woodstox/src/main/java/com/staxxml/benchmark/WoodstoxBench.java` |
+| Rust/quick-xml | quick_xml::events::Event and BytesStart path; benchmark folds borrowed/decoded event data without constructing JavaScript public event objects. | no | `packages/benchmark/external/quick-xml/src/main.rs` |
 
 ## Fastest JS Rows By Group
 
