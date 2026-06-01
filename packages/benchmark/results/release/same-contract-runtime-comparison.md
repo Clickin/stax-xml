@@ -1,6 +1,6 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-06-01T09:33:02.839Z
+Generated: 2026-06-01T09:53:34.432Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
@@ -8,9 +8,12 @@ This report aggregates existing release artifacts. It compares rows only through
 
 - Aggregated rows: 289
 - 1 GiB+ JavaScript full-string rows: 239
+- Primary 1 GiB+ JS full-string sync byte-batch rows: 231
 - 200 MiB/s+ bounded-memory JavaScript counterexamples found: 0
 - Fastest aggregated 1 GiB+ JS full-string row: Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB)
+- Fastest primary 1 GiB+ JS full-string sync byte-batch row: Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB)
 - Fastest JS full-string row vs 200 MiB/s: 0.93x, 14.50 MiB/s remaining
+- Fastest primary JS full-string row vs 200 MiB/s: 0.93x, 14.50 MiB/s remaining
 - Fastest JS full-string row vs 1024 MiB Woodstox reference: 0.55x Woodstox, 118.67 MiB/s below 0.9x reference target
 - Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id-batch-8 at 0.43x Woodstox, 164.29 MiB/s below 0.9x target
 - Same-fixture 1024 MiB JS row vs quick-xml target: stax-raw-frame-name-id-batch-8 at 0.55x quick-xml, 95.06 MiB/s below 0.9x target
@@ -41,6 +44,7 @@ This report aggregates existing release artifacts. It compares rows only through
 - Target-distance only: yes
 - Primary JS public event case: `eventObjectFull`
 - Source-mode equivalence: Source modes are reported separately; file-backed JavaScript rows use synchronous Iterable<Uint8Array[]> byte batches while external native baselines read their own file/input stream.
+- Primary JS source contract: Primary JavaScript frontier rows consume synchronous Iterable<Uint8Array[]> byte batches and exclude direct ReadableStream, async source-boundary, and full ArrayBuffer parser-input rows.
 - Memory equivalence: no
 - Memory scope: Process RSS, browser JS heap, Woodstox JFR allocation samples, and quick-xml allocator traffic are not normalized into one allocation model.
 
@@ -156,6 +160,20 @@ Interpretation: This is the public event-object frontier; raw-frame rows are rep
 | Scope | Rows | Not full ArrayBuffer parser input | Full ArrayBuffer parser input | Unknown parser input | File-backed sync iterable rows | Direct ReadableStream rows | Corpus seed replay rows | Max corpus seed |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | 1 GiB+ JS full-string rows with source mode metadata | 233 | 233 | 0 | 0 | 36 | 1 | 150 | 100.26 MiB |
+
+### Primary JS Frontier Source Contract
+
+The primary JavaScript frontier uses only synchronous byte-batch parser pulls. Direct `ReadableStream`, async source-boundary, unknown-source, and full ArrayBuffer parser-input rows remain visible elsewhere but do not define this primary frontier.
+
+| Contract | Rows | Excluded rows | Source modes | Direct ReadableStream | Async source rows | Full ArrayBuffer input | Unknown source mode | Fastest row |
+| --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | --- |
+| `primary-sync-iterable-byte-batches` | 231 | 8 | `file-backed-sync-iterable-byte-batches`, `sync-iterable-byte-batches` | 0 | 0 | 0 | 0 | Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB) |
+
+| Excluded reason | Rows | Fastest row |
+| --- | ---: | --- |
+| `async-source-boundary` | 1 | Chrome/V8 browser `fetchAsyncByteBatchFull` 9.77 MiB/s from `browser-fetch-readable-stream-books-corpus.json` |
+| `direct-readable-stream` | 1 | Chrome/V8 browser `fetchReadableStreamFull` 9.68 MiB/s from `browser-fetch-readable-stream-books-corpus.json` |
+| `unknown-source-mode` | 6 | Node/V8 `shortAsciiSubarraySharedDecoder` 51.60 MiB/s from `textdecoder-span-variants.json` |
 
 | Source mode | Rows | Not full ArrayBuffer | Full ArrayBuffer | Unknown | Direct ReadableStream | Corpus seed replay | Fastest row |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
@@ -548,6 +566,14 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - notFullArrayBufferRows=233
   - fullArrayBufferRows=0
   - unknownArrayBufferRows=0
+- primary-js-frontier-sync-byte-batches-only (CLASSIFIED): The primary JavaScript frontier is computed from synchronous Iterable<Uint8Array[]> byte-batch rows only; direct ReadableStream and async source-boundary rows remain separate evidence.
+  - rows=231
+  - excludedRows=8
+  - sourceModes=file-backed-sync-iterable-byte-batches,sync-iterable-byte-batches
+  - directReadableStreamRows=0
+  - asyncSourceRows=0
+  - fullArrayBufferRows=0
+  - fastest=rawFrameNameId@185.50 MiB/s
 - external-target-remains-visible (BENCH_FACT): The external baselines keep Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.
   - 16MiB woodstox=303.10 MiB/s
   - 16MiB quick-xml=243.43 MiB/s

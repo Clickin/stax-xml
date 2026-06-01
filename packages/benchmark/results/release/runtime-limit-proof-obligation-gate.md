@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T09:47:00.284Z
+Generated: 2026-06-01T09:54:16.978Z
 
 ## Scope
 
@@ -88,7 +88,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Counterexample Snapshot
 
-- Same-contract comparison loaded: yes (2026-06-01T09:33:02.839Z)
+- Same-contract comparison loaded: yes (2026-06-01T09:53:34.432Z)
 - Same-contract comparison counterexamples: 0
 - Runtime counterexample scan loaded: yes (2026-06-01T09:06:54.303Z)
 - Runtime counterexample scan counterexamples: 0

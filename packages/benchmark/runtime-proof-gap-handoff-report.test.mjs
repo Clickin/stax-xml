@@ -163,6 +163,69 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
       },
     ],
   });
+  assert.deepEqual(report.sourceConsumptionEvidence.primarySourceShapeSafety, {
+    contract: 'primary-sync-iterable-byte-batches',
+    rows: 231,
+    excludedRows: 8,
+    directReadableStreamRows: 0,
+    asyncSourceRows: 0,
+    fullArrayBufferRows: 0,
+    unknownSourceModeRows: 0,
+    sourceModes: [
+      'file-backed-sync-iterable-byte-batches',
+      'sync-iterable-byte-batches',
+    ],
+    fastestRow: {
+      runtimeLabel: 'Node/V8',
+      caseId: 'rawFrameNameId',
+      mibPerSec: 185.5,
+      sourceArtifact: 'text-trim-cost-decomposition.json',
+      memoryKind: 'process-rss',
+      maxMiB: 60.45,
+      boundedMemory: true,
+      sourceMode: 'sync-iterable-byte-batches',
+      directReadableStream: false,
+      fullArrayBufferParserInput: false,
+    },
+    excludedBreakdown: [
+      {
+        reason: 'async-source-boundary',
+        rows: 1,
+        fastestRow: {
+          sourceArtifact: 'browser-fetch-readable-stream-books-corpus.json',
+          runtimeLabel: 'Chrome/V8 browser',
+          caseId: 'fetchAsyncByteBatchFull',
+          mibPerSec: 9.77,
+          fullStringParity: true,
+          boundedMemory: true,
+        },
+      },
+      {
+        reason: 'direct-readable-stream',
+        rows: 1,
+        fastestRow: {
+          sourceArtifact: 'browser-fetch-readable-stream-books-corpus.json',
+          runtimeLabel: 'Chrome/V8 browser',
+          caseId: 'fetchReadableStreamFull',
+          mibPerSec: 9.68,
+          fullStringParity: true,
+          boundedMemory: true,
+        },
+      },
+      {
+        reason: 'unknown-source-mode',
+        rows: 6,
+        fastestRow: {
+          sourceArtifact: 'textdecoder-span-variants.json',
+          runtimeLabel: 'Node/V8',
+          caseId: 'shortAsciiSubarraySharedDecoder',
+          mibPerSec: 51.6,
+          fullStringParity: true,
+          boundedMemory: true,
+        },
+      },
+    ],
+  });
   assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestSyncIterable, 'sync-iterable-byte-batches-batch-8');
   assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestSyncIterableMiBPerSec, 71.96);
   assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestReadableStream, 'web-readable-stream-raw-frame-ascii-batch-8');
@@ -246,8 +309,15 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.equal(report.externalTargetEvidence.contract, 'woodstox-and-quickxml-0.9x-target-distance');
   assert.equal(report.externalTargetEvidence.fastestJsLargeFullRow.caseId, 'rawFrameNameId');
   assert.equal(report.externalTargetEvidence.fastestJsLargeFullRow.mibPerSec, 185.5);
+  assert.equal(report.externalTargetEvidence.fastestPrimaryJsLargeFullRow.caseId, 'rawFrameNameId');
+  assert.equal(report.externalTargetEvidence.fastestPrimaryJsLargeFullRow.mibPerSec, 185.5);
+  assert.equal(report.externalTargetEvidence.fastestPrimaryJsLargeFullRow.sourceMode, 'sync-iterable-byte-batches');
+  assert.equal(report.externalTargetEvidence.fastestPrimaryJsLargeFullRow.directReadableStream, false);
+  assert.equal(report.externalTargetEvidence.fastestPrimaryJsLargeFullRow.fullArrayBufferParserInput, false);
   assert.equal(report.externalTargetEvidence.fastestJsLargeFullRowTo200MiBPerSec.ratio, 0.93);
   assert.equal(report.externalTargetEvidence.fastestJsLargeFullRowTo200MiBPerSec.remainingMiBPerSec, 14.5);
+  assert.equal(report.externalTargetEvidence.fastestPrimaryJsLargeFullRowTo200MiBPerSec.ratio, 0.93);
+  assert.equal(report.externalTargetEvidence.fastestPrimaryJsLargeFullRowTo200MiBPerSec.remainingMiBPerSec, 14.5);
   assert.equal(report.externalTargetEvidence.fastestJsLargeFullRowTo1024MiBWoodstoxReference.ratio, 0.55);
   assert.equal(report.externalTargetEvidence.fastestJsLargeFullRowTo1024MiBWoodstoxReference.remainingTo90PercentMiBPerSec, 118.67);
   assert.equal(report.externalTargetEvidence.sameFixture1024MiBWoodstoxTarget.fastestJsCaseId, 'stax-raw-frame-name-id-batch-8');
@@ -410,6 +480,14 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Unknown parser-input rows: 0/);
   assert.match(markdown, /File-backed sync Iterable<Uint8Array\[\]> rows: 36/);
   assert.match(markdown, /Separate direct ReadableStream source-overhead rows: 1/);
+  assert.match(markdown, /Primary source contract: primary-sync-iterable-byte-batches/);
+  assert.match(markdown, /Primary sync byte-batch rows: 231; excluded rows: 8/);
+  assert.match(markdown, /Primary source modes: file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches/);
+  assert.match(markdown, /Primary excluded direct\/async\/full-ArrayBuffer\/unknown rows: 0\/0\/0\/0/);
+  assert.match(markdown, /Fastest primary source row: Node\/V8 rawFrameNameId 185\.50 MiB\/s \(process-rss max 60\.45 MiB\)/);
+  assert.match(markdown, /\| `async-source-boundary` \| 1 \| Chrome\/V8 browser `fetchAsyncByteBatchFull` 9\.77 MiB\/s from `browser-fetch-readable-stream-books-corpus\.json` \|/);
+  assert.match(markdown, /\| `direct-readable-stream` \| 1 \| Chrome\/V8 browser `fetchReadableStreamFull` 9\.68 MiB\/s from `browser-fetch-readable-stream-books-corpus\.json` \|/);
+  assert.match(markdown, /\| `unknown-source-mode` \| 6 \| Node\/V8 `shortAsciiSubarraySharedDecoder` 51\.60 MiB\/s from `textdecoder-span-variants\.json` \|/);
   assert.match(markdown, /\| file-backed-sync-iterable-byte-batches \| 36 \| 36 \| 0 \| 0 \| Node\/V8 stax-raw-frame-name-id-batch-8 152\.11 MiB\/s from file-backed-batch-size-sweep\.json \|/);
   assert.match(markdown, /\| sync-iterable-byte-batches \| 195 \| 195 \| 0 \| 148 \| Node\/V8 rawFrameNameId 185\.50 MiB\/s from text-trim-cost-decomposition\.json \|/);
   assert.match(markdown, /\| fetch-readable-stream-pull \| 1 \| 1 \| 1 \| 1 \| Chrome\/V8 browser fetchReadableStreamFull 9\.68 MiB\/s from browser-fetch-readable-stream-books-corpus\.json \|/);
@@ -424,7 +502,9 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Fastest browser JS heap row: Chrome\/V8 browser rawFrameNameId 69\.90 MiB\/s \(browser-js-heap max 39\.55 MiB\)/);
   assert.match(markdown, /\| browser-js-heap-unavailable \| 9 \| 0 \| 9 \| n\/a MiB \| Firefox\/SpiderMonkey browser rawFrameNameId 64\.24 MiB\/s \(browser-js-heap-unavailable\) \| none \|/);
   assert.match(markdown, /## External Target Evidence/);
+  assert.match(markdown, /Fastest primary sync byte-batch JS full row: Node\/V8 rawFrameNameId 185\.50 MiB\/s \(process-rss max 60\.45 MiB\)/);
   assert.match(markdown, /Fastest JS full row vs 200 MiB\/s: 0\.93x, 14\.50 MiB\/s remaining/);
+  assert.match(markdown, /Fastest primary JS full row vs 200 MiB\/s: 0\.93x, 14\.50 MiB\/s remaining/);
   assert.match(markdown, /Fastest JS full row vs 1024 MiB Woodstox reference: 0\.55x, 118\.67 MiB\/s below 0\.9x target/);
   assert.match(markdown, /Same-fixture Woodstox target: stax-raw-frame-name-id-batch-8 152\.11 MiB\/s vs Woodstox 351\.56 MiB\/s; 0\.9x target 316\.40 MiB\/s; remaining 164\.29 MiB\/s; targetMet=no/);
   assert.match(markdown, /Same-fixture quick-xml target: stax-raw-frame-name-id-batch-8 152\.11 MiB\/s vs quick-xml 274\.63 MiB\/s; 0\.9x target 247\.17 MiB\/s; remaining 95\.06 MiB\/s; targetMet=no/);

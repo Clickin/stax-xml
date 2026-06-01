@@ -1,6 +1,6 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-01T09:33:22.790Z
+Generated: 2026-06-01T09:57:15.874Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -9,7 +9,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
 - Audit generated: 2026-06-01T09:15:21.324Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
-- Comparison generated: 2026-06-01T09:33:02.839Z
+- Comparison generated: 2026-06-01T09:53:34.432Z
 - Active obligations: 2
 
 ## Summary
@@ -42,6 +42,17 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Corpus seed replay rows: 150
 - File-backed sync Iterable<Uint8Array[]> rows: 36
 - Separate direct ReadableStream source-overhead rows: 1
+- Primary source contract: primary-sync-iterable-byte-batches
+- Primary sync byte-batch rows: 231; excluded rows: 8
+- Primary source modes: file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches
+- Primary excluded direct/async/full-ArrayBuffer/unknown rows: 0/0/0/0
+- Fastest primary source row: Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB)
+
+| Primary exclusion reason | Rows | Fastest excluded row |
+| --- | ---: | --- |
+| `async-source-boundary` | 1 | Chrome/V8 browser `fetchAsyncByteBatchFull` 9.77 MiB/s from `browser-fetch-readable-stream-books-corpus.json` |
+| `direct-readable-stream` | 1 | Chrome/V8 browser `fetchReadableStreamFull` 9.68 MiB/s from `browser-fetch-readable-stream-books-corpus.json` |
+| `unknown-source-mode` | 6 | Node/V8 `shortAsciiSubarraySharedDecoder` 51.60 MiB/s from `textdecoder-span-variants.json` |
 
 | Source mode | Rows | Not full ArrayBuffer | Direct ReadableStream | Corpus seed replay | Fastest row |
 | --- | ---: | ---: | ---: | ---: | --- |
@@ -79,7 +90,9 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Source artifact: same-contract-runtime-comparison.json
 - Contract: woodstox-and-quickxml-0.9x-target-distance
 - Fastest aggregated JS full row: Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB)
+- Fastest primary sync byte-batch JS full row: Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB)
 - Fastest JS full row vs 200 MiB/s: 0.93x, 14.50 MiB/s remaining
+- Fastest primary JS full row vs 200 MiB/s: 0.93x, 14.50 MiB/s remaining
 - Fastest JS full row vs 1024 MiB Woodstox reference: 0.55x, 118.67 MiB/s below 0.9x target
 - Same-fixture Woodstox target: stax-raw-frame-name-id-batch-8 152.11 MiB/s vs Woodstox 351.56 MiB/s; 0.9x target 316.40 MiB/s; remaining 164.29 MiB/s; targetMet=no
 - Same-fixture quick-xml target: stax-raw-frame-name-id-batch-8 152.11 MiB/s vs quick-xml 274.63 MiB/s; 0.9x target 247.17 MiB/s; remaining 95.06 MiB/s; targetMet=no

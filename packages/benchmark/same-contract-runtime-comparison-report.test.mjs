@@ -35,6 +35,8 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(report.comparisonContract.objectShapeScope, /JavaScript public event objects/);
   assert.equal(report.comparisonContract.targetDistanceOnly, true);
   assert.equal(report.comparisonContract.primaryJsPublicEventCase, 'eventObjectFull');
+  assert.match(report.comparisonContract.primaryJsSourceContract, /synchronous Iterable<Uint8Array\[\]> byte batches/);
+  assert.match(report.comparisonContract.primaryJsSourceContract, /exclude direct ReadableStream/);
   assert.equal(report.comparisonContract.fastestJsRowsMayUseRawFrameCases, true);
   assert.equal(report.comparisonContract.memoryEquivalence, false);
   assert.match(report.comparisonContract.sourceModeEquivalence, /file-backed JavaScript rows use synchronous Iterable<Uint8Array\[\]>/);
@@ -60,6 +62,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.rowCount, 289);
   assert.equal(report.summary.jsLargeFullRowCount, 239);
+  assert.equal(report.summary.primaryJsLargeFullRowCount, 231);
   assert.equal(report.summary.fastestJsLargeFullRow.sourceArtifact, 'text-trim-cost-decomposition.json');
   assert.equal(report.summary.fastestJsLargeFullRow.runtimeId, 'node-v8');
   assert.equal(report.summary.fastestJsLargeFullRow.caseId, 'rawFrameNameId');
@@ -68,8 +71,18 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.summary.fastestJsLargeFullRow.sampleCount, 3);
   assert.equal(report.summary.fastestJsLargeFullRow.sampleMinMiBPerSec, 184.09);
   assert.equal(report.summary.fastestJsLargeFullRow.sampleMaxMiBPerSec, 186.66);
+  assert.equal(report.summary.fastestPrimaryJsLargeFullRow.sourceArtifact, 'text-trim-cost-decomposition.json');
+  assert.equal(report.summary.fastestPrimaryJsLargeFullRow.runtimeId, 'node-v8');
+  assert.equal(report.summary.fastestPrimaryJsLargeFullRow.caseId, 'rawFrameNameId');
+  assert.equal(report.summary.fastestPrimaryJsLargeFullRow.mibPerSec, 185.5);
+  assert.equal(report.summary.fastestPrimaryJsLargeFullRow.sourceMode, 'sync-iterable-byte-batches');
+  assert.equal(report.summary.fastestPrimaryJsLargeFullRow.directReadableStream, false);
+  assert.equal(report.summary.fastestPrimaryJsLargeFullRow.fullArrayBufferParserInput, false);
   assert.equal(report.summary.fastestJsLargeFullRowTo200MiBPerSec.ratio, 0.93);
   assert.equal(report.summary.fastestJsLargeFullRowTo200MiBPerSec.remainingMiBPerSec, 14.5);
+  assert.equal(report.summary.fastestPrimaryJsLargeFullRowTo200MiBPerSec.ratio, 0.93);
+  assert.equal(report.summary.fastestPrimaryJsLargeFullRowTo200MiBPerSec.remainingMiBPerSec, 14.5);
+  assert.match(report.summary.fastestPrimaryJsLargeFullRowTo200MiBPerSec.caveat, /excludes direct ReadableStream/);
   assert.equal(report.summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference.ratio, 0.55);
   assert.equal(report.summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference.remainingTo90PercentMiBPerSec, 118.67);
   assert.match(report.summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference.caveat, /different corpus fixture/);
@@ -241,6 +254,10 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
     finding.id === 'large-js-full-memory-frontier-visible'
     && finding.status === 'CLASSIFIED'
   ));
+  assert.ok(report.findings.some(finding =>
+    finding.id === 'primary-js-frontier-sync-byte-batches-only'
+    && finding.status === 'CLASSIFIED'
+  ));
   assert.deepEqual(report.summary.sourceModes, [
     'fetch-async-iterable-byte-batches',
     'fetch-readable-stream-pull',
@@ -322,6 +339,83 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
           runtimeLabel: 'Node/V8',
           caseId: 'rawFrameNameId',
           mibPerSec: 185.5,
+          fullStringParity: true,
+          boundedMemory: true,
+        },
+      },
+    ],
+  });
+  assert.deepEqual(report.summary.primarySourceShapeSafety, {
+    contract: 'primary-sync-iterable-byte-batches',
+    rows: 231,
+    excludedRows: 8,
+    directReadableStreamRows: 0,
+    asyncSourceRows: 0,
+    fullArrayBufferRows: 0,
+    unknownSourceModeRows: 0,
+    sourceModes: [
+      'file-backed-sync-iterable-byte-batches',
+      'sync-iterable-byte-batches',
+    ],
+    fastestRow: {
+      group: 'text-trim-cost-decomposition',
+      runtimeId: 'node-v8',
+      runtimeLabel: 'Node/V8',
+      caseId: 'rawFrameNameId',
+      mibPerSec: 185.5,
+      boundedMemory: true,
+      memory: {
+        primaryKind: 'process-rss',
+        maxMiB: 60.45,
+        deltaMiB: 2.62,
+        maxHeapUsedMiB: 7.44,
+        maxExternalMiB: 2.69,
+        maxArrayBuffersMiB: 0.88,
+      },
+      sourceMode: 'sync-iterable-byte-batches',
+      directReadableStream: false,
+      demandDrivenSource: null,
+      respectsBackpressure: null,
+      fullArrayBufferParserInput: false,
+      sourceArtifact: 'text-trim-cost-decomposition.json',
+      sampleCount: 3,
+      sampleMinMiBPerSec: 184.09,
+      sampleMaxMiBPerSec: 186.66,
+      sampleSpreadRatio: 0.01,
+    },
+    excludedBreakdown: [
+      {
+        reason: 'async-source-boundary',
+        rows: 1,
+        fastestRow: {
+          sourceArtifact: 'browser-fetch-readable-stream-books-corpus.json',
+          runtimeLabel: 'Chrome/V8 browser',
+          caseId: 'fetchAsyncByteBatchFull',
+          mibPerSec: 9.77,
+          fullStringParity: true,
+          boundedMemory: true,
+        },
+      },
+      {
+        reason: 'direct-readable-stream',
+        rows: 1,
+        fastestRow: {
+          sourceArtifact: 'browser-fetch-readable-stream-books-corpus.json',
+          runtimeLabel: 'Chrome/V8 browser',
+          caseId: 'fetchReadableStreamFull',
+          mibPerSec: 9.68,
+          fullStringParity: true,
+          boundedMemory: true,
+        },
+      },
+      {
+        reason: 'unknown-source-mode',
+        rows: 6,
+        fastestRow: {
+          sourceArtifact: 'textdecoder-span-variants.json',
+          runtimeLabel: 'Node/V8',
+          caseId: 'shortAsciiSubarraySharedDecoder',
+          mibPerSec: 51.6,
           fullStringParity: true,
           boundedMemory: true,
         },
@@ -1088,7 +1182,10 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /consumes synchronous `Iterable<Uint8Array\[\]>` byte batches/);
   assert.match(markdown, /\| Fastest bounded public event-object row \| `eventObjectFull` \| 141\.62 \| `sync-iterable-byte-batches` \| no \| no \| yes \| `candidate-headroom-books-corpus-stability\.json` \| 58\.38 MiB\/s below 200 MiB\/s; 162\.55 MiB\/s below 0\.9x 1024 MiB Woodstox reference target \|/);
   assert.match(markdown, /not asserting identical object layout or allocation behavior/);
+  assert.match(markdown, /Primary 1 GiB\+ JS full-string sync byte-batch rows: 231/);
+  assert.match(markdown, /Fastest primary 1 GiB\+ JS full-string sync byte-batch row: Node\/V8 rawFrameNameId at 185\.50 MiB\/s/);
   assert.match(markdown, /Fastest JS full-string row vs 200 MiB\/s: 0\.93x, 14\.50 MiB\/s remaining/);
+  assert.match(markdown, /Fastest primary JS full-string row vs 200 MiB\/s: 0\.93x, 14\.50 MiB\/s remaining/);
   assert.match(markdown, /Fastest JS full-string row vs 1024 MiB Woodstox reference: 0\.55x Woodstox, 118\.67 MiB\/s below 0\.9x reference target/);
   assert.match(markdown, /Same-fixture 1024 MiB JS row vs Woodstox target: stax-raw-frame-name-id-batch-8 at 0\.43x Woodstox, 164\.29 MiB\/s below 0\.9x target/);
   assert.match(markdown, /Same-fixture 1024 MiB JS row vs quick-xml target: stax-raw-frame-name-id-batch-8 at 0\.55x quick-xml, 95\.06 MiB\/s below 0\.9x target/);
@@ -1102,6 +1199,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /JavaScript public event objects, Java\/Woodstox XMLStreamReader cursor events, and Rust\/quick-xml Event values are separate implementation shapes/);
   assert.match(markdown, /Target-distance only: yes/);
   assert.match(markdown, /Primary JS public event case: `eventObjectFull`/);
+  assert.match(markdown, /Primary JS source contract: Primary JavaScript frontier rows consume synchronous Iterable<Uint8Array\[\]> byte batches/);
   assert.match(markdown, /\| Java\/Woodstox \| XMLStreamReader cursor API; benchmark folds event type, names, attributes, text, and CDATA without constructing JavaScript public event objects\. \| no \| `packages\/benchmark\/external\/woodstox\/src\/main\/java\/com\/staxxml\/benchmark\/WoodstoxBench\.java` \|/);
   assert.match(markdown, /\| Rust\/quick-xml \| quick_xml::events::Event and BytesStart path; benchmark folds borrowed\/decoded event data without constructing JavaScript public event objects\. \| no \| `packages\/benchmark\/external\/quick-xml\/src\/main\.rs` \|/);
   assert.match(markdown, /1024 MiB Books Fixture Woodstox 0\.9x Target Distances/);
@@ -1114,6 +1212,12 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 233\/233/);
   assert.match(markdown, /1 GiB\+ source-mode rows replaying a corpus seed buffer: 150 \(max seed 100\.26 MiB, max seed\/target 0\.09\)/);
   assert.match(markdown, /\| 1 GiB\+ JS full-string rows with source mode metadata \| 233 \| 233 \| 0 \| 0 \| 36 \| 1 \| 150 \| 100\.26 MiB \|/);
+  assert.match(markdown, /### Primary JS Frontier Source Contract/);
+  assert.match(markdown, /The primary JavaScript frontier uses only synchronous byte-batch parser pulls/);
+  assert.match(markdown, /\| `primary-sync-iterable-byte-batches` \| 231 \| 8 \| `file-backed-sync-iterable-byte-batches`, `sync-iterable-byte-batches` \| 0 \| 0 \| 0 \| 0 \| Node\/V8 rawFrameNameId at 185\.50 MiB\/s/);
+  assert.match(markdown, /\| `async-source-boundary` \| 1 \| Chrome\/V8 browser `fetchAsyncByteBatchFull` 9\.77 MiB\/s from `browser-fetch-readable-stream-books-corpus\.json` \|/);
+  assert.match(markdown, /\| `direct-readable-stream` \| 1 \| Chrome\/V8 browser `fetchReadableStreamFull` 9\.68 MiB\/s from `browser-fetch-readable-stream-books-corpus\.json` \|/);
+  assert.match(markdown, /\| `unknown-source-mode` \| 6 \| Node\/V8 `shortAsciiSubarraySharedDecoder` 51\.60 MiB\/s from `textdecoder-span-variants\.json` \|/);
   assert.match(markdown, /\| `file-backed-sync-iterable-byte-batches` \| 36 \| 36 \| 0 \| 0 \| 0 \| 0 \| Node\/V8 `stax-raw-frame-name-id-batch-8` 152\.11 MiB\/s from `file-backed-batch-size-sweep\.json` \|/);
   assert.match(markdown, /\| `sync-iterable-byte-batches` \| 195 \| 195 \| 0 \| 0 \| 0 \| 148 \| Node\/V8 `rawFrameNameId` 185\.50 MiB\/s from `text-trim-cost-decomposition\.json` \|/);
   assert.match(markdown, /\| `fetch-readable-stream-pull` \| 1 \| 1 \| 0 \| 0 \| 1 \| 1 \| Chrome\/V8 browser `fetchReadableStreamFull` 9\.68 MiB\/s from `browser-fetch-readable-stream-books-corpus\.json` \|/);
@@ -1145,6 +1249,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /\| browser-js-heap-unavailable \| 9 \| 0 \| 9 \| n\/a MiB \| Firefox\/SpiderMonkey browser rawFrameNameId at 64\.24 MiB\/s/);
   assert.match(markdown, /\| process-rss \| 210 \| 202 \| 8 \| 1956\.69 MiB \| Node\/V8 rawFrameNameId at 185\.50 MiB\/s/);
   assert.match(markdown, /large-js-full-memory-frontier-visible \(CLASSIFIED\)/);
+  assert.match(markdown, /primary-js-frontier-sync-byte-batches-only \(CLASSIFIED\)/);
   assert.match(markdown, /different corpus fixtures/);
   assert.match(markdown, /access-shape-rerun-cross-process-books-corpus/);
   assert.match(markdown, /raw-frame-nameid-alone-cross-process-books-corpus/);

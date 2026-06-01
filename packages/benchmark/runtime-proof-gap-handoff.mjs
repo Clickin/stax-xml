@@ -174,7 +174,9 @@ function summarizeExternalTargetEvidence(comparison) {
     sourceArtifact: 'same-contract-runtime-comparison.json',
     contract: 'woodstox-and-quickxml-0.9x-target-distance',
     fastestJsLargeFullRow: summarizeTargetRow(summary.fastestJsLargeFullRow),
+    fastestPrimaryJsLargeFullRow: summarizeTargetRow(summary.fastestPrimaryJsLargeFullRow),
     fastestJsLargeFullRowTo200MiBPerSec: summary.fastestJsLargeFullRowTo200MiBPerSec ?? null,
+    fastestPrimaryJsLargeFullRowTo200MiBPerSec: summary.fastestPrimaryJsLargeFullRowTo200MiBPerSec ?? null,
     fastestJsLargeFullRowTo1024MiBWoodstoxReference: summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference ?? null,
     sameFixture1024MiBWoodstoxTarget: woodstoxTarget,
     sameFixture1024MiBQuickXmlTarget: quickXmlTarget,
@@ -194,6 +196,9 @@ function summarizeTargetRow(row) {
     memoryKind: row.memory?.primaryKind ?? null,
     maxMiB: row.memory?.maxMiB ?? row.maxRssMiB ?? null,
     boundedMemory: row.boundedMemory === true,
+    sourceMode: row.sourceMode ?? null,
+    directReadableStream: row.directReadableStream === null ? null : row.directReadableStream === true,
+    fullArrayBufferParserInput: row.fullArrayBufferParserInput === null ? null : row.fullArrayBufferParserInput === true,
   };
 }
 
@@ -206,6 +211,7 @@ function summarizeSourceConsumptionEvidence(comparison) {
     };
   }
   const sourceShapeSafety = comparison.summary.sourceShapeSafety ?? {};
+  const primarySourceShapeSafety = comparison.summary.primarySourceShapeSafety ?? {};
   const sourceConsumptionFrontier = comparison.summary.sourceConsumptionFrontier ?? null;
   const browserLiveSourceFrontier = comparison.summary.browserLiveSourceFrontier ?? null;
   return {
@@ -218,6 +224,29 @@ function summarizeSourceConsumptionEvidence(comparison) {
     sourceArtifact: 'same-contract-runtime-comparison.json',
     rowCount: comparison.summary.rowCount ?? null,
     sourceModes: comparison.summary.sourceModes ?? [],
+    primarySourceShapeSafety: {
+      contract: primarySourceShapeSafety.contract ?? null,
+      rows: primarySourceShapeSafety.rows ?? null,
+      excludedRows: primarySourceShapeSafety.excludedRows ?? null,
+      directReadableStreamRows: primarySourceShapeSafety.directReadableStreamRows ?? null,
+      asyncSourceRows: primarySourceShapeSafety.asyncSourceRows ?? null,
+      fullArrayBufferRows: primarySourceShapeSafety.fullArrayBufferRows ?? null,
+      unknownSourceModeRows: primarySourceShapeSafety.unknownSourceModeRows ?? null,
+      sourceModes: primarySourceShapeSafety.sourceModes ?? [],
+      fastestRow: summarizeTargetRow(primarySourceShapeSafety.fastestRow),
+      excludedBreakdown: (primarySourceShapeSafety.excludedBreakdown ?? []).map(entry => ({
+        reason: entry.reason,
+        rows: entry.rows,
+        fastestRow: entry.fastestRow ? {
+          sourceArtifact: entry.fastestRow.sourceArtifact,
+          runtimeLabel: entry.fastestRow.runtimeLabel,
+          caseId: entry.fastestRow.caseId,
+          mibPerSec: entry.fastestRow.mibPerSec,
+          fullStringParity: entry.fastestRow.fullStringParity,
+          boundedMemory: entry.fastestRow.boundedMemory,
+        } : null,
+      })),
+    },
     sourceShapeSafety: {
       largeJsFullSourceModeRows: sourceShapeSafety.largeJsFullSourceModeRows ?? null,
       notFullArrayBufferRows: sourceShapeSafety.notFullArrayBufferRows ?? null,
@@ -754,7 +783,22 @@ function renderMarkdown(report) {
       `- Corpus seed replay rows: ${evidence.sourceShapeSafety.corpusSeedReplayRows}`,
       `- File-backed sync Iterable<Uint8Array[]> rows: ${evidence.sourceShapeSafety.fileBackedSyncIterableRows}`,
       `- Separate direct ReadableStream source-overhead rows: ${evidence.sourceShapeSafety.directReadableStreamRows}`,
+      `- Primary source contract: ${evidence.primarySourceShapeSafety.contract}`,
+      `- Primary sync byte-batch rows: ${evidence.primarySourceShapeSafety.rows}; excluded rows: ${evidence.primarySourceShapeSafety.excludedRows}`,
+      `- Primary source modes: ${evidence.primarySourceShapeSafety.sourceModes.join(', ') || 'none'}`,
+      `- Primary excluded direct/async/full-ArrayBuffer/unknown rows: ${evidence.primarySourceShapeSafety.directReadableStreamRows}/${evidence.primarySourceShapeSafety.asyncSourceRows}/${evidence.primarySourceShapeSafety.fullArrayBufferRows}/${evidence.primarySourceShapeSafety.unknownSourceModeRows}`,
+      `- Fastest primary source row: ${formatTargetEvidenceRow(evidence.primarySourceShapeSafety.fastestRow)}`,
     );
+    if (evidence.primarySourceShapeSafety.excludedBreakdown.length > 0) {
+      lines.push(
+        '',
+        '| Primary exclusion reason | Rows | Fastest excluded row |',
+        '| --- | ---: | --- |',
+        ...evidence.primarySourceShapeSafety.excludedBreakdown.map(entry =>
+          `| \`${entry.reason}\` | ${entry.rows} | ${entry.fastestRow ? `${entry.fastestRow.runtimeLabel} \`${entry.fastestRow.caseId}\` ${formatNumber(entry.fastestRow.mibPerSec)} MiB/s from \`${entry.fastestRow.sourceArtifact}\`` : 'n/a'} |`
+        ),
+      );
+    }
     if (evidence.sourceShapeSafety.sourceModeBreakdown.length > 0) {
       lines.push(
         '',
@@ -825,7 +869,9 @@ function renderMarkdown(report) {
     lines.push(
       `- Contract: ${evidence.contract}`,
       `- Fastest aggregated JS full row: ${formatTargetEvidenceRow(evidence.fastestJsLargeFullRow)}`,
+      `- Fastest primary sync byte-batch JS full row: ${formatTargetEvidenceRow(evidence.fastestPrimaryJsLargeFullRow)}`,
       `- Fastest JS full row vs 200 MiB/s: ${formatNumber(evidence.fastestJsLargeFullRowTo200MiBPerSec?.ratio)}x, ${formatNumber(evidence.fastestJsLargeFullRowTo200MiBPerSec?.remainingMiBPerSec)} MiB/s remaining`,
+      `- Fastest primary JS full row vs 200 MiB/s: ${formatNumber(evidence.fastestPrimaryJsLargeFullRowTo200MiBPerSec?.ratio)}x, ${formatNumber(evidence.fastestPrimaryJsLargeFullRowTo200MiBPerSec?.remainingMiBPerSec)} MiB/s remaining`,
       `- Fastest JS full row vs 1024 MiB Woodstox reference: ${formatNumber(evidence.fastestJsLargeFullRowTo1024MiBWoodstoxReference?.ratio)}x, ${formatNumber(evidence.fastestJsLargeFullRowTo1024MiBWoodstoxReference?.remainingTo90PercentMiBPerSec)} MiB/s below 0.9x target`,
       `- Same-fixture Woodstox target: ${woodstox.fastestJsCaseId} ${formatNumber(woodstox.fastestJsMiBPerSec)} MiB/s vs Woodstox ${formatNumber(woodstox.woodstoxMiBPerSec)} MiB/s; 0.9x target ${formatNumber(woodstox.target90MiBPerSec)} MiB/s; remaining ${formatNumber(woodstox.remainingTo90PercentMiBPerSec)} MiB/s; targetMet=${formatNullableBoolean(woodstox.targetMet)}`,
       `- Same-fixture quick-xml target: ${quickXml.fastestJsCaseId} ${formatNumber(quickXml.fastestJsMiBPerSec)} MiB/s vs quick-xml ${formatNumber(quickXml.quickXmlMiBPerSec)} MiB/s; 0.9x target ${formatNumber(quickXml.target90MiBPerSec)} MiB/s; remaining ${formatNumber(quickXml.remainingTo90PercentMiBPerSec)} MiB/s; targetMet=${formatNullableBoolean(quickXml.targetMet)}`,

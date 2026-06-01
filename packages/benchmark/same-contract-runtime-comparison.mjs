@@ -638,6 +638,7 @@ function createComparisonContract() {
     objectShapeScope: 'JavaScript public event objects, Java/Woodstox XMLStreamReader cursor events, and Rust/quick-xml Event values are separate implementation shapes.',
     targetDistanceOnly: true,
     primaryJsPublicEventCase: 'eventObjectFull',
+    primaryJsSourceContract: 'Primary JavaScript frontier rows consume synchronous Iterable<Uint8Array[]> byte batches and exclude direct ReadableStream, async source-boundary, and full ArrayBuffer parser-input rows.',
     fastestJsRowsMayUseRawFrameCases: true,
     externalBaselines: [
       {
@@ -1081,6 +1082,50 @@ function summarizeSourceShapeSafety(rows) {
   };
 }
 
+function isPrimaryJsLargeFullSourceRow(row) {
+  return (
+    row.fullArrayBufferParserInput === false
+    && row.directReadableStream !== true
+    && (
+      row.sourceMode === 'sync-iterable-byte-batches'
+      || row.sourceMode === 'file-backed-sync-iterable-byte-batches'
+    )
+  );
+}
+
+function summarizePrimarySourceShapeSafety(primaryRows, allJsLargeFullRows) {
+  const excludedRows = allJsLargeFullRows.filter(row => !isPrimaryJsLargeFullSourceRow(row));
+  return {
+    contract: 'primary-sync-iterable-byte-batches',
+    rows: primaryRows.length,
+    excludedRows: excludedRows.length,
+    directReadableStreamRows: primaryRows.filter(row => row.directReadableStream === true).length,
+    asyncSourceRows: primaryRows.filter(row => typeof row.sourceMode === 'string' && /async/.test(row.sourceMode)).length,
+    fullArrayBufferRows: primaryRows.filter(row => row.fullArrayBufferParserInput === true).length,
+    unknownSourceModeRows: primaryRows.filter(row => !row.sourceMode).length,
+    sourceModes: Array.from(new Set(primaryRows.map(row => row.sourceMode).filter(Boolean))).sort(),
+    fastestRow: summarizeRow(maxBy(primaryRows, row => row.mibPerSec)),
+    excludedBreakdown: summarizeExcludedPrimarySourceRows(excludedRows),
+  };
+}
+
+function summarizeExcludedPrimarySourceRows(rows) {
+  const groups = groupBy(rows, row => {
+    if (row.directReadableStream === true) return 'direct-readable-stream';
+    if (typeof row.sourceMode === 'string' && /async/.test(row.sourceMode)) return 'async-source-boundary';
+    if (row.fullArrayBufferParserInput === true) return 'full-arraybuffer-parser-input';
+    if (!row.sourceMode) return 'unknown-source-mode';
+    return row.sourceMode;
+  });
+  return [...groups.entries()]
+    .map(([reason, groupRows]) => ({
+      reason,
+      rows: groupRows.length,
+      fastestRow: summarizeSourceShapeFastestRow(maxBy(groupRows, row => row.mibPerSec)),
+    }))
+    .sort((left, right) => left.reason.localeCompare(right.reason));
+}
+
 function summarizeSourceShapeBreakdown(rows) {
   const groups = groupBy(rows, row => row.sourceMode);
   return [...groups.entries()]
@@ -1273,12 +1318,15 @@ function summarize(rows, allocationEvidence, textMaterializationFrontier, source
     && row.fullStringParity
     && (row.fixture?.sizeGiB ?? 0) >= 0.999
   );
+  const primaryJsLargeFullRows = jsLargeFullRows.filter(isPrimaryJsLargeFullSourceRow);
   const jsCounterexamples = jsLargeFullRows.filter(row => row.runtimeLimitCounterexample);
   const fastestJsLargeFullRow = maxBy(jsLargeFullRows, row => row.mibPerSec);
+  const fastestPrimaryJsLargeFullRow = maxBy(primaryJsLargeFullRows, row => row.mibPerSec);
   const jsLargePublicEventRows = jsLargeFullRows.filter(row => row.caseId === 'eventObjectFull');
+  const primaryJsLargePublicEventRows = primaryJsLargeFullRows.filter(row => row.caseId === 'eventObjectFull');
   const fastestJsLargePublicEventRow = maxBy(jsLargePublicEventRows, row => row.mibPerSec);
   const fastestBoundedJsLargePublicEventRow = maxBy(
-    jsLargePublicEventRows.filter(row => row.boundedMemory),
+    primaryJsLargePublicEventRows.filter(row => row.boundedMemory),
     row => row.mibPerSec,
   );
   const fastestRowsByGroup = Array.from(groupBy(jsLargeFullRows, row => row.group), ([group, groupRows]) => ({
@@ -1338,6 +1386,7 @@ function summarize(rows, allocationEvidence, textMaterializationFrontier, source
     .filter(Boolean)
     .sort((left, right) => (right.fastestJs?.mibPerSec ?? -Infinity) - (left.fastestJs?.mibPerSec ?? -Infinity));
   const fastestJsLargeFullRowMibPerSec = fastestJsLargeFullRow?.mibPerSec ?? null;
+  const fastestPrimaryJsLargeFullRowMibPerSec = fastestPrimaryJsLargeFullRow?.mibPerSec ?? null;
   const fastestBoundedJsLargePublicEventRowMibPerSec = fastestBoundedJsLargePublicEventRow?.mibPerSec ?? null;
   const largeWoodstoxMibPerSec = largeWoodstox?.mibPerSec ?? null;
   const sameFixtureWoodstoxMibPerSec = sameFixtureWoodstox?.mibPerSec ?? null;
@@ -1356,11 +1405,18 @@ function summarize(rows, allocationEvidence, textMaterializationFrontier, source
   return {
     rowCount: rows.length,
     jsLargeFullRowCount: jsLargeFullRows.length,
+    primaryJsLargeFullRowCount: primaryJsLargeFullRows.length,
     jsRuntimeCounterexamples200MiB: jsCounterexamples.length,
     fastestJsLargeFullRow: summarizeRow(fastestJsLargeFullRow),
+    fastestPrimaryJsLargeFullRow: summarizeRow(fastestPrimaryJsLargeFullRow),
     fastestJsLargeFullRowTo200MiBPerSec: {
       ratio: typeof fastestJsLargeFullRowMibPerSec === 'number' ? round(fastestJsLargeFullRowMibPerSec / 200) : null,
       remainingMiBPerSec: typeof fastestJsLargeFullRowMibPerSec === 'number' ? round(200 - fastestJsLargeFullRowMibPerSec) : null,
+    },
+    fastestPrimaryJsLargeFullRowTo200MiBPerSec: {
+      ratio: typeof fastestPrimaryJsLargeFullRowMibPerSec === 'number' ? round(fastestPrimaryJsLargeFullRowMibPerSec / 200) : null,
+      remainingMiBPerSec: typeof fastestPrimaryJsLargeFullRowMibPerSec === 'number' ? round(200 - fastestPrimaryJsLargeFullRowMibPerSec) : null,
+      caveat: 'Primary JavaScript frontier excludes direct ReadableStream, async source-boundary, and full ArrayBuffer parser-input rows.',
     },
     fastestJsLargeFullRowTo1024MiBWoodstoxReference: {
       ratio: typeof fastestJsLargeFullRowMibPerSec === 'number' && typeof largeWoodstoxMibPerSec === 'number'
@@ -1458,6 +1514,7 @@ function summarize(rows, allocationEvidence, textMaterializationFrontier, source
     },
     memoryMetricKinds: Array.from(new Set(rows.map(row => row.memory?.primaryKind).filter(Boolean))).sort(),
     memoryFrontier: summarizeMemoryFrontier(jsLargeFullRows),
+    primarySourceShapeSafety: summarizePrimarySourceShapeSafety(primaryJsLargeFullRows, jsLargeFullRows),
     sourceModes: Array.from(new Set(rows.map(row => row.sourceMode).filter(Boolean))).sort(),
     sourceShapeSafety: summarizeSourceShapeSafety(jsLargeFullRows),
     textMaterializationFrontier,
@@ -1611,6 +1668,26 @@ function createFindings(summary) {
       ],
     },
     {
+      id: 'primary-js-frontier-sync-byte-batches-only',
+      status: summary.primarySourceShapeSafety
+        && summary.primarySourceShapeSafety.directReadableStreamRows === 0
+        && summary.primarySourceShapeSafety.asyncSourceRows === 0
+        && summary.primarySourceShapeSafety.fullArrayBufferRows === 0
+        && summary.primarySourceShapeSafety.unknownSourceModeRows === 0
+        ? 'CLASSIFIED'
+        : 'PARTIAL',
+      summary: 'The primary JavaScript frontier is computed from synchronous Iterable<Uint8Array[]> byte-batch rows only; direct ReadableStream and async source-boundary rows remain separate evidence.',
+      evidence: summary.primarySourceShapeSafety ? [
+        `rows=${summary.primarySourceShapeSafety.rows}`,
+        `excludedRows=${summary.primarySourceShapeSafety.excludedRows}`,
+        `sourceModes=${summary.primarySourceShapeSafety.sourceModes.join(',')}`,
+        `directReadableStreamRows=${summary.primarySourceShapeSafety.directReadableStreamRows}`,
+        `asyncSourceRows=${summary.primarySourceShapeSafety.asyncSourceRows}`,
+        `fullArrayBufferRows=${summary.primarySourceShapeSafety.fullArrayBufferRows}`,
+        `fastest=${summary.primarySourceShapeSafety.fastestRow?.caseId}@${formatNumber(summary.primarySourceShapeSafety.fastestRow?.mibPerSec)} MiB/s`,
+      ] : [],
+    },
+    {
       id: 'external-target-remains-visible',
       status: 'BENCH_FACT',
       summary: 'The external baselines keep Woodstox and quick-xml visible as non-JS comparators under the same checksum contract.',
@@ -1703,9 +1780,12 @@ function renderMarkdown(report) {
     '',
     `- Aggregated rows: ${report.summary.rowCount}`,
     `- 1 GiB+ JavaScript full-string rows: ${report.summary.jsLargeFullRowCount}`,
+    `- Primary 1 GiB+ JS full-string sync byte-batch rows: ${report.summary.primaryJsLargeFullRowCount}`,
     `- 200 MiB/s+ bounded-memory JavaScript counterexamples found: ${report.summary.jsRuntimeCounterexamples200MiB}`,
     `- Fastest aggregated 1 GiB+ JS full-string row: ${formatSummaryRow(report.summary.fastestJsLargeFullRow)}`,
+    `- Fastest primary 1 GiB+ JS full-string sync byte-batch row: ${formatSummaryRow(report.summary.fastestPrimaryJsLargeFullRow)}`,
     `- Fastest JS full-string row vs 200 MiB/s: ${formatNumber(report.summary.fastestJsLargeFullRowTo200MiBPerSec.ratio)}x, ${formatNumber(report.summary.fastestJsLargeFullRowTo200MiBPerSec.remainingMiBPerSec)} MiB/s remaining`,
+    `- Fastest primary JS full-string row vs 200 MiB/s: ${formatNumber(report.summary.fastestPrimaryJsLargeFullRowTo200MiBPerSec.ratio)}x, ${formatNumber(report.summary.fastestPrimaryJsLargeFullRowTo200MiBPerSec.remainingMiBPerSec)} MiB/s remaining`,
     `- Fastest JS full-string row vs 1024 MiB Woodstox reference: ${formatNumber(report.summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference.ratio)}x Woodstox, ${formatNumber(report.summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference.remainingTo90PercentMiBPerSec)} MiB/s below 0.9x reference target`,
     `- Same-fixture 1024 MiB JS row vs Woodstox target: ${report.summary.sameFixture1024MiBWoodstoxTarget.fastestJsCaseId ?? 'n/a'} at ${formatNumber(report.summary.sameFixture1024MiBWoodstoxTarget.fastestJsWoodstoxRatio)}x Woodstox, ${formatNumber(report.summary.sameFixture1024MiBWoodstoxTarget.remainingTo90PercentMiBPerSec)} MiB/s below 0.9x target`,
     `- Same-fixture 1024 MiB JS row vs quick-xml target: ${report.summary.sameFixture1024MiBQuickXmlTarget.fastestJsCaseId ?? 'n/a'} at ${formatNumber(report.summary.sameFixture1024MiBQuickXmlTarget.fastestJsQuickXmlRatio)}x quick-xml, ${formatNumber(report.summary.sameFixture1024MiBQuickXmlTarget.remainingTo90PercentMiBPerSec)} MiB/s below 0.9x target`,
@@ -1742,6 +1822,7 @@ function renderMarkdown(report) {
     `- Target-distance only: ${report.comparisonContract.targetDistanceOnly ? 'yes' : 'no'}`,
     `- Primary JS public event case: \`${report.comparisonContract.primaryJsPublicEventCase}\``,
     `- Source-mode equivalence: ${report.comparisonContract.sourceModeEquivalence}`,
+    `- Primary JS source contract: ${report.comparisonContract.primaryJsSourceContract}`,
     `- Memory equivalence: ${report.comparisonContract.memoryEquivalence ? 'yes' : 'no'}`,
     `- Memory scope: ${report.comparisonContract.memoryScope}`,
     '',
@@ -1834,6 +1915,20 @@ function renderMarkdown(report) {
     '| Scope | Rows | Not full ArrayBuffer parser input | Full ArrayBuffer parser input | Unknown parser input | File-backed sync iterable rows | Direct ReadableStream rows | Corpus seed replay rows | Max corpus seed |',
     '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
     `| 1 GiB+ JS full-string rows with source mode metadata | ${report.summary.sourceShapeSafety.largeJsFullSourceModeRows} | ${report.summary.sourceShapeSafety.notFullArrayBufferRows} | ${report.summary.sourceShapeSafety.fullArrayBufferRows} | ${report.summary.sourceShapeSafety.unknownArrayBufferRows} | ${report.summary.sourceShapeSafety.fileBackedSyncIterableRows} | ${report.summary.sourceShapeSafety.directReadableStreamRows} | ${report.summary.sourceShapeSafety.corpusSeedReplayRows} | ${formatNumber(report.summary.sourceShapeSafety.maxCorpusSeedMiB)} MiB |`,
+    '',
+    '### Primary JS Frontier Source Contract',
+    '',
+    'The primary JavaScript frontier uses only synchronous byte-batch parser pulls. Direct `ReadableStream`, async source-boundary, unknown-source, and full ArrayBuffer parser-input rows remain visible elsewhere but do not define this primary frontier.',
+    '',
+    '| Contract | Rows | Excluded rows | Source modes | Direct ReadableStream | Async source rows | Full ArrayBuffer input | Unknown source mode | Fastest row |',
+    '| --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | --- |',
+    `| \`${report.summary.primarySourceShapeSafety.contract}\` | ${report.summary.primarySourceShapeSafety.rows} | ${report.summary.primarySourceShapeSafety.excludedRows} | ${report.summary.primarySourceShapeSafety.sourceModes.map(mode => `\`${mode}\``).join(', ')} | ${report.summary.primarySourceShapeSafety.directReadableStreamRows} | ${report.summary.primarySourceShapeSafety.asyncSourceRows} | ${report.summary.primarySourceShapeSafety.fullArrayBufferRows} | ${report.summary.primarySourceShapeSafety.unknownSourceModeRows} | ${formatSummaryRow(report.summary.primarySourceShapeSafety.fastestRow)} |`,
+    '',
+    '| Excluded reason | Rows | Fastest row |',
+    '| --- | ---: | --- |',
+    ...report.summary.primarySourceShapeSafety.excludedBreakdown.map(entry =>
+      `| \`${entry.reason}\` | ${entry.rows} | ${entry.fastestRow ? `${entry.fastestRow.runtimeLabel} \`${entry.fastestRow.caseId}\` ${formatNumber(entry.fastestRow.mibPerSec)} MiB/s from \`${entry.fastestRow.sourceArtifact}\`` : 'n/a'} |`
+    ),
     '',
     '| Source mode | Rows | Not full ArrayBuffer | Full ArrayBuffer | Unknown | Direct ReadableStream | Corpus seed replay | Fastest row |',
     '| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |',

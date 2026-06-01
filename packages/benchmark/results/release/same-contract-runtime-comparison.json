@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T09:33:02.839Z",
+  "generatedAt": "2026-06-01T09:53:34.432Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -9,6 +9,7 @@
     "objectShapeScope": "JavaScript public event objects, Java/Woodstox XMLStreamReader cursor events, and Rust/quick-xml Event values are separate implementation shapes.",
     "targetDistanceOnly": true,
     "primaryJsPublicEventCase": "eventObjectFull",
+    "primaryJsSourceContract": "Primary JavaScript frontier rows consume synchronous Iterable<Uint8Array[]> byte batches and exclude direct ReadableStream, async source-boundary, and full ArrayBuffer parser-input rows.",
     "fastestJsRowsMayUseRawFrameCases": true,
     "externalBaselines": [
       {
@@ -106,8 +107,35 @@
   "summary": {
     "rowCount": 289,
     "jsLargeFullRowCount": 239,
+    "primaryJsLargeFullRowCount": 231,
     "jsRuntimeCounterexamples200MiB": 0,
     "fastestJsLargeFullRow": {
+      "group": "text-trim-cost-decomposition",
+      "runtimeId": "node-v8",
+      "runtimeLabel": "Node/V8",
+      "caseId": "rawFrameNameId",
+      "mibPerSec": 185.5,
+      "boundedMemory": true,
+      "memory": {
+        "primaryKind": "process-rss",
+        "maxMiB": 60.45,
+        "deltaMiB": 2.62,
+        "maxHeapUsedMiB": 7.44,
+        "maxExternalMiB": 2.69,
+        "maxArrayBuffersMiB": 0.88
+      },
+      "sourceMode": "sync-iterable-byte-batches",
+      "directReadableStream": false,
+      "demandDrivenSource": null,
+      "respectsBackpressure": null,
+      "fullArrayBufferParserInput": false,
+      "sourceArtifact": "text-trim-cost-decomposition.json",
+      "sampleCount": 3,
+      "sampleMinMiBPerSec": 184.09,
+      "sampleMaxMiBPerSec": 186.66,
+      "sampleSpreadRatio": 0.01
+    },
+    "fastestPrimaryJsLargeFullRow": {
       "group": "text-trim-cost-decomposition",
       "runtimeId": "node-v8",
       "runtimeLabel": "Node/V8",
@@ -136,6 +164,11 @@
     "fastestJsLargeFullRowTo200MiBPerSec": {
       "ratio": 0.93,
       "remainingMiBPerSec": 14.5
+    },
+    "fastestPrimaryJsLargeFullRowTo200MiBPerSec": {
+      "ratio": 0.93,
+      "remainingMiBPerSec": 14.5,
+      "caveat": "Primary JavaScript frontier excludes direct ReadableStream, async source-boundary, and full ArrayBuffer parser-input rows."
     },
     "fastestJsLargeFullRowTo1024MiBWoodstoxReference": {
       "ratio": 0.55,
@@ -2638,6 +2671,83 @@
         "sampleSpreadRatio": 0
       },
       "interpretation": "Memory is classified on the same 1 GiB+ JavaScript full-string row set used for counterexample scanning; process RSS, browser JS heap, and browser host-probe-only rows are not normalized into one allocation model."
+    },
+    "primarySourceShapeSafety": {
+      "contract": "primary-sync-iterable-byte-batches",
+      "rows": 231,
+      "excludedRows": 8,
+      "directReadableStreamRows": 0,
+      "asyncSourceRows": 0,
+      "fullArrayBufferRows": 0,
+      "unknownSourceModeRows": 0,
+      "sourceModes": [
+        "file-backed-sync-iterable-byte-batches",
+        "sync-iterable-byte-batches"
+      ],
+      "fastestRow": {
+        "group": "text-trim-cost-decomposition",
+        "runtimeId": "node-v8",
+        "runtimeLabel": "Node/V8",
+        "caseId": "rawFrameNameId",
+        "mibPerSec": 185.5,
+        "boundedMemory": true,
+        "memory": {
+          "primaryKind": "process-rss",
+          "maxMiB": 60.45,
+          "deltaMiB": 2.62,
+          "maxHeapUsedMiB": 7.44,
+          "maxExternalMiB": 2.69,
+          "maxArrayBuffersMiB": 0.88
+        },
+        "sourceMode": "sync-iterable-byte-batches",
+        "directReadableStream": false,
+        "demandDrivenSource": null,
+        "respectsBackpressure": null,
+        "fullArrayBufferParserInput": false,
+        "sourceArtifact": "text-trim-cost-decomposition.json",
+        "sampleCount": 3,
+        "sampleMinMiBPerSec": 184.09,
+        "sampleMaxMiBPerSec": 186.66,
+        "sampleSpreadRatio": 0.01
+      },
+      "excludedBreakdown": [
+        {
+          "reason": "async-source-boundary",
+          "rows": 1,
+          "fastestRow": {
+            "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+            "runtimeLabel": "Chrome/V8 browser",
+            "caseId": "fetchAsyncByteBatchFull",
+            "mibPerSec": 9.77,
+            "fullStringParity": true,
+            "boundedMemory": true
+          }
+        },
+        {
+          "reason": "direct-readable-stream",
+          "rows": 1,
+          "fastestRow": {
+            "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+            "runtimeLabel": "Chrome/V8 browser",
+            "caseId": "fetchReadableStreamFull",
+            "mibPerSec": 9.68,
+            "fullStringParity": true,
+            "boundedMemory": true
+          }
+        },
+        {
+          "reason": "unknown-source-mode",
+          "rows": 6,
+          "fastestRow": {
+            "sourceArtifact": "textdecoder-span-variants.json",
+            "runtimeLabel": "Node/V8",
+            "caseId": "shortAsciiSubarraySharedDecoder",
+            "mibPerSec": 51.6,
+            "fullStringParity": true,
+            "boundedMemory": true
+          }
+        }
+      ]
     },
     "sourceModes": [
       "fetch-async-iterable-byte-batches",
@@ -18365,6 +18475,20 @@
         "notFullArrayBufferRows=233",
         "fullArrayBufferRows=0",
         "unknownArrayBufferRows=0"
+      ]
+    },
+    {
+      "id": "primary-js-frontier-sync-byte-batches-only",
+      "status": "CLASSIFIED",
+      "summary": "The primary JavaScript frontier is computed from synchronous Iterable<Uint8Array[]> byte-batch rows only; direct ReadableStream and async source-boundary rows remain separate evidence.",
+      "evidence": [
+        "rows=231",
+        "excludedRows=8",
+        "sourceModes=file-backed-sync-iterable-byte-batches,sync-iterable-byte-batches",
+        "directReadableStreamRows=0",
+        "asyncSourceRows=0",
+        "fullArrayBufferRows=0",
+        "fastest=rawFrameNameId@185.50 MiB/s"
       ]
     },
     {
