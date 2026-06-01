@@ -468,6 +468,9 @@ function createLocalClosure(activeObligations, audit) {
     const localHostCannotRun = /current host cannot run Safari rows/i.test(obligation.evidence ?? '');
     const safariRowsRecorded = availability?.availability?.safariBenchmarkRowsRecorded === true;
     const sourceBoundaryPinned = availability?.availability?.safariSourceBoundaryPinned === true;
+    const closureRequirementsMet = availability?.availability?.closureRequirementsMet ?? 'unknown';
+    const closureRequirementsBlocked = availability?.availability?.closureRequirementsBlocked ?? 'unknown';
+    const closesSafariObligation = availability?.availability?.closesSafariObligation === true;
     items.push({
       obligationId: 'safari-jsc-source-and-browser-rows-open',
       localStatus: localHostCannotRun ? 'external-run-required' : 'unknown-local-status',
@@ -478,6 +481,7 @@ function createLocalClosure(activeObligations, audit) {
             'Current host cannot run Safari/WebKit browser rows through the normal Safari/safaridriver path.',
             safariRowsRecorded ? 'Safari/WebKit benchmark rows are recorded.' : 'No Safari/WebKit benchmark row is recorded by the availability audit.',
             sourceBoundaryPinned ? 'Safari/WebKit source boundary is pinned.' : 'No exact Safari/WebKit source-boundary pin is recorded by the availability audit.',
+            `Safari closure matrix reports closureRequirementsMet=${closureRequirementsMet}, closureRequirementsBlocked=${closureRequirementsBlocked}, closesSafariObligation=${closesSafariObligation}.`,
           ]
         : ['Safari/WebKit local runnable status was not established by the coverage audit.'],
       scopeGuard: 'This is environment availability evidence only; it is not a Safari/WebKit benchmark row or runtime limitation.',

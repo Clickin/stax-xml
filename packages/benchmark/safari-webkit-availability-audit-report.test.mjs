@@ -43,7 +43,26 @@ test('Safari/WebKit availability audit records local execution gap without claim
   assert.equal(report.summary.safariBenchmarkRowsRecorded, false);
   assert.equal(report.summary.exactSafariBuildIdentityRecorded, false);
   assert.equal(report.summary.safariSourceBoundaryPinned, false);
+  assert.equal(report.summary.primarySyncByteBatchRowsRecorded, false);
+  assert.equal(report.summary.boundedPrimarySyncByteBatchRowsRecorded, false);
+  assert.equal(report.summary.directReadableStreamRowsAreSeparateEvidence, true);
+  assert.equal(report.summary.closureRequirementsMet, 2);
+  assert.equal(report.summary.closureRequirementsBlocked, 9);
+  assert.equal(report.summary.closesSafariObligation, false);
   assert.equal(report.summary.openObligationRemains, true);
+  assert.equal(report.closureMatrix.length, 11);
+  assert.ok(report.closureMatrix.some(requirement =>
+    requirement.id === 'harness-supports-safari'
+    && requirement.status === 'met'
+  ));
+  assert.ok(report.closureMatrix.some(requirement =>
+    requirement.id === 'direct-readable-stream-not-substitute'
+    && requirement.status === 'met'
+  ));
+  assert.ok(report.closureMatrix.some(requirement =>
+    requirement.id === 'primary-sync-byte-batch-rows-recorded'
+    && requirement.status === 'blocked'
+  ));
   assert.ok(report.probes.commands.some(probe => probe.name === 'safaridriver'));
   assert.ok(report.probes.paths.some(probe => probe.label === 'macOS Safari app'));
   assert.ok(report.probes.environmentVariables.some(probe => probe.name === 'SAFARI_PATH'));
@@ -65,6 +84,15 @@ test('Safari/WebKit availability audit records local execution gap without claim
   assert.match(markdown, /Safari benchmark rows recorded: no/);
   assert.match(markdown, /Exact Safari build identity recorded: no/);
   assert.match(markdown, /Safari source boundary pinned: no/);
+  assert.match(markdown, /Primary sync byte-batch rows recorded: no/);
+  assert.match(markdown, /Bounded primary sync byte-batch rows recorded: no/);
+  assert.match(markdown, /Direct ReadableStream rows are separate evidence: yes/);
+  assert.match(markdown, /Closure requirements met: 2/);
+  assert.match(markdown, /Closure requirements blocked: 9/);
+  assert.match(markdown, /Closes Safari obligation: no/);
+  assert.match(markdown, /## Closure Matrix/);
+  assert.match(markdown, /\| `direct-readable-stream-not-substitute` \| met \|/);
+  assert.match(markdown, /\| `primary-sync-byte-batch-rows-recorded` \| blocked \|/);
   assert.match(markdown, /## Environment Probes/);
   assert.match(markdown, /SAFARI_PATH/);
   assert.match(markdown, /safari smoke harness/);

@@ -1,6 +1,6 @@
 # Safari/WebKit Availability Audit
 
-Generated: 2026-05-26T21:19:00.453Z
+Generated: 2026-06-01T10:28:34.280Z
 
 ENVIRONMENT_FACT_LIMIT evidence for the current host and repository harness. It does not benchmark Safari/WebKit and does not prove Safari/WebKit cannot be a counterexample elsewhere.
 
@@ -16,6 +16,12 @@ ENVIRONMENT_FACT_LIMIT evidence for the current host and repository harness. It 
 - Safari benchmark rows recorded: no
 - Exact Safari build identity recorded: no
 - Safari source boundary pinned: no
+- Primary sync byte-batch rows recorded: no
+- Bounded primary sync byte-batch rows recorded: no
+- Direct ReadableStream rows are separate evidence: yes
+- Closure requirements met: 2
+- Closure requirements blocked: 9
+- Closes Safari obligation: no
 - Open obligation remains: yes
 
 ## Command Probes
@@ -53,6 +59,22 @@ Current benchmark browser harnesses support Chrome/Edge through CDP, Firefox thr
 | --- | --- | --- |
 | safari smoke harness | yes | G:\programming\stax-xml\packages\benchmark\safari-webdriver-candidate-headroom.mjs |
 | cross-process browser harness | yes | G:\programming\stax-xml\packages\benchmark\browser-candidate-headroom-cross-process.mjs |
+
+## Closure Matrix
+
+| Requirement | Status | Summary |
+| --- | --- | --- |
+| `host-is-macos` | blocked | Current host is not macOS, so this audit cannot produce local Safari browser rows. |
+| `safari-executable-found` | blocked | No Safari/WebKit executable was found on PATH, common install paths, or configured environment variables. |
+| `safaridriver-found` | blocked | No safaridriver/WebKit driver was found. |
+| `harness-supports-safari` | met | Repository harness has a Safari/WebKit execution path. |
+| `can-run-safari-browser-rows` | blocked | Current host cannot run Safari/WebKit browser benchmark rows. |
+| `safari-benchmark-rows-recorded` | blocked | No Safari/WebKit benchmark row is recorded by this environment audit. |
+| `primary-sync-byte-batch-rows-recorded` | blocked | No Safari/WebKit primary sync byte-batch row is recorded. |
+| `bounded-primary-sync-byte-batch-rows-recorded` | blocked | No bounded Safari/WebKit primary sync byte-batch row is recorded. |
+| `exact-build-identity-recorded` | blocked | No exact Safari/WebKit build identity is recorded. |
+| `source-boundary-pinned` | blocked | No Safari/WebKit source boundary is pinned. |
+| `direct-readable-stream-not-substitute` | met | Direct ReadableStream rows are explicitly scoped as separate source-overhead evidence. |
 
 ## Findings
 

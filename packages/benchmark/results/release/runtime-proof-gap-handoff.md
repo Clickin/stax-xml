@@ -1,13 +1,13 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-01T10:22:21.582Z
+Generated: 2026-06-01T10:29:04.930Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-06-01T10:22:05.150Z
+- Audit generated: 2026-06-01T10:28:54.396Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
 - Comparison generated: 2026-06-01T10:21:54.633Z
 - Active obligations: 2
@@ -146,6 +146,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
   - Current host cannot run Safari/WebKit browser rows through the normal Safari/safaridriver path.
   - No Safari/WebKit benchmark row is recorded by the availability audit.
   - No exact Safari/WebKit source-boundary pin is recorded by the availability audit.
+  - Safari closure matrix reports closureRequirementsMet=2, closureRequirementsBlocked=9, closesSafariObligation=false.
 - Local evidence artifacts: safari-webkit-availability-audit.json
 
 Prerequisites:

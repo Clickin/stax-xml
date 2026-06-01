@@ -89,6 +89,15 @@ function createReport() {
     note: 'Current benchmark browser harnesses support Chrome/Edge through CDP, Firefox through built-in WebDriver BiDi, and Safari/WebKit through the safaridriver WebDriver wrapper, including cross-process stability rows, when safaridriver is available.',
   };
   const canRunSafariBrowserRows = isMac && Boolean(availableExecutable) && hasSafaridriver && harnessSupport.safariWebDriver;
+  const closureMatrix = createClosureMatrix({
+    isMac,
+    availableExecutable,
+    hasSafaridriver,
+    harnessSupport,
+    canRunSafariBrowserRows,
+  });
+  const closureRequirementsMet = closureMatrix.filter(item => item.status === 'met').length;
+  const closureRequirementsBlocked = closureMatrix.filter(item => item.status === 'blocked').length;
 
   return {
     generatedAt: new Date().toISOString(),
@@ -119,9 +128,101 @@ function createReport() {
       safariBenchmarkRowsRecorded: false,
       exactSafariBuildIdentityRecorded: false,
       safariSourceBoundaryPinned: false,
+      primarySyncByteBatchRowsRecorded: false,
+      boundedPrimarySyncByteBatchRowsRecorded: false,
+      directReadableStreamRowsAreSeparateEvidence: true,
+      closureRequirementsMet,
+      closureRequirementsBlocked,
+      closesSafariObligation: false,
       openObligationRemains: true,
     },
+    closureMatrix,
     findings: createFindings(isMac, availableExecutable, hasSafaridriver, harnessSupport, canRunSafariBrowserRows),
+  };
+}
+
+function createClosureMatrix({
+  isMac,
+  availableExecutable,
+  hasSafaridriver,
+  harnessSupport,
+  canRunSafariBrowserRows,
+}) {
+  return [
+    closureRequirement(
+      'host-is-macos',
+      isMac,
+      'Host can run Apple Safari through the normal Safari/safaridriver path.',
+      'Current host is not macOS, so this audit cannot produce local Safari browser rows.',
+    ),
+    closureRequirement(
+      'safari-executable-found',
+      Boolean(availableExecutable),
+      'Safari/WebKit executable is available on the current host.',
+      'No Safari/WebKit executable was found on PATH, common install paths, or configured environment variables.',
+    ),
+    closureRequirement(
+      'safaridriver-found',
+      hasSafaridriver,
+      'safaridriver or an equivalent WebKit WebDriver is available.',
+      'No safaridriver/WebKit driver was found.',
+    ),
+    closureRequirement(
+      'harness-supports-safari',
+      harnessSupport.safariWebDriver || harnessSupport.webkitRemoteInspector,
+      'Repository harness has a Safari/WebKit execution path.',
+      'Repository harness does not expose a Safari/WebKit execution path.',
+    ),
+    closureRequirement(
+      'can-run-safari-browser-rows',
+      canRunSafariBrowserRows,
+      'Current host can run Safari/WebKit browser benchmark rows.',
+      'Current host cannot run Safari/WebKit browser benchmark rows.',
+    ),
+    closureRequirement(
+      'safari-benchmark-rows-recorded',
+      false,
+      'Same-contract Safari/WebKit benchmark rows are recorded.',
+      'No Safari/WebKit benchmark row is recorded by this environment audit.',
+    ),
+    closureRequirement(
+      'primary-sync-byte-batch-rows-recorded',
+      false,
+      'Safari/WebKit primary rows use synchronous Iterable<Uint8Array[]> byte batches.',
+      'No Safari/WebKit primary sync byte-batch row is recorded.',
+    ),
+    closureRequirement(
+      'bounded-primary-sync-byte-batch-rows-recorded',
+      false,
+      'At least one Safari/WebKit primary sync byte-batch row has bounded-memory evidence.',
+      'No bounded Safari/WebKit primary sync byte-batch row is recorded.',
+    ),
+    closureRequirement(
+      'exact-build-identity-recorded',
+      false,
+      'Exact Safari/WebKit build identity is recorded for the tested row.',
+      'No exact Safari/WebKit build identity is recorded.',
+    ),
+    closureRequirement(
+      'source-boundary-pinned',
+      false,
+      'Safari/WebKit string and decoder source boundary is pinned for the tested build.',
+      'No Safari/WebKit source boundary is pinned.',
+    ),
+    closureRequirement(
+      'direct-readable-stream-not-substitute',
+      true,
+      'Direct ReadableStream rows are explicitly scoped as separate source-overhead evidence.',
+      'Direct ReadableStream rows could be mistaken for primary byte-batch closure evidence.',
+    ),
+  ];
+}
+
+function closureRequirement(id, ok, met, blocked) {
+  return {
+    id,
+    status: ok ? 'met' : 'blocked',
+    summary: ok ? met : blocked,
   };
 }
 
@@ -232,6 +333,12 @@ function renderMarkdown(report) {
     `- Safari benchmark rows recorded: ${formatBoolean(report.summary.safariBenchmarkRowsRecorded)}`,
     `- Exact Safari build identity recorded: ${formatBoolean(report.summary.exactSafariBuildIdentityRecorded)}`,
     `- Safari source boundary pinned: ${formatBoolean(report.summary.safariSourceBoundaryPinned)}`,
+    `- Primary sync byte-batch rows recorded: ${formatBoolean(report.summary.primarySyncByteBatchRowsRecorded)}`,
+    `- Bounded primary sync byte-batch rows recorded: ${formatBoolean(report.summary.boundedPrimarySyncByteBatchRowsRecorded)}`,
+    `- Direct ReadableStream rows are separate evidence: ${formatBoolean(report.summary.directReadableStreamRowsAreSeparateEvidence)}`,
+    `- Closure requirements met: ${report.summary.closureRequirementsMet}`,
+    `- Closure requirements blocked: ${report.summary.closureRequirementsBlocked}`,
+    `- Closes Safari obligation: ${formatBoolean(report.summary.closesSafariObligation)}`,
     `- Open obligation remains: ${formatBoolean(report.summary.openObligationRemains)}`,
     '',
     '## Command Probes',
@@ -255,6 +362,10 @@ function renderMarkdown(report) {
   lines.push('', '| Entry point | Exists | Path |', '| --- | --- | --- |');
   for (const entryPoint of report.probes.harnessSupport.entryPoints) {
     lines.push(`| ${entryPoint.label} | ${formatBoolean(entryPoint.exists)} | ${entryPoint.path} |`);
+  }
+  lines.push('', '## Closure Matrix', '', '| Requirement | Status | Summary |', '| --- | --- | --- |');
+  for (const requirement of report.closureMatrix) {
+    lines.push(`| \`${requirement.id}\` | ${requirement.status} | ${requirement.summary} |`);
   }
   lines.push('', '## Findings', '');
   for (const finding of report.findings) {

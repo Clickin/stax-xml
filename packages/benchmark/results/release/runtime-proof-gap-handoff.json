@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T10:22:21.582Z",
+  "generatedAt": "2026-06-01T10:29:04.930Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
@@ -9,7 +9,7 @@
     "comparisonGeneratedAt": "2026-06-01T10:21:54.633Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
-    "auditGeneratedAt": "2026-06-01T10:22:05.150Z",
+    "auditGeneratedAt": "2026-06-01T10:28:54.396Z",
     "auditObjective": "runtime-proof-coverage-audit",
     "auditContract": "static-release-artifact-proof-coverage"
   },
@@ -527,7 +527,8 @@
       "blockers": [
         "Current host cannot run Safari/WebKit browser rows through the normal Safari/safaridriver path.",
         "No Safari/WebKit benchmark row is recorded by the availability audit.",
-        "No exact Safari/WebKit source-boundary pin is recorded by the availability audit."
+        "No exact Safari/WebKit source-boundary pin is recorded by the availability audit.",
+        "Safari closure matrix reports closureRequirementsMet=2, closureRequirementsBlocked=9, closesSafariObligation=false."
       ],
       "scopeGuard": "This is environment availability evidence only; it is not a Safari/WebKit benchmark row or runtime limitation."
     },
@@ -583,7 +584,8 @@
         "blockers": [
           "Current host cannot run Safari/WebKit browser rows through the normal Safari/safaridriver path.",
           "No Safari/WebKit benchmark row is recorded by the availability audit.",
-          "No exact Safari/WebKit source-boundary pin is recorded by the availability audit."
+          "No exact Safari/WebKit source-boundary pin is recorded by the availability audit.",
+          "Safari closure matrix reports closureRequirementsMet=2, closureRequirementsBlocked=9, closesSafariObligation=false."
         ],
         "scopeGuard": "This is environment availability evidence only; it is not a Safari/WebKit benchmark row or runtime limitation."
       },

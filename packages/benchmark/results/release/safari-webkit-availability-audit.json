@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T21:19:00.453Z",
+  "generatedAt": "2026-06-01T10:28:34.280Z",
   "objective": "safari-webkit-availability-audit",
   "contract": "local-safari-webkit-browser-row-availability",
   "note": "ENVIRONMENT_FACT_LIMIT evidence for the current host and repository harness. It does not benchmark Safari/WebKit and does not prove Safari/WebKit cannot be a counterexample elsewhere.",
@@ -109,8 +109,71 @@
     "safariBenchmarkRowsRecorded": false,
     "exactSafariBuildIdentityRecorded": false,
     "safariSourceBoundaryPinned": false,
+    "primarySyncByteBatchRowsRecorded": false,
+    "boundedPrimarySyncByteBatchRowsRecorded": false,
+    "directReadableStreamRowsAreSeparateEvidence": true,
+    "closureRequirementsMet": 2,
+    "closureRequirementsBlocked": 9,
+    "closesSafariObligation": false,
     "openObligationRemains": true
   },
+  "closureMatrix": [
+    {
+      "id": "host-is-macos",
+      "status": "blocked",
+      "summary": "Current host is not macOS, so this audit cannot produce local Safari browser rows."
+    },
+    {
+      "id": "safari-executable-found",
+      "status": "blocked",
+      "summary": "No Safari/WebKit executable was found on PATH, common install paths, or configured environment variables."
+    },
+    {
+      "id": "safaridriver-found",
+      "status": "blocked",
+      "summary": "No safaridriver/WebKit driver was found."
+    },
+    {
+      "id": "harness-supports-safari",
+      "status": "met",
+      "summary": "Repository harness has a Safari/WebKit execution path."
+    },
+    {
+      "id": "can-run-safari-browser-rows",
+      "status": "blocked",
+      "summary": "Current host cannot run Safari/WebKit browser benchmark rows."
+    },
+    {
+      "id": "safari-benchmark-rows-recorded",
+      "status": "blocked",
+      "summary": "No Safari/WebKit benchmark row is recorded by this environment audit."
+    },
+    {
+      "id": "primary-sync-byte-batch-rows-recorded",
+      "status": "blocked",
+      "summary": "No Safari/WebKit primary sync byte-batch row is recorded."
+    },
+    {
+      "id": "bounded-primary-sync-byte-batch-rows-recorded",
+      "status": "blocked",
+      "summary": "No bounded Safari/WebKit primary sync byte-batch row is recorded."
+    },
+    {
+      "id": "exact-build-identity-recorded",
+      "status": "blocked",
+      "summary": "No exact Safari/WebKit build identity is recorded."
+    },
+    {
+      "id": "source-boundary-pinned",
+      "status": "blocked",
+      "summary": "No Safari/WebKit source boundary is pinned."
+    },
+    {
+      "id": "direct-readable-stream-not-substitute",
+      "status": "met",
+      "summary": "Direct ReadableStream rows are explicitly scoped as separate source-overhead evidence."
+    }
+  ],
   "findings": [
     {
       "id": "local-host-platform",

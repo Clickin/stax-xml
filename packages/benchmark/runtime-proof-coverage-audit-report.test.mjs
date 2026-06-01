@@ -1035,6 +1035,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.availability?.safariBenchmarkRowsRecorded === false
     && row.availability?.exactSafariBuildIdentityRecorded === false
     && row.availability?.safariSourceBoundaryPinned === false
+    && row.availability?.primarySyncByteBatchRowsRecorded === false
+    && row.availability?.boundedPrimarySyncByteBatchRowsRecorded === false
+    && row.availability?.directReadableStreamRowsAreSeparateEvidence === true
+    && row.availability?.closureRequirementsMet === 2
+    && row.availability?.closureRequirementsBlocked === 9
+    && row.availability?.closesSafariObligation === false
     && row.availability?.openObligationRemains === true
   ));
   assert.deepEqual(report.coverage.safariWebKitStatus, {
@@ -1048,6 +1054,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     availabilitySaysRowsRecorded: false,
     exactBuildIdentityRecorded: false,
     sourceBoundaryPinned: false,
+    availabilityPrimarySyncByteBatchRowsRecorded: false,
+    availabilityBoundedPrimarySyncByteBatchRowsRecorded: false,
+    directReadableStreamRowsAreSeparateEvidence: true,
+    availabilityClosureRequirementsMet: 2,
+    availabilityClosureRequirementsBlocked: 9,
+    availabilityClosesSafariObligation: false,
     openObligationRemains: true,
     fullStringRowsRecorded: 0,
     directReadableStreamFullStringRowsRecorded: 0,
@@ -1129,6 +1141,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Bun\/JSC evidence is not Safari\/browser JSC evidence/);
   assert.match(markdown, /## Safari\/WebKit Browser Row Status/);
   assert.match(markdown, /Safari\/WebKit evidence class: environment-availability-only/);
+  assert.match(markdown, /Safari\/WebKit availability closure requirements: met=2, blocked=9/);
+  assert.match(markdown, /Safari\/WebKit direct ReadableStream rows separate: yes/);
   assert.match(markdown, /Safari\/WebKit obligation closed: no/);
   assert.match(markdown, /\| `safari-webkit-availability-audit\.json` \| no \| no \| no \| yes \| no \| 0 \| 0 \| 0 \| 0 \| no \| no \|/);
   assert.match(markdown, /Bun\/JSC allocation evidence present/);
