@@ -110,7 +110,7 @@ function createReport(options) {
     && row.sizeGiB !== null
     && row.sizeGiB >= options.minSizeGiB
   );
-  const counterexamples = largeJsFullRows.filter(row =>
+  const measuredCounterexamples = largeJsFullRows.filter(row =>
     row.boundedMemory === true
     && row.hasMemoryProof
     && row.mibPerSec >= options.thresholdMiBPerSec
@@ -143,6 +143,12 @@ function createReport(options) {
     && row.sizeGiB !== null
     && row.sizeGiB >= options.minSizeGiB
   );
+  const aggregateCounterexamples = largeJsFullAggregateRows.filter(row =>
+    row.boundedMemory === true
+    && row.hasMemoryProof
+    && row.mibPerSec >= options.thresholdMiBPerSec
+  );
+  const counterexamples = [...measuredCounterexamples, ...aggregateCounterexamples];
   const fastestLargeFullAggregateRowsWithMemoryProof = largeJsFullAggregateRows
     .filter(row => row.boundedMemory === true && row.hasMemoryProof)
     .slice()
@@ -159,7 +165,7 @@ function createReport(options) {
     generatedAt: new Date().toISOString(),
     objective: 'runtime-counterexample-scan',
     contract: 'release-json-recognized-row-counterexample-search',
-    note: 'Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.',
+    note: 'Scans recognized throughput rows and aggregate rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.',
     parameters: {
       thresholdMiBPerSec: options.thresholdMiBPerSec,
       minSizeGiB: options.minSizeGiB,
@@ -183,6 +189,8 @@ function createReport(options) {
       rowClassificationCompleteness,
       unknownBoundedMemoryBreakdown,
       counterexampleCount: counterexamples.length,
+      measuredCounterexampleCount: measuredCounterexamples.length,
+      aggregateCounterexampleCount: aggregateCounterexamples.length,
       partialHeadroomRowCount: partialHeadroomRows.length,
       unboundedOrUnknownLargeFullRowCount: unboundedOrUnknownLargeFullRows.length,
       largeFullMemoryRejectionBreakdown,
@@ -195,6 +203,8 @@ function createReport(options) {
       conclusionAllowed: false,
     },
     counterexamples,
+    measuredCounterexamples,
+    aggregateCounterexamples,
     fastestLargeFullRows,
     fastestLargeFullRowsWithMemoryProof,
     fastestLargeFullAggregateRowsWithMemoryProof,
@@ -715,7 +725,7 @@ function createFindings(counterexamples, partialHeadroomRows, textMaterializatio
       id: 'bounded-full-string-counterexample-search',
       status: counterexamples.length > 0 ? 'COUNTEREXAMPLE_FOUND' : 'NOT_FOUND_IN_RECOGNIZED_RELEASE_ROWS',
       summary: counterexamples.length > 0
-        ? `${counterexamples.length} recognized release row(s) meet the 200 MiB/s bounded full-string JS rule.`
+        ? `${counterexamples.length} recognized release row(s) or aggregate row(s) meet the 200 MiB/s bounded full-string JS rule.`
         : 'No recognized release row currently meets the 200 MiB/s bounded full-string JS rule.',
     },
     {
@@ -761,7 +771,7 @@ function renderMarkdown(report) {
     '',
     `Generated: ${report.generatedAt}`,
     '',
-    'This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.',
+    'This scan walks recognized throughput rows and aggregate rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.',
     '',
     '## Summary',
     '',
@@ -784,6 +794,8 @@ function renderMarkdown(report) {
     `  - Unknown bounded-memory non-JS rows without peak-memory counters: ${report.summary.unknownBoundedMemoryBreakdown.nonJsNoPeakMemoryRows}`,
     `  - Unknown bounded-memory rows with memory counters: ${report.summary.unknownBoundedMemoryBreakdown.rowsWithMemoryCounter}`,
     `- Counterexamples found: ${report.summary.counterexampleCount}`,
+    `  - Measured row counterexamples: ${report.summary.measuredCounterexampleCount}`,
+    `  - Aggregate row counterexamples: ${report.summary.aggregateCounterexampleCount}`,
     `- Partial/projection threshold rows: ${report.summary.partialHeadroomRowCount}`,
     `- Text/CDATA materialization headroom rows: ${report.summary.textMaterializationHeadroomRowCount}`,
     `- Full-string rows failing bounded-memory criterion: ${report.summary.unboundedOrUnknownLargeFullRowCount}`,
@@ -924,7 +936,7 @@ function renderMarkdown(report) {
     '',
     '## Limits',
     '',
-    '- This scan recognizes rows by common release JSON fields such as `mibPerSec`, `fullStringParity`, `boundedMemory`, and fixture size. Rows without those fields are not used as counterexample proof.',
+    '- This scan recognizes rows by common release JSON fields such as `mibPerSec` or `avgMiBPerSec`, `fullStringParity`, `boundedMemory`, and fixture size. Rows without those fields are not used as counterexample proof.',
     '- A row must carry row-level memory evidence, not only a derived bounded flag, before it can satisfy the bounded-memory counterexample rule.',
     '- A missing counterexample in this scan is not an impossibility proof. It only says the current recognized release rows do not contain one.',
     '- Derived summary artifacts are ignored to avoid circular evidence.',

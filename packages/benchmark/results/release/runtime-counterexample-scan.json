@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-06-01T08:14:10.904Z",
+  "generatedAt": "2026-06-01T09:06:54.303Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
-  "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
+  "note": "Scans recognized throughput rows and aggregate rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
   "parameters": {
     "thresholdMiBPerSec": 200,
     "minSizeGiB": 0.999,
@@ -863,6 +863,8 @@
       "rowsWithMemoryCounter": 10
     },
     "counterexampleCount": 0,
+    "measuredCounterexampleCount": 0,
+    "aggregateCounterexampleCount": 0,
     "partialHeadroomRowCount": 35,
     "unboundedOrUnknownLargeFullRowCount": 91,
     "largeFullMemoryRejectionBreakdown": {
@@ -980,6 +982,8 @@
     "conclusionAllowed": false
   },
   "counterexamples": [],
+  "measuredCounterexamples": [],
+  "aggregateCounterexamples": [],
   "fastestLargeFullRows": [
     {
       "sourceArtifact": "text-trim-cost-decomposition.json",

@@ -1,8 +1,8 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-06-01T08:14:10.904Z
+Generated: 2026-06-01T09:06:54.303Z
 
-This scan walks recognized throughput rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
+This scan walks recognized throughput rows and aggregate rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
 ## Summary
 
@@ -25,6 +25,8 @@ This scan walks recognized throughput rows in primary release JSON artifacts and
   - Unknown bounded-memory non-JS rows without peak-memory counters: 6
   - Unknown bounded-memory rows with memory counters: 10
 - Counterexamples found: 0
+  - Measured row counterexamples: 0
+  - Aggregate row counterexamples: 0
 - Partial/projection threshold rows: 35
 - Text/CDATA materialization headroom rows: 13
 - Full-string rows failing bounded-memory criterion: 91
@@ -188,7 +190,7 @@ These near-full rows still materialize element names and attributes, but omit te
 
 ## Limits
 
-- This scan recognizes rows by common release JSON fields such as `mibPerSec`, `fullStringParity`, `boundedMemory`, and fixture size. Rows without those fields are not used as counterexample proof.
+- This scan recognizes rows by common release JSON fields such as `mibPerSec` or `avgMiBPerSec`, `fullStringParity`, `boundedMemory`, and fixture size. Rows without those fields are not used as counterexample proof.
 - A row must carry row-level memory evidence, not only a derived bounded flag, before it can satisfy the bounded-memory counterexample rule.
 - A missing counterexample in this scan is not an impossibility proof. It only says the current recognized release rows do not contain one.
 - Derived summary artifacts are ignored to avoid circular evidence.
