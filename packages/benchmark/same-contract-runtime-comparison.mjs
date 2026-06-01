@@ -1261,6 +1261,7 @@ function summarize(rows, allocationEvidence, textMaterializationFrontier, source
     .filter(Boolean)
     .sort((left, right) => (right.fastestJs?.mibPerSec ?? -Infinity) - (left.fastestJs?.mibPerSec ?? -Infinity));
   const fastestJsLargeFullRowMibPerSec = fastestJsLargeFullRow?.mibPerSec ?? null;
+  const fastestBoundedJsLargePublicEventRowMibPerSec = fastestBoundedJsLargePublicEventRow?.mibPerSec ?? null;
   const largeWoodstoxMibPerSec = largeWoodstox?.mibPerSec ?? null;
   const sameFixtureWoodstoxMibPerSec = sameFixtureWoodstox?.mibPerSec ?? null;
   const sameFixtureQuickXmlMibPerSec = sameFixtureQuickXml?.mibPerSec ?? null;
@@ -1293,6 +1294,25 @@ function summarize(rows, allocationEvidence, textMaterializationFrontier, source
         : null,
       comparableFixture: false,
       caveat: 'ratio uses the 1024 MiB Woodstox reference throughput, but the fastest aggregated JS row may come from a different corpus fixture.',
+    },
+    fastestBoundedJsLargePublicEventRowTo200MiBPerSec: {
+      ratio: typeof fastestBoundedJsLargePublicEventRowMibPerSec === 'number'
+        ? round(fastestBoundedJsLargePublicEventRowMibPerSec / 200)
+        : null,
+      remainingMiBPerSec: typeof fastestBoundedJsLargePublicEventRowMibPerSec === 'number'
+        ? round(200 - fastestBoundedJsLargePublicEventRowMibPerSec)
+        : null,
+      caveat: 'This is the public event-object frontier; raw-frame rows are reported separately and must not be used as public event-object throughput.',
+    },
+    fastestBoundedJsLargePublicEventRowTo1024MiBWoodstoxReference: {
+      ratio: typeof fastestBoundedJsLargePublicEventRowMibPerSec === 'number' && typeof largeWoodstoxMibPerSec === 'number'
+        ? round(fastestBoundedJsLargePublicEventRowMibPerSec / largeWoodstoxMibPerSec)
+        : null,
+      remainingTo90PercentMiBPerSec: typeof fastestBoundedJsLargePublicEventRowMibPerSec === 'number' && typeof targetWoodstox90MiBPerSec === 'number'
+        ? round(targetWoodstox90MiBPerSec - fastestBoundedJsLargePublicEventRowMibPerSec)
+        : null,
+      comparableFixture: false,
+      caveat: 'This compares the public event-object frontier to the 1024 MiB Woodstox reference as target distance only; it is not same object-shape or allocation-equivalence proof.',
     },
     sameFixture1024MiBWoodstoxTarget: {
       group: fastestSameFixtureLargeJsRow?.group ?? null,
@@ -1487,6 +1507,19 @@ function createFindings(summary) {
       ],
     },
     {
+      id: 'public-event-object-frontier-below-target',
+      status: summary.fastestBoundedJsLargePublicEventRow?.mibPerSec >= 200
+        ? 'COUNTEREXAMPLE_FOUND'
+        : 'BELOW_TARGET',
+      summary: 'The fastest bounded 1 GiB+ public event-object row is tracked separately from raw-frame rows.',
+      evidence: [
+        `row=${summary.fastestBoundedJsLargePublicEventRow?.caseId ?? 'none'}`,
+        `mibPerSec=${formatNumber(summary.fastestBoundedJsLargePublicEventRow?.mibPerSec)}`,
+        `remainingTo200MiB=${formatNumber(summary.fastestBoundedJsLargePublicEventRowTo200MiBPerSec?.remainingMiBPerSec)}`,
+        `remainingToWoodstox90=${formatNumber(summary.fastestBoundedJsLargePublicEventRowTo1024MiBWoodstoxReference?.remainingTo90PercentMiBPerSec)}`,
+      ],
+    },
+    {
       id: 'source-shape-not-full-arraybuffer',
       status: summary.sourceShapeSafety.fullArrayBufferRows === 0
         && summary.sourceShapeSafety.unknownArrayBufferRows === 0
@@ -1602,6 +1635,8 @@ function renderMarkdown(report) {
     `- Same-fixture 1024 MiB process RSS snapshot: JS ${formatNumber(report.summary.sameFixture1024MiBProcessRssSnapshot.fastestJs?.maxRssMiB)} MiB, Woodstox ${formatNumber(report.summary.sameFixture1024MiBProcessRssSnapshot.woodstox?.maxRssMiB)} MiB, quick-xml ${formatNumber(report.summary.sameFixture1024MiBProcessRssSnapshot.quickXml?.maxRssMiB)} MiB`,
     `- Fastest 1 GiB+ JS public event-object row: ${formatSummaryRow(report.summary.fastestJsLargePublicEventRow)}`,
     `- Fastest bounded 1 GiB+ JS public event-object row: ${formatSummaryRow(report.summary.fastestBoundedJsLargePublicEventRow)}`,
+    `- Fastest bounded public event-object row vs 200 MiB/s: ${formatNumber(report.summary.fastestBoundedJsLargePublicEventRowTo200MiBPerSec.ratio)}x, ${formatNumber(report.summary.fastestBoundedJsLargePublicEventRowTo200MiBPerSec.remainingMiBPerSec)} MiB/s remaining`,
+    `- Fastest bounded public event-object row vs 1024 MiB Woodstox reference: ${formatNumber(report.summary.fastestBoundedJsLargePublicEventRowTo1024MiBWoodstoxReference.ratio)}x Woodstox, ${formatNumber(report.summary.fastestBoundedJsLargePublicEventRowTo1024MiBWoodstoxReference.remainingTo90PercentMiBPerSec)} MiB/s below 0.9x reference target`,
     `- 1 GiB+ JS full-string memory frontier: ${report.summary.memoryFrontier.boundedRows}/${report.summary.memoryFrontier.rows} bounded rows; fastest bounded row ${formatSummaryRow(report.summary.memoryFrontier.fastestBoundedRow)}`,
     `- 16 MiB Woodstox baseline: ${formatNumber(report.summary.externalBaseline16MiB.woodstoxMiBPerSec)} MiB/s`,
     `- 16 MiB quick-xml baseline: ${formatNumber(report.summary.externalBaseline16MiB.quickXmlMiBPerSec)} MiB/s (${formatNumber(report.summary.externalBaseline16MiB.quickXmlWoodstoxRatio)}x Woodstox)`,
@@ -1684,6 +1719,19 @@ function renderMarkdown(report) {
   } else {
     lines.push('No text-materialization frontier artifact was available.');
   }
+
+  lines.push(
+    '',
+    '## Public Event-Object Frontier',
+    '',
+    'This keeps the public event-object API frontier separate from raw-frame, cursor-style, and direct ReadableStream rows. The current fastest bounded public event-object row consumes synchronous `Iterable<Uint8Array[]>` byte batches, not a direct Web `ReadableStream<Uint8Array>` pull loop. It is the closer API-shape proxy for Java/Woodstox-style StAX event consumption, while still not asserting identical object layout or allocation behavior.',
+    '',
+    '| Scope | Row | MiB/s | Source mode | Direct ReadableStream | Full ArrayBuffer input | Bounded memory | Artifact | Notes |',
+    '| --- | --- | ---: | --- | --- | --- | --- | --- | --- |',
+    `| Fastest bounded public event-object row | \`${report.summary.fastestBoundedJsLargePublicEventRow.caseId}\` | ${formatNumber(report.summary.fastestBoundedJsLargePublicEventRow.mibPerSec)} | ${formatSourceMode(report.summary.fastestBoundedJsLargePublicEventRow.sourceMode)} | ${formatNullableBoolean(report.summary.fastestBoundedJsLargePublicEventRow.directReadableStream)} | ${formatFullArrayBufferInput(report.summary.fastestBoundedJsLargePublicEventRow.fullArrayBufferParserInput)} | ${report.summary.fastestBoundedJsLargePublicEventRow.boundedMemory ? 'yes' : 'no'} | \`${report.summary.fastestBoundedJsLargePublicEventRow.sourceArtifact}\` | ${formatNumber(report.summary.fastestBoundedJsLargePublicEventRowTo200MiBPerSec.remainingMiBPerSec)} MiB/s below 200 MiB/s; ${formatNumber(report.summary.fastestBoundedJsLargePublicEventRowTo1024MiBWoodstoxReference.remainingTo90PercentMiBPerSec)} MiB/s below 0.9x 1024 MiB Woodstox reference target |`,
+    '',
+    `Interpretation: ${report.summary.fastestBoundedJsLargePublicEventRowTo200MiBPerSec.caveat} ${report.summary.fastestBoundedJsLargePublicEventRowTo1024MiBWoodstoxReference.caveat}`,
+  );
 
   lines.push(
     '',
@@ -1948,6 +1996,7 @@ function sameEventChecksum(row, reference) {
 
 function summarizeRow(row) {
   if (!row) return null;
+  const directReadableStream = summarizeDirectReadableStream(row);
   return {
     group: row.group,
     runtimeId: row.runtimeId,
@@ -1957,6 +2006,9 @@ function summarizeRow(row) {
     boundedMemory: row.boundedMemory,
     memory: row.memory,
     sourceMode: row.sourceMode,
+    directReadableStream,
+    demandDrivenSource: row.demandDrivenSource === null ? null : row.demandDrivenSource === true,
+    respectsBackpressure: row.respectsBackpressure === null ? null : row.respectsBackpressure === true,
     fullArrayBufferParserInput: row.fullArrayBufferParserInput,
     sourceArtifact: row.sourceArtifact,
     sampleCount: row.sampleCount ?? null,
@@ -1964,6 +2016,21 @@ function summarizeRow(row) {
     sampleMaxMiBPerSec: row.sampleMaxMiBPerSec ?? null,
     sampleSpreadRatio: row.sampleSpreadRatio ?? null,
   };
+}
+
+function summarizeDirectReadableStream(row) {
+  if (row.directReadableStream === true || row.directReadableStream === false) {
+    return row.directReadableStream;
+  }
+  if (typeof row.sourceMode === 'string') {
+    if (row.sourceMode === 'web-readable-stream-pull' || row.sourceMode === 'fetch-readable-stream-pull') {
+      return true;
+    }
+    if (/sync-iterable-byte-batches|async-iterable-byte-batches|file-backed-sync-iterable-byte-batches/.test(row.sourceMode)) {
+      return false;
+    }
+  }
+  return null;
 }
 
 function summarizeProcessRssRow(row) {

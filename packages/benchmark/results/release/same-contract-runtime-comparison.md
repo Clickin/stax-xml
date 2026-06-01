@@ -1,6 +1,6 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-05-31T23:20:48.612Z
+Generated: 2026-06-01T02:05:04.582Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
@@ -17,6 +17,8 @@ This report aggregates existing release artifacts. It compares rows only through
 - Same-fixture 1024 MiB process RSS snapshot: JS 61.77 MiB, Woodstox 312.71 MiB, quick-xml 4.78 MiB
 - Fastest 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 141.62 MiB/s (process RSS max 203.27 MiB)
 - Fastest bounded 1 GiB+ JS public event-object row: Node/V8 eventObjectFull at 141.62 MiB/s (process RSS max 203.27 MiB)
+- Fastest bounded public event-object row vs 200 MiB/s: 0.71x, 58.38 MiB/s remaining
+- Fastest bounded public event-object row vs 1024 MiB Woodstox reference: 0.42x Woodstox, 162.55 MiB/s below 0.9x reference target
 - 1 GiB+ JS full-string memory frontier: 199/216 bounded rows; fastest bounded row Node/V8 rawFrameNameId at 185.50 MiB/s (process RSS max 60.45 MiB)
 - 16 MiB Woodstox baseline: 303.10 MiB/s
 - 16 MiB quick-xml baseline: 243.43 MiB/s (0.80x Woodstox)
@@ -119,6 +121,16 @@ This summarizes the nearest current full-string headroom evidence. Rows that omi
 | Fastest fold-trim probe | `rawFrameNameIdFoldTrim` | 148.58 | yes | n/a | `text-trim-cost-decomposition-2gib.json` | 0.80x fastest full row; 0 row(s) cross 200 MiB/s |
 
 Interpretation: Text/CDATA omission crosses the target as headroom evidence, while trim-only, fold-trim, cache, and ASCII candidates remain negative for the current full-string contract.
+
+## Public Event-Object Frontier
+
+This keeps the public event-object API frontier separate from raw-frame, cursor-style, and direct ReadableStream rows. The current fastest bounded public event-object row consumes synchronous `Iterable<Uint8Array[]>` byte batches, not a direct Web `ReadableStream<Uint8Array>` pull loop. It is the closer API-shape proxy for Java/Woodstox-style StAX event consumption, while still not asserting identical object layout or allocation behavior.
+
+| Scope | Row | MiB/s | Source mode | Direct ReadableStream | Full ArrayBuffer input | Bounded memory | Artifact | Notes |
+| --- | --- | ---: | --- | --- | --- | --- | --- | --- |
+| Fastest bounded public event-object row | `eventObjectFull` | 141.62 | `sync-iterable-byte-batches` | no | no | yes | `candidate-headroom-books-corpus-stability.json` | 58.38 MiB/s below 200 MiB/s; 162.55 MiB/s below 0.9x 1024 MiB Woodstox reference target |
+
+Interpretation: This is the public event-object frontier; raw-frame rows are reported separately and must not be used as public event-object throughput. This compares the public event-object frontier to the 1024 MiB Woodstox reference as target distance only; it is not same object-shape or allocation-equivalence proof.
 
 ## Source Shape Safety
 
@@ -479,6 +491,11 @@ These rows are evidence about allocation shape, not directly comparable peak mem
 - no-js-200mib-large-full-counterexample-in-aggregated-artifacts (NOT_FOUND_IN_AGGREGATED_ARTIFACTS): The aggregated 1 GiB+ JavaScript full-string rows contain no 200 MiB/s bounded-memory counterexample.
   - jsLargeFullRows=216
   - counterexamples=0
+- public-event-object-frontier-below-target (BELOW_TARGET): The fastest bounded 1 GiB+ public event-object row is tracked separately from raw-frame rows.
+  - row=eventObjectFull
+  - mibPerSec=141.62
+  - remainingTo200MiB=58.38
+  - remainingToWoodstox90=162.55
 - source-shape-not-full-arraybuffer (CLASSIFIED): Recognized 1 GiB+ JavaScript full-string source-mode rows are classified for full XML ArrayBuffer parser input.
   - largeJsFullSourceModeRows=210
   - notFullArrayBufferRows=210
