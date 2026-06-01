@@ -153,6 +153,8 @@ function validateHandoff(handoff) {
         /synchronous Iterable<Uint8Array\[\]>/,
         /must not pass one full XML ArrayBuffer/,
         /source-overhead evidence only/,
+        /directReadableStreamFullStringRowsRecorded/,
+        /must not substitute for primarySyncByteBatchRowsRecorded/,
         /backpressure is respected/,
         /exact Safari version/,
         /TextDecoder\/UTF-8 decode source lines/,

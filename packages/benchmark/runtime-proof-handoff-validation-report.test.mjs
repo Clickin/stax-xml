@@ -56,6 +56,8 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.equal(spiderMonkey.requiredFlagsPresent, true);
   assert.equal(spiderMonkey.contractsPresent, true);
   assert.ok(safari.requiredFlagPatterns.some(pattern => pattern.includes('--harness safari-webdriver')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('directReadableStreamFullStringRowsRecorded')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('must not substitute for primarySyncByteBatchRowsRecorded')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('backpressure is respected')));
   assert.ok(spiderMonkey.requiredFlagPatterns.some(pattern => pattern.includes('FIREFOX_PATH')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('checksum parity')));

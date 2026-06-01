@@ -363,6 +363,8 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(safari.expectedEvidence.some(item => /source-boundary status/.test(item)));
   assert.ok(safari.closureChecks.some(item => /coverage\.safariWebKitStatus\.evidenceClass/.test(item)));
   assert.ok(safari.closureChecks.some(item => /benchmarkRowsRecorded must be greater than 0/.test(item)));
+  assert.ok(safari.closureChecks.some(item => /directReadableStreamFullStringRowsRecorded must be reported separately/.test(item)));
+  assert.ok(safari.closureChecks.some(item => /must not substitute for primarySyncByteBatchRowsRecorded/.test(item)));
   assert.ok(safari.closureChecks.some(item => /primarySyncByteBatchRowsRecorded must be greater than 0/.test(item)));
   assert.ok(safari.closureChecks.some(item => /boundedPrimarySyncByteBatchRowsRecorded must be greater than 0/.test(item)));
   assert.ok(safari.closureChecks.some(item => /closesSafariObligation must be true/.test(item)));
@@ -456,6 +458,8 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Bun\/JSC and Bun-patched WebKit source pins are not Safari browser JSC source pins/);
   assert.match(markdown, /same-contract-runtime-comparison/);
   assert.match(markdown, /Closure checks:/);
+  assert.match(markdown, /directReadableStreamFullStringRowsRecorded must be reported separately/);
+  assert.match(markdown, /must not substitute for primarySyncByteBatchRowsRecorded/);
   assert.match(markdown, /coverage\.safariWebKitStatus\.closesSafariObligation must be true/);
   assert.match(markdown, /coverage\.spiderMonkeyDiagnostics\.emittedIrEvidenceCount must be greater than 0/);
   assert.match(markdown, /evidenceClass jit-status-only/);
