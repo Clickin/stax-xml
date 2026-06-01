@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,6 +12,9 @@ const auditJsonOut = join(tmpDir, 'runtime-proof-gap-handoff-audit-test.json');
 const auditMdOut = join(tmpDir, 'runtime-proof-gap-handoff-audit-test.md');
 const jsonOut = join(tmpDir, 'runtime-proof-gap-handoff-report-test.json');
 const mdOut = join(tmpDir, 'runtime-proof-gap-handoff-report-test.md');
+const badComparisonJson = join(tmpDir, 'runtime-proof-gap-handoff-bad-source-comparison.json');
+const badSourceJsonOut = join(tmpDir, 'runtime-proof-gap-handoff-bad-source-test.json');
+const badSourceMdOut = join(tmpDir, 'runtime-proof-gap-handoff-bad-source-test.md');
 
 test('runtime proof gap handoff tracks current open coverage obligations', () => {
   mkdirSync(tmpDir, { recursive: true });
@@ -582,6 +585,57 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /installed buildconfig audit explains the local diagnostic surface/);
   assert.match(markdown, /environment evidence only until a dump or IR artifact is captured/);
   assert.match(markdown, /not itself benchmark, allocation, or codegen evidence/);
+});
+
+test('runtime proof gap handoff downgrades source evidence if primary rows mix direct streams', () => {
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [auditJsonOut, auditMdOut, badComparisonJson, badSourceJsonOut, badSourceMdOut]) {
+    if (existsSync(filePath)) rmSync(filePath);
+  }
+
+  const auditResult = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-coverage-audit.mjs'),
+    '--json-out',
+    auditJsonOut,
+    '--md-out',
+    auditMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  assert.equal(auditResult.status, 0, auditResult.stderr || auditResult.stdout);
+
+  const comparison = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'same-contract-runtime-comparison.json'), 'utf8'));
+  comparison.summary.primarySourceShapeSafety.directReadableStreamRows = 1;
+  comparison.summary.primarySourceShapeSafety.excludedRows = Math.max(0, comparison.summary.primarySourceShapeSafety.excludedRows - 1);
+  writeFileSync(badComparisonJson, `${JSON.stringify(comparison, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-gap-handoff.mjs'),
+    '--audit-json',
+    auditJsonOut,
+    '--comparison-json',
+    badComparisonJson,
+    '--json-out',
+    badSourceJsonOut,
+    '--md-out',
+    badSourceMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(badSourceJsonOut, 'utf8'));
+  assert.equal(report.summary.sourceConsumptionEvidenceStatus, 'partial');
+  assert.equal(report.sourceConsumptionEvidence.status, 'partial');
+  assert.equal(report.sourceConsumptionEvidence.primarySourceShapeSafety.directReadableStreamRows, 1);
+
+  const markdown = readFileSync(badSourceMdOut, 'utf8');
+  assert.match(markdown, /Source consumption evidence status: partial/);
+  assert.match(markdown, /Primary excluded direct\/async\/full-ArrayBuffer\/unknown rows: 1\/0\/0\/0/);
 });
 
 function escapeRegExp(value) {

@@ -236,9 +236,17 @@ function summarizeSourceConsumptionEvidence(comparison) {
   const primarySourceShapeSafety = comparison.summary.primarySourceShapeSafety ?? {};
   const sourceConsumptionFrontier = comparison.summary.sourceConsumptionFrontier ?? null;
   const browserLiveSourceFrontier = comparison.summary.browserLiveSourceFrontier ?? null;
+  const primarySourceShapeClassified = primarySourceShapeSafety.contract === 'primary-sync-iterable-byte-batches'
+    && primarySourceShapeSafety.parserInput === 'synchronous Iterable<Uint8Array[]>'
+    && (primarySourceShapeSafety.rows ?? 0) > 0
+    && (primarySourceShapeSafety.directReadableStreamRows ?? null) === 0
+    && (primarySourceShapeSafety.asyncSourceRows ?? null) === 0
+    && (primarySourceShapeSafety.fullArrayBufferRows ?? null) === 0
+    && (primarySourceShapeSafety.unknownSourceModeRows ?? null) === 0;
   return {
     status: sourceShapeSafety.fullArrayBufferRows === 0
       && sourceShapeSafety.unknownArrayBufferRows === 0
+      && primarySourceShapeClassified
       && sourceConsumptionFrontier?.backpressureRows === sourceConsumptionFrontier?.backpressureRowsRespected
       && browserLiveSourceFrontier?.liveRows === browserLiveSourceFrontier?.liveRowsBackpressureRespected
       ? 'classified'
