@@ -330,6 +330,15 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.equal(report.externalTargetEvidence.sameFixture1024MiBQuickXmlTarget.target90MiBPerSec, 247.17);
   assert.equal(report.externalTargetEvidence.sameFixture1024MiBQuickXmlTarget.remainingTo90PercentMiBPerSec, 95.06);
   assert.equal(report.externalTargetEvidence.sameFixture1024MiBQuickXmlTarget.targetMet, false);
+  assert.equal(report.externalTargetEvidence.sameFixtureFastestJsContract.caseId, 'stax-raw-frame-name-id-batch-8');
+  assert.equal(report.externalTargetEvidence.sameFixtureFastestJsContract.mibPerSec, 152.11);
+  assert.equal(report.externalTargetEvidence.sameFixtureFastestJsContract.sourceArtifact, 'file-backed-batch-size-sweep.json');
+  assert.equal(report.externalTargetEvidence.sameFixtureFastestJsContract.memoryKind, 'process-rss');
+  assert.equal(report.externalTargetEvidence.sameFixtureFastestJsContract.maxMiB, 61.77);
+  assert.equal(report.externalTargetEvidence.sameFixtureFastestJsContract.boundedMemory, true);
+  assert.equal(report.externalTargetEvidence.sameFixtureFastestJsContract.sourceMode, 'file-backed-sync-iterable-byte-batches');
+  assert.equal(report.externalTargetEvidence.sameFixtureFastestJsContract.directReadableStream, false);
+  assert.equal(report.externalTargetEvidence.sameFixtureFastestJsContract.fullArrayBufferParserInput, false);
   assert.equal(report.externalTargetEvidence.externalBaseline1024MiBFileSyncBatches.woodstoxMiBPerSec, 337.97);
   assert.equal(report.externalTargetEvidence.externalBaseline1024MiBFileSyncBatches.quickXmlMiBPerSec, 270.26);
   assert.equal(report.externalTargetEvidence.sameFixture1024MiBProcessRssSnapshot.fastestJs.maxRssMiB, 61.77);
@@ -508,6 +517,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Fastest JS full row vs 1024 MiB Woodstox reference: 0\.55x, 118\.67 MiB\/s below 0\.9x target/);
   assert.match(markdown, /Same-fixture Woodstox target: stax-raw-frame-name-id-batch-8 152\.11 MiB\/s vs Woodstox 351\.56 MiB\/s; 0\.9x target 316\.40 MiB\/s; remaining 164\.29 MiB\/s; targetMet=no/);
   assert.match(markdown, /Same-fixture quick-xml target: stax-raw-frame-name-id-batch-8 152\.11 MiB\/s vs quick-xml 274\.63 MiB\/s; 0\.9x target 247\.17 MiB\/s; remaining 95\.06 MiB\/s; targetMet=no/);
+  assert.match(markdown, /Same-fixture fastest JS source\/memory contract: Node\/V8 stax-raw-frame-name-id-batch-8 152\.11 MiB\/s \(process-rss max 61\.77 MiB\); sourceMode=file-backed-sync-iterable-byte-batches; directReadableStream=no; fullArrayBufferParserInput=no; boundedMemory=yes/);
   assert.match(markdown, /Same-fixture process RSS: JS 61\.77 MiB; Woodstox 312\.71 MiB; quick-xml 4\.78 MiB/);
   assert.match(markdown, /## Text Materialization Evidence/);
   assert.match(markdown, /Fastest full-string row: rawFrameNameId from text-trim-cost-decomposition\.json at 185\.50 MiB\/s \(fullStringParity=yes, boundedMemory=yes\)/);

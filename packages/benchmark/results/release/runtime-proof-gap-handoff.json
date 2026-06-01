@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T09:57:15.874Z",
+  "generatedAt": "2026-06-01T10:09:15.718Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
@@ -405,6 +405,18 @@
       "fastestJsQuickXmlRatio": 0.55,
       "remainingTo90PercentMiBPerSec": 95.06,
       "targetMet": false
+    },
+    "sameFixtureFastestJsContract": {
+      "runtimeLabel": "Node/V8",
+      "caseId": "stax-raw-frame-name-id-batch-8",
+      "mibPerSec": 152.11,
+      "sourceArtifact": "file-backed-batch-size-sweep.json",
+      "memoryKind": "process-rss",
+      "maxMiB": 61.77,
+      "boundedMemory": true,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false
     },
     "sameFixture1024MiBProcessRssSnapshot": {
       "caveat": "Process RSS values are same-fixture endpoint evidence, not allocation-model equivalence across Java, Rust, and JavaScript runtimes.",

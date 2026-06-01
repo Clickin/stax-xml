@@ -1,6 +1,6 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-01T09:57:15.874Z
+Generated: 2026-06-01T10:09:15.718Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -96,6 +96,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Fastest JS full row vs 1024 MiB Woodstox reference: 0.55x, 118.67 MiB/s below 0.9x target
 - Same-fixture Woodstox target: stax-raw-frame-name-id-batch-8 152.11 MiB/s vs Woodstox 351.56 MiB/s; 0.9x target 316.40 MiB/s; remaining 164.29 MiB/s; targetMet=no
 - Same-fixture quick-xml target: stax-raw-frame-name-id-batch-8 152.11 MiB/s vs quick-xml 274.63 MiB/s; 0.9x target 247.17 MiB/s; remaining 95.06 MiB/s; targetMet=no
+- Same-fixture fastest JS source/memory contract: Node/V8 stax-raw-frame-name-id-batch-8 152.11 MiB/s (process-rss max 61.77 MiB); sourceMode=file-backed-sync-iterable-byte-batches; directReadableStream=no; fullArrayBufferParserInput=no; boundedMemory=yes
 - 1024 MiB external baseline: stax-stream 124.62 MiB/s (0.37x Woodstox); rawFrameNameId 132.54 MiB/s (0.39x Woodstox); Woodstox 337.97 MiB/s; quick-xml 270.26 MiB/s (0.80x Woodstox)
 - Same-fixture process RSS: JS 61.77 MiB; Woodstox 312.71 MiB; quick-xml 4.78 MiB
 - Process RSS caveat: Process RSS values are same-fixture endpoint evidence, not allocation-model equivalence across Java, Rust, and JavaScript runtimes.

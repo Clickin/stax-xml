@@ -162,10 +162,22 @@ function summarizeExternalTargetEvidence(comparison) {
   const quickXmlTarget = summary.sameFixture1024MiBQuickXmlTarget ?? null;
   const processRss = summary.sameFixture1024MiBProcessRssSnapshot ?? null;
   const externalBaseline = summary.externalBaseline1024MiBFileSyncBatches ?? null;
+  const sameFixtureFastestJsContract = summarizeTargetRow(
+    findSameFixtureFastestJsRow(summary.sameFixture1024MiBTargetRows, woodstoxTarget),
+  );
+  const sameFixtureFastestJsContractOk = sameFixtureFastestJsContract
+    && sameFixtureFastestJsContract.sourceMode === 'file-backed-sync-iterable-byte-batches'
+    && sameFixtureFastestJsContract.directReadableStream === false
+    && sameFixtureFastestJsContract.fullArrayBufferParserInput === false
+    && sameFixtureFastestJsContract.boundedMemory === true
+    && sameFixtureFastestJsContract.memoryKind === 'process-rss'
+    && typeof sameFixtureFastestJsContract.maxMiB === 'number'
+    && sameFixtureFastestJsContract.maxMiB < 128;
   const status = woodstoxTarget?.targetMet === false
     && quickXmlTarget?.targetMet === false
     && externalBaseline?.woodstoxMiBPerSec
     && externalBaseline?.quickXmlMiBPerSec
+    && sameFixtureFastestJsContractOk
     ? 'classified'
     : 'partial';
 
@@ -180,10 +192,20 @@ function summarizeExternalTargetEvidence(comparison) {
     fastestJsLargeFullRowTo1024MiBWoodstoxReference: summary.fastestJsLargeFullRowTo1024MiBWoodstoxReference ?? null,
     sameFixture1024MiBWoodstoxTarget: woodstoxTarget,
     sameFixture1024MiBQuickXmlTarget: quickXmlTarget,
+    sameFixtureFastestJsContract,
     sameFixture1024MiBProcessRssSnapshot: processRss,
     externalBaseline1024MiBFileSyncBatches: externalBaseline,
     interpretation: 'Woodstox and quick-xml remain same-checksum semantic comparators, not same object-shape comparators; the 0.9x target is evaluated separately from the 200 MiB/s counterexample threshold.',
   };
+}
+
+function findSameFixtureFastestJsRow(targetRows, target) {
+  if (!Array.isArray(targetRows) || !target) return null;
+  return targetRows.find(row =>
+    row.group === target.group
+    && row.fastestJs?.caseId === target.fastestJsCaseId
+    && row.fastestJs?.sourceArtifact === target.sourceArtifact
+  )?.fastestJs ?? null;
 }
 
 function summarizeTargetRow(row) {
@@ -866,6 +888,7 @@ function renderMarkdown(report) {
     const quickXml = evidence.sameFixture1024MiBQuickXmlTarget;
     const external = evidence.externalBaseline1024MiBFileSyncBatches;
     const rss = evidence.sameFixture1024MiBProcessRssSnapshot;
+    const sameFixtureFastestJsContract = evidence.sameFixtureFastestJsContract;
     lines.push(
       `- Contract: ${evidence.contract}`,
       `- Fastest aggregated JS full row: ${formatTargetEvidenceRow(evidence.fastestJsLargeFullRow)}`,
@@ -875,6 +898,7 @@ function renderMarkdown(report) {
       `- Fastest JS full row vs 1024 MiB Woodstox reference: ${formatNumber(evidence.fastestJsLargeFullRowTo1024MiBWoodstoxReference?.ratio)}x, ${formatNumber(evidence.fastestJsLargeFullRowTo1024MiBWoodstoxReference?.remainingTo90PercentMiBPerSec)} MiB/s below 0.9x target`,
       `- Same-fixture Woodstox target: ${woodstox.fastestJsCaseId} ${formatNumber(woodstox.fastestJsMiBPerSec)} MiB/s vs Woodstox ${formatNumber(woodstox.woodstoxMiBPerSec)} MiB/s; 0.9x target ${formatNumber(woodstox.target90MiBPerSec)} MiB/s; remaining ${formatNumber(woodstox.remainingTo90PercentMiBPerSec)} MiB/s; targetMet=${formatNullableBoolean(woodstox.targetMet)}`,
       `- Same-fixture quick-xml target: ${quickXml.fastestJsCaseId} ${formatNumber(quickXml.fastestJsMiBPerSec)} MiB/s vs quick-xml ${formatNumber(quickXml.quickXmlMiBPerSec)} MiB/s; 0.9x target ${formatNumber(quickXml.target90MiBPerSec)} MiB/s; remaining ${formatNumber(quickXml.remainingTo90PercentMiBPerSec)} MiB/s; targetMet=${formatNullableBoolean(quickXml.targetMet)}`,
+      `- Same-fixture fastest JS source/memory contract: ${formatTargetEvidenceRow(sameFixtureFastestJsContract)}; sourceMode=${sameFixtureFastestJsContract?.sourceMode ?? 'n/a'}; directReadableStream=${formatNullableBoolean(sameFixtureFastestJsContract?.directReadableStream)}; fullArrayBufferParserInput=${formatNullableBoolean(sameFixtureFastestJsContract?.fullArrayBufferParserInput)}; boundedMemory=${formatNullableBoolean(sameFixtureFastestJsContract?.boundedMemory)}`,
       `- 1024 MiB external baseline: stax-stream ${formatNumber(external.staxStreamMiBPerSec)} MiB/s (${formatNumber(external.staxStreamWoodstoxRatio)}x Woodstox); rawFrameNameId ${formatNumber(external.rawFrameNameIdMiBPerSec)} MiB/s (${formatNumber(external.rawFrameNameIdWoodstoxRatio)}x Woodstox); Woodstox ${formatNumber(external.woodstoxMiBPerSec)} MiB/s; quick-xml ${formatNumber(external.quickXmlMiBPerSec)} MiB/s (${formatNumber(external.quickXmlWoodstoxRatio)}x Woodstox)`,
       `- Same-fixture process RSS: JS ${formatNumber(rss.fastestJs?.maxRssMiB)} MiB; Woodstox ${formatNumber(rss.woodstox?.maxRssMiB)} MiB; quick-xml ${formatNumber(rss.quickXml?.maxRssMiB)} MiB`,
       `- Process RSS caveat: ${rss.caveat}`,
