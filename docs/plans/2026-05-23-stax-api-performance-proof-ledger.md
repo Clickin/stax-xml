@@ -122,7 +122,7 @@ The current gate report passes with status `incomplete-proof-correctly-blocked`:
 all 10 required claim guards are satisfied, all 38 required artifact mentions
 are present, all 5 required open-obligation disclosures are present, all 18
 proof-rule checks are satisfied, all 5 source-audit guards are satisfied, and
-all 3 frontier-audit guards are satisfied. It also loads
+all 4 frontier-audit guards are satisfied. It also loads
 `runtime-proof-gap-handoff.json` directly and requires the handoff-level closure
 guards to stay present. The important result is
 `conclusionAllowed: false`, not a proof of impossibility.
@@ -147,6 +147,10 @@ rows are judged against both the 200 MiB/s counterexample threshold and the
 0.9x Woodstox goal. Finally, it requires the text-materialization frontier to
 stay visible: no-text/CDATA omission can cross 200 MiB/s as headroom evidence,
 but it must not be counted as a full-string StAX counterexample.
+The memory frontier guard also requires unbounded or unproven-memory full-string
+rows to stay below 200 MiB/s; the current fastest such row is Bun/JSC
+`stringFull` at 99.71 MiB/s with process RSS max 1956.69 MiB, so it is not a
+counterexample and remains memory-risk evidence.
 
 The loaded handoff guards prevent two false closures. Safari/WebKit closure
 must require bounded primary sync byte-batch browser rows, exact build/source

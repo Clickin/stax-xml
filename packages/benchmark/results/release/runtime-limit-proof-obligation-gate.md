@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T11:22:15.833Z
+Generated: 2026-06-01T11:31:57.205Z
 
 ## Scope
 
@@ -137,9 +137,10 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Frontier Audit Snapshot
 
-- Memory frontier loaded: yes (2026-06-01T08:13:24.956Z)
+- Memory frontier loaded: yes (2026-06-01T11:30:43.441Z)
 - Fastest bounded JS row: 185.50 MiB/s at 60.45 MiB
 - Unbounded or unproven memory rows: 17
+- Unbounded rows at or above 200 MiB/s: 0
 - Target distance loaded: yes (2026-06-01T10:06:06.862Z)
 - Woodstox 0.9x target met: no
 - Woodstox 0.9x remaining: 164.29 MiB/s
@@ -153,6 +154,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | ID | Satisfied | Meaning |
 | --- | --- | --- |
 | `memory-frontier-classified` | yes | memory-frontier-audit.json must classify 1 GiB+ JavaScript full-string memory rows and keep unbounded rows visible. |
+| `memory-frontier-no-unbounded-target-row` | yes | memory-frontier-audit.json must show unbounded or unproven-memory full-string rows do not reach the 200 MiB/s target. |
 | `target-distance-not-met` | yes | target-distance-audit.json must show same-fixture JavaScript remains below both Woodstox and quick-xml 0.9x targets. |
 | `text-frontier-no-full-counterexample` | yes | text-materialization-boundary-audit.json must show no full-string rows cross 200 MiB/s while no-text rows remain partial headroom. |
 

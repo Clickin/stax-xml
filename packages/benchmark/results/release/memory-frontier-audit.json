@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-01T08:13:24.956Z",
+  "generatedAt": "2026-06-01T11:30:43.441Z",
   "objective": "memory-frontier-audit",
   "contract": "same-contract-1gib-plus-js-full-string-memory-frontier",
   "note": "Audits memory classification from the same-contract aggregate. This is not a benchmark run, does not normalize memory models across runtimes, and does not prove a JavaScript runtime ceiling.",
   "inputs": {
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
-    "comparisonGeneratedAt": "2026-06-01T08:12:51.043Z",
+    "comparisonGeneratedAt": "2026-06-01T10:21:54.633Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape"
   },
@@ -14,6 +14,7 @@
     "rows": 239,
     "boundedRows": 222,
     "unboundedRows": 17,
+    "unboundedRowsAtOrAbove200MiBPerSec": 0,
     "jsLargeFullRowCount": 239,
     "memoryKinds": [
       "browser-js-heap",
@@ -28,6 +29,15 @@
       "maxMiB": 60.45,
       "sourceArtifact": "text-trim-cost-decomposition.json",
       "boundedMemory": true
+    },
+    "fastestUnboundedRow": {
+      "runtimeLabel": "Bun/JSC",
+      "caseId": "stringFull",
+      "rateMiBPerSec": 99.71,
+      "memoryKind": "process-rss",
+      "maxMiB": 1956.69,
+      "sourceArtifact": "candidate-headroom-cross-process-large-asset-corpus.json",
+      "boundedMemory": false
     },
     "fastestProcessRssUnder128MiB": {
       "runtimeLabel": "Node/V8",
@@ -156,6 +166,11 @@
       "id": "memory-kinds-not-normalized",
       "classification": "SOURCE_FACT",
       "summary": "Process RSS, browser JS heap, and browser host-probe-only rows remain separate memory kinds."
+    },
+    {
+      "id": "no-unbounded-target-row",
+      "classification": "SOURCE_FACT",
+      "summary": "No current unbounded or unproven-memory JavaScript 1 GiB+ full-string row reaches 200 MiB/s."
     },
     {
       "id": "firefox-heap-unavailable-not-bounded-proof",

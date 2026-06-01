@@ -19,6 +19,9 @@ const counterexampleMdOut = join(tmpDir, 'counterexample-runtime-limit-proof-obl
 const badSourceAuditJsonOut = join(tmpDir, 'source-audit-mixed-primary-source.json');
 const badSourceAuditGateJsonOut = join(tmpDir, 'source-audit-runtime-limit-proof-obligation-gate.json');
 const badSourceAuditGateMdOut = join(tmpDir, 'source-audit-runtime-limit-proof-obligation-gate.md');
+const badMemoryFrontierJsonOut = join(tmpDir, 'memory-frontier-unbounded-counterexample.json');
+const badMemoryFrontierGateJsonOut = join(tmpDir, 'memory-frontier-runtime-limit-proof-obligation-gate.json');
+const badMemoryFrontierGateMdOut = join(tmpDir, 'memory-frontier-runtime-limit-proof-obligation-gate.md');
 
 test('runtime-limit proof-obligation gate permits only a conservative non-conclusion ledger', () => {
   resetTmp();
@@ -83,6 +86,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.frontierAuditSnapshot.memory.fastestBoundedRateMiBPerSec, 185.5);
   assert.equal(report.frontierAuditSnapshot.memory.fastestBoundedMaxMiB, 60.45);
   assert.equal(report.frontierAuditSnapshot.memory.unboundedRows, 17);
+  assert.equal(report.frontierAuditSnapshot.memory.unboundedRowsAtOrAbove200MiBPerSec, 0);
   assert.ok(report.frontierAuditSnapshot.targetDistance.loaded);
   assert.equal(report.frontierAuditSnapshot.targetDistance.woodstoxTargetMet, false);
   assert.equal(report.frontierAuditSnapshot.targetDistance.quickXmlTargetMet, false);
@@ -93,6 +97,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.frontierAuditSnapshot.textMaterialization.fullRowsCrossTarget, 0);
   assert.equal(report.frontierAuditSnapshot.textMaterialization.noTextRowsCrossTarget, 4);
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'memory-frontier-classified' && item.satisfied));
+  assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'memory-frontier-no-unbounded-target-row' && item.satisfied));
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'target-distance-not-met' && item.satisfied));
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'text-frontier-no-full-counterexample' && item.satisfied));
   assert.ok(report.coverageSnapshot.loaded);
@@ -175,6 +180,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /primary-source-sync-byte-batches-only/);
   assert.match(markdown, /## Frontier Audit Snapshot/);
   assert.match(markdown, /Fastest bounded JS row: 185\.50 MiB\/s at 60\.45 MiB/);
+  assert.match(markdown, /Unbounded rows at or above 200 MiB\/s: 0/);
   assert.match(markdown, /Woodstox 0\.9x target met: no/);
   assert.match(markdown, /quick-xml 0\.9x target met: no/);
   assert.match(markdown, /Full-string rows crossing 200 MiB\/s: 0/);
@@ -303,6 +309,57 @@ test('runtime-limit proof-obligation gate fails if primary source audit mixes as
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /Primary parser input: Web ReadableStream<Uint8Array>/);
   assert.match(markdown, /primary-source-sync-byte-batches-only/);
+});
+
+test('runtime-limit proof-obligation gate fails if unbounded memory rows cross the target', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const memoryFrontier = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'memory-frontier-audit.json'), 'utf8'));
+  memoryFrontier.summary.unboundedRowsAtOrAbove200MiBPerSec = 1;
+  memoryFrontier.summary.fastestUnboundedRow = {
+    runtimeLabel: 'Synthetic JS',
+    caseId: 'unboundedFastFull',
+    rateMiBPerSec: 201,
+    memoryKind: 'process-rss',
+    maxMiB: 2048,
+    sourceArtifact: 'synthetic-memory-frontier.json',
+    boundedMemory: false,
+  };
+  writeFileSync(badMemoryFrontierJsonOut, `${JSON.stringify(memoryFrontier, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--memory-frontier-json',
+    badMemoryFrontierJsonOut,
+    '--json-out',
+    badMemoryFrontierGateJsonOut,
+    '--md-out',
+    badMemoryFrontierGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(badMemoryFrontierGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.equal(report.frontierAuditSnapshot.memory.unboundedRowsAtOrAbove200MiBPerSec, 1);
+  assert.ok(report.frontierAuditSnapshot.guards.some(item =>
+    item.id === 'memory-frontier-no-unbounded-target-row'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error =>
+    /Missing frontier audit guard memory-frontier-no-unbounded-target-row/.test(error)
+  ));
+
+  const markdown = readFileSync(badMemoryFrontierGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /Unbounded rows at or above 200 MiB\/s: 1/);
+  assert.match(markdown, /memory-frontier-no-unbounded-target-row/);
 });
 
 test('runtime-limit proof-obligation gate fails if the broad claim is upgraded too early', () => {

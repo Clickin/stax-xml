@@ -74,8 +74,22 @@ function createReport(comparison, options) {
   const rows = frontier.rows ?? 0;
   const boundedRows = frontier.boundedRows ?? 0;
   const unboundedRows = frontier.unboundedRows ?? 0;
+  const comparisonRows = Array.isArray(comparison.comparisonRows) ? comparison.comparisonRows : [];
+  const memoryRows = comparisonRows.filter(row =>
+    row.jsRuntime
+    && row.fullStringParity
+    && (row.fixture?.sizeGiB ?? 0) >= 0.999
+    && row.memory?.primaryKind
+  );
+  const unboundedMemoryRows = memoryRows.filter(row => row.boundedMemory !== true);
+  const unboundedRowsAtOrAbove200MiBPerSec = unboundedMemoryRows
+    .filter(row => typeof row.mibPerSec === 'number' && row.mibPerSec >= 200)
+    .length;
+  const fastestUnboundedRow = maxBy(unboundedMemoryRows, row => row.mibPerSec);
   const status = rows === comparisonSummary.jsLargeFullRowCount
     && boundedRows + unboundedRows === rows
+    && memoryRows.length === rows
+    && unboundedMemoryRows.length === unboundedRows
     && frontier.fastestBoundedRow?.mibPerSec === comparisonSummary.fastestJsLargeFullRow?.mibPerSec
     ? 'classified'
     : 'partial';
@@ -96,9 +110,11 @@ function createReport(comparison, options) {
       rows,
       boundedRows,
       unboundedRows,
+      unboundedRowsAtOrAbove200MiBPerSec,
       jsLargeFullRowCount: comparisonSummary.jsLargeFullRowCount ?? null,
       memoryKinds: frontier.memoryKinds ?? [],
       fastestBoundedRow: summarizeMemoryRow(frontier.fastestBoundedRow),
+      fastestUnboundedRow: summarizeMemoryRow(fastestUnboundedRow),
       fastestProcessRssUnder128MiB: summarizeMemoryRow(frontier.fastestProcessRssUnder128MiB),
       fastestBrowserJsHeapRow: summarizeMemoryRow(frontier.fastestBrowserJsHeapRow),
       sameFixture1024MiBProcessRssSnapshot: summarizeProcessRssSnapshot(comparisonSummary.sameFixture1024MiBProcessRssSnapshot),
@@ -114,7 +130,7 @@ function createReport(comparison, options) {
       fastestBoundedRow: summarizeMemoryRow(bucket.fastestBoundedRow),
     })),
     interpretation: frontier.interpretation,
-    findings: createFindings(frontier, comparisonSummary.sameFixture1024MiBProcessRssSnapshot),
+    findings: createFindings(frontier, comparisonSummary.sameFixture1024MiBProcessRssSnapshot, unboundedRowsAtOrAbove200MiBPerSec),
   };
 }
 
@@ -153,7 +169,7 @@ function summarizeRssRow(row) {
   };
 }
 
-function createFindings(frontier, processRssSnapshot) {
+function createFindings(frontier, processRssSnapshot, unboundedRowsAtOrAbove200MiBPerSec) {
   const findings = [
     {
       id: 'memory-frontier-classified',
@@ -166,6 +182,14 @@ function createFindings(frontier, processRssSnapshot) {
       summary: 'Process RSS, browser JS heap, and browser host-probe-only rows remain separate memory kinds.',
     },
   ];
+
+  if (unboundedRowsAtOrAbove200MiBPerSec === 0) {
+    findings.push({
+      id: 'no-unbounded-target-row',
+      classification: 'SOURCE_FACT',
+      summary: 'No current unbounded or unproven-memory JavaScript 1 GiB+ full-string row reaches 200 MiB/s.',
+    });
+  }
 
   if (frontier.buckets?.some(bucket => bucket.kind === 'browser-js-heap-unavailable' && bucket.boundedRows === 0)) {
     findings.push({
@@ -202,8 +226,10 @@ function renderMarkdown(report) {
     `- JavaScript 1 GiB+ full-string rows: ${report.summary.jsLargeFullRowCount}`,
     `- Bounded rows: ${report.summary.boundedRows}`,
     `- Unbounded or unproven rows: ${report.summary.unboundedRows}`,
+    `- Unbounded or unproven rows at or above 200 MiB/s: ${report.summary.unboundedRowsAtOrAbove200MiBPerSec}`,
     `- Memory kinds: ${report.summary.memoryKinds.join(', ')}`,
     `- Fastest bounded row: ${formatMemoryRow(report.summary.fastestBoundedRow)}`,
+    `- Fastest unbounded or unproven row: ${formatMemoryRow(report.summary.fastestUnboundedRow)}`,
     `- Fastest process RSS row under 128 MiB: ${formatMemoryRow(report.summary.fastestProcessRssUnder128MiB)}`,
     `- Fastest browser JS heap row: ${formatMemoryRow(report.summary.fastestBrowserJsHeapRow)}`,
     '',
@@ -264,6 +290,19 @@ function formatNullableMiB(value) {
 
 function formatNumber(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value.toFixed(2) : 'n/a';
+}
+
+function maxBy(items, score) {
+  let best = null;
+  let bestScore = -Infinity;
+  for (const item of items) {
+    const value = score(item);
+    if (typeof value === 'number' && value > bestScore) {
+      best = item;
+      bestScore = value;
+    }
+  }
+  return best;
 }
 
 function writeOutput(path, content) {

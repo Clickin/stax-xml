@@ -488,6 +488,7 @@ function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMateria
     fastestBoundedRateMiBPerSec: memoryFrontier?.summary?.fastestBoundedRow?.rateMiBPerSec ?? null,
     fastestBoundedMaxMiB: memoryFrontier?.summary?.fastestBoundedRow?.maxMiB ?? null,
     unboundedRows: memoryFrontier?.summary?.unboundedRows ?? null,
+    unboundedRowsAtOrAbove200MiBPerSec: memoryFrontier?.summary?.unboundedRowsAtOrAbove200MiBPerSec ?? null,
     conclusionAllowed: memoryFrontier?.summary?.conclusionAllowed ?? null,
   };
   const woodstox = targetDistance?.summary?.sameFixture1024MiBWoodstoxTarget ?? {};
@@ -533,6 +534,14 @@ function createFrontierAuditGuards(memory, target, text) {
         && typeof memory.fastestBoundedMaxMiB === 'number'
         && typeof memory.unboundedRows === 'number'
         && memory.unboundedRows > 0
+        && memory.conclusionAllowed === false,
+    },
+    {
+      id: 'memory-frontier-no-unbounded-target-row',
+      description: 'memory-frontier-audit.json must show unbounded or unproven-memory full-string rows do not reach the 200 MiB/s target.',
+      satisfied: memory.loaded
+        && memory.status === 'classified'
+        && memory.unboundedRowsAtOrAbove200MiBPerSec === 0
         && memory.conclusionAllowed === false,
     },
     {
@@ -948,6 +957,7 @@ function renderMarkdown(report) {
       : '- Memory frontier loaded: no',
     `- Fastest bounded JS row: ${formatNullableRate(report.frontierAuditSnapshot.memory.fastestBoundedRateMiBPerSec)} MiB/s at ${formatNullableRate(report.frontierAuditSnapshot.memory.fastestBoundedMaxMiB)} MiB`,
     `- Unbounded or unproven memory rows: ${formatNullableCount(report.frontierAuditSnapshot.memory.unboundedRows)}`,
+    `- Unbounded rows at or above 200 MiB/s: ${formatNullableCount(report.frontierAuditSnapshot.memory.unboundedRowsAtOrAbove200MiBPerSec)}`,
     report.frontierAuditSnapshot.targetDistance.loaded
       ? `- Target distance loaded: yes (${report.frontierAuditSnapshot.targetDistance.generatedAt ?? 'unknown generatedAt'})`
       : '- Target distance loaded: no',

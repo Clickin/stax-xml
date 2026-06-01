@@ -39,6 +39,12 @@ test('memory frontier audit keeps memory kinds and bounded rows explicit', () =>
   assert.equal(report.summary.jsLargeFullRowCount, 239);
   assert.equal(report.summary.boundedRows, 222);
   assert.equal(report.summary.unboundedRows, 17);
+  assert.equal(report.summary.unboundedRowsAtOrAbove200MiBPerSec, 0);
+  assert.equal(report.summary.fastestUnboundedRow.runtimeLabel, 'Bun/JSC');
+  assert.equal(report.summary.fastestUnboundedRow.caseId, 'stringFull');
+  assert.equal(report.summary.fastestUnboundedRow.rateMiBPerSec, 99.71);
+  assert.equal(report.summary.fastestUnboundedRow.memoryKind, 'process-rss');
+  assert.equal(report.summary.fastestUnboundedRow.maxMiB, 1956.69);
   assert.deepEqual(report.summary.memoryKinds, [
     'browser-js-heap',
     'browser-js-heap-unavailable',
@@ -104,6 +110,8 @@ test('memory frontier audit keeps memory kinds and bounded rows explicit', () =>
   assert.match(markdown, /Rows classified: 239/);
   assert.match(markdown, /Bounded rows: 222/);
   assert.match(markdown, /Unbounded or unproven rows: 17/);
+  assert.match(markdown, /Unbounded or unproven rows at or above 200 MiB\/s: 0/);
+  assert.match(markdown, /Fastest unbounded or unproven row: Bun\/JSC `stringFull` 99\.71 MiB\/s/);
   assert.match(markdown, /Memory kinds: browser-js-heap, browser-js-heap-unavailable, process-rss/);
   assert.match(markdown, /\| browser-js-heap \| 20 \| 20 \| 0 \| 358\.37 MiB \| Chrome\/V8 browser `rawFrameNameId` 69\.90 MiB\/s/);
   assert.match(markdown, /\| browser-js-heap-unavailable \| 9 \| 0 \| 9 \| n\/a \| Firefox\/SpiderMonkey browser `rawFrameNameId` 64\.24 MiB\/s/);
