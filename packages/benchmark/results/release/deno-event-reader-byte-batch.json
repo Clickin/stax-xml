@@ -1,8 +1,16 @@
 {
-  "generatedAt": "2026-05-24T15:43:15.626Z",
+  "generatedAt": "2026-06-01T06:22:54.418Z",
   "objective": "event-reader-byte-batch",
   "contract": "public-event-object-full-string-checksum",
-  "note": "Compares direct ReadableStream chunk consumption with an AsyncIterable<Uint8Array[]> source that yields already-grouped byte batches. Both sources are demand-driven and do not enqueue/read the next batch until the reader asks for it.",
+  "note": "Compares direct ReadableStream chunk consumption with AsyncIterable<Uint8Array[]> and Iterable<Uint8Array[]> sources that yield already-grouped byte batches. All sources are demand-driven and do not enqueue/read the next batch until the reader asks for it.",
+  "sourceContract": {
+    "arrayBufferConsumption": "Generated fixture rows are Uint8Array chunks; measured parser rows consume ReadableStream pulls, AsyncIterable<Uint8Array[]> batches, or synchronous Iterable<Uint8Array[]> batches rather than a pure full-ArrayBuffer parser input.",
+    "readableStream": "ReadableStream<Uint8Array> enqueues one chunk from pull().",
+    "asyncByteBatch": "AsyncIterable<Uint8Array[]> yields one grouped batch only when next() is awaited.",
+    "syncIterable": "Iterable<Uint8Array[]> yields one grouped batch per synchronous parser pull.",
+    "syncFileIterable": "File-backed Iterable<Uint8Array[]> rows are available only for corpus-cycle fixtures.",
+    "scope": "The fixture rows are generated before timing and replayed to the target byte count. This isolates parser/source API overhead; it is not an OS, network, or browser fetch streaming proof."
+  },
   "environment": {
     "packageVersion": "1.0.0",
     "runtimeName": "deno",
@@ -19,6 +27,9 @@
     "sizeGiB": 1,
     "runs": 1,
     "warmups": 0,
+    "fixtureShape": "diverse-cycle",
+    "corpusFile": null,
+    "corpusChunkKiB": 64,
     "diverseCycleSize": 4096,
     "batchSizes": [
       1,
@@ -32,6 +43,9 @@
     "source": "generated-diverse-cycle",
     "targetBytes": 1073741824,
     "actualBytes": 1073741863,
+    "sourceBytes": 761644,
+    "chunkBytes": null,
+    "corpusFile": null,
     "sizeGiB": 1.0000000363215804,
     "rows": 4096
   },
@@ -41,14 +55,23 @@
       "family": "readable-stream",
       "implementation": "EventReader over ReadableStream with internal byte batch size 1",
       "batchSize": 1,
+      "sourceConsumption": {
+        "sourceMode": "web-readable-stream-pull",
+        "parserInput": "ReadableStream<Uint8Array>",
+        "directReadableStream": true,
+        "asyncBoundary": true,
+        "respectsBackpressure": true,
+        "fullArrayBufferParserInput": false,
+        "demandDriven": "ReadableStream underlying source enqueues one Uint8Array only from pull()."
+      },
       "fullStringParity": true,
       "eventCountKind": "stream-events",
-      "avgMs": 50765.1455,
-      "minMs": 50765.1455,
-      "maxMs": 50765.1455,
-      "mibPerSec": 20.171320836523524,
+      "avgMs": 74682.267,
+      "minMs": 74682.267,
+      "maxMs": 74682.267,
+      "mibPerSec": 13.711421443504095,
       "samplesMs": [
-        50765.1455
+        74682.267
       ],
       "eventCount": 46195346,
       "checksum": -577171566,
@@ -56,8 +79,8 @@
       "sourceBatches": 5774418,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 101838848,
-        "maxHeapUsedBytes": 22706384
+        "maxRssBytes": 105017344,
+        "maxHeapUsedBytes": 24458640
       }
     },
     {
@@ -65,14 +88,23 @@
       "family": "readable-stream",
       "implementation": "EventReader over ReadableStream with internal byte batch size 16",
       "batchSize": 16,
+      "sourceConsumption": {
+        "sourceMode": "web-readable-stream-pull",
+        "parserInput": "ReadableStream<Uint8Array>",
+        "directReadableStream": true,
+        "asyncBoundary": true,
+        "respectsBackpressure": true,
+        "fullArrayBufferParserInput": false,
+        "demandDriven": "ReadableStream underlying source enqueues one Uint8Array only from pull()."
+      },
       "fullStringParity": true,
       "eventCountKind": "stream-events",
-      "avgMs": 36072.706300000005,
-      "minMs": 36072.706300000005,
-      "maxMs": 36072.706300000005,
-      "mibPerSec": 28.38711430956036,
+      "avgMs": 61010.207699999984,
+      "minMs": 61010.207699999984,
+      "maxMs": 61010.207699999984,
+      "mibPerSec": 16.784077219151946,
       "samplesMs": [
-        36072.706300000005
+        61010.207699999984
       ],
       "eventCount": 46195346,
       "checksum": -577171566,
@@ -80,8 +112,8 @@
       "sourceBatches": 5774418,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 138514432,
-        "maxHeapUsedBytes": 39495992
+        "maxRssBytes": 144347136,
+        "maxHeapUsedBytes": 32813912
       }
     },
     {
@@ -89,14 +121,23 @@
       "family": "readable-stream",
       "implementation": "EventReader over ReadableStream with internal byte batch size 64",
       "batchSize": 64,
+      "sourceConsumption": {
+        "sourceMode": "web-readable-stream-pull",
+        "parserInput": "ReadableStream<Uint8Array>",
+        "directReadableStream": true,
+        "asyncBoundary": true,
+        "respectsBackpressure": true,
+        "fullArrayBufferParserInput": false,
+        "demandDriven": "ReadableStream underlying source enqueues one Uint8Array only from pull()."
+      },
       "fullStringParity": true,
       "eventCountKind": "stream-events",
-      "avgMs": 34856.8612,
-      "minMs": 34856.8612,
-      "maxMs": 34856.8612,
-      "mibPerSec": 29.377287625464636,
+      "avgMs": 56637.9437,
+      "minMs": 56637.9437,
+      "maxMs": 56637.9437,
+      "mibPerSec": 18.079753082442828,
       "samplesMs": [
-        34856.8612
+        56637.9437
       ],
       "eventCount": 46195346,
       "checksum": -577171566,
@@ -104,8 +145,8 @@
       "sourceBatches": 5774418,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 140554240,
-        "maxHeapUsedBytes": 37498784
+        "maxRssBytes": 147472384,
+        "maxHeapUsedBytes": 36170880
       }
     },
     {
@@ -113,14 +154,23 @@
       "family": "async-byte-batch",
       "implementation": "createEventReaderFromAsyncByteBatches with 16 chunks yielded per await",
       "batchSize": 16,
+      "sourceConsumption": {
+        "sourceMode": "async-iterable-byte-batches",
+        "parserInput": "AsyncIterable<Uint8Array[]>",
+        "directReadableStream": false,
+        "asyncBoundary": true,
+        "respectsBackpressure": true,
+        "fullArrayBufferParserInput": false,
+        "demandDriven": "Async generator yields one grouped Uint8Array[] batch only when next() is awaited."
+      },
       "fullStringParity": true,
       "eventCountKind": "stream-events",
-      "avgMs": 33474.0177,
-      "minMs": 33474.0177,
-      "maxMs": 33474.0177,
-      "mibPerSec": 30.590891310704492,
+      "avgMs": 56129.874899999995,
+      "minMs": 56129.874899999995,
+      "maxMs": 56129.874899999995,
+      "mibPerSec": 18.24340494286935,
       "samplesMs": [
-        33474.0177
+        56129.874899999995
       ],
       "eventCount": 46195346,
       "checksum": -577171566,
@@ -128,8 +178,8 @@
       "sourceBatches": 360902,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 141381632,
-        "maxHeapUsedBytes": 39861400
+        "maxRssBytes": 147968000,
+        "maxHeapUsedBytes": 23230720
       }
     },
     {
@@ -137,14 +187,23 @@
       "family": "async-byte-batch",
       "implementation": "createEventReaderFromAsyncByteBatches with 64 chunks yielded per await",
       "batchSize": 64,
+      "sourceConsumption": {
+        "sourceMode": "async-iterable-byte-batches",
+        "parserInput": "AsyncIterable<Uint8Array[]>",
+        "directReadableStream": false,
+        "asyncBoundary": true,
+        "respectsBackpressure": true,
+        "fullArrayBufferParserInput": false,
+        "demandDriven": "Async generator yields one grouped Uint8Array[] batch only when next() is awaited."
+      },
       "fullStringParity": true,
       "eventCountKind": "stream-events",
-      "avgMs": 33826.20729999998,
-      "minMs": 33826.20729999998,
-      "maxMs": 33826.20729999998,
-      "mibPerSec": 30.27238697237272,
+      "avgMs": 53814.65619999997,
+      "minMs": 53814.65619999997,
+      "maxMs": 53814.65619999997,
+      "mibPerSec": 19.028274256508194,
       "samplesMs": [
-        33826.20729999998
+        53814.65619999997
       ],
       "eventCount": 46195346,
       "checksum": -577171566,
@@ -152,32 +211,181 @@
       "sourceBatches": 90226,
       "boundedMemory": true,
       "memory": {
-        "maxRssBytes": 142708736,
-        "maxHeapUsedBytes": 45938776
+        "maxRssBytes": 149942272,
+        "maxHeapUsedBytes": 21453216
+      }
+    },
+    {
+      "id": "syncIterableBatch1",
+      "family": "sync-iterable-byte-batch",
+      "implementation": "StreamReaderSync over Iterable<Uint8Array[]> with 1 chunks yielded per batch, materialized as public event objects",
+      "batchSize": 1,
+      "sourceConsumption": {
+        "sourceMode": "sync-iterable-byte-batches",
+        "parserInput": "Iterable<Uint8Array[]>",
+        "directReadableStream": false,
+        "asyncBoundary": false,
+        "respectsBackpressure": true,
+        "fullArrayBufferParserInput": false,
+        "demandDriven": "Synchronous generator yields one grouped Uint8Array[] batch per parser pull."
+      },
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "avgMs": 33594.7672,
+      "minMs": 33594.7672,
+      "maxMs": 33594.7672,
+      "mibPerSec": 30.480938626456634,
+      "samplesMs": [
+        33594.7672
+      ],
+      "eventCount": 46195346,
+      "checksum": -577171566,
+      "sourceReads": 5774418,
+      "sourceBatches": 5774418,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 154808320,
+        "maxHeapUsedBytes": 53479392
+      }
+    },
+    {
+      "id": "syncIterableBatch16",
+      "family": "sync-iterable-byte-batch",
+      "implementation": "StreamReaderSync over Iterable<Uint8Array[]> with 16 chunks yielded per batch, materialized as public event objects",
+      "batchSize": 16,
+      "sourceConsumption": {
+        "sourceMode": "sync-iterable-byte-batches",
+        "parserInput": "Iterable<Uint8Array[]>",
+        "directReadableStream": false,
+        "asyncBoundary": false,
+        "respectsBackpressure": true,
+        "fullArrayBufferParserInput": false,
+        "demandDriven": "Synchronous generator yields one grouped Uint8Array[] batch per parser pull."
+      },
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "avgMs": 26960.43849999999,
+      "minMs": 26960.43849999999,
+      "maxMs": 26960.43849999999,
+      "mibPerSec": 37.98157946107957,
+      "samplesMs": [
+        26960.43849999999
+      ],
+      "eventCount": 46195346,
+      "checksum": -577171566,
+      "sourceReads": 5774418,
+      "sourceBatches": 360902,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 162004992,
+        "maxHeapUsedBytes": 49396984
+      }
+    },
+    {
+      "id": "syncIterableBatch64",
+      "family": "sync-iterable-byte-batch",
+      "implementation": "StreamReaderSync over Iterable<Uint8Array[]> with 64 chunks yielded per batch, materialized as public event objects",
+      "batchSize": 64,
+      "sourceConsumption": {
+        "sourceMode": "sync-iterable-byte-batches",
+        "parserInput": "Iterable<Uint8Array[]>",
+        "directReadableStream": false,
+        "asyncBoundary": false,
+        "respectsBackpressure": true,
+        "fullArrayBufferParserInput": false,
+        "demandDriven": "Synchronous generator yields one grouped Uint8Array[] batch per parser pull."
+      },
+      "fullStringParity": true,
+      "eventCountKind": "stream-events",
+      "avgMs": 26060.934699999983,
+      "minMs": 26060.934699999983,
+      "maxMs": 26060.934699999983,
+      "mibPerSec": 39.29252918136121,
+      "samplesMs": [
+        26060.934699999983
+      ],
+      "eventCount": 46195346,
+      "checksum": -577171566,
+      "sourceReads": 5774418,
+      "sourceBatches": 90226,
+      "boundedMemory": true,
+      "memory": {
+        "maxRssBytes": 165683200,
+        "maxHeapUsedBytes": 53471584
       }
     }
   ],
   "findings": [
     {
+      "id": "full-string-parity",
+      "classification": "CONTRACT_FACT",
+      "summary": "All selected source-consumption rows preserve the same public event-object full-string checksum contract.",
+      "evidence": [
+        "status=ok",
+        "events=46195346",
+        "checksum=-577171566",
+        "rows=readableStreamBatch1, readableStreamBatch16, readableStreamBatch64, asyncByteBatch16, asyncByteBatch64, syncIterableBatch1, syncIterableBatch16, syncIterableBatch64"
+      ]
+    },
+    {
       "id": "backpressure-preserved",
       "classification": "SOURCE_FACT",
-      "summary": "Both benchmark sources are demand-driven. The ReadableStream source enqueues in pull(), and the async byte-batch source yields one batch only when next() is awaited.",
+      "summary": "All benchmark sources are demand-driven. The ReadableStream source enqueues in pull(), the async byte-batch source yields one batch only when next() is awaited, and the sync iterable source yields one batch per parser pull; no row preconsumes the whole target XML as one parser input.",
       "evidence": [
         "readableStreamBatch1: sourceReads=5774419, sourceBatches=5774418",
         "readableStreamBatch16: sourceReads=5774419, sourceBatches=5774418",
         "readableStreamBatch64: sourceReads=5774419, sourceBatches=5774418",
         "asyncByteBatch16: sourceReads=5774418, sourceBatches=360902",
-        "asyncByteBatch64: sourceReads=5774418, sourceBatches=90226"
+        "asyncByteBatch64: sourceReads=5774418, sourceBatches=90226",
+        "syncIterableBatch1: sourceReads=5774418, sourceBatches=5774418",
+        "syncIterableBatch16: sourceReads=5774418, sourceBatches=360902",
+        "syncIterableBatch64: sourceReads=5774418, sourceBatches=90226"
+      ]
+    },
+    {
+      "id": "fixture-cycle-source-scope",
+      "classification": "SOURCE_FACT",
+      "summary": "The benchmark isolates parser/source API overhead by replaying prepared fixture rows, not by streaming the full target size from OS, network, or browser fetch.",
+      "evidence": [
+        "fixtureSource=generated-diverse-cycle",
+        "fixtureRows=4096",
+        "sourceBytes=761644",
+        "actualBytes=1073741863",
+        "fileBackedRows=none"
       ]
     },
     {
       "id": "async-byte-batch-headroom",
       "classification": "BENCH_FACT",
-      "summary": "At batch size 16, async byte batches were 1.08x the ReadableStream row on this run.",
+      "summary": "At batch size 16, async byte batches were 1.09x the ReadableStream row on this run; this row avoids direct ReadableStream consumption but still crosses an AsyncIterator source boundary.",
       "evidence": [
-        "readableStreamBatch16=28.39 MiB/s",
-        "asyncByteBatch16=30.59 MiB/s"
+        "readableStreamBatch16=16.78 MiB/s",
+        "asyncByteBatch16=18.24 MiB/s"
+      ]
+    },
+    {
+      "id": "sync-iterable-byte-batch-headroom",
+      "classification": "BENCH_FACT",
+      "summary": "At batch size 16, sync iterable byte batches were 2.26x the ReadableStream row on this run; this is the row that removes the ReadableStream and AsyncIterator source boundary while preserving demand-driven pulls.",
+      "evidence": [
+        "readableStreamBatch16=16.78 MiB/s",
+        "syncIterableBatch16=37.98 MiB/s"
       ]
     }
-  ]
+  ],
+  "parity": {
+    "status": "ok",
+    "eventCount": 46195346,
+    "checksum": -577171566,
+    "rowIds": [
+      "readableStreamBatch1",
+      "readableStreamBatch16",
+      "readableStreamBatch64",
+      "asyncByteBatch16",
+      "asyncByteBatch64",
+      "syncIterableBatch1",
+      "syncIterableBatch16",
+      "syncIterableBatch64"
+    ]
+  }
 }

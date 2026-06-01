@@ -266,8 +266,8 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 213 primary release JSON artifacts, recognizes 1,186
-sample throughput rows and 170 aggregate rows, and finds 792 JavaScript 1 GiB+
+The current scan covers 213 primary release JSON artifacts, recognizes 1,201
+sample throughput rows and 170 aggregate rows, and finds 807 JavaScript 1 GiB+
 full-string sample rows plus 133 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
 full-string sample row overall is Node/V8 `rawFrameNameId` from
@@ -593,10 +593,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 213 primary release artifacts and recognizes 1,186
+The current audit scans 213 primary release artifacts and recognizes 1,201
 measured rows. It records 152 benchmark artifacts, 23 source artifacts, 15
 trace/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and
-24 negative-result artifacts, 792 JavaScript 1 GiB+ full-string rows, and four
+24 negative-result artifacts, 807 JavaScript 1 GiB+ full-string rows, and four
 release corpus seeds: `books.xml`, `large.xml`, `midsize.xml`, and `treebank_e.xml`. The
 negative-result set now includes
 `concat-buffer-reuse-negative-result.json`, which records that reusable
@@ -1298,12 +1298,12 @@ document. The fixture source is still prepared before timing and replayed to the
 target byte count; these rows isolate parser/source API overhead and are not an
 OS, network, or browser fetch streaming proof. All corpus rows preserved
 57,096,514 events and checksum `45154785`.
-On Node/V8, `readableStreamBatch16` reported `80.41 MiB/s`,
-`asyncByteBatch16` reported `79.89 MiB/s`, and `syncIterableBatch16` reported
-`128.30 MiB/s` with `281.3 MiB` max RSS. On Bun/JSC, the same rows reported
-`59.25 MiB/s`, `59.49 MiB/s`, and `88.79 MiB/s` with `222.1 MiB` max RSS. On
-Deno/V8, they reported `43.31 MiB/s`, `42.37 MiB/s`, and `68.91 MiB/s` with
-`184.4 MiB` max RSS. All three `syncIterableBatch16` rows stayed under the
+On Node/V8, `readableStreamBatch16` reported `45.79 MiB/s`,
+`asyncByteBatch16` reported `45.68 MiB/s`, and `syncIterableBatch16` reported
+`72.46 MiB/s` with `288.3 MiB` max RSS. On Bun/JSC, the same rows reported
+`36.01 MiB/s`, `35.83 MiB/s`, and `53.37 MiB/s` with `209.9 MiB` max RSS. On
+Deno/V8, they reported `42.63 MiB/s`, `42.04 MiB/s`, and `67.61 MiB/s` with
+`165.6 MiB` max RSS. All three `syncIterableBatch16` rows stayed under the
 512 MiB RSS gate.
 
 Commit `a9bf6de` extends the source-boundary benchmark with
@@ -1313,8 +1313,8 @@ public event-object shape before folding the same full-string checksum. The
 current release artifacts show that pure `ReadableStream` or `AsyncIterable`
 overhead did hide meaningful synchronous source headroom, so it cannot be used
 as a runtime-ceiling argument by itself. They also keep the result
-scenario-bounded: the best current 1 GiB corpus-cycle sync-iterable row is
-Node/V8 `syncIterableBatch1` at `132.57 MiB/s`, and no runtime crosses the
+scenario-bounded: the best current Node/V8 1 GiB corpus-cycle sync-iterable row is
+`syncIterableBatch64` at `76.13 MiB/s`, and no runtime crosses the
 200 MiB/s full-StAX target under this contract. The raw pre-release 1 GiB
 `books.xml` probe reports are preserved off-mainline on evidence branch
 `evidence/sync-iterable-byte-batch-reports-2026-05-25`, commit `6120711`.
@@ -1438,11 +1438,11 @@ pure `ReadableStream` concern: the selected rows compare direct
 `Iterable<Uint8Array[]>` under the same public event-object full-string
 checksum contract. All selected rows preserved stable full-row parity and
 bounded RSS; no selected row found a 200 MiB/s counterexample. Node/V8 averaged
-`30.43 MiB/s` for `readableStreamBatch16`, `28.90 MiB/s` for
-`asyncByteBatch16`, `59.03 MiB/s` for `syncIterableBatch16`, and
-`56.73 MiB/s` for `syncFileIterableBatch16`. Bun/JSC averaged `29.86`,
-`28.88`, `45.96`, and `44.19 MiB/s`; Deno/V8 averaged `29.91`, `26.47`,
-`51.86`, and `50.57 MiB/s`. This confirms on a second corpus seed that removing
+`32.46 MiB/s` for `readableStreamBatch16`, `30.16 MiB/s` for
+`asyncByteBatch16`, `59.97 MiB/s` for `syncIterableBatch16`, and
+`56.76 MiB/s` for `syncFileIterableBatch16`. Bun/JSC averaged `30.16`,
+`28.71`, `47.51`, and `46.85 MiB/s`; Deno/V8 averaged `30.08`, `28.16`,
+`53.25`, and `50.87 MiB/s`. This confirms on a second corpus seed that removing
 the direct `ReadableStream` and async iterator boundary exposes meaningful
 source-shape headroom, but public event-object materialization remains far
 below the target.

@@ -81,9 +81,9 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('raw-frame-nameid-alone-cross-process-books-corpus.json'));
   assert.ok(report.ignoredArtifacts.includes('access-shape-candidate-cross-process.json'));
   assert.ok(report.ignoredArtifacts.includes('runtime-proof-gap-handoff.json'));
-  assert.equal(report.summary.measuredRowCount, 1186);
+  assert.equal(report.summary.measuredRowCount, 1201);
   assert.equal(report.summary.aggregateRowCount, 170);
-  assert.equal(report.summary.largeJsFullRowCount, 792);
+  assert.equal(report.summary.largeJsFullRowCount, 807);
   assert.equal(report.summary.largeJsFullAggregateRowCount, 133);
   assert.equal(report.summary.sourceModeRowCount, 588);
   assert.equal(report.summary.largeJsFullSourceModeRowCount, 433);
@@ -858,10 +858,10 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.match(markdown, /# Runtime Counterexample Scan/);
   assert.match(markdown, /Counterexamples found: 0/);
   assert.match(markdown, /Scanned artifacts: 213/);
-  assert.match(markdown, /Measured rows recognized: 1186/);
+  assert.match(markdown, /Measured rows recognized: 1201/);
   assert.match(markdown, /Aggregate rows recognized: 170/);
   assert.match(markdown, /1 GiB\+ JS full-string aggregate rows recognized: 133/);
-  assert.match(markdown, /1 GiB\+ JS full-string rows recognized: 792/);
+  assert.match(markdown, /1 GiB\+ JS full-string rows recognized: 807/);
   assert.match(markdown, /Rows with unknown full-string parity: 0/);
   assert.match(markdown, /Rows with unknown bounded-memory flag: 23/);
   assert.match(markdown, /Rows with recognized source mode: 588/);

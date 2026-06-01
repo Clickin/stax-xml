@@ -1,6 +1,6 @@
 # EventReader Byte Batch Benchmark
 
-Generated: 2026-05-31T14:26:51.233Z
+Generated: 2026-06-01T05:57:59.078Z
 
 Compares direct ReadableStream chunk consumption with AsyncIterable<Uint8Array[]> and Iterable<Uint8Array[]> sources that yield already-grouped byte batches. All sources are demand-driven and do not enqueue/read the next batch until the reader asks for it.
 
@@ -36,14 +36,14 @@ Compares direct ReadableStream chunk consumption with AsyncIterable<Uint8Array[]
 
 | Variant | Family | Source mode | Parser input | Direct stream | Async boundary | Backpressure | Batch size | Throughput | Events | Checksum | Source reads | Source batches | Bounded | Max RSS |
 | --- | --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: |
-| readableStreamBatch1 | readable-stream | web-readable-stream-pull | ReadableStream<Uint8Array> | yes | yes | yes | 1 | 24.88 MiB/s | 46195346 | -577171566 | 5774419 | 5774418 | yes | 99.2 MiB |
-| readableStreamBatch16 | readable-stream | web-readable-stream-pull | ReadableStream<Uint8Array> | yes | yes | yes | 16 | 30.96 MiB/s | 46195346 | -577171566 | 5774419 | 5774418 | yes | 198.7 MiB |
-| readableStreamBatch64 | readable-stream | web-readable-stream-pull | ReadableStream<Uint8Array> | yes | yes | yes | 64 | 32.08 MiB/s | 46195346 | -577171566 | 5774419 | 5774418 | yes | 200.0 MiB |
-| asyncByteBatch16 | async-byte-batch | async-iterable-byte-batches | AsyncIterable<Uint8Array[]> | no | yes | yes | 16 | 33.37 MiB/s | 46195346 | -577171566 | 5774418 | 360902 | yes | 201.0 MiB |
-| asyncByteBatch64 | async-byte-batch | async-iterable-byte-batches | AsyncIterable<Uint8Array[]> | no | yes | yes | 64 | 35.65 MiB/s | 46195346 | -577171566 | 5774418 | 90226 | yes | 201.6 MiB |
-| syncIterableBatch1 | sync-iterable-byte-batch | sync-iterable-byte-batches | Iterable<Uint8Array[]> | no | no | yes | 1 | 62.77 MiB/s | 46195346 | -577171566 | 5774418 | 5774418 | yes | 201.3 MiB |
-| syncIterableBatch16 | sync-iterable-byte-batch | sync-iterable-byte-batches | Iterable<Uint8Array[]> | no | no | yes | 16 | 67.01 MiB/s | 46195346 | -577171566 | 5774418 | 360902 | yes | 209.2 MiB |
-| syncIterableBatch64 | sync-iterable-byte-batch | sync-iterable-byte-batches | Iterable<Uint8Array[]> | no | no | yes | 64 | 69.38 MiB/s | 46195346 | -577171566 | 5774418 | 90226 | yes | 208.7 MiB |
+| readableStreamBatch1 | readable-stream | web-readable-stream-pull | ReadableStream<Uint8Array> | yes | yes | yes | 1 | 15.52 MiB/s | 46195346 | -577171566 | 5774419 | 5774418 | yes | 98.9 MiB |
+| readableStreamBatch16 | readable-stream | web-readable-stream-pull | ReadableStream<Uint8Array> | yes | yes | yes | 16 | 18.58 MiB/s | 46195346 | -577171566 | 5774419 | 5774418 | yes | 198.6 MiB |
+| readableStreamBatch64 | readable-stream | web-readable-stream-pull | ReadableStream<Uint8Array> | yes | yes | yes | 64 | 20.77 MiB/s | 46195346 | -577171566 | 5774419 | 5774418 | yes | 200.1 MiB |
+| asyncByteBatch16 | async-byte-batch | async-iterable-byte-batches | AsyncIterable<Uint8Array[]> | no | yes | yes | 16 | 22.95 MiB/s | 46195346 | -577171566 | 5774418 | 360902 | yes | 200.3 MiB |
+| asyncByteBatch64 | async-byte-batch | async-iterable-byte-batches | AsyncIterable<Uint8Array[]> | no | yes | yes | 64 | 23.73 MiB/s | 46195346 | -577171566 | 5774418 | 90226 | yes | 200.1 MiB |
+| syncIterableBatch1 | sync-iterable-byte-batch | sync-iterable-byte-batches | Iterable<Uint8Array[]> | no | no | yes | 1 | 36.32 MiB/s | 46195346 | -577171566 | 5774418 | 5774418 | yes | 201.2 MiB |
+| syncIterableBatch16 | sync-iterable-byte-batch | sync-iterable-byte-batches | Iterable<Uint8Array[]> | no | no | yes | 16 | 41.70 MiB/s | 46195346 | -577171566 | 5774418 | 360902 | yes | 209.5 MiB |
+| syncIterableBatch64 | sync-iterable-byte-batch | sync-iterable-byte-batches | Iterable<Uint8Array[]> | no | no | yes | 64 | 44.09 MiB/s | 46195346 | -577171566 | 5774418 | 90226 | yes | 204.4 MiB |
 
 ## Findings
 
@@ -67,9 +67,9 @@ Compares direct ReadableStream chunk consumption with AsyncIterable<Uint8Array[]
   - sourceBytes=761644
   - actualBytes=1073741863
   - fileBackedRows=none
-- async-byte-batch-headroom (BENCH_FACT): At batch size 16, async byte batches were 1.08x the ReadableStream row on this run; this row avoids direct ReadableStream consumption but still crosses an AsyncIterator source boundary.
-  - readableStreamBatch16=30.96 MiB/s
-  - asyncByteBatch16=33.37 MiB/s
-- sync-iterable-byte-batch-headroom (BENCH_FACT): At batch size 16, sync iterable byte batches were 2.16x the ReadableStream row on this run; this is the row that removes the ReadableStream and AsyncIterator source boundary while preserving demand-driven pulls.
-  - readableStreamBatch16=30.96 MiB/s
-  - syncIterableBatch16=67.01 MiB/s
+- async-byte-batch-headroom (BENCH_FACT): At batch size 16, async byte batches were 1.24x the ReadableStream row on this run; this row avoids direct ReadableStream consumption but still crosses an AsyncIterator source boundary.
+  - readableStreamBatch16=18.58 MiB/s
+  - asyncByteBatch16=22.95 MiB/s
+- sync-iterable-byte-batch-headroom (BENCH_FACT): At batch size 16, sync iterable byte batches were 2.24x the ReadableStream row on this run; this is the row that removes the ReadableStream and AsyncIterator source boundary while preserving demand-driven pulls.
+  - readableStreamBatch16=18.58 MiB/s
+  - syncIterableBatch16=41.70 MiB/s
