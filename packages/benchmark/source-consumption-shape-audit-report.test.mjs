@@ -35,16 +35,16 @@ test('source consumption shape audit classifies ArrayBuffer and ReadableStream s
   assert.equal(report.objective, 'source-consumption-shape-audit');
   assert.equal(report.contract, 'large-js-full-string-rows-are-not-full-arraybuffer-parser-input');
   assert.equal(report.summary.status, 'classified');
-  assert.equal(report.summary.aggregateRowCount, 261);
-  assert.equal(report.summary.jsLargeFullRowCount, 216);
-  assert.equal(report.summary.largeJsFullSourceModeRows, 210);
-  assert.equal(report.summary.notFullArrayBufferRows, 210);
+  assert.equal(report.summary.aggregateRowCount, 289);
+  assert.equal(report.summary.jsLargeFullRowCount, 239);
+  assert.equal(report.summary.largeJsFullSourceModeRows, 233);
+  assert.equal(report.summary.notFullArrayBufferRows, 233);
   assert.equal(report.summary.fullArrayBufferRows, 0);
   assert.equal(report.summary.unknownArrayBufferRows, 0);
   assert.equal(report.summary.directReadableStreamRows, 1);
-  assert.equal(report.summary.corpusSeedReplayRows, 127);
+  assert.equal(report.summary.corpusSeedReplayRows, 150);
   assert.equal(report.summary.fileBackedSyncIterableRows, 36);
-  assert.equal(report.summary.syncIterableRows, 172);
+  assert.equal(report.summary.syncIterableRows, 195);
   assert.equal(report.summary.asyncOrReadableRowsRespectBackpressure, true);
   assert.equal(report.summary.browserLiveRowsRespectBackpressure, true);
 
@@ -56,8 +56,8 @@ test('source consumption shape audit classifies ArrayBuffer and ReadableStream s
   ]);
   assert.ok(report.sourceModeBreakdown.some(entry =>
     entry.sourceMode === 'sync-iterable-byte-batches'
-    && entry.rows === 172
-    && entry.notFullArrayBufferRows === 172
+    && entry.rows === 195
+    && entry.notFullArrayBufferRows === 195
     && entry.fullArrayBufferRows === 0
     && entry.directReadableStreamRows === 0
     && entry.fastestRow.caseId === 'rawFrameNameId'
@@ -70,10 +70,10 @@ test('source consumption shape audit classifies ArrayBuffer and ReadableStream s
     && entry.notFullArrayBufferRows === 1
   ));
   assert.equal(report.sourceConsumptionFrontier.fastestSyncIterable.id, 'sync-iterable-byte-batches-batch-8');
-  assert.equal(report.sourceConsumptionFrontier.fastestSyncIterable.rateMiBPerSec, 67.94);
+  assert.equal(report.sourceConsumptionFrontier.fastestSyncIterable.rateMiBPerSec, 71.96);
   assert.equal(report.sourceConsumptionFrontier.fastestReadableStream.id, 'web-readable-stream-raw-frame-ascii-batch-8');
-  assert.equal(report.sourceConsumptionFrontier.fastestReadableStream.rateMiBPerSec, 75.98);
-  assert.equal(report.sourceConsumptionFrontier.fastestReadableStreamRatioToFastestSyncIterable, 1.12);
+  assert.equal(report.sourceConsumptionFrontier.fastestReadableStream.rateMiBPerSec, 76.53);
+  assert.equal(report.sourceConsumptionFrontier.fastestReadableStreamRatioToFastestSyncIterable, 1.06);
   assert.equal(report.sourceConsumptionFrontier.backpressureRowsRespected, 6);
   assert.equal(report.sourceConsumptionFrontier.backpressureRows, 6);
   assert.equal(report.browserLiveSourceFrontier.fetchReadableStreamRow.id, 'fetchReadableStreamFull');
@@ -87,10 +87,10 @@ test('source consumption shape audit classifies ArrayBuffer and ReadableStream s
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Source Consumption Shape Audit/);
-  assert.match(markdown, /Rows not using full ArrayBuffer parser input: 210\/210/);
+  assert.match(markdown, /Rows not using full ArrayBuffer parser input: 233\/233/);
   assert.match(markdown, /Full ArrayBuffer parser-input rows: 0/);
   assert.match(markdown, /Direct ReadableStream rows: 1/);
-  assert.match(markdown, /Sync Iterable<Uint8Array\[\]> rows: 172/);
+  assert.match(markdown, /Sync Iterable<Uint8Array\[\]> rows: 195/);
   assert.match(markdown, /Backpressure rows respected: 6\/6/);
   assert.match(markdown, /Live rows respecting backpressure: 2\/2/);
   assert.match(markdown, /directReadableStream=true, fullArrayBufferParserInput=false, respectsBackpressure=true/);

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T07:48:50.246Z",
+  "generatedAt": "2026-06-01T07:57:57.042Z",
   "objective": "runtime-proof-handoff-validation",
   "contract": "external-run-handoff-command-and-contract-static-validation",
   "note": "Static validation for runtime-proof-gap-handoff external runbooks. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",

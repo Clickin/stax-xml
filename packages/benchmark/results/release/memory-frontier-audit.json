@@ -1,20 +1,20 @@
 {
-  "generatedAt": "2026-05-31T23:59:22.098Z",
+  "generatedAt": "2026-06-01T07:56:37.579Z",
   "objective": "memory-frontier-audit",
   "contract": "same-contract-1gib-plus-js-full-string-memory-frontier",
   "note": "Audits memory classification from the same-contract aggregate. This is not a benchmark run, does not normalize memory models across runtimes, and does not prove a JavaScript runtime ceiling.",
   "inputs": {
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
-    "comparisonGeneratedAt": "2026-05-31T23:20:48.612Z",
+    "comparisonGeneratedAt": "2026-06-01T07:30:50.160Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape"
   },
   "summary": {
     "status": "classified",
-    "rows": 216,
-    "boundedRows": 199,
+    "rows": 239,
+    "boundedRows": 222,
     "unboundedRows": 17,
-    "jsLargeFullRowCount": 216,
+    "jsLargeFullRowCount": 239,
     "memoryKinds": [
       "browser-js-heap",
       "browser-js-heap-unavailable",
@@ -121,8 +121,8 @@
     },
     {
       "kind": "process-rss",
-      "rows": 187,
-      "boundedRows": 179,
+      "rows": 210,
+      "boundedRows": 202,
       "unboundedRows": 8,
       "maxMiB": 1956.69,
       "fastestRow": {
@@ -150,7 +150,7 @@
     {
       "id": "memory-frontier-classified",
       "classification": "SOURCE_FACT",
-      "summary": "199/216 current JavaScript 1 GiB+ full-string rows are bounded under their recorded memory metric."
+      "summary": "222/239 current JavaScript 1 GiB+ full-string rows are bounded under their recorded memory metric."
     },
     {
       "id": "memory-kinds-not-normalized",

@@ -366,7 +366,7 @@ The fastest async source row in that focused audit is
 76.53 MiB/s. This keeps wrapper-free raw-frame source-shape evidence under the
 same backpressure counter contract rather than inferring it from the broader
 source-shape matrix; it also prevents turning direct `ReadableStream` overhead
-into a one-way assumption, because this rerun records the direct row at 1.12x
+into a one-way assumption, because this rerun records the direct row at 1.06x
 the focused sync row while still far below the 200 MiB/s counterexample
 threshold. The same focused audit records source counters on the 1024 MiB
 fixture: the sync and async grouped-batch rows read 16,384 chunks plus one EOF
@@ -392,10 +392,10 @@ blind spot where non-`stax-*` Node/V8 row tools could be labeled `Node/V8` but
 not counted as JavaScript runtime rows.
 `packages/benchmark/results/release/source-consumption-shape-audit.md` pins
 the same source contract as a standalone non-benchmark source audit: it reads
-`same-contract-runtime-comparison.json`, records 210/210 JavaScript 1 GiB+
+`same-contract-runtime-comparison.json`, records 233/233 JavaScript 1 GiB+
 full-string rows with source-mode metadata as not full-target `ArrayBuffer`
 parser input, keeps the single direct `ReadableStream` aggregate row separate
-from 172 sync `Iterable<Uint8Array[]>` aggregate rows, and records backpressure
+from 195 sync `Iterable<Uint8Array[]>` aggregate rows, and records backpressure
 coverage as 6/6 focused source-frontier rows plus 2/2 browser live-source rows.
 `packages/benchmark/results/release/memory-frontier-audit.md` pins the memory
 side of the same counterexample contract as a standalone non-benchmark source

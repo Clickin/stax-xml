@@ -35,9 +35,9 @@ test('memory frontier audit keeps memory kinds and bounded rows explicit', () =>
   assert.equal(report.objective, 'memory-frontier-audit');
   assert.equal(report.contract, 'same-contract-1gib-plus-js-full-string-memory-frontier');
   assert.equal(report.summary.status, 'classified');
-  assert.equal(report.summary.rows, 216);
-  assert.equal(report.summary.jsLargeFullRowCount, 216);
-  assert.equal(report.summary.boundedRows, 199);
+  assert.equal(report.summary.rows, 239);
+  assert.equal(report.summary.jsLargeFullRowCount, 239);
+  assert.equal(report.summary.boundedRows, 222);
   assert.equal(report.summary.unboundedRows, 17);
   assert.deepEqual(report.summary.memoryKinds, [
     'browser-js-heap',
@@ -73,8 +73,8 @@ test('memory frontier audit keeps memory kinds and bounded rows explicit', () =>
     },
     {
       kind: 'process-rss',
-      rows: 187,
-      boundedRows: 179,
+      rows: 210,
+      boundedRows: 202,
       unboundedRows: 8,
       maxMiB: 1956.69,
       fastestRowRuntime: 'Node/V8',
@@ -101,13 +101,13 @@ test('memory frontier audit keeps memory kinds and bounded rows explicit', () =>
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Memory Frontier Audit/);
-  assert.match(markdown, /Rows classified: 216/);
-  assert.match(markdown, /Bounded rows: 199/);
+  assert.match(markdown, /Rows classified: 239/);
+  assert.match(markdown, /Bounded rows: 222/);
   assert.match(markdown, /Unbounded or unproven rows: 17/);
   assert.match(markdown, /Memory kinds: browser-js-heap, browser-js-heap-unavailable, process-rss/);
   assert.match(markdown, /\| browser-js-heap \| 20 \| 20 \| 0 \| 358\.37 MiB \| Chrome\/V8 browser `rawFrameNameId` 69\.90 MiB\/s/);
   assert.match(markdown, /\| browser-js-heap-unavailable \| 9 \| 0 \| 9 \| n\/a \| Firefox\/SpiderMonkey browser `rawFrameNameId` 64\.24 MiB\/s/);
-  assert.match(markdown, /\| process-rss \| 187 \| 179 \| 8 \| 1956\.69 MiB \| Node\/V8 `rawFrameNameId` 185\.50 MiB\/s/);
+  assert.match(markdown, /\| process-rss \| 210 \| 202 \| 8 \| 1956\.69 MiB \| Node\/V8 `rawFrameNameId` 185\.50 MiB\/s/);
   assert.match(markdown, /JavaScript: Node\/V8 `stax-raw-frame-name-id-batch-8` 152\.11 MiB\/s, process RSS 61\.77 MiB/);
   assert.match(markdown, /Woodstox: Java\/Woodstox `woodstox` 351\.56 MiB\/s, process RSS 312\.71 MiB/);
   assert.match(markdown, /quick-xml: Rust\/quick-xml `quick-xml` 274\.63 MiB\/s, process RSS 4\.78 MiB/);
