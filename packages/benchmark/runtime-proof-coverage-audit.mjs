@@ -871,16 +871,17 @@ function matchSameContractComparisonRow({
 }) {
   if (!Array.isArray(comparisonRows) || comparisonRows.length === 0) return false;
   if (typeof selectedRowId !== 'string' || selectedRowId.length === 0) return false;
-  const row = comparisonRows.find(candidate => candidate.id === selectedRowId);
-  if (!row) return false;
-  if (
-    Array.isArray(expectedRuntimeIds)
-    && expectedRuntimeIds.length > 0
-    && !expectedRuntimeIds.includes(row.runtimeId)
-  ) return false;
-  if (typeof selectedEventCount !== 'number' || row.eventCount !== selectedEventCount) return false;
-  if (selectedChecksum === null || selectedChecksum === undefined || row.checksum !== selectedChecksum) return false;
-  return true;
+  return comparisonRows.some(row => {
+    if (row.id !== selectedRowId) return false;
+    if (
+      Array.isArray(expectedRuntimeIds)
+      && expectedRuntimeIds.length > 0
+      && !expectedRuntimeIds.includes(row.runtimeId)
+    ) return false;
+    if (typeof selectedEventCount !== 'number' || row.eventCount !== selectedEventCount) return false;
+    if (selectedChecksum === null || selectedChecksum === undefined || row.checksum !== selectedChecksum) return false;
+    return true;
+  });
 }
 
 function extractSameContractComparisonRows(root) {
