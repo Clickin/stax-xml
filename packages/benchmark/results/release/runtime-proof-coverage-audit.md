@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-06-01T10:28:54.396Z
+Generated: 2026-06-01T12:07:34.848Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -104,21 +104,22 @@ Safari/WebKit obligation closed: no
 ## SpiderMonkey Diagnostic Surface
 
 Emitted SpiderMonkey IR/codegen evidence artifacts: 0
+Raw SpiderMonkey emitted-IR closure claims: 0
 JIT-status-only SpiderMonkey shell artifacts: 2
 
-| Diagnostic | Artifact | Status | Evidence class | JIT status | IR surface | Bytecode dump | Native dump complete | Current stax benchmark | Closes emitted IR obligation |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `installed-browser-diagnostic-dump` | `firefox-spidermonkey-diagnostic-dump-audit.json` | no-dump-emitted | negative-diagnostic-surface | unknown | unknown | unknown | unknown | unknown | no |
-| `local-js-shell-discovery` | `firefox-spidermonkey-js-shell-availability-audit.json` | available | availability-only | unknown | unknown | unknown | unknown | unknown | no |
-| `official-release-jsshell` | `firefox-spidermonkey-release-jsshell-availability-audit.json` | available | jit-status-only | yes | no | no (no-bytecode-output, markers=0) | no | no | no |
-| `official-nightly-jsshell` | `firefox-spidermonkey-nightly-jsshell-availability-audit.json` | available | jit-status-only | yes | no | no (no-bytecode-output, markers=0) | no | no | no |
-| `official-jsshell-stax-api-gap` | `firefox-spidermonkey-jsshell-stax-api-gap-audit.json` | blocked-by-host-api-surface | host-api-surface-gap | yes | unknown | unknown | unknown | no | no |
-| `official-jsshell-diagnostic-flag-sweep` | `spidermonkey-jsshell-diagnostic-flag-sweep.json` | available | diagnostic-flag-sweep-negative | unknown | unknown | no (unknown, markers=unknown) | unknown | unknown | no |
-| `taskcluster-debug-jsshell-codegen` | `spidermonkey-taskcluster-debug-jsshell-codegen-audit.json` | available | current-debug-codegen-scope-guard | unknown | yes | unknown | yes | no | no |
-| `taskcluster-debug-jsshell-xml-codegen` | `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json` | available | current-debug-xml-codegen-scope-guard | unknown | yes | unknown | yes | no | no |
-| `taskcluster-debug-jsshell-materialized-codegen` | `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json` | available | current-debug-materialized-codegen-scope-guard | unknown | yes | unknown | yes | no | no |
-| `archival-debug-jsshell-codegen` | `spidermonkey-archival-debug-jsshell-codegen-audit.json` | available | archival-codegen-scope-guard | unknown | yes | unknown | yes | no | no |
-| `installed-buildconfig-source-pin` | `firefox-spidermonkey-buildconfig-source-pin-audit.json` | source-pin | source-pin-only | unknown | unknown | unknown | unknown | unknown | no |
+| Diagnostic | Artifact | Status | Evidence class | JIT status | IR surface | Bytecode dump | Native dump complete | Current stax benchmark | Closes emitted IR obligation | Closure qualified |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `installed-browser-diagnostic-dump` | `firefox-spidermonkey-diagnostic-dump-audit.json` | no-dump-emitted | negative-diagnostic-surface | unknown | unknown | unknown | unknown | unknown | no | no |
+| `local-js-shell-discovery` | `firefox-spidermonkey-js-shell-availability-audit.json` | available | availability-only | unknown | unknown | unknown | unknown | unknown | no | no |
+| `official-release-jsshell` | `firefox-spidermonkey-release-jsshell-availability-audit.json` | available | jit-status-only | yes | no | no (no-bytecode-output, markers=0) | no | no | no | no |
+| `official-nightly-jsshell` | `firefox-spidermonkey-nightly-jsshell-availability-audit.json` | available | jit-status-only | yes | no | no (no-bytecode-output, markers=0) | no | no | no | no |
+| `official-jsshell-stax-api-gap` | `firefox-spidermonkey-jsshell-stax-api-gap-audit.json` | blocked-by-host-api-surface | host-api-surface-gap | yes | unknown | unknown | unknown | no | no | no |
+| `official-jsshell-diagnostic-flag-sweep` | `spidermonkey-jsshell-diagnostic-flag-sweep.json` | available | diagnostic-flag-sweep-negative | unknown | unknown | no (unknown, markers=unknown) | unknown | unknown | no | no |
+| `taskcluster-debug-jsshell-codegen` | `spidermonkey-taskcluster-debug-jsshell-codegen-audit.json` | available | current-debug-codegen-scope-guard | unknown | yes | unknown | yes | no | no | no |
+| `taskcluster-debug-jsshell-xml-codegen` | `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json` | available | current-debug-xml-codegen-scope-guard | unknown | yes | unknown | yes | no | no | no |
+| `taskcluster-debug-jsshell-materialized-codegen` | `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json` | available | current-debug-materialized-codegen-scope-guard | unknown | yes | unknown | yes | no | no | no |
+| `archival-debug-jsshell-codegen` | `spidermonkey-archival-debug-jsshell-codegen-audit.json` | available | archival-codegen-scope-guard | unknown | yes | unknown | yes | no | no | no |
+| `installed-buildconfig-source-pin` | `firefox-spidermonkey-buildconfig-source-pin-audit.json` | source-pin | source-pin-only | unknown | unknown | unknown | unknown | unknown | no | no |
 
 ## Open Obligations
 

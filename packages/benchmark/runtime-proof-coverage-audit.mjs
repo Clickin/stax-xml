@@ -580,7 +580,8 @@ function summarizeSpiderMonkeyDiagnostics(artifacts) {
   ].filter(Boolean);
   return {
     rows,
-    emittedIrEvidenceCount: rows.filter(row => row.closesEmittedIrObligation === true).length,
+    emittedIrEvidenceCount: rows.filter(row => row.emittedIrClosureQualified === true).length,
+    emittedIrClaimCount: rows.filter(row => row.closesEmittedIrObligation === true).length,
     jitStatusOnlyCount: rows.filter(row => row.evidenceClass === 'jit-status-only').length,
     availabilityOnlyCount: rows.filter(row => row.evidenceClass === 'availability-only').length,
     missingIrSurfaceCount: rows.filter(row => row.irDumpSurface === false || row.nativeDumpComplete === false).length,
@@ -599,6 +600,15 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact) {
   const closesEmittedIrObligation = typeof outcome.closesEmittedIrObligation === 'boolean'
     ? outcome.closesEmittedIrObligation
     : false;
+  const sameContractStaxRow = typeof outcome.sameContractStaxRow === 'boolean' ? outcome.sameContractStaxRow : null;
+  const canRunCurrentStaxFullStringBenchmark = typeof outcome.canRunCurrentStaxFullStringBenchmark === 'boolean'
+    ? outcome.canRunCurrentStaxFullStringBenchmark
+    : typeof summary.unchangedRunnableShellCount === 'number'
+      ? summary.unchangedRunnableShellCount > 0
+      : null;
+  const emittedIrClosureQualified = closesEmittedIrObligation === true
+    && sameContractStaxRow === true
+    && canRunCurrentStaxFullStringBenchmark === true;
   const irDumpSurface = typeof outcome.hasIrDumpSurface === 'boolean'
     ? outcome.hasIrDumpSurface
     : null;
@@ -635,23 +645,21 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact) {
       : typeof summary.binaryReadableShellCount === 'number' && typeof summary.shellCount === 'number'
         ? summary.binaryReadableShellCount === summary.shellCount && summary.shellCount > 0
         : null,
-    canRunCurrentStaxFullStringBenchmark: typeof outcome.canRunCurrentStaxFullStringBenchmark === 'boolean'
-      ? outcome.canRunCurrentStaxFullStringBenchmark
-      : typeof summary.unchangedRunnableShellCount === 'number'
-        ? summary.unchangedRunnableShellCount > 0
-        : null,
+    canRunCurrentStaxFullStringBenchmark,
     commonMissingGlobals: Array.isArray(summary.commonMissingGlobals) ? summary.commonMissingGlobals : null,
     taskId: artifact.shell?.provenance?.taskId ?? null,
     route: artifact.shell?.provenance?.route ?? null,
     buildId: artifact.shell?.provenance?.buildId ?? null,
     sourceRevision: artifact.shell?.provenance?.sourceRevision ?? null,
     hasCodegenDumpOutput: typeof outcome.hasCodegenDumpOutput === 'boolean' ? outcome.hasCodegenDumpOutput : null,
-    sameContractStaxRow: typeof outcome.sameContractStaxRow === 'boolean' ? outcome.sameContractStaxRow : null,
+    sameContractStaxRow,
     closesEmittedIrObligation,
+    emittedIrClosureQualified,
     evidenceClass: classifySpiderMonkeyDiagnosticEvidence({
       id,
       hasJitExecutionStatus,
       closesEmittedIrObligation,
+      emittedIrClosureQualified,
       irDumpSurface,
       nativeDumpComplete,
       outcome,
@@ -660,8 +668,9 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact) {
   };
 }
 
-function classifySpiderMonkeyDiagnosticEvidence({ id, hasJitExecutionStatus, closesEmittedIrObligation, irDumpSurface, nativeDumpComplete, outcome, summary }) {
-  if (closesEmittedIrObligation) return 'emitted-ir';
+function classifySpiderMonkeyDiagnosticEvidence({ id, hasJitExecutionStatus, closesEmittedIrObligation, emittedIrClosureQualified, irDumpSurface, nativeDumpComplete, outcome, summary }) {
+  if (emittedIrClosureQualified) return 'emitted-ir';
+  if (closesEmittedIrObligation) return 'emitted-ir-scope-guard';
   if (outcome?.hasMaterializedStringObjectCodegenOutput === true && outcome?.scopeComparableToCurrentFirefox === true && outcome?.sameContractStaxRow === false) return 'current-debug-materialized-codegen-scope-guard';
   if (outcome?.hasXmlWorkloadCodegenOutput === true && outcome?.scopeComparableToCurrentFirefox === true && outcome?.sameContractStaxRow === false) return 'current-debug-xml-codegen-scope-guard';
   if (outcome?.hasCodegenDumpOutput === true && outcome?.scopeComparableToCurrentFirefox === true && outcome?.sameContractStaxRow === false) return 'current-debug-codegen-scope-guard';
@@ -1446,13 +1455,14 @@ function renderMarkdown(report) {
     '## SpiderMonkey Diagnostic Surface',
     '',
     `Emitted SpiderMonkey IR/codegen evidence artifacts: ${report.coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount}`,
+    `Raw SpiderMonkey emitted-IR closure claims: ${report.coverage.spiderMonkeyDiagnostics.emittedIrClaimCount}`,
     `JIT-status-only SpiderMonkey shell artifacts: ${report.coverage.spiderMonkeyDiagnostics.jitStatusOnlyCount}`,
     '',
-    '| Diagnostic | Artifact | Status | Evidence class | JIT status | IR surface | Bytecode dump | Native dump complete | Current stax benchmark | Closes emitted IR obligation |',
-    '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
+    '| Diagnostic | Artifact | Status | Evidence class | JIT status | IR surface | Bytecode dump | Native dump complete | Current stax benchmark | Closes emitted IR obligation | Closure qualified |',
+    '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
   );
   for (const row of report.coverage.spiderMonkeyDiagnostics.rows) {
-    lines.push(`| \`${row.id}\` | \`${row.sourceArtifact}\` | ${row.status} | ${row.evidenceClass} | ${formatBoolean(row.hasJitExecutionStatus)} | ${formatBoolean(row.irDumpSurface)} | ${formatBytecodeDump(row)} | ${formatBoolean(row.nativeDumpComplete)} | ${formatBoolean(row.canRunCurrentStaxFullStringBenchmark)} | ${formatBoolean(row.closesEmittedIrObligation)} |`);
+    lines.push(`| \`${row.id}\` | \`${row.sourceArtifact}\` | ${row.status} | ${row.evidenceClass} | ${formatBoolean(row.hasJitExecutionStatus)} | ${formatBoolean(row.irDumpSurface)} | ${formatBytecodeDump(row)} | ${formatBoolean(row.nativeDumpComplete)} | ${formatBoolean(row.canRunCurrentStaxFullStringBenchmark)} | ${formatBoolean(row.closesEmittedIrObligation)} | ${formatBoolean(row.emittedIrClosureQualified)} |`);
   }
 
   lines.push(

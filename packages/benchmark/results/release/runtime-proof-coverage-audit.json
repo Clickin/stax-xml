@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T10:28:54.396Z",
+  "generatedAt": "2026-06-01T12:07:34.848Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -24733,6 +24733,7 @@
           "hasCodegenDumpOutput": null,
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
+          "emittedIrClosureQualified": false,
           "evidenceClass": "negative-diagnostic-surface"
         },
         {
@@ -24763,6 +24764,7 @@
           "hasCodegenDumpOutput": null,
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
+          "emittedIrClosureQualified": false,
           "evidenceClass": "availability-only"
         },
         {
@@ -24793,6 +24795,7 @@
           "hasCodegenDumpOutput": null,
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
+          "emittedIrClosureQualified": false,
           "evidenceClass": "jit-status-only"
         },
         {
@@ -24823,6 +24826,7 @@
           "hasCodegenDumpOutput": null,
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
+          "emittedIrClosureQualified": false,
           "evidenceClass": "jit-status-only"
         },
         {
@@ -24858,6 +24862,7 @@
           "hasCodegenDumpOutput": null,
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
+          "emittedIrClosureQualified": false,
           "evidenceClass": "host-api-surface-gap"
         },
         {
@@ -24888,6 +24893,7 @@
           "hasCodegenDumpOutput": null,
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
+          "emittedIrClosureQualified": false,
           "evidenceClass": "diagnostic-flag-sweep-negative"
         },
         {
@@ -24918,6 +24924,7 @@
           "hasCodegenDumpOutput": true,
           "sameContractStaxRow": false,
           "closesEmittedIrObligation": false,
+          "emittedIrClosureQualified": false,
           "evidenceClass": "current-debug-codegen-scope-guard"
         },
         {
@@ -24948,6 +24955,7 @@
           "hasCodegenDumpOutput": true,
           "sameContractStaxRow": false,
           "closesEmittedIrObligation": false,
+          "emittedIrClosureQualified": false,
           "evidenceClass": "current-debug-xml-codegen-scope-guard"
         },
         {
@@ -24978,6 +24986,7 @@
           "hasCodegenDumpOutput": true,
           "sameContractStaxRow": false,
           "closesEmittedIrObligation": false,
+          "emittedIrClosureQualified": false,
           "evidenceClass": "current-debug-materialized-codegen-scope-guard"
         },
         {
@@ -25008,6 +25017,7 @@
           "hasCodegenDumpOutput": true,
           "sameContractStaxRow": false,
           "closesEmittedIrObligation": false,
+          "emittedIrClosureQualified": false,
           "evidenceClass": "archival-codegen-scope-guard"
         },
         {
@@ -25038,10 +25048,12 @@
           "hasCodegenDumpOutput": null,
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
+          "emittedIrClosureQualified": false,
           "evidenceClass": "source-pin-only"
         }
       ],
       "emittedIrEvidenceCount": 0,
+      "emittedIrClaimCount": 0,
       "jitStatusOnlyCount": 2,
       "availabilityOnlyCount": 1,
       "missingIrSurfaceCount": 2
