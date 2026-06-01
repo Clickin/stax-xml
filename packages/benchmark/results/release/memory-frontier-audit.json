@@ -1,0 +1,171 @@
+{
+  "generatedAt": "2026-05-31T23:59:22.098Z",
+  "objective": "memory-frontier-audit",
+  "contract": "same-contract-1gib-plus-js-full-string-memory-frontier",
+  "note": "Audits memory classification from the same-contract aggregate. This is not a benchmark run, does not normalize memory models across runtimes, and does not prove a JavaScript runtime ceiling.",
+  "inputs": {
+    "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
+    "comparisonGeneratedAt": "2026-05-31T23:20:48.612Z",
+    "comparisonObjective": "same-contract-runtime-comparison",
+    "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape"
+  },
+  "summary": {
+    "status": "classified",
+    "rows": 216,
+    "boundedRows": 199,
+    "unboundedRows": 17,
+    "jsLargeFullRowCount": 216,
+    "memoryKinds": [
+      "browser-js-heap",
+      "browser-js-heap-unavailable",
+      "process-rss"
+    ],
+    "fastestBoundedRow": {
+      "runtimeLabel": "Node/V8",
+      "caseId": "rawFrameNameId",
+      "rateMiBPerSec": 185.5,
+      "memoryKind": "process-rss",
+      "maxMiB": 60.45,
+      "sourceArtifact": "text-trim-cost-decomposition.json",
+      "boundedMemory": true
+    },
+    "fastestProcessRssUnder128MiB": {
+      "runtimeLabel": "Node/V8",
+      "caseId": "rawFrameNameId",
+      "rateMiBPerSec": 185.5,
+      "memoryKind": "process-rss",
+      "maxMiB": 60.45,
+      "sourceArtifact": "text-trim-cost-decomposition.json",
+      "boundedMemory": true
+    },
+    "fastestBrowserJsHeapRow": {
+      "runtimeLabel": "Chrome/V8 browser",
+      "caseId": "rawFrameNameId",
+      "rateMiBPerSec": 69.9,
+      "memoryKind": "browser-js-heap",
+      "maxMiB": 39.55,
+      "sourceArtifact": "browser-candidate-headroom-large.json",
+      "boundedMemory": true
+    },
+    "sameFixture1024MiBProcessRssSnapshot": {
+      "caveat": "Process RSS values are same-fixture endpoint evidence, not allocation-model equivalence across Java, Rust, and JavaScript runtimes.",
+      "fastestJs": {
+        "runtimeLabel": "Node/V8",
+        "caseId": "stax-raw-frame-name-id-batch-8",
+        "sourceArtifact": "file-backed-batch-size-sweep.json",
+        "rateMiBPerSec": 152.11,
+        "memoryKind": "process-rss",
+        "maxRssMiB": 61.77
+      },
+      "woodstox": {
+        "runtimeLabel": "Java/Woodstox",
+        "caseId": "woodstox",
+        "sourceArtifact": "file-backed-trim-boundary-check-candidate.json",
+        "rateMiBPerSec": 351.56,
+        "memoryKind": "process-rss",
+        "maxRssMiB": 312.71
+      },
+      "quickXml": {
+        "runtimeLabel": "Rust/quick-xml",
+        "caseId": "quick-xml",
+        "sourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
+        "rateMiBPerSec": 274.63,
+        "memoryKind": "process-rss",
+        "maxRssMiB": 4.78
+      }
+    },
+    "conclusionAllowed": false
+  },
+  "buckets": [
+    {
+      "kind": "browser-js-heap",
+      "rows": 20,
+      "boundedRows": 20,
+      "unboundedRows": 0,
+      "maxMiB": 358.37,
+      "fastestRow": {
+        "runtimeLabel": "Chrome/V8 browser",
+        "caseId": "rawFrameNameId",
+        "rateMiBPerSec": 69.9,
+        "memoryKind": "browser-js-heap",
+        "maxMiB": 39.55,
+        "sourceArtifact": "browser-candidate-headroom-large.json",
+        "boundedMemory": true
+      },
+      "fastestBoundedRow": {
+        "runtimeLabel": "Chrome/V8 browser",
+        "caseId": "rawFrameNameId",
+        "rateMiBPerSec": 69.9,
+        "memoryKind": "browser-js-heap",
+        "maxMiB": 39.55,
+        "sourceArtifact": "browser-candidate-headroom-large.json",
+        "boundedMemory": true
+      }
+    },
+    {
+      "kind": "browser-js-heap-unavailable",
+      "rows": 9,
+      "boundedRows": 0,
+      "unboundedRows": 9,
+      "maxMiB": null,
+      "fastestRow": {
+        "runtimeLabel": "Firefox/SpiderMonkey browser",
+        "caseId": "rawFrameNameId",
+        "rateMiBPerSec": 64.24,
+        "memoryKind": "browser-js-heap-unavailable",
+        "maxMiB": null,
+        "sourceArtifact": "firefox-bidi-candidate-headroom-projection.json",
+        "boundedMemory": false
+      },
+      "fastestBoundedRow": null
+    },
+    {
+      "kind": "process-rss",
+      "rows": 187,
+      "boundedRows": 179,
+      "unboundedRows": 8,
+      "maxMiB": 1956.69,
+      "fastestRow": {
+        "runtimeLabel": "Node/V8",
+        "caseId": "rawFrameNameId",
+        "rateMiBPerSec": 185.5,
+        "memoryKind": "process-rss",
+        "maxMiB": 60.45,
+        "sourceArtifact": "text-trim-cost-decomposition.json",
+        "boundedMemory": true
+      },
+      "fastestBoundedRow": {
+        "runtimeLabel": "Node/V8",
+        "caseId": "rawFrameNameId",
+        "rateMiBPerSec": 185.5,
+        "memoryKind": "process-rss",
+        "maxMiB": 60.45,
+        "sourceArtifact": "text-trim-cost-decomposition.json",
+        "boundedMemory": true
+      }
+    }
+  ],
+  "interpretation": "Memory is classified on the same 1 GiB+ JavaScript full-string row set used for counterexample scanning; process RSS, browser JS heap, and browser host-probe-only rows are not normalized into one allocation model.",
+  "findings": [
+    {
+      "id": "memory-frontier-classified",
+      "classification": "SOURCE_FACT",
+      "summary": "199/216 current JavaScript 1 GiB+ full-string rows are bounded under their recorded memory metric."
+    },
+    {
+      "id": "memory-kinds-not-normalized",
+      "classification": "SOURCE_FACT",
+      "summary": "Process RSS, browser JS heap, and browser host-probe-only rows remain separate memory kinds."
+    },
+    {
+      "id": "firefox-heap-unavailable-not-bounded-proof",
+      "classification": "SOURCE_FACT",
+      "summary": "Firefox/SpiderMonkey browser rows without page JS heap counters remain unbounded or unproven for counterexample purposes."
+    },
+    {
+      "id": "same-fixture-rss-snapshot-not-allocation-model",
+      "classification": "SOURCE_FACT",
+      "summary": "Same-fixture process RSS rows are endpoint memory evidence and not allocation-model equivalence across JavaScript, Java, and Rust."
+    }
+  ]
+}
