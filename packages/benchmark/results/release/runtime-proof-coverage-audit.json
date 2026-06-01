@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T16:08:49.009Z",
+  "generatedAt": "2026-06-01T16:28:05.306Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -24819,6 +24819,9 @@
       "canRunSafariBrowserRows": false,
       "benchmarkRowsRecorded": 0,
       "availabilitySaysRowsRecorded": false,
+      "availabilityExactBuildIdentityRecorded": false,
+      "measuredExactBuildIdentityRowsRecorded": 0,
+      "largeBoundedPrimarySyncByteBatchRowsWithMeasuredExactBuildIdentity": 0,
       "exactBuildIdentityRecorded": false,
       "sourceBoundaryPinned": false,
       "availabilityPrimarySyncByteBatchRowsRecorded": false,

@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T16:09:58.847Z
+Generated: 2026-06-01T16:29:00.683Z
 
 ## Scope
 
@@ -86,7 +86,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-01T16:08:49.009Z)
+- Coverage audit loaded: yes (2026-06-01T16:28:05.306Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7
@@ -107,7 +107,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-01T16:09:23.377Z)
+- Handoff loaded: yes (2026-06-01T16:28:25.235Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -127,7 +127,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-01T16:09:45.681Z)
+- Handoff validation loaded: yes (2026-06-01T16:28:42.333Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes
 - Required contracts present: yes

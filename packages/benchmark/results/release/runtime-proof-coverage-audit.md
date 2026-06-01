@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-06-01T16:08:49.009Z
+Generated: 2026-06-01T16:28:05.306Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -95,6 +95,8 @@ This classifies the parser input shape for 1 GiB+ JavaScript full-string rows th
 Safari/WebKit evidence class: environment-availability-only
 Safari/WebKit availability closure requirements: met=2, blocked=9
 Safari/WebKit direct ReadableStream rows separate: yes
+Safari/WebKit rows with measured exact build identity: 0
+Safari/WebKit 1 GiB+ bounded primary rows with measured exact build identity: 0
 Safari/WebKit primary rows in same-contract comparison: no
 Safari/WebKit 1 GiB+ bounded primary rows in same-contract comparison: no
 Safari/WebKit obligation closed: no

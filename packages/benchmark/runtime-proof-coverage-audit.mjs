@@ -311,6 +311,7 @@ function extractMeasuredRows(sourceArtifact, root) {
       fixtureSource: fixture?.source ?? null,
       fixtureShape: fixture?.shape ?? null,
       corpusSeed: fixture?.source === 'corpus-file' && fixture.sourceFile ? normalizeCorpusSeed(fixture.sourceFile) : null,
+      environment: summarizeEnvironment(context.environment),
       mibPerSec: round(node.mibPerSec),
       fullStringParity: classifyFullStringParity(node, context),
       boundedMemory: classifyBoundedMemory(node, memoryKind),
@@ -557,10 +558,15 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows, sameContra
       comparisonRows: sameContractComparisonRows,
     })
   );
+  const safariRowsWithMeasuredExactBuildIdentity = safariRows.filter(hasMeasuredSafariBuildIdentity);
+  const largeBoundedPrimaryRowsWithMeasuredExactBuildIdentity = largeBoundedPrimaryRows.filter(hasMeasuredSafariBuildIdentity);
   const primaryRowsInSameContractComparison = boundedPrimaryRows.length > 0
     && boundedPrimaryRowsInSameContractComparison.length === boundedPrimaryRows.length;
   const largePrimaryRowsInSameContractComparison = largeBoundedPrimaryRows.length > 0
     && largeBoundedPrimaryRowsInSameContractComparison.length === largeBoundedPrimaryRows.length;
+  const measuredExactBuildIdentityRecorded = safariRowsWithMeasuredExactBuildIdentity.length > 0;
+  const exactBuildIdentityRecorded = availability.exactSafariBuildIdentityRecorded === true
+    && measuredExactBuildIdentityRecorded;
   return {
     availabilityArtifact: availabilityArtifact?.sourceArtifact ?? null,
     hostIsMacOS: availability.hostIsMacOS ?? null,
@@ -570,7 +576,10 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows, sameContra
     canRunSafariBrowserRows: availability.canRunSafariBrowserRows ?? null,
     benchmarkRowsRecorded: safariRows.length,
     availabilitySaysRowsRecorded: availability.safariBenchmarkRowsRecorded ?? null,
-    exactBuildIdentityRecorded: availability.exactSafariBuildIdentityRecorded ?? null,
+    availabilityExactBuildIdentityRecorded: availability.exactSafariBuildIdentityRecorded ?? null,
+    measuredExactBuildIdentityRowsRecorded: safariRowsWithMeasuredExactBuildIdentity.length,
+    largeBoundedPrimarySyncByteBatchRowsWithMeasuredExactBuildIdentity: largeBoundedPrimaryRowsWithMeasuredExactBuildIdentity.length,
+    exactBuildIdentityRecorded,
     sourceBoundaryPinned: availability.safariSourceBoundaryPinned ?? null,
     availabilityPrimarySyncByteBatchRowsRecorded: availability.primarySyncByteBatchRowsRecorded ?? null,
     availabilityBoundedPrimarySyncByteBatchRowsRecorded: availability.boundedPrimarySyncByteBatchRowsRecorded ?? null,
@@ -594,11 +603,22 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows, sameContra
         ? 'environment-availability-only'
         : 'missing-availability-audit',
     closesSafariObligation: safariRows.length > 0
-      && availability.exactSafariBuildIdentityRecorded === true
+      && exactBuildIdentityRecorded
       && availability.safariSourceBoundaryPinned === true
       && availability.directReadableStreamRowsAreSeparateEvidence === true
+      && largeBoundedPrimaryRowsWithMeasuredExactBuildIdentity.length > 0
       && largePrimaryRowsInSameContractComparison,
   };
+}
+
+function hasMeasuredSafariBuildIdentity(row) {
+  const environment = row?.environment ?? {};
+  return typeof environment.browserVersion === 'string'
+    && environment.browserVersion.length > 0
+    && environment.browserVersion !== 'unknown'
+    && typeof environment.userAgent === 'string'
+    && environment.userAgent.length > 0
+    && /Safari\//.test(environment.userAgent);
 }
 
 function summarizeSpiderMonkeyDiagnostics(artifacts, sameContractComparisonRows = []) {
@@ -1436,11 +1456,21 @@ function normalizeFixture(fixture) {
 }
 
 function summarizeEnvironment(environment = {}) {
+  if (!environment || typeof environment !== 'object') return {
+    runtimeName: null,
+    browserName: null,
+    browserVersion: null,
+    javascriptEngine: null,
+    userAgent: null,
+    v8: null,
+    webkitCommit: null,
+  };
   return {
     runtimeName: environment.runtimeName ?? null,
     browserName: environment.browserName ?? null,
     browserVersion: environment.browserVersion ?? null,
     javascriptEngine: environment.javascriptEngine ?? null,
+    userAgent: environment.userAgent ?? null,
     v8: environment.v8 ?? null,
     webkitCommit: environment.webkitCommit ?? null,
   };
@@ -1718,6 +1748,8 @@ function renderMarkdown(report) {
     `Safari/WebKit evidence class: ${report.coverage.safariWebKitStatus.evidenceClass}`,
     `Safari/WebKit availability closure requirements: met=${report.coverage.safariWebKitStatus.availabilityClosureRequirementsMet ?? 'n/a'}, blocked=${report.coverage.safariWebKitStatus.availabilityClosureRequirementsBlocked ?? 'n/a'}`,
     `Safari/WebKit direct ReadableStream rows separate: ${formatBoolean(report.coverage.safariWebKitStatus.directReadableStreamRowsAreSeparateEvidence)}`,
+    `Safari/WebKit rows with measured exact build identity: ${report.coverage.safariWebKitStatus.measuredExactBuildIdentityRowsRecorded}`,
+    `Safari/WebKit 1 GiB+ bounded primary rows with measured exact build identity: ${report.coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsWithMeasuredExactBuildIdentity}`,
     `Safari/WebKit primary rows in same-contract comparison: ${formatBoolean(report.coverage.safariWebKitStatus.primaryRowsInSameContractComparison)}`,
     `Safari/WebKit 1 GiB+ bounded primary rows in same-contract comparison: ${formatBoolean(report.coverage.safariWebKitStatus.largePrimaryRowsInSameContractComparison)}`,
     `Safari/WebKit obligation closed: ${formatBoolean(report.coverage.safariWebKitStatus.closesSafariObligation)}`,
