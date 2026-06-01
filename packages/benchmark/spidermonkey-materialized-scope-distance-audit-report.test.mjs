@@ -50,6 +50,9 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
   assert.equal(report.workloadComparison.materialized.materializedObjectCount, 55759);
   assert.deepEqual(report.hostApiSurface.primarySyncByteBatchMissingGlobals, ['TextDecoder']);
   assert.deepEqual(report.hostApiSurface.nonPrimaryHarnessMissingGlobals, ['TextEncoder', 'ReadableStream', 'fetch']);
+  assert.equal(report.asciiScopeDistance.reducesScopeDistance, true);
+  assert.equal(report.asciiScopeDistance.materializedCorpusSeedAscii, true);
+  assert.equal(report.asciiScopeDistance.asciiByteToStringEquivalentToUtf8, true);
   assert.deepEqual(
     report.closureMatrix.map(item => ({ id: item.id, status: item.status })),
     [
@@ -70,6 +73,10 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
     /primarySyncByteBatchMissingGlobals=TextDecoder/,
   );
   assert.ok(report.checks.every(check => check.status === 'pass'));
+  assert.ok(report.findings.some(finding =>
+    finding.id === 'materialized-js-shell-ascii-textdecoder-equivalence'
+    && finding.classification === 'SOURCE_FACT'
+  ));
   assert.ok(report.findings.some(finding =>
     finding.id === 'materialized-js-shell-semantic-equivalence-bounded'
     && finding.classification === 'SOURCE_FACT'
@@ -93,6 +100,7 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
   assert.match(markdown, /Closes codegen obligation: false/);
   assert.match(markdown, /Primary sync byte-batch missing globals: TextDecoder/);
   assert.match(markdown, /Non-primary harness missing globals: TextEncoder, ReadableStream, fetch/);
+  assert.match(markdown, /ASCII TextDecoder equivalence reduces scope distance: true/);
   assert.match(markdown, /Token workload: xml-token-boundary-no-string-materialization, fullStringParity=false/);
   assert.match(markdown, /Materialized workload: ascii-js-string-and-public-event-object-materialization, fullStringParity=true/);
   assert.match(markdown, /\| `same-contract-stax-row` \| blocked \| The emitted codegen corresponds to the unchanged same-contract StAX benchmark row\. \| sameContractStaxRow=false \|/);

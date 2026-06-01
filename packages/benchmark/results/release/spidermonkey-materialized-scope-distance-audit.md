@@ -1,6 +1,6 @@
 # SpiderMonkey Materialized Scope Distance Audit
 
-Generated: 2026-06-01T14:19:17.406Z
+Generated: 2026-06-01T14:27:03.889Z
 
 Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen artifact against the token-only codegen artifact, the js-shell StAX API gap, and the semantic materialization contract. This audit records exactly what the materialized js-shell workload proves and why it still cannot close the unchanged StAX codegen obligation.
 
@@ -19,6 +19,7 @@ Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen arti
 - Unchanged StAX benchmark: false
 - Primary sync byte-batch missing globals: TextDecoder
 - Non-primary harness missing globals: TextEncoder, ReadableStream, fetch
+- ASCII TextDecoder equivalence reduces scope distance: true
 
 ## Workload Comparison
 
@@ -70,6 +71,10 @@ Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen arti
   - materializedStringCount=245161
   - materializedObjectCount=223041
   - checksum=167904020
+- materialized-js-shell-ascii-textdecoder-equivalence (SOURCE_FACT): For the checked ASCII corpus scope, the js-shell materializer produces the same string code units that UTF-8 TextDecoder would produce, narrowing the remaining TextDecoder blocker to unchanged host API/codegen evidence.
+  - reducesScopeDistance=true
+  - materializedCorpusSeedAscii=true
+  - asciiByteToStringEquivalentToUtf8=true
 - materialized-js-shell-not-unchanged-stax (SCOPE_GUARD): The same artifact remains outside unchanged StAX closure because the js-shell host API cannot run the TextDecoder/ReadableStream benchmark surface.
   - sameContractStaxRow=false
   - unchangedStaxBenchmark=false

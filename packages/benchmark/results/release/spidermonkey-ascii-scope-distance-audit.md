@@ -1,6 +1,6 @@
 # SpiderMonkey ASCII Scope Distance Audit
 
-Generated: 2026-06-01T06:40:32.085Z
+Generated: 2026-06-01T14:26:51.303Z
 
 Audits the ASCII-only scope in the SpiderMonkey debug js-shell materialized-codegen artifact. For corpus seeds whose bytes are all <= 0x7f, String.fromCharCode over bytes produces the same JavaScript string code units as non-streaming UTF-8 TextDecoder for those spans. This reduces the materialized js-shell scope distance for ASCII corpus seeds, but it still does not make the artifact the unchanged StAX benchmark or close the emitted-code obligation.
 
@@ -28,7 +28,7 @@ Audits the ASCII-only scope in the SpiderMonkey debug js-shell materialized-code
 | Check | Status | Evidence |
 | --- | --- | --- |
 | materialized-source-uses-ascii-byte-materializer | pass | asciiFromBytes=true; fromCharCode=true; processTag=true; foldString=true |
-| materialized-workload-folds-semantic-strings | pass | sameSemanticChecksumFields=true; fullStringParity=true; materializedStringCount=61289; materializedObjectCount=55759 |
+| materialized-workload-folds-semantic-strings | pass | sameSemanticChecksumFields=true; fullStringParity=true; materializedStringCount=245161; materializedObjectCount=223041 |
 | materialized-corpus-seed-is-ascii | pass | file=G:\programming\stax-xml\packages\benchmark\assets\books.xml; maxByte=122; nonAsciiByteCount=0 |
 | ascii-corpus-byte-to-string-equivalence | pass | books.xml: bytes=4551 maxByte=122 nonAscii=0; midsize.xml: bytes=14017532 maxByte=121 nonAscii=0; large.xml: bytes=105131540 maxByte=121 nonAscii=0 |
 | unchanged-stax-closure-still-blocked | pass | sameContractStaxRow=false; unchangedStaxBenchmark=false; closesEmittedIrObligation=false |

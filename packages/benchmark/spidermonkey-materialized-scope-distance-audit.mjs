@@ -8,6 +8,7 @@ const defaultMaterializedJson = resolve(defaultReleaseDir, 'spidermonkey-taskclu
 const defaultTokenJson = resolve(defaultReleaseDir, 'spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json');
 const defaultApiGapJson = resolve(defaultReleaseDir, 'firefox-spidermonkey-jsshell-stax-api-gap-audit.json');
 const defaultContractJson = resolve(defaultReleaseDir, 'materialization-contract-audit.json');
+const defaultAsciiJson = resolve(defaultReleaseDir, 'spidermonkey-ascii-scope-distance-audit.json');
 const defaultJsonOut = resolve(defaultReleaseDir, 'spidermonkey-materialized-scope-distance-audit.json');
 const defaultMdOut = resolve(defaultReleaseDir, 'spidermonkey-materialized-scope-distance-audit.md');
 
@@ -17,6 +18,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     tokenJson: defaultTokenJson,
     apiGapJson: defaultApiGapJson,
     contractJson: defaultContractJson,
+    asciiJson: defaultAsciiJson,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
     selfTest: false,
@@ -44,6 +46,9 @@ function parseArgs(argv = process.argv.slice(2)) {
         break;
       case '--contract-json':
         options.contractJson = resolve(process.cwd(), readValue());
+        break;
+      case '--ascii-json':
+        options.asciiJson = resolve(process.cwd(), readValue());
         break;
       case '--json-out':
         options.jsonOut = resolve(process.cwd(), readValue());
@@ -74,7 +79,8 @@ function createReport(options) {
   const token = readJson(options.tokenJson);
   const apiGap = readJson(options.apiGapJson);
   const contract = readJson(options.contractJson);
-  return buildReport(options, { materialized, token, apiGap, contract });
+  const ascii = readJson(options.asciiJson);
+  return buildReport(options, { materialized, token, apiGap, contract, ascii });
 }
 
 function buildReport(options, sources) {
@@ -82,12 +88,14 @@ function buildReport(options, sources) {
   const token = sources.token;
   const apiGap = sources.apiGap;
   const contract = sources.contract;
+  const ascii = sources.ascii;
   const workload = materialized.materializedWorkload ?? {};
   const tokenWorkload = token.row ?? {};
   const missingGlobals = apiGap.summary?.commonMissingGlobals
     ?? materialized.shell?.apiProbe?.missingGlobals
     ?? [];
   const hostApiSurface = summarizeHostApiSurface(apiGap, missingGlobals);
+  const asciiScopeDistance = summarizeAsciiScopeDistance(ascii);
   const sameTaskclusterBuild = [
     materialized.shell?.provenance?.taskId,
     token.shell?.provenance?.taskId,
@@ -177,6 +185,7 @@ function buildReport(options, sources) {
       tokenJson: options.tokenJson,
       apiGapJson: options.apiGapJson,
       contractJson: options.contractJson,
+      asciiJson: options.asciiJson,
       selfTest: options.selfTest,
     },
     sourceArtifacts: {
@@ -184,6 +193,7 @@ function buildReport(options, sources) {
       token: sourceSummary(token),
       apiGap: sourceSummary(apiGap),
       contract: sourceSummary(contract),
+      ascii: sourceSummary(ascii),
     },
     workloadComparison: {
       token: {
@@ -210,6 +220,7 @@ function buildReport(options, sources) {
       staxStreamIndexAccessorsSupported: Boolean(contract.sourceChecks?.items?.some(item => item.id === 'stax-stream-index-accessors' && item.supported === true)),
     },
     hostApiSurface,
+    asciiScopeDistance,
     closureMatrix,
     checks,
     summary: {
@@ -247,6 +258,17 @@ function summarizeHostApiSurface(apiGap, missingGlobals) {
     primarySyncByteBatchMissingGlobals,
     nonPrimaryHarnessMissingGlobals,
     interpretation: 'For corpus-file synchronous Iterable<Uint8Array[]> StAX closure, the js-shell blocker narrows to TextDecoder; TextEncoder, ReadableStream, and fetch are generated-fixture, direct-stream, or browser-live-source harness blockers.',
+  };
+}
+
+function summarizeAsciiScopeDistance(ascii) {
+  return {
+    objective: ascii?.objective ?? null,
+    reducesScopeDistance: ascii?.summary?.reducesScopeDistance === true,
+    materializedCorpusSeedAscii: ascii?.summary?.materializedCorpusSeedAscii === true,
+    asciiByteToStringEquivalentToUtf8: ascii?.summary?.asciiByteToStringEquivalentToUtf8 === true,
+    allCorpusFilesAscii: ascii?.summary?.allCorpusFilesAscii === true,
+    closesCodegenObligation: ascii?.summary?.closesCodegenObligation === true,
   };
 }
 
@@ -318,6 +340,16 @@ function createFindings(report) {
         `materializedStringCount=${report.workloadComparison.materialized.materializedStringCount ?? 'unknown'}`,
         `materializedObjectCount=${report.workloadComparison.materialized.materializedObjectCount ?? 'unknown'}`,
         `checksum=${report.workloadComparison.materialized.checksum ?? 'unknown'}`,
+      ],
+    },
+    {
+      id: 'materialized-js-shell-ascii-textdecoder-equivalence',
+      classification: 'SOURCE_FACT',
+      summary: 'For the checked ASCII corpus scope, the js-shell materializer produces the same string code units that UTF-8 TextDecoder would produce, narrowing the remaining TextDecoder blocker to unchanged host API/codegen evidence.',
+      evidence: [
+        `reducesScopeDistance=${report.asciiScopeDistance.reducesScopeDistance}`,
+        `materializedCorpusSeedAscii=${report.asciiScopeDistance.materializedCorpusSeedAscii}`,
+        `asciiByteToStringEquivalentToUtf8=${report.asciiScopeDistance.asciiByteToStringEquivalentToUtf8}`,
       ],
     },
     {
@@ -431,6 +463,17 @@ function createSelfTestReport(options) {
         ],
       },
     },
+    ascii: {
+      objective: 'spidermonkey-ascii-scope-distance-audit',
+      contract: 'spidermonkey-js-shell-ascii-materializer-utf8-equivalence-scope',
+      summary: {
+        reducesScopeDistance: true,
+        materializedCorpusSeedAscii: true,
+        asciiByteToStringEquivalentToUtf8: true,
+        allCorpusFilesAscii: false,
+        closesCodegenObligation: false,
+      },
+    },
   });
 }
 
@@ -462,6 +505,7 @@ function renderMarkdown(report) {
     `- Unchanged StAX benchmark: ${report.summary.unchangedStaxBenchmark}`,
     `- Primary sync byte-batch missing globals: ${report.hostApiSurface.primarySyncByteBatchMissingGlobals.join(', ') || 'none'}`,
     `- Non-primary harness missing globals: ${report.hostApiSurface.nonPrimaryHarnessMissingGlobals.join(', ') || 'none'}`,
+    `- ASCII TextDecoder equivalence reduces scope distance: ${report.asciiScopeDistance.reducesScopeDistance}`,
     '',
     '## Workload Comparison',
     '',

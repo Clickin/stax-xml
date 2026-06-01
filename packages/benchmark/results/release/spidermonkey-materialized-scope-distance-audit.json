@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T14:19:17.406Z",
+  "generatedAt": "2026-06-01T14:27:03.889Z",
   "objective": "spidermonkey-materialized-scope-distance-audit",
   "contract": "materialized-js-shell-workload-equivalence-and-scope-distance",
   "note": "Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen artifact against the token-only codegen artifact, the js-shell StAX API gap, and the semantic materialization contract. This audit records exactly what the materialized js-shell workload proves and why it still cannot close the unchanged StAX codegen obligation.",
@@ -8,6 +8,7 @@
     "tokenJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
     "apiGapJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\firefox-spidermonkey-jsshell-stax-api-gap-audit.json",
     "contractJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\materialization-contract-audit.json",
+    "asciiJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\spidermonkey-ascii-scope-distance-audit.json",
     "selfTest": false
   },
   "sourceArtifacts": {
@@ -59,6 +60,11 @@
     "contract": {
       "objective": "materialization-contract-audit",
       "contract": "semantic-materialization-not-object-shape",
+      "outcome": null
+    },
+    "ascii": {
+      "objective": "spidermonkey-ascii-scope-distance-audit",
+      "contract": "spidermonkey-js-shell-ascii-materializer-utf8-equivalence-scope",
       "outcome": null
     }
   },
@@ -112,6 +118,14 @@
       "fetch"
     ],
     "interpretation": "For corpus-file synchronous Iterable<Uint8Array[]> StAX closure, the js-shell blocker narrows to TextDecoder; TextEncoder, ReadableStream, and fetch are generated-fixture, direct-stream, or browser-live-source harness blockers."
+  },
+  "asciiScopeDistance": {
+    "objective": "spidermonkey-ascii-scope-distance-audit",
+    "reducesScopeDistance": true,
+    "materializedCorpusSeedAscii": true,
+    "asciiByteToStringEquivalentToUtf8": true,
+    "allCorpusFilesAscii": true,
+    "closesCodegenObligation": false
   },
   "closureMatrix": [
     {
@@ -231,6 +245,16 @@
         "materializedStringCount=245161",
         "materializedObjectCount=223041",
         "checksum=167904020"
+      ]
+    },
+    {
+      "id": "materialized-js-shell-ascii-textdecoder-equivalence",
+      "classification": "SOURCE_FACT",
+      "summary": "For the checked ASCII corpus scope, the js-shell materializer produces the same string code units that UTF-8 TextDecoder would produce, narrowing the remaining TextDecoder blocker to unchanged host API/codegen evidence.",
+      "evidence": [
+        "reducesScopeDistance=true",
+        "materializedCorpusSeedAscii=true",
+        "asciiByteToStringEquivalentToUtf8=true"
       ]
     },
     {
