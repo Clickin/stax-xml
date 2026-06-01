@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-01T05:03:37.929Z",
+  "generatedAt": "2026-06-01T05:48:55.646Z",
   "objective": "runtime-proof-handoff-validation",
   "contract": "external-run-handoff-command-and-contract-static-validation",
   "note": "Static validation for runtime-proof-gap-handoff external runbooks. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
   "inputs": {
     "handoffJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-gap-handoff.json",
-    "handoffGeneratedAt": "2026-06-01T05:03:24.256Z",
+    "handoffGeneratedAt": "2026-06-01T05:48:40.917Z",
     "handoffObjective": "runtime-proof-gap-handoff",
     "handoffContract": "external-proof-gap-runbook-linked-to-coverage-audit"
   },

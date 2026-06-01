@@ -1084,7 +1084,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Direct ReadableStream rows remain source-overhead evidence/);
   assert.match(markdown, /\| `generated-sync-iterable-byte-batches` \| 341 \| 341 \| 0 \| 0 \| 0 \| 341 \| rawFrameNameId 185\.50 MiB\/s from text-trim-cost-decomposition\.json \|/);
   assert.match(markdown, /\| `file-backed-sync-iterable-byte-batches` \| 53 \| 53 \| 0 \| 0 \| 0 \| 53 \| stax-raw-frame-name-id-batch-8 152\.11 MiB\/s from file-backed-batch-size-sweep\.json \|/);
-  assert.match(markdown, /\| `web-readable-stream-pull` \| 15 \| 15 \| 0 \| 0 \| 15 \| 15 \| web-readable-stream-raw-frame-ascii-batch-8 76\.87 MiB\/s from stream-source-consumption-shapes\.json \|/);
+  assert.match(markdown, /\| `web-readable-stream-pull` \| 15 \| 15 \| 0 \| 0 \| 15 \| 15 \| web-readable-stream-raw-frame-ascii-batch-8 77\.86 MiB\/s from stream-source-consumption-shapes\.json \|/);
   assert.match(markdown, /\| `complete-js-string` \| 1 \| 1 \| 0 \| 0 \| 0 \| 0 \| 3 41\.10 MiB\/s from bun-event-reader-string-large\.json \|/);
   assert.match(markdown, /82 Firefox\/SpiderMonkey browser benchmark rows found/);
   assert.match(markdown, /Firefox benchmark rows and exact tested-build JS string, TextDecoder, and page memory API source pins are now present/);

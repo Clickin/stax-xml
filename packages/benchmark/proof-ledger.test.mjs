@@ -193,15 +193,15 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /[Tt]he fastest\s+source-mode-classified row is Node\/V8 `rawFrameNameId` from\s+`text-trim-cost-decomposition\.json` at 185\.50 MiB\/s/);
   assert.match(markdown, /`complete-js-string`/);
   assert.match(markdown, /`sync-iterable-byte-batches` still covers four grouped sync rows after the focused\s+`stream-source-consumption-backpressure-counters\.json` audit/);
-  assert.match(markdown, /`sync-iterable-byte-batches-batch-8`, which records parser input\s+`synchronous Iterable<Uint8Array\[\]>`, `directReadableStream=false`, and\s+67\.94 MiB\/s/);
+  assert.match(markdown, /`sync-iterable-byte-batches-batch-8`, which records parser input\s+`synchronous Iterable<Uint8Array\[\]>`, `directReadableStream=false`, and\s+71\.96 MiB\/s/);
   assert.match(markdown, /focused audit\s+now includes seven source-shape rows/);
   assert.match(markdown, /async `nextRawBatch\(\)` raw-frame\s+and short-ASCII raw-frame rows/);
   assert.match(markdown, /direct\s+`ReadableStream` `nextRawBatch\(\)` raw-frame and short-ASCII raw-frame rows/);
-  assert.match(markdown, /`async-iterable-raw-frame-ascii-batch-8` at 76\.90 MiB\/s/);
+  assert.match(markdown, /`async-iterable-raw-frame-ascii-batch-8` at 77\.56 MiB\/s/);
   assert.match(markdown, /same backpressure counter contract rather than inferring it from the broader\s+source-shape matrix/);
   assert.match(markdown, /sync and async grouped-batch rows read 16,384 chunks plus one EOF\s+read and yield 2,048 `Uint8Array\[\]` batches/);
   assert.match(markdown, /direct\s+`ReadableStream` rows record 16,385 `pull\(\)` calls and 16,384 enqueues/);
-  assert.match(markdown, /fastest backpressure-respecting `web-readable-stream-pull`\s+row is `web-readable-stream-raw-frame-ascii-batch-8`; it records parser input\s+`Web ReadableStream<Uint8Array>`, `directReadableStream=true`,\s+`respectsBackpressure=true`, and 75\.98 MiB\/s in the focused audit/);
+  assert.match(markdown, /fastest backpressure-respecting `web-readable-stream-pull`\s+row is `web-readable-stream-raw-frame-ascii-batch-8`; it records parser input\s+`Web ReadableStream<Uint8Array>`, `directReadableStream=true`,\s+`respectsBackpressure=true`, and 76\.53 MiB\/s in the focused audit/);
   assert.match(markdown, /separates\s+parser-demand-driven source rows from direct ReadableStream rows and from Web\s+Stream backpressure rows/);
   assert.match(markdown, /`fetchReadableStreamFull`\s+is classified as `fetch-readable-stream-pull` with `directReadableStream=true`\s+and `respectsBackpressure=true` at 9\.68 MiB\/s/);
   assert.match(markdown, /`fetchAsyncByteBatchFull` is classified as `fetch-async-iterable-byte-batches`\s+with `directReadableStream=false` and `respectsBackpressure=true` at\s+9\.77 MiB\/s/);
@@ -373,7 +373,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /source-consumption evidence status is\s+`classified`/);
   assert.match(markdown, /source modes\s+`fetch-async-iterable-byte-batches`, `fetch-readable-stream-pull`,\s+`file-backed-sync-iterable-byte-batches`, and `sync-iterable-byte-batches`/);
   assert.match(markdown, /all\s+210 JavaScript 1 GiB\+ full-string rows with source-mode metadata are not full\s+`ArrayBuffer` parser-input rows/);
-  assert.match(markdown, /`sync-iterable-byte-batches-batch-8` at 67\.94 MiB\/s versus\s+`web-readable-stream-raw-frame-ascii-batch-8` at 75\.98 MiB\/s/);
+  assert.match(markdown, /`sync-iterable-byte-batches-batch-8` at 71\.96 MiB\/s versus\s+`web-readable-stream-raw-frame-ascii-batch-8` at 76\.53 MiB\/s/);
   assert.match(markdown, /browser live fetch frontier records `fetchReadableStreamFull` at 9\.68\s+MiB\/s and `fetchAsyncByteBatchFull` at 9\.77 MiB\/s with backpressure 2\/2/);
   assert.match(markdown, /classification closes only the source-consumption guard; Safari\/WebKit browser\s+rows and SpiderMonkey emitted IR remain active obligations/);
   assert.match(markdown, /same-contract memory frontier from that\s+aggregate: 216 JavaScript 1 GiB\+ full-string memory rows, 199 bounded rows, and\s+17 unbounded or unproven rows/);
@@ -830,7 +830,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`web-readable-stream-pull` uses `StreamReader` over a\s+Web `ReadableStream<Uint8Array>` pull source/);
   assert.match(markdown, /direct ReadableStream row includes the public\s+`StreamReader` `await reader\.read\(\)` boundary/);
   assert.match(markdown, /64 KiB file-backed basis with sync batch sizes 1, 8, and 16,\s+async byte-batch sizes 1, 4, 8, and 16, direct ReadableStream batch sizes 1, 4,\s+8, and 16, plus raw-frame and short-ASCII raw-frame access variants/);
-  assert.match(markdown, /fastest sync grouped row at `75\.36 MiB\/s`, the fastest async\s+`Iterable<Uint8Array\[\]>` row as `async-iterable-raw-frame-ascii-batch-8` at\s+`76\.20 MiB\/s`, and the fastest direct ReadableStream row as\s+`web-readable-stream-raw-frame-ascii-batch-8` at `76\.87 MiB\/s`/);
+  assert.match(markdown, /fastest sync grouped row at `76\.22 MiB\/s`, the fastest async\s+`Iterable<Uint8Array\[\]>` row as `async-iterable-raw-frame-ascii-batch-8` at\s+`77\.15 MiB\/s`, and the fastest direct ReadableStream row as\s+`web-readable-stream-raw-frame-ascii-batch-8` at `77\.86 MiB\/s`/);
   assert.match(markdown, /short-ASCII raw-frame rows recovered only small source-shape headroom/);
   assert.match(markdown, /run-specific benchmark\s+fact rather than a global\s+async-overhead conclusion/);
   assert.match(markdown, /Its `sourceFacts` section now\s+also pins the implementation evidence/);

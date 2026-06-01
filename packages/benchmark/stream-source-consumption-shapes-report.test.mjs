@@ -74,6 +74,7 @@ test('stream source consumption shapes report separates sync batches from direct
   assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'stream-reader-single-chunk-push'));
   assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'stream-reader-async-byte-batches'));
   assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'stream-reader-async-raw-batches'));
+  assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'event-reader-direct-readable-stream-source'));
   assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'benchmark-readable-stream-backpressure'));
   assert.ok(report.sourceFacts.facts.some(fact => fact.id === 'file-backed-release-sync-batches'));
   assert.equal(report.summary.rowCount, 14);
@@ -223,6 +224,8 @@ test('stream source consumption shapes report separates sync batches from direct
   assert.match(markdown, /stream-reader-single-chunk-push \(SOURCE_FACT\)/);
   assert.match(markdown, /stream-reader-async-byte-batches \(SOURCE_FACT\)/);
   assert.match(markdown, /stream-reader-async-raw-batches \(SOURCE_FACT\)/);
+  assert.match(markdown, /event-reader-direct-readable-stream-source \(SOURCE_FACT\)/);
+  assert.match(markdown, /reads bounded byte batches directly into the parser\/materializer/);
   assert.match(markdown, /benchmark-readable-stream-backpressure \(SOURCE_FACT\)/);
   assert.match(markdown, /file-backed-release-sync-batches \(SOURCE_FACT\)/);
   assert.match(markdown, /ReadableStream backpressure: The ReadableStream source reads only inside pull\(\)/);

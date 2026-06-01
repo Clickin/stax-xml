@@ -315,15 +315,15 @@ full-string scan with explicit machine-readable source flags:
 The fastest is
 `sync-iterable-byte-batches-batch-8`, which records parser input
 `synchronous Iterable<Uint8Array[]>`, `directReadableStream=false`, and
-67.94 MiB/s across 3 measured samples after 1 warmup. The same focused audit
+71.96 MiB/s across 3 measured samples after 1 warmup. The same focused audit
 now includes seven source-shape rows:
 sync grouped batches, async grouped batches, async `nextRawBatch()` raw-frame
 and short-ASCII raw-frame rows, direct `ReadableStream` batches, and direct
 `ReadableStream` `nextRawBatch()` raw-frame and short-ASCII raw-frame rows.
 The fastest async source row in that focused audit is
-`async-iterable-raw-frame-ascii-batch-8` at 76.90 MiB/s, and the fastest direct
+`async-iterable-raw-frame-ascii-batch-8` at 77.56 MiB/s, and the fastest direct
 `ReadableStream` row is `web-readable-stream-raw-frame-ascii-batch-8` at
-75.98 MiB/s. This keeps wrapper-free raw-frame source-shape evidence under the
+76.53 MiB/s. This keeps wrapper-free raw-frame source-shape evidence under the
 same backpressure counter contract rather than inferring it from the broader
 source-shape matrix; it also prevents turning direct `ReadableStream` overhead
 into a one-way assumption, because this rerun records the direct row at 1.12x
@@ -335,7 +335,7 @@ read and yield 2,048 `Uint8Array[]` batches, while the direct
 fastest backpressure-respecting `web-readable-stream-pull`
 row is `web-readable-stream-raw-frame-ascii-batch-8`; it records parser input
 `Web ReadableStream<Uint8Array>`, `directReadableStream=true`,
-`respectsBackpressure=true`, and 75.98 MiB/s in the focused audit. The scan separates
+`respectsBackpressure=true`, and 76.53 MiB/s in the focused audit. The scan separates
 parser-demand-driven source rows from direct ReadableStream rows and from Web
 Stream backpressure rows, so direct ReadableStream overhead evidence stays
 distinct from synchronous byte-batch rows. The focused Chrome/V8 live fetch rows
@@ -742,8 +742,8 @@ source-consumption evidence. Its source-consumption evidence status is
 `file-backed-sync-iterable-byte-batches`, and `sync-iterable-byte-batches`; all
 210 JavaScript 1 GiB+ full-string rows with source-mode metadata are not full
 `ArrayBuffer` parser-input rows; Node source frontier records
-`sync-iterable-byte-batches-batch-8` at 67.94 MiB/s versus
-`web-readable-stream-raw-frame-ascii-batch-8` at 75.98 MiB/s with backpressure
+`sync-iterable-byte-batches-batch-8` at 71.96 MiB/s versus
+`web-readable-stream-raw-frame-ascii-batch-8` at 76.53 MiB/s with backpressure
 6/6; browser live fetch frontier records `fetchReadableStreamFull` at 9.68
 MiB/s and `fetchAsyncByteBatchFull` at 9.77 MiB/s with backpressure 2/2. This
 classification closes only the source-consumption guard; Safari/WebKit browser
@@ -1389,10 +1389,10 @@ reads into `AsyncIterable<Uint8Array[]>` batches. The refreshed release artifact
 uses the current 64 KiB file-backed basis with sync batch sizes 1, 8, and 16,
 async byte-batch sizes 1, 4, 8, and 16, direct ReadableStream batch sizes 1, 4,
 8, and 16, plus raw-frame and short-ASCII raw-frame access variants. It reports
-the fastest sync grouped row at `75.36 MiB/s`, the fastest async
+the fastest sync grouped row at `76.22 MiB/s`, the fastest async
 `Iterable<Uint8Array[]>` row as `async-iterable-raw-frame-ascii-batch-8` at
-`76.20 MiB/s`, and the fastest direct ReadableStream row as
-`web-readable-stream-raw-frame-ascii-batch-8` at `76.87 MiB/s`. The earlier
+`77.15 MiB/s`, and the fastest direct ReadableStream row as
+`web-readable-stream-raw-frame-ascii-batch-8` at `77.86 MiB/s`. The earlier
 raw-frame rows without short-ASCII span materialization were slower, while the
 short-ASCII raw-frame rows recovered only small source-shape headroom. This
 keeps the ratio as a run-specific benchmark fact rather than a global

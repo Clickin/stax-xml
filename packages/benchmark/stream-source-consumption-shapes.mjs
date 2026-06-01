@@ -310,6 +310,7 @@ function createSourceFacts() {
     readSourceFile('packages/benchmark/stream-source-consumption-shapes.mjs', resolve(__dirname, 'stream-source-consumption-shapes.mjs')),
     readSourceFile('packages/stax-xml/src/StreamReaderSync.ts', join(staxSrcDir, 'StreamReaderSync.ts')),
     readSourceFile('packages/stax-xml/src/StreamReader.ts', join(staxSrcDir, 'StreamReader.ts')),
+    readSourceFile('packages/stax-xml/src/EventReader.ts', join(staxSrcDir, 'EventReader.ts')),
     readSourceFile('packages/stax-xml/src/IterableEventBackend.ts', join(staxSrcDir, 'IterableEventBackend.ts')),
     readSourceFile('packages/benchmark/file-backed-core-decomposition.mjs', resolve(__dirname, 'file-backed-core-decomposition.mjs')),
     readSourceFile('packages/benchmark/external-baseline.mjs', resolve(__dirname, 'external-baseline.mjs')),
@@ -365,13 +366,15 @@ function createSourceFacts() {
       ],
     }),
     sourceFact(files, {
-      id: 'event-reader-async-byte-batches',
+      id: 'event-reader-direct-readable-stream-source',
       classification: 'SOURCE_FACT',
-      summary: 'The public EventReader ReadableStream adapter converts stream chunks into AsyncIterable<Uint8Array[]> batches before materializing events.',
+      summary: 'The public EventReader ReadableStream adapter reads bounded byte batches directly into the parser/materializer instead of routing through an async byte-batch generator.',
       patterns: [
-        { file: 'packages/stax-xml/src/IterableEventBackend.ts', text: 'yield* toAsyncByteBatches(readReadableStreamChunksIncrementally(stream, options.maxChunkBytes)' },
-        { file: 'packages/stax-xml/src/IterableEventBackend.ts', text: 'const result = await reader.read()' },
-        { file: 'packages/stax-xml/src/IterableEventBackend.ts', text: 'yield chunk' },
+        { file: 'packages/stax-xml/src/EventReader.ts', text: 'const source = new ReadableStreamEventSource(xmlStream' },
+        { file: 'packages/stax-xml/src/EventReader.ts', text: 'class ReadableStreamEventSource implements AsyncEventBatchSource' },
+        { file: 'packages/stax-xml/src/EventReader.ts', text: 'while (!this.sourceDone && byteBatch.length < this.batchSize)' },
+        { file: 'packages/stax-xml/src/EventReader.ts', text: 'result = await this.reader.read()' },
+        { file: 'packages/stax-xml/src/EventReader.ts', text: 'this.parser.pushByteBatch(byteBatch, false)' },
       ],
     }),
     sourceFact(files, {

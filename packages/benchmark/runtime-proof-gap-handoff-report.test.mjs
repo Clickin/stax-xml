@@ -164,10 +164,10 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
     ],
   });
   assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestSyncIterable, 'sync-iterable-byte-batches-batch-8');
-  assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestSyncIterableMiBPerSec, 67.94);
+  assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestSyncIterableMiBPerSec, 71.96);
   assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestReadableStream, 'web-readable-stream-raw-frame-ascii-batch-8');
-  assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestReadableStreamMiBPerSec, 75.98);
-  assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestReadableStreamRatioToFastestSyncIterable, 1.12);
+  assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestReadableStreamMiBPerSec, 76.53);
+  assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fastestReadableStreamRatioToFastestSyncIterable, 1.06);
   assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.backpressureRowsRespected, 6);
   assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.backpressureRows, 6);
   assert.equal(report.sourceConsumptionEvidence.sourceConsumptionFrontier.fullArrayBufferRows, 0);
@@ -411,7 +411,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /\| file-backed-sync-iterable-byte-batches \| 36 \| 36 \| 0 \| 0 \| Node\/V8 stax-raw-frame-name-id-batch-8 152\.11 MiB\/s from file-backed-batch-size-sweep\.json \|/);
   assert.match(markdown, /\| sync-iterable-byte-batches \| 172 \| 172 \| 0 \| 125 \| Node\/V8 rawFrameNameId 185\.50 MiB\/s from text-trim-cost-decomposition\.json \|/);
   assert.match(markdown, /\| fetch-readable-stream-pull \| 1 \| 1 \| 1 \| 1 \| Chrome\/V8 browser fetchReadableStreamFull 9\.68 MiB\/s from browser-fetch-readable-stream-books-corpus\.json \|/);
-  assert.match(markdown, /Node source frontier: sync-iterable-byte-batches-batch-8 67\.94 MiB\/s vs web-readable-stream-raw-frame-ascii-batch-8 75\.98 MiB\/s \(1\.12x\); backpressure 6\/6; fullArrayBufferRows=0/);
+  assert.match(markdown, /Node source frontier: sync-iterable-byte-batches-batch-8 71\.96 MiB\/s vs web-readable-stream-raw-frame-ascii-batch-8 76\.53 MiB\/s \(1\.06x\); backpressure 6\/6; fullArrayBufferRows=0/);
   assert.match(markdown, /Browser live fetch frontier: fetchReadableStreamFull 9\.68 MiB\/s; fetchAsyncByteBatchFull 9\.77 MiB\/s; backpressure 2\/2; fullArrayBufferRows=0/);
   assert.match(markdown, /## Memory Frontier Evidence/);
   assert.match(markdown, /1 GiB\+ JS full-string memory rows: 216/);

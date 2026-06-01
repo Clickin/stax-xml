@@ -1,6 +1,6 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-01T05:03:24.256Z
+Generated: 2026-06-01T05:48:40.917Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -9,7 +9,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
 - Audit generated: 2026-06-01T05:03:15.248Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
-- Comparison generated: 2026-06-01T02:05:04.582Z
+- Comparison generated: 2026-06-01T05:48:27.669Z
 - Active obligations: 2
 
 ## Summary
@@ -49,7 +49,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 | fetch-readable-stream-pull | 1 | 1 | 1 | 1 | Chrome/V8 browser fetchReadableStreamFull 9.68 MiB/s from browser-fetch-readable-stream-books-corpus.json |
 | file-backed-sync-iterable-byte-batches | 36 | 36 | 0 | 0 | Node/V8 stax-raw-frame-name-id-batch-8 152.11 MiB/s from file-backed-batch-size-sweep.json |
 | sync-iterable-byte-batches | 172 | 172 | 0 | 125 | Node/V8 rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json |
-- Node source frontier: sync-iterable-byte-batches-batch-8 67.94 MiB/s vs web-readable-stream-raw-frame-ascii-batch-8 75.98 MiB/s (1.12x); backpressure 6/6; fullArrayBufferRows=0
+- Node source frontier: sync-iterable-byte-batches-batch-8 71.96 MiB/s vs web-readable-stream-raw-frame-ascii-batch-8 76.53 MiB/s (1.06x); backpressure 6/6; fullArrayBufferRows=0
 - Browser live fetch frontier: fetchReadableStreamFull 9.68 MiB/s; fetchAsyncByteBatchFull 9.77 MiB/s; backpressure 2/2; fullArrayBufferRows=0
 
 ## Memory Frontier Evidence

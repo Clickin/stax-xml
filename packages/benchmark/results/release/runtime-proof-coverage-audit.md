@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-06-01T05:03:15.248Z
+Generated: 2026-06-01T05:48:43.988Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -67,14 +67,14 @@ This classifies the parser input shape for 1 GiB+ JavaScript full-string rows th
 
 | Source mode | Rows | Not full ArrayBuffer | Full ArrayBuffer | Unknown | Direct ReadableStream | Demand-driven | Fastest row |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| `async-iterable-byte-batches` | 15 | 15 | 0 | 0 | 0 | 15 | async-iterable-raw-frame-ascii-batch-8 76.90 MiB/s from stream-source-consumption-backpressure-counters.json |
+| `async-iterable-byte-batches` | 15 | 15 | 0 | 0 | 0 | 15 | async-iterable-raw-frame-ascii-batch-8 77.56 MiB/s from stream-source-consumption-backpressure-counters.json |
 | `complete-js-string` | 1 | 1 | 0 | 0 | 0 | 0 | 3 41.10 MiB/s from bun-event-reader-string-large.json |
 | `fetch-async-iterable-byte-batches` | 2 | 2 | 0 | 0 | 0 | 2 | fetchAsyncByteBatchFull 13.52 MiB/s from browser-candidate-headroom-books-corpus.json |
 | `fetch-readable-stream-pull` | 2 | 2 | 0 | 0 | 2 | 2 | fetchReadableStreamFull 14.64 MiB/s from browser-candidate-headroom-books-corpus.json |
 | `file-backed-sync-iterable-byte-batches` | 53 | 53 | 0 | 0 | 0 | 53 | stax-raw-frame-name-id-batch-8 152.11 MiB/s from file-backed-batch-size-sweep.json |
 | `generated-sync-iterable-byte-batches` | 341 | 341 | 0 | 0 | 0 | 341 | rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json |
-| `sync-iterable-byte-batches` | 4 | 4 | 0 | 0 | 0 | 4 | sync-iterable-byte-batches 75.36 MiB/s from stream-source-consumption-shapes.json |
-| `web-readable-stream-pull` | 15 | 15 | 0 | 0 | 15 | 15 | web-readable-stream-raw-frame-ascii-batch-8 76.87 MiB/s from stream-source-consumption-shapes.json |
+| `sync-iterable-byte-batches` | 4 | 4 | 0 | 0 | 0 | 4 | sync-iterable-byte-batches 76.22 MiB/s from stream-source-consumption-shapes.json |
+| `web-readable-stream-pull` | 15 | 15 | 0 | 0 | 15 | 15 | web-readable-stream-raw-frame-ascii-batch-8 77.86 MiB/s from stream-source-consumption-shapes.json |
 
 ## Runtime Coverage
 
