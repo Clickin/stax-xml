@@ -1,6 +1,6 @@
 # SpiderMonkey Materialized Scope Distance Audit
 
-Generated: 2026-06-01T10:12:48.139Z
+Generated: 2026-06-01T12:44:08.128Z
 
 Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen artifact against the token-only codegen artifact, the js-shell StAX API gap, and the semantic materialization contract. This audit records exactly what the materialized js-shell workload proves and why it still cannot close the unchanged StAX codegen obligation.
 
@@ -12,6 +12,8 @@ Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen arti
 - Closes diagnostic surface obligation: true
 - Closure requirements met: 2
 - Closure requirements blocked: 4
+- Source artifact declares emitted-IR closure: false
+- Closure claim contradicted by scope: false
 - Closes codegen obligation: false
 - Same-contract StAX row: false
 - Unchanged StAX benchmark: false

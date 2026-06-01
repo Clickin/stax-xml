@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
@@ -10,6 +10,9 @@ const repoRoot = resolve(__dirname, '..', '..');
 const tmpDir = join(__dirname, 'results', 'tmp', 'spidermonkey-materialized-scope-distance-audit-test');
 const jsonOut = join(tmpDir, 'spidermonkey-materialized-scope-distance-audit.json');
 const mdOut = join(tmpDir, 'spidermonkey-materialized-scope-distance-audit.md');
+const closureClaimMaterializedJson = join(tmpDir, 'spidermonkey-materialized-contradictory-closure-claim.json');
+const closureClaimJsonOut = join(tmpDir, 'spidermonkey-materialized-contradictory-closure-claim-audit.json');
+const closureClaimMdOut = join(tmpDir, 'spidermonkey-materialized-contradictory-closure-claim-audit.md');
 
 test('SpiderMonkey materialized scope-distance audit records equivalence and closure blockers separately', () => {
   resetTmp();
@@ -36,6 +39,8 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
   assert.equal(report.summary.closesDiagnosticSurfaceObligation, true);
   assert.equal(report.summary.closureRequirementsMet, 2);
   assert.equal(report.summary.closureRequirementsBlocked, 4);
+  assert.equal(report.summary.sourceArtifactDeclaresClosure, false);
+  assert.equal(report.summary.closureClaimContradictedByScope, false);
   assert.equal(report.summary.closesCodegenObligation, false);
   assert.equal(report.summary.sameContractStaxRow, false);
   assert.equal(report.summary.unchangedStaxBenchmark, false);
@@ -77,6 +82,8 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
   assert.match(markdown, /Semantic-equivalent for ASCII fields: true/);
   assert.match(markdown, /Closure requirements met: 2/);
   assert.match(markdown, /Closure requirements blocked: 4/);
+  assert.match(markdown, /Source artifact declares emitted-IR closure: false/);
+  assert.match(markdown, /Closure claim contradicted by scope: false/);
   assert.match(markdown, /Closes codegen obligation: false/);
   assert.match(markdown, /Token workload: xml-token-boundary-no-string-materialization, fullStringParity=false/);
   assert.match(markdown, /Materialized workload: ascii-js-string-and-public-event-object-materialization, fullStringParity=true/);
@@ -85,10 +92,58 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
   assert.match(markdown, /unchanged-stax-host-api-gap-remains: pass/);
 });
 
+test('SpiderMonkey materialized scope-distance audit rejects contradictory closure claims', () => {
+  resetTmp();
+  const materialized = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json'), 'utf8'));
+  materialized.outcome.closesEmittedIrObligation = true;
+  writeFileSync(closureClaimMaterializedJson, `${JSON.stringify(materialized, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'spidermonkey-materialized-scope-distance-audit.mjs'),
+    '--materialized-json',
+    closureClaimMaterializedJson,
+    '--json-out',
+    closureClaimJsonOut,
+    '--md-out',
+    closureClaimMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(closureClaimJsonOut, 'utf8'));
+  assert.equal(report.summary.sourceArtifactDeclaresClosure, true);
+  assert.equal(report.summary.closureRequirementsMet, 3);
+  assert.equal(report.summary.closureRequirementsBlocked, 3);
+  assert.equal(report.summary.closureClaimContradictedByScope, true);
+  assert.equal(report.summary.closesCodegenObligation, false);
+  assert.ok(report.closureMatrix.some(item =>
+    item.id === 'closure-declared-by-source-artifact'
+    && item.status === 'met'
+  ));
+  assert.ok(report.closureMatrix.some(item =>
+    item.id === 'same-contract-stax-row'
+    && item.status === 'blocked'
+  ));
+  assert.ok(report.findings.some(finding =>
+    finding.id === 'materialized-js-shell-contradictory-closure-claim'
+    && finding.classification === 'SCOPE_GUARD'
+  ));
+
+  const markdown = readFileSync(closureClaimMdOut, 'utf8');
+  assert.match(markdown, /Source artifact declares emitted-IR closure: true/);
+  assert.match(markdown, /Closure claim contradicted by scope: true/);
+  assert.match(markdown, /Closes codegen obligation: false/);
+  assert.match(markdown, /materialized-js-shell-contradictory-closure-claim/);
+});
+
 function resetTmp() {
   rmSync(tmpDir, { recursive: true, force: true });
   mkdirSync(tmpDir, { recursive: true });
-  for (const filePath of [jsonOut, mdOut]) {
+  for (const filePath of [jsonOut, mdOut, closureClaimMaterializedJson, closureClaimJsonOut, closureClaimMdOut]) {
     if (existsSync(filePath)) rmSync(filePath);
   }
 }

@@ -157,6 +157,15 @@ function buildReport(options, sources) {
   ];
   const allPass = checks.every(check => check.status === 'pass');
   const closureMatrix = createClosureRequirementMatrix({ materialized, workload, missingGlobals });
+  const closureRequirementsMet = closureMatrix.filter(item => item.status === 'met').length;
+  const closureRequirementsBlocked = closureMatrix.filter(item => item.status === 'blocked').length;
+  const closureRequirementsSatisfied = closureRequirementsBlocked === 0
+    && closureRequirementsMet === closureMatrix.length;
+  const sourceArtifactDeclaresClosure = materialized.outcome?.closesEmittedIrObligation === true;
+  const closureClaimContradictedByScope = sourceArtifactDeclaresClosure
+    && !closureRequirementsSatisfied;
+  const closesCodegenObligation = sourceArtifactDeclaresClosure
+    && closureRequirementsSatisfied;
   const report = {
     generatedAt: new Date().toISOString(),
     objective: 'spidermonkey-materialized-scope-distance-audit',
@@ -206,9 +215,11 @@ function buildReport(options, sources) {
       semanticEquivalentForAsciiFields: allPass && materialized.outcome?.sameSemanticChecksumFields === true,
       materializesJsStringsAndObjects: workload.materializedStringCount > 0 && workload.materializedObjectCount > 0,
       closesDiagnosticSurfaceObligation: materialized.outcome?.closesDiagnosticSurfaceObligation === true,
-      closureRequirementsMet: closureMatrix.filter(item => item.status === 'met').length,
-      closureRequirementsBlocked: closureMatrix.filter(item => item.status === 'blocked').length,
-      closesCodegenObligation: false,
+      closureRequirementsMet,
+      closureRequirementsBlocked,
+      sourceArtifactDeclaresClosure,
+      closureClaimContradictedByScope,
+      closesCodegenObligation,
       unchangedStaxBenchmark: materialized.outcome?.unchangedStaxBenchmark === true,
       sameContractStaxRow: materialized.outcome?.sameContractStaxRow === true,
       conclusionAllowed: false,
@@ -272,7 +283,7 @@ function sourceSummary(root) {
 }
 
 function createFindings(report) {
-  return [
+  const findings = [
     {
       id: 'materialized-js-shell-semantic-equivalence-bounded',
       classification: 'SOURCE_FACT',
@@ -305,6 +316,20 @@ function createFindings(report) {
       ],
     },
   ];
+  if (report.summary.closureClaimContradictedByScope) {
+    findings.push({
+      id: 'materialized-js-shell-contradictory-closure-claim',
+      classification: 'SCOPE_GUARD',
+      summary: 'The source artifact claims emitted-IR closure, but same-contract StAX closure requirements remain blocked.',
+      evidence: [
+        `sourceArtifactDeclaresClosure=${report.summary.sourceArtifactDeclaresClosure}`,
+        `closureRequirementsMet=${report.summary.closureRequirementsMet}`,
+        `closureRequirementsBlocked=${report.summary.closureRequirementsBlocked}`,
+        `closesCodegenObligation=${report.summary.closesCodegenObligation}`,
+      ],
+    });
+  }
+  return findings;
 }
 
 function createSelfTestReport(options) {
@@ -396,6 +421,8 @@ function renderMarkdown(report) {
     `- Closes diagnostic surface obligation: ${report.summary.closesDiagnosticSurfaceObligation}`,
     `- Closure requirements met: ${report.summary.closureRequirementsMet}`,
     `- Closure requirements blocked: ${report.summary.closureRequirementsBlocked}`,
+    `- Source artifact declares emitted-IR closure: ${report.summary.sourceArtifactDeclaresClosure}`,
+    `- Closure claim contradicted by scope: ${report.summary.closureClaimContradictedByScope}`,
     `- Closes codegen obligation: ${report.summary.closesCodegenObligation}`,
     `- Same-contract StAX row: ${report.summary.sameContractStaxRow}`,
     `- Unchanged StAX benchmark: ${report.summary.unchangedStaxBenchmark}`,
