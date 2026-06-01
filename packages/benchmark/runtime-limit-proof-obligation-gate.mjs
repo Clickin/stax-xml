@@ -871,6 +871,7 @@ function createHandoffGuards(byId) {
   const safari = byId?.get('safari-webkit-browser-row-handoff') ?? null;
   const spiderMonkey = byId?.get('spidermonkey-codegen-handoff') ?? null;
   const safariChecks = safari?.closureChecks ?? [];
+  const safariBlockers = safari?.localClosure?.blockers ?? [];
   const spiderChecks = spiderMonkey?.closureChecks ?? [];
   const spiderBlockers = spiderMonkey?.localClosure?.blockers ?? [];
   return [
@@ -906,6 +907,12 @@ function createHandoffGuards(byId) {
       satisfied: safariChecks.some(item => /largeBoundedPrimarySyncByteBatchRowsRecorded must be greater than 0/.test(item))
         && safariChecks.some(item => /largePrimaryRowsInSameContractComparison must be true/.test(item))
         && safariChecks.some(item => /1 GiB\+ bounded primary row id, event count, and checksum/.test(item)),
+    },
+    {
+      id: 'safari-local-availability-blocker',
+      description: 'Safari handoff must preserve the local Safari availability blocker and zero-candidate closure audit summary.',
+      satisfied: safariBlockers.some(item => /Current host cannot run Safari\/WebKit browser rows/.test(item))
+        && safariBlockers.some(item => /Safari\/WebKit closure audit checks candidateRows=0/.test(item)),
     },
     {
       id: 'spidermonkey-emitted-ir-required',
