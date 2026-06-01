@@ -1,0 +1,186 @@
+{
+  "generatedAt": "2026-06-01T02:26:48.705Z",
+  "objective": "spidermonkey-jsshell-tokenizer-headroom",
+  "contract": "spidermonkey-jsshell-corpus-token-boundary-headroom-not-stax",
+  "note": "Runs a SpiderMonkey js-shell XML token-boundary byte scanner over corpus-seed replay. This is JavaScript runtime parser-core headroom evidence only: it does not use TextDecoder, does not materialize names/text strings, does not expose public StAX event objects, and is not a full-string StAX counterexample.",
+  "environment": {
+    "runtimeName": "spidermonkey-jsshell",
+    "javascriptEngine": "SpiderMonkey",
+    "platform": "win32-x64",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K"
+  },
+  "fixture": {
+    "source": "corpus-seed-replay",
+    "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+    "corpusSeedBytes": 4551,
+    "targetBytes": 16777216,
+    "sizeMiB": 16,
+    "sizeGiB": 0.015625
+  },
+  "options": {
+    "runs": 3,
+    "warmups": 1,
+    "selfTest": false
+  },
+  "runtime": {
+    "id": "spidermonkey-jsshell",
+    "name": "SpiderMonkey js-shell"
+  },
+  "rows": [
+    {
+      "id": "release-spidermonkey-token-boundary",
+      "tool": "spidermonkey-jsshell-release",
+      "runtime": {
+        "id": "spidermonkey-jsshell",
+        "name": "SpiderMonkey js-shell",
+        "version": "JavaScript-C143.0.1",
+        "packageKind": "release",
+        "packageVerified": true
+      },
+      "implementation": "SpiderMonkey js-shell corpus-seed XML token-boundary byte scanner",
+      "family": "partial-spidermonkey-tokenizer-headroom",
+      "contractScope": "xml-token-boundary-no-string-materialization",
+      "fullStringParity": false,
+      "boundedMemory": null,
+      "memory": {
+        "primaryKind": "not-recorded",
+        "note": "SpiderMonkey js-shell does not expose process RSS or JS heap counters in this harness."
+      },
+      "sourceMode": "corpus-seed-replay-sync-byte-loop",
+      "parserInput": "SpiderMonkey js-shell Uint8Array from read(file, \"binary\"), replayed as bounded corpus seed bytes",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "corpusSeedReplay": true,
+      "corpusSeedBytes": 4551,
+      "targetBytes": 16777216,
+      "targetMiB": 16,
+      "corpusSeedToTargetRatio": 0.00027126073837280273,
+      "sampleCount": 3,
+      "samplesMs": [
+        132.47802734375,
+        130.505859375,
+        129.68701171875
+      ],
+      "avgMs": 130.89029947916666,
+      "minMs": 129.68701171875,
+      "maxMs": 132.47802734375,
+      "sampleSpreadRatio": 0.021323319116129273,
+      "mibPerSec": 122.23976920876908,
+      "eventCount": 892131,
+      "startElementCount": 313353,
+      "endElementCount": 313350,
+      "textEventCount": 265428,
+      "attributeCount": 44238,
+      "checksum": 134568078,
+      "shellFacts": {
+        "sourceArtifact": "firefox-spidermonkey-release-jsshell-availability-audit.json",
+        "hasJitExecutionStatus": true,
+        "canReadBinaryInput": true,
+        "canRunCurrentStaxFullStringBenchmark": false
+      },
+      "options": {
+        "runs": 3,
+        "warmups": 1
+      }
+    },
+    {
+      "id": "nightly-spidermonkey-token-boundary",
+      "tool": "spidermonkey-jsshell-nightly",
+      "runtime": {
+        "id": "spidermonkey-jsshell",
+        "name": "SpiderMonkey js-shell",
+        "version": "JavaScript-C143.0a1",
+        "packageKind": "nightly",
+        "packageVerified": false
+      },
+      "implementation": "SpiderMonkey js-shell corpus-seed XML token-boundary byte scanner",
+      "family": "partial-spidermonkey-tokenizer-headroom",
+      "contractScope": "xml-token-boundary-no-string-materialization",
+      "fullStringParity": false,
+      "boundedMemory": null,
+      "memory": {
+        "primaryKind": "not-recorded",
+        "note": "SpiderMonkey js-shell does not expose process RSS or JS heap counters in this harness."
+      },
+      "sourceMode": "corpus-seed-replay-sync-byte-loop",
+      "parserInput": "SpiderMonkey js-shell Uint8Array from read(file, \"binary\"), replayed as bounded corpus seed bytes",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "corpusSeedReplay": true,
+      "corpusSeedBytes": 4551,
+      "targetBytes": 16777216,
+      "targetMiB": 16,
+      "corpusSeedToTargetRatio": 0.00027126073837280273,
+      "sampleCount": 3,
+      "samplesMs": [
+        135.445068359375,
+        138.97607421875,
+        147.323974609375
+      ],
+      "avgMs": 140.58170572916666,
+      "minMs": 135.445068359375,
+      "maxMs": 147.323974609375,
+      "sampleSpreadRatio": 0.0844982367256586,
+      "mibPerSec": 113.81281737201502,
+      "eventCount": 892131,
+      "startElementCount": 313353,
+      "endElementCount": 313350,
+      "textEventCount": 265428,
+      "attributeCount": 44238,
+      "checksum": 134568078,
+      "shellFacts": {
+        "sourceArtifact": "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
+        "hasJitExecutionStatus": true,
+        "canReadBinaryInput": true,
+        "canRunCurrentStaxFullStringBenchmark": false
+      },
+      "options": {
+        "runs": 3,
+        "warmups": 1
+      }
+    }
+  ],
+  "summary": {
+    "rowCount": 2,
+    "fastest": {
+      "id": "release-spidermonkey-token-boundary",
+      "mibPerSec": 122.23976920876908,
+      "fullStringParity": false,
+      "boundedMemory": null
+    },
+    "counterexamples200MiB": 0,
+    "partialRowsAtOrAbove200MiB": 0,
+    "memoryProofRows": 0
+  },
+  "findings": [
+    {
+      "id": "spidermonkey-jsshell-tokenizer-headroom",
+      "classification": "BENCH_FACT",
+      "summary": "Fastest SpiderMonkey js-shell token-boundary row was release-spidermonkey-token-boundary at 122.24 MiB/s.",
+      "evidence": [
+        "release-spidermonkey-token-boundary: 122.24 MiB/s, jitStatus=true, binaryInput=true",
+        "nightly-spidermonkey-token-boundary: 113.81 MiB/s, jitStatus=true, binaryInput=true"
+      ]
+    },
+    {
+      "id": "partial-not-stax-counterexample",
+      "classification": "SCOPE_GUARD",
+      "summary": "Rows scan token boundaries and fold counters without TextDecoder, JavaScript string materialization, public event objects, or full StAX checksum parity.",
+      "evidence": [
+        "release-spidermonkey-token-boundary: fullStringParity=false, boundedMemory=null, contractScope=xml-token-boundary-no-string-materialization",
+        "nightly-spidermonkey-token-boundary: fullStringParity=false, boundedMemory=null, contractScope=xml-token-boundary-no-string-materialization"
+      ]
+    },
+    {
+      "id": "unchanged-stax-surface-still-blocked",
+      "classification": "SCOPE_GUARD",
+      "summary": "The official js-shells can read corpus bytes and execute Ion, but cannot run the current full-string StAX benchmark unchanged because TextDecoder and Web globals are missing.",
+      "evidence": [
+        "release-spidermonkey-token-boundary: canRunCurrentStaxFullStringBenchmark=false",
+        "nightly-spidermonkey-token-boundary: canRunCurrentStaxFullStringBenchmark=false"
+      ]
+    }
+  ]
+}

@@ -266,7 +266,7 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 206 primary release JSON artifacts, recognizes 1,183
+The current scan covers 207 primary release JSON artifacts, recognizes 1,185
 sample throughput rows and 170 aggregate rows, and finds 792 JavaScript 1 GiB+
 full-string sample rows plus 133 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
@@ -593,8 +593,8 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 206 primary release artifacts and recognizes 1,183
-measured rows. It records 150 benchmark artifacts, 22 source artifacts, 11
+The current audit scans 207 primary release artifacts and recognizes 1,185
+measured rows. It records 151 benchmark artifacts, 22 source artifacts, 11
 trace/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and
 19 negative-result artifacts, 792 JavaScript 1 GiB+ full-string rows, and four
 release corpus seeds: `books.xml`, `large.xml`, `midsize.xml`, and `treebank_e.xml`. The
@@ -605,7 +605,12 @@ multi-chunk concat storage did not improve the current 32 KiB file-backed
 `firefox-spidermonkey-jsshell-stax-api-gap-audit.json`, which records that the
 available official release and nightly SpiderMonkey js-shells still cannot run
 the current full-string StAX benchmark unchanged because the Web-compatible
-host API surface is missing. The
+host API surface is missing. `spidermonkey-jsshell-tokenizer-headroom.json`
+then records a separate partial SpiderMonkey js-shell token-boundary probe:
+release shell reached 122.24 MiB/s and nightly shell reached 113.81 MiB/s over a
+16 MiB corpus-seed replay, with `fullStringParity=false`, no TextDecoder/string
+materialization, and no memory proof, so it is parser-core headroom evidence
+only and not a full-StAX counterexample. The
 `file-backed-core-decomposition.json` artifact now includes
 `stax-raw-frame-span-stats`, a partial raw-frame metadata row that folds event
 types, name ids, and span lengths without string materialization; it confirms

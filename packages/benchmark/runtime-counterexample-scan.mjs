@@ -503,8 +503,8 @@ function classifyJsRuntime(sourceArtifact, node, context) {
   if (node.tool === 'woodstox' || node.tool === 'quick-xml') return false;
   if (typeof node.tool === 'string' && node.tool.startsWith('stax-')) return true;
   const runtimeName = context.environment?.runtimeName;
-  if (['node', 'bun', 'browser', 'deno'].includes(runtimeName)) return true;
-  if (['node', 'bun', 'browser', 'deno'].includes(context.runtime?.id)) return true;
+  if (['node', 'bun', 'browser', 'deno', 'spidermonkey-jsshell'].includes(runtimeName)) return true;
+  if (['node', 'bun', 'browser', 'deno', 'spidermonkey-jsshell'].includes(context.runtime?.id)) return true;
   if (context.environment?.v8 || context.environment?.node) return true;
   if (/^(candidate-headroom|bun-candidate-headroom|browser-candidate-headroom|textdecoder-span|bun-textdecoder-span|browser-textdecoder-span|stream-reader|event-reader|bun-event-reader|browser-string-limit|runtime-matrix|projection-benchmark)/.test(sourceArtifact)) {
     return !/quick-xml|woodstox/.test(sourceArtifact);
@@ -586,6 +586,7 @@ function inferRuntimeLabel(sourceArtifact, node, context) {
   if (node.tool === 'stax-event') return 'Node/V8 stax-event';
   const environment = context.environment ?? {};
   if (environment.runtimeName === 'bun') return 'Bun/JSC';
+  if (environment.runtimeName === 'spidermonkey-jsshell') return 'SpiderMonkey js-shell';
   if (environment.runtimeName === 'browser') {
     const browser = environment.browserName ?? 'Browser';
     const engine = environment.javascriptEngine ?? 'unknown';
@@ -595,9 +596,11 @@ function inferRuntimeLabel(sourceArtifact, node, context) {
   if (environment.runtimeName === 'node' || environment.v8) return 'Node/V8';
   if (context.runtime?.id === 'node' || context.runtime?.v8) return 'Node/V8';
   if (context.runtime?.id === 'bun') return 'Bun/JSC';
+  if (context.runtime?.id === 'spidermonkey-jsshell') return 'SpiderMonkey js-shell';
   if (context.runtime?.id === 'deno') return 'Deno/V8';
   if (sourceArtifact.startsWith('bun-')) return 'Bun/JSC';
   if (sourceArtifact.startsWith('browser-')) return 'Chrome/V8 browser';
+  if (sourceArtifact.startsWith('spidermonkey-jsshell-')) return 'SpiderMonkey js-shell';
   return 'unknown';
 }
 
@@ -616,6 +619,7 @@ function classifyMemoryKind(node) {
   ) return 'browser-js-heap';
   if (hasAllocatorCounterMemory(node)) return 'allocator-counters';
   if (!memory || typeof memory !== 'object') return 'not-recorded';
+  if (memory.primaryKind === 'not-recorded') return 'not-recorded';
   if (memory.scope === 'browser-js-heap' && typeof memory.maxJsHeapUsedBytes === 'number') return 'browser-js-heap';
   if (
     typeof memory.maxJsHeapUsedBytes === 'number'

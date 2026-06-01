@@ -1,25 +1,25 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-06-01T02:13:40.156Z
+Generated: 2026-06-01T02:30:27.007Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 206
+- Scanned primary artifacts: 207
 - Ignored derived artifacts: 7
-- Measured rows recognized: 1183
+- Measured rows recognized: 1185
 - Rows with unknown full-string parity: 0
-- Rows with unknown bounded-memory flag: 20
-  - Unknown bounded-memory JS rows: 4
+- Rows with unknown bounded-memory flag: 22
+  - Unknown bounded-memory JS rows: 6
   - Unknown bounded-memory full-string rows: 20
   - Unknown bounded-memory 1 GiB+ JS full-string rows: 0
   - Unknown bounded-memory counterexample-relevant rows: 0
-  - Unknown bounded-memory small/diagnostic JS rows: 4
+  - Unknown bounded-memory small/diagnostic JS rows: 6
   - Unknown bounded-memory non-JS allocator-counter rows: 10
   - Unknown bounded-memory non-JS rows without peak-memory counters: 6
   - Unknown bounded-memory rows with memory counters: 10
-- Benchmark artifacts: 150
+- Benchmark artifacts: 151
 - Source artifacts: 22
 - Trace/profile artifacts: 11
 - Allocation artifacts: 16
@@ -53,6 +53,8 @@ These rows have enough throughput/parity metadata to be recognized, but no row-l
 | `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 205.15 |
 | `quick-xml-shape-audit.json` | Rust/quick-xml | `quick-xml` | 0.02 | not-recorded | yes | 309.82 |
 | `quick-xml-shape-audit.json` | Java/Woodstox | `woodstox` | 0.02 | not-recorded | yes | 333.43 |
+| `spidermonkey-jsshell-tokenizer-headroom.json` | SpiderMonkey js-shell | `release-spidermonkey-token-boundary` | 0.02 | not-recorded | no | 122.24 |
+| `spidermonkey-jsshell-tokenizer-headroom.json` | SpiderMonkey js-shell | `nightly-spidermonkey-token-boundary` | 0.02 | not-recorded | no | 113.81 |
 | `woodstox-hotspot-trace.json` | Java/Woodstox | `benchmark` | 0.02 | not-recorded | yes | 322.29 |
 | `woodstox-jfr-allocation.json` | Java/Woodstox | `benchmark` | 0.02 | not-recorded | yes | 311.86 |
 | `woodstox-measured-jfr-allocation-rerun.json` | Java/Woodstox | `benchmark` | 0.02 | not-recorded | yes | 136.56 |
@@ -80,6 +82,7 @@ This classifies the parser input shape for 1 GiB+ JavaScript full-string rows th
 | Node/V8 | 108 | 558 | 381 | rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json | 2 | 2 | 5 |
 | Bun/JSC | 40 | 301 | 194 | rawFrameNameId 178.52 MiB/s from bun-candidate-headroom-books-corpus-stability.json | 3 | 4 | 2 |
 | Deno/V8 | 16 | 110 | 89 | rawFrameNameId 110.54 MiB/s from text-trim-cost-cross-process-books-corpus.json | 1 | 2 | 2 |
+| SpiderMonkey js-shell | 1 | 2 | 0 | none | 0 | 0 | 0 |
 | Chrome/V8 browser | 15 | 100 | 58 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |
 | Firefox/SpiderMonkey browser | 23 | 82 | 70 | rawFrameNameId 76.90 MiB/s from firefox-bidi-candidate-headroom-cross-process-books-corpus.json | 5 | 1 | 1 |
 | Safari/WebKit browser | 1 | 0 | 0 | none | 0 | 0 | 0 |

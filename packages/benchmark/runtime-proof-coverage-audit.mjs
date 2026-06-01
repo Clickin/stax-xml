@@ -23,6 +23,7 @@ const runtimeOrder = [
   'node-v8',
   'bun-jsc',
   'deno-v8',
+  'spidermonkey-jsshell',
   'chrome-v8-browser',
   'firefox-spidermonkey-browser',
   'safari-jsc-browser',
@@ -966,6 +967,7 @@ function classifyRuntimeFromArtifact(sourceArtifact, root) {
   if (sourceArtifact.startsWith('node-')) return 'node-v8';
   if (sourceArtifact.startsWith('bun-')) return 'bun-jsc';
   if (sourceArtifact.startsWith('deno-')) return 'deno-v8';
+  if (sourceArtifact.startsWith('spidermonkey-jsshell-')) return 'spidermonkey-jsshell';
   if (sourceArtifact.startsWith('browser-') || sourceArtifact.startsWith('chrome-')) return 'chrome-v8-browser';
   if (sourceArtifact.startsWith('firefox-')) return 'firefox-spidermonkey-browser';
   if (sourceArtifact.startsWith('woodstox-')) return 'woodstox-jvm';
@@ -997,6 +999,7 @@ function classifyRuntime(sourceArtifact, node, context) {
 
   if (runtimeName === 'bun' || sourceArtifact.startsWith('bun-')) return 'bun-jsc';
   if (runtimeName === 'deno') return 'deno-v8';
+  if (runtimeName === 'spidermonkey-jsshell' || runtime.id === 'spidermonkey-jsshell' || sourceArtifact.startsWith('spidermonkey-jsshell-')) return 'spidermonkey-jsshell';
   if (runtimeName === 'browser') {
     if (browserName.includes('firefox') || engine.includes('spidermonkey')) return 'firefox-spidermonkey-browser';
     if (browserName.includes('safari') || browserName.includes('webkit') || engine.includes('jsc') || engine.includes('javascriptcore')) return 'safari-jsc-browser';
@@ -1053,6 +1056,7 @@ function classifyMemoryKind(node) {
   ) return 'browser-js-heap';
   if (hasAllocatorCounterMemory(node)) return 'allocator-counters';
   if (!memory || typeof memory !== 'object') return 'not-recorded';
+  if (memory.primaryKind === 'not-recorded') return 'not-recorded';
   if (
     memory.scope === 'browser-js-heap'
     || memory.maxJsHeapUsedBytes !== undefined
@@ -1399,6 +1403,8 @@ function runtimeLabel(runtimeId) {
       return 'Bun/JSC';
     case 'deno-v8':
       return 'Deno/V8';
+    case 'spidermonkey-jsshell':
+      return 'SpiderMonkey js-shell';
     case 'chrome-v8-browser':
       return 'Chrome/V8 browser';
     case 'firefox-spidermonkey-browser':
@@ -1415,7 +1421,7 @@ function runtimeLabel(runtimeId) {
 }
 
 function isJsRuntime(runtimeId) {
-  return ['node-v8', 'bun-jsc', 'deno-v8', 'chrome-v8-browser', 'firefox-spidermonkey-browser', 'safari-jsc-browser'].includes(runtimeId);
+  return ['node-v8', 'bun-jsc', 'deno-v8', 'spidermonkey-jsshell', 'chrome-v8-browser', 'firefox-spidermonkey-browser', 'safari-jsc-browser'].includes(runtimeId);
 }
 
 function isBrowserRuntime(runtimeId) {
