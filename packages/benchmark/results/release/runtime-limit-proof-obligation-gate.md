@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T10:41:09.157Z
+Generated: 2026-06-01T10:48:42.248Z
 
 ## Scope
 
@@ -108,6 +108,23 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `spidermonkey-emitted-ir-required` | yes | SpiderMonkey closure checks must require emitted IR/codegen evidence and no missing IR surface. |
 | `spidermonkey-materialized-scope-not-enough` | yes | SpiderMonkey materialized js-shell codegen must require closureRequirementsBlocked=0 and closesCodegenObligation=true before closing. |
 | `spidermonkey-unchanged-stax-required` | yes | SpiderMonkey closing artifacts must require sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true unless a browser-row artifact supplies closure. |
+
+## Source Audit Snapshot
+
+- Source audit loaded: yes (2026-06-01T10:44:57.207Z)
+- Source audit status: classified
+- Coverage crosscheck status: consistent
+- Coverage source-mode rows: 474
+- Coverage not-full-ArrayBuffer rows: 474/474
+- Coverage full ArrayBuffer rows: 0
+- Coverage direct ReadableStream rows: 17
+
+| ID | Satisfied | Meaning |
+| --- | --- | --- |
+| `source-audit-loaded` | yes | source-consumption-shape-audit.json must be loaded by the gate. |
+| `coverage-crosscheck-consistent` | yes | Source audit coverage crosscheck must be consistent with the wider coverage source-mode scan. |
+| `coverage-crosscheck-not-full-arraybuffer` | yes | Coverage crosscheck must report every source-mode row as not full ArrayBuffer parser input. |
+| `coverage-crosscheck-readable-stream-separated` | yes | Coverage crosscheck must keep direct ReadableStream rows visible as separate source-overhead evidence. |
 
 ## Proof Rules
 

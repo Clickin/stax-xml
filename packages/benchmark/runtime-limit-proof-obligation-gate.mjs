@@ -9,6 +9,7 @@ const defaultCoverageJson = resolve(__dirname, 'results', 'release', 'runtime-pr
 const defaultComparisonJson = resolve(__dirname, 'results', 'release', 'same-contract-runtime-comparison.json');
 const defaultCounterexampleScanJson = resolve(__dirname, 'results', 'release', 'runtime-counterexample-scan.json');
 const defaultHandoffJson = resolve(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json');
+const defaultSourceAuditJson = resolve(__dirname, 'results', 'release', 'source-consumption-shape-audit.json');
 const defaultJsonOut = resolve(__dirname, 'results', 'release', 'runtime-limit-proof-obligation-gate.json');
 const defaultMdOut = resolve(__dirname, 'results', 'release', 'runtime-limit-proof-obligation-gate.md');
 
@@ -233,6 +234,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     comparisonJson: defaultComparisonJson,
     counterexampleScanJson: defaultCounterexampleScanJson,
     handoffJson: defaultHandoffJson,
+    sourceAuditJson: defaultSourceAuditJson,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
   };
@@ -265,6 +267,9 @@ function parseArgs(argv = process.argv.slice(2)) {
       case '--handoff-json':
         options.handoffJson = resolve(process.cwd(), readValue());
         break;
+      case '--source-audit-json':
+        options.sourceAuditJson = resolve(process.cwd(), readValue());
+        break;
       case '--json-out':
         options.jsonOut = resolve(process.cwd(), readValue());
         break;
@@ -289,7 +294,8 @@ function main() {
   const comparison = readOptionalJson(options.comparisonJson, 'same-contract-runtime-comparison');
   const counterexampleScan = readOptionalJson(options.counterexampleScanJson, 'runtime-counterexample-scan');
   const handoff = readOptionalJson(options.handoffJson, 'runtime-proof-gap-handoff');
-  const report = createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan, handoff });
+  const sourceAudit = readOptionalJson(options.sourceAuditJson, 'source-consumption-shape-audit');
+  const report = createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan, handoff, sourceAudit });
   writeOutput(options.jsonOut, `${JSON.stringify(report, null, 2)}\n`);
   writeOutput(options.mdOut, renderMarkdown(report));
   printSummary(report);
@@ -316,11 +322,12 @@ function readCoverageAudit(coverageJson) {
   return audit;
 }
 
-function createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan, handoff }) {
+function createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan, handoff, sourceAudit }) {
   const claims = parseClaimRows(ledgerMarkdown);
   const coverageSnapshot = createCoverageSnapshot(coverageAudit);
   const counterexampleSnapshot = createCounterexampleSnapshot(comparison, counterexampleScan);
   const handoffSnapshot = createHandoffSnapshot(handoff);
+  const sourceAuditSnapshot = createSourceAuditSnapshot(sourceAudit);
   const claimGuards = requiredClaimGuards.map(requirement => evaluateClaimGuard(requirement, claims));
   const artifactMentions = requiredArtifactMentions.map(file => ({
     id: file,
@@ -368,6 +375,9 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
   for (const guard of handoffSnapshot.guards.filter(item => !item.satisfied)) {
     errors.push(`Missing handoff guard ${guard.id}: ${guard.description}`);
   }
+  for (const guard of sourceAuditSnapshot.guards.filter(item => !item.satisfied)) {
+    errors.push(`Missing source audit guard ${guard.id}: ${guard.description}`);
+  }
 
   const pass = errors.length === 0;
   return {
@@ -381,10 +391,12 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
       comparisonJson: options.comparisonJson,
       counterexampleScanJson: options.counterexampleScanJson,
       handoffJson: options.handoffJson,
+      sourceAuditJson: options.sourceAuditJson,
       coverageLoaded: coverageSnapshot.loaded,
       comparisonLoaded: counterexampleSnapshot.comparisonLoaded,
       counterexampleScanLoaded: counterexampleSnapshot.counterexampleScanLoaded,
       handoffLoaded: handoffSnapshot.loaded,
+      sourceAuditLoaded: sourceAuditSnapshot.loaded,
     },
     conclusionClaim: runtimeLimitClaimId,
     conclusionAllowed: false,
@@ -402,6 +414,7 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
     artifactMentions,
     counterexampleSnapshot,
     handoffSnapshot,
+    sourceAuditSnapshot,
     coverageSnapshot,
     openObligations,
     proofRules,
@@ -417,8 +430,69 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
       currentCounterexamples: counterexampleSnapshot.currentCounterexampleCount,
       satisfiedHandoffGuards: handoffSnapshot.guards.filter(item => item.satisfied).length,
       requiredHandoffGuards: handoffSnapshot.guards.length,
+      satisfiedSourceAuditGuards: sourceAuditSnapshot.guards.filter(item => item.satisfied).length,
+      requiredSourceAuditGuards: sourceAuditSnapshot.guards.length,
     },
   };
+}
+
+function createSourceAuditSnapshot(sourceAudit) {
+  const coverageCrosscheck = sourceAudit?.coverageCrosscheck ?? null;
+  const sourceModeRows = coverageCrosscheck?.sourceModeRows ?? null;
+  const notFullArrayBufferRows = coverageCrosscheck?.notFullArrayBufferRows ?? null;
+  const fullArrayBufferRows = coverageCrosscheck?.fullArrayBufferRows ?? null;
+  const unknownArrayBufferRows = coverageCrosscheck?.unknownArrayBufferRows ?? null;
+  const directReadableStreamRows = coverageCrosscheck?.directReadableStreamRows ?? null;
+  return {
+    loaded: Boolean(sourceAudit),
+    generatedAt: sourceAudit?.generatedAt ?? null,
+    status: sourceAudit?.summary?.status ?? null,
+    coverageCrosscheckStatus: coverageCrosscheck?.status ?? null,
+    coverageSourceModeRows: sourceModeRows,
+    coverageNotFullArrayBufferRows: notFullArrayBufferRows,
+    coverageFullArrayBufferRows: fullArrayBufferRows,
+    coverageUnknownArrayBufferRows: unknownArrayBufferRows,
+    coverageDirectReadableStreamRows: directReadableStreamRows,
+    guards: createSourceAuditGuards({
+      loaded: Boolean(sourceAudit),
+      coverageCrosscheck,
+      sourceModeRows,
+      notFullArrayBufferRows,
+      fullArrayBufferRows,
+      unknownArrayBufferRows,
+      directReadableStreamRows,
+    }),
+  };
+}
+
+function createSourceAuditGuards(snapshot) {
+  return [
+    {
+      id: 'source-audit-loaded',
+      description: 'source-consumption-shape-audit.json must be loaded by the gate.',
+      satisfied: snapshot.loaded,
+    },
+    {
+      id: 'coverage-crosscheck-consistent',
+      description: 'Source audit coverage crosscheck must be consistent with the wider coverage source-mode scan.',
+      satisfied: snapshot.coverageCrosscheck?.status === 'consistent',
+    },
+    {
+      id: 'coverage-crosscheck-not-full-arraybuffer',
+      description: 'Coverage crosscheck must report every source-mode row as not full ArrayBuffer parser input.',
+      satisfied: typeof snapshot.sourceModeRows === 'number'
+        && snapshot.sourceModeRows > 0
+        && snapshot.notFullArrayBufferRows === snapshot.sourceModeRows
+        && snapshot.fullArrayBufferRows === 0
+        && snapshot.unknownArrayBufferRows === 0,
+    },
+    {
+      id: 'coverage-crosscheck-readable-stream-separated',
+      description: 'Coverage crosscheck must keep direct ReadableStream rows visible as separate source-overhead evidence.',
+      satisfied: typeof snapshot.directReadableStreamRows === 'number'
+        && snapshot.directReadableStreamRows > 0,
+    },
+  ];
 }
 
 function createHandoffSnapshot(handoff) {
@@ -677,6 +751,27 @@ function renderMarkdown(report) {
     '| --- | --- | --- |',
   );
   for (const item of report.handoffSnapshot.guards) {
+    lines.push(`| \`${item.id}\` | ${item.satisfied ? 'yes' : 'no'} | ${item.description} |`);
+  }
+
+  lines.push(
+    '',
+    '## Source Audit Snapshot',
+    '',
+    report.sourceAuditSnapshot.loaded
+      ? `- Source audit loaded: yes (${report.sourceAuditSnapshot.generatedAt ?? 'unknown generatedAt'})`
+      : '- Source audit loaded: no',
+    `- Source audit status: ${report.sourceAuditSnapshot.status ?? 'unknown'}`,
+    `- Coverage crosscheck status: ${report.sourceAuditSnapshot.coverageCrosscheckStatus ?? 'unknown'}`,
+    `- Coverage source-mode rows: ${formatNullableCount(report.sourceAuditSnapshot.coverageSourceModeRows)}`,
+    `- Coverage not-full-ArrayBuffer rows: ${formatNullableCount(report.sourceAuditSnapshot.coverageNotFullArrayBufferRows)}/${formatNullableCount(report.sourceAuditSnapshot.coverageSourceModeRows)}`,
+    `- Coverage full ArrayBuffer rows: ${formatNullableCount(report.sourceAuditSnapshot.coverageFullArrayBufferRows)}`,
+    `- Coverage direct ReadableStream rows: ${formatNullableCount(report.sourceAuditSnapshot.coverageDirectReadableStreamRows)}`,
+    '',
+    '| ID | Satisfied | Meaning |',
+    '| --- | --- | --- |',
+  );
+  for (const item of report.sourceAuditSnapshot.guards) {
     lines.push(`| \`${item.id}\` | ${item.satisfied ? 'yes' : 'no'} | ${item.description} |`);
   }
 

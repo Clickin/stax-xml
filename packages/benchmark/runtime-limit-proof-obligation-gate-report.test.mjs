@@ -48,11 +48,23 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.metadata.comparisonLoaded, true);
   assert.equal(report.metadata.counterexampleScanLoaded, true);
   assert.equal(report.metadata.handoffLoaded, true);
+  assert.equal(report.metadata.sourceAuditLoaded, true);
   assert.equal(report.summary.currentCounterexamples, 0);
   assert.equal(report.summary.satisfiedHandoffGuards, report.summary.requiredHandoffGuards);
+  assert.equal(report.summary.satisfiedSourceAuditGuards, report.summary.requiredSourceAuditGuards);
   assert.equal(report.counterexampleSnapshot.comparisonCounterexampleCount, 0);
   assert.equal(report.counterexampleSnapshot.scanCounterexampleCount, 0);
   assert.equal(report.counterexampleSnapshot.currentCounterexampleCount, 0);
+  assert.ok(report.sourceAuditSnapshot.loaded);
+  assert.equal(report.sourceAuditSnapshot.coverageCrosscheckStatus, 'consistent');
+  assert.equal(report.sourceAuditSnapshot.coverageSourceModeRows, 474);
+  assert.equal(report.sourceAuditSnapshot.coverageNotFullArrayBufferRows, 474);
+  assert.equal(report.sourceAuditSnapshot.coverageFullArrayBufferRows, 0);
+  assert.equal(report.sourceAuditSnapshot.coverageDirectReadableStreamRows, 17);
+  assert.ok(report.sourceAuditSnapshot.guards.some(item => item.id === 'source-audit-loaded' && item.satisfied));
+  assert.ok(report.sourceAuditSnapshot.guards.some(item => item.id === 'coverage-crosscheck-consistent' && item.satisfied));
+  assert.ok(report.sourceAuditSnapshot.guards.some(item => item.id === 'coverage-crosscheck-not-full-arraybuffer' && item.satisfied));
+  assert.ok(report.sourceAuditSnapshot.guards.some(item => item.id === 'coverage-crosscheck-readable-stream-separated' && item.satisfied));
   assert.ok(report.coverageSnapshot.loaded);
   assert.deepEqual(report.coverageSnapshot.activeObligationIds, [
     'safari-jsc-source-and-browser-rows-open',
@@ -118,6 +130,10 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /safari-primary-byte-batch-contract/);
   assert.match(markdown, /spidermonkey-materialized-scope-not-enough/);
   assert.match(markdown, /spidermonkey-unchanged-stax-required/);
+  assert.match(markdown, /## Source Audit Snapshot/);
+  assert.match(markdown, /Coverage source-mode rows: 474/);
+  assert.match(markdown, /coverage-crosscheck-not-full-arraybuffer/);
+  assert.match(markdown, /coverage-crosscheck-readable-stream-separated/);
   assert.match(markdown, /## Proof Rules/);
   assert.match(markdown, /target-contract-not-object-shape/);
   assert.match(markdown, /lazy-getters-reopen-burden/);

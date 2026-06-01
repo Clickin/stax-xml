@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T10:41:09.157Z",
+  "generatedAt": "2026-06-01T10:48:42.248Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -9,10 +9,12 @@
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
     "counterexampleScanJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-counterexample-scan.json",
     "handoffJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-gap-handoff.json",
+    "sourceAuditJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\source-consumption-shape-audit.json",
     "coverageLoaded": true,
     "comparisonLoaded": true,
     "counterexampleScanLoaded": true,
-    "handoffLoaded": true
+    "handoffLoaded": true,
+    "sourceAuditLoaded": true
   },
   "conclusionClaim": "CLAIM-JS-RUNTIME-LIMIT-200MIB",
   "conclusionAllowed": false,
@@ -365,6 +367,39 @@
       }
     ]
   },
+  "sourceAuditSnapshot": {
+    "loaded": true,
+    "generatedAt": "2026-06-01T10:44:57.207Z",
+    "status": "classified",
+    "coverageCrosscheckStatus": "consistent",
+    "coverageSourceModeRows": 474,
+    "coverageNotFullArrayBufferRows": 474,
+    "coverageFullArrayBufferRows": 0,
+    "coverageUnknownArrayBufferRows": 0,
+    "coverageDirectReadableStreamRows": 17,
+    "guards": [
+      {
+        "id": "source-audit-loaded",
+        "description": "source-consumption-shape-audit.json must be loaded by the gate.",
+        "satisfied": true
+      },
+      {
+        "id": "coverage-crosscheck-consistent",
+        "description": "Source audit coverage crosscheck must be consistent with the wider coverage source-mode scan.",
+        "satisfied": true
+      },
+      {
+        "id": "coverage-crosscheck-not-full-arraybuffer",
+        "description": "Coverage crosscheck must report every source-mode row as not full ArrayBuffer parser input.",
+        "satisfied": true
+      },
+      {
+        "id": "coverage-crosscheck-readable-stream-separated",
+        "description": "Coverage crosscheck must keep direct ReadableStream rows visible as separate source-overhead evidence.",
+        "satisfied": true
+      }
+    ]
+  },
   "coverageSnapshot": {
     "loaded": true,
     "generatedAt": "2026-06-01T10:28:54.396Z",
@@ -575,6 +610,8 @@
     "requiredProofRules": 16,
     "currentCounterexamples": 0,
     "satisfiedHandoffGuards": 6,
-    "requiredHandoffGuards": 6
+    "requiredHandoffGuards": 6,
+    "satisfiedSourceAuditGuards": 4,
+    "requiredSourceAuditGuards": 4
   }
 }
