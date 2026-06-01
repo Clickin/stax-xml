@@ -34,9 +34,9 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.equal(report.summary.handoffCount, 2);
   assert.equal(report.summary.requiredHandoffsPresent, true);
   assert.equal(report.summary.commandCount, 9);
-  assert.equal(report.summary.scriptsReferenced, 13);
+  assert.equal(report.summary.scriptsReferenced, 16);
   assert.equal(report.summary.missingScriptCount, 0);
-  assert.equal(report.summary.releaseOutputPathCount, 36);
+  assert.equal(report.summary.releaseOutputPathCount, 48);
   assert.equal(report.summary.nonReleaseOutputPathCount, 0);
   assert.equal(report.summary.rawOutputPathCount, 2);
   assert.equal(report.summary.rawOutputPathPolicyViolationCount, 0);
@@ -82,25 +82,43 @@ test('runtime proof handoff validation pins external runbook command and contrac
   const postSafariAudits = report.commandChecks.find(check => check.id === 'post-safari-audits');
   assert.ok(postSafariAudits);
   assert.match(postSafariAudits.command, /source-consumption-shape-audit\.mjs/);
+  assert.match(postSafariAudits.command, /memory-frontier-audit\.mjs/);
+  assert.match(postSafariAudits.command, /target-distance-audit\.mjs/);
+  assert.match(postSafariAudits.command, /text-materialization-boundary-audit\.mjs/);
   assert.ok(
     postSafariAudits.command.indexOf('source-consumption-shape-audit.mjs')
-      < postSafariAudits.command.indexOf('runtime-limit-proof-obligation-gate.mjs'),
-    'post-safari audits must refresh source-consumption-shape-audit before the runtime-limit gate',
+      < postSafariAudits.command.indexOf('memory-frontier-audit.mjs')
+      && postSafariAudits.command.indexOf('memory-frontier-audit.mjs')
+        < postSafariAudits.command.indexOf('target-distance-audit.mjs')
+      && postSafariAudits.command.indexOf('target-distance-audit.mjs')
+        < postSafariAudits.command.indexOf('text-materialization-boundary-audit.mjs')
+      && postSafariAudits.command.indexOf('text-materialization-boundary-audit.mjs')
+        < postSafariAudits.command.indexOf('runtime-limit-proof-obligation-gate.mjs'),
+    'post-safari audits must refresh source and frontier audits before the runtime-limit gate',
   );
   const postSpiderMonkeyAudits = report.commandChecks.find(check => check.id === 'post-spidermonkey-audits');
   assert.ok(postSpiderMonkeyAudits);
   assert.match(postSpiderMonkeyAudits.command, /runtime-proof-coverage-audit\.mjs/);
   assert.match(postSpiderMonkeyAudits.command, /source-consumption-shape-audit\.mjs/);
+  assert.match(postSpiderMonkeyAudits.command, /memory-frontier-audit\.mjs/);
+  assert.match(postSpiderMonkeyAudits.command, /target-distance-audit\.mjs/);
+  assert.match(postSpiderMonkeyAudits.command, /text-materialization-boundary-audit\.mjs/);
   assert.match(postSpiderMonkeyAudits.command, /runtime-limit-proof-obligation-gate\.mjs/);
   assert.match(postSpiderMonkeyAudits.command, /runtime-proof-gap-handoff\.mjs/);
   assert.ok(
     postSpiderMonkeyAudits.command.indexOf('runtime-proof-coverage-audit.mjs')
       < postSpiderMonkeyAudits.command.indexOf('source-consumption-shape-audit.mjs')
       && postSpiderMonkeyAudits.command.indexOf('source-consumption-shape-audit.mjs')
+        < postSpiderMonkeyAudits.command.indexOf('memory-frontier-audit.mjs')
+      && postSpiderMonkeyAudits.command.indexOf('memory-frontier-audit.mjs')
+        < postSpiderMonkeyAudits.command.indexOf('target-distance-audit.mjs')
+      && postSpiderMonkeyAudits.command.indexOf('target-distance-audit.mjs')
+        < postSpiderMonkeyAudits.command.indexOf('text-materialization-boundary-audit.mjs')
+      && postSpiderMonkeyAudits.command.indexOf('text-materialization-boundary-audit.mjs')
         < postSpiderMonkeyAudits.command.indexOf('runtime-limit-proof-obligation-gate.mjs')
       && postSpiderMonkeyAudits.command.indexOf('runtime-limit-proof-obligation-gate.mjs')
         < postSpiderMonkeyAudits.command.indexOf('runtime-proof-gap-handoff.mjs'),
-    'post-spidermonkey audits must refresh coverage, source audit, gate, and handoff in order',
+    'post-spidermonkey audits must refresh coverage, source audit, frontier audits, gate, and handoff in order',
   );
   assert.ok(report.findings.some(finding =>
     finding.id === 'handoff-static-validation'
@@ -115,15 +133,18 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.match(markdown, /# Runtime Proof Handoff Validation/);
   assert.match(markdown, /Pass: yes/);
   assert.match(markdown, /Commands checked: 9/);
-  assert.match(markdown, /Scripts referenced: 13/);
+  assert.match(markdown, /Scripts referenced: 16/);
   assert.match(markdown, /Missing scripts: 0/);
-  assert.match(markdown, /Release output paths: 36/);
+  assert.match(markdown, /Release output paths: 48/);
   assert.match(markdown, /Raw output path policy violations: 0/);
   assert.match(markdown, /\| `safari-webkit-browser-row-handoff` \| external-run-required \| 4 \| yes \| yes \|/);
   assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| external-run-required \| 5 \| yes \| yes \|/);
   assert.match(markdown, /\| `safari-webkit-browser-row-handoff` \| `safari-books-corpus-cross-process` \| .*? \| yes \| yes \| yes \|/);
   assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| `firefox-diagnostic-installed-or-debug-build` \| .*? \| yes \| yes \| yes \|/);
   assert.match(markdown, /source-consumption-shape-audit\.mjs/);
+  assert.match(markdown, /memory-frontier-audit\.mjs/);
+  assert.match(markdown, /target-distance-audit\.mjs/);
+  assert.match(markdown, /text-materialization-boundary-audit\.mjs/);
   assert.match(markdown, /cannot close Safari\/WebKit browser rows or SpiderMonkey emitted IR obligations/);
   assert.match(markdown, /No external benchmark command is executed by this audit/);
 });
