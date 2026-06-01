@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T17:44:19.121Z",
+  "generatedAt": "2026-06-01T17:47:23.771Z",
   "objective": "runtime-proof-handoff-validation",
   "contract": "external-run-handoff-command-and-contract-static-validation",
   "note": "Static validation for runtime-proof-gap-handoff external runbooks. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
@@ -55,6 +55,10 @@
         "same-contract-runtime-comparison\\.json",
         "row id, event count, and checksum",
         "backpressure is respected",
+        "Memory evidence is classified explicitly",
+        "missing Safari JS heap counters must not be treated as bounded-memory proof",
+        "runtime-counterexample-scan\\.json",
+        "200 MiB\\/s\\+ bounded-memory row as a counterexample",
         "exact Safari version",
         "TextDecoder\\/UTF-8 decode source lines"
       ]

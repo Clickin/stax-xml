@@ -161,6 +161,10 @@ function validateHandoff(handoff) {
         /same-contract-runtime-comparison\.json/,
         /row id, event count, and checksum/,
         /backpressure is respected/,
+        /Memory evidence is classified explicitly/,
+        /missing Safari JS heap counters must not be treated as bounded-memory proof/,
+        /runtime-counterexample-scan\.json/,
+        /200 MiB\/s\+ bounded-memory row as a counterexample/,
         /exact Safari version/,
         /TextDecoder\/UTF-8 decode source lines/,
       ]
