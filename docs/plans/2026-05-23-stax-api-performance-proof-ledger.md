@@ -1681,10 +1681,10 @@ full-string StAX row and does not close `codegen-traces-open`.
 then keeps the same current Taskcluster debug js-shell but moves from
 token-boundary folding to an ASCII XML workload that materializes JavaScript
 string primitives and public event-shaped objects before folding the semantic
-string fields. The 1 MiB `books.xml` corpus-seed replay emits 234,522
+string fields. The 4 MiB `books.xml` corpus-seed replay emits 234,522
 `[Codegen]` markers, 60 IonScript mentions, and 86,190 assembly mnemonic
-matches while preserving 55,759 materialized events, checksum `-553631888`,
-61,289 materialized strings, and 55,759 public event-shaped objects. This is
+matches while preserving 223,041 materialized events, checksum `167904020`,
+245,161 materialized strings, and 223,041 public event-shaped objects. This is
 the strongest current SpiderMonkey js-shell diagnostic artifact for the
 materialized JavaScript side of the StAX workload, but it is still not the
 unchanged benchmark: it uses an ASCII-only js-shell materializer because the

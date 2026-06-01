@@ -1,6 +1,6 @@
 # SpiderMonkey Materialized Scope Distance Audit
 
-Generated: 2026-06-01T05:01:04.670Z
+Generated: 2026-06-01T07:48:30.040Z
 
 Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen artifact against the token-only codegen artifact, the js-shell StAX API gap, and the semantic materialization contract. This audit records exactly what the materialized js-shell workload proves and why it still cannot close the unchanged StAX codegen obligation.
 
@@ -17,7 +17,7 @@ Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen arti
 ## Workload Comparison
 
 - Token workload: xml-token-boundary-no-string-materialization, fullStringParity=false, checksum=9292058, codegenMarkers=151431
-- Materialized workload: ascii-js-string-and-public-event-object-materialization, fullStringParity=true, checksum=-553631888, materializedStringCount=61289, materializedObjectCount=55759, codegenMarkers=234522
+- Materialized workload: ascii-js-string-and-public-event-object-materialization, fullStringParity=true, checksum=167904020, materializedStringCount=245161, materializedObjectCount=223041, codegenMarkers=234522
 
 ## Checks
 
@@ -28,16 +28,16 @@ Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen arti
 - semantic-field-folding-present: pass
   - sameSemanticChecksumFields=true
   - fullStringParity=true
-  - checksum=-553631888
+  - checksum=167904020
 - materializes-js-strings-and-public-event-objects: pass
-  - materializedStringCount=61289
-  - materializedObjectCount=55759
-  - materializedAttributeObjectCount=19586
+  - materializedStringCount=245161
+  - materializedObjectCount=223041
+  - materializedAttributeObjectCount=78342
 - token-to-materialized-workload-delta-recorded: pass
   - tokenFullStringParity=false
   - materializedFullStringParity=true
   - tokenChecksum=9292058
-  - materializedChecksum=-553631888
+  - materializedChecksum=167904020
 - unchanged-stax-host-api-gap-remains: pass
   - missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch
   - canRunCurrentStaxFullStringBenchmark=false
@@ -50,9 +50,9 @@ Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen arti
 
 - materialized-js-shell-semantic-equivalence-bounded (SOURCE_FACT): The materialized js-shell workload folds the same semantic string fields for the ASCII corpus-seed scope and records positive JS string/object materialization counters.
   - semanticEquivalentForAsciiFields=true
-  - materializedStringCount=61289
-  - materializedObjectCount=55759
-  - checksum=-553631888
+  - materializedStringCount=245161
+  - materializedObjectCount=223041
+  - checksum=167904020
 - materialized-js-shell-not-unchanged-stax (SCOPE_GUARD): The same artifact remains outside unchanged StAX closure because the js-shell host API cannot run the TextDecoder/ReadableStream benchmark surface.
   - sameContractStaxRow=false
   - unchangedStaxBenchmark=false

@@ -337,7 +337,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit\.md/);
   assert.match(markdown, /ASCII XML workload that materializes JavaScript\s+string primitives and public event-shaped objects/);
   assert.match(markdown, /234,522\s+`\[Codegen\]` markers, 60 IonScript mentions, and 86,190 assembly mnemonic/);
-  assert.match(markdown, /55,759 materialized events, checksum `-553631888`,\s+61,289 materialized strings, and 55,759 public event-shaped objects/);
+  assert.match(markdown, /223,041 materialized events, checksum `167904020`,\s+245,161 materialized strings, and 223,041 public event-shaped objects/);
   assert.match(markdown, /spidermonkey-materialized-scope-distance-audit\.md/);
   assert.match(markdown, /semanticEquivalentForAsciiFields=true/);
   assert.match(markdown, /spidermonkey-ascii-scope-distance-audit\.md/);

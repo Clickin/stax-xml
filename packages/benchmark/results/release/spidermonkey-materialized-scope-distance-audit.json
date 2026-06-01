@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T05:01:04.670Z",
+  "generatedAt": "2026-06-01T07:48:30.040Z",
   "objective": "spidermonkey-materialized-scope-distance-audit",
   "contract": "materialized-js-shell-workload-equivalence-and-scope-distance",
   "note": "Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen artifact against the token-only codegen artifact, the js-shell StAX API gap, and the semantic materialization contract. This audit records exactly what the materialized js-shell workload proves and why it still cannot close the unchanged StAX codegen obligation.",
@@ -74,10 +74,10 @@
       "contractScope": "ascii-js-string-and-public-event-object-materialization",
       "fullStringParity": true,
       "sameSemanticChecksumFields": true,
-      "eventCount": 55759,
-      "checksum": -553631888,
-      "materializedStringCount": 61289,
-      "materializedObjectCount": 55759,
+      "eventCount": 223041,
+      "checksum": 167904020,
+      "materializedStringCount": 245161,
+      "materializedObjectCount": 223041,
       "codegenMarkers": 234522
     }
   },
@@ -111,16 +111,16 @@
       "evidence": [
         "sameSemanticChecksumFields=true",
         "fullStringParity=true",
-        "checksum=-553631888"
+        "checksum=167904020"
       ]
     },
     {
       "id": "materializes-js-strings-and-public-event-objects",
       "status": "pass",
       "evidence": [
-        "materializedStringCount=61289",
-        "materializedObjectCount=55759",
-        "materializedAttributeObjectCount=19586"
+        "materializedStringCount=245161",
+        "materializedObjectCount=223041",
+        "materializedAttributeObjectCount=78342"
       ]
     },
     {
@@ -130,7 +130,7 @@
         "tokenFullStringParity=false",
         "materializedFullStringParity=true",
         "tokenChecksum=9292058",
-        "materializedChecksum=-553631888"
+        "materializedChecksum=167904020"
       ]
     },
     {
@@ -168,9 +168,9 @@
       "summary": "The materialized js-shell workload folds the same semantic string fields for the ASCII corpus-seed scope and records positive JS string/object materialization counters.",
       "evidence": [
         "semanticEquivalentForAsciiFields=true",
-        "materializedStringCount=61289",
-        "materializedObjectCount=55759",
-        "checksum=-553631888"
+        "materializedStringCount=245161",
+        "materializedObjectCount=223041",
+        "checksum=167904020"
       ]
     },
     {

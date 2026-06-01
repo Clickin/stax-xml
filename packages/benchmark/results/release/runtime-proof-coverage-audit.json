@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T07:30:52.028Z",
+  "generatedAt": "2026-06-01T07:48:29.395Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -4760,7 +4760,7 @@
         "shape": null,
         "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
         "sizeGiB": 0,
-        "sizeMiB": 1,
+        "sizeMiB": 4,
         "actualBytes": null
       },
       "corpusSeed": null,
@@ -25389,7 +25389,7 @@
           "shape": null,
           "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
           "sizeGiB": 0,
-          "sizeMiB": 1,
+          "sizeMiB": 4,
           "actualBytes": null
         },
         "corpusSeed": null,
@@ -27496,7 +27496,7 @@
           "shape": null,
           "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
           "sizeGiB": 0,
-          "sizeMiB": 1,
+          "sizeMiB": 4,
           "actualBytes": null
         },
         "corpusSeed": null,

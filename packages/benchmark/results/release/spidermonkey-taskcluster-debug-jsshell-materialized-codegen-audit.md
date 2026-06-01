@@ -1,6 +1,6 @@
 # SpiderMonkey Taskcluster Debug JS Shell Materialized Codegen Audit
 
-Generated: 2026-06-01T04:51:58.361Z
+Generated: 2026-06-01T07:48:14.182Z
 
 Runs a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell with JitSpew codegen enabled on an ASCII XML workload that materializes JS string primitives and public event-shaped objects before folding the same semantic checksum fields. This is stronger than token-boundary codegen evidence, but it is not the unchanged StAX benchmark because the js-shell host API lacks TextDecoder, ReadableStream, and fetch.
 
@@ -25,13 +25,13 @@ Runs a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell wit
 ## Materialized Workload
 
 - Contract scope: ascii-js-string-and-public-event-object-materialization
-- Target MiB: 1
-- Event count: 55759
-- Checksum: -553631888
-- Materialized string count: 61289
-- Materialized object count: 55759
-- Materialized attribute object count: 19586
-- Throughput MiB/s: 0.26
+- Target MiB: 4
+- Event count: 223041
+- Checksum: 167904020
+- Materialized string count: 245161
+- Materialized object count: 223041
+- Materialized attribute object count: 78342
+- Throughput MiB/s: 0.49
 
 ## Codegen Probe
 
@@ -48,7 +48,7 @@ Runs a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell wit
 ## Excerpt
 
 ```text
-materializedPayload={"seedBytes":4551,"targetBytes":1048576,"samplesMs":[3824.534912109375],"avgMs":3824.534912109375,"mibPerSec":0.26146970101744016,"result":{"eventCount":55759,"checksum":-553631888,"startElementCount":19586,"endElementCount":19583,"textEventCount":16590,"attributeCount":2765,"materializedStringCount":61289,"materializedObjectCount":55759,"materializedAttributeObjectCount":19586}}
+materializedPayload={"seedBytes":4551,"targetBytes":4194304,"samplesMs":[8147.678955078125],"avgMs":8147.678955078125,"mibPerSec":0.4909373604499916,"result":{"eventCount":223041,"checksum":167904020,"startElementCount":78342,"endElementCount":78339,"textEventCount":66360,"attributeCount":11060,"materializedStringCount":245161,"materializedObjectCount":223041,"materializedAttributeObjectCount":78342}}
 found tag: codegen
 [Codegen] # Emitting bailout tail stub
 [Codegen] # BEGIN creators: JitRuntime::generateBailoutTailStub
@@ -111,10 +111,10 @@ found tag: codegen
   - codegenMarkers=234522
   - ionScriptMarkers=60
   - assemblyMnemonics=86190
-  - eventCount=55759
-  - checksum=-553631888
-  - materializedStringCount=61289
-  - materializedObjectCount=55759
+  - eventCount=223041
+  - checksum=167904020
+  - materializedStringCount=245161
+  - materializedObjectCount=223041
 - taskcluster-debug-jsshell-materialized-stax-scope-gap (SCOPE_GUARD): The materialized workload folds the same semantic string fields but is not the unchanged StAX benchmark or a browser TextDecoder row.
   - sameSemanticChecksumFields=true
   - fullStringParity=true

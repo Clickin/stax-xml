@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T04:51:58.361Z",
+  "generatedAt": "2026-06-01T07:48:14.182Z",
   "objective": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit",
   "contract": "current-taskcluster-debug-spidermonkey-materialized-string-object-codegen-surface-not-unchanged-stax",
   "note": "Runs a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell with JitSpew codegen enabled on an ASCII XML workload that materializes JS string primitives and public event-shaped objects before folding the same semantic checksum fields. This is stronger than token-boundary codegen evidence, but it is not the unchanged StAX benchmark because the js-shell host API lacks TextDecoder, ReadableStream, and fetch.",
@@ -10,9 +10,9 @@
     "source": "ascii-corpus-seed-replay",
     "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
     "corpusSeedBytes": 4551,
-    "targetBytes": 1048576,
-    "sizeMiB": 1,
-    "sizeGiB": 0.0009765625
+    "targetBytes": 4194304,
+    "sizeMiB": 4,
+    "sizeGiB": 0.00390625
   },
   "parameters": {
     "jsShell": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell\\extract\\js.exe",
@@ -25,7 +25,7 @@
     "buildhubJson": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell\\buildhub.json",
     "mozinfoJson": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell\\target.mozinfo.json",
     "corpusFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
-    "targetMiB": 1,
+    "targetMiB": 4,
     "runs": 1,
     "warmups": 0,
     "selfTest": false
@@ -79,7 +79,7 @@
       "flags": "codegen",
       "exitCode": 0,
       "error": null,
-      "outputBytes": 10108660,
+      "outputBytes": 10107925,
       "stdoutLineCount": 1,
       "stderrLineCount": 234523,
       "codegenMarkerCount": 234522,
@@ -87,26 +87,26 @@
       "assemblyMnemonicCount": 86190,
       "payload": {
         "seedBytes": 4551,
-        "targetBytes": 1048576,
+        "targetBytes": 4194304,
         "samplesMs": [
-          3824.534912109375
+          8147.678955078125
         ],
-        "avgMs": 3824.534912109375,
+        "avgMs": 8147.678955078125,
         "result": {
-          "eventCount": 55759,
-          "checksum": -553631888,
-          "startElementCount": 19586,
-          "endElementCount": 19583,
-          "textEventCount": 16590,
-          "attributeCount": 2765,
-          "materializedStringCount": 61289,
-          "materializedObjectCount": 55759,
-          "materializedAttributeObjectCount": 19586
+          "eventCount": 223041,
+          "checksum": 167904020,
+          "startElementCount": 78342,
+          "endElementCount": 78339,
+          "textEventCount": 66360,
+          "attributeCount": 11060,
+          "materializedStringCount": 245161,
+          "materializedObjectCount": 223041,
+          "materializedAttributeObjectCount": 78342
         },
-        "throughputMiBPerSec": 0.26146970101744016
+        "throughputMiBPerSec": 0.4909373604499916
       },
       "excerpt": [
-        "materializedPayload={\"seedBytes\":4551,\"targetBytes\":1048576,\"samplesMs\":[3824.534912109375],\"avgMs\":3824.534912109375,\"mibPerSec\":0.26146970101744016,\"result\":{\"eventCount\":55759,\"checksum\":-553631888,\"startElementCount\":19586,\"endElementCount\":19583,\"textEventCount\":16590,\"attributeCount\":2765,\"materializedStringCount\":61289,\"materializedObjectCount\":55759,\"materializedAttributeObjectCount\":19586}}",
+        "materializedPayload={\"seedBytes\":4551,\"targetBytes\":4194304,\"samplesMs\":[8147.678955078125],\"avgMs\":8147.678955078125,\"mibPerSec\":0.4909373604499916,\"result\":{\"eventCount\":223041,\"checksum\":167904020,\"startElementCount\":78342,\"endElementCount\":78339,\"textEventCount\":66360,\"attributeCount\":11060,\"materializedStringCount\":245161,\"materializedObjectCount\":223041,\"materializedAttributeObjectCount\":78342}}",
         "found tag: codegen",
         "[Codegen] # Emitting bailout tail stub",
         "[Codegen] # BEGIN creators: JitRuntime::generateBailoutTailStub",
@@ -190,22 +190,22 @@
     "unchangedStaxBenchmark": false,
     "sourceMode": "ascii-corpus-seed-replay-sync-byte-loop",
     "parserInput": "SpiderMonkey js-shell Uint8Array from read(file, \"binary\"), replayed as bounded ASCII corpus seed bytes",
-    "targetBytes": 1048576,
-    "targetMiB": 1,
+    "targetBytes": 4194304,
+    "targetMiB": 4,
     "samplesMs": [
-      3824.534912109375
+      8147.678955078125
     ],
-    "avgMs": 3824.534912109375,
-    "throughputMiBPerSec": 0.26146970101744016,
-    "eventCount": 55759,
-    "checksum": -553631888,
-    "startElementCount": 19586,
-    "endElementCount": 19583,
-    "textEventCount": 16590,
-    "attributeCount": 2765,
-    "materializedStringCount": 61289,
-    "materializedObjectCount": 55759,
-    "materializedAttributeObjectCount": 19586
+    "avgMs": 8147.678955078125,
+    "throughputMiBPerSec": 0.4909373604499916,
+    "eventCount": 223041,
+    "checksum": 167904020,
+    "startElementCount": 78342,
+    "endElementCount": 78339,
+    "textEventCount": 66360,
+    "attributeCount": 11060,
+    "materializedStringCount": 245161,
+    "materializedObjectCount": 223041,
+    "materializedAttributeObjectCount": 78342
   },
   "outcome": {
     "status": "available",
@@ -238,10 +238,10 @@
         "codegenMarkers=234522",
         "ionScriptMarkers=60",
         "assemblyMnemonics=86190",
-        "eventCount=55759",
-        "checksum=-553631888",
-        "materializedStringCount=61289",
-        "materializedObjectCount=55759"
+        "eventCount=223041",
+        "checksum=167904020",
+        "materializedStringCount=245161",
+        "materializedObjectCount=223041"
       ]
     },
     {
