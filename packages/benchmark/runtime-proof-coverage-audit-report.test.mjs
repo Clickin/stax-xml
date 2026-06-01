@@ -82,6 +82,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(report.coverage.spiderMonkeyDiagnostics.rows.some(row =>
     row.id === 'taskcluster-debug-jsshell-codegen'
     && row.selectedRowIdentityStatus === 'not-claimed-non-stax-diagnostic'
+    && row.diagnosticFlagsRecorded === true
+    && row.emittedDumpMetadataRecorded === true
     && row.selectedRowMetadataComplete === false
     && row.selectedRowMatchesCurrentComparison === null
   ));
@@ -105,6 +107,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(report.coverage.spiderMonkeyDiagnostics.rows.some(row =>
     row.id === 'taskcluster-debug-jsshell-xml-codegen'
     && row.selectedRowIdentityStatus === 'not-claimed-non-stax-diagnostic'
+    && row.diagnosticFlagsRecorded === true
+    && row.emittedDumpMetadataRecorded === true
     && row.selectedRowMetadataComplete === false
     && row.selectedRowMatchesCurrentComparison === null
   ));
@@ -128,6 +132,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.ok(report.coverage.spiderMonkeyDiagnostics.rows.some(row =>
     row.id === 'taskcluster-debug-jsshell-materialized-codegen'
     && row.selectedRowIdentityStatus === 'not-claimed-non-stax-diagnostic'
+    && row.diagnosticFlagsRecorded === true
+    && row.emittedDumpMetadataRecorded === true
     && row.selectedRowMetadataComplete === false
     && row.selectedRowMatchesCurrentComparison === null
   ));
@@ -2299,6 +2305,88 @@ test('runtime proof coverage audit rejects SpiderMonkey emitted IR without closi
     && row.emittedIrClosureQualified === false
     && row.evidenceClass === 'emitted-ir-scope-guard'
   ));
+});
+
+test('runtime proof coverage audit rejects SpiderMonkey emitted IR with empty dump metadata', () => {
+  const syntheticDir = join(tmpDir, 'spidermonkey-emitted-ir-empty-dump-metadata');
+  const syntheticJsonOut = join(tmpDir, 'spidermonkey-emitted-ir-empty-dump-metadata.json');
+  const syntheticMdOut = join(tmpDir, 'spidermonkey-emitted-ir-empty-dump-metadata.md');
+  resetTmp();
+  mkdirSync(syntheticDir, { recursive: true });
+  writeFileSync(join(syntheticDir, 'same-contract-runtime-comparison.json'), `${JSON.stringify({
+    objective: 'same-contract-runtime-comparison',
+    comparisonRows: [
+      {
+        id: 'currentFullStringRow',
+        runtimeId: 'firefox-spidermonkey-browser',
+        jsRuntime: true,
+        fullStringParity: true,
+        eventCount: 1000,
+        checksum: 123,
+      },
+    ],
+  }, null, 2)}\n`);
+  writeFileSync(join(syntheticDir, 'spidermonkey-taskcluster-debug-jsshell-codegen-audit.json'), `${JSON.stringify({
+    objective: 'firefox-spidermonkey-emitted-ir',
+    runtime: { id: 'spidermonkey-jsshell' },
+    outcome: {
+      status: 'emitted-ir-captured',
+      hasJitExecutionStatus: true,
+      hasIrDumpSurface: true,
+      nativeDumpComplete: true,
+      hasCodegenDumpOutput: true,
+      closesEmittedIrObligation: true,
+      sameContractStaxRow: true,
+      canRunCurrentStaxFullStringBenchmark: true,
+      selectedRowId: 'currentFullStringRow',
+      selectedEventCount: 1000,
+      selectedChecksum: 123,
+    },
+    shell: {
+      provenance: {
+        taskId: 'task-current',
+        route: 'gecko.v2.mozilla-central.latest.firefox.win64-debug',
+        buildId: '20260601000000',
+        sourceRevision: 'abcdef1234567890',
+      },
+      codegenProbe: {
+        status: 'codegen-output-emitted',
+        flags: 'codegen',
+        outputBytes: 0,
+        codegenMarkerCount: 0,
+        ionScriptMarkerCount: 0,
+        assemblyMnemonicCount: 0,
+      },
+    },
+  }, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-coverage-audit.mjs'),
+    '--release-dir',
+    syntheticDir,
+    '--json-out',
+    syntheticJsonOut,
+    '--md-out',
+    syntheticMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(syntheticJsonOut, 'utf8'));
+  assert.equal(report.coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount, 0);
+  assert.equal(report.coverage.spiderMonkeyDiagnostics.emittedIrClaimCount, 1);
+  assert.ok(report.coverage.spiderMonkeyDiagnostics.rows.some(row =>
+    row.id === 'taskcluster-debug-jsshell-codegen'
+    && row.selectedRowMatchesCurrentComparison === true
+    && row.emittedDumpMetadataRecorded === false
+    && row.closingMetadataComplete === false
+    && row.emittedIrClosureQualified === false
+    && row.evidenceClass === 'emitted-ir-scope-guard'
+  ));
+  assertObligation(report, 'codegen-traces-open', 'partial');
 });
 
 test('runtime proof coverage audit rejects SpiderMonkey emitted IR without comparison reference rows', () => {

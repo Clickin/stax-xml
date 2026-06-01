@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T15:16:56.744Z",
+  "generatedAt": "2026-06-01T16:08:49.009Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -4588,7 +4588,9 @@
           "status": "codegen-output-emitted",
           "flags": "codegen",
           "outputBytes": 1490940,
-          "codegenMarkerCount": 42040
+          "codegenMarkerCount": 42040,
+          "ionScriptMarkerCount": 8,
+          "assemblyMnemonicCount": 19105
         }
       },
       "fixture": null,
@@ -4839,7 +4841,9 @@
           "status": "codegen-output-emitted",
           "flags": "codegen",
           "outputBytes": 2339587,
-          "codegenMarkerCount": 54756
+          "codegenMarkerCount": 54756,
+          "ionScriptMarkerCount": 5,
+          "assemblyMnemonicCount": 20931
         },
         "provenance": {
           "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
@@ -4903,6 +4907,14 @@
         "selectedChecksum": null
       },
       "shell": {
+        "materializedCodegenProbe": {
+          "status": "materialized-string-object-codegen-output-emitted",
+          "flags": "codegen",
+          "outputBytes": 10107925,
+          "codegenMarkerCount": 234522,
+          "ionScriptMarkerCount": 60,
+          "assemblyMnemonicCount": 86190
+        },
         "provenance": {
           "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
           "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
@@ -4973,6 +4985,14 @@
         "selectedChecksum": null
       },
       "shell": {
+        "xmlCodegenProbe": {
+          "status": "xml-workload-codegen-output-emitted",
+          "flags": "codegen",
+          "outputBytes": 6559098,
+          "codegenMarkerCount": 151431,
+          "ionScriptMarkerCount": 49,
+          "assemblyMnemonicCount": 55580
+        },
         "provenance": {
           "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
           "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
@@ -25147,7 +25167,7 @@
           "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
           "hasCodegenDumpOutput": true,
           "runtimeBuildIdentityRecorded": true,
-          "diagnosticFlagsRecorded": false,
+          "diagnosticFlagsRecorded": true,
           "emittedDumpMetadataRecorded": true,
           "closingMetadataComplete": false,
           "sameContractStaxRow": false,
@@ -25188,7 +25208,7 @@
           "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
           "hasCodegenDumpOutput": true,
           "runtimeBuildIdentityRecorded": true,
-          "diagnosticFlagsRecorded": false,
+          "diagnosticFlagsRecorded": true,
           "emittedDumpMetadataRecorded": true,
           "closingMetadataComplete": false,
           "sameContractStaxRow": false,
@@ -25589,7 +25609,9 @@
             "status": "codegen-output-emitted",
             "flags": "codegen",
             "outputBytes": 1490940,
-            "codegenMarkerCount": 42040
+            "codegenMarkerCount": 42040,
+            "ionScriptMarkerCount": 8,
+            "assemblyMnemonicCount": 19105
           }
         },
         "fixture": null,
@@ -25646,7 +25668,9 @@
             "status": "codegen-output-emitted",
             "flags": "codegen",
             "outputBytes": 2339587,
-            "codegenMarkerCount": 54756
+            "codegenMarkerCount": 54756,
+            "ionScriptMarkerCount": 5,
+            "assemblyMnemonicCount": 20931
           },
           "provenance": {
             "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
@@ -25710,6 +25734,14 @@
           "selectedChecksum": null
         },
         "shell": {
+          "materializedCodegenProbe": {
+            "status": "materialized-string-object-codegen-output-emitted",
+            "flags": "codegen",
+            "outputBytes": 10107925,
+            "codegenMarkerCount": 234522,
+            "ionScriptMarkerCount": 60,
+            "assemblyMnemonicCount": 86190
+          },
           "provenance": {
             "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
             "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
@@ -25780,6 +25812,14 @@
           "selectedChecksum": null
         },
         "shell": {
+          "xmlCodegenProbe": {
+            "status": "xml-workload-codegen-output-emitted",
+            "flags": "codegen",
+            "outputBytes": 6559098,
+            "codegenMarkerCount": 151431,
+            "ionScriptMarkerCount": 49,
+            "assemblyMnemonicCount": 55580
+          },
           "provenance": {
             "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
             "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
@@ -27962,7 +28002,9 @@
             "status": "codegen-output-emitted",
             "flags": "codegen",
             "outputBytes": 2339587,
-            "codegenMarkerCount": 54756
+            "codegenMarkerCount": 54756,
+            "ionScriptMarkerCount": 5,
+            "assemblyMnemonicCount": 20931
           },
           "provenance": {
             "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
@@ -28026,6 +28068,14 @@
           "selectedChecksum": null
         },
         "shell": {
+          "materializedCodegenProbe": {
+            "status": "materialized-string-object-codegen-output-emitted",
+            "flags": "codegen",
+            "outputBytes": 10107925,
+            "codegenMarkerCount": 234522,
+            "ionScriptMarkerCount": 60,
+            "assemblyMnemonicCount": 86190
+          },
           "provenance": {
             "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
             "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
@@ -28096,6 +28146,14 @@
           "selectedChecksum": null
         },
         "shell": {
+          "xmlCodegenProbe": {
+            "status": "xml-workload-codegen-output-emitted",
+            "flags": "codegen",
+            "outputBytes": 6559098,
+            "codegenMarkerCount": 151431,
+            "ionScriptMarkerCount": 49,
+            "assemblyMnemonicCount": 55580
+          },
           "provenance": {
             "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
             "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",

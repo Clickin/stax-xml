@@ -798,17 +798,45 @@ function hasSpiderMonkeyRuntimeBuildIdentity(artifact) {
 }
 
 function hasSpiderMonkeyDiagnosticFlags(artifact) {
-  const flags = artifact.shell?.codegenProbe?.flags ?? artifact.outcome?.diagnosticFlags ?? null;
+  const flags = getSpiderMonkeyCodegenProbes(artifact).find(probe => probe.flags)?.flags
+    ?? artifact.outcome?.diagnosticFlags
+    ?? null;
   if (typeof flags === 'string') return flags.length > 0;
   return Array.isArray(flags) && flags.length > 0;
 }
 
 function hasSpiderMonkeyEmittedDumpMetadata(artifact, outcome) {
-  const codegenProbe = artifact.shell?.codegenProbe ?? {};
   return outcome?.hasCodegenDumpOutput === true
-    || codegenProbe.status === 'codegen-output-emitted'
-    || typeof codegenProbe.outputBytes === 'number'
-    || typeof codegenProbe.codegenMarkerCount === 'number';
+    && getSpiderMonkeyCodegenProbes(artifact).some(hasPositiveSpiderMonkeyCodegenProbe);
+}
+
+function getSpiderMonkeyCodegenProbes(artifact) {
+  const shell = artifact.shell ?? {};
+  return [
+    shell.codegenProbe,
+    shell.xmlCodegenProbe,
+    shell.materializedCodegenProbe,
+  ].filter(Boolean);
+}
+
+function hasPositiveSpiderMonkeyCodegenProbe(probe) {
+  const status = typeof probe.status === 'string' ? probe.status : '';
+  const emittedStatus = /codegen-output-emitted$/.test(status);
+  const positiveOutputBytes = typeof probe.outputBytes === 'number'
+    && probe.outputBytes > 0;
+  const positiveCodegenMarkers = typeof probe.codegenMarkerCount === 'number'
+    && probe.codegenMarkerCount > 0;
+  const positiveIonMarkers = typeof probe.ionScriptMarkerCount === 'number'
+    && probe.ionScriptMarkerCount > 0;
+  const positiveAssemblyMnemonics = typeof probe.assemblyMnemonicCount === 'number'
+    && probe.assemblyMnemonicCount > 0;
+  return emittedStatus
+    && (
+      positiveCodegenMarkers
+      || positiveIonMarkers
+      || positiveAssemblyMnemonics
+      || positiveOutputBytes
+    );
 }
 
 function matchSameContractComparisonRow({ selectedRowId, selectedEventCount, selectedChecksum, comparisonRows }) {
@@ -1511,18 +1539,9 @@ function summarizeShell(shell = {}) {
           : null,
       }
     : null;
-  const codegenProbe = shell.codegenProbe && typeof shell.codegenProbe === 'object'
-    ? {
-        status: shell.codegenProbe.status ?? null,
-        flags: shell.codegenProbe.flags ?? null,
-        outputBytes: typeof shell.codegenProbe.outputBytes === 'number'
-          ? shell.codegenProbe.outputBytes
-          : null,
-        codegenMarkerCount: typeof shell.codegenProbe.codegenMarkerCount === 'number'
-          ? shell.codegenProbe.codegenMarkerCount
-          : null,
-      }
-    : null;
+  const codegenProbe = summarizeCodegenProbe(shell.codegenProbe);
+  const xmlCodegenProbe = summarizeCodegenProbe(shell.xmlCodegenProbe);
+  const materializedCodegenProbe = summarizeCodegenProbe(shell.materializedCodegenProbe);
   const provenance = shell.provenance && typeof shell.provenance === 'object'
     ? {
         taskId: shell.provenance.taskId ?? null,
@@ -1539,9 +1558,23 @@ function summarizeShell(shell = {}) {
   const summary = {
     ...(bytecodeDumpProbe ? { bytecodeDumpProbe } : {}),
     ...(codegenProbe ? { codegenProbe } : {}),
+    ...(xmlCodegenProbe ? { xmlCodegenProbe } : {}),
+    ...(materializedCodegenProbe ? { materializedCodegenProbe } : {}),
     ...(provenance ? { provenance } : {}),
   };
   return Object.keys(summary).length > 0 ? summary : null;
+}
+
+function summarizeCodegenProbe(probe) {
+  if (!probe || typeof probe !== 'object') return null;
+  return {
+    status: probe.status ?? null,
+    flags: probe.flags ?? null,
+    outputBytes: typeof probe.outputBytes === 'number' ? probe.outputBytes : null,
+    codegenMarkerCount: typeof probe.codegenMarkerCount === 'number' ? probe.codegenMarkerCount : null,
+    ionScriptMarkerCount: typeof probe.ionScriptMarkerCount === 'number' ? probe.ionScriptMarkerCount : null,
+    assemblyMnemonicCount: typeof probe.assemblyMnemonicCount === 'number' ? probe.assemblyMnemonicCount : null,
+  };
 }
 
 function summarizeArtifact(artifact) {
