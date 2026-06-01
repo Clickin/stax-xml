@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T13:45:21.357Z",
+  "generatedAt": "2026-06-01T14:09:08.801Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -4553,7 +4553,14 @@
         "selectedEventCount": null,
         "selectedChecksum": null
       },
-      "shell": null,
+      "shell": {
+        "codegenProbe": {
+          "status": "codegen-output-emitted",
+          "flags": "codegen",
+          "outputBytes": 1490940,
+          "codegenMarkerCount": 42040
+        }
+      },
       "fixture": null,
       "corpusSeed": null,
       "measuredRowCount": 0
@@ -4768,6 +4775,12 @@
         "selectedChecksum": null
       },
       "shell": {
+        "codegenProbe": {
+          "status": "codegen-output-emitted",
+          "flags": "codegen",
+          "outputBytes": 2339587,
+          "codegenMarkerCount": 54756
+        },
         "provenance": {
           "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
           "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
@@ -24767,6 +24780,10 @@
           "buildId": null,
           "sourceRevision": null,
           "hasCodegenDumpOutput": null,
+          "runtimeBuildIdentityRecorded": false,
+          "diagnosticFlagsRecorded": false,
+          "emittedDumpMetadataRecorded": false,
+          "closingMetadataComplete": false,
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
@@ -24802,6 +24819,10 @@
           "buildId": null,
           "sourceRevision": null,
           "hasCodegenDumpOutput": null,
+          "runtimeBuildIdentityRecorded": false,
+          "diagnosticFlagsRecorded": false,
+          "emittedDumpMetadataRecorded": false,
+          "closingMetadataComplete": false,
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
@@ -24837,6 +24858,10 @@
           "buildId": null,
           "sourceRevision": null,
           "hasCodegenDumpOutput": null,
+          "runtimeBuildIdentityRecorded": false,
+          "diagnosticFlagsRecorded": false,
+          "emittedDumpMetadataRecorded": false,
+          "closingMetadataComplete": false,
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
@@ -24872,6 +24897,10 @@
           "buildId": null,
           "sourceRevision": null,
           "hasCodegenDumpOutput": null,
+          "runtimeBuildIdentityRecorded": false,
+          "diagnosticFlagsRecorded": false,
+          "emittedDumpMetadataRecorded": false,
+          "closingMetadataComplete": false,
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
@@ -24912,6 +24941,10 @@
           "buildId": null,
           "sourceRevision": null,
           "hasCodegenDumpOutput": null,
+          "runtimeBuildIdentityRecorded": false,
+          "diagnosticFlagsRecorded": false,
+          "emittedDumpMetadataRecorded": false,
+          "closingMetadataComplete": false,
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
@@ -24947,6 +24980,10 @@
           "buildId": null,
           "sourceRevision": null,
           "hasCodegenDumpOutput": null,
+          "runtimeBuildIdentityRecorded": false,
+          "diagnosticFlagsRecorded": false,
+          "emittedDumpMetadataRecorded": false,
+          "closingMetadataComplete": false,
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
@@ -24982,6 +25019,10 @@
           "buildId": "20260531212007",
           "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
           "hasCodegenDumpOutput": true,
+          "runtimeBuildIdentityRecorded": true,
+          "diagnosticFlagsRecorded": true,
+          "emittedDumpMetadataRecorded": true,
+          "closingMetadataComplete": false,
           "sameContractStaxRow": false,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
@@ -25017,6 +25058,10 @@
           "buildId": "20260531212007",
           "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
           "hasCodegenDumpOutput": true,
+          "runtimeBuildIdentityRecorded": true,
+          "diagnosticFlagsRecorded": false,
+          "emittedDumpMetadataRecorded": true,
+          "closingMetadataComplete": false,
           "sameContractStaxRow": false,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
@@ -25052,6 +25097,10 @@
           "buildId": "20260531212007",
           "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
           "hasCodegenDumpOutput": true,
+          "runtimeBuildIdentityRecorded": true,
+          "diagnosticFlagsRecorded": false,
+          "emittedDumpMetadataRecorded": true,
+          "closingMetadataComplete": false,
           "sameContractStaxRow": false,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
@@ -25087,6 +25136,10 @@
           "buildId": null,
           "sourceRevision": null,
           "hasCodegenDumpOutput": true,
+          "runtimeBuildIdentityRecorded": false,
+          "diagnosticFlagsRecorded": true,
+          "emittedDumpMetadataRecorded": true,
+          "closingMetadataComplete": false,
           "sameContractStaxRow": false,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
@@ -25122,6 +25175,10 @@
           "buildId": null,
           "sourceRevision": null,
           "hasCodegenDumpOutput": null,
+          "runtimeBuildIdentityRecorded": false,
+          "diagnosticFlagsRecorded": false,
+          "emittedDumpMetadataRecorded": false,
+          "closingMetadataComplete": false,
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
@@ -25429,7 +25486,14 @@
           "selectedEventCount": null,
           "selectedChecksum": null
         },
-        "shell": null,
+        "shell": {
+          "codegenProbe": {
+            "status": "codegen-output-emitted",
+            "flags": "codegen",
+            "outputBytes": 1490940,
+            "codegenMarkerCount": 42040
+          }
+        },
         "fixture": null,
         "corpusSeed": null,
         "measuredRowCount": 0
@@ -25480,6 +25544,12 @@
           "selectedChecksum": null
         },
         "shell": {
+          "codegenProbe": {
+            "status": "codegen-output-emitted",
+            "flags": "codegen",
+            "outputBytes": 2339587,
+            "codegenMarkerCount": 54756
+          },
           "provenance": {
             "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
             "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
@@ -27700,6 +27770,12 @@
           "selectedChecksum": null
         },
         "shell": {
+          "codegenProbe": {
+            "status": "codegen-output-emitted",
+            "flags": "codegen",
+            "outputBytes": 2339587,
+            "codegenMarkerCount": 54756
+          },
           "provenance": {
             "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
             "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",

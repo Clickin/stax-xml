@@ -643,10 +643,22 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact, sameContractComparisonRow
         comparisonRows: sameContractComparisonRows,
       })
     : null;
+  const runtimeBuildIdentityRecorded = hasSpiderMonkeyRuntimeBuildIdentity(artifact);
+  const diagnosticFlagsRecorded = hasSpiderMonkeyDiagnosticFlags(artifact);
+  const emittedDumpMetadataRecorded = hasSpiderMonkeyEmittedDumpMetadata(artifact, outcome);
+  const closingMetadataComplete = runtimeBuildIdentityRecorded
+    && diagnosticFlagsRecorded
+    && typeof selectedRowId === 'string'
+    && selectedRowId.length > 0
+    && typeof selectedEventCount === 'number'
+    && selectedChecksum !== null
+    && selectedChecksum !== undefined
+    && emittedDumpMetadataRecorded;
   const emittedIrClosureQualified = closesEmittedIrObligation === true
     && sameContractStaxRow === true
     && canRunCurrentStaxFullStringBenchmark === true
-    && selectedRowMatchesCurrentComparison !== false;
+    && selectedRowMatchesCurrentComparison !== false
+    && closingMetadataComplete;
   const irDumpSurface = typeof outcome.hasIrDumpSurface === 'boolean'
     ? outcome.hasIrDumpSurface
     : null;
@@ -694,6 +706,10 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact, sameContractComparisonRow
     buildId: artifact.shell?.provenance?.buildId ?? null,
     sourceRevision: artifact.shell?.provenance?.sourceRevision ?? null,
     hasCodegenDumpOutput: typeof outcome.hasCodegenDumpOutput === 'boolean' ? outcome.hasCodegenDumpOutput : null,
+    runtimeBuildIdentityRecorded,
+    diagnosticFlagsRecorded,
+    emittedDumpMetadataRecorded,
+    closingMetadataComplete,
     sameContractStaxRow,
     closesEmittedIrObligation,
     emittedIrClosureQualified,
@@ -709,6 +725,30 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact, sameContractComparisonRow
       summary,
     }),
   };
+}
+
+function hasSpiderMonkeyRuntimeBuildIdentity(artifact) {
+  const provenance = artifact.shell?.provenance ?? {};
+  const buildId = provenance.buildId ?? provenance.targetTxt?.buildId ?? provenance.buildhub?.buildId ?? null;
+  const sourceRevision = provenance.sourceRevision ?? provenance.targetTxt?.sourceRevision ?? provenance.buildhub?.sourceRevision ?? null;
+  return typeof buildId === 'string'
+    && buildId.length > 0
+    && typeof sourceRevision === 'string'
+    && sourceRevision.length > 0;
+}
+
+function hasSpiderMonkeyDiagnosticFlags(artifact) {
+  const flags = artifact.shell?.codegenProbe?.flags ?? artifact.outcome?.diagnosticFlags ?? null;
+  if (typeof flags === 'string') return flags.length > 0;
+  return Array.isArray(flags) && flags.length > 0;
+}
+
+function hasSpiderMonkeyEmittedDumpMetadata(artifact, outcome) {
+  const codegenProbe = artifact.shell?.codegenProbe ?? {};
+  return outcome?.hasCodegenDumpOutput === true
+    || codegenProbe.status === 'codegen-output-emitted'
+    || typeof codegenProbe.outputBytes === 'number'
+    || typeof codegenProbe.codegenMarkerCount === 'number';
 }
 
 function matchSameContractComparisonRow({ selectedRowId, selectedEventCount, selectedChecksum, comparisonRows }) {
@@ -1372,14 +1412,26 @@ function summarizeShell(shell = {}) {
           : null,
       }
     : null;
+  const codegenProbe = shell.codegenProbe && typeof shell.codegenProbe === 'object'
+    ? {
+        status: shell.codegenProbe.status ?? null,
+        flags: shell.codegenProbe.flags ?? null,
+        outputBytes: typeof shell.codegenProbe.outputBytes === 'number'
+          ? shell.codegenProbe.outputBytes
+          : null,
+        codegenMarkerCount: typeof shell.codegenProbe.codegenMarkerCount === 'number'
+          ? shell.codegenProbe.codegenMarkerCount
+          : null,
+      }
+    : null;
   const provenance = shell.provenance && typeof shell.provenance === 'object'
     ? {
         taskId: shell.provenance.taskId ?? null,
         route: shell.provenance.route ?? null,
         artifactName: shell.provenance.artifactName ?? null,
         artifactBytes: typeof shell.provenance.artifactBytes === 'number' ? shell.provenance.artifactBytes : null,
-        buildId: shell.provenance.targetTxt?.buildId ?? shell.provenance.buildhub?.buildId ?? null,
-        sourceRevision: shell.provenance.targetTxt?.sourceRevision ?? shell.provenance.buildhub?.sourceRevision ?? null,
+        buildId: shell.provenance.buildId ?? shell.provenance.targetTxt?.buildId ?? shell.provenance.buildhub?.buildId ?? null,
+        sourceRevision: shell.provenance.sourceRevision ?? shell.provenance.targetTxt?.sourceRevision ?? shell.provenance.buildhub?.sourceRevision ?? null,
         targetVersion: shell.provenance.buildhub?.targetVersion ?? null,
         debug: typeof shell.provenance.mozinfo?.debug === 'boolean' ? shell.provenance.mozinfo.debug : null,
         official: typeof shell.provenance.mozinfo?.official === 'boolean' ? shell.provenance.mozinfo.official : null,
@@ -1387,6 +1439,7 @@ function summarizeShell(shell = {}) {
     : null;
   const summary = {
     ...(bytecodeDumpProbe ? { bytecodeDumpProbe } : {}),
+    ...(codegenProbe ? { codegenProbe } : {}),
     ...(provenance ? { provenance } : {}),
   };
   return Object.keys(summary).length > 0 ? summary : null;
