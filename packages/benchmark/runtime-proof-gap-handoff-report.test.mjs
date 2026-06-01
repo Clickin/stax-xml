@@ -417,6 +417,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
     'firefox-spidermonkey-release-jsshell-availability-audit.json',
     'firefox-spidermonkey-nightly-jsshell-availability-audit.json',
     'firefox-spidermonkey-jsshell-stax-api-gap-audit.json',
+    'stax-public-reader-host-api-boundary-audit.json',
     'spidermonkey-jsshell-diagnostic-flag-sweep.json',
     'spidermonkey-taskcluster-debug-jsshell-codegen-audit.json',
     'spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json',
@@ -434,6 +435,8 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /nightly jsshell.*bytecode dump status is no-bytecode-output/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /js-shell StAX API gap audit pins the unchanged-harness blocker/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /TextDecoder, TextEncoder, ReadableStream, fetch/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /StAX public reader host API boundary audit pins.*primarySyncByteBatchRequiresTextDecoder=true/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /alternateDecoderWouldBeUnchangedClosure=false/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /diagnostic flag sweep tried 4 bytecode flag combinations and found 0 bytecode-output probes/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /archived Firefox 36 era debug js-shell emits JitSpew codegen output/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /current Taskcluster debug js-shell emits JitSpew codegen output \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007\), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic/.test(item)));
@@ -486,6 +489,10 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.commands.some(command => /--package-kind release/.test(command.command)));
   assert.ok(spiderMonkey.commands.some(command => /--package-kind nightly/.test(command.command)));
   assert.ok(spiderMonkey.commands.some(command => /FIREFOX_PATH=/.test(command.command)));
+  assert.ok(spiderMonkey.commands.some(command =>
+    command.id === 'stax-public-reader-host-api-boundary'
+    && /stax-public-reader-host-api-boundary-audit\.mjs/.test(command.command)
+  ));
   assert.ok(spiderMonkey.expectedEvidence.some(item => /JIT IR/.test(item)));
   assert.ok(spiderMonkey.closureChecks.some(item => /emittedIrEvidenceCount must be greater than 0/.test(item)));
   assert.ok(spiderMonkey.closureChecks.some(item => /missingIrSurfaceCount must be 0/.test(item)));
@@ -580,6 +587,9 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /bytecode dump status is no-bytecode-output/);
   assert.match(markdown, /The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface/);
   assert.match(markdown, /common missing globals: TextDecoder, TextEncoder, ReadableStream, fetch/);
+  assert.match(markdown, /StAX public reader host API boundary audit pins.*primarySyncByteBatchRequiresTextDecoder=true/);
+  assert.match(markdown, /alternateDecoderWouldBeUnchangedClosure=false/);
+  assert.match(markdown, /stax-public-reader-host-api-boundary/);
   assert.match(markdown, /Diagnostic identity status counts: not-claimed=4, not-claimed-non-stax-diagnostic=7/);
   assert.match(markdown, /selectedRowIdentityStatusCounts not-claimed=4, not-claimed-non-stax-diagnostic=7/);
   assert.match(markdown, /Installed Firefox about:buildconfig records --enable-js-shell/);

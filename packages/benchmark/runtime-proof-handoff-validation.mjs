@@ -146,6 +146,7 @@ function validateHandoff(handoff) {
           /--package-kind release/,
           /--package-kind nightly/,
           /firefox-spidermonkey-diagnostic-dump-audit\.mjs/,
+          /stax-public-reader-host-api-boundary-audit\.mjs/,
         ]
       : [];
   const requiredContracts = isSafari
@@ -182,6 +183,10 @@ function validateHandoff(handoff) {
           /selectedRowIdentityStatusCounts/,
           /spidermonkey-ascii-scope-distance-audit\.json/,
           /ASCII scope-distance audit pins/,
+          /stax-public-reader-host-api-boundary-audit\.json/,
+          /StAX public reader host API boundary audit pins/,
+          /alternateDecoderWouldBeUnchangedClosure=false/,
+          /TextDecoder\/ReadableStream\/TextEncoder boundary/,
           /closesCodegenObligation=false/,
           /jit-status-only/,
           /environment evidence only/,
