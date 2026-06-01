@@ -234,6 +234,7 @@ function buildReport(options, artifacts) {
       qualifiedClosureCount: qualified.length,
       contradictedClosureClaimCount: contradicted.length,
       selectedRowIdentityStatusCounts: countStringValues(candidates.map(candidate => candidate.selectedRowIdentityStatus)),
+      selectedRowMetadataMissingFieldCounts: countStringValues(candidates.flatMap(candidate => candidate.selectedRowMetadataMissingFields)),
       blockedCandidateCount: blocked.length,
       minimumBlockedRequirementCount: closestBlockedCandidates[0]?.unmetRequirementCount ?? 0,
       closestBlockedCandidateCount: closestBlockedCandidates.length,
@@ -274,6 +275,11 @@ function createCandidate(artifact) {
   const selectedRowId = firstString(outcome.selectedRowId, summary.selectedRowId);
   const selectedEventCount = firstFiniteNumber(outcome.selectedEventCount, summary.selectedEventCount);
   const selectedChecksum = firstFiniteNumber(outcome.selectedChecksum, summary.selectedChecksum);
+  const selectedRowMetadataMissingFields = [
+    Boolean(selectedRowId) ? null : 'selectedRowId',
+    Number.isFinite(selectedEventCount) ? null : 'selectedEventCount',
+    Number.isFinite(selectedChecksum) ? null : 'selectedChecksum',
+  ].filter(Boolean);
   const runtimeBuildIdentityRecorded = hasSpiderMonkeyRuntimeBuildIdentity(root);
   const diagnosticFlagsRecorded = hasSpiderMonkeyDiagnosticFlags(root);
   const emittedDumpMetadataRecorded = hasSpiderMonkeyEmittedDumpMetadata(root, outcome);
@@ -349,6 +355,7 @@ function createCandidate(artifact) {
     evidenceClass,
     hasAnyDiagnosticSurface: hasCodegenDumpOutput || irDumpSurface || nativeDumpComplete || codegenMarkerCount > 0,
     selectedRowIdentityStatus,
+    selectedRowMetadataMissingFields,
     requirements,
     unmetRequirements,
     declaresClosure,
@@ -467,6 +474,7 @@ function renderMarkdown(report) {
     `- Qualified closures: ${report.summary.qualifiedClosureCount}`,
     `- Contradicted closure claims: ${report.summary.contradictedClosureClaimCount}`,
     `- Selected row identity statuses: ${formatCountMap(report.summary.selectedRowIdentityStatusCounts)}`,
+    `- Selected row metadata missing fields: ${formatCountMap(report.summary.selectedRowMetadataMissingFieldCounts)}`,
     `- Minimum blocked requirement count: ${report.summary.minimumBlockedRequirementCount}`,
     `- Closest blocked candidate count: ${report.summary.closestBlockedCandidateCount}`,
     `- Conclusion allowed: ${report.summary.conclusionAllowed ? 'yes' : 'no'}`,

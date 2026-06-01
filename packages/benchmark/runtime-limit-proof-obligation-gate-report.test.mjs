@@ -225,6 +225,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-closing-metadata-required' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-diagnostic-row-identity-blocker' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-closure-audit-identity-statuses' && item.satisfied));
+  assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-selected-row-metadata-missing-fields' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-closure-frontier-blockers' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-contradicted-closure-claims-clear' && item.satisfied));
   assert.ok(report.handoffValidationSnapshot.loaded);
@@ -274,6 +275,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /spidermonkey-closing-metadata-required/);
   assert.match(markdown, /spidermonkey-diagnostic-row-identity-blocker/);
   assert.match(markdown, /spidermonkey-closure-audit-identity-statuses/);
+  assert.match(markdown, /spidermonkey-selected-row-metadata-missing-fields/);
   assert.match(markdown, /spidermonkey-closure-frontier-blockers/);
   assert.match(markdown, /spidermonkey-contradicted-closure-claims-clear/);
   assert.match(markdown, /## Handoff Validation Snapshot/);
@@ -611,6 +613,45 @@ test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff omits cl
   const markdown = readFileSync(badHandoffGateMdOut, 'utf8');
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /spidermonkey-closure-audit-identity-statuses/);
+});
+
+test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff omits selected-row metadata missing field counts', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
+  const spiderMonkey = handoff.handoffs.find(item => item.id === 'spidermonkey-codegen-handoff');
+  spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
+    .map(item => item.replace(/, selectedRowMetadataMissingFieldCounts selectedChecksum=\d+, selectedEventCount=\d+, selectedRowId=\d+/g, ''));
+  writeFileSync(badHandoffJsonOut, `${JSON.stringify(handoff, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--handoff-json',
+    badHandoffJsonOut,
+    '--json-out',
+    badHandoffGateJsonOut,
+    '--md-out',
+    badHandoffGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badHandoffGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.ok(report.handoffSnapshot.guards.some(item =>
+    item.id === 'spidermonkey-selected-row-metadata-missing-fields'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /selected-row metadata fields/.test(error)));
+
+  const markdown = readFileSync(badHandoffGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /spidermonkey-selected-row-metadata-missing-fields/);
 });
 
 test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff omits closing metadata requirements', () => {

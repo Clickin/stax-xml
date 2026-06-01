@@ -40,6 +40,11 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
     'not-claimed-non-stax-diagnostic': 2,
     'same-contract-stax-row': 1,
   });
+  assert.deepEqual(report.summary.selectedRowMetadataMissingFieldCounts, {
+    selectedChecksum: 2,
+    selectedEventCount: 2,
+    selectedRowId: 2,
+  });
   assert.equal(report.summary.minimumBlockedRequirementCount, 4);
   assert.equal(report.summary.closestBlockedCandidateCount, 2);
   assert.equal(report.summary.conclusionAllowed, false);
@@ -71,6 +76,11 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.ok(blocked);
   assert.equal(blocked.qualifiedClosure, false);
   assert.equal(blocked.selectedRowIdentityStatus, 'not-claimed-non-stax-diagnostic');
+  assert.deepEqual(blocked.selectedRowMetadataMissingFields, [
+    'selectedRowId',
+    'selectedEventCount',
+    'selectedChecksum',
+  ]);
   assert.ok(blocked.unmetRequirements.includes('sameContractStaxRow'));
   assert.ok(blocked.unmetRequirements.includes('unchangedRunnable'));
   assert.ok(blocked.unmetRequirements.includes('selectedRowMetadata'));
@@ -80,6 +90,7 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.ok(closure);
   assert.equal(closure.qualifiedClosure, true);
   assert.equal(closure.selectedRowIdentityStatus, 'same-contract-stax-row');
+  assert.deepEqual(closure.selectedRowMetadataMissingFields, []);
   assert.deepEqual(closure.unmetRequirements, []);
 
   const markdown = readFileSync(mdOut, 'utf8');
@@ -87,6 +98,7 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.match(markdown, /Qualified closures: 1/);
   assert.match(markdown, /Contradicted closure claims: 1/);
   assert.match(markdown, /Selected row identity statuses: not-claimed-non-stax-diagnostic=2, same-contract-stax-row=1/);
+  assert.match(markdown, /Selected row metadata missing fields: selectedChecksum=2, selectedEventCount=2, selectedRowId=2/);
   assert.match(markdown, /Closest blocked candidate count: 2/);
   assert.match(markdown, /sameContractStaxRow: 2/);
   assert.match(markdown, /spidermonkey-contradicted-closure\.json/);

@@ -208,6 +208,7 @@ function validateHandoff(handoff) {
           /counterexamples200MiB=0/,
           /spidermonkey-codegen-closure-audit\.json/,
           /spidermonkey-codegen-rerun-stability-audit\.json/,
+          /selectedRowMetadataMissingFieldCounts selectedChecksum=\d+, selectedEventCount=\d+, selectedRowId=\d+/,
           /selectedRowIdentityStatusCounts not-claimed-non-stax-diagnostic=\d+/,
           /qualifiedClosureCount=0/,
           /contradictedClosureClaimCount=0/,

@@ -96,6 +96,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('memoryProofRows=0')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('spidermonkey-codegen-closure-audit')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('spidermonkey-codegen-rerun-stability-audit')));
+  assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('selectedRowMetadataMissingFieldCounts selectedChecksum')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('selectedRowIdentityStatusCounts not-claimed-non-stax-diagnostic')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('qualifiedClosureCount=0')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('contradictedClosureClaimCount=0')));
@@ -542,6 +543,42 @@ test('runtime proof handoff validation fails if SpiderMonkey closure omits closi
   const spiderMonkeyCheck = report.handoffChecks.find(row => row.id === 'spidermonkey-codegen-handoff');
   assert.equal(spiderMonkeyCheck.contractsPresent, false);
   assert.ok(spiderMonkeyCheck.requiredContractPatterns.some(pattern => /diagnostic flags/.test(pattern)));
+
+  const markdown = readFileSync(badMdOut, 'utf8');
+  assert.match(markdown, /Pass: no/);
+  assert.match(markdown, /spidermonkey-codegen-handoff/);
+});
+
+test('runtime proof handoff validation fails if SpiderMonkey closure omits selected-row metadata missing field counts', () => {
+  resetTmp();
+  const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
+  const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
+    .map(item => item.replace(/, selectedRowMetadataMissingFieldCounts selectedChecksum=\d+, selectedEventCount=\d+, selectedRowId=\d+/g, ''));
+  writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-handoff-validation.mjs'),
+    '--handoff-json',
+    badHandoffJson,
+    '--json-out',
+    badJsonOut,
+    '--md-out',
+    badMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(badJsonOut, 'utf8'));
+  assert.equal(report.summary.pass, false);
+  assert.equal(report.summary.allContractsPresent, false);
+  const spiderMonkeyCheck = report.handoffChecks.find(row => row.id === 'spidermonkey-codegen-handoff');
+  assert.equal(spiderMonkeyCheck.contractsPresent, false);
+  assert.ok(spiderMonkeyCheck.requiredContractPatterns.some(pattern => /selectedRowMetadataMissingFieldCounts/.test(pattern)));
 
   const markdown = readFileSync(badMdOut, 'utf8');
   assert.match(markdown, /Pass: no/);

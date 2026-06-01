@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T21:11:12.685Z",
+  "generatedAt": "2026-06-01T21:16:31.170Z",
   "objective": "spidermonkey-codegen-closure-audit",
   "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
   "note": "Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.",
@@ -15,6 +15,11 @@
       "evidenceClass": "source-pin-only",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMetadataMissingFields": [
+        "selectedRowId",
+        "selectedEventCount",
+        "selectedChecksum"
+      ],
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -82,6 +87,11 @@
       "evidenceClass": "negative-diagnostic-surface",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMetadataMissingFields": [
+        "selectedRowId",
+        "selectedEventCount",
+        "selectedChecksum"
+      ],
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -149,6 +159,11 @@
       "evidenceClass": "availability-only",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMetadataMissingFields": [
+        "selectedRowId",
+        "selectedEventCount",
+        "selectedChecksum"
+      ],
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -216,6 +231,11 @@
       "evidenceClass": "unknown",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMetadataMissingFields": [
+        "selectedRowId",
+        "selectedEventCount",
+        "selectedChecksum"
+      ],
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -282,6 +302,11 @@
       "evidenceClass": "availability-only",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMetadataMissingFields": [
+        "selectedRowId",
+        "selectedEventCount",
+        "selectedChecksum"
+      ],
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -349,6 +374,11 @@
       "evidenceClass": "availability-only",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMetadataMissingFields": [
+        "selectedRowId",
+        "selectedEventCount",
+        "selectedChecksum"
+      ],
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -416,6 +446,11 @@
       "evidenceClass": "archival-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMetadataMissingFields": [
+        "selectedRowId",
+        "selectedEventCount",
+        "selectedChecksum"
+      ],
       "requirements": {
         "emittedCodegenSurface": {
           "met": true,
@@ -482,6 +517,11 @@
       "evidenceClass": "unknown",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMetadataMissingFields": [
+        "selectedRowId",
+        "selectedEventCount",
+        "selectedChecksum"
+      ],
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -548,6 +588,11 @@
       "evidenceClass": "unknown",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMetadataMissingFields": [
+        "selectedRowId",
+        "selectedEventCount",
+        "selectedChecksum"
+      ],
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -614,6 +659,11 @@
       "evidenceClass": "unknown",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMetadataMissingFields": [
+        "selectedRowId",
+        "selectedEventCount",
+        "selectedChecksum"
+      ],
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -680,6 +730,11 @@
       "evidenceClass": "current-debug-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMetadataMissingFields": [
+        "selectedRowId",
+        "selectedEventCount",
+        "selectedChecksum"
+      ],
       "requirements": {
         "emittedCodegenSurface": {
           "met": true,
@@ -745,6 +800,11 @@
       "evidenceClass": "current-debug-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMetadataMissingFields": [
+        "selectedRowId",
+        "selectedEventCount",
+        "selectedChecksum"
+      ],
       "requirements": {
         "emittedCodegenSurface": {
           "met": true,
@@ -810,6 +870,11 @@
       "evidenceClass": "current-debug-materialized-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMetadataMissingFields": [
+        "selectedRowId",
+        "selectedEventCount",
+        "selectedChecksum"
+      ],
       "requirements": {
         "emittedCodegenSurface": {
           "met": true,
@@ -875,6 +940,11 @@
       "evidenceClass": "current-debug-materialized-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMetadataMissingFields": [
+        "selectedRowId",
+        "selectedEventCount",
+        "selectedChecksum"
+      ],
       "requirements": {
         "emittedCodegenSurface": {
           "met": true,
@@ -940,6 +1010,11 @@
       "evidenceClass": "current-debug-xml-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMetadataMissingFields": [
+        "selectedRowId",
+        "selectedEventCount",
+        "selectedChecksum"
+      ],
       "requirements": {
         "emittedCodegenSurface": {
           "met": true,
@@ -1082,6 +1157,11 @@
     "contradictedClosureClaimCount": 0,
     "selectedRowIdentityStatusCounts": {
       "not-claimed-non-stax-diagnostic": 15
+    },
+    "selectedRowMetadataMissingFieldCounts": {
+      "selectedChecksum": 15,
+      "selectedEventCount": 15,
+      "selectedRowId": 15
     },
     "blockedCandidateCount": 15,
     "minimumBlockedRequirementCount": 4,
