@@ -1,0 +1,173 @@
+{
+  "generatedAt": "2026-06-01T00:11:36.020Z",
+  "objective": "target-distance-audit",
+  "contract": "woodstox-and-quickxml-0.9x-target-distance",
+  "note": "Audits the distance from current same-contract JavaScript rows to Woodstox and quick-xml targets. This is not a benchmark run, not object-shape equivalence, and not a JavaScript runtime ceiling proof.",
+  "inputs": {
+    "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
+    "comparisonGeneratedAt": "2026-05-31T23:20:48.612Z",
+    "comparisonObjective": "same-contract-runtime-comparison",
+    "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape"
+  },
+  "summary": {
+    "status": "classified",
+    "sameFixture1024MiBWoodstoxTarget": {
+      "group": "file-backed-batch-size-sweep",
+      "sourceArtifact": "file-backed-batch-size-sweep.json",
+      "fastestJsCaseId": "stax-raw-frame-name-id-batch-8",
+      "fastestJsRateMiBPerSec": 152.11,
+      "woodstoxSourceArtifact": "file-backed-trim-boundary-check-candidate.json",
+      "woodstoxRateMiBPerSec": 351.56,
+      "target90MiBPerSec": 316.4,
+      "fastestJsWoodstoxRatio": 0.43,
+      "remainingTo90PercentMiBPerSec": 164.29,
+      "targetMet": false
+    },
+    "sameFixture1024MiBQuickXmlTarget": {
+      "group": "file-backed-batch-size-sweep",
+      "sourceArtifact": "file-backed-batch-size-sweep.json",
+      "fastestJsCaseId": "stax-raw-frame-name-id-batch-8",
+      "fastestJsRateMiBPerSec": 152.11,
+      "quickXmlSourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
+      "quickXmlRateMiBPerSec": 274.63,
+      "target90MiBPerSec": 247.17,
+      "fastestJsQuickXmlRatio": 0.55,
+      "remainingTo90PercentMiBPerSec": 95.06,
+      "targetMet": false
+    },
+    "externalBaseline1024MiBFileSyncBatches": {
+      "staxStreamRateMiBPerSec": 124.62,
+      "staxStreamWoodstoxRatio": 0.37,
+      "rawFrameNameIdRateMiBPerSec": 132.54,
+      "rawFrameNameIdWoodstoxRatio": 0.39,
+      "woodstoxRateMiBPerSec": 337.97,
+      "quickXmlRateMiBPerSec": 270.26,
+      "quickXmlWoodstoxRatio": 0.8,
+      "target90MiBPerSec": 304.17
+    },
+    "sameFixture1024MiBProcessRssSnapshot": {
+      "caveat": "Process RSS values are same-fixture endpoint evidence, not allocation-model equivalence across Java, Rust, and JavaScript runtimes.",
+      "fastestJs": {
+        "runtimeLabel": "Node/V8",
+        "caseId": "stax-raw-frame-name-id-batch-8",
+        "sourceArtifact": "file-backed-batch-size-sweep.json",
+        "rateMiBPerSec": 152.11,
+        "memoryKind": "process-rss",
+        "maxRssMiB": 61.77
+      },
+      "woodstox": {
+        "runtimeLabel": "Java/Woodstox",
+        "caseId": "woodstox",
+        "sourceArtifact": "file-backed-trim-boundary-check-candidate.json",
+        "rateMiBPerSec": 351.56,
+        "memoryKind": "process-rss",
+        "maxRssMiB": 312.71
+      },
+      "quickXml": {
+        "runtimeLabel": "Rust/quick-xml",
+        "caseId": "quick-xml",
+        "sourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
+        "rateMiBPerSec": 274.63,
+        "memoryKind": "process-rss",
+        "maxRssMiB": 4.78
+      }
+    },
+    "conclusionAllowed": false
+  },
+  "quickXmlTargetRows": [
+    {
+      "group": "file-backed-batch-size-sweep",
+      "fastestJsCaseId": "stax-raw-frame-name-id-batch-8",
+      "fastestJsRateMiBPerSec": 152.11,
+      "quickXmlSourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
+      "quickXmlRateMiBPerSec": 274.63,
+      "quickXml90MiBPerSec": 247.17,
+      "jsQuickXmlRatio": 0.55,
+      "remainingTo90PercentMiBPerSec": 95.06,
+      "targetMet": false,
+      "caveat": "same books 1024 MiB fixture family, but quick-xml reference comes from a separate candidate artifact"
+    },
+    {
+      "group": "file-backed-source-sweep",
+      "fastestJsCaseId": "stax-raw-frame-name-id-chunk-32kib",
+      "fastestJsRateMiBPerSec": 151.7,
+      "quickXmlSourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
+      "quickXmlRateMiBPerSec": 274.63,
+      "quickXml90MiBPerSec": 247.17,
+      "jsQuickXmlRatio": 0.55,
+      "remainingTo90PercentMiBPerSec": 95.47,
+      "targetMet": false,
+      "caveat": "same books 1024 MiB fixture family, but quick-xml reference comes from a separate candidate artifact"
+    },
+    {
+      "group": "file-backed-short-attr-value-cache-candidate",
+      "fastestJsCaseId": "stax-raw-frame-name-id",
+      "fastestJsRateMiBPerSec": 147.05,
+      "quickXmlSourceArtifact": "file-backed-short-attr-value-cache-candidate.json",
+      "quickXmlRateMiBPerSec": 274.63,
+      "quickXml90MiBPerSec": 247.17,
+      "jsQuickXmlRatio": 0.54,
+      "remainingTo90PercentMiBPerSec": 100.12,
+      "targetMet": false,
+      "caveat": "same artifact quick-xml reference"
+    },
+    {
+      "group": "file-backed-trim-boundary-check-candidate",
+      "fastestJsCaseId": "stax-raw-frame-name-id",
+      "fastestJsRateMiBPerSec": 143.35,
+      "quickXmlSourceArtifact": "file-backed-trim-boundary-check-candidate.json",
+      "quickXmlRateMiBPerSec": 273.74,
+      "quickXml90MiBPerSec": 246.37,
+      "jsQuickXmlRatio": 0.52,
+      "remainingTo90PercentMiBPerSec": 103.02,
+      "targetMet": false,
+      "caveat": "same artifact quick-xml reference"
+    },
+    {
+      "group": "file-backed-long-ascii-text-candidate",
+      "fastestJsCaseId": "stax-raw-frame-name-id",
+      "fastestJsRateMiBPerSec": 141.29,
+      "quickXmlSourceArtifact": "file-backed-long-ascii-text-candidate.json",
+      "quickXmlRateMiBPerSec": 272.33,
+      "quickXml90MiBPerSec": 245.1,
+      "jsQuickXmlRatio": 0.52,
+      "remainingTo90PercentMiBPerSec": 103.81,
+      "targetMet": false,
+      "caveat": "same artifact quick-xml reference"
+    },
+    {
+      "group": "external-baseline-1024mib-file-sync-batches",
+      "fastestJsCaseId": "stax-raw-frame-name-id",
+      "fastestJsRateMiBPerSec": 132.54,
+      "quickXmlSourceArtifact": "external-baseline-1024mib-file-sync-batches.json",
+      "quickXmlRateMiBPerSec": 270.26,
+      "quickXml90MiBPerSec": 243.23,
+      "jsQuickXmlRatio": 0.49,
+      "remainingTo90PercentMiBPerSec": 110.69,
+      "targetMet": false,
+      "caveat": "same artifact quick-xml reference"
+    }
+  ],
+  "findings": [
+    {
+      "id": "woodstox-0-9x-target-not-met",
+      "classification": "SOURCE_FACT",
+      "summary": "Current fastest same-fixture JavaScript row is 164.29 MiB/s below the Woodstox 0.9x target."
+    },
+    {
+      "id": "quickxml-0-9x-target-not-met",
+      "classification": "SOURCE_FACT",
+      "summary": "Current fastest same-fixture JavaScript row is 95.06 MiB/s below the quick-xml 0.9x target."
+    },
+    {
+      "id": "external-baseline-separate-from-candidate-target",
+      "classification": "SOURCE_FACT",
+      "summary": "The 1024 MiB external baseline keeps stax-stream, rawFrameNameId, Woodstox, and quick-xml rows visible separately from later same-fixture candidate targets."
+    },
+    {
+      "id": "target-distance-not-runtime-ceiling",
+      "classification": "SOURCE_FACT",
+      "summary": "A target-distance deficit is not proof that JavaScript runtimes have no further headroom."
+    }
+  ]
+}

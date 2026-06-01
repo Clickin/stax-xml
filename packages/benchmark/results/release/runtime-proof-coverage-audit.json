@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T00:01:40.724Z",
+  "generatedAt": "2026-06-01T00:12:19.791Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -3925,6 +3925,21 @@
       "measuredRowCount": 3
     },
     {
+      "sourceArtifact": "target-distance-audit.json",
+      "objective": "target-distance-audit",
+      "contract": "woodstox-and-quickxml-0.9x-target-distance",
+      "evidenceKinds": [
+        "SOURCE_FACT"
+      ],
+      "runtimes": [],
+      "availability": null,
+      "outcome": null,
+      "shell": null,
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
       "sourceArtifact": "text-ascii-pretrim-candidate.json",
       "objective": "candidate-headroom-large",
       "contract": "generated-byte-batch-mixed-materialization-headroom-matrix",
@@ -4598,7 +4613,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 202,
+    "scannedArtifactCount": 203,
     "ignoredArtifactCount": 7,
     "parseErrorCount": 0,
     "measuredRowCount": 1183,
@@ -4620,7 +4635,7 @@
       "rowsWithMemoryCounter": 10
     },
     "benchmarkArtifactCount": 150,
-    "sourceArtifactCount": 20,
+    "sourceArtifactCount": 21,
     "traceArtifactCount": 11,
     "allocationArtifactCount": 16,
     "environmentArtifactCount": 4,

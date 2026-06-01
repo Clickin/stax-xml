@@ -126,6 +126,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /runtime-proof-coverage-audit\.md/);
   assert.match(markdown, /source-consumption-shape-audit\.md/);
   assert.match(markdown, /memory-frontier-audit\.md/);
+  assert.match(markdown, /target-distance-audit\.md/);
   assert.match(markdown, /bun-jsc-partial-codegen-trace\.md/);
   assert.match(markdown, /bun-jsc-textdecoder-codegen-trace\.md/);
   assert.match(markdown, /full-string parity as\s+`not-applicable`, with zero full rows/);
@@ -295,7 +296,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`sourceMode: "complete-js-string"` and\s+`boundedMemory: false` under the 512 MiB RSS gate/);
   assert.match(markdown, /headroom evidence rather than runtime-limit\s+counterexamples/);
   assert.match(markdown, /recognizes 1,183\s+measured rows/);
-  assert.match(markdown, /150 benchmark artifacts, 20 source artifacts, 11\s+trace\/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and\s+19 negative-result artifacts, 792 JavaScript 1 GiB\+ full-string rows/);
+  assert.match(markdown, /150 benchmark artifacts, 21 source artifacts, 11\s+trace\/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and\s+19 negative-result artifacts, 792 JavaScript 1 GiB\+ full-string rows/);
   assert.match(markdown, /concat-buffer-reuse-negative-result\.json/);
   assert.match(markdown, /stax-raw-frame-span-stats/);
   assert.match(markdown, /segment-scan-headroom\.json/);

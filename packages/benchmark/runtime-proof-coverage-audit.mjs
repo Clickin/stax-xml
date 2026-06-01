@@ -207,7 +207,7 @@ function summarizeParameters(parameters = {}) {
 function classifyEvidenceKinds(sourceArtifact, root, measuredRows) {
   const kinds = new Set();
   if (measuredRows.length > 0) kinds.add('BENCH_FACT');
-  if (/source-pin-audit|shape-audit|materialization-contract-audit|memory-frontier-audit/.test(sourceArtifact)) kinds.add('SOURCE_FACT');
+  if (/source-pin-audit|shape-audit|materialization-contract-audit|memory-frontier-audit|target-distance-audit/.test(sourceArtifact)) kinds.add('SOURCE_FACT');
   if (/availability-audit/.test(sourceArtifact)) kinds.add('ENVIRONMENT_FACT');
   if (/trace|profiler-trace|cpu-profile|hotspot|machine-code/.test(sourceArtifact)) kinds.add('TRACE_FACT');
   if (/allocation|jfr/.test(sourceArtifact)) kinds.add('ALLOCATION_FACT');
