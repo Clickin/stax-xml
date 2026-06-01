@@ -624,6 +624,7 @@ function createSourceAuditSnapshot(sourceAudit) {
   const primaryAsyncSourceRows = summary?.primaryAsyncSourceRows ?? null;
   const primaryFullArrayBufferRows = summary?.primaryFullArrayBufferRows ?? null;
   const primaryUnknownSourceModeRows = summary?.primaryUnknownSourceModeRows ?? null;
+  const representativeStreamRowsRespectBackpressure = summary?.representativeStreamRowsRespectBackpressure ?? null;
   return {
     loaded: Boolean(sourceAudit),
     generatedAt: sourceAudit?.generatedAt ?? null,
@@ -636,6 +637,7 @@ function createSourceAuditSnapshot(sourceAudit) {
     primaryAsyncSourceRows,
     primaryFullArrayBufferRows,
     primaryUnknownSourceModeRows,
+    representativeStreamRowsRespectBackpressure,
     coverageCrosscheckStatus: coverageCrosscheck?.status ?? null,
     coverageSourceModeRows: sourceModeRows,
     coverageNotFullArrayBufferRows: notFullArrayBufferRows,
@@ -656,6 +658,7 @@ function createSourceAuditSnapshot(sourceAudit) {
       primaryAsyncSourceRows,
       primaryFullArrayBufferRows,
       primaryUnknownSourceModeRows,
+      representativeStreamRowsRespectBackpressure,
     }),
   };
 }
@@ -697,6 +700,11 @@ function createSourceAuditGuards(snapshot) {
         && snapshot.primaryAsyncSourceRows === 0
         && snapshot.primaryFullArrayBufferRows === 0
         && snapshot.primaryUnknownSourceModeRows === 0,
+    },
+    {
+      id: 'representative-stream-backpressure-proven',
+      description: 'Representative direct ReadableStream and async byte-batch rows must carry explicit backpressure proof before source-overhead evidence is cited.',
+      satisfied: snapshot.representativeStreamRowsRespectBackpressure === true,
     },
   ];
 }
@@ -973,6 +981,7 @@ function renderMarkdown(report) {
     `- Primary direct ReadableStream rows: ${formatNullableCount(report.sourceAuditSnapshot.primaryDirectReadableStreamRows)}`,
     `- Primary async source rows: ${formatNullableCount(report.sourceAuditSnapshot.primaryAsyncSourceRows)}`,
     `- Primary full ArrayBuffer parser-input rows: ${formatNullableCount(report.sourceAuditSnapshot.primaryFullArrayBufferRows)}`,
+    `- Representative stream rows respect backpressure: ${formatYesNo(report.sourceAuditSnapshot.representativeStreamRowsRespectBackpressure)}`,
     `- Coverage crosscheck status: ${report.sourceAuditSnapshot.coverageCrosscheckStatus ?? 'unknown'}`,
     `- Coverage source-mode rows: ${formatNullableCount(report.sourceAuditSnapshot.coverageSourceModeRows)}`,
     `- Coverage not-full-ArrayBuffer rows: ${formatNullableCount(report.sourceAuditSnapshot.coverageNotFullArrayBufferRows)}/${formatNullableCount(report.sourceAuditSnapshot.coverageSourceModeRows)}`,

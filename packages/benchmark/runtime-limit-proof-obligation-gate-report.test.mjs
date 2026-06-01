@@ -19,6 +19,9 @@ const counterexampleMdOut = join(tmpDir, 'counterexample-runtime-limit-proof-obl
 const badSourceAuditJsonOut = join(tmpDir, 'source-audit-mixed-primary-source.json');
 const badSourceAuditGateJsonOut = join(tmpDir, 'source-audit-runtime-limit-proof-obligation-gate.json');
 const badSourceAuditGateMdOut = join(tmpDir, 'source-audit-runtime-limit-proof-obligation-gate.md');
+const badSourceAuditBackpressureJsonOut = join(tmpDir, 'source-audit-bad-representative-backpressure.json');
+const badSourceAuditBackpressureGateJsonOut = join(tmpDir, 'source-audit-backpressure-runtime-limit-proof-obligation-gate.json');
+const badSourceAuditBackpressureGateMdOut = join(tmpDir, 'source-audit-backpressure-runtime-limit-proof-obligation-gate.md');
 const badMemoryFrontierJsonOut = join(tmpDir, 'memory-frontier-unbounded-counterexample.json');
 const badMemoryFrontierGateJsonOut = join(tmpDir, 'memory-frontier-runtime-limit-proof-obligation-gate.json');
 const badMemoryFrontierGateMdOut = join(tmpDir, 'memory-frontier-runtime-limit-proof-obligation-gate.md');
@@ -82,11 +85,13 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.sourceAuditSnapshot.primaryDirectReadableStreamRows, 0);
   assert.equal(report.sourceAuditSnapshot.primaryAsyncSourceRows, 0);
   assert.equal(report.sourceAuditSnapshot.primaryFullArrayBufferRows, 0);
+  assert.equal(report.sourceAuditSnapshot.representativeStreamRowsRespectBackpressure, true);
   assert.ok(report.sourceAuditSnapshot.guards.some(item => item.id === 'source-audit-loaded' && item.satisfied));
   assert.ok(report.sourceAuditSnapshot.guards.some(item => item.id === 'coverage-crosscheck-consistent' && item.satisfied));
   assert.ok(report.sourceAuditSnapshot.guards.some(item => item.id === 'coverage-crosscheck-not-full-arraybuffer' && item.satisfied));
   assert.ok(report.sourceAuditSnapshot.guards.some(item => item.id === 'coverage-crosscheck-readable-stream-separated' && item.satisfied));
   assert.ok(report.sourceAuditSnapshot.guards.some(item => item.id === 'primary-source-sync-byte-batches-only' && item.satisfied));
+  assert.ok(report.sourceAuditSnapshot.guards.some(item => item.id === 'representative-stream-backpressure-proven' && item.satisfied));
   assert.ok(report.frontierAuditSnapshot.memory.loaded);
   assert.equal(report.frontierAuditSnapshot.memory.status, 'classified');
   assert.equal(report.frontierAuditSnapshot.memory.fastestBoundedRateMiBPerSec, 185.5);
@@ -215,6 +220,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /source-shapes-separated/);
   assert.match(markdown, /byte-batch-backpressure-preserved/);
   assert.match(markdown, /raw-frame-source-shapes-backpressure-counted/);
+  assert.match(markdown, /Representative stream rows respect backpressure: yes/);
   assert.match(markdown, /handoff-source-consumption-classified/);
   assert.match(markdown, /handoff-external-target-distance-classified/);
   assert.match(markdown, /handoff-text-materialization-frontier-classified/);
@@ -334,6 +340,48 @@ test('runtime-limit proof-obligation gate fails if primary source audit mixes as
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /Primary parser input: Web ReadableStream<Uint8Array>/);
   assert.match(markdown, /primary-source-sync-byte-batches-only/);
+});
+
+test('runtime-limit proof-obligation gate fails if representative stream rows lose backpressure proof', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const sourceAudit = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'source-consumption-shape-audit.json'), 'utf8'));
+  sourceAudit.summary.representativeStreamRowsRespectBackpressure = false;
+  writeFileSync(badSourceAuditBackpressureJsonOut, `${JSON.stringify(sourceAudit, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--source-audit-json',
+    badSourceAuditBackpressureJsonOut,
+    '--json-out',
+    badSourceAuditBackpressureGateJsonOut,
+    '--md-out',
+    badSourceAuditBackpressureGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(badSourceAuditBackpressureGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.equal(report.sourceAuditSnapshot.representativeStreamRowsRespectBackpressure, false);
+  assert.ok(report.sourceAuditSnapshot.guards.some(item =>
+    item.id === 'representative-stream-backpressure-proven'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error =>
+    /Missing source audit guard representative-stream-backpressure-proven/.test(error)
+  ));
+
+  const markdown = readFileSync(badSourceAuditBackpressureGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /Representative stream rows respect backpressure: no/);
+  assert.match(markdown, /representative-stream-backpressure-proven/);
 });
 
 test('runtime-limit proof-obligation gate fails if unbounded memory rows cross the target', () => {

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
@@ -10,6 +10,9 @@ const repoRoot = resolve(__dirname, '..', '..');
 const tmpDir = join(__dirname, 'results', 'tmp');
 const jsonOut = join(tmpDir, 'source-consumption-shape-audit-report-test.json');
 const mdOut = join(tmpDir, 'source-consumption-shape-audit-report-test.md');
+const badComparisonOut = join(tmpDir, 'source-consumption-bad-backpressure-comparison.json');
+const badJsonOut = join(tmpDir, 'source-consumption-bad-backpressure.json');
+const badMdOut = join(tmpDir, 'source-consumption-bad-backpressure.md');
 
 test('source consumption shape audit classifies ArrayBuffer and ReadableStream scope', () => {
   mkdirSync(tmpDir, { recursive: true });
@@ -136,6 +139,7 @@ test('source consumption shape audit classifies ArrayBuffer and ReadableStream s
   assert.equal(report.browserLiveSourceFrontier.liveRowsBackpressureRespected, 2);
   assert.equal(report.browserLiveSourceFrontier.liveRows, 2);
   assert.equal(report.browserLiveSourceFrontier.liveRowsFullArrayBufferInput, 0);
+  assert.equal(report.summary.representativeStreamRowsRespectBackpressure, true);
   assert.ok(report.findings.some(entry => entry.id === 'source-contract-classified'));
   assert.ok(report.findings.some(entry => entry.id === 'direct-readable-stream-separated'));
   assert.ok(report.findings.some(entry => entry.id === 'primary-frontier-sync-byte-batches-only'));
@@ -167,7 +171,49 @@ test('source consumption shape audit classifies ArrayBuffer and ReadableStream s
   assert.match(markdown, /`direct-readable-stream` \| 1 \| Chrome\/V8 browser `fetchReadableStreamFull` 9\.68 MiB\/s/);
   assert.match(markdown, /Backpressure rows respected: 6\/6/);
   assert.match(markdown, /Live rows respecting backpressure: 2\/2/);
+  assert.match(markdown, /Representative stream rows respect backpressure: true/);
   assert.match(markdown, /directReadableStream=true, fullArrayBufferParserInput=false, respectsBackpressure=true/);
   assert.match(markdown, /Direct ReadableStream rows are counted separately from synchronous byte-batch parser rows/);
   assert.match(markdown, /Primary JavaScript frontier is restricted to synchronous Iterable<Uint8Array\[\]> byte-batch rows/);
+});
+
+test('source consumption shape audit downgrades if representative stream rows lose backpressure proof', () => {
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [badComparisonOut, badJsonOut, badMdOut]) {
+    if (existsSync(filePath)) rmSync(filePath);
+  }
+
+  const comparison = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'same-contract-runtime-comparison.json'), 'utf8'));
+  comparison.summary.sourceConsumptionFrontier.fastestReadableStream.respectsBackpressure = false;
+  comparison.summary.browserLiveSourceFrontier.fetchReadableStreamRow.respectsBackpressure = false;
+  writeFileSync(badComparisonOut, `${JSON.stringify(comparison, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'source-consumption-shape-audit.mjs'),
+    '--comparison-json',
+    badComparisonOut,
+    '--json-out',
+    badJsonOut,
+    '--md-out',
+    badMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(badJsonOut, 'utf8'));
+  assert.equal(report.summary.status, 'partial');
+  assert.equal(report.sourceConsumptionFrontier.fastestReadableStream.respectsBackpressure, false);
+  assert.equal(report.browserLiveSourceFrontier.fetchReadableStreamRow.respectsBackpressure, false);
+  assert.ok(report.findings.some(entry =>
+    entry.id === 'backpressure-respected'
+    && entry.classification === 'HYPOTHESIS'
+  ));
+
+  const markdown = readFileSync(badMdOut, 'utf8');
+  assert.match(markdown, /Status: partial/);
+  assert.match(markdown, /Representative stream rows respect backpressure: false/);
 });

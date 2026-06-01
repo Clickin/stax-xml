@@ -1,6 +1,6 @@
 # Source Consumption Shape Audit
 
-Generated: 2026-06-01T10:44:57.207Z
+Generated: 2026-06-01T12:34:07.036Z
 
 Audits source-consumption metadata from the same-contract aggregate. This is not a benchmark run and not a runtime-limit conclusion.
 
@@ -32,6 +32,7 @@ Audits source-consumption metadata from the same-contract aggregate. This is not
 - Primary fastest row: Node/V8 `rawFrameNameId` 185.50 MiB/s from `text-trim-cost-decomposition.json`
 - Async/readable source frontier respects backpressure: true
 - Browser live source frontier respects backpressure: true
+- Representative stream rows respect backpressure: true
 
 ## Primary Exclusions
 
@@ -94,6 +95,6 @@ Audits source-consumption metadata from the same-contract aggregate. This is not
 | `source-contract-classified` | SOURCE_FACT | All current 1 GiB+ JavaScript full-string rows with source metadata are classified as not full ArrayBuffer parser input. |
 | `direct-readable-stream-separated` | SOURCE_FACT | Direct ReadableStream rows are counted separately from synchronous byte-batch parser rows. |
 | `primary-frontier-sync-byte-batches-only` | SOURCE_FACT | Primary JavaScript frontier is restricted to synchronous Iterable<Uint8Array[]> byte-batch rows. |
-| `backpressure-respected` | SOURCE_FACT | Rows that exercise async/readable or live fetch source paths record backpressure-respecting counters. |
+| `backpressure-respected` | SOURCE_FACT | Rows that exercise async/readable or live fetch source paths record backpressure-respecting counters, and representative rows carry backpressure proof. |
 | `corpus-replay-not-full-target-arraybuffer` | SOURCE_FACT | Corpus-cycle rows replay smaller seed buffers and are not classified as one full-target ArrayBuffer parser input. |
 

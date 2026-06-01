@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T10:44:57.207Z",
+  "generatedAt": "2026-06-01T12:34:07.036Z",
   "objective": "source-consumption-shape-audit",
   "contract": "large-js-full-string-rows-are-not-full-arraybuffer-parser-input",
   "note": "Audits source-consumption metadata from the same-contract aggregate. This is not a benchmark run and not a runtime-limit conclusion.",
@@ -9,7 +9,7 @@
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
     "coverageJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-coverage-audit.json",
-    "coverageGeneratedAt": "2026-06-01T10:28:54.396Z",
+    "coverageGeneratedAt": "2026-06-01T12:07:34.848Z",
     "coverageObjective": "runtime-proof-coverage-audit"
   },
   "summary": {
@@ -54,6 +54,7 @@
     },
     "asyncOrReadableRowsRespectBackpressure": true,
     "browserLiveRowsRespectBackpressure": true,
+    "representativeStreamRowsRespectBackpressure": true,
     "conclusionAllowed": false
   },
   "primaryExcludedBreakdown": [
@@ -388,7 +389,7 @@
     {
       "id": "backpressure-respected",
       "classification": "SOURCE_FACT",
-      "summary": "Rows that exercise async/readable or live fetch source paths record backpressure-respecting counters."
+      "summary": "Rows that exercise async/readable or live fetch source paths record backpressure-respecting counters, and representative rows carry backpressure proof."
     },
     {
       "id": "corpus-replay-not-full-target-arraybuffer",

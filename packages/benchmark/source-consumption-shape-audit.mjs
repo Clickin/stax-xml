@@ -98,6 +98,7 @@ function createReport(comparison, coverage, options) {
   const backpressureRowsRespected = sourceFrontier?.backpressureRowsRespected ?? 0;
   const liveRows = browserFrontier?.liveRows ?? 0;
   const liveRowsBackpressureRespected = browserFrontier?.liveRowsBackpressureRespected ?? 0;
+  const representativeStreamRowsRespectBackpressure = representativeStreamBackpressureRespected(sourceFrontier, browserFrontier);
   const status = largeRows > 0
     && notFullArrayBufferRows === largeRows
     && fullArrayBufferRows === 0
@@ -109,6 +110,7 @@ function createReport(comparison, coverage, options) {
     && primaryUnknownSourceModeRows === 0
     && backpressureRows === backpressureRowsRespected
     && liveRows === liveRowsBackpressureRespected
+    && representativeStreamRowsRespectBackpressure
     ? 'classified'
     : 'partial';
 
@@ -154,6 +156,7 @@ function createReport(comparison, coverage, options) {
       primaryFastestRow: primarySourceShape.fastestRow ? summarizeRow(primarySourceShape.fastestRow) : null,
       asyncOrReadableRowsRespectBackpressure: backpressureRows === backpressureRowsRespected,
       browserLiveRowsRespectBackpressure: liveRows === liveRowsBackpressureRespected,
+      representativeStreamRowsRespectBackpressure,
       conclusionAllowed: false,
     },
     primaryExcludedBreakdown: (primarySourceShape.excludedBreakdown ?? []).map(entry => ({
@@ -189,8 +192,18 @@ function createReport(comparison, coverage, options) {
       liveRowsFullArrayBufferInput: browserFrontier.liveRowsFullArrayBufferInput ?? null,
     } : null,
     coverageCrosscheck: createCoverageCrosscheck(coverage, options),
-    findings: createFindings(status, sourceShape, primarySourceShape, sourceFrontier, browserFrontier),
+    findings: createFindings(status, sourceShape, primarySourceShape, sourceFrontier, browserFrontier, representativeStreamRowsRespectBackpressure),
   };
+}
+
+function representativeStreamBackpressureRespected(sourceFrontier, browserFrontier) {
+  const representativeRows = [
+    sourceFrontier?.fastestReadableStream,
+    browserFrontier?.fetchReadableStreamRow,
+    browserFrontier?.fetchAsyncByteBatchRow,
+  ].filter(Boolean);
+  return representativeRows.length === 0
+    || representativeRows.every(row => row.respectsBackpressure === true);
 }
 
 function createCoverageCrosscheck(coverage, options) {
@@ -288,7 +301,7 @@ function summarizeCoverageRow(row) {
   };
 }
 
-function createFindings(status, sourceShape, primarySourceShape, sourceFrontier, browserFrontier) {
+function createFindings(status, sourceShape, primarySourceShape, sourceFrontier, browserFrontier, representativeStreamRowsRespectBackpressure) {
   const primaryRows = primarySourceShape.rows ?? 0;
   const primaryIsSyncByteBatchesOnly = primaryRows > 0
     && (primarySourceShape.directReadableStreamRows ?? null) === 0
@@ -320,8 +333,10 @@ function createFindings(status, sourceShape, primarySourceShape, sourceFrontier,
   if ((sourceFrontier?.backpressureRows ?? 0) > 0 || (browserFrontier?.liveRows ?? 0) > 0) {
     findings.push({
       id: 'backpressure-respected',
-      classification: 'SOURCE_FACT',
-      summary: 'Rows that exercise async/readable or live fetch source paths record backpressure-respecting counters.',
+      classification: representativeStreamRowsRespectBackpressure ? 'SOURCE_FACT' : 'HYPOTHESIS',
+      summary: representativeStreamRowsRespectBackpressure
+        ? 'Rows that exercise async/readable or live fetch source paths record backpressure-respecting counters, and representative rows carry backpressure proof.'
+        : 'Rows that exercise async/readable or live fetch source paths have incomplete representative backpressure proof.',
     });
   }
 
@@ -372,6 +387,7 @@ function renderMarkdown(report) {
     `- Primary fastest row: ${formatSummaryRow(report.summary.primaryFastestRow)}`,
     `- Async/readable source frontier respects backpressure: ${formatBoolean(report.summary.asyncOrReadableRowsRespectBackpressure)}`,
     `- Browser live source frontier respects backpressure: ${formatBoolean(report.summary.browserLiveRowsRespectBackpressure)}`,
+    `- Representative stream rows respect backpressure: ${formatBoolean(report.summary.representativeStreamRowsRespectBackpressure)}`,
     '',
     '## Primary Exclusions',
     '',

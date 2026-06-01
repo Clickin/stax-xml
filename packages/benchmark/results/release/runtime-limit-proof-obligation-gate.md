@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T12:22:49.353Z
+Generated: 2026-06-01T12:33:58.947Z
 
 ## Scope
 
@@ -99,7 +99,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-01T12:14:31.850Z)
+- Handoff loaded: yes (2026-06-01T12:22:50.755Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -114,13 +114,14 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-01T10:44:57.207Z)
+- Source audit loaded: yes (2026-06-01T12:28:48.949Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary sync byte-batch rows: 231
 - Primary direct ReadableStream rows: 0
 - Primary async source rows: 0
 - Primary full ArrayBuffer parser-input rows: 0
+- Representative stream rows respect backpressure: yes
 - Coverage crosscheck status: consistent
 - Coverage source-mode rows: 474
 - Coverage not-full-ArrayBuffer rows: 474/474
@@ -134,6 +135,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `coverage-crosscheck-not-full-arraybuffer` | yes | Coverage crosscheck must report every source-mode row as not full ArrayBuffer parser input. |
 | `coverage-crosscheck-readable-stream-separated` | yes | Coverage crosscheck must keep direct ReadableStream rows visible as separate source-overhead evidence. |
 | `primary-source-sync-byte-batches-only` | yes | Primary source audit rows must stay synchronous Iterable<Uint8Array[]> byte batches with async and direct ReadableStream rows excluded. |
+| `representative-stream-backpressure-proven` | yes | Representative direct ReadableStream and async byte-batch rows must carry explicit backpressure proof before source-overhead evidence is cited. |
 
 ## Frontier Audit Snapshot
 
