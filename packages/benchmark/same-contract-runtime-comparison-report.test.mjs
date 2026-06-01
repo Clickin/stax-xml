@@ -1387,6 +1387,98 @@ test('same-contract runtime comparison flags bounded cross-process aggregate cou
   assert.match(markdown, /no-js-200mib-large-full-counterexample-in-aggregated-artifacts \(COUNTEREXAMPLE_FOUND\)/);
 });
 
+test('same-contract runtime comparison rejects bounded aggregate flags without numeric RSS proof', () => {
+  const syntheticReleaseDir = join(tmpDir, 'release-with-flag-only-cross-process-memory');
+  const syntheticJsonOut = join(tmpDir, 'same-contract-runtime-comparison-flag-only-memory.json');
+  const syntheticMdOut = join(tmpDir, 'same-contract-runtime-comparison-flag-only-memory.md');
+  resetTmp();
+  cpSync(join(__dirname, 'results', 'release'), syntheticReleaseDir, { recursive: true });
+  writeFileSync(join(syntheticReleaseDir, 'candidate-headroom-cross-process-books-corpus.json'), `${JSON.stringify({
+    objective: 'candidate-headroom-cross-process',
+    contract: 'same-full-string-checksum-contract',
+    options: {
+      fixtureShape: 'corpus-cycle',
+    },
+    runtimes: [
+      {
+        runtime: 'node',
+        sampleCount: 3,
+        environment: {
+          runtimeName: 'node',
+          javascriptEngine: 'V8',
+        },
+        fixture: {
+          source: 'corpus-file',
+          sourceFile: 'books.xml',
+          sizeGiB: 1,
+          actualBytes: 1024 * 1024 * 1024,
+          rowCycleSize: 1,
+          maxRowBytes: 1024 * 1024,
+        },
+        variants: [
+          {
+            id: 'rawFrameNameId',
+            avgMiBPerSec: 205,
+            minMiBPerSec: 202,
+            maxMiBPerSec: 208,
+            spreadRatio: 0.03,
+            sampleCount: 3,
+            boundedMemoryAll: true,
+            maxRssBytes: 'not-a-number',
+            maxHeapUsedBytes: 40 * 1024 * 1024,
+            fullStringParity: true,
+            stableResult: true,
+            eventCounts: [1],
+            checksums: [1],
+            contractScope: 'full-string-checksum',
+            sourceMode: 'sync-iterable-byte-batches',
+            fullArrayBufferParserInput: false,
+          },
+        ],
+      },
+    ],
+  }, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'same-contract-runtime-comparison.mjs'),
+    '--release-dir',
+    syntheticReleaseDir,
+    '--json-out',
+    syntheticJsonOut,
+    '--md-out',
+    syntheticMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(syntheticJsonOut, 'utf8'));
+  assert.equal(report.summary.jsRuntimeCounterexamples200MiB, 0);
+  const row = report.comparisonRows.find(entry =>
+    entry.sourceArtifact === 'candidate-headroom-cross-process-books-corpus.json'
+    && entry.caseId === 'rawFrameNameId'
+  );
+  assert.ok(row);
+  assert.equal(row.mibPerSec, 205);
+  assert.equal(row.boundedMemory, true);
+  assert.equal(row.fullStringParity, true);
+  assert.equal(row.memory.primaryKind, 'not-recorded');
+  assert.equal(row.memory.maxMiB, undefined);
+  assert.equal(row.runtimeLimitCounterexample, false);
+  assert.ok(report.summary.memoryFrontier.buckets.some(bucket =>
+    bucket.kind === 'not-recorded'
+    && bucket.boundedRows === 0
+    && bucket.unboundedRows === 1
+  ));
+
+  const markdown = readFileSync(syntheticMdOut, 'utf8');
+  assert.match(markdown, /200 MiB\/s\+ bounded-memory JavaScript counterexamples found: 0/);
+  assert.match(markdown, /\| not-recorded \| 1 \| 0 \| 1 \| n\/a MiB \| Node\/V8 rawFrameNameId at 205\.00 MiB\/s \(not-recorded\) \| none \|/);
+});
+
 function resetTmp() {
   rmSync(tmpDir, { recursive: true, force: true });
   mkdirSync(tmpDir, { recursive: true });

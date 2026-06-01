@@ -1388,16 +1388,15 @@ function classifyMemoryKind(node) {
   if (!memory || typeof memory !== 'object') return 'not-recorded';
   if (memory.primaryKind === 'not-recorded') return 'not-recorded';
   if (
-    memory.scope === 'browser-js-heap'
-    || memory.maxJsHeapUsedBytes !== undefined
-    || memory.maxJsHeapUsedMiB !== undefined
-    || memory.peakJsHeapUsedMiB !== undefined
+    typeof memory.maxJsHeapUsedBytes === 'number'
+    || typeof memory.maxJsHeapUsedMiB === 'number'
+    || typeof memory.peakJsHeapUsedMiB === 'number'
   ) return 'browser-js-heap';
   if (
-    memory.maxRssBytes !== undefined
-    || memory.peakRssBytes !== undefined
-    || memory.maxRssMiB !== undefined
-    || memory.peakRssMiB !== undefined
+    typeof memory.maxRssBytes === 'number'
+    || typeof memory.peakRssBytes === 'number'
+    || typeof memory.maxRssMiB === 'number'
+    || typeof memory.peakRssMiB === 'number'
   ) return 'process-rss';
   return 'recorded-unknown-kind';
 }

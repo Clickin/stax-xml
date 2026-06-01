@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T16:35:04.394Z",
+  "generatedAt": "2026-06-01T16:58:53.613Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -8476,7 +8476,7 @@
           "mibPerSec": 72.66,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "full-string-materialization"
@@ -8493,7 +8493,7 @@
           "mibPerSec": 62.46,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "full-event-object-materialization"
@@ -8510,7 +8510,7 @@
           "mibPerSec": 76.7,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "full-string-materialization"
@@ -8527,7 +8527,7 @@
           "mibPerSec": 44.92,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -8544,7 +8544,7 @@
           "mibPerSec": 36.27,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-event-object-materialization"
@@ -8561,7 +8561,7 @@
           "mibPerSec": 48.15,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -8986,7 +8986,7 @@
           "mibPerSec": 61.77,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "full-string-materialization"
@@ -9003,7 +9003,7 @@
           "mibPerSec": 52.54,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "full-event-object-materialization"
@@ -9020,7 +9020,7 @@
           "mibPerSec": 64.24,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "full-string-materialization"
@@ -9037,7 +9037,7 @@
           "mibPerSec": 115.3,
           "fullStringParity": false,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 33382,
           "checksum": -403434369,
           "contractScope": "projected-records-low-selectivity"
@@ -9054,7 +9054,7 @@
           "mibPerSec": 82.57,
           "fullStringParity": false,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 3179819,
           "checksum": -2078190377,
           "contractScope": "projected-records-high-selectivity"
@@ -9071,7 +9071,7 @@
           "mibPerSec": 33.02,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -9088,7 +9088,7 @@
           "mibPerSec": 23.31,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-event-object-materialization"
@@ -9105,7 +9105,7 @@
           "mibPerSec": 35.02,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -9632,7 +9632,7 @@
           "mibPerSec": 50.48,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -9649,7 +9649,7 @@
           "mibPerSec": 49.61,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -9666,7 +9666,7 @@
           "mibPerSec": 42.69,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -9683,7 +9683,7 @@
           "mibPerSec": 26.01,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -9700,7 +9700,7 @@
           "mibPerSec": 68.42,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -9717,7 +9717,7 @@
           "mibPerSec": 35.08,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -9734,7 +9734,7 @@
           "mibPerSec": 35.19,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -9751,7 +9751,7 @@
           "mibPerSec": 30.43,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -9768,7 +9768,7 @@
           "mibPerSec": 17.16,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -9785,7 +9785,7 @@
           "mibPerSec": 46.28,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -9872,7 +9872,7 @@
           "mibPerSec": 72.66,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "full-string-materialization"
@@ -9889,7 +9889,7 @@
           "mibPerSec": 62.46,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "full-event-object-materialization"
@@ -9906,7 +9906,7 @@
           "mibPerSec": 76.7,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "full-string-materialization"
@@ -9923,7 +9923,7 @@
           "mibPerSec": 44.92,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -9940,7 +9940,7 @@
           "mibPerSec": 36.27,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-event-object-materialization"
@@ -9957,7 +9957,7 @@
           "mibPerSec": 48.15,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -10382,7 +10382,7 @@
           "mibPerSec": 61.77,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "full-string-materialization"
@@ -10399,7 +10399,7 @@
           "mibPerSec": 52.54,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "full-event-object-materialization"
@@ -10416,7 +10416,7 @@
           "mibPerSec": 64.24,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "full-string-materialization"
@@ -10433,7 +10433,7 @@
           "mibPerSec": 115.3,
           "fullStringParity": false,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 33382,
           "checksum": -403434369,
           "contractScope": "projected-records-low-selectivity"
@@ -10450,7 +10450,7 @@
           "mibPerSec": 82.57,
           "fullStringParity": false,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 3179819,
           "checksum": -2078190377,
           "contractScope": "projected-records-high-selectivity"
@@ -10467,7 +10467,7 @@
           "mibPerSec": 33.02,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -10484,7 +10484,7 @@
           "mibPerSec": 23.31,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-event-object-materialization"
@@ -10501,7 +10501,7 @@
           "mibPerSec": 35.02,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -11028,7 +11028,7 @@
           "mibPerSec": 50.48,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -11045,7 +11045,7 @@
           "mibPerSec": 49.61,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -11062,7 +11062,7 @@
           "mibPerSec": 42.69,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -11079,7 +11079,7 @@
           "mibPerSec": 26.01,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -11096,7 +11096,7 @@
           "mibPerSec": 68.42,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -11113,7 +11113,7 @@
           "mibPerSec": 35.08,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -11130,7 +11130,7 @@
           "mibPerSec": 35.19,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -11147,7 +11147,7 @@
           "mibPerSec": 30.43,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -11164,7 +11164,7 @@
           "mibPerSec": 17.16,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -11181,7 +11181,7 @@
           "mibPerSec": 46.28,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -11268,7 +11268,7 @@
           "mibPerSec": 72.66,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "full-string-materialization"
@@ -11285,7 +11285,7 @@
           "mibPerSec": 62.46,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "full-event-object-materialization"
@@ -11302,7 +11302,7 @@
           "mibPerSec": 76.7,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 57096514,
           "checksum": -540013997,
           "contractScope": "full-string-materialization"
@@ -11319,7 +11319,7 @@
           "mibPerSec": 44.92,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -11336,7 +11336,7 @@
           "mibPerSec": 36.27,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-event-object-materialization"
@@ -11353,7 +11353,7 @@
           "mibPerSec": 48.15,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -11778,7 +11778,7 @@
           "mibPerSec": 61.77,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "full-string-materialization"
@@ -11795,7 +11795,7 @@
           "mibPerSec": 52.54,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "full-event-object-materialization"
@@ -11812,7 +11812,7 @@
           "mibPerSec": 64.24,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 60416563,
           "checksum": 1441552024,
           "contractScope": "full-string-materialization"
@@ -11829,7 +11829,7 @@
           "mibPerSec": 115.3,
           "fullStringParity": false,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 33382,
           "checksum": -403434369,
           "contractScope": "projected-records-low-selectivity"
@@ -11846,7 +11846,7 @@
           "mibPerSec": 82.57,
           "fullStringParity": false,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 3179819,
           "checksum": -2078190377,
           "contractScope": "projected-records-high-selectivity"
@@ -11863,7 +11863,7 @@
           "mibPerSec": 33.02,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -11880,7 +11880,7 @@
           "mibPerSec": 23.31,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-event-object-materialization"
@@ -11897,7 +11897,7 @@
           "mibPerSec": 35.02,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -12424,7 +12424,7 @@
           "mibPerSec": 50.48,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -12441,7 +12441,7 @@
           "mibPerSec": 49.61,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -12458,7 +12458,7 @@
           "mibPerSec": 42.69,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -12475,7 +12475,7 @@
           "mibPerSec": 26.01,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -12492,7 +12492,7 @@
           "mibPerSec": 68.42,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 75206126,
           "checksum": -925527041,
           "contractScope": "full-string-materialization"
@@ -12509,7 +12509,7 @@
           "mibPerSec": 35.08,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -12526,7 +12526,7 @@
           "mibPerSec": 35.19,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -12543,7 +12543,7 @@
           "mibPerSec": 30.43,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -12560,7 +12560,7 @@
           "mibPerSec": 17.16,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -12577,7 +12577,7 @@
           "mibPerSec": 46.28,
           "fullStringParity": true,
           "boundedMemory": false,
-          "memoryKind": "browser-js-heap",
+          "memoryKind": "recorded-unknown-kind",
           "eventCount": 45189256,
           "checksum": 1421012805,
           "contractScope": "full-string-materialization"
@@ -19049,7 +19049,7 @@
         "mibPerSec": 72.66,
         "fullStringParity": true,
         "boundedMemory": false,
-        "memoryKind": "browser-js-heap",
+        "memoryKind": "recorded-unknown-kind",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -19066,7 +19066,7 @@
         "mibPerSec": 62.46,
         "fullStringParity": true,
         "boundedMemory": false,
-        "memoryKind": "browser-js-heap",
+        "memoryKind": "recorded-unknown-kind",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-event-object-materialization"
@@ -19083,7 +19083,7 @@
         "mibPerSec": 76.7,
         "fullStringParity": true,
         "boundedMemory": false,
-        "memoryKind": "browser-js-heap",
+        "memoryKind": "recorded-unknown-kind",
         "eventCount": 57096514,
         "checksum": -540013997,
         "contractScope": "full-string-materialization"
@@ -19100,7 +19100,7 @@
         "mibPerSec": 44.92,
         "fullStringParity": true,
         "boundedMemory": false,
-        "memoryKind": "browser-js-heap",
+        "memoryKind": "recorded-unknown-kind",
         "eventCount": 75206126,
         "checksum": -925527041,
         "contractScope": "full-string-materialization"
@@ -19117,7 +19117,7 @@
         "mibPerSec": 36.27,
         "fullStringParity": true,
         "boundedMemory": false,
-        "memoryKind": "browser-js-heap",
+        "memoryKind": "recorded-unknown-kind",
         "eventCount": 75206126,
         "checksum": -925527041,
         "contractScope": "full-event-object-materialization"
@@ -19134,7 +19134,7 @@
         "mibPerSec": 48.15,
         "fullStringParity": true,
         "boundedMemory": false,
-        "memoryKind": "browser-js-heap",
+        "memoryKind": "recorded-unknown-kind",
         "eventCount": 75206126,
         "checksum": -925527041,
         "contractScope": "full-string-materialization"
@@ -19559,7 +19559,7 @@
         "mibPerSec": 50.48,
         "fullStringParity": true,
         "boundedMemory": false,
-        "memoryKind": "browser-js-heap",
+        "memoryKind": "recorded-unknown-kind",
         "eventCount": 75206126,
         "checksum": -925527041,
         "contractScope": "full-string-materialization"
@@ -19576,7 +19576,7 @@
         "mibPerSec": 49.61,
         "fullStringParity": true,
         "boundedMemory": false,
-        "memoryKind": "browser-js-heap",
+        "memoryKind": "recorded-unknown-kind",
         "eventCount": 75206126,
         "checksum": -925527041,
         "contractScope": "full-string-materialization"
@@ -19593,7 +19593,7 @@
         "mibPerSec": 42.69,
         "fullStringParity": true,
         "boundedMemory": false,
-        "memoryKind": "browser-js-heap",
+        "memoryKind": "recorded-unknown-kind",
         "eventCount": 75206126,
         "checksum": -925527041,
         "contractScope": "full-string-materialization"
@@ -19610,7 +19610,7 @@
         "mibPerSec": 26.01,
         "fullStringParity": true,
         "boundedMemory": false,
-        "memoryKind": "browser-js-heap",
+        "memoryKind": "recorded-unknown-kind",
         "eventCount": 75206126,
         "checksum": -925527041,
         "contractScope": "full-string-materialization"
@@ -19627,7 +19627,7 @@
         "mibPerSec": 68.42,
         "fullStringParity": true,
         "boundedMemory": false,
-        "memoryKind": "browser-js-heap",
+        "memoryKind": "recorded-unknown-kind",
         "eventCount": 75206126,
         "checksum": -925527041,
         "contractScope": "full-string-materialization"

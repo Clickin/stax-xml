@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T16:44:32.037Z
+Generated: 2026-06-01T16:59:51.767Z
 
 ## Scope
 
@@ -86,7 +86,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-01T16:35:04.394Z)
+- Coverage audit loaded: yes (2026-06-01T16:58:53.613Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7
@@ -99,15 +99,15 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Counterexample Snapshot
 
-- Same-contract comparison loaded: yes (2026-06-01T10:21:54.633Z)
+- Same-contract comparison loaded: yes (2026-06-01T16:58:19.929Z)
 - Same-contract comparison counterexamples: 0
-- Runtime counterexample scan loaded: yes (2026-06-01T16:44:17.571Z)
+- Runtime counterexample scan loaded: yes (2026-06-01T16:58:37.020Z)
 - Runtime counterexample scan counterexamples: 0
 - Current release counterexamples: 0
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-01T16:35:16.423Z)
+- Handoff loaded: yes (2026-06-01T16:59:37.220Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -169,12 +169,12 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Frontier Audit Snapshot
 
-- Memory frontier loaded: yes (2026-06-01T12:13:36.796Z)
+- Memory frontier loaded: yes (2026-06-01T16:59:07.547Z)
 - Fastest bounded JS row: 185.50 MiB/s at 60.45 MiB
 - Unbounded or unproven memory rows: 17
 - Bounded rows without numeric memory proof: 0
 - Unbounded rows at or above 200 MiB/s: 0
-- Target distance loaded: yes (2026-06-01T12:21:58.608Z)
+- Target distance loaded: yes (2026-06-01T16:59:22.851Z)
 - Woodstox 0.9x target met: no
 - Woodstox 0.9x remaining: 164.29 MiB/s
 - quick-xml 0.9x target met: no

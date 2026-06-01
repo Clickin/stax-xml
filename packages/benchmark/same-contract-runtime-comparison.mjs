@@ -713,6 +713,7 @@ function extractVariantRows(report, spec) {
       spec.jsRuntime
       && row.fullStringParity
       && row.boundedMemory
+      && hasNumericMemoryProof(memory)
       && isLarge
       && row.mibPerSec >= 200,
     );
@@ -793,6 +794,7 @@ function extractCrossProcessRows(report, spec) {
         const isLarge = (fixture.sizeGiB ?? 0) >= 0.999;
         const mibPerSec = round(row.avgMiBPerSec);
         const boundedMemory = row.boundedMemoryAll === true;
+        const memory = extractCrossProcessMemory(row);
         const fullStringParity = row.fullStringParity === true && row.stableResult === true;
         const sourceMode = classifyArtifactSourceMode(row, report);
         return {
@@ -815,7 +817,7 @@ function extractCrossProcessRows(report, spec) {
           boundedMemory,
           sourceMode,
           fullArrayBufferParserInput: classifyFullArrayBufferParserInput(row, sourceMode, report),
-          memory: extractCrossProcessMemory(row),
+          memory,
           materializationCounters: null,
           sampleCount: row.sampleCount ?? runtimeReport.sampleCount ?? null,
           sampleMinMiBPerSec: round(row.minMiBPerSec),
@@ -826,6 +828,7 @@ function extractCrossProcessRows(report, spec) {
           runtimeLimitCounterexample: Boolean(
             fullStringParity
             && boundedMemory
+            && hasNumericMemoryProof(memory)
             && isLarge
             && typeof mibPerSec === 'number'
             && mibPerSec >= 200
@@ -850,6 +853,7 @@ function extractFileBackedSweepRows(report, spec) {
     const isLarge = (fixture.sizeGiB ?? 0) >= 0.999;
     const mibPerSec = round(row.mibPerSec);
     const boundedMemory = row.boundedMemory === true;
+    const memory = extractMemory(row, report);
     const fullStringParity = row.fullStringParity === true;
     const sourceMode = 'file-backed-sync-iterable-byte-batches';
     return {
@@ -872,7 +876,7 @@ function extractFileBackedSweepRows(report, spec) {
       boundedMemory,
       sourceMode,
       fullArrayBufferParserInput: classifyFullArrayBufferParserInput(row, sourceMode, report),
-      memory: extractMemory(row, report),
+      memory,
       materializationCounters: null,
       sampleCount: Array.isArray(row.samplesMs) ? row.samplesMs.length : null,
       sampleMinMiBPerSec: null,
@@ -883,6 +887,7 @@ function extractFileBackedSweepRows(report, spec) {
       runtimeLimitCounterexample: Boolean(
         fullStringParity
         && boundedMemory
+        && hasNumericMemoryProof(memory)
         && isLarge
         && typeof mibPerSec === 'number'
         && mibPerSec >= 200
@@ -998,12 +1003,28 @@ function normalizeCrossProcessRuntime(runtimeReport) {
 }
 
 function extractCrossProcessMemory(row) {
+  if (typeof row.maxRssBytes !== 'number') {
+    return {
+      primaryKind: 'not-recorded',
+      note: 'cross-process row did not record numeric process RSS memory',
+    };
+  }
   return {
     primaryKind: 'process-rss',
     maxMiB: round(bytesToMiB(row.maxRssBytes)),
     maxHeapUsedMiB: round(bytesToMiB(row.maxHeapUsedBytes)),
     note: 'max across independent child processes',
   };
+}
+
+function hasAcceptedBoundedMemoryProof(row) {
+  return row?.boundedMemory === true && hasNumericMemoryProof(row.memory);
+}
+
+function hasNumericMemoryProof(memory) {
+  return (memory?.primaryKind === 'process-rss' || memory?.primaryKind === 'browser-js-heap')
+    && typeof memory.maxMiB === 'number'
+    && Number.isFinite(memory.maxMiB);
 }
 
 function firstSingleton(values) {
@@ -1330,7 +1351,7 @@ function summarize(rows, allocationEvidence, textMaterializationFrontier, source
   const primaryJsLargePublicEventRows = primaryJsLargeFullRows.filter(row => row.caseId === 'eventObjectFull');
   const fastestJsLargePublicEventRow = maxBy(jsLargePublicEventRows, row => row.mibPerSec);
   const fastestBoundedJsLargePublicEventRow = maxBy(
-    primaryJsLargePublicEventRows.filter(row => row.boundedMemory),
+    primaryJsLargePublicEventRows.filter(hasAcceptedBoundedMemoryProof),
     row => row.mibPerSec,
   );
   const fastestRowsByGroup = Array.from(groupBy(jsLargeFullRows, row => row.group), ([group, groupRows]) => ({
@@ -1556,17 +1577,17 @@ function summarizeBrowserLiveSourceFrontier(rows) {
 
 function summarizeMemoryFrontier(rows) {
   const memoryRows = rows.filter(row => row.memory?.primaryKind);
-  const boundedRows = memoryRows.filter(row => row.boundedMemory);
+  const boundedRows = memoryRows.filter(hasAcceptedBoundedMemoryProof);
   const buckets = Array.from(groupBy(memoryRows, row => row.memory.primaryKind), ([kind, bucketRows]) => {
     const numericMaxRows = bucketRows.filter(row => typeof row.memory.maxMiB === 'number');
     return {
       kind,
       rows: bucketRows.length,
-      boundedRows: bucketRows.filter(row => row.boundedMemory).length,
-      unboundedRows: bucketRows.filter(row => !row.boundedMemory).length,
+      boundedRows: bucketRows.filter(hasAcceptedBoundedMemoryProof).length,
+      unboundedRows: bucketRows.filter(row => !hasAcceptedBoundedMemoryProof(row)).length,
       maxMiB: round(maxBy(numericMaxRows, row => row.memory.maxMiB)?.memory?.maxMiB),
       fastestRow: summarizeRow(maxBy(bucketRows, row => row.mibPerSec)),
-      fastestBoundedRow: summarizeRow(maxBy(bucketRows.filter(row => row.boundedMemory), row => row.mibPerSec)),
+      fastestBoundedRow: summarizeRow(maxBy(bucketRows.filter(hasAcceptedBoundedMemoryProof), row => row.mibPerSec)),
     };
   }).sort((left, right) => left.kind.localeCompare(right.kind));
 
@@ -2105,7 +2126,7 @@ function extractMemory(row, report) {
       hostProcessTreeProbe: hostProbe,
     };
   }
-  if (memory.maxRssBytes !== undefined) {
+  if (typeof memory.maxRssBytes === 'number') {
     return {
       primaryKind: 'process-rss',
       maxMiB: round(bytesToMiB(memory.maxRssBytes)),
