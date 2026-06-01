@@ -1541,6 +1541,84 @@ test('runtime proof coverage audit closes Safari with bounded primary byte-batch
   assert.match(obligation.evidence, /bounded primary sync byte-batch full-string rows/);
 });
 
+test('runtime proof coverage audit recognizes Safari browser rows by environment independent of artifact name', () => {
+  const syntheticDir = join(tmpDir, 'safari-env-closure');
+  const syntheticJsonOut = join(tmpDir, 'safari-env-closure.json');
+  const syntheticMdOut = join(tmpDir, 'safari-env-closure.md');
+  resetTmp();
+  mkdirSync(syntheticDir, { recursive: true });
+  writeFileSync(join(syntheticDir, 'safari-webkit-availability-audit.json'), `${JSON.stringify({
+    objective: 'safari-webkit-availability-audit',
+    summary: {
+      hostIsMacOS: true,
+      safariExecutableFound: true,
+      safaridriverFound: true,
+      currentHarnessSupportsSafari: true,
+      canRunSafariBrowserRows: true,
+      safariBenchmarkRowsRecorded: true,
+      exactSafariBuildIdentityRecorded: true,
+      safariSourceBoundaryPinned: true,
+      openObligationRemains: false,
+    },
+  }, null, 2)}\n`);
+  writeFileSync(join(syntheticDir, 'external-run-result.json'), `${JSON.stringify({
+    objective: 'external-browser-row',
+    contract: 'same-full-string-checksum-contract',
+    environment: {
+      runtimeName: 'browser',
+      browserName: 'Safari',
+      javascriptEngine: 'JavaScriptCore',
+    },
+    fixture: {
+      source: 'corpus-file',
+      sourceFile: 'books.xml',
+      sizeGiB: 1,
+    },
+    rows: [
+      {
+        id: 'externalSafariPrimary',
+        mibPerSec: 210,
+        fullStringParity: true,
+        boundedMemory: true,
+        eventCount: 1,
+        checksum: 1,
+        contractScope: 'full-string-checksum',
+        sourceMode: 'generated-sync-iterable-byte-batches',
+        demandDrivenSource: true,
+        directReadableStream: false,
+        fullArrayBufferParserInput: false,
+      },
+    ],
+  }, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-coverage-audit.mjs'),
+    '--release-dir',
+    syntheticDir,
+    '--json-out',
+    syntheticJsonOut,
+    '--md-out',
+    syntheticMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(syntheticJsonOut, 'utf8'));
+  assert.ok(report.scannedArtifacts.some(artifact =>
+    artifact.sourceArtifact === 'external-run-result.json'
+    && artifact.runtimes.includes('safari-jsc-browser')
+  ));
+  assert.equal(report.coverage.safariWebKitStatus.evidenceClass, 'browser-row-evidence');
+  assert.equal(report.coverage.safariWebKitStatus.benchmarkRowsRecorded, 1);
+  assert.equal(report.coverage.safariWebKitStatus.primarySyncByteBatchRowsRecorded, 1);
+  assert.equal(report.coverage.safariWebKitStatus.boundedPrimarySyncByteBatchRowsRecorded, 1);
+  assert.equal(report.coverage.safariWebKitStatus.closesSafariObligation, true);
+  assertObligation(report, 'safari-jsc-source-and-browser-rows-open', 'covered');
+});
+
 test('runtime proof coverage audit does not close SpiderMonkey codegen on trace names alone', () => {
   const syntheticDir = join(tmpDir, 'spidermonkey-trace-without-emitted-ir');
   const syntheticJsonOut = join(tmpDir, 'spidermonkey-trace-without-emitted-ir.json');
