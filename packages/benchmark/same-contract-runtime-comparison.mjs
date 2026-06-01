@@ -430,6 +430,16 @@ const crossProcessArtifacts = [
     cases: ['rawFrameNameId', 'rawFrameNameIdNoCounters', 'rawFrameNameIdNoCountersNameFoldCache'],
   },
   {
+    group: 'no-counter-materialization-batch1-cross-runtime-books-corpus',
+    file: 'no-counter-materialization-batch1-cross-runtime-books-corpus.json',
+    cases: [
+      'rawFrameNameId',
+      'rawFrameNameIdNoCountersNameFoldCache',
+      'rawFrameNameIdNoCountersStringFoldCache',
+      'withoutTextStrings',
+    ],
+  },
+  {
     group: 'warmup-full-cross-process-books-corpus',
     file: 'warmup-full-cross-process-books-corpus.json',
     cases: ['rawFrameNameId', 'rawFrameNameIdNoCounters'],

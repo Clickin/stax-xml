@@ -1,14 +1,14 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-06-01T07:13:53.108Z
+Generated: 2026-06-01T07:30:52.028Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 216
+- Scanned primary artifacts: 217
 - Ignored derived artifacts: 7
-- Measured rows recognized: 1217
+- Measured rows recognized: 1253
 - Rows with unknown full-string parity: 0
 - Rows with unknown bounded-memory flag: 23
   - Unknown bounded-memory JS rows: 7
@@ -19,14 +19,14 @@ This audit scans current release artifacts to show which proof obligations are c
   - Unknown bounded-memory non-JS allocator-counter rows: 10
   - Unknown bounded-memory non-JS rows without peak-memory counters: 6
   - Unknown bounded-memory rows with memory counters: 10
-- Benchmark artifacts: 154
+- Benchmark artifacts: 155
 - Source artifacts: 24
 - Trace/profile artifacts: 15
 - Allocation artifacts: 16
 - Environment artifacts: 4
 - Negative-result artifacts: 24
-- 1 GiB+ JS full-string rows: 821
-- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 447/447
+- 1 GiB+ JS full-string rows: 848
+- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 474/474
 - 1 GiB+ JS full-string separate direct ReadableStream source-overhead rows: 17
 - Corpus seeds: 4
 - Open or partial obligations: 2
@@ -72,7 +72,7 @@ This classifies the parser input shape for 1 GiB+ JavaScript full-string rows th
 | `fetch-async-iterable-byte-batches` | 2 | 2 | 0 | 0 | 0 | 2 | fetchAsyncByteBatchFull 13.52 MiB/s from browser-candidate-headroom-books-corpus.json |
 | `fetch-readable-stream-pull` | 2 | 2 | 0 | 0 | 2 | 2 | fetchReadableStreamFull 14.64 MiB/s from browser-candidate-headroom-books-corpus.json |
 | `file-backed-sync-iterable-byte-batches` | 53 | 53 | 0 | 0 | 0 | 53 | stax-raw-frame-name-id-batch-8 152.11 MiB/s from file-backed-batch-size-sweep.json |
-| `generated-sync-iterable-byte-batches` | 355 | 355 | 0 | 0 | 0 | 355 | rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json |
+| `generated-sync-iterable-byte-batches` | 382 | 382 | 0 | 0 | 0 | 382 | rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json |
 | `sync-iterable-byte-batches` | 4 | 4 | 0 | 0 | 0 | 4 | sync-iterable-byte-batches 76.22 MiB/s from stream-source-consumption-shapes.json |
 | `web-readable-stream-pull` | 15 | 15 | 0 | 0 | 15 | 15 | web-readable-stream-raw-frame-ascii-batch-8 77.86 MiB/s from stream-source-consumption-shapes.json |
 
@@ -80,9 +80,9 @@ This classifies the parser input shape for 1 GiB+ JavaScript full-string rows th
 
 | Runtime | Artifacts | Measured Rows | 1 GiB+ Full Rows | Fastest 1 GiB+ Full Row | Source Pins | Trace/Profile | Allocation |
 | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
-| Node/V8 | 110 | 577 | 398 | rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json | 2 | 2 | 5 |
-| Bun/JSC | 40 | 307 | 200 | rawFrameNameId 178.52 MiB/s from bun-candidate-headroom-books-corpus-stability.json | 3 | 4 | 2 |
-| Deno/V8 | 16 | 116 | 95 | rawFrameNameId 110.54 MiB/s from text-trim-cost-cross-process-books-corpus.json | 1 | 2 | 2 |
+| Node/V8 | 111 | 589 | 407 | rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json | 2 | 2 | 5 |
+| Bun/JSC | 41 | 319 | 209 | rawFrameNameId 178.52 MiB/s from bun-candidate-headroom-books-corpus-stability.json | 3 | 4 | 2 |
+| Deno/V8 | 17 | 128 | 104 | rawFrameNameId 110.54 MiB/s from text-trim-cost-cross-process-books-corpus.json | 1 | 2 | 2 |
 | SpiderMonkey js-shell | 6 | 3 | 0 | none | 0 | 4 | 0 |
 | Chrome/V8 browser | 15 | 100 | 58 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |
 | Firefox/SpiderMonkey browser | 23 | 82 | 70 | rawFrameNameId 76.90 MiB/s from firefox-bidi-candidate-headroom-cross-process-books-corpus.json | 5 | 1 | 1 |
