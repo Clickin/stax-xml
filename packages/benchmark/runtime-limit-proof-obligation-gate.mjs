@@ -953,6 +953,11 @@ function createHandoffGuards(byId) {
       satisfied: spiderBlockers.some(item => /selectedRowIdentityStatus=not-claimed-non-stax-diagnostic/.test(item)),
     },
     {
+      id: 'spidermonkey-closure-audit-identity-statuses',
+      description: 'SpiderMonkey closure audit must preserve non-StAX diagnostic identity status counts for closure-matrix candidates.',
+      satisfied: spiderBlockers.some(item => /selectedRowIdentityStatusCounts not-claimed-non-stax-diagnostic=\d+/.test(item)),
+    },
+    {
       id: 'spidermonkey-closure-frontier-blockers',
       description: 'SpiderMonkey handoff must preserve closest blocked candidates and common missing requirements from the closure audit frontier.',
       satisfied: spiderBlockers.some(item =>

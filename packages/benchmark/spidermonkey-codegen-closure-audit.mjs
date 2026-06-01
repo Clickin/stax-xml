@@ -233,6 +233,7 @@ function buildReport(options, artifacts) {
       closingMetadataCount: candidates.filter(candidate => candidate.requirements.closingMetadata.met).length,
       qualifiedClosureCount: qualified.length,
       contradictedClosureClaimCount: contradicted.length,
+      selectedRowIdentityStatusCounts: countStringValues(candidates.map(candidate => candidate.selectedRowIdentityStatus)),
       blockedCandidateCount: blocked.length,
       minimumBlockedRequirementCount: closestBlockedCandidates[0]?.unmetRequirementCount ?? 0,
       closestBlockedCandidateCount: closestBlockedCandidates.length,
@@ -326,15 +327,28 @@ function createCandidate(artifact) {
   const unmetRequirements = Object.entries(requirements)
     .filter(([, requirement]) => !requirement.met)
     .map(([id]) => id);
-  const qualifiedClosure = unmetRequirements.length === 0;
   const declaresClosure = outcome.closesEmittedIrObligation === true || summary.closesCodegenObligation === true;
+  const selectedRowMetadataComplete = Boolean(selectedRowId)
+    && Number.isFinite(selectedEventCount)
+    && Number.isFinite(selectedChecksum);
+  const qualifiedClosure = unmetRequirements.length === 0;
+  const selectedRowIdentityStatus = firstString(
+    outcome.selectedRowIdentityStatus,
+    summary.selectedRowIdentityStatus,
+  ) ?? classifySelectedRowIdentity({
+    declaresClosure,
+    sameContractStaxRow: outcome.sameContractStaxRow,
+    unchangedRunnable: outcome.canRunCurrentStaxFullStringBenchmark === true || outcome.unchangedStaxBenchmark === true,
+    selectedRowMetadataComplete,
+    qualifiedClosure,
+  });
   return {
     sourceArtifact: artifact.sourceArtifact,
     objective: root.objective ?? null,
     status: outcome.status ?? summary.status ?? null,
     evidenceClass,
     hasAnyDiagnosticSurface: hasCodegenDumpOutput || irDumpSurface || nativeDumpComplete || codegenMarkerCount > 0,
-    selectedRowIdentityStatus: outcome.selectedRowIdentityStatus ?? summary.selectedRowIdentityStatus ?? null,
+    selectedRowIdentityStatus,
     requirements,
     unmetRequirements,
     declaresClosure,
@@ -350,6 +364,33 @@ function createMissingRequirementHistogram(candidates) {
     }
   }
   return Object.fromEntries(Object.entries(histogram).sort(([left], [right]) => left.localeCompare(right)));
+}
+
+function countStringValues(values) {
+  const counts = {};
+  for (const value of values) {
+    if (typeof value !== 'string' || value.length === 0) continue;
+    counts[value] = (counts[value] ?? 0) + 1;
+  }
+  return Object.fromEntries(Object.entries(counts).sort(([left], [right]) => left.localeCompare(right)));
+}
+
+function classifySelectedRowIdentity({
+  declaresClosure,
+  sameContractStaxRow,
+  unchangedRunnable,
+  selectedRowMetadataComplete,
+  qualifiedClosure,
+}) {
+  if (qualifiedClosure) return 'same-contract-stax-row';
+  if (!declaresClosure) {
+    if (sameContractStaxRow === false || unchangedRunnable === false) {
+      return 'not-claimed-non-stax-diagnostic';
+    }
+    return 'not-claimed';
+  }
+  if (!selectedRowMetadataComplete) return 'closing-row-metadata-missing';
+  return 'closing-row-identity-missing-or-mismatched';
 }
 
 function createClosestBlockedCandidates(candidates) {
@@ -425,6 +466,7 @@ function renderMarkdown(report) {
     `- Closing metadata count: ${report.summary.closingMetadataCount}`,
     `- Qualified closures: ${report.summary.qualifiedClosureCount}`,
     `- Contradicted closure claims: ${report.summary.contradictedClosureClaimCount}`,
+    `- Selected row identity statuses: ${formatCountMap(report.summary.selectedRowIdentityStatusCounts)}`,
     `- Minimum blocked requirement count: ${report.summary.minimumBlockedRequirementCount}`,
     `- Closest blocked candidate count: ${report.summary.closestBlockedCandidateCount}`,
     `- Conclusion allowed: ${report.summary.conclusionAllowed ? 'yes' : 'no'}`,
@@ -564,6 +606,12 @@ function inferEvidenceClass(sourceArtifact, outcome) {
 
 function yesNo(value) {
   return value ? 'yes' : 'no';
+}
+
+function formatCountMap(counts) {
+  return Object.entries(counts ?? {})
+    .map(([key, value]) => `${key}=${value}`)
+    .join(', ') || 'none';
 }
 
 function writeOutput(filePath, content) {

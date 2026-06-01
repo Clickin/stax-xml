@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T21:05:21.755Z",
+  "generatedAt": "2026-06-01T21:11:12.685Z",
   "objective": "spidermonkey-codegen-closure-audit",
   "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
   "note": "Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.",
@@ -14,7 +14,7 @@
       "status": null,
       "evidenceClass": "source-pin-only",
       "hasAnyDiagnosticSurface": false,
-      "selectedRowIdentityStatus": null,
+      "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -81,7 +81,7 @@
       "status": "no-dump-emitted",
       "evidenceClass": "negative-diagnostic-surface",
       "hasAnyDiagnosticSurface": false,
-      "selectedRowIdentityStatus": null,
+      "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -148,7 +148,7 @@
       "status": "available",
       "evidenceClass": "availability-only",
       "hasAnyDiagnosticSurface": false,
-      "selectedRowIdentityStatus": null,
+      "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -215,7 +215,7 @@
       "status": "blocked-by-host-api-surface",
       "evidenceClass": "unknown",
       "hasAnyDiagnosticSurface": false,
-      "selectedRowIdentityStatus": null,
+      "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -281,7 +281,7 @@
       "status": "available",
       "evidenceClass": "availability-only",
       "hasAnyDiagnosticSurface": false,
-      "selectedRowIdentityStatus": null,
+      "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -348,7 +348,7 @@
       "status": "available",
       "evidenceClass": "availability-only",
       "hasAnyDiagnosticSurface": false,
-      "selectedRowIdentityStatus": null,
+      "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -415,7 +415,7 @@
       "status": "available",
       "evidenceClass": "archival-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
-      "selectedRowIdentityStatus": null,
+      "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "requirements": {
         "emittedCodegenSurface": {
           "met": true,
@@ -481,7 +481,7 @@
       "status": "available",
       "evidenceClass": "unknown",
       "hasAnyDiagnosticSurface": false,
-      "selectedRowIdentityStatus": null,
+      "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -547,7 +547,7 @@
       "status": null,
       "evidenceClass": "unknown",
       "hasAnyDiagnosticSurface": false,
-      "selectedRowIdentityStatus": null,
+      "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -613,7 +613,7 @@
       "status": null,
       "evidenceClass": "unknown",
       "hasAnyDiagnosticSurface": false,
-      "selectedRowIdentityStatus": null,
+      "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "requirements": {
         "emittedCodegenSurface": {
           "met": false,
@@ -679,7 +679,7 @@
       "status": "available",
       "evidenceClass": "current-debug-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
-      "selectedRowIdentityStatus": null,
+      "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "requirements": {
         "emittedCodegenSurface": {
           "met": true,
@@ -744,7 +744,7 @@
       "status": "available",
       "evidenceClass": "current-debug-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
-      "selectedRowIdentityStatus": null,
+      "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "requirements": {
         "emittedCodegenSurface": {
           "met": true,
@@ -809,7 +809,7 @@
       "status": "available",
       "evidenceClass": "current-debug-materialized-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
-      "selectedRowIdentityStatus": null,
+      "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "requirements": {
         "emittedCodegenSurface": {
           "met": true,
@@ -874,7 +874,7 @@
       "status": "available",
       "evidenceClass": "current-debug-materialized-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
-      "selectedRowIdentityStatus": null,
+      "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "requirements": {
         "emittedCodegenSurface": {
           "met": true,
@@ -939,7 +939,7 @@
       "status": "available",
       "evidenceClass": "current-debug-xml-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
-      "selectedRowIdentityStatus": null,
+      "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "requirements": {
         "emittedCodegenSurface": {
           "met": true,
@@ -1080,6 +1080,9 @@
     "closingMetadataCount": 5,
     "qualifiedClosureCount": 0,
     "contradictedClosureClaimCount": 0,
+    "selectedRowIdentityStatusCounts": {
+      "not-claimed-non-stax-diagnostic": 15
+    },
     "blockedCandidateCount": 15,
     "minimumBlockedRequirementCount": 4,
     "closestBlockedCandidateCount": 5,

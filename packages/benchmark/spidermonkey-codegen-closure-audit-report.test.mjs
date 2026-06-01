@@ -36,6 +36,10 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.equal(report.summary.unchangedRunnableCount, 1);
   assert.equal(report.summary.qualifiedClosureCount, 1);
   assert.equal(report.summary.contradictedClosureClaimCount, 1);
+  assert.deepEqual(report.summary.selectedRowIdentityStatusCounts, {
+    'not-claimed-non-stax-diagnostic': 2,
+    'same-contract-stax-row': 1,
+  });
   assert.equal(report.summary.minimumBlockedRequirementCount, 4);
   assert.equal(report.summary.closestBlockedCandidateCount, 2);
   assert.equal(report.summary.conclusionAllowed, false);
@@ -66,6 +70,7 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   );
   assert.ok(blocked);
   assert.equal(blocked.qualifiedClosure, false);
+  assert.equal(blocked.selectedRowIdentityStatus, 'not-claimed-non-stax-diagnostic');
   assert.ok(blocked.unmetRequirements.includes('sameContractStaxRow'));
   assert.ok(blocked.unmetRequirements.includes('unchangedRunnable'));
   assert.ok(blocked.unmetRequirements.includes('selectedRowMetadata'));
@@ -74,12 +79,14 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   const closure = report.candidates.find(candidate => candidate.sourceArtifact === 'spidermonkey-same-contract-closure.json');
   assert.ok(closure);
   assert.equal(closure.qualifiedClosure, true);
+  assert.equal(closure.selectedRowIdentityStatus, 'same-contract-stax-row');
   assert.deepEqual(closure.unmetRequirements, []);
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# SpiderMonkey Codegen Closure Audit/);
   assert.match(markdown, /Qualified closures: 1/);
   assert.match(markdown, /Contradicted closure claims: 1/);
+  assert.match(markdown, /Selected row identity statuses: not-claimed-non-stax-diagnostic=2, same-contract-stax-row=1/);
   assert.match(markdown, /Closest blocked candidate count: 2/);
   assert.match(markdown, /sameContractStaxRow: 2/);
   assert.match(markdown, /spidermonkey-contradicted-closure\.json/);
