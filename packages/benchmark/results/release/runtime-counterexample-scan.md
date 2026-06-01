@@ -1,6 +1,6 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-06-01T09:06:54.303Z
+Generated: 2026-06-01T16:44:17.571Z
 
 This scan walks recognized throughput rows and aggregate rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
@@ -33,7 +33,7 @@ This scan walks recognized throughput rows and aggregate rows in primary release
   - Explicit boundedMemory=false rows: 91
   - Bounded flag without row-level memory proof: 0
   - Unknown bounded-memory flag rows: 0
-  - Rows missing row-level memory proof: 48
+  - Rows missing row-level memory proof: 70
 - Fastest 1 GiB+ JS full-string row: Node/V8 rawFrameNameId from text-trim-cost-decomposition.json at 185.50 MiB/s (yes, process-rss)
 - Fastest 1 GiB+ JS full-string row with memory proof: Node/V8 rawFrameNameId from text-trim-cost-decomposition.json at 185.50 MiB/s (yes, process-rss)
 - Fastest 1 GiB+ JS full-string aggregate row with memory proof: Node/V8 rawFrameNameId from access-shape-candidate-cross-process-batch8.json at avg 172.66 MiB/s (yes, process-rss, samples 3, spread 3.03%)

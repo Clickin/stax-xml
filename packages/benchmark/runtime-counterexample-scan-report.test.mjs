@@ -101,7 +101,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     explicitNotBounded: 91,
     boundedFlagWithoutRowMemoryProof: 0,
     unknownBoundedFlag: 0,
-    missingRowMemoryProof: 48,
+    missingRowMemoryProof: 70,
   });
   assert.deepEqual(report.summary.unknownBoundedMemoryBreakdown, {
     total: 23,
@@ -857,6 +857,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     && row.id === 'rawFrameNameId'
     && row.mibPerSec === 48.15
     && row.memoryKind === 'recorded-unknown-kind'
+    && row.hasMemoryProof === false
     && row.boundedMemory === false
   ));
   assert.ok(report.unboundedOrUnknownLargeFullRows.some(row =>
@@ -1243,6 +1244,76 @@ test('runtime counterexample scan rejects Safari bounded flags without row memor
   assert.match(markdown, /Counterexamples found: 0/);
   assert.match(markdown, /Bounded flag without row-level memory proof: 1/);
   assert.match(markdown, /A row must carry row-level memory evidence, not only a derived bounded flag/);
+});
+
+test('runtime counterexample scan rejects non-numeric nested RSS as memory proof', () => {
+  const syntheticDir = join(tmpDir, 'nonnumeric-nested-rss');
+  const syntheticJsonOut = join(tmpDir, 'nonnumeric-nested-rss.json');
+  const syntheticMdOut = join(tmpDir, 'nonnumeric-nested-rss.md');
+  resetTmp();
+  mkdirSync(syntheticDir, { recursive: true });
+  writeFileSync(join(syntheticDir, 'nonnumeric-nested-rss-row.json'), `${JSON.stringify({
+    objective: 'nonnumeric-nested-rss-row',
+    contract: 'same-full-string-checksum-contract',
+    environment: {
+      runtimeName: 'node',
+      v8: 'synthetic',
+    },
+    fixture: {
+      source: 'synthetic',
+      sizeGiB: 1,
+    },
+    rows: [
+      {
+        id: 'flagOnlyNestedRssFastFullString',
+        mibPerSec: 220,
+        fullStringParity: true,
+        boundedMemory: true,
+        memory: {
+          maxRssBytes: 'not-a-number',
+        },
+        eventCount: 1,
+        checksum: 1,
+        contractScope: 'full-string-checksum',
+        sourceMode: 'generated-sync-iterable-byte-batches',
+        demandDrivenSource: true,
+        directReadableStream: false,
+        fullArrayBufferParserInput: false,
+      },
+    ],
+  }, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-counterexample-scan.mjs'),
+    '--release-dir',
+    syntheticDir,
+    '--json-out',
+    syntheticJsonOut,
+    '--md-out',
+    syntheticMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(syntheticJsonOut, 'utf8'));
+  assert.equal(report.summary.counterexampleCount, 0);
+  assert.equal(report.summary.largeJsFullRowCount, 1);
+  assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 1);
+  assert.deepEqual(report.summary.largeFullMemoryRejectionBreakdown, {
+    total: 1,
+    explicitNotBounded: 0,
+    boundedFlagWithoutRowMemoryProof: 1,
+    unknownBoundedFlag: 0,
+    missingRowMemoryProof: 1,
+  });
+  assert.equal(report.unboundedOrUnknownLargeFullRows[0].sourceArtifact, 'nonnumeric-nested-rss-row.json');
+  assert.equal(report.unboundedOrUnknownLargeFullRows[0].id, 'flagOnlyNestedRssFastFullString');
+  assert.equal(report.unboundedOrUnknownLargeFullRows[0].memoryKind, 'recorded-unknown-kind');
+  assert.equal(report.unboundedOrUnknownLargeFullRows[0].hasMemoryProof, false);
+  assert.equal(report.unboundedOrUnknownLargeFullRows[0].boundedMemory, true);
 });
 
 function resetTmp() {

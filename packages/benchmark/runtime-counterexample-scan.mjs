@@ -324,7 +324,7 @@ function createMeasuredRow(sourceArtifact, node, path, context) {
     family: node.family ?? null,
     counterexampleStatus: node.counterexampleStatus ?? null,
     memoryKind,
-    hasMemoryProof: memoryKind !== 'not-recorded',
+    hasMemoryProof: hasAcceptedMemoryProof(memoryKind),
     sourceMode,
     fullArrayBufferParserInput,
     directReadableStream: classifyDirectReadableStream(node, sourceMode),
@@ -368,7 +368,7 @@ function createAggregateRow(sourceArtifact, node, path, context) {
     family: node.family ?? null,
     counterexampleStatus: node.counterexampleFound === true ? 'found' : (node.counterexampleStatus ?? 'not-found'),
     memoryKind,
-    hasMemoryProof: memoryKind !== 'not-recorded',
+    hasMemoryProof: hasAcceptedMemoryProof(memoryKind),
     sourceMode,
     fullArrayBufferParserInput,
     directReadableStream: classifyDirectReadableStream(node, sourceMode),
@@ -637,12 +637,18 @@ function classifyMemoryKind(node) {
     || typeof memory.peakJsHeapUsedMiB === 'number'
   ) return 'browser-js-heap';
   if (
-    memory.maxRssBytes !== undefined
-    || memory.peakRssBytes !== undefined
-    || memory.maxRssMiB !== undefined
-    || memory.peakRssMiB !== undefined
+    typeof memory.maxRssBytes === 'number'
+    || typeof memory.peakRssBytes === 'number'
+    || typeof memory.maxRssMiB === 'number'
+    || typeof memory.peakRssMiB === 'number'
   ) return 'process-rss';
   return 'recorded-unknown-kind';
+}
+
+function hasAcceptedMemoryProof(memoryKind) {
+  return memoryKind === 'process-rss'
+    || memoryKind === 'browser-js-heap'
+    || memoryKind === 'allocator-counters';
 }
 
 function hasAllocatorCounterMemory(node) {
