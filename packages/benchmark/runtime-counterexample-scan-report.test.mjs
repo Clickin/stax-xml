@@ -33,7 +33,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 211);
+  assert.equal(report.summary.scannedArtifactCount, 212);
   assert.ok(report.scannedArtifacts.includes('concat-buffer-reuse-negative-result.json'));
   assert.ok(report.scannedArtifacts.includes('firefox-spidermonkey-nightly-jsshell-availability-audit.json'));
   assert.ok(report.scannedArtifacts.includes('firefox-spidermonkey-release-jsshell-availability-audit.json'));
@@ -41,6 +41,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('spidermonkey-jsshell-tokenizer-headroom.json'));
   assert.ok(report.scannedArtifacts.includes('spidermonkey-taskcluster-debug-jsshell-codegen-audit.json'));
   assert.ok(report.scannedArtifacts.includes('spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json'));
+  assert.ok(report.scannedArtifacts.includes('spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json'));
   assert.ok(report.scannedArtifacts.includes('spidermonkey-archival-debug-jsshell-codegen-audit.json'));
   assert.ok(report.scannedArtifacts.includes('spidermonkey-jsshell-diagnostic-flag-sweep.json'));
   assert.ok(report.scannedArtifacts.includes('file-backed-materialization-profile.json'));
@@ -855,7 +856,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Runtime Counterexample Scan/);
   assert.match(markdown, /Counterexamples found: 0/);
-  assert.match(markdown, /Scanned artifacts: 211/);
+  assert.match(markdown, /Scanned artifacts: 212/);
   assert.match(markdown, /Measured rows recognized: 1186/);
   assert.match(markdown, /Aggregate rows recognized: 170/);
   assert.match(markdown, /1 GiB\+ JS full-string aggregate rows recognized: 133/);

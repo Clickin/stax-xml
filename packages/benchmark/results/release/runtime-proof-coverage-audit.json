@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T04:29:14.538Z",
+  "generatedAt": "2026-06-01T04:53:44.993Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -2751,6 +2751,7 @@
         "hasIrDumpSurface": null,
         "hasCodegenDumpOutput": null,
         "hasXmlWorkloadCodegenOutput": null,
+        "hasMaterializedStringObjectCodegenOutput": null,
         "hasBytecodeDumpOutput": null,
         "bytecodeProbeCount": null,
         "bytecodeOutputProbeCount": null,
@@ -2840,6 +2841,7 @@
         "hasIrDumpSurface": null,
         "hasCodegenDumpOutput": null,
         "hasXmlWorkloadCodegenOutput": null,
+        "hasMaterializedStringObjectCodegenOutput": null,
         "hasBytecodeDumpOutput": null,
         "bytecodeProbeCount": null,
         "bytecodeOutputProbeCount": null,
@@ -2912,6 +2914,7 @@
         "hasIrDumpSurface": null,
         "hasCodegenDumpOutput": null,
         "hasXmlWorkloadCodegenOutput": null,
+        "hasMaterializedStringObjectCodegenOutput": null,
         "hasBytecodeDumpOutput": null,
         "bytecodeProbeCount": null,
         "bytecodeOutputProbeCount": null,
@@ -3016,6 +3019,7 @@
         "hasIrDumpSurface": false,
         "hasCodegenDumpOutput": null,
         "hasXmlWorkloadCodegenOutput": null,
+        "hasMaterializedStringObjectCodegenOutput": null,
         "hasBytecodeDumpOutput": false,
         "bytecodeProbeCount": null,
         "bytecodeOutputProbeCount": null,
@@ -3096,6 +3100,7 @@
         "hasIrDumpSurface": false,
         "hasCodegenDumpOutput": null,
         "hasXmlWorkloadCodegenOutput": null,
+        "hasMaterializedStringObjectCodegenOutput": null,
         "hasBytecodeDumpOutput": false,
         "bytecodeProbeCount": null,
         "bytecodeOutputProbeCount": null,
@@ -4382,6 +4387,7 @@
         "hasIrDumpSurface": true,
         "hasCodegenDumpOutput": true,
         "hasXmlWorkloadCodegenOutput": null,
+        "hasMaterializedStringObjectCodegenOutput": null,
         "hasBytecodeDumpOutput": null,
         "bytecodeProbeCount": null,
         "bytecodeOutputProbeCount": null,
@@ -4427,6 +4433,7 @@
         "hasIrDumpSurface": null,
         "hasCodegenDumpOutput": null,
         "hasXmlWorkloadCodegenOutput": null,
+        "hasMaterializedStringObjectCodegenOutput": null,
         "hasBytecodeDumpOutput": false,
         "bytecodeProbeCount": 4,
         "bytecodeOutputProbeCount": 0,
@@ -4501,6 +4508,7 @@
         "hasIrDumpSurface": true,
         "hasCodegenDumpOutput": true,
         "hasXmlWorkloadCodegenOutput": null,
+        "hasMaterializedStringObjectCodegenOutput": null,
         "hasBytecodeDumpOutput": null,
         "bytecodeProbeCount": null,
         "bytecodeOutputProbeCount": null,
@@ -4528,6 +4536,72 @@
         }
       },
       "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
+      "objective": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit",
+      "contract": "current-taskcluster-debug-spidermonkey-materialized-string-object-codegen-surface-not-unchanged-stax",
+      "evidenceKinds": [
+        "NEGATIVE_RESULT",
+        "SCOPE_GUARD",
+        "TRACE_FACT"
+      ],
+      "runtimes": [
+        "spidermonkey-jsshell"
+      ],
+      "parameters": {
+        "searchRoots": null
+      },
+      "availability": null,
+      "outcome": {
+        "status": "available",
+        "completed": null,
+        "emittedDump": null,
+        "dumpFileCount": null,
+        "foundCount": null,
+        "foundCandidates": null,
+        "packageVerified": null,
+        "hasJitExecutionStatus": null,
+        "hasIrDumpSurface": true,
+        "hasCodegenDumpOutput": true,
+        "hasXmlWorkloadCodegenOutput": null,
+        "hasMaterializedStringObjectCodegenOutput": true,
+        "hasBytecodeDumpOutput": null,
+        "bytecodeProbeCount": null,
+        "bytecodeOutputProbeCount": null,
+        "irOrCodegenProbeCount": null,
+        "hasDiagnosticPrefSurface": null,
+        "hasNativeDisassemblySurface": true,
+        "nativeDumpComplete": true,
+        "scopeComparableToCurrentFirefox": true,
+        "sameContractStaxRow": false,
+        "canReadBinaryInput": null,
+        "canRunCurrentStaxFullStringBenchmark": false,
+        "closesEmittedIrObligation": false
+      },
+      "shell": {
+        "provenance": {
+          "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
+          "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
+          "artifactName": "public/build/target.jsshell.zip",
+          "artifactBytes": 24836220,
+          "buildId": "20260531212007",
+          "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+          "targetVersion": "153.0a1",
+          "debug": true,
+          "official": true
+        }
+      },
+      "fixture": {
+        "source": "ascii-corpus-seed-replay",
+        "shape": null,
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 0,
+        "sizeMiB": 1,
+        "actualBytes": null
+      },
       "corpusSeed": null,
       "measuredRowCount": 0
     },
@@ -4560,6 +4634,7 @@
         "hasIrDumpSurface": true,
         "hasCodegenDumpOutput": true,
         "hasXmlWorkloadCodegenOutput": true,
+        "hasMaterializedStringObjectCodegenOutput": null,
         "hasBytecodeDumpOutput": null,
         "bytecodeProbeCount": null,
         "bytecodeOutputProbeCount": null,
@@ -5715,7 +5790,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 211,
+    "scannedArtifactCount": 212,
     "ignoredArtifactCount": 7,
     "parseErrorCount": 0,
     "measuredRowCount": 1186,
@@ -5738,10 +5813,10 @@
     },
     "benchmarkArtifactCount": 152,
     "sourceArtifactCount": 22,
-    "traceArtifactCount": 14,
+    "traceArtifactCount": 15,
     "allocationArtifactCount": 16,
     "environmentArtifactCount": 4,
-    "negativeArtifactCount": 22,
+    "negativeArtifactCount": 23,
     "largeJsFullRowCount": 792,
     "largeJsFullSourceInputSafety": {
       "rows": 792,
@@ -6121,7 +6196,7 @@
       {
         "runtimeId": "spidermonkey-jsshell",
         "runtimeLabel": "SpiderMonkey js-shell",
-        "artifactCount": 5,
+        "artifactCount": 6,
         "measuredRowCount": 3,
         "largeFullStringRowCount": 0,
         "fastestLargeFullStringRow": null,
@@ -6129,6 +6204,7 @@
         "traceArtifacts": [
           "spidermonkey-archival-debug-jsshell-codegen-audit.json",
           "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
+          "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
           "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
         ],
         "allocationArtifacts": []
@@ -23751,6 +23827,36 @@
           "evidenceClass": "current-debug-xml-codegen-scope-guard"
         },
         {
+          "id": "taskcluster-debug-jsshell-materialized-codegen",
+          "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
+          "status": "available",
+          "packageVerified": null,
+          "foundCount": null,
+          "searchRoots": null,
+          "dumpFileCount": null,
+          "hasJitExecutionStatus": null,
+          "irDumpSurface": true,
+          "nativeDisassemblySurface": true,
+          "nativeDumpComplete": true,
+          "bytecodeDumpOutput": null,
+          "bytecodeDumpStatus": null,
+          "bytecodeDumpMarkers": null,
+          "bytecodeProbeCount": null,
+          "bytecodeOutputProbeCount": null,
+          "hasDiagnosticPrefSurface": null,
+          "canReadBinaryInput": null,
+          "canRunCurrentStaxFullStringBenchmark": false,
+          "commonMissingGlobals": null,
+          "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
+          "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
+          "buildId": "20260531212007",
+          "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+          "hasCodegenDumpOutput": true,
+          "sameContractStaxRow": false,
+          "closesEmittedIrObligation": false,
+          "evidenceClass": "current-debug-materialized-codegen-scope-guard"
+        },
+        {
           "id": "archival-debug-jsshell-codegen",
           "sourceArtifact": "spidermonkey-archival-debug-jsshell-codegen-audit.json",
           "status": "available",
@@ -24094,6 +24200,7 @@
           "hasIrDumpSurface": true,
           "hasCodegenDumpOutput": true,
           "hasXmlWorkloadCodegenOutput": null,
+          "hasMaterializedStringObjectCodegenOutput": null,
           "hasBytecodeDumpOutput": null,
           "bytecodeProbeCount": null,
           "bytecodeOutputProbeCount": null,
@@ -24140,6 +24247,7 @@
           "hasIrDumpSurface": true,
           "hasCodegenDumpOutput": true,
           "hasXmlWorkloadCodegenOutput": null,
+          "hasMaterializedStringObjectCodegenOutput": null,
           "hasBytecodeDumpOutput": null,
           "bytecodeProbeCount": null,
           "bytecodeOutputProbeCount": null,
@@ -24167,6 +24275,72 @@
           }
         },
         "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
+        "objective": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit",
+        "contract": "current-taskcluster-debug-spidermonkey-materialized-string-object-codegen-surface-not-unchanged-stax",
+        "evidenceKinds": [
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD",
+          "TRACE_FACT"
+        ],
+        "runtimes": [
+          "spidermonkey-jsshell"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": {
+          "status": "available",
+          "completed": null,
+          "emittedDump": null,
+          "dumpFileCount": null,
+          "foundCount": null,
+          "foundCandidates": null,
+          "packageVerified": null,
+          "hasJitExecutionStatus": null,
+          "hasIrDumpSurface": true,
+          "hasCodegenDumpOutput": true,
+          "hasXmlWorkloadCodegenOutput": null,
+          "hasMaterializedStringObjectCodegenOutput": true,
+          "hasBytecodeDumpOutput": null,
+          "bytecodeProbeCount": null,
+          "bytecodeOutputProbeCount": null,
+          "irOrCodegenProbeCount": null,
+          "hasDiagnosticPrefSurface": null,
+          "hasNativeDisassemblySurface": true,
+          "nativeDumpComplete": true,
+          "scopeComparableToCurrentFirefox": true,
+          "sameContractStaxRow": false,
+          "canReadBinaryInput": null,
+          "canRunCurrentStaxFullStringBenchmark": false,
+          "closesEmittedIrObligation": false
+        },
+        "shell": {
+          "provenance": {
+            "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
+            "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
+            "artifactName": "public/build/target.jsshell.zip",
+            "artifactBytes": 24836220,
+            "buildId": "20260531212007",
+            "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+            "targetVersion": "153.0a1",
+            "debug": true,
+            "official": true
+          }
+        },
+        "fixture": {
+          "source": "ascii-corpus-seed-replay",
+          "shape": null,
+          "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+          "sizeGiB": 0,
+          "sizeMiB": 1,
+          "actualBytes": null
+        },
         "corpusSeed": null,
         "measuredRowCount": 0
       },
@@ -24199,6 +24373,7 @@
           "hasIrDumpSurface": true,
           "hasCodegenDumpOutput": true,
           "hasXmlWorkloadCodegenOutput": true,
+          "hasMaterializedStringObjectCodegenOutput": null,
           "hasBytecodeDumpOutput": null,
           "bytecodeProbeCount": null,
           "bytecodeOutputProbeCount": null,
@@ -24756,6 +24931,7 @@
           "hasIrDumpSurface": null,
           "hasCodegenDumpOutput": null,
           "hasXmlWorkloadCodegenOutput": null,
+          "hasMaterializedStringObjectCodegenOutput": null,
           "hasBytecodeDumpOutput": null,
           "bytecodeProbeCount": null,
           "bytecodeOutputProbeCount": null,
@@ -24802,6 +24978,7 @@
           "hasIrDumpSurface": false,
           "hasCodegenDumpOutput": null,
           "hasXmlWorkloadCodegenOutput": null,
+          "hasMaterializedStringObjectCodegenOutput": null,
           "hasBytecodeDumpOutput": false,
           "bytecodeProbeCount": null,
           "bytecodeOutputProbeCount": null,
@@ -24853,6 +25030,7 @@
           "hasIrDumpSurface": false,
           "hasCodegenDumpOutput": null,
           "hasXmlWorkloadCodegenOutput": null,
+          "hasMaterializedStringObjectCodegenOutput": null,
           "hasBytecodeDumpOutput": false,
           "bytecodeProbeCount": null,
           "bytecodeOutputProbeCount": null,
@@ -25046,6 +25224,7 @@
           "hasIrDumpSurface": null,
           "hasCodegenDumpOutput": null,
           "hasXmlWorkloadCodegenOutput": null,
+          "hasMaterializedStringObjectCodegenOutput": null,
           "hasBytecodeDumpOutput": null,
           "bytecodeProbeCount": null,
           "bytecodeOutputProbeCount": null,
@@ -25114,6 +25293,7 @@
           "hasIrDumpSurface": null,
           "hasCodegenDumpOutput": null,
           "hasXmlWorkloadCodegenOutput": null,
+          "hasMaterializedStringObjectCodegenOutput": null,
           "hasBytecodeDumpOutput": null,
           "bytecodeProbeCount": null,
           "bytecodeOutputProbeCount": null,
@@ -25198,6 +25378,7 @@
           "hasIrDumpSurface": false,
           "hasCodegenDumpOutput": null,
           "hasXmlWorkloadCodegenOutput": null,
+          "hasMaterializedStringObjectCodegenOutput": null,
           "hasBytecodeDumpOutput": false,
           "bytecodeProbeCount": null,
           "bytecodeOutputProbeCount": null,
@@ -25249,6 +25430,7 @@
           "hasIrDumpSurface": false,
           "hasCodegenDumpOutput": null,
           "hasXmlWorkloadCodegenOutput": null,
+          "hasMaterializedStringObjectCodegenOutput": null,
           "hasBytecodeDumpOutput": false,
           "bytecodeProbeCount": null,
           "bytecodeOutputProbeCount": null,
@@ -25483,6 +25665,7 @@
           "hasIrDumpSurface": null,
           "hasCodegenDumpOutput": null,
           "hasXmlWorkloadCodegenOutput": null,
+          "hasMaterializedStringObjectCodegenOutput": null,
           "hasBytecodeDumpOutput": false,
           "bytecodeProbeCount": 4,
           "bytecodeOutputProbeCount": 0,
@@ -25529,6 +25712,7 @@
           "hasIrDumpSurface": true,
           "hasCodegenDumpOutput": true,
           "hasXmlWorkloadCodegenOutput": null,
+          "hasMaterializedStringObjectCodegenOutput": null,
           "hasBytecodeDumpOutput": null,
           "bytecodeProbeCount": null,
           "bytecodeOutputProbeCount": null,
@@ -25556,6 +25740,72 @@
           }
         },
         "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
+        "objective": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit",
+        "contract": "current-taskcluster-debug-spidermonkey-materialized-string-object-codegen-surface-not-unchanged-stax",
+        "evidenceKinds": [
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD",
+          "TRACE_FACT"
+        ],
+        "runtimes": [
+          "spidermonkey-jsshell"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": {
+          "status": "available",
+          "completed": null,
+          "emittedDump": null,
+          "dumpFileCount": null,
+          "foundCount": null,
+          "foundCandidates": null,
+          "packageVerified": null,
+          "hasJitExecutionStatus": null,
+          "hasIrDumpSurface": true,
+          "hasCodegenDumpOutput": true,
+          "hasXmlWorkloadCodegenOutput": null,
+          "hasMaterializedStringObjectCodegenOutput": true,
+          "hasBytecodeDumpOutput": null,
+          "bytecodeProbeCount": null,
+          "bytecodeOutputProbeCount": null,
+          "irOrCodegenProbeCount": null,
+          "hasDiagnosticPrefSurface": null,
+          "hasNativeDisassemblySurface": true,
+          "nativeDumpComplete": true,
+          "scopeComparableToCurrentFirefox": true,
+          "sameContractStaxRow": false,
+          "canReadBinaryInput": null,
+          "canRunCurrentStaxFullStringBenchmark": false,
+          "closesEmittedIrObligation": false
+        },
+        "shell": {
+          "provenance": {
+            "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
+            "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
+            "artifactName": "public/build/target.jsshell.zip",
+            "artifactBytes": 24836220,
+            "buildId": "20260531212007",
+            "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+            "targetVersion": "153.0a1",
+            "debug": true,
+            "official": true
+          }
+        },
+        "fixture": {
+          "source": "ascii-corpus-seed-replay",
+          "shape": null,
+          "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+          "sizeGiB": 0,
+          "sizeMiB": 1,
+          "actualBytes": null
+        },
         "corpusSeed": null,
         "measuredRowCount": 0
       },
@@ -25588,6 +25838,7 @@
           "hasIrDumpSurface": true,
           "hasCodegenDumpOutput": true,
           "hasXmlWorkloadCodegenOutput": true,
+          "hasMaterializedStringObjectCodegenOutput": null,
           "hasBytecodeDumpOutput": null,
           "bytecodeProbeCount": null,
           "bytecodeOutputProbeCount": null,
@@ -25676,7 +25927,7 @@
     {
       "id": "codegen-traces-open",
       "status": "partial",
-      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Deno/V8 codegen trace evidence present (2 artifacts). Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=available, found=2, searchRoots=2); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey js-shell StAX API gap audit present (status=blocked-by-host-api-surface, unchangedRunnableShells=0/2, blockedSurfaces=5, commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch); it is host API surface evidence only, not emitted JIT IR. Firefox/SpiderMonkey public js-shell diagnostic flag sweep present (bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false); it rules out easy public-shell bytecode/dump flag paths but is not emitted JIT IR. Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row. Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.",
+      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Deno/V8 codegen trace evidence present (2 artifacts). Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=available, found=2, searchRoots=2); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey js-shell StAX API gap audit present (status=blocked-by-host-api-surface, unchangedRunnableShells=0/2, blockedSurfaces=5, commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch); it is host API surface evidence only, not emitted JIT IR. Firefox/SpiderMonkey public js-shell diagnostic flag sweep present (bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false); it rules out easy public-shell bytecode/dump flag paths but is not emitted JIT IR. Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell materialized string/object codegen audit present (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark. Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.",
       "nextExperiment": "Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows."
     },
     {

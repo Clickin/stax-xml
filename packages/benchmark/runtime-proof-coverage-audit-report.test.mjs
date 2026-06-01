@@ -32,7 +32,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 211);
+  assert.equal(report.summary.scannedArtifactCount, 212);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'runtime-proof-handoff-validation.json'
     && artifact.objective === 'runtime-proof-handoff-validation'
@@ -87,6 +87,23 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.evidenceKinds.includes('NEGATIVE_RESULT')
     && artifact.evidenceKinds.includes('SCOPE_GUARD')
     && artifact.outcome.hasXmlWorkloadCodegenOutput === true
+    && artifact.outcome.hasCodegenDumpOutput === true
+    && artifact.outcome.scopeComparableToCurrentFirefox === true
+    && artifact.outcome.sameContractStaxRow === false
+    && artifact.outcome.canRunCurrentStaxFullStringBenchmark === false
+    && artifact.outcome.closesEmittedIrObligation === false
+    && artifact.shell.provenance.taskId === 'bzK0wWZvQoOguMjTIbRJ_g'
+    && artifact.shell.provenance.buildId === '20260531212007'
+    && artifact.shell.provenance.sourceRevision === '71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7'
+  ));
+  assert.ok(report.scannedArtifacts.some(artifact =>
+    artifact.sourceArtifact === 'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json'
+    && artifact.objective === 'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit'
+    && artifact.measuredRowCount === 0
+    && artifact.evidenceKinds.includes('TRACE_FACT')
+    && artifact.evidenceKinds.includes('NEGATIVE_RESULT')
+    && artifact.evidenceKinds.includes('SCOPE_GUARD')
+    && artifact.outcome.hasMaterializedStringObjectCodegenOutput === true
     && artifact.outcome.hasCodegenDumpOutput === true
     && artifact.outcome.scopeComparableToCurrentFirefox === true
     && artifact.outcome.sameContractStaxRow === false
@@ -363,10 +380,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.openObligationCount, 2);
   assert.equal(report.summary.benchmarkArtifactCount, 152);
   assert.equal(report.summary.sourceArtifactCount, 22);
-  assert.equal(report.summary.traceArtifactCount, 14);
+  assert.equal(report.summary.traceArtifactCount, 15);
   assert.equal(report.summary.allocationArtifactCount, 16);
   assert.equal(report.summary.environmentArtifactCount, 4);
-  assert.equal(report.summary.negativeArtifactCount, 22);
+  assert.equal(report.summary.negativeArtifactCount, 23);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'firefox-spidermonkey-js-shell-availability-audit.json'
     && artifact.evidenceKinds.includes('ENVIRONMENT_FACT')
@@ -1080,6 +1097,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /\| `official-jsshell-diagnostic-flag-sweep` \| `spidermonkey-jsshell-diagnostic-flag-sweep\.json` \| available \| diagnostic-flag-sweep-negative \| unknown \| unknown \| no \(unknown, markers=unknown\) \| unknown \| unknown \| no \|/);
   assert.match(markdown, /\| `taskcluster-debug-jsshell-codegen` \| `spidermonkey-taskcluster-debug-jsshell-codegen-audit\.json` \| available \| current-debug-codegen-scope-guard \| unknown \| yes \| unknown \| yes \| no \| no \|/);
   assert.match(markdown, /\| `taskcluster-debug-jsshell-xml-codegen` \| `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit\.json` \| available \| current-debug-xml-codegen-scope-guard \| unknown \| yes \| unknown \| yes \| no \| no \|/);
+  assert.match(markdown, /\| `taskcluster-debug-jsshell-materialized-codegen` \| `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit\.json` \| available \| current-debug-materialized-codegen-scope-guard \| unknown \| yes \| unknown \| yes \| no \| no \|/);
   assert.match(markdown, /\| `archival-debug-jsshell-codegen` \| `spidermonkey-archival-debug-jsshell-codegen-audit\.json` \| available \| archival-codegen-scope-guard \| unknown \| yes \| unknown \| yes \| no \| no \|/);
   const flagSweep = report.coverage.spiderMonkeyDiagnostics.rows.find(row => row.id === 'official-jsshell-diagnostic-flag-sweep');
   assert.equal(flagSweep.evidenceClass, 'diagnostic-flag-sweep-negative');
@@ -1106,6 +1124,16 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(taskclusterXmlDebug.taskId, 'bzK0wWZvQoOguMjTIbRJ_g');
   assert.equal(taskclusterXmlDebug.buildId, '20260531212007');
   assert.equal(taskclusterXmlDebug.sourceRevision, '71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7');
+  const taskclusterMaterializedDebug = report.coverage.spiderMonkeyDiagnostics.rows.find(row => row.id === 'taskcluster-debug-jsshell-materialized-codegen');
+  assert.equal(taskclusterMaterializedDebug.evidenceClass, 'current-debug-materialized-codegen-scope-guard');
+  assert.equal(taskclusterMaterializedDebug.irDumpSurface, true);
+  assert.equal(taskclusterMaterializedDebug.nativeDumpComplete, true);
+  assert.equal(taskclusterMaterializedDebug.sameContractStaxRow, false);
+  assert.equal(taskclusterMaterializedDebug.canRunCurrentStaxFullStringBenchmark, false);
+  assert.equal(taskclusterMaterializedDebug.closesEmittedIrObligation, false);
+  assert.equal(taskclusterMaterializedDebug.taskId, 'bzK0wWZvQoOguMjTIbRJ_g');
+  assert.equal(taskclusterMaterializedDebug.buildId, '20260531212007');
+  assert.equal(taskclusterMaterializedDebug.sourceRevision, '71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7');
   const archival = report.coverage.spiderMonkeyDiagnostics.rows.find(row => row.id === 'archival-debug-jsshell-codegen');
   assert.equal(archival.evidenceClass, 'archival-codegen-scope-guard');
   assert.equal(archival.irDumpSurface, true);
@@ -1123,13 +1151,14 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey public js-shell diagnostic flag sweep present \(bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false\); it rules out easy public-shell bytecode\/dump flag paths but is not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey current Taskcluster debug js-shell codegen audit present \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false\); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row/);
   assert.match(markdown, /Firefox\/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false\); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row/);
+  assert.match(markdown, /Firefox\/SpiderMonkey current Taskcluster debug js-shell materialized string\/object codegen audit present \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false\); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark/);
   assert.match(markdown, /Firefox\/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing/);
   assert.match(markdown, /16 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 4/);
   assert.match(markdown, /Source artifacts: 22/);
-  assert.match(markdown, /Scanned primary artifacts: 211/);
-  assert.equal(report.summary.traceArtifactCount, 14);
-  assert.match(markdown, /Negative-result artifacts: 22/);
+  assert.match(markdown, /Scanned primary artifacts: 212/);
+  assert.equal(report.summary.traceArtifactCount, 15);
+  assert.match(markdown, /Negative-result artifacts: 23/);
   assert.match(markdown, /\| Node\/V8 \| 108 \| 558 \| 381 \|/);
   assert.match(markdown, /\| Bun\/JSC \| 40 \| 301 \| 194 \|/);
   assert.match(markdown, /\| Deno\/V8 \| 16 \| 110 \| 89 \|/);

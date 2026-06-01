@@ -266,7 +266,7 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 211 primary release JSON artifacts, recognizes 1,186
+The current scan covers 212 primary release JSON artifacts, recognizes 1,186
 sample throughput rows and 170 aggregate rows, and finds 792 JavaScript 1 GiB+
 full-string sample rows plus 133 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
@@ -593,10 +593,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 211 primary release artifacts and recognizes 1,186
-measured rows. It records 152 benchmark artifacts, 22 source artifacts, 14
+The current audit scans 212 primary release artifacts and recognizes 1,186
+measured rows. It records 152 benchmark artifacts, 22 source artifacts, 15
 trace/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and
-22 negative-result artifacts, 792 JavaScript 1 GiB+ full-string rows, and four
+23 negative-result artifacts, 792 JavaScript 1 GiB+ full-string rows, and four
 release corpus seeds: `books.xml`, `large.xml`, `midsize.xml`, and `treebank_e.xml`. The
 negative-result set now includes
 `concat-buffer-reuse-negative-result.json`, which records that reusable
@@ -1636,6 +1636,21 @@ scanner, but the artifact still records `fullStringParity=false`,
 The coverage audit classifies it as `current-debug-xml-codegen-scope-guard`,
 not `emitted-ir`, because it is not emitted codegen for a same-contract
 full-string StAX row and does not close `codegen-traces-open`.
+
+`packages/benchmark/results/release/spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.md`
+then keeps the same current Taskcluster debug js-shell but moves from
+token-boundary folding to an ASCII XML workload that materializes JavaScript
+string primitives and public event-shaped objects before folding the semantic
+string fields. The 1 MiB `books.xml` corpus-seed replay emits 234,522
+`[Codegen]` markers, 60 IonScript mentions, and 86,190 assembly mnemonic
+matches while preserving 55,759 materialized events, checksum `-553631888`,
+61,289 materialized strings, and 55,759 public event-shaped objects. This is
+the strongest current SpiderMonkey js-shell diagnostic artifact for the
+materialized JavaScript side of the StAX workload, but it is still not the
+unchanged benchmark: it uses an ASCII-only js-shell materializer because the
+host API lacks `TextDecoder`, `ReadableStream`, and `fetch`. The coverage audit
+therefore classifies it as `current-debug-materialized-codegen-scope-guard`,
+not `emitted-ir`, and it still does not close `codegen-traces-open`.
 
 `packages/benchmark/results/release/spidermonkey-archival-debug-jsshell-codegen-audit.md`
 then checks a Firefox 36 era debug js-shell from the archived
