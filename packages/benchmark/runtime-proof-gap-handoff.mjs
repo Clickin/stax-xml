@@ -683,6 +683,7 @@ function createHandoffs(activeObligations, localClosure) {
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.evidenceClass must be browser-row-evidence.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.benchmarkRowsRecorded must be greater than 0.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.directReadableStreamFullStringRowsRecorded must be reported separately and must not substitute for primarySyncByteBatchRowsRecorded.',
+        'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.directReadableStreamRowsAreSeparateEvidence must be true.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.primarySyncByteBatchRowsRecorded must be greater than 0.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.boundedPrimarySyncByteBatchRowsRecorded must be greater than 0.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.exactBuildIdentityRecorded must be true.',
