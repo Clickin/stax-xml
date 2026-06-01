@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..', '..');
 const defaultLedgerPath = resolve(repoRoot, 'docs', 'plans', '2026-05-23-stax-api-performance-proof-ledger.md');
+const defaultCoverageJson = resolve(__dirname, 'results', 'release', 'runtime-proof-coverage-audit.json');
 const defaultJsonOut = resolve(__dirname, 'results', 'release', 'runtime-limit-proof-obligation-gate.json');
 const defaultMdOut = resolve(__dirname, 'results', 'release', 'runtime-limit-proof-obligation-gate.md');
 
@@ -225,6 +226,7 @@ const requiredProofRules = [
 function parseArgs(argv = process.argv.slice(2)) {
   const options = {
     ledger: defaultLedgerPath,
+    coverageJson: defaultCoverageJson,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
   };
@@ -244,6 +246,9 @@ function parseArgs(argv = process.argv.slice(2)) {
     switch (name) {
       case '--ledger':
         options.ledger = resolve(process.cwd(), readValue());
+        break;
+      case '--coverage-json':
+        options.coverageJson = resolve(process.cwd(), readValue());
         break;
       case '--json-out':
         options.jsonOut = resolve(process.cwd(), readValue());
@@ -265,7 +270,8 @@ function parseArgs(argv = process.argv.slice(2)) {
 function main() {
   const options = parseArgs();
   const ledgerMarkdown = readFileSync(options.ledger, 'utf8');
-  const report = createReport({ options, ledgerMarkdown });
+  const coverageAudit = readCoverageAudit(options.coverageJson);
+  const report = createReport({ options, ledgerMarkdown, coverageAudit });
   writeOutput(options.jsonOut, `${JSON.stringify(report, null, 2)}\n`);
   writeOutput(options.mdOut, renderMarkdown(report));
   printSummary(report);
@@ -274,8 +280,18 @@ function main() {
   }
 }
 
-function createReport({ options, ledgerMarkdown }) {
+function readCoverageAudit(coverageJson) {
+  if (!coverageJson || !existsSync(coverageJson)) return null;
+  const audit = JSON.parse(readFileSync(coverageJson, 'utf8'));
+  if (audit.objective !== 'runtime-proof-coverage-audit') {
+    throw new Error(`expected runtime-proof-coverage-audit JSON, got ${audit.objective ?? 'unknown'}`);
+  }
+  return audit;
+}
+
+function createReport({ options, ledgerMarkdown, coverageAudit }) {
   const claims = parseClaimRows(ledgerMarkdown);
+  const coverageSnapshot = createCoverageSnapshot(coverageAudit);
   const claimGuards = requiredClaimGuards.map(requirement => evaluateClaimGuard(requirement, claims));
   const artifactMentions = requiredArtifactMentions.map(file => ({
     id: file,
@@ -285,6 +301,8 @@ function createReport({ options, ledgerMarkdown }) {
   const openObligations = openObligationDisclosures.map(obligation => ({
     ...obligation,
     disclosed: obligation.pattern.test(ledgerMarkdown),
+    coverageStatus: coverageSnapshot.byId[obligation.id]?.status ?? null,
+    coverageEvidence: coverageSnapshot.byId[obligation.id]?.evidence ?? null,
   }));
   const proofRules = requiredProofRules.map(rule => ({
     ...rule,
@@ -324,6 +342,8 @@ function createReport({ options, ledgerMarkdown }) {
     note: 'Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.',
     metadata: {
       ledger: options.ledger,
+      coverageJson: options.coverageJson,
+      coverageLoaded: coverageSnapshot.loaded,
     },
     conclusionClaim: runtimeLimitClaimId,
     conclusionAllowed: false,
@@ -339,6 +359,7 @@ function createReport({ options, ledgerMarkdown }) {
     } : null,
     claimGuards,
     artifactMentions,
+    coverageSnapshot,
     openObligations,
     proofRules,
     summary: {
@@ -351,6 +372,37 @@ function createReport({ options, ledgerMarkdown }) {
       satisfiedProofRules: proofRules.filter(item => item.satisfied).length,
       requiredProofRules: proofRules.length,
     },
+  };
+}
+
+function createCoverageSnapshot(audit) {
+  if (!audit) {
+    return {
+      loaded: false,
+      generatedAt: null,
+      activeObligationIds: [],
+      coveredObligationIds: [],
+      byId: {},
+    };
+  }
+
+  const obligations = Array.isArray(audit.obligations) ? audit.obligations : [];
+  const byId = Object.fromEntries(obligations.map(obligation => [obligation.id, {
+    id: obligation.id,
+    status: obligation.status ?? null,
+    evidence: obligation.evidence ?? null,
+    nextExperiment: obligation.nextExperiment ?? null,
+  }]));
+  return {
+    loaded: true,
+    generatedAt: audit.generatedAt ?? null,
+    activeObligationIds: obligations
+      .filter(obligation => obligation.status !== 'covered')
+      .map(obligation => obligation.id),
+    coveredObligationIds: obligations
+      .filter(obligation => obligation.status === 'covered')
+      .map(obligation => obligation.id),
+    byId,
   };
 }
 
@@ -441,14 +493,25 @@ function renderMarkdown(report) {
     '',
     '## Open Obligations',
     '',
-    'These are intentionally open obligations. They must be disclosed while the broad runtime-limit claim remains below `CONCLUSION`.',
+    'These are static disclosure guards. They must stay disclosed while the broad runtime-limit claim remains below `CONCLUSION`; the coverage snapshot column records whether the current evidence audit still treats each guard as active.',
     '',
-    '| ID | Disclosed | Meaning |',
-    '| --- | --- | --- |',
+    '| ID | Disclosed | Coverage status | Meaning |',
+    '| --- | --- | --- | --- |',
   );
   for (const item of report.openObligations) {
-    lines.push(`| \`${item.id}\` | ${item.disclosed ? 'yes' : 'no'} | ${item.description} |`);
+    lines.push(`| \`${item.id}\` | ${item.disclosed ? 'yes' : 'no'} | ${item.coverageStatus ?? 'not in coverage audit'} | ${item.description} |`);
   }
+
+  lines.push(
+    '',
+    '## Coverage Snapshot',
+    '',
+    report.coverageSnapshot.loaded
+      ? `- Coverage audit loaded: yes (${report.coverageSnapshot.generatedAt ?? 'unknown generatedAt'})`
+      : '- Coverage audit loaded: no',
+    `- Active coverage obligations: ${report.coverageSnapshot.activeObligationIds.join(', ') || 'none'}`,
+    `- Covered coverage obligations: ${report.coverageSnapshot.coveredObligationIds.join(', ') || 'none'}`,
+  );
 
   lines.push(
     '',
@@ -467,10 +530,25 @@ function renderMarkdown(report) {
     '',
     '## Interpretation',
     '',
-    'A passing report currently means the proof ledger is conservative, not that the target runtime limit has been proven. The broad claim remains blocked by open Safari/browser JSC rows, codegen traces, allocation evidence, broader corpus coverage, and the proof rules above. A future 200 MiB/s+ bounded-memory full-string JavaScript row remains a counterexample.',
+    createInterpretation(report),
   );
 
   return `${lines.join('\n')}\n`;
+}
+
+function createInterpretation(report) {
+  const activeCoverage = report.coverageSnapshot.activeObligationIds;
+  const activeText = activeCoverage.length > 0
+    ? `Current coverage audit blockers: ${activeCoverage.join(', ')}.`
+    : report.coverageSnapshot.loaded
+      ? 'The coverage audit reports no active coverage obligations, but this static gate still is not a runtime-limit conclusion artifact.'
+      : 'Coverage-audit status was not loaded, so static disclosure guards must be read without current covered/open reconciliation.';
+  return [
+    'A passing report currently means the proof ledger is conservative, not that the target runtime limit has been proven.',
+    activeText,
+    'Static disclosure guards may include evidence families that the latest coverage audit already marks covered; those guards prevent stale broad conclusions, not duplicate the active coverage list.',
+    'A future 200 MiB/s+ bounded-memory full-string JavaScript row remains a counterexample.',
+  ].join(' ');
 }
 
 function writeOutput(filePath, contents) {

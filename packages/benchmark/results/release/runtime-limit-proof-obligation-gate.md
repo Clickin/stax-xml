@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T08:13:57.412Z
+Generated: 2026-06-01T08:28:21.825Z
 
 ## Scope
 
@@ -70,15 +70,21 @@ This is a static gate over the proof ledger for the broad `CLAIM-JS-RUNTIME-LIMI
 
 ## Open Obligations
 
-These are intentionally open obligations. They must be disclosed while the broad runtime-limit claim remains below `CONCLUSION`.
+These are static disclosure guards. They must stay disclosed while the broad runtime-limit claim remains below `CONCLUSION`; the coverage snapshot column records whether the current evidence audit still treats each guard as active.
 
-| ID | Disclosed | Meaning |
-| --- | --- | --- |
-| `safari-jsc-source-and-browser-rows-open` | yes | Safari/browser JSC source and benchmark coverage remains separate from Bun/JSC coverage. |
-| `codegen-traces-open` | yes | Runtime codegen/JIT evidence remains required for broad runtime-limit conclusions. |
-| `allocation-profiles-open` | yes | Allocation/heap evidence remains required for runtimes without adequate traces. |
-| `independent-corpus-suite-open` | yes | More independent real/corpus fixtures remain required. |
-| `counterexample-rule-present` | yes | The ledger must preserve the rule that a bounded full-string 200 MiB/s JavaScript row disproves the limit claim. |
+| ID | Disclosed | Coverage status | Meaning |
+| --- | --- | --- | --- |
+| `safari-jsc-source-and-browser-rows-open` | yes | open | Safari/browser JSC source and benchmark coverage remains separate from Bun/JSC coverage. |
+| `codegen-traces-open` | yes | partial | Runtime codegen/JIT evidence remains required for broad runtime-limit conclusions. |
+| `allocation-profiles-open` | yes | covered | Allocation/heap evidence remains required for runtimes without adequate traces. |
+| `independent-corpus-suite-open` | yes | covered | More independent real/corpus fixtures remain required. |
+| `counterexample-rule-present` | yes | covered | The ledger must preserve the rule that a bounded full-string 200 MiB/s JavaScript row disproves the limit claim. |
+
+## Coverage Snapshot
+
+- Coverage audit loaded: yes (2026-06-01T08:13:53.527Z)
+- Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
+- Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 
 ## Proof Rules
 
@@ -105,4 +111,4 @@ These checks keep known semantic distinctions from being collapsed into a strong
 
 ## Interpretation
 
-A passing report currently means the proof ledger is conservative, not that the target runtime limit has been proven. The broad claim remains blocked by open Safari/browser JSC rows, codegen traces, allocation evidence, broader corpus coverage, and the proof rules above. A future 200 MiB/s+ bounded-memory full-string JavaScript row remains a counterexample.
+A passing report currently means the proof ledger is conservative, not that the target runtime limit has been proven. Current coverage audit blockers: safari-jsc-source-and-browser-rows-open, codegen-traces-open. Static disclosure guards may include evidence families that the latest coverage audit already marks covered; those guards prevent stale broad conclusions, not duplicate the active coverage list. A future 200 MiB/s+ bounded-memory full-string JavaScript row remains a counterexample.

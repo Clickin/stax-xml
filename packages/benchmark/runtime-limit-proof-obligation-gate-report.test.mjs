@@ -42,11 +42,23 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.gate.status, 'incomplete-proof-correctly-blocked');
   assert.equal(report.conclusionAllowed, false);
   assert.equal(report.runtimeClaim.markedConclusion, false);
+  assert.equal(report.metadata.coverageLoaded, true);
+  assert.ok(report.coverageSnapshot.loaded);
+  assert.deepEqual(report.coverageSnapshot.activeObligationIds, [
+    'safari-jsc-source-and-browser-rows-open',
+    'codegen-traces-open',
+  ]);
+  assert.equal(report.coverageSnapshot.byId['allocation-profiles-open'].status, 'covered');
+  assert.equal(report.coverageSnapshot.byId['independent-corpus-suite-open'].status, 'covered');
   assert.equal(report.summary.satisfiedClaimGuards, report.summary.requiredClaimGuards);
   assert.equal(report.summary.presentArtifactMentions, report.summary.requiredArtifactMentions);
   assert.equal(report.summary.disclosedOpenObligations, report.summary.requiredOpenObligations);
   assert.equal(report.summary.satisfiedProofRules, report.summary.requiredProofRules);
   assert.ok(report.openObligations.some(item => item.id === 'safari-jsc-source-and-browser-rows-open' && item.disclosed));
+  assert.ok(report.openObligations.some(item => item.id === 'safari-jsc-source-and-browser-rows-open' && item.coverageStatus === 'open'));
+  assert.ok(report.openObligations.some(item => item.id === 'codegen-traces-open' && item.coverageStatus === 'partial'));
+  assert.ok(report.openObligations.some(item => item.id === 'allocation-profiles-open' && item.coverageStatus === 'covered'));
+  assert.ok(report.openObligations.some(item => item.id === 'independent-corpus-suite-open' && item.coverageStatus === 'covered'));
   assert.ok(report.artifactMentions.some(item => item.file === 'firefox-spidermonkey-textdecoder-source-pin-audit.md' && item.present));
   assert.ok(report.artifactMentions.some(item => item.file === 'firefox-bidi-candidate-headroom.md' && item.present));
   assert.ok(report.artifactMentions.some(item => item.file === 'stream-source-consumption-backpressure-counters.md' && item.present));
@@ -69,6 +81,9 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /Conclusion allowed: no/);
   assert.match(markdown, /runtime-limit-remains-hypothesis/);
   assert.match(markdown, /safari-jsc-source-and-browser-rows-open/);
+  assert.match(markdown, /## Coverage Snapshot/);
+  assert.match(markdown, /Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open/);
+  assert.match(markdown, /allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open/);
   assert.match(markdown, /## Proof Rules/);
   assert.match(markdown, /target-contract-not-object-shape/);
   assert.match(markdown, /lazy-getters-reopen-burden/);
@@ -80,6 +95,8 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /handoff-text-materialization-frontier-classified/);
   assert.match(markdown, /woodstox-reference-not-identical-input/);
   assert.match(markdown, /same-fixture-woodstox-target-unmet/);
+  assert.match(markdown, /Current coverage audit blockers: safari-jsc-source-and-browser-rows-open, codegen-traces-open/);
+  assert.match(markdown, /Static disclosure guards may include evidence families that the latest coverage audit already marks covered/);
   assert.match(markdown, /A future 200 MiB\/s\+ bounded-memory full-string JavaScript row remains a counterexample/);
 });
 
