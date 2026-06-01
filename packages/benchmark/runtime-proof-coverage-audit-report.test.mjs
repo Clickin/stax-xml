@@ -991,7 +991,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Unknown bounded-memory non-JS rows without peak-memory counters: 6/);
   assert.match(markdown, /not an impossibility proof/);
   assert.match(markdown, /1 GiB\+ JS full-string source-mode rows not using full ArrayBuffer parser input: 433\/433/);
-  assert.match(markdown, /1 GiB\+ JS full-string direct ReadableStream rows: 17/);
+  assert.match(markdown, /1 GiB\+ JS full-string separate direct ReadableStream source-overhead rows: 17/);
   assert.match(markdown, /## Source Input Safety/);
   assert.match(markdown, /Direct ReadableStream rows remain source-overhead evidence/);
   assert.match(markdown, /\| `generated-sync-iterable-byte-batches` \| 341 \| 341 \| 0 \| 0 \| 0 \| 341 \| rawFrameNameId 185\.50 MiB\/s from text-trim-cost-decomposition\.json \|/);

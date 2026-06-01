@@ -1242,7 +1242,7 @@ function renderMarkdown(report) {
     `- Negative-result artifacts: ${report.summary.negativeArtifactCount}`,
     `- 1 GiB+ JS full-string rows: ${report.summary.largeJsFullRowCount}`,
     `- 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: ${report.summary.largeJsFullSourceInputSafety.notFullArrayBufferRows}/${report.summary.largeJsFullSourceInputSafety.sourceModeRows}`,
-    `- 1 GiB+ JS full-string direct ReadableStream rows: ${report.summary.largeJsFullSourceInputSafety.directReadableStreamRows}`,
+    `- 1 GiB+ JS full-string separate direct ReadableStream source-overhead rows: ${report.summary.largeJsFullSourceInputSafety.directReadableStreamRows}`,
     `- Corpus seeds: ${report.summary.corpusSeedCount}`,
     `- Open or partial obligations: ${report.summary.openObligationCount}`,
     '',

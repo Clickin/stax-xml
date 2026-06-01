@@ -393,7 +393,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Full ArrayBuffer parser-input rows: 0/);
   assert.match(markdown, /Unknown parser-input rows: 0/);
   assert.match(markdown, /File-backed sync Iterable<Uint8Array\[\]> rows: 36/);
-  assert.match(markdown, /Direct ReadableStream rows: 1/);
+  assert.match(markdown, /Separate direct ReadableStream source-overhead rows: 1/);
   assert.match(markdown, /\| file-backed-sync-iterable-byte-batches \| 36 \| 36 \| 0 \| 0 \| Node\/V8 stax-raw-frame-name-id-batch-8 152\.11 MiB\/s from file-backed-batch-size-sweep\.json \|/);
   assert.match(markdown, /\| sync-iterable-byte-batches \| 172 \| 172 \| 0 \| 125 \| Node\/V8 rawFrameNameId 185\.50 MiB\/s from text-trim-cost-decomposition\.json \|/);
   assert.match(markdown, /\| fetch-readable-stream-pull \| 1 \| 1 \| 1 \| 1 \| Chrome\/V8 browser fetchReadableStreamFull 9\.68 MiB\/s from browser-fetch-readable-stream-books-corpus\.json \|/);

@@ -708,7 +708,7 @@ function renderMarkdown(report) {
       `- Unknown parser-input rows: ${evidence.sourceShapeSafety.unknownArrayBufferRows}`,
       `- Corpus seed replay rows: ${evidence.sourceShapeSafety.corpusSeedReplayRows}`,
       `- File-backed sync Iterable<Uint8Array[]> rows: ${evidence.sourceShapeSafety.fileBackedSyncIterableRows}`,
-      `- Direct ReadableStream rows: ${evidence.sourceShapeSafety.directReadableStreamRows}`,
+      `- Separate direct ReadableStream source-overhead rows: ${evidence.sourceShapeSafety.directReadableStreamRows}`,
     );
     if (evidence.sourceShapeSafety.sourceModeBreakdown.length > 0) {
       lines.push(
