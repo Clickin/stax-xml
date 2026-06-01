@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-06-01T13:28:08.106Z
+Generated: 2026-06-01T13:45:21.357Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -95,11 +95,12 @@ This classifies the parser input shape for 1 GiB+ JavaScript full-string rows th
 Safari/WebKit evidence class: environment-availability-only
 Safari/WebKit availability closure requirements: met=2, blocked=9
 Safari/WebKit direct ReadableStream rows separate: yes
+Safari/WebKit primary rows in same-contract comparison: no
 Safari/WebKit obligation closed: no
 
-| Availability artifact | macOS host | Safari executable | safaridriver | Harness support | Runnable here | Browser rows | Full rows | Primary sync rows | Bounded primary rows | Exact build identity | Source boundary pinned |
-| --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- |
-| `safari-webkit-availability-audit.json` | no | no | no | yes | no | 0 | 0 | 0 | 0 | no | no |
+| Availability artifact | macOS host | Safari executable | safaridriver | Harness support | Runnable here | Browser rows | Full rows | Primary sync rows | Bounded primary rows | Comparison primary rows | Exact build identity | Source boundary pinned |
+| --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| `safari-webkit-availability-audit.json` | no | no | no | yes | no | 0 | 0 | 0 | 0 | 0 | no | no |
 
 ## SpiderMonkey Diagnostic Surface
 
