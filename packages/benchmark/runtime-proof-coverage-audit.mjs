@@ -665,6 +665,18 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact, sameContractComparisonRow
     && selectedChecksum !== null
     && selectedChecksum !== undefined
     && emittedDumpMetadataRecorded;
+  const selectedRowMetadataComplete = typeof selectedRowId === 'string'
+    && selectedRowId.length > 0
+    && typeof selectedEventCount === 'number'
+    && selectedChecksum !== null
+    && selectedChecksum !== undefined;
+  const selectedRowIdentityStatus = classifySpiderMonkeySelectedRowIdentity({
+    closesEmittedIrObligation,
+    sameContractStaxRow,
+    canRunCurrentStaxFullStringBenchmark,
+    selectedRowMetadataComplete,
+    selectedRowMatchesCurrentComparison,
+  });
   const emittedIrClosureQualified = closesEmittedIrObligation === true
     && sameContractStaxRow === true
     && canRunCurrentStaxFullStringBenchmark === true
@@ -710,6 +722,8 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact, sameContractComparisonRow
     selectedRowId,
     selectedEventCount,
     selectedChecksum,
+    selectedRowMetadataComplete,
+    selectedRowIdentityStatus,
     selectedRowMatchesCurrentComparison,
     commonMissingGlobals: Array.isArray(summary.commonMissingGlobals) ? summary.commonMissingGlobals : null,
     taskId: artifact.shell?.provenance?.taskId ?? null,
@@ -736,6 +750,24 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact, sameContractComparisonRow
       summary,
     }),
   };
+}
+
+function classifySpiderMonkeySelectedRowIdentity({
+  closesEmittedIrObligation,
+  sameContractStaxRow,
+  canRunCurrentStaxFullStringBenchmark,
+  selectedRowMetadataComplete,
+  selectedRowMatchesCurrentComparison,
+}) {
+  if (closesEmittedIrObligation !== true) {
+    if (sameContractStaxRow === false || canRunCurrentStaxFullStringBenchmark === false) {
+      return 'not-claimed-non-stax-diagnostic';
+    }
+    return 'not-claimed';
+  }
+  if (!selectedRowMetadataComplete) return 'closing-row-metadata-missing';
+  if (selectedRowMatchesCurrentComparison === true) return 'closing-row-identity-verified';
+  return 'closing-row-identity-missing-or-mismatched';
 }
 
 function hasSpiderMonkeyRuntimeBuildIdentity(artifact) {
@@ -1018,9 +1050,9 @@ function createObligationRows(coverage) {
         hasSpiderMonkeyNightlyJsShellAvailabilityAudit ? `Firefox/SpiderMonkey official nightly js-shell audit present (status=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.status ?? 'unknown'}, packageVerified=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.packageVerified ?? 'unknown'}, jitStatus=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasJitExecutionStatus ?? 'unknown'}, irDumpSurface=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasIrDumpSurface ?? 'unknown'}, bytecodeDumpOutput=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasBytecodeDumpOutput ?? 'unknown'}, bytecodeDumpStatus=${spiderMonkeyNightlyJsShellAvailabilityAudit.shell?.bytecodeDumpProbe?.status ?? 'unknown'}, nativeDisassemblySurface=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasNativeDisassemblySurface ?? 'unknown'}, nativeDumpComplete=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.nativeDumpComplete ?? 'unknown'}, canReadBinaryInput=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.canReadBinaryInput ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}); it is JIT-status evidence only, not emitted JIT IR.` : 'Firefox/SpiderMonkey official nightly js-shell audit missing.',
         hasSpiderMonkeyJsShellApiGapAudit ? `Firefox/SpiderMonkey js-shell StAX API gap audit present (status=${spiderMonkeyJsShellApiGapAudit.summary?.status ?? 'unknown'}, unchangedRunnableShells=${spiderMonkeyJsShellApiGapAudit.summary?.unchangedRunnableShellCount ?? 'unknown'}/${spiderMonkeyJsShellApiGapAudit.summary?.shellCount ?? 'unknown'}, blockedSurfaces=${spiderMonkeyJsShellApiGapAudit.summary?.blockedSurfaceCount ?? 'unknown'}, commonMissingGlobals=${(spiderMonkeyJsShellApiGapAudit.summary?.commonMissingGlobals ?? []).join(', ') || 'none'}); it is host API surface evidence only, not emitted JIT IR.` : 'Firefox/SpiderMonkey js-shell StAX API gap audit missing.',
         hasSpiderMonkeyJsShellDiagnosticFlagSweep ? `Firefox/SpiderMonkey public js-shell diagnostic flag sweep present (bytecodeProbes=${spiderMonkeyJsShellDiagnosticFlagSweep.outcome?.bytecodeProbeCount ?? 'unknown'}, bytecodeOutputProbes=${spiderMonkeyJsShellDiagnosticFlagSweep.outcome?.bytecodeOutputProbeCount ?? 'unknown'}, diagnosticPrefSurface=${spiderMonkeyJsShellDiagnosticFlagSweep.outcome?.hasDiagnosticPrefSurface ?? 'unknown'}); it rules out easy public-shell bytecode/dump flag paths but is not emitted JIT IR.` : 'Firefox/SpiderMonkey public js-shell diagnostic flag sweep missing.',
-        hasSpiderMonkeyTaskclusterDebugCodegen ? `Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present (taskId=${spiderMonkeyTaskclusterDebugCodegen.taskId ?? 'unknown'}, buildId=${spiderMonkeyTaskclusterDebugCodegen.buildId ?? 'unknown'}, sourceRevision=${spiderMonkeyTaskclusterDebugCodegen.sourceRevision ?? 'unknown'}, codegenDump=${spiderMonkeyTaskclusterDebugCodegen.hasCodegenDumpOutput ?? 'unknown'}, sameContractStaxRow=${spiderMonkeyTaskclusterDebugCodegen.sameContractStaxRow ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyTaskclusterDebugCodegen.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row.` : 'Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit missing.',
-        hasSpiderMonkeyTaskclusterDebugXmlCodegen ? `Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present (taskId=${spiderMonkeyTaskclusterDebugXmlCodegen.taskId ?? 'unknown'}, buildId=${spiderMonkeyTaskclusterDebugXmlCodegen.buildId ?? 'unknown'}, sourceRevision=${spiderMonkeyTaskclusterDebugXmlCodegen.sourceRevision ?? 'unknown'}, codegenDump=${spiderMonkeyTaskclusterDebugXmlCodegen.hasCodegenDumpOutput ?? 'unknown'}, sameContractStaxRow=${spiderMonkeyTaskclusterDebugXmlCodegen.sameContractStaxRow ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyTaskclusterDebugXmlCodegen.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row.` : 'Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit missing.',
-        hasSpiderMonkeyTaskclusterDebugMaterializedCodegen ? `Firefox/SpiderMonkey current Taskcluster debug js-shell materialized string/object codegen audit present (taskId=${spiderMonkeyTaskclusterDebugMaterializedCodegen.taskId ?? 'unknown'}, buildId=${spiderMonkeyTaskclusterDebugMaterializedCodegen.buildId ?? 'unknown'}, sourceRevision=${spiderMonkeyTaskclusterDebugMaterializedCodegen.sourceRevision ?? 'unknown'}, codegenDump=${spiderMonkeyTaskclusterDebugMaterializedCodegen.hasCodegenDumpOutput ?? 'unknown'}, sameContractStaxRow=${spiderMonkeyTaskclusterDebugMaterializedCodegen.sameContractStaxRow ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyTaskclusterDebugMaterializedCodegen.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark.` : 'Firefox/SpiderMonkey current Taskcluster debug js-shell materialized string/object codegen audit missing.',
+        hasSpiderMonkeyTaskclusterDebugCodegen ? `Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present (taskId=${spiderMonkeyTaskclusterDebugCodegen.taskId ?? 'unknown'}, buildId=${spiderMonkeyTaskclusterDebugCodegen.buildId ?? 'unknown'}, sourceRevision=${spiderMonkeyTaskclusterDebugCodegen.sourceRevision ?? 'unknown'}, codegenDump=${spiderMonkeyTaskclusterDebugCodegen.hasCodegenDumpOutput ?? 'unknown'}, sameContractStaxRow=${spiderMonkeyTaskclusterDebugCodegen.sameContractStaxRow ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyTaskclusterDebugCodegen.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, selectedRowIdentityStatus=${spiderMonkeyTaskclusterDebugCodegen.selectedRowIdentityStatus ?? 'unknown'}); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row.` : 'Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit missing.',
+        hasSpiderMonkeyTaskclusterDebugXmlCodegen ? `Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present (taskId=${spiderMonkeyTaskclusterDebugXmlCodegen.taskId ?? 'unknown'}, buildId=${spiderMonkeyTaskclusterDebugXmlCodegen.buildId ?? 'unknown'}, sourceRevision=${spiderMonkeyTaskclusterDebugXmlCodegen.sourceRevision ?? 'unknown'}, codegenDump=${spiderMonkeyTaskclusterDebugXmlCodegen.hasCodegenDumpOutput ?? 'unknown'}, sameContractStaxRow=${spiderMonkeyTaskclusterDebugXmlCodegen.sameContractStaxRow ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyTaskclusterDebugXmlCodegen.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, selectedRowIdentityStatus=${spiderMonkeyTaskclusterDebugXmlCodegen.selectedRowIdentityStatus ?? 'unknown'}); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row.` : 'Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit missing.',
+        hasSpiderMonkeyTaskclusterDebugMaterializedCodegen ? `Firefox/SpiderMonkey current Taskcluster debug js-shell materialized string/object codegen audit present (taskId=${spiderMonkeyTaskclusterDebugMaterializedCodegen.taskId ?? 'unknown'}, buildId=${spiderMonkeyTaskclusterDebugMaterializedCodegen.buildId ?? 'unknown'}, sourceRevision=${spiderMonkeyTaskclusterDebugMaterializedCodegen.sourceRevision ?? 'unknown'}, codegenDump=${spiderMonkeyTaskclusterDebugMaterializedCodegen.hasCodegenDumpOutput ?? 'unknown'}, sameContractStaxRow=${spiderMonkeyTaskclusterDebugMaterializedCodegen.sameContractStaxRow ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyTaskclusterDebugMaterializedCodegen.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, selectedRowIdentityStatus=${spiderMonkeyTaskclusterDebugMaterializedCodegen.selectedRowIdentityStatus ?? 'unknown'}); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark.` : 'Firefox/SpiderMonkey current Taskcluster debug js-shell materialized string/object codegen audit missing.',
         hasSpiderMonkeyMaterializedScopeDistance ? `Firefox/SpiderMonkey materialized scope-distance audit present (semanticEquivalentForAsciiFields=${spiderMonkeyMaterializedScopeDistance.outcome?.semanticEquivalentForAsciiFields ?? spiderMonkeyMaterializedScopeDistance.summary?.semanticEquivalentForAsciiFields ?? 'unknown'}, closureRequirementsMet=${spiderMonkeyMaterializedScopeDistance.summary?.closureRequirementsMet ?? 'unknown'}, closureRequirementsBlocked=${spiderMonkeyMaterializedScopeDistance.summary?.closureRequirementsBlocked ?? 'unknown'}, primarySyncByteBatchMissingGlobals=${(spiderMonkeyMaterializedScopeDistance.hostApiSurface?.primarySyncByteBatchMissingGlobals ?? []).join(', ') || 'unknown'}, asciiTextDecoderEquivalent=${spiderMonkeyMaterializedScopeDistance.asciiScopeDistance?.asciiByteToStringEquivalentToUtf8 ?? 'unknown'}, diagnosticThroughputMiBPerSec=${spiderMonkeyMaterializedScopeDistance.summary?.diagnosticThroughputMiBPerSec ?? 'unknown'}, throughputCountsAsTargetEvidence=${spiderMonkeyMaterializedScopeDistance.summary?.throughputCountsAsTargetEvidence ?? 'unknown'}, closesCodegenObligation=${spiderMonkeyMaterializedScopeDistance.outcome?.closesCodegenObligation ?? spiderMonkeyMaterializedScopeDistance.summary?.closesCodegenObligation ?? 'unknown'}); it records why the materialized js-shell codegen artifact is useful but still not closure evidence.` : 'Firefox/SpiderMonkey materialized scope-distance audit missing.',
         hasSpiderMonkeyEmittedIrEvidence ? 'Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence present.' : 'Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.',
       ].join(' '),
