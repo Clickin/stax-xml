@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T07:57:40.220Z
+Generated: 2026-06-01T08:08:10.607Z
 
 ## Scope
 

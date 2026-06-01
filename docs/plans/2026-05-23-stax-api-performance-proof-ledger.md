@@ -777,10 +777,10 @@ emitted SpiderMonkey JIT IR, and not runtime-limit proof.
 
 The handoff also consumes `same-contract-runtime-comparison.json` as structured
 source-consumption evidence. Its source-consumption evidence status is
-`classified`: the aggregate has 261 rows, source modes
+`classified`: the aggregate has 289 rows, source modes
 `fetch-async-iterable-byte-batches`, `fetch-readable-stream-pull`,
 `file-backed-sync-iterable-byte-batches`, and `sync-iterable-byte-batches`; all
-210 JavaScript 1 GiB+ full-string rows with source-mode metadata are not full
+233 JavaScript 1 GiB+ full-string rows with source-mode metadata are not full
 `ArrayBuffer` parser-input rows; Node source frontier records
 `sync-iterable-byte-batches-batch-8` at 71.96 MiB/s versus
 `web-readable-stream-raw-frame-ascii-batch-8` at 76.53 MiB/s with backpressure

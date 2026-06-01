@@ -384,7 +384,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /spidermonkey-codegen-handoff/);
   assert.match(markdown, /source-consumption evidence status is\s+`classified`/);
   assert.match(markdown, /source modes\s+`fetch-async-iterable-byte-batches`, `fetch-readable-stream-pull`,\s+`file-backed-sync-iterable-byte-batches`, and `sync-iterable-byte-batches`/);
-  assert.match(markdown, /all\s+210 JavaScript 1 GiB\+ full-string rows with source-mode metadata are not full\s+`ArrayBuffer` parser-input rows/);
+  assert.match(markdown, /all\s+233 JavaScript 1 GiB\+ full-string rows with source-mode metadata are not full\s+`ArrayBuffer` parser-input rows/);
   assert.match(markdown, /`sync-iterable-byte-batches-batch-8` at 71\.96 MiB\/s versus\s+`web-readable-stream-raw-frame-ascii-batch-8` at 76\.53 MiB\/s/);
   assert.match(markdown, /browser live fetch frontier records `fetchReadableStreamFull` at 9\.68\s+MiB\/s and `fetchAsyncByteBatchFull` at 9\.77 MiB\/s with backpressure 2\/2/);
   assert.match(markdown, /classification closes only the source-consumption guard; Safari\/WebKit browser\s+rows and SpiderMonkey emitted IR remain active obligations/);

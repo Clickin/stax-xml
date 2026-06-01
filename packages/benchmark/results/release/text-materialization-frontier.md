@@ -1,6 +1,6 @@
 # Text Materialization Frontier
 
-Generated: 2026-05-31T18:03:13.342Z
+Generated: 2026-06-01T08:06:04.990Z
 
 Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.
 
@@ -47,6 +47,12 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
 | node-no-counter-unrolled-medium-ascii-text-fresh-process | 92.63 | 93.35 | 1.01x | yes | no | yes |
 | bun-no-counter-medium-ascii-text-fresh-process | 96.82 | 93.40 | 0.96x | yes | no | yes |
 | bun-no-counter-unrolled-medium-ascii-text-fresh-process | 96.82 | 94.75 | 0.98x | yes | no | yes |
+| node-no-counter-name-fold-cache-fresh-process | 114.40 | 95.74 | 0.84x | yes | no | yes |
+| node-no-counter-string-fold-cache-fresh-process | 114.40 | 92.19 | 0.81x | yes | no | yes |
+| bun-no-counter-name-fold-cache-fresh-process | 121.23 | 101.04 | 0.83x | yes | no | yes |
+| bun-no-counter-string-fold-cache-fresh-process | 121.23 | 97.54 | 0.80x | yes | no | yes |
+| deno-no-counter-name-fold-cache-fresh-process | 109.47 | 84.23 | 0.77x | yes | no | yes |
+| deno-no-counter-string-fold-cache-fresh-process | 109.47 | 85.01 | 0.78x | yes | no | yes |
 | treebank-medium-ascii-text-fast-path | 68.84 | 61.38 | 0.89x | yes | no | yes |
 | treebank-unrolled-medium-ascii-text-fast-path | 68.84 | 74.77 | 1.09x | yes | no | yes |
 | unrolled-medium-ascii-text-trim-guard | 136.23 | 164.14 | 1.20x | yes | no | yes |
@@ -85,6 +91,12 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
   - node-no-counter-unrolled-medium-ascii-text-fresh-process: candidate/control=1.01x, candidate=93.35 MiB/s
   - bun-no-counter-medium-ascii-text-fresh-process: candidate/control=0.96x, candidate=93.40 MiB/s
   - bun-no-counter-unrolled-medium-ascii-text-fresh-process: candidate/control=0.98x, candidate=94.75 MiB/s
+  - node-no-counter-name-fold-cache-fresh-process: candidate/control=0.84x, candidate=95.74 MiB/s
+  - node-no-counter-string-fold-cache-fresh-process: candidate/control=0.81x, candidate=92.19 MiB/s
+  - bun-no-counter-name-fold-cache-fresh-process: candidate/control=0.83x, candidate=101.04 MiB/s
+  - bun-no-counter-string-fold-cache-fresh-process: candidate/control=0.80x, candidate=97.54 MiB/s
+  - deno-no-counter-name-fold-cache-fresh-process: candidate/control=0.77x, candidate=84.23 MiB/s
+  - deno-no-counter-string-fold-cache-fresh-process: candidate/control=0.78x, candidate=85.01 MiB/s
   - treebank-medium-ascii-text-fast-path: candidate/control=0.89x, candidate=61.38 MiB/s
   - treebank-unrolled-medium-ascii-text-fast-path: candidate/control=1.09x, candidate=74.77 MiB/s
   - unrolled-medium-ascii-text-trim-guard: candidate/control=1.20x, candidate=164.14 MiB/s
