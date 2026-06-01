@@ -435,15 +435,17 @@ full-string, no-trim, or fold-trim row crosses the target.
 
 The scan also records 35 threshold-crossing partial/projection rows. The
 fastest is Node/V8 `grouped-segment-scan` at 682.83 MiB/s from
-`segment-scan-headroom.json`; it scans delimiter bytes over the same 1 GiB
+`packages/benchmark/results/release/segment-scan-headroom.md`; it scans
+delimiter bytes over the same 1 GiB
 file-backed synchronous `Iterable<Uint8Array[]>` source, records
 `directReadableStream=false`, and is explicitly `fullStringParity=false`. The
 same artifact records grouped segment-aware scan at 682.83 MiB/s versus grouped
 concat-before-scan at 589.23 MiB/s, or 1.16x, with matching delimiter count
 162,096,810 and checksum `-428951732`. This is a falsifiable no-concat
 parser-core headroom result, not an XML parser and not a full StAX
-counterexample. `segment-tokenizer-headroom.json` then raises that same
-source-shape question from delimiter scanning to XML token-boundary folding.
+counterexample. `packages/benchmark/results/release/segment-tokenizer-headroom.md`
+then raises that same source-shape question from delimiter scanning to XML
+token-boundary folding.
 Its singleton segment row reaches 236.55 MiB/s with 62.69 MiB max RSS, but
 the grouped segment-aware row reaches only 196.26 MiB/s versus grouped concat
 at 194.55 MiB/s, or 1.01x, with matching 61,236,569 events, 21,612,907
@@ -451,15 +453,19 @@ start elements, 21,612,907 end elements, 18,010,755 text events,
 18,010,755 attributes, and checksum `-1381363934`. That means the earlier
 1.16x delimiter-scan no-concat headroom mostly disappears once token-boundary
 work is included, and the only 200 MiB/s+ tokenizer row is a singleton-batch
-granularity probe rather than a grouped parser rewrite result.
-`segment-tokenizer-string-frontier.json` then keeps the grouped segment source
-fixed and adds browser-compatible `TextDecoder` materialization one field
-family at a time. Its token-only row reaches 234.30 MiB/s, but element-name
-strings alone drop to 111.32 MiB/s after 43,225,814 decode calls and
+granularity probe rather than a grouped parser rewrite result. These segment
+scan and tokenizer rows are partial headroom evidence and not a full StAX
+counterexample. `packages/benchmark/results/release/segment-tokenizer-string-frontier.md`
+then keeps the grouped segment source fixed and adds browser-compatible
+`TextDecoder` materialization one field family at a time. Its `tokenOnly` row
+reached 234.30 MiB/s, but element-name strings alone drop to 111.32 MiB/s after
+43,225,814 decode calls and
 288,172,088 decoded bytes. A byte-verified name string cache cuts the
 element-name row to 6 decode calls and raises it to 153.14 MiB/s with the same
 checksum, but all token strings without public objects still reach only
-66.58 MiB/s after 97,258,079 decode calls and 882,827,595 decoded bytes. The
+66.58 MiB/s after 97,258,079 decode calls and 882,827,595 decoded bytes; in the
+report's row vocabulary, `allTokenStringsNoObjects` reached 66.58 MiB/s. The
+artifact records `200 MiB/s bounded full-string counterexamples: 0`. The
 name-cached all-token row reaches 81.14 MiB/s after 36,021,520 decode calls,
 61,236,559 cache hits, 10 cached names, and 515,408,238 decoded bytes. A
 bounded all-string cache with 4,096 retained entries improves the element plus

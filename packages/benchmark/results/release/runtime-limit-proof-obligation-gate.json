@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T10:48:42.248Z",
+  "generatedAt": "2026-06-01T11:01:19.038Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -303,6 +303,21 @@
       "present": true
     },
     {
+      "id": "segment-scan-headroom.md",
+      "file": "segment-scan-headroom.md",
+      "present": true
+    },
+    {
+      "id": "segment-tokenizer-headroom.md",
+      "file": "segment-tokenizer-headroom.md",
+      "present": true
+    },
+    {
+      "id": "segment-tokenizer-string-frontier.md",
+      "file": "segment-tokenizer-string-frontier.md",
+      "present": true
+    },
+    {
       "id": "runtime-proof-gap-handoff.md",
       "file": "runtime-proof-gap-handoff.md",
       "present": true
@@ -319,7 +334,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-01T10:32:51.280Z",
+    "generatedAt": "2026-06-01T10:55:57.631Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -587,6 +602,18 @@
       "satisfied": true
     },
     {
+      "id": "segment-headroom-not-stax-counterexample",
+      "pattern": {},
+      "description": "Segment scan/tokenizer headroom must stay classified as partial evidence, not a full StAX counterexample.",
+      "satisfied": true
+    },
+    {
+      "id": "segment-string-frontier-below-threshold",
+      "pattern": {},
+      "description": "Segment tokenizer string materialization frontier must show token-only headroom collapses below the 200 MiB/s full-string counterexample threshold.",
+      "satisfied": true
+    },
+    {
       "id": "woodstox-reference-not-identical-input",
       "pattern": {},
       "description": "Cross-fixture Woodstox ratios must remain target-distance references, not identical-input target passes.",
@@ -602,12 +629,12 @@
   "summary": {
     "satisfiedClaimGuards": 10,
     "requiredClaimGuards": 10,
-    "presentArtifactMentions": 35,
-    "requiredArtifactMentions": 35,
+    "presentArtifactMentions": 38,
+    "requiredArtifactMentions": 38,
     "disclosedOpenObligations": 5,
     "requiredOpenObligations": 5,
-    "satisfiedProofRules": 16,
-    "requiredProofRules": 16,
+    "satisfiedProofRules": 18,
+    "requiredProofRules": 18,
     "currentCounterexamples": 0,
     "satisfiedHandoffGuards": 6,
     "requiredHandoffGuards": 6,

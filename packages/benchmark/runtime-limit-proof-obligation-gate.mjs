@@ -113,6 +113,9 @@ const requiredArtifactMentions = [
   'stream-source-consumption-shapes.md',
   'stream-source-consumption-backpressure-counters.md',
   'event-reader-byte-batch-cross-process-corpus.md',
+  'segment-scan-headroom.md',
+  'segment-tokenizer-headroom.md',
+  'segment-tokenizer-string-frontier.md',
   'runtime-proof-gap-handoff.md',
 ];
 
@@ -214,6 +217,16 @@ const requiredProofRules = [
     id: 'handoff-text-materialization-frontier-classified',
     pattern: /text-materialization frontier[\s\S]+?fastest full-string row remains\s+`rawFrameNameId` from `text-trim-cost-decomposition\.json` at 185\.50 MiB\/s[\s\S]+?14\.50 MiB\/s below the 200 MiB\/s threshold and requiring a 1\.08x speedup[\s\S]+?`withoutTextStrings` from\s+`text-trim-cost-decomposition-4gib\.json`, reaches 252\.36 MiB\/s[\s\S]+?not full-string parity[\s\S]+?four no-text rows cross 200 MiB\/s\s+while zero full-string, no-trim, or fold-trim rows do/i,
     description: 'The handoff must carry the text-materialization frontier without treating no-text headroom as a full-string counterexample.',
+  },
+  {
+    id: 'segment-headroom-not-stax-counterexample',
+    pattern: /segment-scan-headroom\.md[\s\S]+?grouped segment-aware scan (?:reached|at) 682\.83 MiB\/s[\s\S]+?segment-tokenizer-headroom\.md[\s\S]+?grouped segment-aware (?:tokenization )?(?:reached|row reaches only) 196\.26 MiB\/s[\s\S]+?(?:partial|headroom)[\s\S]+?not (?:a )?full(?:-string)? StAX counterexample/i,
+    description: 'Segment scan/tokenizer headroom must stay classified as partial evidence, not a full StAX counterexample.',
+  },
+  {
+    id: 'segment-string-frontier-below-threshold',
+    pattern: /segment-tokenizer-string-frontier\.md[\s\S]+?tokenOnly[\s\S]{0,40}?(?:at|reached) 234\.30 MiB\/s[\s\S]+?allTokenStringsNoObjects[\s\S]{0,40}?(?:at|reached) 66\.58 MiB\/s[\s\S]+?200 MiB\/s bounded full-string counterexamples:\s*0/i,
+    description: 'Segment tokenizer string materialization frontier must show token-only headroom collapses below the 200 MiB/s full-string counterexample threshold.',
   },
   {
     id: 'woodstox-reference-not-identical-input',

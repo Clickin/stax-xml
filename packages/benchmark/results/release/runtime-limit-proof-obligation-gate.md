@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T10:48:42.248Z
+Generated: 2026-06-01T11:01:19.038Z
 
 ## Scope
 
@@ -66,6 +66,9 @@ This is a static gate over the proof ledger for the broad `CLAIM-JS-RUNTIME-LIMI
 | `stream-source-consumption-shapes.md` | yes |
 | `stream-source-consumption-backpressure-counters.md` | yes |
 | `event-reader-byte-batch-cross-process-corpus.md` | yes |
+| `segment-scan-headroom.md` | yes |
+| `segment-tokenizer-headroom.md` | yes |
+| `segment-tokenizer-string-frontier.md` | yes |
 | `runtime-proof-gap-handoff.md` | yes |
 
 ## Open Obligations
@@ -96,7 +99,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-01T10:32:51.280Z)
+- Handoff loaded: yes (2026-06-01T10:55:57.631Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -146,6 +149,8 @@ These checks keep known semantic distinctions from being collapsed into a strong
 | `handoff-source-consumption-classified` | yes | The handoff must carry classified source-consumption evidence without closing Safari/WebKit or SpiderMonkey obligations. |
 | `handoff-external-target-distance-classified` | yes | The handoff must carry Woodstox and quick-xml 0.9x target-distance evidence under the same checksum contract. |
 | `handoff-text-materialization-frontier-classified` | yes | The handoff must carry the text-materialization frontier without treating no-text headroom as a full-string counterexample. |
+| `segment-headroom-not-stax-counterexample` | yes | Segment scan/tokenizer headroom must stay classified as partial evidence, not a full StAX counterexample. |
+| `segment-string-frontier-below-threshold` | yes | Segment tokenizer string materialization frontier must show token-only headroom collapses below the 200 MiB/s full-string counterexample threshold. |
 | `woodstox-reference-not-identical-input` | yes | Cross-fixture Woodstox ratios must remain target-distance references, not identical-input target passes. |
 | `same-fixture-woodstox-target-unmet` | yes | The current same-fixture 1024 MiB JS row must stay recorded as below the 0.9x Woodstox target. |
 
