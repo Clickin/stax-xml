@@ -1,6 +1,6 @@
 # SpiderMonkey Codegen Closure Audit
 
-Generated: 2026-06-01T21:27:14.856Z
+Generated: 2026-06-01T21:43:16.664Z
 
 Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.
 
@@ -19,7 +19,7 @@ Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requi
 - Selected row metadata missing fields: selectedChecksum=15, selectedEventCount=15, selectedRowId=15
 - Closing metadata missing fields: diagnosticFlags=9, emittedDumpMetadata=9, runtimeBuildIdentity=10
 - Evidence classes: archival-codegen-scope-guard=1, availability-only=3, current-debug-codegen-scope-guard=2, current-debug-materialized-codegen-scope-guard=2, current-debug-xml-codegen-scope-guard=1, negative-diagnostic-surface=1, source-pin-only=1, unknown=4
-- Disallowed evidence classes: archival-codegen-scope-guard=1, availability-only=3, current-debug-codegen-scope-guard=2, current-debug-materialized-codegen-scope-guard=2, current-debug-xml-codegen-scope-guard=1, negative-diagnostic-surface=1, source-pin-only=1
+- Disallowed evidence classes: archival-codegen-scope-guard=1, availability-only=3, current-debug-codegen-scope-guard=2, current-debug-materialized-codegen-scope-guard=2, current-debug-xml-codegen-scope-guard=1, negative-diagnostic-surface=1, source-pin-only=1, unknown=4
 - Minimum blocked requirement count: 4
 - Closest blocked candidate count: 5
 - Conclusion allowed: no
@@ -28,7 +28,7 @@ Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requi
 
 - closingMetadata: 10
 - emittedCodegenSurface: 9
-- evidenceClassAllowed: 11
+- evidenceClassAllowed: 15
 - sameContractStaxRow: 15
 - selectedRowMetadata: 15
 - unchangedRunnable: 15
@@ -50,13 +50,13 @@ Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requi
 | `firefox-spidermonkey-buildconfig-source-pin-audit.json` | source-pin-only | no | no | no | no | no | no | no | emittedCodegenSurface, sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata, evidenceClassAllowed | |
 | `firefox-spidermonkey-diagnostic-dump-audit.json` | negative-diagnostic-surface | no | no | no | no | no | no | no | emittedCodegenSurface, sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata, evidenceClassAllowed | |
 | `firefox-spidermonkey-js-shell-availability-audit.json` | availability-only | no | no | no | no | no | no | no | emittedCodegenSurface, sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata, evidenceClassAllowed | |
-| `firefox-spidermonkey-jsshell-stax-api-gap-audit.json` | unknown | no | no | no | no | no | yes | no | emittedCodegenSurface, sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata | |
+| `firefox-spidermonkey-jsshell-stax-api-gap-audit.json` | unknown | no | no | no | no | no | no | no | emittedCodegenSurface, sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata, evidenceClassAllowed | |
 | `firefox-spidermonkey-nightly-jsshell-availability-audit.json` | availability-only | no | no | no | no | no | no | no | emittedCodegenSurface, sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata, evidenceClassAllowed | |
 | `firefox-spidermonkey-release-jsshell-availability-audit.json` | availability-only | no | no | no | no | no | no | no | emittedCodegenSurface, sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata, evidenceClassAllowed | |
 | `spidermonkey-archival-debug-jsshell-codegen-audit.json` | archival-codegen-scope-guard | yes | no | no | no | no | no | no | sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata, evidenceClassAllowed | |
-| `spidermonkey-jsshell-diagnostic-flag-sweep.json` | unknown | no | no | no | no | no | yes | no | emittedCodegenSurface, sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata | |
-| `spidermonkey-jsshell-materialized-headroom.json` | unknown | no | no | no | no | no | yes | no | emittedCodegenSurface, sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata | |
-| `spidermonkey-jsshell-tokenizer-headroom.json` | unknown | no | no | no | no | no | yes | no | emittedCodegenSurface, sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata | |
+| `spidermonkey-jsshell-diagnostic-flag-sweep.json` | unknown | no | no | no | no | no | no | no | emittedCodegenSurface, sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata, evidenceClassAllowed | |
+| `spidermonkey-jsshell-materialized-headroom.json` | unknown | no | no | no | no | no | no | no | emittedCodegenSurface, sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata, evidenceClassAllowed | |
+| `spidermonkey-jsshell-tokenizer-headroom.json` | unknown | no | no | no | no | no | no | no | emittedCodegenSurface, sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata, evidenceClassAllowed | |
 | `spidermonkey-taskcluster-debug-jsshell-codegen-audit.json` | current-debug-codegen-scope-guard | yes | no | no | no | yes | no | no | sameContractStaxRow, unchangedRunnable, selectedRowMetadata, evidenceClassAllowed | |
 | `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json` | current-debug-codegen-scope-guard | yes | no | no | no | yes | no | no | sameContractStaxRow, unchangedRunnable, selectedRowMetadata, evidenceClassAllowed | |
 | `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json` | current-debug-materialized-codegen-scope-guard | yes | no | no | no | yes | no | no | sameContractStaxRow, unchangedRunnable, selectedRowMetadata, evidenceClassAllowed | |

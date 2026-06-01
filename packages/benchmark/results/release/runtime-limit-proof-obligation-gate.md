@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T21:37:06.235Z
+Generated: 2026-06-01T21:44:19.470Z
 
 ## Scope
 
@@ -87,7 +87,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-01T20:41:18.593Z)
+- Coverage audit loaded: yes (2026-06-01T21:43:26.851Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7
@@ -120,7 +120,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-01T21:36:45.108Z)
+- Handoff loaded: yes (2026-06-01T21:43:37.152Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -148,8 +148,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-01T21:36:56.607Z)
-- Handoff validation target handoff generatedAt: 2026-06-01T21:36:45.108Z (current 2026-06-01T21:36:45.108Z)
+- Handoff validation loaded: yes (2026-06-01T21:43:47.833Z)
+- Handoff validation target handoff generatedAt: 2026-06-01T21:43:37.152Z (current 2026-06-01T21:43:37.152Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes
 - Required contracts present: yes
@@ -167,8 +167,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-01T20:41:29.222Z)
-- Source audit inputs: comparison=2026-06-01T17:12:20.521Z (current 2026-06-01T17:12:20.521Z), coverage=2026-06-01T20:41:18.593Z (current 2026-06-01T20:41:18.593Z)
+- Source audit loaded: yes (2026-06-01T21:44:09.703Z)
+- Source audit inputs: comparison=2026-06-01T17:12:20.521Z (current 2026-06-01T17:12:20.521Z), coverage=2026-06-01T21:43:26.851Z (current 2026-06-01T21:43:26.851Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary sync byte-batch rows: 231

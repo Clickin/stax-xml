@@ -7,7 +7,12 @@ const defaultReleaseDir = resolve(__dirname, 'results', 'release');
 const defaultJsonOut = resolve(defaultReleaseDir, 'spidermonkey-codegen-closure-audit.json');
 const defaultMdOut = resolve(defaultReleaseDir, 'spidermonkey-codegen-closure-audit.md');
 
+const allowedEvidenceClasses = new Set([
+  'same-contract-spidermonkey-codegen',
+]);
+
 const disallowedEvidenceClasses = new Set([
+  'unknown',
   'availability-only',
   'jit-status-only',
   'host-api-surface-gap',
@@ -143,6 +148,7 @@ function createSelfTestReport(options) {
           unchangedStaxBenchmark: true,
           canRunCurrentStaxFullStringBenchmark: true,
           closesEmittedIrObligation: true,
+          evidenceClass: 'same-contract-spidermonkey-codegen',
           selectedRowId: 'firefox-row',
           selectedEventCount: 12,
           selectedChecksum: 34,
@@ -153,6 +159,37 @@ function createSelfTestReport(options) {
             taskId: 'closure-task',
             buildId: '20260602000000',
             sourceRevision: 'def456',
+          },
+          codegenProbe: {
+            status: 'codegen-output-emitted',
+            flags: 'codegen',
+            outputBytes: 8192,
+            codegenMarkerCount: 99,
+            nativeDumpComplete: true,
+          },
+        },
+      },
+    },
+    {
+      sourceArtifact: 'spidermonkey-unknown-closure-class.json',
+      root: {
+        objective: 'spidermonkey-unknown-closure-class',
+        outcome: {
+          status: 'codegen-output-emitted',
+          hasCodegenDumpOutput: true,
+          sameContractStaxRow: true,
+          unchangedStaxBenchmark: true,
+          canRunCurrentStaxFullStringBenchmark: true,
+          closesEmittedIrObligation: true,
+          selectedRowId: 'firefox-row',
+          selectedEventCount: 12,
+          selectedChecksum: 34,
+        },
+        shell: {
+          provenance: {
+            taskId: 'unknown-class-task',
+            buildId: '20260602000002',
+            sourceRevision: 'ghi789',
           },
           codegenProbe: {
             status: 'codegen-output-emitted',
@@ -336,7 +373,7 @@ function createCandidate(artifact) {
       ],
     },
     evidenceClassAllowed: {
-      met: !disallowedEvidenceClasses.has(evidenceClass),
+      met: allowedEvidenceClasses.has(evidenceClass) && !disallowedEvidenceClasses.has(evidenceClass),
       evidence: [`evidenceClass=${evidenceClass ?? 'unknown'}`],
     },
   };

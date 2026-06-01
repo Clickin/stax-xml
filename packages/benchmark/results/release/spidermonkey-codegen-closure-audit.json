@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T21:27:14.856Z",
+  "generatedAt": "2026-06-01T21:43:16.664Z",
   "objective": "spidermonkey-codegen-closure-audit",
   "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
   "note": "Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.",
@@ -299,7 +299,7 @@
           ]
         },
         "evidenceClassAllowed": {
-          "met": true,
+          "met": false,
           "evidence": [
             "evidenceClass=unknown"
           ]
@@ -310,7 +310,8 @@
         "sameContractStaxRow",
         "unchangedRunnable",
         "selectedRowMetadata",
-        "closingMetadata"
+        "closingMetadata",
+        "evidenceClassAllowed"
       ],
       "declaresClosure": false,
       "qualifiedClosure": false
@@ -603,7 +604,7 @@
           ]
         },
         "evidenceClassAllowed": {
-          "met": true,
+          "met": false,
           "evidence": [
             "evidenceClass=unknown"
           ]
@@ -614,7 +615,8 @@
         "sameContractStaxRow",
         "unchangedRunnable",
         "selectedRowMetadata",
-        "closingMetadata"
+        "closingMetadata",
+        "evidenceClassAllowed"
       ],
       "declaresClosure": false,
       "qualifiedClosure": false
@@ -679,7 +681,7 @@
           ]
         },
         "evidenceClassAllowed": {
-          "met": true,
+          "met": false,
           "evidence": [
             "evidenceClass=unknown"
           ]
@@ -690,7 +692,8 @@
         "sameContractStaxRow",
         "unchangedRunnable",
         "selectedRowMetadata",
-        "closingMetadata"
+        "closingMetadata",
+        "evidenceClassAllowed"
       ],
       "declaresClosure": false,
       "qualifiedClosure": false
@@ -755,7 +758,7 @@
           ]
         },
         "evidenceClassAllowed": {
-          "met": true,
+          "met": false,
           "evidence": [
             "evidenceClass=unknown"
           ]
@@ -766,7 +769,8 @@
         "sameContractStaxRow",
         "unchangedRunnable",
         "selectedRowMetadata",
-        "closingMetadata"
+        "closingMetadata",
+        "evidenceClassAllowed"
       ],
       "declaresClosure": false,
       "qualifiedClosure": false
@@ -1130,7 +1134,7 @@
   "missingRequirementHistogram": {
     "closingMetadata": 10,
     "emittedCodegenSurface": 9,
-    "evidenceClassAllowed": 11,
+    "evidenceClassAllowed": 15,
     "sameContractStaxRow": 15,
     "selectedRowMetadata": 15,
     "unchangedRunnable": 15
@@ -1238,7 +1242,8 @@
       "current-debug-materialized-codegen-scope-guard": 2,
       "current-debug-xml-codegen-scope-guard": 1,
       "negative-diagnostic-surface": 1,
-      "source-pin-only": 1
+      "source-pin-only": 1,
+      "unknown": 4
     },
     "blockedCandidateCount": 15,
     "minimumBlockedRequirementCount": 4,
