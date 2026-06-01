@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
@@ -1175,6 +1175,103 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /browser-live-fetch-source-visible \(CLASSIFIED\)/);
   assert.match(markdown, /fresh-browser per-variant Windows host process-tree probes/);
   assert.match(markdown, /not proof that JavaScript runtimes have no remaining headroom/);
+});
+
+test('same-contract runtime comparison flags bounded cross-process aggregate counterexamples', () => {
+  const syntheticReleaseDir = join(tmpDir, 'release-with-cross-process-counterexample');
+  const syntheticJsonOut = join(tmpDir, 'same-contract-runtime-comparison-counterexample.json');
+  const syntheticMdOut = join(tmpDir, 'same-contract-runtime-comparison-counterexample.md');
+  resetTmp();
+  cpSync(join(__dirname, 'results', 'release'), syntheticReleaseDir, { recursive: true });
+  writeFileSync(join(syntheticReleaseDir, 'candidate-headroom-cross-process-books-corpus.json'), `${JSON.stringify({
+    objective: 'candidate-headroom-cross-process',
+    contract: 'same-full-string-checksum-contract',
+    options: {
+      fixtureShape: 'corpus-cycle',
+    },
+    runtimes: [
+      {
+        runtime: 'node',
+        sampleCount: 3,
+        environment: {
+          runtimeName: 'node',
+          javascriptEngine: 'V8',
+        },
+        fixture: {
+          source: 'corpus-file',
+          sourceFile: 'books.xml',
+          sizeGiB: 1,
+          actualBytes: 1024 * 1024 * 1024,
+          rowCycleSize: 1,
+          maxRowBytes: 1024 * 1024,
+        },
+        variants: [
+          {
+            id: 'rawFrameNameId',
+            avgMiBPerSec: 205,
+            minMiBPerSec: 202,
+            maxMiBPerSec: 208,
+            spreadRatio: 0.03,
+            sampleCount: 3,
+            boundedMemoryAll: true,
+            maxRssBytes: 90 * 1024 * 1024,
+            maxHeapUsedBytes: 40 * 1024 * 1024,
+            fullStringParity: true,
+            stableResult: true,
+            eventCounts: [1],
+            checksums: [1],
+            contractScope: 'full-string-checksum',
+            sourceMode: 'sync-iterable-byte-batches',
+            fullArrayBufferParserInput: false,
+          },
+        ],
+      },
+    ],
+  }, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'same-contract-runtime-comparison.mjs'),
+    '--release-dir',
+    syntheticReleaseDir,
+    '--json-out',
+    syntheticJsonOut,
+    '--md-out',
+    syntheticMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(syntheticJsonOut, 'utf8'));
+  assert.equal(report.summary.jsRuntimeCounterexamples200MiB, 1);
+  const row = report.comparisonRows.find(entry =>
+    entry.sourceArtifact === 'candidate-headroom-cross-process-books-corpus.json'
+    && entry.caseId === 'rawFrameNameId'
+  );
+  assert.ok(row);
+  assert.equal(row.runtimeLimitCounterexample, true);
+  assert.equal(row.mibPerSec, 205);
+  assert.equal(row.boundedMemory, true);
+  assert.equal(row.fullStringParity, true);
+  assert.equal(row.sourceMode, 'sync-iterable-byte-batches');
+  assert.equal(row.fullArrayBufferParserInput, false);
+  assert.equal(row.sampleCount, 3);
+  assert.equal(row.sampleMinMiBPerSec, 202);
+  assert.equal(row.sampleMaxMiBPerSec, 208);
+  assert.equal(row.memory.primaryKind, 'process-rss');
+  assert.equal(row.memory.maxMiB, 90);
+  assert.ok(report.findings.some(finding =>
+    finding.id === 'no-js-200mib-large-full-counterexample-in-aggregated-artifacts'
+    && finding.status === 'COUNTEREXAMPLE_FOUND'
+    && finding.evidence.includes('counterexamples=1')
+  ));
+
+  const markdown = readFileSync(syntheticMdOut, 'utf8');
+  assert.match(markdown, /200 MiB\/s\+ bounded-memory JavaScript counterexamples found: 1/);
+  assert.match(markdown, /no-js-200mib-large-full-counterexample-in-aggregated-artifacts \(COUNTEREXAMPLE_FOUND\)/);
 });
 
 function resetTmp() {
