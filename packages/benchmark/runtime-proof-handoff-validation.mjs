@@ -172,6 +172,7 @@ function validateHandoff(handoff) {
           /event count/,
           /checksum parity/,
           /emitted IR or optimized-code dump metadata/,
+          /selectedRowIdentityStatus/,
           /jit-status-only/,
           /environment evidence only/,
         ]
@@ -179,6 +180,8 @@ function validateHandoff(handoff) {
   const contractText = [
     ...Object.values(sourceConsumption),
     ...Object.values(sourceBoundary),
+    ...(handoff.localClosure?.blockers ?? []),
+    handoff.localClosure?.scopeGuard ?? '',
     ...closureChecks,
     ...expectedEvidence,
     ...scopeGuards,
