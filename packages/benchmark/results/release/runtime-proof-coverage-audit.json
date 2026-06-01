@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T14:55:38.068Z",
+  "generatedAt": "2026-06-01T15:16:56.744Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -25283,7 +25283,11 @@
       "emittedIrClaimCount": 0,
       "jitStatusOnlyCount": 2,
       "availabilityOnlyCount": 1,
-      "missingIrSurfaceCount": 2
+      "missingIrSurfaceCount": 2,
+      "selectedRowIdentityStatusCounts": {
+        "not-claimed": 4,
+        "not-claimed-non-stax-diagnostic": 7
+      }
     },
     "codegenArtifacts": [
       {

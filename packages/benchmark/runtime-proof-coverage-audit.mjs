@@ -634,6 +634,7 @@ function summarizeSpiderMonkeyDiagnostics(artifacts, sameContractComparisonRows 
     jitStatusOnlyCount: rows.filter(row => row.evidenceClass === 'jit-status-only').length,
     availabilityOnlyCount: rows.filter(row => row.evidenceClass === 'availability-only').length,
     missingIrSurfaceCount: rows.filter(row => row.irDumpSurface === false || row.nativeDumpComplete === false).length,
+    selectedRowIdentityStatusCounts: countStringValues(rows.map(row => row.selectedRowIdentityStatus)),
   };
 }
 
@@ -1699,13 +1700,14 @@ function renderMarkdown(report) {
     '',
     `Emitted SpiderMonkey IR/codegen evidence artifacts: ${report.coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount}`,
     `Raw SpiderMonkey emitted-IR closure claims: ${report.coverage.spiderMonkeyDiagnostics.emittedIrClaimCount}`,
+    `SpiderMonkey selected row identity statuses: ${formatCountMap(report.coverage.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts)}`,
     `JIT-status-only SpiderMonkey shell artifacts: ${report.coverage.spiderMonkeyDiagnostics.jitStatusOnlyCount}`,
     '',
-    '| Diagnostic | Artifact | Status | Evidence class | JIT status | IR surface | Bytecode dump | Native dump complete | Current stax benchmark | Closes emitted IR obligation | Closure qualified |',
-    '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
+    '| Diagnostic | Artifact | Status | Evidence class | JIT status | IR surface | Bytecode dump | Native dump complete | Current stax benchmark | Selected row identity | Selected row metadata | Comparison match | Closes emitted IR obligation | Closure qualified |',
+    '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
   );
   for (const row of report.coverage.spiderMonkeyDiagnostics.rows) {
-    lines.push(`| \`${row.id}\` | \`${row.sourceArtifact}\` | ${row.status} | ${row.evidenceClass} | ${formatBoolean(row.hasJitExecutionStatus)} | ${formatBoolean(row.irDumpSurface)} | ${formatBytecodeDump(row)} | ${formatBoolean(row.nativeDumpComplete)} | ${formatBoolean(row.canRunCurrentStaxFullStringBenchmark)} | ${formatBoolean(row.closesEmittedIrObligation)} | ${formatBoolean(row.emittedIrClosureQualified)} |`);
+    lines.push(`| \`${row.id}\` | \`${row.sourceArtifact}\` | ${row.status} | ${row.evidenceClass} | ${formatBoolean(row.hasJitExecutionStatus)} | ${formatBoolean(row.irDumpSurface)} | ${formatBytecodeDump(row)} | ${formatBoolean(row.nativeDumpComplete)} | ${formatBoolean(row.canRunCurrentStaxFullStringBenchmark)} | ${row.selectedRowIdentityStatus ?? 'unknown'} | ${formatBoolean(row.selectedRowMetadataComplete)} | ${formatBoolean(row.selectedRowMatchesCurrentComparison)} | ${formatBoolean(row.closesEmittedIrObligation)} | ${formatBoolean(row.emittedIrClosureQualified)} |`);
   }
 
   lines.push(
@@ -1869,6 +1871,22 @@ function formatBoolean(value) {
   if (value === true) return 'yes';
   if (value === false) return 'no';
   return 'unknown';
+}
+
+function countStringValues(values) {
+  const counts = {};
+  for (const value of values) {
+    if (typeof value !== 'string' || value.length === 0) continue;
+    counts[value] = (counts[value] ?? 0) + 1;
+  }
+  return counts;
+}
+
+function formatCountMap(counts) {
+  const entries = Object.entries(counts ?? {}).sort(([left], [right]) => left.localeCompare(right));
+  return entries.length > 0
+    ? entries.map(([key, value]) => `${key}=${value}`).join(', ')
+    : 'none';
 }
 
 function formatBytecodeDump(row) {

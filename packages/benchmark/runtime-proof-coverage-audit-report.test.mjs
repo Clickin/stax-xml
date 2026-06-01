@@ -1097,6 +1097,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount, 0);
   assert.equal(report.coverage.spiderMonkeyDiagnostics.jitStatusOnlyCount, 2);
   assert.equal(report.coverage.spiderMonkeyDiagnostics.missingIrSurfaceCount, 2);
+  assert.deepEqual(report.coverage.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts, {
+    'not-claimed': 4,
+    'not-claimed-non-stax-diagnostic': 7,
+  });
   assert.ok(report.coverage.spiderMonkeyDiagnostics.rows.some(row =>
     row.id === 'official-release-jsshell'
     && row.status === 'available'
@@ -1180,15 +1184,19 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /## SpiderMonkey Diagnostic Surface/);
   assert.match(markdown, /Emitted SpiderMonkey IR\/codegen evidence artifacts: 0/);
   assert.match(markdown, /Raw SpiderMonkey emitted-IR closure claims: 0/);
+  assert.match(markdown, /SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7/);
+  assert.match(markdown, /Selected row identity/);
+  assert.match(markdown, /Selected row metadata/);
+  assert.match(markdown, /Comparison match/);
   assert.match(markdown, /Closure qualified/);
   assert.match(markdown, /JIT-status-only SpiderMonkey shell artifacts: 2/);
-  assert.match(markdown, /\| `official-release-jsshell` \| `firefox-spidermonkey-release-jsshell-availability-audit\.json` \| available \| jit-status-only \| yes \| no \| no \(no-bytecode-output, markers=0\) \| no \| no \| no \|/);
-  assert.match(markdown, /\| `official-nightly-jsshell` \| `firefox-spidermonkey-nightly-jsshell-availability-audit\.json` \| available \| jit-status-only \| yes \| no \| no \(no-bytecode-output, markers=0\) \| no \| no \| no \|/);
-  assert.match(markdown, /\| `official-jsshell-diagnostic-flag-sweep` \| `spidermonkey-jsshell-diagnostic-flag-sweep\.json` \| available \| diagnostic-flag-sweep-negative \| unknown \| unknown \| no \(unknown, markers=unknown\) \| unknown \| unknown \| no \|/);
-  assert.match(markdown, /\| `taskcluster-debug-jsshell-codegen` \| `spidermonkey-taskcluster-debug-jsshell-codegen-audit\.json` \| available \| current-debug-codegen-scope-guard \| unknown \| yes \| unknown \| yes \| no \| no \|/);
-  assert.match(markdown, /\| `taskcluster-debug-jsshell-xml-codegen` \| `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit\.json` \| available \| current-debug-xml-codegen-scope-guard \| unknown \| yes \| unknown \| yes \| no \| no \|/);
-  assert.match(markdown, /\| `taskcluster-debug-jsshell-materialized-codegen` \| `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit\.json` \| available \| current-debug-materialized-codegen-scope-guard \| unknown \| yes \| unknown \| yes \| no \| no \|/);
-  assert.match(markdown, /\| `archival-debug-jsshell-codegen` \| `spidermonkey-archival-debug-jsshell-codegen-audit\.json` \| available \| archival-codegen-scope-guard \| unknown \| yes \| unknown \| yes \| no \| no \|/);
+  assert.match(markdown, /\| `official-release-jsshell` \| `firefox-spidermonkey-release-jsshell-availability-audit\.json` \| available \| jit-status-only \| yes \| no \| no \(no-bytecode-output, markers=0\) \| no \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
+  assert.match(markdown, /\| `official-nightly-jsshell` \| `firefox-spidermonkey-nightly-jsshell-availability-audit\.json` \| available \| jit-status-only \| yes \| no \| no \(no-bytecode-output, markers=0\) \| no \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
+  assert.match(markdown, /\| `official-jsshell-diagnostic-flag-sweep` \| `spidermonkey-jsshell-diagnostic-flag-sweep\.json` \| available \| diagnostic-flag-sweep-negative \| unknown \| unknown \| no \(unknown, markers=unknown\) \| unknown \| unknown \| not-claimed \| no \| unknown \| no \|/);
+  assert.match(markdown, /\| `taskcluster-debug-jsshell-codegen` \| `spidermonkey-taskcluster-debug-jsshell-codegen-audit\.json` \| available \| current-debug-codegen-scope-guard \| unknown \| yes \| unknown \| yes \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
+  assert.match(markdown, /\| `taskcluster-debug-jsshell-xml-codegen` \| `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit\.json` \| available \| current-debug-xml-codegen-scope-guard \| unknown \| yes \| unknown \| yes \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
+  assert.match(markdown, /\| `taskcluster-debug-jsshell-materialized-codegen` \| `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit\.json` \| available \| current-debug-materialized-codegen-scope-guard \| unknown \| yes \| unknown \| yes \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
+  assert.match(markdown, /\| `archival-debug-jsshell-codegen` \| `spidermonkey-archival-debug-jsshell-codegen-audit\.json` \| available \| archival-codegen-scope-guard \| unknown \| yes \| unknown \| yes \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
   const flagSweep = report.coverage.spiderMonkeyDiagnostics.rows.find(row => row.id === 'official-jsshell-diagnostic-flag-sweep');
   assert.equal(flagSweep.evidenceClass, 'diagnostic-flag-sweep-negative');
   assert.equal(flagSweep.bytecodeProbeCount, 4);
@@ -1236,7 +1244,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey local js-shell availability audit present \(status=available, found=2, searchRoots=2\); no emitted JIT IR is recorded by that audit/);
   assert.match(markdown, /Firefox\/SpiderMonkey official release js-shell audit present \(status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is JIT-status evidence only, not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey official nightly js-shell audit present \(status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is JIT-status evidence only, not emitted JIT IR/);
-  assert.match(markdown, /\| `official-jsshell-stax-api-gap` \| `firefox-spidermonkey-jsshell-stax-api-gap-audit\.json` \| blocked-by-host-api-surface \| host-api-surface-gap \| yes \| unknown \| unknown \| unknown \| no \| no \|/);
+  assert.match(markdown, /\| `official-jsshell-stax-api-gap` \| `firefox-spidermonkey-jsshell-stax-api-gap-audit\.json` \| blocked-by-host-api-surface \| host-api-surface-gap \| yes \| unknown \| unknown \| unknown \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
   assert.match(markdown, /Firefox\/SpiderMonkey js-shell StAX API gap audit present \(status=blocked-by-host-api-surface, unchangedRunnableShells=0\/2, blockedSurfaces=5, commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch\); it is host API surface evidence only, not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey public js-shell diagnostic flag sweep present \(bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false\); it rules out easy public-shell bytecode\/dump flag paths but is not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey current Taskcluster debug js-shell codegen audit present \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic\); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row/);
