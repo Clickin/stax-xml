@@ -963,6 +963,11 @@ function createHandoffGuards(byId) {
         && /unchangedRunnable=\d+/.test(item)
       ),
     },
+    {
+      id: 'spidermonkey-contradicted-closure-claims-clear',
+      description: 'SpiderMonkey closure audit must preserve contradictedClosureClaimCount=0 before codegen evidence can be reclassified.',
+      satisfied: spiderBlockers.some(item => /contradictedClosureClaimCount=0/.test(item)),
+    },
   ];
 }
 

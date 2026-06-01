@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T20:58:11.199Z
+Generated: 2026-06-01T21:05:52.508Z
 
 ## Scope
 
@@ -120,7 +120,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-01T20:46:19.979Z)
+- Handoff loaded: yes (2026-06-01T21:05:33.101Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -139,11 +139,12 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `spidermonkey-closing-metadata-required` | yes | SpiderMonkey closing artifacts must require runtime/build identity, diagnostic flags, row identity, checksum parity, and emitted IR or optimized-code dump metadata. |
 | `spidermonkey-diagnostic-row-identity-blocker` | yes | SpiderMonkey diagnostic rows must remain blocked with selectedRowIdentityStatus=not-claimed-non-stax-diagnostic until they are same-contract StAX closure evidence. |
 | `spidermonkey-closure-frontier-blockers` | yes | SpiderMonkey handoff must preserve closest blocked candidates and common missing requirements from the closure audit frontier. |
+| `spidermonkey-contradicted-closure-claims-clear` | yes | SpiderMonkey closure audit must preserve contradictedClosureClaimCount=0 before codegen evidence can be reclassified. |
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-01T20:58:00.434Z)
-- Handoff validation target handoff generatedAt: 2026-06-01T20:46:19.979Z (current 2026-06-01T20:46:19.979Z)
+- Handoff validation loaded: yes (2026-06-01T21:05:44.042Z)
+- Handoff validation target handoff generatedAt: 2026-06-01T21:05:33.101Z (current 2026-06-01T21:05:33.101Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes
 - Required contracts present: yes

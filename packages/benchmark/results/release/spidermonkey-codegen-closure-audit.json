@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T20:41:10.102Z",
+  "generatedAt": "2026-06-01T21:05:21.755Z",
   "objective": "spidermonkey-codegen-closure-audit",
   "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
   "note": "Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.",
@@ -1069,6 +1069,7 @@
       ]
     }
   ],
+  "contradictedClosureClaims": [],
   "summary": {
     "candidateCount": 15,
     "diagnosticSurfaceCount": 6,

@@ -164,6 +164,36 @@ function createSelfTestReport(options) {
         },
       },
     },
+    {
+      sourceArtifact: 'spidermonkey-contradicted-closure.json',
+      root: {
+        objective: 'spidermonkey-contradicted-closure',
+        outcome: {
+          status: 'codegen-output-emitted',
+          hasCodegenDumpOutput: true,
+          sameContractStaxRow: false,
+          unchangedStaxBenchmark: false,
+          canRunCurrentStaxFullStringBenchmark: false,
+          closesEmittedIrObligation: true,
+          evidenceClass: 'current-debug-codegen-scope-guard',
+          selectedRowIdentityStatus: 'not-claimed-non-stax-diagnostic',
+        },
+        shell: {
+          provenance: {
+            taskId: 'contradicted-task',
+            buildId: '20260602000001',
+            sourceRevision: 'bad456',
+          },
+          codegenProbe: {
+            status: 'codegen-output-emitted',
+            flags: 'codegen',
+            outputBytes: 4096,
+            codegenMarkerCount: 44,
+            nativeDumpComplete: true,
+          },
+        },
+      },
+    },
   ]);
 }
 
@@ -179,6 +209,7 @@ function buildReport(options, artifacts) {
   const blocked = candidates.filter(candidate => !candidate.qualifiedClosure);
   const missingRequirementHistogram = createMissingRequirementHistogram(blocked);
   const closestBlockedCandidates = createClosestBlockedCandidates(blocked);
+  const contradictedClosureClaims = createContradictedClosureClaims(contradicted);
   const report = {
     generatedAt: new Date().toISOString(),
     objective: 'spidermonkey-codegen-closure-audit',
@@ -191,6 +222,7 @@ function buildReport(options, artifacts) {
     candidates,
     missingRequirementHistogram,
     closestBlockedCandidates,
+    contradictedClosureClaims,
     summary: {
       candidateCount: candidates.length,
       diagnosticSurfaceCount: candidates.filter(candidate => candidate.hasAnyDiagnosticSurface).length,
@@ -204,7 +236,7 @@ function buildReport(options, artifacts) {
       blockedCandidateCount: blocked.length,
       minimumBlockedRequirementCount: closestBlockedCandidates[0]?.unmetRequirementCount ?? 0,
       closestBlockedCandidateCount: closestBlockedCandidates.length,
-      conclusionAllowed: qualified.length > 0,
+      conclusionAllowed: qualified.length > 0 && contradicted.length === 0,
     },
   };
   report.findings = createFindings(report);
@@ -335,6 +367,16 @@ function createClosestBlockedCandidates(candidates) {
       unmetRequirementCount: candidate.unmetRequirements.length,
       unmetRequirements: candidate.unmetRequirements,
     }));
+}
+
+function createContradictedClosureClaims(candidates) {
+  return candidates.map(candidate => ({
+    sourceArtifact: candidate.sourceArtifact,
+    objective: candidate.objective,
+    evidenceClass: candidate.evidenceClass,
+    unmetRequirementCount: candidate.unmetRequirements.length,
+    unmetRequirements: candidate.unmetRequirements,
+  }));
 }
 
 function createFindings(report) {
