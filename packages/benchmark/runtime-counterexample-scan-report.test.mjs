@@ -1032,6 +1032,65 @@ test('runtime counterexample scan flags bounded Safari full-string rows above th
   assert.match(markdown, /Safari\/JavaScriptCore safariRawFrameNameId from safari-synthetic-browser-row\.json at 210\.00 MiB\/s/);
 });
 
+test('runtime counterexample scan recognizes browser environment independent of artifact name', () => {
+  const syntheticDir = join(tmpDir, 'browser-env-counterexample');
+  const syntheticJsonOut = join(tmpDir, 'browser-env-counterexample.json');
+  const syntheticMdOut = join(tmpDir, 'browser-env-counterexample.md');
+  resetTmp();
+  mkdirSync(syntheticDir, { recursive: true });
+  writeFileSync(join(syntheticDir, 'external-run-result.json'), `${JSON.stringify({
+    objective: 'external-browser-row',
+    contract: 'same-full-string-checksum-contract',
+    environment: {
+      runtimeName: 'browser',
+      browserName: 'Safari',
+      javascriptEngine: 'JavaScriptCore',
+    },
+    fixture: {
+      source: 'corpus-file',
+      sourceFile: 'books.xml',
+      sizeGiB: 1,
+    },
+    rows: [
+      {
+        id: 'externalSafariFullString',
+        mibPerSec: 205,
+        fullStringParity: true,
+        boundedMemory: true,
+        maxJsHeapUsedBytes: 90 * 1024 * 1024,
+        eventCount: 1,
+        checksum: 1,
+        contractScope: 'full-string-checksum',
+      },
+    ],
+  }, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-counterexample-scan.mjs'),
+    '--release-dir',
+    syntheticDir,
+    '--json-out',
+    syntheticJsonOut,
+    '--md-out',
+    syntheticMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(syntheticJsonOut, 'utf8'));
+  assert.equal(report.summary.counterexampleCount, 1);
+  assert.equal(report.counterexamples[0].sourceArtifact, 'external-run-result.json');
+  assert.equal(report.counterexamples[0].runtimeLabel, 'Safari/JavaScriptCore');
+  assert.equal(report.counterexamples[0].id, 'externalSafariFullString');
+  assert.equal(report.counterexamples[0].mibPerSec, 205);
+  assert.equal(report.counterexamples[0].memoryKind, 'browser-js-heap');
+  assert.equal(report.counterexamples[0].hasMemoryProof, true);
+});
+
 test('runtime counterexample scan rejects Safari bounded flags without row memory proof', () => {
   const syntheticDir = join(tmpDir, 'safari-flag-only-bounded');
   const syntheticJsonOut = join(tmpDir, 'safari-flag-only-bounded.json');
