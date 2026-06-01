@@ -2666,6 +2666,84 @@ test('runtime proof coverage audit rejects SpiderMonkey emitted IR for stale com
   assert.match(obligation.evidence, /Firefox\/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing/);
 });
 
+test('runtime proof coverage audit rejects SpiderMonkey emitted IR matched only by another runtime', () => {
+  const syntheticDir = join(tmpDir, 'spidermonkey-emitted-ir-runtime-mismatch');
+  const syntheticJsonOut = join(tmpDir, 'spidermonkey-emitted-ir-runtime-mismatch.json');
+  const syntheticMdOut = join(tmpDir, 'spidermonkey-emitted-ir-runtime-mismatch.md');
+  resetTmp();
+  mkdirSync(syntheticDir, { recursive: true });
+  writeFileSync(join(syntheticDir, 'same-contract-runtime-comparison.json'), `${JSON.stringify({
+    objective: 'same-contract-runtime-comparison',
+    comparisonRows: [
+      {
+        id: 'currentFullStringRow',
+        runtimeId: 'node-v8',
+        jsRuntime: true,
+        fullStringParity: true,
+        eventCount: 1000,
+        checksum: 123,
+      },
+    ],
+  }, null, 2)}\n`);
+  writeFileSync(join(syntheticDir, 'spidermonkey-taskcluster-debug-jsshell-codegen-audit.json'), `${JSON.stringify({
+    objective: 'firefox-spidermonkey-emitted-ir',
+    runtime: { id: 'spidermonkey-jsshell' },
+    outcome: {
+      status: 'emitted-ir-captured',
+      hasJitExecutionStatus: true,
+      hasIrDumpSurface: true,
+      nativeDumpComplete: true,
+      hasCodegenDumpOutput: true,
+      closesEmittedIrObligation: true,
+      sameContractStaxRow: true,
+      canRunCurrentStaxFullStringBenchmark: true,
+      selectedRowId: 'currentFullStringRow',
+      selectedEventCount: 1000,
+      selectedChecksum: 123,
+    },
+    shell: {
+      provenance: {
+        taskId: 'task-current',
+        route: 'gecko.v2.mozilla-central.latest.firefox.win64-debug',
+        buildId: '20260601000000',
+        sourceRevision: 'abcdef1234567890',
+      },
+      codegenProbe: {
+        status: 'codegen-output-emitted',
+        flags: 'codegen',
+        outputBytes: 1024,
+        codegenMarkerCount: 4,
+      },
+    },
+  }, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-coverage-audit.mjs'),
+    '--release-dir',
+    syntheticDir,
+    '--json-out',
+    syntheticJsonOut,
+    '--md-out',
+    syntheticMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(syntheticJsonOut, 'utf8'));
+  assert.equal(report.coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount, 0);
+  assert.ok(report.coverage.spiderMonkeyDiagnostics.rows.some(row =>
+    row.id === 'taskcluster-debug-jsshell-codegen'
+    && row.selectedRowMatchesCurrentComparison === false
+    && row.selectedRowIdentityStatus === 'closing-row-identity-missing-or-mismatched'
+    && row.emittedIrClosureQualified === false
+    && row.evidenceClass === 'emitted-ir-scope-guard'
+  ));
+  assertObligation(report, 'codegen-traces-open', 'partial');
+});
+
 test('runtime proof coverage audit rejects SpiderMonkey emitted IR that is not same-contract StAX closure', () => {
   const syntheticDir = join(tmpDir, 'spidermonkey-emitted-ir-not-same-contract');
   const syntheticJsonOut = join(tmpDir, 'spidermonkey-emitted-ir-not-same-contract.json');

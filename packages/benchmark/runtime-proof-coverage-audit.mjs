@@ -548,6 +548,7 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows, sameContra
       selectedEventCount: row.eventCount,
       selectedChecksum: row.checksum,
       comparisonRows: sameContractComparisonRows,
+      expectedRuntimeIds: ['safari-jsc-browser'],
     })
   );
   const largeBoundedPrimaryRowsInSameContractComparison = largeBoundedPrimaryRows.filter(row =>
@@ -556,6 +557,7 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows, sameContra
       selectedEventCount: row.eventCount,
       selectedChecksum: row.checksum,
       comparisonRows: sameContractComparisonRows,
+      expectedRuntimeIds: ['safari-jsc-browser'],
     })
   );
   const safariRowsWithMeasuredExactBuildIdentity = safariRows.filter(hasMeasuredSafariBuildIdentity);
@@ -689,6 +691,7 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact, sameContractComparisonRow
         selectedEventCount,
         selectedChecksum,
         comparisonRows: sameContractComparisonRows,
+        expectedRuntimeIds: ['firefox-spidermonkey-browser', 'spidermonkey-jsshell'],
       })
     : null;
   const runtimeBuildIdentityRecorded = hasSpiderMonkeyRuntimeBuildIdentity(artifact);
@@ -859,11 +862,22 @@ function hasPositiveSpiderMonkeyCodegenProbe(probe) {
     );
 }
 
-function matchSameContractComparisonRow({ selectedRowId, selectedEventCount, selectedChecksum, comparisonRows }) {
+function matchSameContractComparisonRow({
+  selectedRowId,
+  selectedEventCount,
+  selectedChecksum,
+  comparisonRows,
+  expectedRuntimeIds = null,
+}) {
   if (!Array.isArray(comparisonRows) || comparisonRows.length === 0) return false;
   if (typeof selectedRowId !== 'string' || selectedRowId.length === 0) return false;
   const row = comparisonRows.find(candidate => candidate.id === selectedRowId);
   if (!row) return false;
+  if (
+    Array.isArray(expectedRuntimeIds)
+    && expectedRuntimeIds.length > 0
+    && !expectedRuntimeIds.includes(row.runtimeId)
+  ) return false;
   if (typeof selectedEventCount !== 'number' || row.eventCount !== selectedEventCount) return false;
   if (selectedChecksum === null || selectedChecksum === undefined || row.checksum !== selectedChecksum) return false;
   return true;
