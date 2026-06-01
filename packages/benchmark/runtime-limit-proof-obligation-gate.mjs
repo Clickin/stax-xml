@@ -488,6 +488,7 @@ function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMateria
     fastestBoundedRateMiBPerSec: memoryFrontier?.summary?.fastestBoundedRow?.rateMiBPerSec ?? null,
     fastestBoundedMaxMiB: memoryFrontier?.summary?.fastestBoundedRow?.maxMiB ?? null,
     unboundedRows: memoryFrontier?.summary?.unboundedRows ?? null,
+    boundedRowsWithoutNumericMemoryProof: memoryFrontier?.summary?.boundedRowsWithoutNumericMemoryProof ?? null,
     unboundedRowsAtOrAbove200MiBPerSec: memoryFrontier?.summary?.unboundedRowsAtOrAbove200MiBPerSec ?? null,
     conclusionAllowed: memoryFrontier?.summary?.conclusionAllowed ?? null,
   };
@@ -544,6 +545,7 @@ function createFrontierAuditGuards(memory, target, text) {
         && typeof memory.fastestBoundedMaxMiB === 'number'
         && typeof memory.unboundedRows === 'number'
         && memory.unboundedRows > 0
+        && memory.boundedRowsWithoutNumericMemoryProof === 0
         && memory.conclusionAllowed === false,
     },
     {
@@ -991,6 +993,7 @@ function renderMarkdown(report) {
       : '- Memory frontier loaded: no',
     `- Fastest bounded JS row: ${formatNullableRate(report.frontierAuditSnapshot.memory.fastestBoundedRateMiBPerSec)} MiB/s at ${formatNullableRate(report.frontierAuditSnapshot.memory.fastestBoundedMaxMiB)} MiB`,
     `- Unbounded or unproven memory rows: ${formatNullableCount(report.frontierAuditSnapshot.memory.unboundedRows)}`,
+    `- Bounded rows without numeric memory proof: ${formatNullableCount(report.frontierAuditSnapshot.memory.boundedRowsWithoutNumericMemoryProof)}`,
     `- Unbounded rows at or above 200 MiB/s: ${formatNullableCount(report.frontierAuditSnapshot.memory.unboundedRowsAtOrAbove200MiBPerSec)}`,
     report.frontierAuditSnapshot.targetDistance.loaded
       ? `- Target distance loaded: yes (${report.frontierAuditSnapshot.targetDistance.generatedAt ?? 'unknown generatedAt'})`

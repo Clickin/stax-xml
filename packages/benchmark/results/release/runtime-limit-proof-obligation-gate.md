@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T12:08:19.311Z
+Generated: 2026-06-01T12:16:03.258Z
 
 ## Scope
 
@@ -99,7 +99,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-01T12:08:08.500Z)
+- Handoff loaded: yes (2026-06-01T12:14:31.850Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -137,9 +137,10 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Frontier Audit Snapshot
 
-- Memory frontier loaded: yes (2026-06-01T11:30:43.441Z)
+- Memory frontier loaded: yes (2026-06-01T12:13:36.796Z)
 - Fastest bounded JS row: 185.50 MiB/s at 60.45 MiB
 - Unbounded or unproven memory rows: 17
+- Bounded rows without numeric memory proof: 0
 - Unbounded rows at or above 200 MiB/s: 0
 - Target distance loaded: yes (2026-06-01T10:06:06.862Z)
 - Woodstox 0.9x target met: no

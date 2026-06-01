@@ -81,6 +81,10 @@ function createReport(comparison, options) {
     && (row.fixture?.sizeGiB ?? 0) >= 0.999
     && row.memory?.primaryKind
   );
+  const boundedRowsWithoutNumericMemoryProof = memoryRows.filter(row =>
+    row.boundedMemory === true
+    && typeof row.memory?.maxMiB !== 'number'
+  );
   const unboundedMemoryRows = memoryRows.filter(row => row.boundedMemory !== true);
   const unboundedRowsAtOrAbove200MiBPerSec = unboundedMemoryRows
     .filter(row => typeof row.mibPerSec === 'number' && row.mibPerSec >= 200)
@@ -89,6 +93,7 @@ function createReport(comparison, options) {
   const status = rows === comparisonSummary.jsLargeFullRowCount
     && boundedRows + unboundedRows === rows
     && memoryRows.length === rows
+    && boundedRowsWithoutNumericMemoryProof.length === 0
     && unboundedMemoryRows.length === unboundedRows
     && frontier.fastestBoundedRow?.mibPerSec === comparisonSummary.fastestJsLargeFullRow?.mibPerSec
     ? 'classified'
@@ -110,6 +115,7 @@ function createReport(comparison, options) {
       rows,
       boundedRows,
       unboundedRows,
+      boundedRowsWithoutNumericMemoryProof: boundedRowsWithoutNumericMemoryProof.length,
       unboundedRowsAtOrAbove200MiBPerSec,
       jsLargeFullRowCount: comparisonSummary.jsLargeFullRowCount ?? null,
       memoryKinds: frontier.memoryKinds ?? [],
@@ -130,7 +136,7 @@ function createReport(comparison, options) {
       fastestBoundedRow: summarizeMemoryRow(bucket.fastestBoundedRow),
     })),
     interpretation: frontier.interpretation,
-    findings: createFindings(frontier, comparisonSummary.sameFixture1024MiBProcessRssSnapshot, unboundedRowsAtOrAbove200MiBPerSec),
+    findings: createFindings(frontier, comparisonSummary.sameFixture1024MiBProcessRssSnapshot, unboundedRowsAtOrAbove200MiBPerSec, boundedRowsWithoutNumericMemoryProof.length),
   };
 }
 
@@ -169,7 +175,7 @@ function summarizeRssRow(row) {
   };
 }
 
-function createFindings(frontier, processRssSnapshot, unboundedRowsAtOrAbove200MiBPerSec) {
+function createFindings(frontier, processRssSnapshot, unboundedRowsAtOrAbove200MiBPerSec, boundedRowsWithoutNumericMemoryProof) {
   const findings = [
     {
       id: 'memory-frontier-classified',
@@ -188,6 +194,14 @@ function createFindings(frontier, processRssSnapshot, unboundedRowsAtOrAbove200M
       id: 'no-unbounded-target-row',
       classification: 'SOURCE_FACT',
       summary: 'No current unbounded or unproven-memory JavaScript 1 GiB+ full-string row reaches 200 MiB/s.',
+    });
+  }
+
+  if (boundedRowsWithoutNumericMemoryProof > 0) {
+    findings.push({
+      id: 'bounded-memory-proof-missing',
+      classification: 'SOURCE_FACT',
+      summary: `${boundedRowsWithoutNumericMemoryProof} JavaScript 1 GiB+ full-string row(s) are marked boundedMemory=true but lack row-level numeric memory proof.`,
     });
   }
 
@@ -226,6 +240,7 @@ function renderMarkdown(report) {
     `- JavaScript 1 GiB+ full-string rows: ${report.summary.jsLargeFullRowCount}`,
     `- Bounded rows: ${report.summary.boundedRows}`,
     `- Unbounded or unproven rows: ${report.summary.unboundedRows}`,
+    `- Bounded rows without numeric memory proof: ${report.summary.boundedRowsWithoutNumericMemoryProof}`,
     `- Unbounded or unproven rows at or above 200 MiB/s: ${report.summary.unboundedRowsAtOrAbove200MiBPerSec}`,
     `- Memory kinds: ${report.summary.memoryKinds.join(', ')}`,
     `- Fastest bounded row: ${formatMemoryRow(report.summary.fastestBoundedRow)}`,

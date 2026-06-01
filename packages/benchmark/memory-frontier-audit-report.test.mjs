@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
@@ -10,6 +10,9 @@ const repoRoot = resolve(__dirname, '..', '..');
 const tmpDir = join(__dirname, 'results', 'tmp');
 const jsonOut = join(tmpDir, 'memory-frontier-audit-report-test.json');
 const mdOut = join(tmpDir, 'memory-frontier-audit-report-test.md');
+const badComparisonOut = join(tmpDir, 'memory-frontier-missing-bounded-proof-comparison.json');
+const badJsonOut = join(tmpDir, 'memory-frontier-missing-bounded-proof.json');
+const badMdOut = join(tmpDir, 'memory-frontier-missing-bounded-proof.md');
 
 test('memory frontier audit keeps memory kinds and bounded rows explicit', () => {
   mkdirSync(tmpDir, { recursive: true });
@@ -121,4 +124,50 @@ test('memory frontier audit keeps memory kinds and bounded rows explicit', () =>
   assert.match(markdown, /quick-xml: Rust\/quick-xml `quick-xml` 274\.63 MiB\/s, process RSS 4\.78 MiB/);
   assert.match(markdown, /Process RSS, browser JS heap, and browser host-probe-only rows remain separate memory kinds/);
   assert.match(markdown, /Firefox\/SpiderMonkey browser rows without page JS heap counters remain unbounded or unproven/);
+});
+
+test('memory frontier audit downgrades bounded rows without numeric memory proof', () => {
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [badComparisonOut, badJsonOut, badMdOut]) {
+    if (existsSync(filePath)) rmSync(filePath);
+  }
+
+  const comparison = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'same-contract-runtime-comparison.json'), 'utf8'));
+  const row = comparison.comparisonRows.find(entry =>
+    entry.jsRuntime
+    && entry.fullStringParity === true
+    && (entry.fixture?.sizeGiB ?? 0) >= 0.999
+    && entry.boundedMemory === true
+    && entry.caseId === 'rawFrameNameId'
+  );
+  assert.ok(row, 'expected a bounded rawFrameNameId row in the comparison fixture');
+  row.memory.maxMiB = null;
+  writeFileSync(badComparisonOut, `${JSON.stringify(comparison, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'memory-frontier-audit.mjs'),
+    '--comparison-json',
+    badComparisonOut,
+    '--json-out',
+    badJsonOut,
+    '--md-out',
+    badMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(badJsonOut, 'utf8'));
+  assert.equal(report.summary.status, 'partial');
+  assert.equal(report.summary.boundedRowsWithoutNumericMemoryProof, 1);
+  assert.equal(report.summary.unboundedRowsAtOrAbove200MiBPerSec, 0);
+  assert.ok(report.findings.some(entry => entry.id === 'bounded-memory-proof-missing'));
+
+  const markdown = readFileSync(badMdOut, 'utf8');
+  assert.match(markdown, /Status: partial/);
+  assert.match(markdown, /Bounded rows without numeric memory proof: 1/);
+  assert.match(markdown, /boundedMemory=true but lack row-level numeric memory proof/);
 });

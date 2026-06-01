@@ -92,6 +92,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.frontierAuditSnapshot.memory.fastestBoundedRateMiBPerSec, 185.5);
   assert.equal(report.frontierAuditSnapshot.memory.fastestBoundedMaxMiB, 60.45);
   assert.equal(report.frontierAuditSnapshot.memory.unboundedRows, 17);
+  assert.equal(report.frontierAuditSnapshot.memory.boundedRowsWithoutNumericMemoryProof, 0);
   assert.equal(report.frontierAuditSnapshot.memory.unboundedRowsAtOrAbove200MiBPerSec, 0);
   assert.ok(report.frontierAuditSnapshot.targetDistance.loaded);
   assert.equal(report.frontierAuditSnapshot.targetDistance.woodstoxTargetMet, false);
@@ -198,6 +199,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /## Frontier Audit Snapshot/);
   assert.match(markdown, /Fastest bounded JS row: 185\.50 MiB\/s at 60\.45 MiB/);
   assert.match(markdown, /Unbounded rows at or above 200 MiB\/s: 0/);
+  assert.match(markdown, /Bounded rows without numeric memory proof: 0/);
   assert.match(markdown, /Woodstox 0\.9x target met: no/);
   assert.match(markdown, /quick-xml 0\.9x target met: no/);
   assert.match(markdown, /Target JS contract: sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=no, fullArrayBufferParserInput=no, boundedMemory=yes, memoryKind=process-rss, maxRssMiB=61\.77/);

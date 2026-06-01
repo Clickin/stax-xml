@@ -1,6 +1,6 @@
 # Memory Frontier Audit
 
-Generated: 2026-06-01T11:30:43.441Z
+Generated: 2026-06-01T12:13:36.796Z
 
 Audits memory classification from the same-contract aggregate. This is not a benchmark run, does not normalize memory models across runtimes, and does not prove a JavaScript runtime ceiling.
 
@@ -12,6 +12,7 @@ Audits memory classification from the same-contract aggregate. This is not a ben
 - JavaScript 1 GiB+ full-string rows: 239
 - Bounded rows: 222
 - Unbounded or unproven rows: 17
+- Bounded rows without numeric memory proof: 0
 - Unbounded or unproven rows at or above 200 MiB/s: 0
 - Memory kinds: browser-js-heap, browser-js-heap-unavailable, process-rss
 - Fastest bounded row: Node/V8 `rawFrameNameId` 185.50 MiB/s (process-rss max 60.45 MiB, `text-trim-cost-decomposition.json`)
