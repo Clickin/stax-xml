@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T00:35:48.949Z",
+  "generatedAt": "2026-06-01T00:51:15.612Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -19,6 +19,9 @@
         "node-v8",
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -36,6 +39,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -61,6 +67,9 @@
         "node-v8",
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -78,6 +87,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -102,6 +114,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -125,6 +140,9 @@
         "SCOPE_GUARD"
       ],
       "runtimes": [],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -141,6 +159,9 @@
         "SCOPE_GUARD"
       ],
       "runtimes": [],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -157,6 +178,9 @@
         "SCOPE_GUARD"
       ],
       "runtimes": [],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -174,6 +198,9 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -198,6 +225,9 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -222,6 +252,9 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -246,6 +279,9 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -270,6 +306,9 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -294,6 +333,9 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -318,6 +360,9 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -342,6 +387,9 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -366,6 +414,9 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -383,6 +434,9 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -407,6 +461,9 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -432,6 +489,9 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -457,6 +517,9 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -481,6 +544,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -505,6 +571,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -529,6 +598,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -553,6 +625,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -577,6 +652,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -601,6 +679,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -625,6 +706,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -649,6 +733,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -673,6 +760,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -697,6 +787,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -721,6 +814,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -745,6 +841,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -764,6 +863,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -790,6 +892,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -808,6 +913,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -827,6 +935,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -853,6 +964,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -878,6 +992,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -893,6 +1010,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -912,6 +1032,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -937,6 +1060,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -954,6 +1080,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -978,6 +1107,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1003,6 +1135,9 @@
       "runtimes": [
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1020,6 +1155,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1044,6 +1182,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1068,6 +1209,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1093,6 +1237,9 @@
         "node-v8",
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1111,6 +1258,9 @@
         "node-v8",
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1129,6 +1279,9 @@
         "node-v8",
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1147,6 +1300,9 @@
         "node-v8",
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1165,6 +1321,9 @@
         "node-v8",
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1184,6 +1343,9 @@
         "bun-jsc",
         "deno-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1201,6 +1363,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1225,6 +1390,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1249,6 +1417,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1273,6 +1444,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1297,6 +1471,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1322,6 +1499,9 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1339,6 +1519,9 @@
       "runtimes": [
         "chrome-v8-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1355,6 +1538,9 @@
         "SCOPE_GUARD"
       ],
       "runtimes": [],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1376,6 +1562,9 @@
       },
       "evidenceKinds": [],
       "runtimes": [],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1400,6 +1589,9 @@
       "runtimes": [
         "deno-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1417,6 +1609,9 @@
       "runtimes": [
         "deno-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1434,6 +1629,9 @@
       "runtimes": [
         "deno-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1458,6 +1656,9 @@
       "runtimes": [
         "deno-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1483,6 +1684,9 @@
       "runtimes": [
         "deno-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1500,6 +1704,9 @@
       "runtimes": [
         "deno-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1524,6 +1731,9 @@
       "runtimes": [
         "deno-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1548,6 +1758,9 @@
       "runtimes": [
         "deno-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1572,6 +1785,9 @@
       "runtimes": [
         "deno-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1597,6 +1813,9 @@
       "runtimes": [
         "deno-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1622,6 +1841,9 @@
       "runtimes": [
         "deno-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1646,6 +1868,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1672,6 +1897,9 @@
         "bun-jsc",
         "deno-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1691,6 +1919,9 @@
         "bun-jsc",
         "deno-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1708,6 +1939,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1732,6 +1966,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1749,6 +1986,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1775,6 +2015,9 @@
         "woodstox-jvm",
         "quick-xml-rust"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1801,6 +2044,9 @@
         "woodstox-jvm",
         "quick-xml-rust"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1827,6 +2073,9 @@
         "woodstox-jvm",
         "quick-xml-rust"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1851,6 +2100,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1875,6 +2127,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1899,6 +2154,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1925,6 +2183,9 @@
         "woodstox-jvm",
         "quick-xml-rust"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1949,6 +2210,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1971,6 +2235,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -1995,6 +2262,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2021,6 +2291,9 @@
         "woodstox-jvm",
         "quick-xml-rust"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2045,6 +2318,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2069,6 +2345,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2095,6 +2374,9 @@
         "woodstox-jvm",
         "quick-xml-rust"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2120,6 +2402,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2144,6 +2429,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2168,6 +2456,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2192,6 +2483,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2216,6 +2510,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2240,6 +2537,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2264,6 +2564,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2288,6 +2591,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2312,6 +2618,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2336,6 +2645,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2360,6 +2672,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2384,6 +2699,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": {
         "status": "timeout",
@@ -2418,6 +2736,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2437,6 +2758,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2456,6 +2780,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": {
         "status": "no-dump-emitted",
@@ -2490,6 +2817,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2503,20 +2833,28 @@
       "contract": "local-spidermonkey-js-shell-codegen-surface-availability",
       "evidenceKinds": [
         "ENVIRONMENT_FACT",
-        "NEGATIVE_RESULT",
         "SCOPE_GUARD"
       ],
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": [
+          "G:\\tmp\\stax-spidermonkey-jsshell\\extract",
+          "G:\\tmp\\stax-spidermonkey-nightly-jsshell"
+        ]
+      },
       "availability": null,
       "outcome": {
-        "status": "not-found",
+        "status": "available",
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
-        "foundCount": 0,
-        "foundCandidates": [],
+        "foundCount": 2,
+        "foundCandidates": [
+          "G:\\tmp\\stax-spidermonkey-jsshell\\extract\\js.exe",
+          "G:\\tmp\\stax-spidermonkey-nightly-jsshell\\js.exe"
+        ],
         "packageVerified": null,
         "hasJitExecutionStatus": null,
         "hasIrDumpSurface": null,
@@ -2542,6 +2880,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2561,6 +2902,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": {
         "status": "available",
@@ -2601,6 +2945,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2627,6 +2974,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": {
         "status": "available",
@@ -2665,6 +3015,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2683,6 +3036,9 @@
       "runtimes": [
         "firefox-spidermonkey-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2700,6 +3056,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2724,6 +3083,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2748,6 +3110,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2772,6 +3137,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2796,6 +3164,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2820,6 +3191,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2848,6 +3222,9 @@
         "woodstox-jvm",
         "quick-xml-rust"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2864,6 +3241,9 @@
         "SCOPE_GUARD"
       ],
       "runtimes": [],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2880,6 +3260,9 @@
         "SCOPE_GUARD"
       ],
       "runtimes": [],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2896,6 +3279,9 @@
         "SCOPE_GUARD"
       ],
       "runtimes": [],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2913,6 +3299,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2936,6 +3325,9 @@
         "SCOPE_GUARD"
       ],
       "runtimes": [],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2954,6 +3346,9 @@
         "node-v8",
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2971,6 +3366,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -2995,6 +3393,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3017,6 +3418,9 @@
         "SOURCE_FACT"
       ],
       "runtimes": [],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3034,6 +3438,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3057,6 +3464,9 @@
         "SOURCE_FACT"
       ],
       "runtimes": [],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3074,6 +3484,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3098,6 +3511,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3123,6 +3539,9 @@
         "node-v8",
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3140,6 +3559,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3164,6 +3586,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3181,6 +3606,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3205,6 +3633,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3229,6 +3660,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3254,6 +3688,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3271,6 +3708,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3295,6 +3735,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3325,6 +3768,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3343,6 +3789,9 @@
       "runtimes": [
         "quick-xml-rust"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3368,6 +3817,9 @@
       "runtimes": [
         "quick-xml-rust"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3393,6 +3845,9 @@
       "runtimes": [
         "quick-xml-rust"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3412,6 +3867,9 @@
         "woodstox-jvm",
         "quick-xml-rust"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3431,6 +3889,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3449,6 +3910,9 @@
         "node-v8",
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3468,6 +3932,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3492,6 +3959,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3514,6 +3984,9 @@
         "SCOPE_GUARD"
       ],
       "runtimes": [],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3531,6 +4004,9 @@
       "runtimes": [
         "safari-jsc-browser"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": {
         "hostIsMacOS": false,
         "safariExecutableFound": false,
@@ -3559,6 +4035,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3584,6 +4063,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3609,6 +4091,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3634,6 +4119,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3658,6 +4146,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3680,6 +4171,9 @@
         "SOURCE_FACT"
       ],
       "runtimes": [],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3698,6 +4192,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3715,6 +4212,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3739,6 +4239,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3761,6 +4264,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3783,6 +4289,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3807,6 +4316,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3829,6 +4341,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3853,6 +4368,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3877,6 +4395,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3901,6 +4422,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3925,6 +4449,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3947,6 +4474,9 @@
         "SOURCE_FACT"
       ],
       "runtimes": [],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3964,6 +4494,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -3988,6 +4521,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4012,6 +4548,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4036,6 +4575,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4060,6 +4602,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4084,6 +4629,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4106,6 +4654,9 @@
         "SOURCE_FACT"
       ],
       "runtimes": [],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4124,6 +4675,9 @@
         "SCOPE_GUARD"
       ],
       "runtimes": [],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4143,6 +4697,9 @@
         "bun-jsc",
         "deno-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4162,6 +4719,9 @@
         "bun-jsc",
         "deno-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4179,6 +4739,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4203,6 +4766,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4227,6 +4793,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4251,6 +4820,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4275,6 +4847,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4299,6 +4874,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4323,6 +4901,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4348,6 +4929,9 @@
         "node-v8",
         "bun-jsc"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4365,6 +4949,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4389,6 +4976,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4413,6 +5003,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4437,6 +5030,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4461,6 +5057,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4485,6 +5084,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4507,6 +5109,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4524,6 +5129,9 @@
       "runtimes": [
         "node-v8"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4542,6 +5150,9 @@
       "runtimes": [
         "woodstox-jvm"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4567,6 +5178,9 @@
       "runtimes": [
         "woodstox-jvm"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4592,6 +5206,9 @@
       "runtimes": [
         "woodstox-jvm"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4617,6 +5234,9 @@
       "runtimes": [
         "woodstox-jvm"
       ],
+      "parameters": {
+        "searchRoots": null
+      },
       "availability": null,
       "outcome": null,
       "shell": null,
@@ -4669,7 +5289,7 @@
     "traceArtifactCount": 11,
     "allocationArtifactCount": 16,
     "environmentArtifactCount": 4,
-    "negativeArtifactCount": 19,
+    "negativeArtifactCount": 18,
     "largeJsFullRowCount": 792,
     "largeJsFullSourceInputSafety": {
       "rows": 792,
@@ -22438,10 +23058,10 @@
         {
           "id": "local-js-shell-discovery",
           "sourceArtifact": "firefox-spidermonkey-js-shell-availability-audit.json",
-          "status": "not-found",
+          "status": "available",
           "packageVerified": null,
-          "foundCount": 0,
-          "searchRoots": 3,
+          "foundCount": 2,
+          "searchRoots": 2,
           "dumpFileCount": null,
           "hasJitExecutionStatus": null,
           "irDumpSurface": null,
@@ -22453,7 +23073,7 @@
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": null,
           "closesEmittedIrObligation": false,
-          "evidenceClass": "negative-diagnostic-surface"
+          "evidenceClass": "availability-only"
         },
         {
           "id": "official-release-jsshell",
@@ -22518,7 +23138,7 @@
       ],
       "emittedIrEvidenceCount": 0,
       "jitStatusOnlyCount": 2,
-      "availabilityOnlyCount": 0,
+      "availabilityOnlyCount": 1,
       "missingIrSurfaceCount": 2
     },
     "codegenArtifacts": [
@@ -22533,6 +23153,9 @@
         "runtimes": [
           "chrome-v8-browser"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -22559,6 +23182,9 @@
         "runtimes": [
           "bun-jsc"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -22585,6 +23211,9 @@
         "runtimes": [
           "bun-jsc"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -22604,6 +23233,9 @@
         "runtimes": [
           "bun-jsc"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -22630,6 +23262,9 @@
         "runtimes": [
           "bun-jsc"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -22655,6 +23290,9 @@
         "runtimes": [
           "deno-v8"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -22680,6 +23318,9 @@
         "runtimes": [
           "deno-v8"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -22705,6 +23346,9 @@
         "runtimes": [
           "node-v8"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -22731,6 +23375,9 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -22755,6 +23402,9 @@
         "runtimes": [
           "node-v8"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -22780,6 +23430,9 @@
         "runtimes": [
           "woodstox-jvm"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -22807,6 +23460,9 @@
         "runtimes": [
           "chrome-v8-browser"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -22832,6 +23488,9 @@
         "runtimes": [
           "bun-jsc"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -22851,6 +23510,9 @@
         "runtimes": [
           "bun-jsc"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -22875,6 +23537,9 @@
         "runtimes": [
           "deno-v8"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -22899,6 +23564,9 @@
         "runtimes": [
           "deno-v8"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -22924,6 +23592,9 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -22942,6 +23613,9 @@
         "runtimes": [
           "quick-xml-rust"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -22967,6 +23641,9 @@
         "runtimes": [
           "quick-xml-rust"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -22991,6 +23668,9 @@
         "runtimes": [
           "node-v8"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23015,6 +23695,9 @@
         "runtimes": [
           "node-v8"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23039,6 +23722,9 @@
         "runtimes": [
           "node-v8"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23063,6 +23749,9 @@
         "runtimes": [
           "node-v8"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23087,6 +23776,9 @@
         "runtimes": [
           "node-v8"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23112,6 +23804,9 @@
         "runtimes": [
           "woodstox-jvm"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23137,6 +23832,9 @@
         "runtimes": [
           "woodstox-jvm"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23162,6 +23860,9 @@
         "runtimes": [
           "woodstox-jvm"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23184,20 +23885,28 @@
         "contract": "local-spidermonkey-js-shell-codegen-surface-availability",
         "evidenceKinds": [
           "ENVIRONMENT_FACT",
-          "NEGATIVE_RESULT",
           "SCOPE_GUARD"
         ],
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "parameters": {
+          "searchRoots": [
+            "G:\\tmp\\stax-spidermonkey-jsshell\\extract",
+            "G:\\tmp\\stax-spidermonkey-nightly-jsshell"
+          ]
+        },
         "availability": null,
         "outcome": {
-          "status": "not-found",
+          "status": "available",
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
-          "foundCount": 0,
-          "foundCandidates": [],
+          "foundCount": 2,
+          "foundCandidates": [
+            "G:\\tmp\\stax-spidermonkey-jsshell\\extract\\js.exe",
+            "G:\\tmp\\stax-spidermonkey-nightly-jsshell\\js.exe"
+          ],
           "packageVerified": null,
           "hasJitExecutionStatus": null,
           "hasIrDumpSurface": null,
@@ -23225,6 +23934,9 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": {
           "status": "available",
@@ -23265,6 +23977,9 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": {
           "status": "available",
@@ -23303,6 +24018,9 @@
         "runtimes": [
           "safari-jsc-browser"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": {
           "hostIsMacOS": false,
           "safariExecutableFound": false,
@@ -23331,6 +24049,9 @@
           "SCOPE_GUARD"
         ],
         "runtimes": [],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23347,6 +24068,9 @@
           "SCOPE_GUARD"
         ],
         "runtimes": [],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23363,6 +24087,9 @@
           "SCOPE_GUARD"
         ],
         "runtimes": [],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23379,6 +24106,9 @@
           "SCOPE_GUARD"
         ],
         "runtimes": [],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23396,6 +24126,9 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": {
           "status": "timeout",
@@ -23431,6 +24164,9 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23450,6 +24186,9 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": {
           "status": "no-dump-emitted",
@@ -23474,41 +24213,6 @@
         "measuredRowCount": 1
       },
       {
-        "sourceArtifact": "firefox-spidermonkey-js-shell-availability-audit.json",
-        "objective": "firefox-spidermonkey-js-shell-availability-audit",
-        "contract": "local-spidermonkey-js-shell-codegen-surface-availability",
-        "evidenceKinds": [
-          "ENVIRONMENT_FACT",
-          "NEGATIVE_RESULT",
-          "SCOPE_GUARD"
-        ],
-        "runtimes": [
-          "firefox-spidermonkey-browser"
-        ],
-        "availability": null,
-        "outcome": {
-          "status": "not-found",
-          "completed": null,
-          "emittedDump": null,
-          "dumpFileCount": null,
-          "foundCount": 0,
-          "foundCandidates": [],
-          "packageVerified": null,
-          "hasJitExecutionStatus": null,
-          "hasIrDumpSurface": null,
-          "hasBytecodeDumpOutput": null,
-          "hasNativeDisassemblySurface": null,
-          "nativeDumpComplete": null,
-          "canReadBinaryInput": null,
-          "canRunCurrentStaxFullStringBenchmark": null,
-          "closesEmittedIrObligation": null
-        },
-        "shell": null,
-        "fixture": null,
-        "corpusSeed": null,
-        "measuredRowCount": 0
-      },
-      {
         "sourceArtifact": "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
         "objective": "firefox-spidermonkey-nightly-jsshell-availability-audit",
         "contract": "official-firefox-nightly-jsshell-jit-status-and-diagnostic-surface",
@@ -23520,6 +24224,9 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": {
           "status": "available",
@@ -23560,6 +24267,9 @@
         "runtimes": [
           "firefox-spidermonkey-browser"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": {
           "status": "available",
@@ -23602,6 +24312,9 @@
           "woodstox-jvm",
           "quick-xml-rust"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23618,6 +24331,9 @@
           "SCOPE_GUARD"
         ],
         "runtimes": [],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23634,6 +24350,9 @@
           "SCOPE_GUARD"
         ],
         "runtimes": [],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23650,6 +24369,9 @@
           "SCOPE_GUARD"
         ],
         "runtimes": [],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23666,6 +24388,9 @@
           "SCOPE_GUARD"
         ],
         "runtimes": [],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23684,6 +24409,9 @@
         "runtimes": [
           "quick-xml-rust"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23703,6 +24431,9 @@
         "runtimes": [
           "node-v8"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23722,6 +24453,9 @@
         "runtimes": [
           "node-v8"
         ],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23747,6 +24481,9 @@
           "SCOPE_GUARD"
         ],
         "runtimes": [],
+        "parameters": {
+          "searchRoots": null
+        },
         "availability": null,
         "outcome": null,
         "shell": null,
@@ -23772,7 +24509,7 @@
     {
       "id": "codegen-traces-open",
       "status": "partial",
-      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Deno/V8 codegen trace evidence present (2 artifacts). Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=not-found, found=0, searchRoots=0); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.",
+      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Deno/V8 codegen trace evidence present (2 artifacts). Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=available, found=2, searchRoots=2); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.",
       "nextExperiment": "Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows."
     },
     {

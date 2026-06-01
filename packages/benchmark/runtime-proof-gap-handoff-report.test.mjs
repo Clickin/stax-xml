@@ -320,7 +320,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
     'firefox-spidermonkey-buildconfig-source-pin-audit.json',
   ]);
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /emitted no JIT diagnostic dump/.test(item)));
-  assert.ok(spiderMonkey.localClosure.blockers.some(item => /No local SpiderMonkey JS shell was found/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /Local SpiderMonkey JS shell candidates are available \(2\)/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /Official Firefox release jsshell is executable/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /Official Firefox nightly jsshell is executable/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /release jsshell.*bytecode dump status is no-bytecode-output/.test(item)));
@@ -420,7 +420,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /No Safari\/WebKit benchmark row is recorded/);
   assert.match(markdown, /No exact Safari\/WebKit source-boundary pin is recorded/);
   assert.match(markdown, /Installed Firefox diagnostic dump audit emitted no JIT diagnostic dump/);
-  assert.match(markdown, /No local SpiderMonkey JS shell was found/);
+  assert.match(markdown, /Local SpiderMonkey JS shell candidates are available \(2\)/);
   assert.match(markdown, /Official Firefox release jsshell is executable/);
   assert.match(markdown, /Official Firefox nightly jsshell is executable/);
   assert.match(markdown, /bytecode dump status is no-bytecode-output/);

@@ -439,6 +439,8 @@ function createLocalClosure(activeObligations, audit) {
       && diagnostic?.outcome?.emittedDump === false;
     const jsShellMissing = jsShell?.outcome?.status === 'not-found'
       && jsShell?.outcome?.foundCount === 0;
+    const jsShellAvailable = jsShell?.outcome?.status === 'available'
+      && (jsShell?.outcome?.foundCount ?? 0) > 0;
     const releaseJsShellNoIr = releaseJsShell?.outcome?.status === 'available'
       && releaseJsShell?.outcome?.closesEmittedIrObligation === false;
     const nightlyJsShellNoIr = nightlyJsShell?.outcome?.status === 'available'
@@ -449,7 +451,7 @@ function createLocalClosure(activeObligations, audit) {
       pin.kind === 'Firefox installed buildconfig JitSpew boundary'
       && /enableJitSpew=false/.test(pin.limitation ?? '')
     );
-    const blocked = diagnosticNoDump && jsShellMissing && releaseJsShellNoIr && nightlyJsShellNoIr;
+    const blocked = diagnosticNoDump && releaseJsShellNoIr && nightlyJsShellNoIr;
     items.push({
       obligationId: 'codegen-traces-open',
       localStatus: blocked ? 'external-run-required' : 'partial-local-status',
@@ -463,7 +465,9 @@ function createLocalClosure(activeObligations, audit) {
           : 'Installed Firefox diagnostic dump status is not a confirmed no-dump result.',
         jsShellMissing
           ? 'No local SpiderMonkey JS shell was found for JIT IR probing across env, PATH, and filesystem search-root probes.'
-          : 'SpiderMonkey JS shell availability is not confirmed missing.',
+          : jsShellAvailable
+            ? `Local SpiderMonkey JS shell candidates are available (${jsShell.outcome.foundCount}), but this availability audit records no emitted JIT IR or optimized-code dump.`
+            : 'SpiderMonkey JS shell availability is not pinned as available or missing.',
         releaseJsShellNoIr
           ? `Official Firefox release jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface, bytecode dump status is ${releaseBytecodeStatus}, and it cannot run the current stax full-string benchmark unchanged.`
           : 'Official Firefox release jsshell diagnostic status is not pinned as available-without-IR.',

@@ -596,7 +596,7 @@ not a runtime-limit proof.
 The current audit scans 205 primary release artifacts and recognizes 1,183
 measured rows. It records 150 benchmark artifacts, 22 source artifacts, 11
 trace/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and
-19 negative-result artifacts, 792 JavaScript 1 GiB+ full-string rows, and four
+18 negative-result artifacts, 792 JavaScript 1 GiB+ full-string rows, and four
 release corpus seeds: `books.xml`, `large.xml`, `midsize.xml`, and `treebank_e.xml`. The
 negative-result set now includes
 `concat-buffer-reuse-negative-result.json`, which records that reusable
@@ -682,7 +682,9 @@ js-shell availability audit narrow the codegen route. The official Firefox
 bytes to the file.` after writing a 93-byte file. It is therefore JIT-status
 and diagnostic-surface evidence only, still not emitted JIT IR. The regenerated coverage
 audit now preserves the exact local outcomes (`status=no-dump-emitted`,
-`dumpFiles=0`, `status=not-found`, `found=0`) and records that the installed
+`dumpFiles=0`) and the refreshed local js-shell availability facts
+(`status=available`, `found=2`, `searchRoots=2`) while still recording no
+emitted JIT IR from that availability audit. It also records that the installed
 Firefox `about:buildconfig` mentions `--enable-js-shell` and
 `MOZ_PACKAGE_JSSHELL=1` but does not mention `--enable-jitspew`, `JS_JITSPEW`,
 or `JS_STRUCTURED_SPEW`. The js-shell audits now record configured filesystem
@@ -1527,13 +1529,16 @@ separates the next SpiderMonkey codegen path from the installed-browser path.
 It checks the local `SPIDERMONKEY_JS_SHELL`, `JSSHELL`, and `JS_SHELL`
 environment variables plus common `PATH` candidates such as `js`, `jsshell`,
 `spidermonkey`, and `mozjs`. The regenerated audit also probes configured
-filesystem roots, including the local Firefox install directory and common
-Windows Mozilla install roots. On this Windows host the audit found no local
-SpiderMonkey JavaScript shell (`status=not-found`, `found=0`). That is a local
-`NEGATIVE_RESULT` for immediate js-shell JIT IR probing, not a global
-SpiderMonkey limitation. It means the remaining Firefox/SpiderMonkey codegen
-obligation now requires either a diagnostic-capable Firefox build or a separate
-debug/nightly SpiderMonkey shell artifact.
+filesystem roots. The refreshed audit now probes the already-downloaded
+official shell directories under `G:\tmp` and finds two local candidates:
+`G:\tmp\stax-spidermonkey-jsshell\extract\js.exe` (`JavaScript-C143.0.1`) and
+`G:\tmp\stax-spidermonkey-nightly-jsshell\js.exe` (`JavaScript-C143.0a1`).
+That moves the local shell availability artifact from a missing-shell
+`NEGATIVE_RESULT` to `ENVIRONMENT_FACT`; it still does not emit JIT IR,
+optimized code, allocation, or throughput evidence. The remaining
+Firefox/SpiderMonkey codegen obligation therefore requires a diagnostic-capable
+Firefox or SpiderMonkey build/shell, not merely the presence of a release
+js-shell executable.
 
 `packages/benchmark/results/release/firefox-spidermonkey-release-jsshell-availability-audit.md`
 then checks the official Firefox `143.0.1` release jsshell package from Mozilla's

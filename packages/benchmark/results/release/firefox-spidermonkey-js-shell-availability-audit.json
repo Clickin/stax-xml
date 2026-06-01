@@ -1,23 +1,17 @@
 {
-  "generatedAt": "2026-05-26T21:11:40.340Z",
+  "generatedAt": "2026-06-01T00:48:51.623Z",
   "objective": "firefox-spidermonkey-js-shell-availability-audit",
   "contract": "local-spidermonkey-js-shell-codegen-surface-availability",
   "note": "Checks whether a local SpiderMonkey JavaScript shell is available for follow-up JIT IR or optimized-code diagnostics. This is environment evidence only; absence of a shell is not proof that SpiderMonkey cannot emit codegen evidence elsewhere.",
   "environment": {
     "platform": "win32-x64",
     "pathEntries": 82,
-    "searchRootCount": 3
+    "searchRootCount": 2
   },
   "parameters": {
     "candidates": [
-      "js",
       "js.exe",
-      "jsshell",
-      "jsshell.exe",
-      "spidermonkey",
-      "spidermonkey.exe",
-      "mozjs",
-      "mozjs.exe"
+      "js"
     ],
     "envCandidates": [
       "SPIDERMONKEY_JS_SHELL",
@@ -25,16 +19,18 @@
       "JS_SHELL"
     ],
     "searchRoots": [
-      "C:\\Program Files\\Mozilla Firefox",
-      "C:\\Program Files (x86)\\Mozilla Firefox",
-      "C:\\Users\\z1z0b\\AppData\\Local\\Mozilla Firefox"
+      "G:\\tmp\\stax-spidermonkey-jsshell\\extract",
+      "G:\\tmp\\stax-spidermonkey-nightly-jsshell"
     ],
     "selfTest": null
   },
   "outcome": {
-    "status": "not-found",
-    "foundCount": 0,
-    "foundCandidates": []
+    "status": "available",
+    "foundCount": 2,
+    "foundCandidates": [
+      "G:\\tmp\\stax-spidermonkey-jsshell\\extract\\js.exe",
+      "G:\\tmp\\stax-spidermonkey-nightly-jsshell\\js.exe"
+    ]
   },
   "probes": [
     {
@@ -57,13 +53,6 @@
     },
     {
       "source": "PATH",
-      "candidate": "js",
-      "status": "missing",
-      "resolvedPath": "js",
-      "error": "spawnSync js ENOENT"
-    },
-    {
-      "source": "PATH",
       "candidate": "js.exe",
       "status": "missing",
       "resolvedPath": "js.exe",
@@ -71,117 +60,50 @@
     },
     {
       "source": "PATH",
-      "candidate": "jsshell",
+      "candidate": "js",
       "status": "missing",
-      "resolvedPath": "jsshell",
-      "error": "spawnSync jsshell ENOENT"
+      "resolvedPath": "js",
+      "error": "spawnSync js ENOENT"
     },
     {
-      "source": "PATH",
-      "candidate": "jsshell.exe",
+      "source": "filesystem:G:\\tmp\\stax-spidermonkey-jsshell\\extract",
+      "candidate": "G:\\tmp\\stax-spidermonkey-jsshell\\extract\\js.exe",
+      "status": "found",
+      "resolvedPath": "G:\\tmp\\stax-spidermonkey-jsshell\\extract\\js.exe",
+      "exitCode": 0,
+      "stdout": "JavaScript-C143.0.1",
+      "stderr": ""
+    },
+    {
+      "source": "filesystem:G:\\tmp\\stax-spidermonkey-jsshell\\extract",
+      "candidate": "G:\\tmp\\stax-spidermonkey-jsshell\\extract\\js",
       "status": "missing",
-      "resolvedPath": "jsshell.exe",
-      "error": "spawnSync jsshell.exe ENOENT"
+      "resolvedPath": "G:\\tmp\\stax-spidermonkey-jsshell\\extract\\js"
     },
     {
-      "source": "PATH",
-      "candidate": "spidermonkey",
+      "source": "filesystem:G:\\tmp\\stax-spidermonkey-nightly-jsshell",
+      "candidate": "G:\\tmp\\stax-spidermonkey-nightly-jsshell\\js.exe",
+      "status": "found",
+      "resolvedPath": "G:\\tmp\\stax-spidermonkey-nightly-jsshell\\js.exe",
+      "exitCode": 0,
+      "stdout": "JavaScript-C143.0a1",
+      "stderr": ""
+    },
+    {
+      "source": "filesystem:G:\\tmp\\stax-spidermonkey-nightly-jsshell",
+      "candidate": "G:\\tmp\\stax-spidermonkey-nightly-jsshell\\js",
       "status": "missing",
-      "resolvedPath": "spidermonkey",
-      "error": "spawnSync spidermonkey ENOENT"
-    },
-    {
-      "source": "PATH",
-      "candidate": "spidermonkey.exe",
-      "status": "missing",
-      "resolvedPath": "spidermonkey.exe",
-      "error": "spawnSync spidermonkey.exe ENOENT"
-    },
-    {
-      "source": "PATH",
-      "candidate": "mozjs",
-      "status": "missing",
-      "resolvedPath": "mozjs",
-      "error": "spawnSync mozjs ENOENT"
-    },
-    {
-      "source": "PATH",
-      "candidate": "mozjs.exe",
-      "status": "missing",
-      "resolvedPath": "mozjs.exe",
-      "error": "spawnSync mozjs.exe ENOENT"
-    },
-    {
-      "source": "filesystem:C:\\Program Files\\Mozilla Firefox",
-      "candidate": "C:\\Program Files\\Mozilla Firefox\\js",
-      "status": "missing",
-      "resolvedPath": "C:\\Program Files\\Mozilla Firefox\\js"
-    },
-    {
-      "source": "filesystem:C:\\Program Files\\Mozilla Firefox",
-      "candidate": "C:\\Program Files\\Mozilla Firefox\\js.exe",
-      "status": "missing",
-      "resolvedPath": "C:\\Program Files\\Mozilla Firefox\\js.exe"
-    },
-    {
-      "source": "filesystem:C:\\Program Files\\Mozilla Firefox",
-      "candidate": "C:\\Program Files\\Mozilla Firefox\\jsshell",
-      "status": "missing",
-      "resolvedPath": "C:\\Program Files\\Mozilla Firefox\\jsshell"
-    },
-    {
-      "source": "filesystem:C:\\Program Files\\Mozilla Firefox",
-      "candidate": "C:\\Program Files\\Mozilla Firefox\\jsshell.exe",
-      "status": "missing",
-      "resolvedPath": "C:\\Program Files\\Mozilla Firefox\\jsshell.exe"
-    },
-    {
-      "source": "filesystem:C:\\Program Files\\Mozilla Firefox",
-      "candidate": "C:\\Program Files\\Mozilla Firefox\\spidermonkey",
-      "status": "missing",
-      "resolvedPath": "C:\\Program Files\\Mozilla Firefox\\spidermonkey"
-    },
-    {
-      "source": "filesystem:C:\\Program Files\\Mozilla Firefox",
-      "candidate": "C:\\Program Files\\Mozilla Firefox\\spidermonkey.exe",
-      "status": "missing",
-      "resolvedPath": "C:\\Program Files\\Mozilla Firefox\\spidermonkey.exe"
-    },
-    {
-      "source": "filesystem:C:\\Program Files\\Mozilla Firefox",
-      "candidate": "C:\\Program Files\\Mozilla Firefox\\mozjs",
-      "status": "missing",
-      "resolvedPath": "C:\\Program Files\\Mozilla Firefox\\mozjs"
-    },
-    {
-      "source": "filesystem:C:\\Program Files\\Mozilla Firefox",
-      "candidate": "C:\\Program Files\\Mozilla Firefox\\mozjs.exe",
-      "status": "missing",
-      "resolvedPath": "C:\\Program Files\\Mozilla Firefox\\mozjs.exe"
-    },
-    {
-      "source": "filesystem-root",
-      "candidate": "C:\\Program Files (x86)\\Mozilla Firefox",
-      "status": "root-missing",
-      "resolvedPath": "C:\\Program Files (x86)\\Mozilla Firefox"
-    },
-    {
-      "source": "filesystem-root",
-      "candidate": "C:\\Users\\z1z0b\\AppData\\Local\\Mozilla Firefox",
-      "status": "root-missing",
-      "resolvedPath": "C:\\Users\\z1z0b\\AppData\\Local\\Mozilla Firefox"
+      "resolvedPath": "G:\\tmp\\stax-spidermonkey-nightly-jsshell\\js"
     }
   ],
   "findings": [
     {
-      "id": "spidermonkey-js-shell-not-found",
-      "classification": "NEGATIVE_RESULT",
-      "summary": "No local SpiderMonkey JavaScript shell candidate was found on PATH, in configured environment variables, or under configured filesystem search roots.",
+      "id": "spidermonkey-js-shell-available",
+      "classification": "ENVIRONMENT_FACT",
+      "summary": "A local SpiderMonkey JavaScript shell candidate is available for future JIT diagnostic runs.",
       "evidence": [
-        "candidates=js, js.exe, jsshell, jsshell.exe, spidermonkey, spidermonkey.exe, mozjs, mozjs.exe",
-        "envCandidates=SPIDERMONKEY_JS_SHELL, JSSHELL, JS_SHELL",
-        "searchRoots=C:\\Program Files\\Mozilla Firefox, C:\\Program Files (x86)\\Mozilla Firefox, C:\\Users\\z1z0b\\AppData\\Local\\Mozilla Firefox",
-        "This blocks local js-shell JIT IR probing, but it is not evidence that SpiderMonkey has no codegen headroom."
+        "candidate=G:\\tmp\\stax-spidermonkey-jsshell\\extract\\js.exe",
+        "candidate=G:\\tmp\\stax-spidermonkey-nightly-jsshell\\js.exe"
       ]
     },
     {

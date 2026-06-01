@@ -300,7 +300,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /headroom evidence rather than runtime-limit\s+counterexamples/);
   assert.match(markdown, /recognizes 1,183\s+measured rows/);
   assert.match(markdown, /current audit scans 205 primary release artifacts/);
-  assert.match(markdown, /150 benchmark artifacts, 22 source artifacts, 11\s+trace\/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and\s+19 negative-result artifacts, 792 JavaScript 1 GiB\+ full-string rows/);
+  assert.match(markdown, /150 benchmark artifacts, 22 source artifacts, 11\s+trace\/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and\s+18 negative-result artifacts, 792 JavaScript 1 GiB\+ full-string rows/);
   assert.match(markdown, /runtime-proof-handoff-validation\.md/);
   assert.match(markdown, /statically validates the two external-run handoffs/);
   assert.match(markdown, /12\s+referenced scripts exist, 28 release output paths are under the curated release\s+directory/);
@@ -843,8 +843,10 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /with the no-dump outcome preserved/);
   assert.match(markdown, /firefox-spidermonkey-js-shell-availability-audit\.md/);
   assert.match(markdown, /checks the local `SPIDERMONKEY_JS_SHELL`, `JSSHELL`, and `JS_SHELL`/);
-  assert.match(markdown, /found no local\s+SpiderMonkey JavaScript shell/);
-  assert.match(markdown, /`status=not-found`, `found=0`/);
+  assert.match(markdown, /finds two local candidates/);
+  assert.match(markdown, /G:\\tmp\\stax-spidermonkey-jsshell\\extract\\js\.exe/);
+  assert.match(markdown, /G:\\tmp\\stax-spidermonkey-nightly-jsshell\\js\.exe/);
+  assert.match(markdown, /moves the local shell availability artifact from a missing-shell\s+`NEGATIVE_RESULT` to `ENVIRONMENT_FACT`/);
   assert.match(markdown, /firefox-spidermonkey-release-jsshell-availability-audit\.md/);
   assert.match(markdown, /official Firefox `143\.0\.1` release jsshell package/);
   assert.match(markdown, /verifies `jsshell-win64\.zip` against\s+`SHA512SUMS`/);

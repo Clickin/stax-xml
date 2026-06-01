@@ -302,7 +302,15 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.traceArtifactCount, 11);
   assert.equal(report.summary.allocationArtifactCount, 16);
   assert.equal(report.summary.environmentArtifactCount, 4);
-  assert.equal(report.summary.negativeArtifactCount, 19);
+  assert.equal(report.summary.negativeArtifactCount, 18);
+  assert.ok(report.scannedArtifacts.some(artifact =>
+    artifact.sourceArtifact === 'firefox-spidermonkey-js-shell-availability-audit.json'
+    && artifact.evidenceKinds.includes('ENVIRONMENT_FACT')
+    && !artifact.evidenceKinds.includes('NEGATIVE_RESULT')
+    && artifact.outcome.status === 'available'
+    && artifact.outcome.foundCount === 2
+    && artifact.parameters.searchRoots.length === 2
+  ));
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'firefox-spidermonkey-release-jsshell-availability-audit.json'
     && artifact.evidenceKinds.includes('ENVIRONMENT_FACT')
@@ -802,10 +810,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     row.sourceArtifact === 'firefox-spidermonkey-js-shell-availability-audit.json'
     && row.runtimes.includes('firefox-spidermonkey-browser')
     && row.evidenceKinds.includes('ENVIRONMENT_FACT')
-    && row.evidenceKinds.includes('NEGATIVE_RESULT')
+    && !row.evidenceKinds.includes('NEGATIVE_RESULT')
     && row.measuredRowCount === 0
-    && row.outcome.status === 'not-found'
-    && row.outcome.foundCount === 0
+    && row.outcome.status === 'available'
+    && row.outcome.foundCount === 2
+    && row.parameters.searchRoots.length === 2
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'firefox-spidermonkey-buildconfig-source-pin-audit.json'
@@ -994,7 +1003,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey JitSpew\/IONFLAGS source gate evidence present, but it is not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey installed buildconfig source pin present \(buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true\)/);
   assert.match(markdown, /Firefox\/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build \(status=no-dump-emitted, dumpFiles=0\)/);
-  assert.match(markdown, /Firefox\/SpiderMonkey local js-shell availability audit present \(status=not-found, found=0, searchRoots=\d+\); no emitted JIT IR is recorded by that audit/);
+  assert.match(markdown, /Firefox\/SpiderMonkey local js-shell availability audit present \(status=available, found=2, searchRoots=2\); no emitted JIT IR is recorded by that audit/);
   assert.match(markdown, /Firefox\/SpiderMonkey official release js-shell audit present \(status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is JIT-status evidence only, not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey official nightly js-shell audit present \(status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is JIT-status evidence only, not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing/);
@@ -1002,7 +1011,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Environment artifacts: 4/);
   assert.match(markdown, /Source artifacts: 22/);
   assert.match(markdown, /Scanned primary artifacts: 205/);
-  assert.match(markdown, /Negative-result artifacts: 19/);
+  assert.match(markdown, /Negative-result artifacts: 18/);
   assert.match(markdown, /\| Node\/V8 \| 108 \| 558 \| 381 \|/);
   assert.match(markdown, /\| Bun\/JSC \| 40 \| 301 \| 194 \|/);
   assert.match(markdown, /\| Deno\/V8 \| 16 \| 110 \| 89 \|/);

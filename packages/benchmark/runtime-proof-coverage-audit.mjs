@@ -1137,6 +1137,7 @@ function summarizeArtifact(artifact) {
     contract: artifact.contract,
     evidenceKinds: artifact.evidenceKinds,
     runtimes: artifact.runtimes,
+    parameters: artifact.parameters,
     availability: artifact.availability,
     outcome: artifact.outcome,
     shell: artifact.shell,
