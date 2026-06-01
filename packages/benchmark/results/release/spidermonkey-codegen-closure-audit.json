@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T19:12:40.317Z",
+  "generatedAt": "2026-06-01T19:44:35.723Z",
   "objective": "spidermonkey-codegen-closure-audit",
   "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
   "note": "Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.",
@@ -52,9 +52,9 @@
             "taskId=unknown",
             "buildId=unknown",
             "sourceRevision=unknown",
-            "runtimeBuildIdentityRecorded=unknown",
-            "diagnosticFlagsRecorded=unknown",
-            "emittedDumpMetadataRecorded=unknown"
+            "runtimeBuildIdentityRecorded=false",
+            "diagnosticFlagsRecorded=false",
+            "emittedDumpMetadataRecorded=false"
           ]
         },
         "evidenceClassAllowed": {
@@ -119,9 +119,9 @@
             "taskId=unknown",
             "buildId=unknown",
             "sourceRevision=unknown",
-            "runtimeBuildIdentityRecorded=unknown",
-            "diagnosticFlagsRecorded=unknown",
-            "emittedDumpMetadataRecorded=unknown"
+            "runtimeBuildIdentityRecorded=false",
+            "diagnosticFlagsRecorded=false",
+            "emittedDumpMetadataRecorded=false"
           ]
         },
         "evidenceClassAllowed": {
@@ -186,9 +186,9 @@
             "taskId=unknown",
             "buildId=unknown",
             "sourceRevision=unknown",
-            "runtimeBuildIdentityRecorded=unknown",
-            "diagnosticFlagsRecorded=unknown",
-            "emittedDumpMetadataRecorded=unknown"
+            "runtimeBuildIdentityRecorded=false",
+            "diagnosticFlagsRecorded=false",
+            "emittedDumpMetadataRecorded=false"
           ]
         },
         "evidenceClassAllowed": {
@@ -253,9 +253,9 @@
             "taskId=unknown",
             "buildId=unknown",
             "sourceRevision=unknown",
-            "runtimeBuildIdentityRecorded=unknown",
-            "diagnosticFlagsRecorded=unknown",
-            "emittedDumpMetadataRecorded=unknown"
+            "runtimeBuildIdentityRecorded=false",
+            "diagnosticFlagsRecorded=false",
+            "emittedDumpMetadataRecorded=false"
           ]
         },
         "evidenceClassAllowed": {
@@ -319,9 +319,9 @@
             "taskId=unknown",
             "buildId=unknown",
             "sourceRevision=unknown",
-            "runtimeBuildIdentityRecorded=unknown",
-            "diagnosticFlagsRecorded=unknown",
-            "emittedDumpMetadataRecorded=unknown"
+            "runtimeBuildIdentityRecorded=false",
+            "diagnosticFlagsRecorded=false",
+            "emittedDumpMetadataRecorded=false"
           ]
         },
         "evidenceClassAllowed": {
@@ -386,9 +386,9 @@
             "taskId=unknown",
             "buildId=unknown",
             "sourceRevision=unknown",
-            "runtimeBuildIdentityRecorded=unknown",
-            "diagnosticFlagsRecorded=unknown",
-            "emittedDumpMetadataRecorded=unknown"
+            "runtimeBuildIdentityRecorded=false",
+            "diagnosticFlagsRecorded=false",
+            "emittedDumpMetadataRecorded=false"
           ]
         },
         "evidenceClassAllowed": {
@@ -453,9 +453,9 @@
             "taskId=unknown",
             "buildId=unknown",
             "sourceRevision=unknown",
-            "runtimeBuildIdentityRecorded=unknown",
-            "diagnosticFlagsRecorded=unknown",
-            "emittedDumpMetadataRecorded=unknown"
+            "runtimeBuildIdentityRecorded=false",
+            "diagnosticFlagsRecorded=true",
+            "emittedDumpMetadataRecorded=true"
           ]
         },
         "evidenceClassAllowed": {
@@ -519,9 +519,9 @@
             "taskId=unknown",
             "buildId=unknown",
             "sourceRevision=unknown",
-            "runtimeBuildIdentityRecorded=unknown",
-            "diagnosticFlagsRecorded=unknown",
-            "emittedDumpMetadataRecorded=unknown"
+            "runtimeBuildIdentityRecorded=false",
+            "diagnosticFlagsRecorded=false",
+            "emittedDumpMetadataRecorded=false"
           ]
         },
         "evidenceClassAllowed": {
@@ -585,9 +585,9 @@
             "taskId=unknown",
             "buildId=unknown",
             "sourceRevision=unknown",
-            "runtimeBuildIdentityRecorded=unknown",
-            "diagnosticFlagsRecorded=unknown",
-            "emittedDumpMetadataRecorded=unknown"
+            "runtimeBuildIdentityRecorded=false",
+            "diagnosticFlagsRecorded=false",
+            "emittedDumpMetadataRecorded=false"
           ]
         },
         "evidenceClassAllowed": {
@@ -651,9 +651,9 @@
             "taskId=unknown",
             "buildId=unknown",
             "sourceRevision=unknown",
-            "runtimeBuildIdentityRecorded=unknown",
-            "diagnosticFlagsRecorded=unknown",
-            "emittedDumpMetadataRecorded=unknown"
+            "runtimeBuildIdentityRecorded=false",
+            "diagnosticFlagsRecorded=false",
+            "emittedDumpMetadataRecorded=false"
           ]
         },
         "evidenceClassAllowed": {
@@ -717,9 +717,9 @@
             "taskId=bzK0wWZvQoOguMjTIbRJ_g",
             "buildId=20260531212007",
             "sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
-            "runtimeBuildIdentityRecorded=unknown",
-            "diagnosticFlagsRecorded=unknown",
-            "emittedDumpMetadataRecorded=unknown"
+            "runtimeBuildIdentityRecorded=true",
+            "diagnosticFlagsRecorded=true",
+            "emittedDumpMetadataRecorded=true"
           ]
         },
         "evidenceClassAllowed": {
@@ -782,9 +782,9 @@
             "taskId=bzK0wWZvQoOguMjTIbRJ_g",
             "buildId=20260531212007",
             "sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
-            "runtimeBuildIdentityRecorded=unknown",
-            "diagnosticFlagsRecorded=unknown",
-            "emittedDumpMetadataRecorded=unknown"
+            "runtimeBuildIdentityRecorded=true",
+            "diagnosticFlagsRecorded=true",
+            "emittedDumpMetadataRecorded=true"
           ]
         },
         "evidenceClassAllowed": {
@@ -847,9 +847,9 @@
             "taskId=bzK0wWZvQoOguMjTIbRJ_g",
             "buildId=20260531212007",
             "sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
-            "runtimeBuildIdentityRecorded=unknown",
-            "diagnosticFlagsRecorded=unknown",
-            "emittedDumpMetadataRecorded=unknown"
+            "runtimeBuildIdentityRecorded=true",
+            "diagnosticFlagsRecorded=true",
+            "emittedDumpMetadataRecorded=true"
           ]
         },
         "evidenceClassAllowed": {

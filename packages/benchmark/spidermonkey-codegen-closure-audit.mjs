@@ -73,6 +73,7 @@ function createReport(options) {
   const artifacts = readdirSync(options.releaseDir)
     .filter(file => file.endsWith('.json'))
     .filter(file => /spidermonkey|firefox/i.test(file))
+    .filter(file => file !== 'spidermonkey-codegen-closure-audit.json')
     .sort()
     .map(file => readArtifact(options.releaseDir, file));
   return buildReport(options, artifacts);
@@ -80,6 +81,16 @@ function createReport(options) {
 
 function createSelfTestReport(options) {
   return buildReport(options, [
+    {
+      sourceArtifact: 'spidermonkey-codegen-closure-audit.json',
+      root: {
+        objective: 'spidermonkey-codegen-closure-audit',
+        summary: {
+          candidateCount: 2,
+          qualifiedClosureCount: 1,
+        },
+      },
+    },
     {
       sourceArtifact: 'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json',
       root: {
@@ -100,6 +111,9 @@ function createSelfTestReport(options) {
             sourceRevision: 'abc123',
           },
           materializedCodegenProbe: {
+            status: 'materialized-string-object-codegen-output-emitted',
+            flags: 'codegen',
+            outputBytes: 4096,
             codegenMarkerCount: 42,
             nativeDumpComplete: true,
           },
@@ -129,6 +143,9 @@ function createSelfTestReport(options) {
             sourceRevision: 'def456',
           },
           codegenProbe: {
+            status: 'codegen-output-emitted',
+            flags: 'codegen',
+            outputBytes: 8192,
             codegenMarkerCount: 99,
             nativeDumpComplete: true,
           },
@@ -141,6 +158,7 @@ function createSelfTestReport(options) {
 function buildReport(options, artifacts) {
   const candidates = artifacts
     .map(createCandidate)
+    .filter(candidate => candidate.objective !== 'spidermonkey-codegen-closure-audit')
     .filter(candidate => candidate.hasAnyDiagnosticSurface || /codegen|diagnostic|jsshell|js-shell|buildconfig/i.test(candidate.sourceArtifact))
     .sort((left, right) => left.sourceArtifact.localeCompare(right.sourceArtifact));
   const qualified = candidates.filter(candidate => candidate.qualifiedClosure);
@@ -204,6 +222,9 @@ function createCandidate(artifact) {
   const selectedRowId = firstString(outcome.selectedRowId, summary.selectedRowId);
   const selectedEventCount = firstFiniteNumber(outcome.selectedEventCount, summary.selectedEventCount);
   const selectedChecksum = firstFiniteNumber(outcome.selectedChecksum, summary.selectedChecksum);
+  const runtimeBuildIdentityRecorded = hasSpiderMonkeyRuntimeBuildIdentity(root);
+  const diagnosticFlagsRecorded = hasSpiderMonkeyDiagnosticFlags(root);
+  const emittedDumpMetadataRecorded = hasSpiderMonkeyEmittedDumpMetadata(root, outcome);
   const requirements = {
     emittedCodegenSurface: {
       met: hasCodegenDumpOutput || irDumpSurface || nativeDumpComplete,
@@ -234,16 +255,16 @@ function createCandidate(artifact) {
       ],
     },
     closingMetadata: {
-      met: Boolean(provenance.taskId || provenance.buildId || provenance.sourceRevision || outcome.runtimeBuildIdentityRecorded === true)
-        && (outcome.diagnosticFlagsRecorded === true || hasCodegenDumpOutput)
-        && (outcome.emittedDumpMetadataRecorded === true || codegenMarkerCount > 0 || nativeDumpComplete),
+      met: runtimeBuildIdentityRecorded
+        && diagnosticFlagsRecorded
+        && emittedDumpMetadataRecorded,
       evidence: [
         `taskId=${provenance.taskId ?? 'unknown'}`,
         `buildId=${provenance.buildId ?? provenance.targetTxt?.buildId ?? provenance.buildhub?.buildId ?? 'unknown'}`,
         `sourceRevision=${provenance.sourceRevision ?? provenance.targetTxt?.sourceRevision ?? 'unknown'}`,
-        `runtimeBuildIdentityRecorded=${outcome.runtimeBuildIdentityRecorded ?? 'unknown'}`,
-        `diagnosticFlagsRecorded=${outcome.diagnosticFlagsRecorded ?? 'unknown'}`,
-        `emittedDumpMetadataRecorded=${outcome.emittedDumpMetadataRecorded ?? 'unknown'}`,
+        `runtimeBuildIdentityRecorded=${runtimeBuildIdentityRecorded}`,
+        `diagnosticFlagsRecorded=${diagnosticFlagsRecorded}`,
+        `emittedDumpMetadataRecorded=${emittedDumpMetadataRecorded}`,
       ],
     },
     evidenceClassAllowed: {
@@ -365,6 +386,63 @@ function firstString(...values) {
     if (typeof value === 'string' && value.length > 0) return value;
   }
   return null;
+}
+
+function hasSpiderMonkeyRuntimeBuildIdentity(root) {
+  if (root?.outcome?.runtimeBuildIdentityRecorded === true) return true;
+  const provenance = root?.shell?.provenance ?? {};
+  const buildId = firstString(
+    provenance.buildId,
+    provenance.targetTxt?.buildId,
+    provenance.buildhub?.buildId,
+  );
+  const sourceRevision = firstString(
+    provenance.sourceRevision,
+    provenance.targetTxt?.sourceRevision,
+    provenance.buildhub?.sourceRevision,
+  );
+  return Boolean(buildId && sourceRevision);
+}
+
+function hasSpiderMonkeyDiagnosticFlags(root) {
+  if (root?.outcome?.diagnosticFlagsRecorded === true) return true;
+  return getSpiderMonkeyCodegenProbes(root).some(probe => {
+    const flags = probe?.flags;
+    return typeof flags === 'string'
+      ? flags.length > 0
+      : Array.isArray(flags) && flags.length > 0;
+  });
+}
+
+function hasSpiderMonkeyEmittedDumpMetadata(root, outcome) {
+  if (outcome?.emittedDumpMetadataRecorded === true) return true;
+  return outcome?.hasCodegenDumpOutput === true
+    && getSpiderMonkeyCodegenProbes(root).some(hasPositiveSpiderMonkeyCodegenProbe);
+}
+
+function getSpiderMonkeyCodegenProbes(root) {
+  const shell = root?.shell ?? {};
+  return [
+    shell.codegenProbe,
+    shell.xmlCodegenProbe,
+    shell.materializedCodegenProbe,
+  ].filter(Boolean);
+}
+
+function hasPositiveSpiderMonkeyCodegenProbe(probe) {
+  const status = typeof probe.status === 'string' ? probe.status : '';
+  const emittedStatus = /codegen-output-emitted$/.test(status);
+  const positiveOutputBytes = typeof probe.outputBytes === 'number' && probe.outputBytes > 0;
+  const positiveCodegenMarkers = typeof probe.codegenMarkerCount === 'number' && probe.codegenMarkerCount > 0;
+  const positiveIonMarkers = typeof probe.ionScriptMarkerCount === 'number' && probe.ionScriptMarkerCount > 0;
+  const positiveAssemblyMnemonics = typeof probe.assemblyMnemonicCount === 'number' && probe.assemblyMnemonicCount > 0;
+  return emittedStatus
+    && (
+      positiveCodegenMarkers
+      || positiveIonMarkers
+      || positiveAssemblyMnemonics
+      || positiveOutputBytes
+    );
 }
 
 function inferEvidenceClass(sourceArtifact, outcome) {
