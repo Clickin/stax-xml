@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T21:43:16.664Z",
+  "generatedAt": "2026-06-01T21:48:28.178Z",
   "objective": "spidermonkey-codegen-closure-audit",
   "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
   "note": "Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.",
@@ -243,7 +243,7 @@
       "sourceArtifact": "firefox-spidermonkey-jsshell-stax-api-gap-audit.json",
       "objective": "firefox-spidermonkey-jsshell-stax-api-gap-audit",
       "status": "blocked-by-host-api-surface",
-      "evidenceClass": "unknown",
+      "evidenceClass": "host-api-surface-gap",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMetadataMissingFields": [
@@ -301,7 +301,7 @@
         "evidenceClassAllowed": {
           "met": false,
           "evidence": [
-            "evidenceClass=unknown"
+            "evidenceClass=host-api-surface-gap"
           ]
         }
       },
@@ -548,7 +548,7 @@
       "sourceArtifact": "spidermonkey-jsshell-diagnostic-flag-sweep.json",
       "objective": "spidermonkey-jsshell-diagnostic-flag-sweep",
       "status": "available",
-      "evidenceClass": "unknown",
+      "evidenceClass": "diagnostic-flag-sweep-negative",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMetadataMissingFields": [
@@ -606,7 +606,7 @@
         "evidenceClassAllowed": {
           "met": false,
           "evidence": [
-            "evidenceClass=unknown"
+            "evidenceClass=diagnostic-flag-sweep-negative"
           ]
         }
       },
@@ -625,7 +625,7 @@
       "sourceArtifact": "spidermonkey-jsshell-materialized-headroom.json",
       "objective": "spidermonkey-jsshell-materialized-headroom",
       "status": null,
-      "evidenceClass": "unknown",
+      "evidenceClass": "materialized-headroom-only",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMetadataMissingFields": [
@@ -683,7 +683,7 @@
         "evidenceClassAllowed": {
           "met": false,
           "evidence": [
-            "evidenceClass=unknown"
+            "evidenceClass=materialized-headroom-only"
           ]
         }
       },
@@ -702,7 +702,7 @@
       "sourceArtifact": "spidermonkey-jsshell-tokenizer-headroom.json",
       "objective": "spidermonkey-jsshell-tokenizer-headroom",
       "status": null,
-      "evidenceClass": "unknown",
+      "evidenceClass": "parser-core-headroom-only",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMetadataMissingFields": [
@@ -760,7 +760,7 @@
         "evidenceClassAllowed": {
           "met": false,
           "evidence": [
-            "evidenceClass=unknown"
+            "evidenceClass=parser-core-headroom-only"
           ]
         }
       },
@@ -1231,9 +1231,12 @@
       "current-debug-codegen-scope-guard": 2,
       "current-debug-materialized-codegen-scope-guard": 2,
       "current-debug-xml-codegen-scope-guard": 1,
+      "diagnostic-flag-sweep-negative": 1,
+      "host-api-surface-gap": 1,
+      "materialized-headroom-only": 1,
       "negative-diagnostic-surface": 1,
-      "source-pin-only": 1,
-      "unknown": 4
+      "parser-core-headroom-only": 1,
+      "source-pin-only": 1
     },
     "disallowedEvidenceClassCounts": {
       "archival-codegen-scope-guard": 1,
@@ -1241,9 +1244,12 @@
       "current-debug-codegen-scope-guard": 2,
       "current-debug-materialized-codegen-scope-guard": 2,
       "current-debug-xml-codegen-scope-guard": 1,
+      "diagnostic-flag-sweep-negative": 1,
+      "host-api-surface-gap": 1,
+      "materialized-headroom-only": 1,
       "negative-diagnostic-surface": 1,
-      "source-pin-only": 1,
-      "unknown": 4
+      "parser-core-headroom-only": 1,
+      "source-pin-only": 1
     },
     "blockedCandidateCount": 15,
     "minimumBlockedRequirementCount": 4,

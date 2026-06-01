@@ -17,6 +17,8 @@ const disallowedEvidenceClasses = new Set([
   'jit-status-only',
   'host-api-surface-gap',
   'diagnostic-flag-sweep-negative',
+  'parser-core-headroom-only',
+  'materialized-headroom-only',
   'negative-diagnostic-surface',
   'source-pin-only',
   'archival-codegen-scope-guard',
@@ -656,6 +658,10 @@ function inferEvidenceClass(sourceArtifact, outcome) {
   if (/availability-audit/.test(sourceArtifact)) return 'availability-only';
   if (/buildconfig|source-pin/.test(sourceArtifact)) return 'source-pin-only';
   if (/diagnostic-dump/.test(sourceArtifact) && outcome?.status === 'no-dump-emitted') return 'negative-diagnostic-surface';
+  if (/stax-api-gap/.test(sourceArtifact)) return 'host-api-surface-gap';
+  if (/diagnostic-flag-sweep/.test(sourceArtifact)) return 'diagnostic-flag-sweep-negative';
+  if (/tokenizer-headroom/.test(sourceArtifact)) return 'parser-core-headroom-only';
+  if (/materialized-headroom/.test(sourceArtifact)) return 'materialized-headroom-only';
   if (/archival/.test(sourceArtifact)) return 'archival-codegen-scope-guard';
   if (/materialized-codegen/.test(sourceArtifact)) return 'current-debug-materialized-codegen-scope-guard';
   if (/xml-codegen/.test(sourceArtifact)) return 'current-debug-xml-codegen-scope-guard';

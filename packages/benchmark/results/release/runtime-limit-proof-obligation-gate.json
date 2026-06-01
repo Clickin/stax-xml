@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T21:44:19.470Z",
+  "generatedAt": "2026-06-01T21:49:14.837Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -417,7 +417,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-01T21:43:37.152Z",
+    "generatedAt": "2026-06-01T21:48:53.026Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -532,9 +532,9 @@
   },
   "handoffValidationSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-01T21:43:47.833Z",
-    "validatedHandoffGeneratedAt": "2026-06-01T21:43:37.152Z",
-    "currentHandoffGeneratedAt": "2026-06-01T21:43:37.152Z",
+    "generatedAt": "2026-06-01T21:49:03.974Z",
+    "validatedHandoffGeneratedAt": "2026-06-01T21:48:53.026Z",
+    "currentHandoffGeneratedAt": "2026-06-01T21:48:53.026Z",
     "pass": true,
     "allContractsPresent": true,
     "requiredHandoffsPresent": true,
