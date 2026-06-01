@@ -787,6 +787,13 @@ function createHandoffGuards(byId) {
       description: 'SpiderMonkey closing artifacts must require sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true unless a browser-row artifact supplies closure.',
       satisfied: spiderChecks.some(item => /sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true/.test(item)),
     },
+    {
+      id: 'spidermonkey-same-contract-comparison-required',
+      description: 'SpiderMonkey closing artifacts must require the selected row id to match same-contract-runtime-comparison.json with event count and checksum parity.',
+      satisfied: spiderChecks.some(item => /selected row id must match a current same-contract full-string JavaScript row/.test(item))
+        && spiderChecks.some(item => /same-contract-runtime-comparison\.json/.test(item))
+        && spiderChecks.some(item => /event count and checksum parity/.test(item)),
+    },
   ];
 }
 

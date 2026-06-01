@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T13:55:24.217Z",
+  "generatedAt": "2026-06-01T13:59:54.032Z",
   "objective": "runtime-proof-handoff-validation",
   "contract": "external-run-handoff-command-and-contract-static-validation",
   "note": "Static validation for runtime-proof-gap-handoff external runbooks. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
@@ -75,6 +75,8 @@
       "requiredContractPatterns": [
         "emitted Firefox\\/SpiderMonkey JIT IR",
         "runtime\\/build identity",
+        "selected row id",
+        "same-contract-runtime-comparison\\.json",
         "event count",
         "checksum parity",
         "jit-status-only",

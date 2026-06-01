@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T13:51:45.807Z",
+  "generatedAt": "2026-06-01T13:59:52.937Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -390,6 +390,11 @@
         "id": "spidermonkey-unchanged-stax-required",
         "description": "SpiderMonkey closing artifacts must require sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true unless a browser-row artifact supplies closure.",
         "satisfied": true
+      },
+      {
+        "id": "spidermonkey-same-contract-comparison-required",
+        "description": "SpiderMonkey closing artifacts must require the selected row id to match same-contract-runtime-comparison.json with event count and checksum parity.",
+        "satisfied": true
       }
     ]
   },
@@ -743,8 +748,8 @@
     "satisfiedProofRules": 18,
     "requiredProofRules": 18,
     "currentCounterexamples": 0,
-    "satisfiedHandoffGuards": 7,
-    "requiredHandoffGuards": 7,
+    "satisfiedHandoffGuards": 8,
+    "requiredHandoffGuards": 8,
     "satisfiedSourceAuditGuards": 6,
     "requiredSourceAuditGuards": 6,
     "satisfiedFrontierAuditGuards": 6,

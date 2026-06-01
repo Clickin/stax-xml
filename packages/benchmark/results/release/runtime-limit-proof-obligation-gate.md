@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T13:51:45.807Z
+Generated: 2026-06-01T13:59:52.937Z
 
 ## Scope
 
@@ -112,6 +112,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `spidermonkey-emitted-ir-required` | yes | SpiderMonkey closure checks must require emitted IR/codegen evidence and no missing IR surface. |
 | `spidermonkey-materialized-scope-not-enough` | yes | SpiderMonkey materialized js-shell codegen must require closureRequirementsBlocked=0 and closesCodegenObligation=true before closing. |
 | `spidermonkey-unchanged-stax-required` | yes | SpiderMonkey closing artifacts must require sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true unless a browser-row artifact supplies closure. |
+| `spidermonkey-same-contract-comparison-required` | yes | SpiderMonkey closing artifacts must require the selected row id to match same-contract-runtime-comparison.json with event count and checksum parity. |
 
 ## Source Audit Snapshot
 
