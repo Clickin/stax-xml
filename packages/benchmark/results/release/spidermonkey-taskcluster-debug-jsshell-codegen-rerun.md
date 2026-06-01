@@ -1,6 +1,6 @@
 # SpiderMonkey Taskcluster Debug JS Shell Codegen Audit
 
-Generated: 2026-06-01T19:53:14.199Z
+Generated: 2026-06-01T22:15:51.551Z
 
 Checks a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell for JitSpew codegen output. This proves a current diagnostic-capable shell surface, but it is not a same-contract StAX full-string row because the js-shell host API surface cannot run the unchanged benchmark.
 
@@ -8,13 +8,13 @@ Checks a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell f
 
 - Status: available
 - Version: JavaScript-C153.0a1
-- Task ID: bzK0wWZvQoOguMjTIbRJ_g
+- Task ID: MUZBnP38TzWA6MfuY9BfzQ
 - Route: gecko.v2.mozilla-central.latest.firefox.win64-debug
 - Artifact: public/build/target.jsshell.zip
-- Artifact bytes: not-recorded
-- Build ID: 20260531212007
-- Build date: 2026-05-31T21:20:07Z
-- Source revision: 71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7
+- Artifact bytes: 24836439
+- Build ID: 20260601210056
+- Build date: 2026-06-01T21:00:56Z
+- Source revision: 221c997c114ef812c7d1547bf68f703f4473d178
 - Source repository: https://hg.mozilla.org/mozilla-central
 - Target version: 153.0a1
 - Debug build: true
@@ -33,7 +33,7 @@ Checks a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell f
 - Flags: codegen
 - Exit code: 0
 - Checksum: 5050
-- Output bytes: 2339559
+- Output bytes: 2339587
 - Stdout lines: 1
 - Stderr lines: 54757
 - Codegen marker count: 54756
@@ -81,7 +81,7 @@ checksum=5050
 [Codegen] 000044  movq       %rsp, %rax
 [Codegen] 000047  andq       $0xfffffffffffffff0, %rsp
 [Codegen] 00004b  push       %rax
-[Codegen] 00004c  movabsq    $0x7ff6ebc9224c, %rax
+[Codegen] 00004c  movabsq    $0x7ff7b0b6234c, %rax
 [Codegen] 000056  subq       $40, %rsp
 [Codegen] 00005a  movq       %rax, %rcx
 [Codegen] 00005d  testb      $0xf, %spl
@@ -95,10 +95,10 @@ checksum=5050
 
 - taskcluster-debug-jsshell-codegen-emitted (TRACE_FACT): The current Taskcluster debug SpiderMonkey shell emits JitSpew codegen diagnostics under IONFLAGS/JIT_SPEW.
   - version=JavaScript-C153.0a1
-  - taskId=bzK0wWZvQoOguMjTIbRJ_g
+  - taskId=MUZBnP38TzWA6MfuY9BfzQ
   - route=gecko.v2.mozilla-central.latest.firefox.win64-debug
-  - buildId=20260531212007
-  - sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7
+  - buildId=20260601210056
+  - sourceRevision=221c997c114ef812c7d1547bf68f703f4473d178
   - debug=true
   - official=true
   - status=codegen-output-emitted

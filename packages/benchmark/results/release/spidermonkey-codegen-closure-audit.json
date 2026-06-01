@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T22:02:36.501Z",
+  "generatedAt": "2026-06-01T22:20:19.815Z",
   "objective": "spidermonkey-codegen-closure-audit",
   "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
   "note": "Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.",
@@ -822,9 +822,9 @@
         "closingMetadata": {
           "met": true,
           "evidence": [
-            "taskId=bzK0wWZvQoOguMjTIbRJ_g",
-            "buildId=20260531212007",
-            "sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+            "taskId=MUZBnP38TzWA6MfuY9BfzQ",
+            "buildId=20260601210056",
+            "sourceRevision=221c997c114ef812c7d1547bf68f703f4473d178",
             "runtimeBuildIdentityRecorded=true",
             "diagnosticFlagsRecorded=true",
             "emittedDumpMetadataRecorded=true"
@@ -893,9 +893,9 @@
         "closingMetadata": {
           "met": true,
           "evidence": [
-            "taskId=bzK0wWZvQoOguMjTIbRJ_g",
-            "buildId=20260531212007",
-            "sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+            "taskId=MUZBnP38TzWA6MfuY9BfzQ",
+            "buildId=20260601210056",
+            "sourceRevision=221c997c114ef812c7d1547bf68f703f4473d178",
             "runtimeBuildIdentityRecorded=true",
             "diagnosticFlagsRecorded=true",
             "emittedDumpMetadataRecorded=true"
@@ -964,9 +964,9 @@
         "closingMetadata": {
           "met": true,
           "evidence": [
-            "taskId=bzK0wWZvQoOguMjTIbRJ_g",
-            "buildId=20260531212007",
-            "sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+            "taskId=MUZBnP38TzWA6MfuY9BfzQ",
+            "buildId=20260601210056",
+            "sourceRevision=221c997c114ef812c7d1547bf68f703f4473d178",
             "runtimeBuildIdentityRecorded=true",
             "diagnosticFlagsRecorded=true",
             "emittedDumpMetadataRecorded=true"
@@ -1035,9 +1035,9 @@
         "closingMetadata": {
           "met": true,
           "evidence": [
-            "taskId=bzK0wWZvQoOguMjTIbRJ_g",
-            "buildId=20260531212007",
-            "sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+            "taskId=MUZBnP38TzWA6MfuY9BfzQ",
+            "buildId=20260601210056",
+            "sourceRevision=221c997c114ef812c7d1547bf68f703f4473d178",
             "runtimeBuildIdentityRecorded=true",
             "diagnosticFlagsRecorded=true",
             "emittedDumpMetadataRecorded=true"
@@ -1106,9 +1106,9 @@
         "closingMetadata": {
           "met": true,
           "evidence": [
-            "taskId=bzK0wWZvQoOguMjTIbRJ_g",
-            "buildId=20260531212007",
-            "sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+            "taskId=MUZBnP38TzWA6MfuY9BfzQ",
+            "buildId=20260601210056",
+            "sourceRevision=221c997c114ef812c7d1547bf68f703f4473d178",
             "runtimeBuildIdentityRecorded=true",
             "diagnosticFlagsRecorded=true",
             "emittedDumpMetadataRecorded=true"

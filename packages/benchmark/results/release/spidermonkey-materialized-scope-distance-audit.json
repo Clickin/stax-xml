@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T14:34:31.269Z",
+  "generatedAt": "2026-06-01T22:20:04.795Z",
   "objective": "spidermonkey-materialized-scope-distance-audit",
   "contract": "materialized-js-shell-workload-equivalence-and-scope-distance",
   "note": "Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen artifact against the token-only codegen artifact, the js-shell StAX API gap, and the semantic materialization contract. This audit records exactly what the materialized js-shell workload proves and why it still cannot close the unchanged StAX codegen obligation.",
@@ -79,14 +79,14 @@
     "materialized": {
       "contractScope": "ascii-js-string-and-public-event-object-materialization",
       "fullStringParity": true,
-      "diagnosticThroughputMiBPerSec": 0.4909373604499916,
+      "diagnosticThroughputMiBPerSec": 0.25002012796318257,
       "diagnosticThroughputClass": "debug-jitspew-diagnostic-not-frontier",
       "throughputCountsAsTargetEvidence": false,
       "sameSemanticChecksumFields": true,
-      "eventCount": 223041,
-      "checksum": 167904020,
-      "materializedStringCount": 245161,
-      "materializedObjectCount": 223041,
+      "eventCount": 55759,
+      "checksum": -553631888,
+      "materializedStringCount": 61289,
+      "materializedObjectCount": 55759,
       "codegenMarkers": 234522
     }
   },
@@ -140,7 +140,7 @@
     {
       "id": "full-string-semantic-materialization",
       "required": "The workload materializes JS strings and public event objects for the checksum fields under test.",
-      "observed": "fullStringParity=true, materializedStringCount=245161, materializedObjectCount=223041",
+      "observed": "fullStringParity=true, materializedStringCount=61289, materializedObjectCount=55759",
       "status": "met"
     },
     {
@@ -173,9 +173,9 @@
       "id": "same-current-debug-shell-build",
       "status": "pass",
       "evidence": [
-        "materializedTaskId=bzK0wWZvQoOguMjTIbRJ_g",
-        "tokenTaskId=bzK0wWZvQoOguMjTIbRJ_g",
-        "buildId=20260531212007"
+        "materializedTaskId=MUZBnP38TzWA6MfuY9BfzQ",
+        "tokenTaskId=MUZBnP38TzWA6MfuY9BfzQ",
+        "buildId=20260601210056"
       ]
     },
     {
@@ -184,16 +184,16 @@
       "evidence": [
         "sameSemanticChecksumFields=true",
         "fullStringParity=true",
-        "checksum=167904020"
+        "checksum=-553631888"
       ]
     },
     {
       "id": "materializes-js-strings-and-public-event-objects",
       "status": "pass",
       "evidence": [
-        "materializedStringCount=245161",
-        "materializedObjectCount=223041",
-        "materializedAttributeObjectCount=78342"
+        "materializedStringCount=61289",
+        "materializedObjectCount=55759",
+        "materializedAttributeObjectCount=19586"
       ]
     },
     {
@@ -203,7 +203,7 @@
         "tokenFullStringParity=false",
         "materializedFullStringParity=true",
         "tokenChecksum=9292058",
-        "materializedChecksum=167904020"
+        "materializedChecksum=-553631888"
       ]
     },
     {
@@ -234,7 +234,7 @@
     "sourceArtifactDeclaresClosure": false,
     "closureClaimContradictedByScope": false,
     "closesCodegenObligation": false,
-    "diagnosticThroughputMiBPerSec": 0.4909373604499916,
+    "diagnosticThroughputMiBPerSec": 0.25002012796318257,
     "diagnosticThroughputClass": "debug-jitspew-diagnostic-not-frontier",
     "throughputCountsAsTargetEvidence": false,
     "unchangedStaxBenchmark": false,
@@ -248,9 +248,9 @@
       "summary": "The materialized js-shell workload folds the same semantic string fields for the ASCII corpus-seed scope and records positive JS string/object materialization counters.",
       "evidence": [
         "semanticEquivalentForAsciiFields=true",
-        "materializedStringCount=245161",
-        "materializedObjectCount=223041",
-        "checksum=167904020"
+        "materializedStringCount=61289",
+        "materializedObjectCount=55759",
+        "checksum=-553631888"
       ]
     },
     {
@@ -288,7 +288,7 @@
       "classification": "SCOPE_GUARD",
       "summary": "The measured MiB/s from the current debug js-shell JitSpew run is recorded for reproducibility but cannot be cited as target-distance, frontier, or counterexample evidence.",
       "evidence": [
-        "diagnosticThroughputMiBPerSec=0.4909373604499916",
+        "diagnosticThroughputMiBPerSec=0.25002012796318257",
         "diagnosticThroughputClass=debug-jitspew-diagnostic-not-frontier",
         "throughputCountsAsTargetEvidence=false",
         "reason=debug shell plus codegen diagnostic output, small ASCII materialized workload, and not the unchanged same-contract StAX row"

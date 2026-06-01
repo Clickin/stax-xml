@@ -1702,8 +1702,8 @@ SpiderMonkey IR or optimized code and does not close `codegen-traces-open`.
 `packages/benchmark/results/release/spidermonkey-taskcluster-debug-jsshell-codegen-audit.md`
 then checks a current Mozilla Taskcluster `mozilla-central` win64-debug
 js-shell from route `gecko.v2.mozilla-central.latest.firefox.win64-debug`
-(task `bzK0wWZvQoOguMjTIbRJ_g`). It records build id `20260531212007`,
-source revision `71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7`, target version
+(task `MUZBnP38TzWA6MfuY9BfzQ`). It records build id `20260601210056`,
+source revision `221c997c114ef812c7d1547bf68f703f4473d178`, target version
 `153.0a1`, `debug=true`, `official=true`, and shell version
 `JavaScript-C153.0a1`. Under `IONFLAGS=codegen` and `JIT_SPEW=codegen`, the
 small deterministic JIT probe preserves checksum `5050` and emits 54,756

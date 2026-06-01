@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T22:10:02.068Z
+Generated: 2026-06-01T22:21:15.468Z
 
 ## Scope
 
@@ -87,7 +87,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-01T22:02:49.465Z)
+- Coverage audit loaded: yes (2026-06-01T22:20:23.701Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey diagnostics rows vs closure candidates: 11/15 (gap=4, closureQualified=0)
@@ -109,7 +109,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 - Same-contract comparison contract: same-full-string-checksum-contract-not-same-object-shape; publicEventCase=eventObjectFull; objectShapeEquivalence=false; memoryEquivalence=false
 - Same-contract comparison rows: 289/289; largeFullJsRows=239
 - Same-contract comparison counterexamples: 0
-- Runtime counterexample scan loaded: yes (2026-06-01T20:12:13.700Z)
+- Runtime counterexample scan loaded: yes (2026-06-01T22:20:43.369Z)
 - Counterexample scan contract: threshold=200.00 MiB/s, minSizeGiB=1.00, parseErrors=0
 - Counterexample scan coverage shape: artifacts=224/224, measuredRows=1255/1255
 - Runtime counterexample scan counterexamples: 0
@@ -125,7 +125,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-01T22:09:37.702Z)
+- Handoff loaded: yes (2026-06-01T22:20:59.605Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -153,8 +153,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-01T22:09:49.265Z)
-- Handoff validation target handoff generatedAt: 2026-06-01T22:09:37.702Z (current 2026-06-01T22:09:37.702Z)
+- Handoff validation loaded: yes (2026-06-01T22:21:02.824Z)
+- Handoff validation target handoff generatedAt: 2026-06-01T22:20:59.605Z (current 2026-06-01T22:20:59.605Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes
 - Required contracts present: yes
@@ -172,8 +172,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-01T22:02:59.763Z)
-- Source audit inputs: comparison=2026-06-01T17:12:20.521Z (current 2026-06-01T17:12:20.521Z), coverage=2026-06-01T22:02:49.465Z (current 2026-06-01T22:02:49.465Z)
+- Source audit loaded: yes (2026-06-01T22:20:38.912Z)
+- Source audit inputs: comparison=2026-06-01T17:12:20.521Z (current 2026-06-01T17:12:20.521Z), coverage=2026-06-01T22:20:23.701Z (current 2026-06-01T22:20:23.701Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary sync byte-batch rows: 231
@@ -199,20 +199,20 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Frontier Audit Snapshot
 
-- Memory frontier loaded: yes (2026-06-01T20:41:37.881Z)
+- Memory frontier loaded: yes (2026-06-01T22:17:39.271Z)
 - Frontier audit comparison inputs: memory=2026-06-01T17:12:20.521Z, target=2026-06-01T17:12:20.521Z, text=2026-06-01T17:12:20.521Z (current 2026-06-01T17:12:20.521Z)
 - Fastest bounded JS row: 185.50 MiB/s at 60.45 MiB
 - Unbounded or unproven memory rows: 17
 - Bounded rows without numeric memory proof: 0
 - Unbounded rows at or above 200 MiB/s: 0
-- Target distance loaded: yes (2026-06-01T20:41:49.335Z)
+- Target distance loaded: yes (2026-06-01T22:17:37.390Z)
 - Woodstox 0.9x target met: no
 - Woodstox 0.9x remaining: 164.29 MiB/s
 - quick-xml 0.9x target met: no
 - quick-xml 0.9x remaining: 95.06 MiB/s
 - Shared JS target row: yes
 - Target JS contract: sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=no, fullArrayBufferParserInput=no, boundedMemory=yes, memoryKind=process-rss, maxRssMiB=61.77
-- Text materialization boundary loaded: yes (2026-06-01T20:41:49.257Z)
+- Text materialization boundary loaded: yes (2026-06-01T22:17:44.694Z)
 - Fastest full-string row: 185.50 MiB/s
 - Full-string rows crossing 200 MiB/s: 0
 - No-text rows crossing 200 MiB/s: 4

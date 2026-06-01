@@ -140,9 +140,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.outcome.sameContractStaxRow === false
     && artifact.outcome.canRunCurrentStaxFullStringBenchmark === false
     && artifact.outcome.closesEmittedIrObligation === false
-    && artifact.shell.provenance.taskId === 'bzK0wWZvQoOguMjTIbRJ_g'
-    && artifact.shell.provenance.buildId === '20260531212007'
-    && artifact.shell.provenance.sourceRevision === '71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7'
+    && artifact.shell.provenance.taskId === 'MUZBnP38TzWA6MfuY9BfzQ'
+    && artifact.shell.provenance.buildId === '20260601210056'
+    && artifact.shell.provenance.sourceRevision === '221c997c114ef812c7d1547bf68f703f4473d178'
   ));
   assert.ok(report.coverage.spiderMonkeyDiagnostics.rows.some(row =>
     row.id === 'taskcluster-debug-jsshell-codegen'
@@ -165,9 +165,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.outcome.sameContractStaxRow === false
     && artifact.outcome.canRunCurrentStaxFullStringBenchmark === false
     && artifact.outcome.closesEmittedIrObligation === false
-    && artifact.shell.provenance.taskId === 'bzK0wWZvQoOguMjTIbRJ_g'
-    && artifact.shell.provenance.buildId === '20260531212007'
-    && artifact.shell.provenance.sourceRevision === '71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7'
+    && artifact.shell.provenance.taskId === 'MUZBnP38TzWA6MfuY9BfzQ'
+    && artifact.shell.provenance.buildId === '20260601210056'
+    && artifact.shell.provenance.sourceRevision === '221c997c114ef812c7d1547bf68f703f4473d178'
   ));
   assert.ok(report.coverage.spiderMonkeyDiagnostics.rows.some(row =>
     row.id === 'taskcluster-debug-jsshell-xml-codegen'
@@ -190,9 +190,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.outcome.sameContractStaxRow === false
     && artifact.outcome.canRunCurrentStaxFullStringBenchmark === false
     && artifact.outcome.closesEmittedIrObligation === false
-    && artifact.shell.provenance.taskId === 'bzK0wWZvQoOguMjTIbRJ_g'
-    && artifact.shell.provenance.buildId === '20260531212007'
-    && artifact.shell.provenance.sourceRevision === '71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7'
+    && artifact.shell.provenance.taskId === 'MUZBnP38TzWA6MfuY9BfzQ'
+    && artifact.shell.provenance.buildId === '20260601210056'
+    && artifact.shell.provenance.sourceRevision === '221c997c114ef812c7d1547bf68f703f4473d178'
   ));
   assert.ok(report.coverage.spiderMonkeyDiagnostics.rows.some(row =>
     row.id === 'taskcluster-debug-jsshell-materialized-codegen'
@@ -213,7 +213,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.summary.closureRequirementsMet === 2
     && artifact.summary.closureRequirementsBlocked === 4
     && artifact.summary.closesCodegenObligation === false
-    && artifact.summary.diagnosticThroughputMiBPerSec === 0.4909373604499916
+    && artifact.summary.diagnosticThroughputMiBPerSec === 0.25002012796318257
     && artifact.summary.diagnosticThroughputClass === 'debug-jitspew-diagnostic-not-frontier'
     && artifact.summary.throughputCountsAsTargetEvidence === false
     && artifact.summary.conclusionAllowed === false
@@ -1303,9 +1303,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(taskclusterDebug.sameContractStaxRow, false);
   assert.equal(taskclusterDebug.canRunCurrentStaxFullStringBenchmark, false);
   assert.equal(taskclusterDebug.closesEmittedIrObligation, false);
-  assert.equal(taskclusterDebug.taskId, 'bzK0wWZvQoOguMjTIbRJ_g');
-  assert.equal(taskclusterDebug.buildId, '20260531212007');
-  assert.equal(taskclusterDebug.sourceRevision, '71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7');
+  assert.equal(taskclusterDebug.taskId, 'MUZBnP38TzWA6MfuY9BfzQ');
+  assert.equal(taskclusterDebug.buildId, '20260601210056');
+  assert.equal(taskclusterDebug.sourceRevision, '221c997c114ef812c7d1547bf68f703f4473d178');
   const taskclusterXmlDebug = report.coverage.spiderMonkeyDiagnostics.rows.find(row => row.id === 'taskcluster-debug-jsshell-xml-codegen');
   assert.equal(taskclusterXmlDebug.evidenceClass, 'current-debug-xml-codegen-scope-guard');
   assert.equal(taskclusterXmlDebug.irDumpSurface, true);
@@ -1313,9 +1313,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(taskclusterXmlDebug.sameContractStaxRow, false);
   assert.equal(taskclusterXmlDebug.canRunCurrentStaxFullStringBenchmark, false);
   assert.equal(taskclusterXmlDebug.closesEmittedIrObligation, false);
-  assert.equal(taskclusterXmlDebug.taskId, 'bzK0wWZvQoOguMjTIbRJ_g');
-  assert.equal(taskclusterXmlDebug.buildId, '20260531212007');
-  assert.equal(taskclusterXmlDebug.sourceRevision, '71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7');
+  assert.equal(taskclusterXmlDebug.taskId, 'MUZBnP38TzWA6MfuY9BfzQ');
+  assert.equal(taskclusterXmlDebug.buildId, '20260601210056');
+  assert.equal(taskclusterXmlDebug.sourceRevision, '221c997c114ef812c7d1547bf68f703f4473d178');
   const taskclusterMaterializedDebug = report.coverage.spiderMonkeyDiagnostics.rows.find(row => row.id === 'taskcluster-debug-jsshell-materialized-codegen');
   assert.equal(taskclusterMaterializedDebug.evidenceClass, 'current-debug-materialized-codegen-scope-guard');
   assert.equal(taskclusterMaterializedDebug.irDumpSurface, true);
@@ -1323,9 +1323,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(taskclusterMaterializedDebug.sameContractStaxRow, false);
   assert.equal(taskclusterMaterializedDebug.canRunCurrentStaxFullStringBenchmark, false);
   assert.equal(taskclusterMaterializedDebug.closesEmittedIrObligation, false);
-  assert.equal(taskclusterMaterializedDebug.taskId, 'bzK0wWZvQoOguMjTIbRJ_g');
-  assert.equal(taskclusterMaterializedDebug.buildId, '20260531212007');
-  assert.equal(taskclusterMaterializedDebug.sourceRevision, '71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7');
+  assert.equal(taskclusterMaterializedDebug.taskId, 'MUZBnP38TzWA6MfuY9BfzQ');
+  assert.equal(taskclusterMaterializedDebug.buildId, '20260601210056');
+  assert.equal(taskclusterMaterializedDebug.sourceRevision, '221c997c114ef812c7d1547bf68f703f4473d178');
   const archival = report.coverage.spiderMonkeyDiagnostics.rows.find(row => row.id === 'archival-debug-jsshell-codegen');
   assert.equal(archival.evidenceClass, 'archival-codegen-scope-guard');
   assert.equal(archival.irDumpSurface, true);
@@ -1342,12 +1342,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /\| `official-jsshell-stax-api-gap` \| `firefox-spidermonkey-jsshell-stax-api-gap-audit\.json` \| blocked-by-host-api-surface \| host-api-surface-gap \| yes \| unknown \| unknown \| unknown \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
   assert.match(markdown, /Firefox\/SpiderMonkey js-shell StAX API gap audit present \(status=blocked-by-host-api-surface, unchangedRunnableShells=0\/2, blockedSurfaces=5, commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch\); it is host API surface evidence only, not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey public js-shell diagnostic flag sweep present \(bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false\); it rules out easy public-shell bytecode\/dump flag paths but is not emitted JIT IR/);
-  assert.match(markdown, /Firefox\/SpiderMonkey current Taskcluster debug js-shell codegen audit present \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic\); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row/);
-  assert.match(markdown, /Firefox\/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic\); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row/);
-  assert.match(markdown, /Firefox\/SpiderMonkey current Taskcluster debug js-shell materialized string\/object codegen audit present \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic\); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark/);
+  assert.match(markdown, /Firefox\/SpiderMonkey current Taskcluster debug js-shell codegen audit present \(taskId=MUZBnP38TzWA6MfuY9BfzQ, buildId=20260601210056, sourceRevision=221c997c114ef812c7d1547bf68f703f4473d178, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic\); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row/);
+  assert.match(markdown, /Firefox\/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present \(taskId=MUZBnP38TzWA6MfuY9BfzQ, buildId=20260601210056, sourceRevision=221c997c114ef812c7d1547bf68f703f4473d178, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic\); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row/);
+  assert.match(markdown, /Firefox\/SpiderMonkey current Taskcluster debug js-shell materialized string\/object codegen audit present \(taskId=MUZBnP38TzWA6MfuY9BfzQ, buildId=20260601210056, sourceRevision=221c997c114ef812c7d1547bf68f703f4473d178, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic\); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark/);
   assert.match(markdown, /Firefox\/SpiderMonkey codegen rerun stability audit present \(pairs=2, reproduciblePairs=2, sameTaskclusterBuildPairs=2, sameCodegenMarkerPairs=2, qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false\); it proves diagnostic rerun reproducibility but still not same-contract StAX closure/);
   assert.match(markdown, /Firefox\/SpiderMonkey ASCII scope-distance audit present \(corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, reducesScopeDistance=true, closesCodegenObligation=false\); it narrows ASCII materialized js-shell scope but is not unchanged StAX closure evidence/);
-  assert.match(markdown, /Firefox\/SpiderMonkey materialized scope-distance audit present \(semanticEquivalentForAsciiFields=true, closureRequirementsMet=2, closureRequirementsBlocked=4, primarySyncByteBatchMissingGlobals=TextDecoder, asciiTextDecoderEquivalent=true, diagnosticThroughputMiBPerSec=0\.4909373604499916, throughputCountsAsTargetEvidence=false, closesCodegenObligation=false\); it records why the materialized js-shell codegen artifact is useful but still not closure evidence/);
+  assert.match(markdown, /Firefox\/SpiderMonkey materialized scope-distance audit present \(semanticEquivalentForAsciiFields=true, closureRequirementsMet=2, closureRequirementsBlocked=4, primarySyncByteBatchMissingGlobals=TextDecoder, asciiTextDecoderEquivalent=true, diagnosticThroughputMiBPerSec=0\.25002012796318257, throughputCountsAsTargetEvidence=false, closesCodegenObligation=false\); it records why the materialized js-shell codegen artifact is useful but still not closure evidence/);
   assert.match(markdown, /Firefox\/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing/);
   assert.match(markdown, /16 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 4/);
