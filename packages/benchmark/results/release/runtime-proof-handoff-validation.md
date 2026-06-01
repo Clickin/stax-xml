@@ -1,6 +1,6 @@
 # Runtime Proof Handoff Validation
 
-Generated: 2026-06-01T18:48:32.855Z
+Generated: 2026-06-01T18:57:08.917Z
 
 Static validation for runtime-proof-gap-handoff external runbooks. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -9,10 +9,10 @@ Static validation for runtime-proof-gap-handoff external runbooks. This is not b
 - Pass: yes
 - Handoffs: 2
 - Required handoffs present: yes
-- Commands checked: 11
-- Scripts referenced: 18
+- Commands checked: 12
+- Scripts referenced: 19
 - Missing scripts: 0
-- Release output paths: 58
+- Release output paths: 62
 - Non-release output paths: 0
 - Raw output paths: 2
 - Raw output path policy violations: 0
@@ -26,7 +26,7 @@ Static validation for runtime-proof-gap-handoff external runbooks. This is not b
 | Handoff | Local status | Commands | Required flags | Required contracts |
 | --- | --- | ---: | --- | --- |
 | `safari-webkit-browser-row-handoff` | external-run-required | 4 | yes | yes |
-| `spidermonkey-codegen-handoff` | external-run-required | 7 | yes | yes |
+| `spidermonkey-codegen-handoff` | external-run-required | 8 | yes | yes |
 
 ## Command Checks
 
@@ -41,14 +41,15 @@ Static validation for runtime-proof-gap-handoff external runbooks. This is not b
 | `spidermonkey-codegen-handoff` | `spidermonkey-js-shell-availability` | `packages/benchmark/firefox-spidermonkey-js-shell-availability-audit.mjs` | yes | yes | none |
 | `spidermonkey-codegen-handoff` | `spidermonkey-official-jsshell-surface` | `packages/benchmark/firefox-spidermonkey-release-jsshell-availability-audit.mjs` | yes | yes | none |
 | `spidermonkey-codegen-handoff` | `spidermonkey-jsshell-tokenizer-headroom` | `packages/benchmark/spidermonkey-jsshell-tokenizer-headroom.mjs` | yes | yes | none |
+| `spidermonkey-codegen-handoff` | `spidermonkey-jsshell-materialized-headroom` | `packages/benchmark/spidermonkey-jsshell-materialized-headroom.mjs` | yes | yes | none |
 | `spidermonkey-codegen-handoff` | `stax-public-reader-host-api-boundary` | `packages/benchmark/stax-public-reader-host-api-boundary-audit.mjs` | yes | yes | none |
-| `spidermonkey-codegen-handoff` | `post-spidermonkey-audits` | `packages/benchmark/stax-public-reader-host-api-boundary-audit.mjs`<br>`packages/benchmark/spidermonkey-jsshell-tokenizer-headroom.mjs`<br>`packages/benchmark/runtime-counterexample-scan.mjs`<br>`packages/benchmark/runtime-proof-coverage-audit.mjs`<br>`packages/benchmark/source-consumption-shape-audit.mjs`<br>`packages/benchmark/memory-frontier-audit.mjs`<br>`packages/benchmark/target-distance-audit.mjs`<br>`packages/benchmark/text-materialization-boundary-audit.mjs`<br>`packages/benchmark/runtime-limit-proof-obligation-gate.mjs`<br>`packages/benchmark/runtime-proof-gap-handoff.mjs` | yes | yes | none |
+| `spidermonkey-codegen-handoff` | `post-spidermonkey-audits` | `packages/benchmark/stax-public-reader-host-api-boundary-audit.mjs`<br>`packages/benchmark/spidermonkey-jsshell-tokenizer-headroom.mjs`<br>`packages/benchmark/spidermonkey-jsshell-materialized-headroom.mjs`<br>`packages/benchmark/runtime-counterexample-scan.mjs`<br>`packages/benchmark/runtime-proof-coverage-audit.mjs`<br>`packages/benchmark/source-consumption-shape-audit.mjs`<br>`packages/benchmark/memory-frontier-audit.mjs`<br>`packages/benchmark/target-distance-audit.mjs`<br>`packages/benchmark/text-materialization-boundary-audit.mjs`<br>`packages/benchmark/runtime-limit-proof-obligation-gate.mjs`<br>`packages/benchmark/runtime-proof-gap-handoff.mjs` | yes | yes | none |
 
 ## Findings
 
 - handoff-static-validation (CONTRACT_FACT): Every current runtime proof handoff has existing local entrypoint scripts, curated release outputs, separated raw outputs, and required closure contracts.
   - handoffs=safari-webkit-browser-row-handoff:ok, spidermonkey-codegen-handoff:ok
-  - commands=11
+  - commands=12
 - handoff-scope-guard (SCOPE_GUARD): Static handoff validation is runbook quality evidence only; it cannot close Safari/WebKit browser rows or SpiderMonkey emitted IR obligations.
   - No external benchmark command is executed by this audit.
   - No emitted SpiderMonkey IR, optimized code, or Safari/WebKit throughput row is produced by this audit.

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T18:48:22.713Z",
+  "generatedAt": "2026-06-01T18:57:08.859Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
@@ -9,7 +9,7 @@
     "comparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
-    "auditGeneratedAt": "2026-06-01T18:20:41.904Z",
+    "auditGeneratedAt": "2026-06-01T18:56:47.071Z",
     "auditObjective": "runtime-proof-coverage-audit",
     "auditContract": "static-release-artifact-proof-coverage"
   },
@@ -37,8 +37,8 @@
     "conclusionBlocker": "Open or partial obligations still require external runtime evidence before any runtime-limit conclusion."
   },
   "auditSummary": {
-    "artifactCount": 218,
-    "measuredRows": 1253,
+    "artifactCount": 219,
+    "measuredRows": 1255,
     "counterexamples": null,
     "activeObligations": [
       {
@@ -554,6 +554,7 @@
         "firefox-spidermonkey-jsshell-stax-api-gap-audit.json",
         "stax-public-reader-host-api-boundary-audit.json",
         "spidermonkey-jsshell-tokenizer-headroom.json",
+        "spidermonkey-jsshell-materialized-headroom.json",
         "spidermonkey-jsshell-diagnostic-flag-sweep.json",
         "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
         "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
@@ -571,6 +572,7 @@
         "The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface, with common missing globals: TextDecoder, TextEncoder, ReadableStream, fetch.",
         "The StAX public reader host API boundary audit pins the current TextDecoder/ReadableStream/TextEncoder boundary: primarySyncByteBatchRequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, and alternateDecoderWouldBeUnchangedClosure=false.",
         "The SpiderMonkey js-shell tokenizer headroom audit records partial parser-core headroom only: fastest=122.24 MiB/s, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0.",
+        "The SpiderMonkey js-shell materialized headroom audit records JS string/object materialization headroom only: fastest=37.80 MiB/s, sameSemanticChecksumFields=true, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0.",
         "The public js-shell diagnostic flag sweep tried 4 bytecode flag combinations and found 0 bytecode-output probes plus diagnosticPrefSurface=false.",
         "An archived Firefox 36 era debug js-shell emits JitSpew codegen output, proving the expected diagnostic surface shape, but it is not comparable to the current Firefox/SpiderMonkey benchmark rows.",
         "A current Taskcluster debug js-shell emits JitSpew codegen output (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic.",
@@ -700,6 +702,7 @@
           "firefox-spidermonkey-jsshell-stax-api-gap-audit.json",
           "stax-public-reader-host-api-boundary-audit.json",
           "spidermonkey-jsshell-tokenizer-headroom.json",
+          "spidermonkey-jsshell-materialized-headroom.json",
           "spidermonkey-jsshell-diagnostic-flag-sweep.json",
           "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
           "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
@@ -717,6 +720,7 @@
           "The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface, with common missing globals: TextDecoder, TextEncoder, ReadableStream, fetch.",
           "The StAX public reader host API boundary audit pins the current TextDecoder/ReadableStream/TextEncoder boundary: primarySyncByteBatchRequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, and alternateDecoderWouldBeUnchangedClosure=false.",
           "The SpiderMonkey js-shell tokenizer headroom audit records partial parser-core headroom only: fastest=122.24 MiB/s, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0.",
+          "The SpiderMonkey js-shell materialized headroom audit records JS string/object materialization headroom only: fastest=37.80 MiB/s, sameSemanticChecksumFields=true, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0.",
           "The public js-shell diagnostic flag sweep tried 4 bytecode flag combinations and found 0 bytecode-output probes plus diagnosticPrefSurface=false.",
           "An archived Firefox 36 era debug js-shell emits JitSpew codegen output, proving the expected diagnostic surface shape, but it is not comparable to the current Firefox/SpiderMonkey benchmark rows.",
           "A current Taskcluster debug js-shell emits JitSpew codegen output (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic.",
@@ -766,6 +770,11 @@
           "command": "node packages/benchmark/spidermonkey-jsshell-tokenizer-headroom.mjs --json-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.json --md-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.md"
         },
         {
+          "id": "spidermonkey-jsshell-materialized-headroom",
+          "purpose": "Refresh js-shell string/object materialization headroom as partial non-StAX evidence before reclassifying runtime-limit or counterexample status.",
+          "command": "node packages/benchmark/spidermonkey-jsshell-materialized-headroom.mjs --json-out packages/benchmark/results/release/spidermonkey-jsshell-materialized-headroom.json --md-out packages/benchmark/results/release/spidermonkey-jsshell-materialized-headroom.md"
+        },
+        {
           "id": "stax-public-reader-host-api-boundary",
           "purpose": "Re-pin the current StAX public reader TextDecoder/ReadableStream/TextEncoder boundary before evaluating js-shell closure.",
           "command": "node packages/benchmark/stax-public-reader-host-api-boundary-audit.mjs --json-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.json --md-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.md"
@@ -773,7 +782,7 @@
         {
           "id": "post-spidermonkey-audits",
           "purpose": "Reclassify the codegen obligation after diagnostic artifacts are generated.",
-          "command": "node packages/benchmark/stax-public-reader-host-api-boundary-audit.mjs --json-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.json --md-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.md && node packages/benchmark/spidermonkey-jsshell-tokenizer-headroom.mjs --json-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.json --md-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.md && node packages/benchmark/runtime-counterexample-scan.mjs --json-out packages/benchmark/results/release/runtime-counterexample-scan.json --md-out packages/benchmark/results/release/runtime-counterexample-scan.md && node packages/benchmark/runtime-proof-coverage-audit.mjs --json-out packages/benchmark/results/release/runtime-proof-coverage-audit.json --md-out packages/benchmark/results/release/runtime-proof-coverage-audit.md && node packages/benchmark/source-consumption-shape-audit.mjs --json-out packages/benchmark/results/release/source-consumption-shape-audit.json --md-out packages/benchmark/results/release/source-consumption-shape-audit.md && node packages/benchmark/memory-frontier-audit.mjs --json-out packages/benchmark/results/release/memory-frontier-audit.json --md-out packages/benchmark/results/release/memory-frontier-audit.md && node packages/benchmark/target-distance-audit.mjs --json-out packages/benchmark/results/release/target-distance-audit.json --md-out packages/benchmark/results/release/target-distance-audit.md && node packages/benchmark/text-materialization-boundary-audit.mjs --json-out packages/benchmark/results/release/text-materialization-boundary-audit.json --md-out packages/benchmark/results/release/text-materialization-boundary-audit.md && node packages/benchmark/runtime-limit-proof-obligation-gate.mjs --json-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.json --md-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.md && node packages/benchmark/runtime-proof-gap-handoff.mjs --json-out packages/benchmark/results/release/runtime-proof-gap-handoff.json --md-out packages/benchmark/results/release/runtime-proof-gap-handoff.md"
+          "command": "node packages/benchmark/stax-public-reader-host-api-boundary-audit.mjs --json-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.json --md-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.md && node packages/benchmark/spidermonkey-jsshell-tokenizer-headroom.mjs --json-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.json --md-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.md && node packages/benchmark/spidermonkey-jsshell-materialized-headroom.mjs --json-out packages/benchmark/results/release/spidermonkey-jsshell-materialized-headroom.json --md-out packages/benchmark/results/release/spidermonkey-jsshell-materialized-headroom.md && node packages/benchmark/runtime-counterexample-scan.mjs --json-out packages/benchmark/results/release/runtime-counterexample-scan.json --md-out packages/benchmark/results/release/runtime-counterexample-scan.md && node packages/benchmark/runtime-proof-coverage-audit.mjs --json-out packages/benchmark/results/release/runtime-proof-coverage-audit.json --md-out packages/benchmark/results/release/runtime-proof-coverage-audit.md && node packages/benchmark/source-consumption-shape-audit.mjs --json-out packages/benchmark/results/release/source-consumption-shape-audit.json --md-out packages/benchmark/results/release/source-consumption-shape-audit.md && node packages/benchmark/memory-frontier-audit.mjs --json-out packages/benchmark/results/release/memory-frontier-audit.json --md-out packages/benchmark/results/release/memory-frontier-audit.md && node packages/benchmark/target-distance-audit.mjs --json-out packages/benchmark/results/release/target-distance-audit.json --md-out packages/benchmark/results/release/target-distance-audit.md && node packages/benchmark/text-materialization-boundary-audit.mjs --json-out packages/benchmark/results/release/text-materialization-boundary-audit.json --md-out packages/benchmark/results/release/text-materialization-boundary-audit.md && node packages/benchmark/runtime-limit-proof-obligation-gate.mjs --json-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.json --md-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.md && node packages/benchmark/runtime-proof-gap-handoff.mjs --json-out packages/benchmark/results/release/runtime-proof-gap-handoff.json --md-out packages/benchmark/results/release/runtime-proof-gap-handoff.md"
         }
       ],
       "expectedEvidence": [

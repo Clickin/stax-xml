@@ -1,0 +1,191 @@
+{
+  "generatedAt": "2026-06-01T18:55:26.382Z",
+  "objective": "spidermonkey-jsshell-materialized-headroom",
+  "contract": "spidermonkey-jsshell-ascii-materialized-string-object-headroom-not-stax",
+  "note": "Runs a SpiderMonkey js-shell ASCII XML workload that materializes JS string primitives and event-shaped objects. This is closer to the public StAX object surface than token-boundary scanning, but it still does not use TextDecoder, ReadableStream, or the unchanged public StAX reader, and it has no row-level memory proof.",
+  "environment": {
+    "runtimeName": "spidermonkey-jsshell",
+    "javascriptEngine": "SpiderMonkey",
+    "platform": "win32-x64",
+    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K"
+  },
+  "fixture": {
+    "source": "ascii-corpus-seed-replay",
+    "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+    "corpusSeedBytes": 4551,
+    "targetBytes": 16777216,
+    "sizeMiB": 16,
+    "sizeGiB": 0.015625
+  },
+  "options": {
+    "runs": 3,
+    "warmups": 1,
+    "selfTest": false
+  },
+  "runtime": {
+    "id": "spidermonkey-jsshell",
+    "name": "SpiderMonkey js-shell"
+  },
+  "rows": [
+    {
+      "id": "release-spidermonkey-materialized-string-object",
+      "tool": "spidermonkey-jsshell-release",
+      "runtime": {
+        "id": "spidermonkey-jsshell",
+        "name": "SpiderMonkey js-shell",
+        "version": "JavaScript-C143.0.1",
+        "packageKind": "release",
+        "packageVerified": true
+      },
+      "implementation": "SpiderMonkey js-shell ASCII XML string and event-object materializer",
+      "family": "partial-spidermonkey-materialized-headroom",
+      "contractScope": "ascii-materialized-string-object-no-textdecoder",
+      "sameSemanticChecksumFields": true,
+      "fullStringParity": false,
+      "boundedMemory": null,
+      "memory": {
+        "primaryKind": "not-recorded",
+        "note": "SpiderMonkey js-shell does not expose process RSS or JS heap counters in this harness."
+      },
+      "sourceMode": "corpus-seed-replay-sync-byte-loop",
+      "parserInput": "SpiderMonkey js-shell Uint8Array from read(file, \"binary\"), replayed as bounded ASCII corpus seed bytes",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "corpusSeedReplay": true,
+      "corpusSeedBytes": 4551,
+      "targetBytes": 16777216,
+      "targetMiB": 16,
+      "corpusSeedToTargetRatio": 0.00027126073837280273,
+      "sampleCount": 3,
+      "samplesMs": [
+        535.942138671875,
+        448.35693359375,
+        459.9150390625
+      ],
+      "avgMs": 481.4047037760417,
+      "minMs": 448.35693359375,
+      "maxMs": 535.942138671875,
+      "sampleSpreadRatio": 0.18193674550980551,
+      "mibPerSec": 33.23606910048701,
+      "eventCount": 892131,
+      "startElementCount": 313353,
+      "endElementCount": 313350,
+      "textEventCount": 265428,
+      "attributeCount": 44238,
+      "checksum": -404209556,
+      "materializedStringCount": 980607,
+      "materializedObjectCount": 892131,
+      "materializedAttributeObjectCount": 313353,
+      "shellFacts": {
+        "sourceArtifact": "firefox-spidermonkey-release-jsshell-availability-audit.json",
+        "hasJitExecutionStatus": true,
+        "canReadBinaryInput": true,
+        "canRunCurrentStaxFullStringBenchmark": false
+      },
+      "options": {
+        "runs": 3,
+        "warmups": 1
+      }
+    },
+    {
+      "id": "nightly-spidermonkey-materialized-string-object",
+      "tool": "spidermonkey-jsshell-nightly",
+      "runtime": {
+        "id": "spidermonkey-jsshell",
+        "name": "SpiderMonkey js-shell",
+        "version": "JavaScript-C153.0a1",
+        "packageKind": "nightly",
+        "packageVerified": false
+      },
+      "implementation": "SpiderMonkey js-shell ASCII XML string and event-object materializer",
+      "family": "partial-spidermonkey-materialized-headroom",
+      "contractScope": "ascii-materialized-string-object-no-textdecoder",
+      "sameSemanticChecksumFields": true,
+      "fullStringParity": false,
+      "boundedMemory": null,
+      "memory": {
+        "primaryKind": "not-recorded",
+        "note": "SpiderMonkey js-shell does not expose process RSS or JS heap counters in this harness."
+      },
+      "sourceMode": "corpus-seed-replay-sync-byte-loop",
+      "parserInput": "SpiderMonkey js-shell Uint8Array from read(file, \"binary\"), replayed as bounded ASCII corpus seed bytes",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "corpusSeedReplay": true,
+      "corpusSeedBytes": 4551,
+      "targetBytes": 16777216,
+      "targetMiB": 16,
+      "corpusSeedToTargetRatio": 0.00027126073837280273,
+      "sampleCount": 3,
+      "samplesMs": [
+        425.724853515625,
+        416.458984375,
+        427.589111328125
+      ],
+      "avgMs": 423.2576497395833,
+      "minMs": 416.458984375,
+      "maxMs": 427.589111328125,
+      "sampleSpreadRatio": 0.026296339735319623,
+      "mibPerSec": 37.802033843556714,
+      "eventCount": 892131,
+      "startElementCount": 313353,
+      "endElementCount": 313350,
+      "textEventCount": 265428,
+      "attributeCount": 44238,
+      "checksum": -404209556,
+      "materializedStringCount": 980607,
+      "materializedObjectCount": 892131,
+      "materializedAttributeObjectCount": 313353,
+      "shellFacts": {
+        "sourceArtifact": "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
+        "hasJitExecutionStatus": true,
+        "canReadBinaryInput": true,
+        "canRunCurrentStaxFullStringBenchmark": false
+      },
+      "options": {
+        "runs": 3,
+        "warmups": 1
+      }
+    }
+  ],
+  "summary": {
+    "rowCount": 2,
+    "fastest": {
+      "id": "nightly-spidermonkey-materialized-string-object",
+      "mibPerSec": 37.802033843556714,
+      "fullStringParity": false,
+      "sameSemanticChecksumFields": true,
+      "boundedMemory": null,
+      "materializedStringCount": 980607,
+      "materializedObjectCount": 892131
+    },
+    "counterexamples200MiB": 0,
+    "partialRowsAtOrAbove200MiB": 0,
+    "memoryProofRows": 0,
+    "sameSemanticChecksumRows": 2
+  },
+  "findings": [
+    {
+      "id": "spidermonkey-materialized-headroom",
+      "classification": "LIMITED_EVIDENCE_PRESENT",
+      "summary": "Fastest SpiderMonkey js-shell materialized string/object row is 37.80 MiB/s.",
+      "evidence": [
+        "row=nightly-spidermonkey-materialized-string-object",
+        "sameSemanticChecksumFields=true",
+        "fullStringParity=false"
+      ]
+    },
+    {
+      "id": "materialized-headroom-not-stax-counterexample",
+      "classification": "SCOPE_GUARD",
+      "summary": "The materialized js-shell rows are not 200 MiB/s full-string bounded-memory counterexamples.",
+      "evidence": [
+        "counterexampleRows=0",
+        "memoryProofRows=0",
+        "TextDecoder/ReadableStream/public StAX reader unchanged execution remains blocked."
+      ]
+    }
+  ]
+}

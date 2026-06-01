@@ -419,6 +419,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
     'firefox-spidermonkey-jsshell-stax-api-gap-audit.json',
     'stax-public-reader-host-api-boundary-audit.json',
     'spidermonkey-jsshell-tokenizer-headroom.json',
+    'spidermonkey-jsshell-materialized-headroom.json',
     'spidermonkey-jsshell-diagnostic-flag-sweep.json',
     'spidermonkey-taskcluster-debug-jsshell-codegen-audit.json',
     'spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json',
@@ -440,6 +441,8 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /alternateDecoderWouldBeUnchangedClosure=false/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /SpiderMonkey js-shell tokenizer headroom audit records partial parser-core headroom only/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /SpiderMonkey js-shell materialized headroom audit records JS string\/object materialization headroom only/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /sameSemanticChecksumFields=true, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /diagnostic flag sweep tried 4 bytecode flag combinations and found 0 bytecode-output probes/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /archived Firefox 36 era debug js-shell emits JitSpew codegen output/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /current Taskcluster debug js-shell emits JitSpew codegen output \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007\), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic/.test(item)));
@@ -499,6 +502,10 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.commands.some(command =>
     command.id === 'spidermonkey-jsshell-tokenizer-headroom'
     && /spidermonkey-jsshell-tokenizer-headroom\.mjs/.test(command.command)
+  ));
+  assert.ok(spiderMonkey.commands.some(command =>
+    command.id === 'spidermonkey-jsshell-materialized-headroom'
+    && /spidermonkey-jsshell-materialized-headroom\.mjs/.test(command.command)
   ));
   assert.ok(spiderMonkey.expectedEvidence.some(item => /JIT IR/.test(item)));
   assert.ok(spiderMonkey.closureChecks.some(item => /emittedIrEvidenceCount must be greater than 0/.test(item)));
@@ -600,6 +607,9 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /SpiderMonkey js-shell tokenizer headroom audit records partial parser-core headroom only/);
   assert.match(markdown, /fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0/);
   assert.match(markdown, /spidermonkey-jsshell-tokenizer-headroom/);
+  assert.match(markdown, /SpiderMonkey js-shell materialized headroom audit records JS string\/object materialization headroom only/);
+  assert.match(markdown, /sameSemanticChecksumFields=true, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0/);
+  assert.match(markdown, /spidermonkey-jsshell-materialized-headroom/);
   assert.match(markdown, /Diagnostic identity status counts: not-claimed=4, not-claimed-non-stax-diagnostic=7/);
   assert.match(markdown, /selectedRowIdentityStatusCounts not-claimed=4, not-claimed-non-stax-diagnostic=7/);
   assert.match(markdown, /Installed Firefox about:buildconfig records --enable-js-shell/);

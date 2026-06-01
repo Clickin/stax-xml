@@ -538,6 +538,9 @@ function createLocalClosure(activeObligations, audit, options = {}) {
     const jsShellTokenizerHeadroom = artifactByName.get('spidermonkey-jsshell-tokenizer-headroom.json') ?? null;
     const jsShellTokenizerHeadroomRaw = readOptionalJson(resolve(releaseDir, 'spidermonkey-jsshell-tokenizer-headroom.json'))
       ?? readOptionalJson(resolve(dirname(defaultAuditJson), 'spidermonkey-jsshell-tokenizer-headroom.json'));
+    const jsShellMaterializedHeadroom = artifactByName.get('spidermonkey-jsshell-materialized-headroom.json') ?? null;
+    const jsShellMaterializedHeadroomRaw = readOptionalJson(resolve(releaseDir, 'spidermonkey-jsshell-materialized-headroom.json'))
+      ?? readOptionalJson(resolve(dirname(defaultAuditJson), 'spidermonkey-jsshell-materialized-headroom.json'));
     const jsShellDiagnosticFlagSweep = artifactByName.get('spidermonkey-jsshell-diagnostic-flag-sweep.json') ?? null;
     const taskclusterDebugJsShell = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-codegen-audit.json') ?? null;
     const taskclusterDebugJsShellXml = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json') ?? null;
@@ -572,6 +575,13 @@ function createLocalClosure(activeObligations, audit, options = {}) {
       && jsShellTokenizerHeadroomRaw?.summary?.counterexamples200MiB === 0
       && jsShellTokenizerHeadroomRaw?.summary?.memoryProofRows === 0
       && jsShellTokenizerHeadroomRaw?.summary?.fastest?.fullStringParity === false;
+    const jsShellMaterializedHeadroomPinned = jsShellMaterializedHeadroom?.contract === 'spidermonkey-jsshell-ascii-materialized-string-object-headroom-not-stax'
+      && jsShellMaterializedHeadroom?.measuredRowCount > 0
+      && jsShellMaterializedHeadroomRaw?.summary?.sameSemanticChecksumRows > 0
+      && jsShellMaterializedHeadroomRaw?.summary?.counterexamples200MiB === 0
+      && jsShellMaterializedHeadroomRaw?.summary?.memoryProofRows === 0
+      && jsShellMaterializedHeadroomRaw?.summary?.fastest?.fullStringParity === false
+      && jsShellMaterializedHeadroomRaw?.summary?.fastest?.sameSemanticChecksumFields === true;
     const jsShellDiagnosticFlagSweepNegative = jsShellDiagnosticFlagSweep?.outcome?.bytecodeProbeCount > 0
       && jsShellDiagnosticFlagSweep?.outcome?.bytecodeOutputProbeCount === 0;
     const archivalDebugCodegen = archivalDebugJsShell?.outcome?.hasCodegenDumpOutput === true
@@ -607,7 +617,7 @@ function createLocalClosure(activeObligations, audit, options = {}) {
       obligationId: 'codegen-traces-open',
       localStatus: blocked ? 'external-run-required' : 'partial-local-status',
       localRunnable: blocked ? false : null,
-      evidenceArtifacts: [diagnostic, jsShell, releaseJsShell, nightlyJsShell, jsShellApiGap, staxHostApiBoundary, jsShellTokenizerHeadroom, jsShellDiagnosticFlagSweep, taskclusterDebugJsShell, taskclusterDebugJsShellXml, taskclusterDebugJsShellMaterialized, asciiScopeDistance, materializedScopeDistance, archivalDebugJsShell, buildconfig]
+      evidenceArtifacts: [diagnostic, jsShell, releaseJsShell, nightlyJsShell, jsShellApiGap, staxHostApiBoundary, jsShellTokenizerHeadroom, jsShellMaterializedHeadroom, jsShellDiagnosticFlagSweep, taskclusterDebugJsShell, taskclusterDebugJsShellXml, taskclusterDebugJsShellMaterialized, asciiScopeDistance, materializedScopeDistance, archivalDebugJsShell, buildconfig]
         .filter(Boolean)
         .map(artifact => artifact.sourceArtifact),
       blockers: [
@@ -634,6 +644,9 @@ function createLocalClosure(activeObligations, audit, options = {}) {
         jsShellTokenizerHeadroomPinned
           ? `The SpiderMonkey js-shell tokenizer headroom audit records partial parser-core headroom only: fastest=${formatNumber(jsShellTokenizerHeadroomRaw.summary.fastest.mibPerSec)} MiB/s, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0.`
           : 'The SpiderMonkey js-shell tokenizer headroom audit is missing or does not pin non-StAX partial headroom as non-counterexample evidence.',
+        jsShellMaterializedHeadroomPinned
+          ? `The SpiderMonkey js-shell materialized headroom audit records JS string/object materialization headroom only: fastest=${formatNumber(jsShellMaterializedHeadroomRaw.summary.fastest.mibPerSec)} MiB/s, sameSemanticChecksumFields=true, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0.`
+          : 'The SpiderMonkey js-shell materialized headroom audit is missing or does not pin non-StAX string/object materialization headroom as non-counterexample evidence.',
         jsShellDiagnosticFlagSweepNegative
           ? `The public js-shell diagnostic flag sweep tried ${jsShellDiagnosticFlagSweep.outcome.bytecodeProbeCount} bytecode flag combinations and found ${jsShellDiagnosticFlagSweep.outcome.bytecodeOutputProbeCount} bytecode-output probes plus diagnosticPrefSurface=${jsShellDiagnosticFlagSweep.outcome.hasDiagnosticPrefSurface}.`
           : 'The public js-shell diagnostic flag sweep is missing or did not confirm the no-bytecode-output flag surface.',
@@ -792,6 +805,11 @@ function createHandoffs(activeObligations, localClosure) {
           command: 'node packages/benchmark/spidermonkey-jsshell-tokenizer-headroom.mjs --json-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.json --md-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.md',
         },
         {
+          id: 'spidermonkey-jsshell-materialized-headroom',
+          purpose: 'Refresh js-shell string/object materialization headroom as partial non-StAX evidence before reclassifying runtime-limit or counterexample status.',
+          command: 'node packages/benchmark/spidermonkey-jsshell-materialized-headroom.mjs --json-out packages/benchmark/results/release/spidermonkey-jsshell-materialized-headroom.json --md-out packages/benchmark/results/release/spidermonkey-jsshell-materialized-headroom.md',
+        },
+        {
           id: 'stax-public-reader-host-api-boundary',
           purpose: 'Re-pin the current StAX public reader TextDecoder/ReadableStream/TextEncoder boundary before evaluating js-shell closure.',
           command: 'node packages/benchmark/stax-public-reader-host-api-boundary-audit.mjs --json-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.json --md-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.md',
@@ -799,7 +817,7 @@ function createHandoffs(activeObligations, localClosure) {
         {
           id: 'post-spidermonkey-audits',
           purpose: 'Reclassify the codegen obligation after diagnostic artifacts are generated.',
-          command: 'node packages/benchmark/stax-public-reader-host-api-boundary-audit.mjs --json-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.json --md-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.md && node packages/benchmark/spidermonkey-jsshell-tokenizer-headroom.mjs --json-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.json --md-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.md && node packages/benchmark/runtime-counterexample-scan.mjs --json-out packages/benchmark/results/release/runtime-counterexample-scan.json --md-out packages/benchmark/results/release/runtime-counterexample-scan.md && node packages/benchmark/runtime-proof-coverage-audit.mjs --json-out packages/benchmark/results/release/runtime-proof-coverage-audit.json --md-out packages/benchmark/results/release/runtime-proof-coverage-audit.md && node packages/benchmark/source-consumption-shape-audit.mjs --json-out packages/benchmark/results/release/source-consumption-shape-audit.json --md-out packages/benchmark/results/release/source-consumption-shape-audit.md && node packages/benchmark/memory-frontier-audit.mjs --json-out packages/benchmark/results/release/memory-frontier-audit.json --md-out packages/benchmark/results/release/memory-frontier-audit.md && node packages/benchmark/target-distance-audit.mjs --json-out packages/benchmark/results/release/target-distance-audit.json --md-out packages/benchmark/results/release/target-distance-audit.md && node packages/benchmark/text-materialization-boundary-audit.mjs --json-out packages/benchmark/results/release/text-materialization-boundary-audit.json --md-out packages/benchmark/results/release/text-materialization-boundary-audit.md && node packages/benchmark/runtime-limit-proof-obligation-gate.mjs --json-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.json --md-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.md && node packages/benchmark/runtime-proof-gap-handoff.mjs --json-out packages/benchmark/results/release/runtime-proof-gap-handoff.json --md-out packages/benchmark/results/release/runtime-proof-gap-handoff.md',
+          command: 'node packages/benchmark/stax-public-reader-host-api-boundary-audit.mjs --json-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.json --md-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.md && node packages/benchmark/spidermonkey-jsshell-tokenizer-headroom.mjs --json-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.json --md-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.md && node packages/benchmark/spidermonkey-jsshell-materialized-headroom.mjs --json-out packages/benchmark/results/release/spidermonkey-jsshell-materialized-headroom.json --md-out packages/benchmark/results/release/spidermonkey-jsshell-materialized-headroom.md && node packages/benchmark/runtime-counterexample-scan.mjs --json-out packages/benchmark/results/release/runtime-counterexample-scan.json --md-out packages/benchmark/results/release/runtime-counterexample-scan.md && node packages/benchmark/runtime-proof-coverage-audit.mjs --json-out packages/benchmark/results/release/runtime-proof-coverage-audit.json --md-out packages/benchmark/results/release/runtime-proof-coverage-audit.md && node packages/benchmark/source-consumption-shape-audit.mjs --json-out packages/benchmark/results/release/source-consumption-shape-audit.json --md-out packages/benchmark/results/release/source-consumption-shape-audit.md && node packages/benchmark/memory-frontier-audit.mjs --json-out packages/benchmark/results/release/memory-frontier-audit.json --md-out packages/benchmark/results/release/memory-frontier-audit.md && node packages/benchmark/target-distance-audit.mjs --json-out packages/benchmark/results/release/target-distance-audit.json --md-out packages/benchmark/results/release/target-distance-audit.md && node packages/benchmark/text-materialization-boundary-audit.mjs --json-out packages/benchmark/results/release/text-materialization-boundary-audit.json --md-out packages/benchmark/results/release/text-materialization-boundary-audit.md && node packages/benchmark/runtime-limit-proof-obligation-gate.mjs --json-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.json --md-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.md && node packages/benchmark/runtime-proof-gap-handoff.mjs --json-out packages/benchmark/results/release/runtime-proof-gap-handoff.json --md-out packages/benchmark/results/release/runtime-proof-gap-handoff.md',
         },
       ],
       expectedEvidence: [
