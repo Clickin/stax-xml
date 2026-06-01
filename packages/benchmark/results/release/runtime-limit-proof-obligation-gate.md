@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T15:17:21.938Z
+Generated: 2026-06-01T15:23:45.861Z
 
 ## Scope
 
@@ -88,6 +88,13 @@ These are static disclosure guards. They must stay disclosed while the broad run
 - Coverage audit loaded: yes (2026-06-01T15:16:56.744Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
+- SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7
+
+| ID | Satisfied | Meaning |
+| --- | --- | --- |
+| `coverage-loaded` | yes | runtime-proof-coverage-audit.json must be loaded by the gate. |
+| `spidermonkey-identity-status-counts-present` | yes | Coverage audit must expose coverage.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts for gate-level review. |
+| `spidermonkey-non-stax-diagnostic-rows-visible` | yes | Coverage audit must keep non-StAX SpiderMonkey diagnostic rows visible via selectedRowIdentityStatusCounts.not-claimed-non-stax-diagnostic. |
 
 ## Counterexample Snapshot
 

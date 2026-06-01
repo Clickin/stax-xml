@@ -407,6 +407,9 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
   for (const guard of handoffSnapshot.guards.filter(item => !item.satisfied)) {
     errors.push(`Missing handoff guard ${guard.id}: ${guard.description}`);
   }
+  for (const guard of coverageSnapshot.guards.filter(item => !item.satisfied)) {
+    errors.push(`Missing coverage guard ${guard.id}: ${guard.description}`);
+  }
   for (const guard of sourceAuditSnapshot.guards.filter(item => !item.satisfied)) {
     errors.push(`Missing source audit guard ${guard.id}: ${guard.description}`);
   }
@@ -470,6 +473,8 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
       satisfiedProofRules: proofRules.filter(item => item.satisfied).length,
       requiredProofRules: proofRules.length,
       currentCounterexamples: counterexampleSnapshot.currentCounterexampleCount,
+      satisfiedCoverageGuards: coverageSnapshot.guards.filter(item => item.satisfied).length,
+      requiredCoverageGuards: coverageSnapshot.guards.length,
       satisfiedHandoffGuards: handoffSnapshot.guards.filter(item => item.satisfied).length,
       requiredHandoffGuards: handoffSnapshot.guards.length,
       satisfiedSourceAuditGuards: sourceAuditSnapshot.guards.filter(item => item.satisfied).length,
@@ -842,17 +847,18 @@ function createCoverageSnapshot(audit) {
       activeObligationIds: [],
       coveredObligationIds: [],
       byId: {},
+      spiderMonkeyDiagnostics: {
+        selectedRowIdentityStatusCounts: {},
+      },
+      guards: createCoverageGuards(null),
     };
   }
 
   const obligations = Array.isArray(audit.obligations) ? audit.obligations : [];
-  const byId = Object.fromEntries(obligations.map(obligation => [obligation.id, {
-    id: obligation.id,
-    status: obligation.status ?? null,
-    evidence: obligation.evidence ?? null,
-    nextExperiment: obligation.nextExperiment ?? null,
-  }]));
-  return {
+  const spiderMonkeyDiagnostics = {
+    selectedRowIdentityStatusCounts: audit.coverage?.spiderMonkeyDiagnostics?.selectedRowIdentityStatusCounts ?? {},
+  };
+  const snapshot = {
     loaded: true,
     generatedAt: audit.generatedAt ?? null,
     activeObligationIds: obligations
@@ -861,8 +867,43 @@ function createCoverageSnapshot(audit) {
     coveredObligationIds: obligations
       .filter(obligation => obligation.status === 'covered')
       .map(obligation => obligation.id),
-    byId,
+    byId: {},
+    spiderMonkeyDiagnostics,
+    guards: [],
   };
+  const byId = Object.fromEntries(obligations.map(obligation => [obligation.id, {
+    id: obligation.id,
+    status: obligation.status ?? null,
+    evidence: obligation.evidence ?? null,
+    nextExperiment: obligation.nextExperiment ?? null,
+  }]));
+  snapshot.byId = byId;
+  snapshot.guards = createCoverageGuards(snapshot);
+  return snapshot;
+}
+
+function createCoverageGuards(snapshot) {
+  const counts = snapshot?.spiderMonkeyDiagnostics?.selectedRowIdentityStatusCounts ?? {};
+  return [
+    {
+      id: 'coverage-loaded',
+      description: 'runtime-proof-coverage-audit.json must be loaded by the gate.',
+      satisfied: snapshot?.loaded === true,
+    },
+    {
+      id: 'spidermonkey-identity-status-counts-present',
+      description: 'Coverage audit must expose coverage.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts for gate-level review.',
+      satisfied: typeof counts === 'object'
+        && counts !== null
+        && Object.keys(counts).length > 0,
+    },
+    {
+      id: 'spidermonkey-non-stax-diagnostic-rows-visible',
+      description: 'Coverage audit must keep non-StAX SpiderMonkey diagnostic rows visible via selectedRowIdentityStatusCounts.not-claimed-non-stax-diagnostic.',
+      satisfied: typeof counts['not-claimed-non-stax-diagnostic'] === 'number'
+        && counts['not-claimed-non-stax-diagnostic'] > 0,
+    },
+  ];
 }
 
 function parseClaimRows(markdown) {
@@ -970,7 +1011,14 @@ function renderMarkdown(report) {
       : '- Coverage audit loaded: no',
     `- Active coverage obligations: ${report.coverageSnapshot.activeObligationIds.join(', ') || 'none'}`,
     `- Covered coverage obligations: ${report.coverageSnapshot.coveredObligationIds.join(', ') || 'none'}`,
+    `- SpiderMonkey selected row identity statuses: ${formatCountMap(report.coverageSnapshot.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts)}`,
+    '',
+    '| ID | Satisfied | Meaning |',
+    '| --- | --- | --- |',
   );
+  for (const item of report.coverageSnapshot.guards) {
+    lines.push(`| \`${item.id}\` | ${item.satisfied ? 'yes' : 'no'} | ${item.description} |`);
+  }
 
   lines.push(
     '',
@@ -1103,6 +1151,13 @@ function formatYesNo(value) {
   if (value === true) return 'yes';
   if (value === false) return 'no';
   return 'unknown';
+}
+
+function formatCountMap(counts) {
+  const entries = Object.entries(counts ?? {}).sort(([left], [right]) => left.localeCompare(right));
+  return entries.length > 0
+    ? entries.map(([key, value]) => `${key}=${value}`).join(', ')
+    : 'none';
 }
 
 function createInterpretation(report) {

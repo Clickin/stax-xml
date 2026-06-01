@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T15:17:21.938Z",
+  "generatedAt": "2026-06-01T15:23:45.861Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -599,7 +599,30 @@
         "evidence": "runtime-counterexample-scan.md is a required gate artifact and preserves the bounded full-string 200 MiB/s counterexample rule.",
         "nextExperiment": "Keep new rows flowing through the counterexample scanner before broadening claims."
       }
-    }
+    },
+    "spiderMonkeyDiagnostics": {
+      "selectedRowIdentityStatusCounts": {
+        "not-claimed": 4,
+        "not-claimed-non-stax-diagnostic": 7
+      }
+    },
+    "guards": [
+      {
+        "id": "coverage-loaded",
+        "description": "runtime-proof-coverage-audit.json must be loaded by the gate.",
+        "satisfied": true
+      },
+      {
+        "id": "spidermonkey-identity-status-counts-present",
+        "description": "Coverage audit must expose coverage.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts for gate-level review.",
+        "satisfied": true
+      },
+      {
+        "id": "spidermonkey-non-stax-diagnostic-rows-visible",
+        "description": "Coverage audit must keep non-StAX SpiderMonkey diagnostic rows visible via selectedRowIdentityStatusCounts.not-claimed-non-stax-diagnostic.",
+        "satisfied": true
+      }
+    ]
   },
   "openObligations": [
     {
@@ -763,6 +786,8 @@
     "satisfiedProofRules": 18,
     "requiredProofRules": 18,
     "currentCounterexamples": 0,
+    "satisfiedCoverageGuards": 3,
+    "requiredCoverageGuards": 3,
     "satisfiedHandoffGuards": 11,
     "requiredHandoffGuards": 11,
     "satisfiedSourceAuditGuards": 6,
