@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T04:53:44.993Z",
+  "generatedAt": "2026-06-01T05:03:15.248Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -155,6 +155,8 @@
         "commonMissingGlobals": null,
         "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
+        "semanticEquivalentForAsciiFields": null,
+        "closesCodegenObligation": null,
         "conclusionAllowed": false
       },
       "shell": null,
@@ -186,6 +188,8 @@
         "commonMissingGlobals": null,
         "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
+        "semanticEquivalentForAsciiFields": null,
+        "closesCodegenObligation": null,
         "conclusionAllowed": false
       },
       "shell": null,
@@ -217,6 +221,8 @@
         "commonMissingGlobals": null,
         "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
+        "semanticEquivalentForAsciiFields": null,
+        "closesCodegenObligation": null,
         "conclusionAllowed": false
       },
       "shell": null,
@@ -2964,6 +2970,8 @@
         ],
         "blockedSurfaceCount": 5,
         "canCloseEmittedIrObligation": false,
+        "semanticEquivalentForAsciiFields": null,
+        "closesCodegenObligation": null,
         "conclusionAllowed": false
       },
       "shell": null,
@@ -3459,6 +3467,8 @@
         "commonMissingGlobals": null,
         "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
+        "semanticEquivalentForAsciiFields": null,
+        "closesCodegenObligation": null,
         "conclusionAllowed": false
       },
       "shell": null,
@@ -3564,6 +3574,8 @@
         "commonMissingGlobals": null,
         "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
+        "semanticEquivalentForAsciiFields": null,
+        "closesCodegenObligation": null,
         "conclusionAllowed": false
       },
       "shell": null,
@@ -3622,6 +3634,8 @@
         "commonMissingGlobals": null,
         "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
+        "semanticEquivalentForAsciiFields": null,
+        "closesCodegenObligation": null,
         "conclusionAllowed": null
       },
       "shell": null,
@@ -4154,6 +4168,8 @@
         "commonMissingGlobals": null,
         "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
+        "semanticEquivalentForAsciiFields": null,
+        "closesCodegenObligation": null,
         "conclusionAllowed": false
       },
       "shell": null,
@@ -4353,6 +4369,8 @@
         "commonMissingGlobals": null,
         "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
+        "semanticEquivalentForAsciiFields": null,
+        "closesCodegenObligation": null,
         "conclusionAllowed": false
       },
       "shell": null,
@@ -4479,6 +4497,40 @@
       },
       "corpusSeed": null,
       "measuredRowCount": 2
+    },
+    {
+      "sourceArtifact": "spidermonkey-materialized-scope-distance-audit.json",
+      "objective": "spidermonkey-materialized-scope-distance-audit",
+      "contract": "materialized-js-shell-workload-equivalence-and-scope-distance",
+      "evidenceKinds": [
+        "NEGATIVE_RESULT",
+        "SCOPE_GUARD",
+        "SOURCE_FACT"
+      ],
+      "runtimes": [],
+      "parameters": {
+        "searchRoots": null
+      },
+      "availability": null,
+      "outcome": null,
+      "summary": {
+        "status": null,
+        "shellCount": null,
+        "availableShellCount": null,
+        "jitStatusShellCount": null,
+        "binaryReadableShellCount": null,
+        "unchangedRunnableShellCount": null,
+        "commonMissingGlobals": null,
+        "blockedSurfaceCount": null,
+        "canCloseEmittedIrObligation": null,
+        "semanticEquivalentForAsciiFields": true,
+        "closesCodegenObligation": false,
+        "conclusionAllowed": false
+      },
+      "shell": null,
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
     },
     {
       "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
@@ -4980,6 +5032,8 @@
         "commonMissingGlobals": null,
         "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
+        "semanticEquivalentForAsciiFields": null,
+        "closesCodegenObligation": null,
         "conclusionAllowed": false
       },
       "shell": null,
@@ -5172,6 +5226,8 @@
         "commonMissingGlobals": null,
         "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
+        "semanticEquivalentForAsciiFields": null,
+        "closesCodegenObligation": null,
         "conclusionAllowed": false
       },
       "shell": null,
@@ -5205,6 +5261,8 @@
         "commonMissingGlobals": null,
         "blockedSurfaceCount": null,
         "canCloseEmittedIrObligation": null,
+        "semanticEquivalentForAsciiFields": null,
+        "closesCodegenObligation": null,
         "conclusionAllowed": false
       },
       "shell": null,
@@ -5790,7 +5848,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 212,
+    "scannedArtifactCount": 213,
     "ignoredArtifactCount": 7,
     "parseErrorCount": 0,
     "measuredRowCount": 1186,
@@ -5812,11 +5870,11 @@
       "rowsWithMemoryCounter": 10
     },
     "benchmarkArtifactCount": 152,
-    "sourceArtifactCount": 22,
+    "sourceArtifactCount": 23,
     "traceArtifactCount": 15,
     "allocationArtifactCount": 16,
     "environmentArtifactCount": 4,
-    "negativeArtifactCount": 23,
+    "negativeArtifactCount": 24,
     "largeJsFullRowCount": 792,
     "largeJsFullSourceInputSafety": {
       "rows": 792,
@@ -24897,6 +24955,571 @@
         "measuredRowCount": 1
       }
     ],
+    "sourceArtifacts": [
+      {
+        "sourceArtifact": "bun-jsc-source-pin-audit.json",
+        "objective": "bun-jsc-source-pin-audit",
+        "contract": "bun-jsc-exact-webkit-string-boundary-source-lines",
+        "evidenceKinds": [
+          "SCOPE_GUARD",
+          "SOURCE_FACT"
+        ],
+        "runtimes": [
+          "bun-jsc"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "bun-textdecoder-dispatch-source-pin-audit.json",
+        "objective": "bun-textdecoder-dispatch-source-pin-audit",
+        "contract": "bun-exact-revision-textdecoder-dispatch-source-lines",
+        "evidenceKinds": [
+          "SCOPE_GUARD",
+          "SOURCE_FACT"
+        ],
+        "runtimes": [
+          "bun-jsc"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "bun-webkit-textdecoder-source-pin-audit.json",
+        "objective": "bun-webkit-textdecoder-source-pin-audit",
+        "contract": "bun-patched-webkit-exact-revision-textdecoder-source-lines",
+        "evidenceKinds": [
+          "SCOPE_GUARD",
+          "SOURCE_FACT"
+        ],
+        "runtimes": [
+          "bun-jsc"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "chrome-blink-textdecoder-source-pin-audit.json",
+        "objective": "chrome-blink-textdecoder-source-pin-audit",
+        "contract": "chrome-blink-exact-revision-textdecoder-source-lines",
+        "evidenceKinds": [
+          "SCOPE_GUARD",
+          "SOURCE_FACT"
+        ],
+        "runtimes": [
+          "chrome-v8-browser"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "chrome-v8-source-pin-audit.json",
+        "objective": "chrome-v8-source-pin-audit",
+        "contract": "chrome-v8-exact-revision-string-boundary-source-lines",
+        "evidenceKinds": [
+          "SOURCE_FACT"
+        ],
+        "runtimes": [
+          "chrome-v8-browser"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "deno-textdecoder-source-pin-audit.json",
+        "objective": "deno-textdecoder-source-pin-audit",
+        "contract": "deno-exact-revision-textdecoder-string-boundary-source-lines",
+        "evidenceKinds": [
+          "SCOPE_GUARD",
+          "SOURCE_FACT"
+        ],
+        "runtimes": [
+          "deno-v8"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "firefox-spidermonkey-buildconfig-source-pin-audit.json",
+        "objective": "firefox-spidermonkey-buildconfig-source-pin-audit",
+        "contract": "installed-firefox-buildconfig-jitspew-boundary",
+        "evidenceKinds": [
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD",
+          "SOURCE_FACT"
+        ],
+        "runtimes": [
+          "firefox-spidermonkey-browser"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "firefox-spidermonkey-jitspew-source-pin-audit.json",
+        "objective": "firefox-spidermonkey-jitspew-source-pin-audit",
+        "contract": "spidermonkey-exact-revision-jitspew-source-lines",
+        "evidenceKinds": [
+          "SCOPE_GUARD",
+          "SOURCE_FACT"
+        ],
+        "runtimes": [
+          "firefox-spidermonkey-browser"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "firefox-spidermonkey-memory-api-source-pin-audit.json",
+        "objective": "firefox-spidermonkey-memory-api-source-pin-audit",
+        "contract": "firefox-bidi-page-memory-api-boundary",
+        "evidenceKinds": [
+          "SOURCE_FACT"
+        ],
+        "runtimes": [
+          "firefox-spidermonkey-browser"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "firefox-spidermonkey-string-source-pin-audit.json",
+        "objective": "firefox-spidermonkey-string-source-pin-audit",
+        "contract": "spidermonkey-exact-revision-string-source-lines",
+        "evidenceKinds": [
+          "SOURCE_FACT"
+        ],
+        "runtimes": [
+          "firefox-spidermonkey-browser"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "firefox-spidermonkey-textdecoder-source-pin-audit.json",
+        "objective": "firefox-spidermonkey-textdecoder-source-pin-audit",
+        "contract": "gecko-exact-revision-textdecoder-source-lines",
+        "evidenceKinds": [
+          "SCOPE_GUARD",
+          "SOURCE_FACT"
+        ],
+        "runtimes": [
+          "firefox-spidermonkey-browser"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "materialization-contract-audit.json",
+        "objective": "materialization-contract-audit",
+        "contract": "semantic-materialization-not-object-shape",
+        "evidenceKinds": [
+          "BENCH_FACT",
+          "NEGATIVE_RESULT",
+          "SOURCE_FACT"
+        ],
+        "runtimes": [
+          "node-v8",
+          "woodstox-jvm",
+          "quick-xml-rust"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 6
+      },
+      {
+        "sourceArtifact": "memory-frontier-audit.json",
+        "objective": "memory-frontier-audit",
+        "contract": "same-contract-1gib-plus-js-full-string-memory-frontier",
+        "evidenceKinds": [
+          "SOURCE_FACT"
+        ],
+        "runtimes": [],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "summary": {
+          "status": "classified",
+          "shellCount": null,
+          "availableShellCount": null,
+          "jitStatusShellCount": null,
+          "binaryReadableShellCount": null,
+          "unchangedRunnableShellCount": null,
+          "commonMissingGlobals": null,
+          "blockedSurfaceCount": null,
+          "canCloseEmittedIrObligation": null,
+          "semanticEquivalentForAsciiFields": null,
+          "closesCodegenObligation": null,
+          "conclusionAllowed": false
+        },
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "multi-chunk-batch-shape-audit.json",
+        "objective": "multi-chunk-batch-shape-audit",
+        "contract": "sync-uint8array-byte-batch-buffer-shape",
+        "evidenceKinds": [
+          "SCOPE_GUARD",
+          "SOURCE_FACT"
+        ],
+        "runtimes": [],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "summary": {
+          "status": "source-shape-confirmed",
+          "shellCount": null,
+          "availableShellCount": null,
+          "jitStatusShellCount": null,
+          "binaryReadableShellCount": null,
+          "unchangedRunnableShellCount": null,
+          "commonMissingGlobals": null,
+          "blockedSurfaceCount": null,
+          "canCloseEmittedIrObligation": null,
+          "semanticEquivalentForAsciiFields": null,
+          "closesCodegenObligation": null,
+          "conclusionAllowed": null
+        },
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "node-textdecoder-source-pin-audit.json",
+        "objective": "node-textdecoder-source-pin-audit",
+        "contract": "node-exact-revision-textdecoder-string-boundary-source-lines",
+        "evidenceKinds": [
+          "SCOPE_GUARD",
+          "SOURCE_FACT"
+        ],
+        "runtimes": [
+          "node-v8"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "quick-xml-shape-audit.json",
+        "objective": "quick-xml-shape-audit",
+        "contract": "source-shape-audit",
+        "evidenceKinds": [
+          "BENCH_FACT",
+          "SOURCE_FACT"
+        ],
+        "runtimes": [
+          "woodstox-jvm",
+          "quick-xml-rust"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 2
+      },
+      {
+        "sourceArtifact": "raw-batch-kind-shape-audit.json",
+        "objective": "raw-batch-kind-shape-audit",
+        "contract": "runtime-and-source-raw-batch-kind-shape",
+        "evidenceKinds": [
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD",
+          "SOURCE_FACT"
+        ],
+        "runtimes": [
+          "node-v8"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "raw-span-shape-audit.json",
+        "objective": "raw-span-shape-audit",
+        "contract": "raw-frame-span-length-and-ascii-distribution",
+        "evidenceKinds": [
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD",
+          "SOURCE_FACT"
+        ],
+        "runtimes": [
+          "node-v8"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "shell": null,
+        "fixture": {
+          "source": "corpus-file",
+          "shape": "corpus-cycle",
+          "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+          "sizeGiB": 1,
+          "sizeMiB": 1024,
+          "actualBytes": 1073744736
+        },
+        "corpusSeed": "books.xml",
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "source-consumption-shape-audit.json",
+        "objective": "source-consumption-shape-audit",
+        "contract": "large-js-full-string-rows-are-not-full-arraybuffer-parser-input",
+        "evidenceKinds": [
+          "SOURCE_FACT"
+        ],
+        "runtimes": [],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "summary": {
+          "status": "classified",
+          "shellCount": null,
+          "availableShellCount": null,
+          "jitStatusShellCount": null,
+          "binaryReadableShellCount": null,
+          "unchangedRunnableShellCount": null,
+          "commonMissingGlobals": null,
+          "blockedSurfaceCount": null,
+          "canCloseEmittedIrObligation": null,
+          "semanticEquivalentForAsciiFields": null,
+          "closesCodegenObligation": null,
+          "conclusionAllowed": false
+        },
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "spidermonkey-materialized-scope-distance-audit.json",
+        "objective": "spidermonkey-materialized-scope-distance-audit",
+        "contract": "materialized-js-shell-workload-equivalence-and-scope-distance",
+        "evidenceKinds": [
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD",
+          "SOURCE_FACT"
+        ],
+        "runtimes": [],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "summary": {
+          "status": null,
+          "shellCount": null,
+          "availableShellCount": null,
+          "jitStatusShellCount": null,
+          "binaryReadableShellCount": null,
+          "unchangedRunnableShellCount": null,
+          "commonMissingGlobals": null,
+          "blockedSurfaceCount": null,
+          "canCloseEmittedIrObligation": null,
+          "semanticEquivalentForAsciiFields": true,
+          "closesCodegenObligation": false,
+          "conclusionAllowed": false
+        },
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "stax-event-public-object-shape-audit.json",
+        "objective": "stax-event-public-object-shape-audit",
+        "contract": "source-public-object-row-vs-file-backed-low-memory-scope",
+        "evidenceKinds": [
+          "SCOPE_GUARD",
+          "SOURCE_FACT"
+        ],
+        "runtimes": [
+          "node-v8"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "target-distance-audit.json",
+        "objective": "target-distance-audit",
+        "contract": "woodstox-and-quickxml-0.9x-target-distance",
+        "evidenceKinds": [
+          "SOURCE_FACT"
+        ],
+        "runtimes": [],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "summary": {
+          "status": "classified",
+          "shellCount": null,
+          "availableShellCount": null,
+          "jitStatusShellCount": null,
+          "binaryReadableShellCount": null,
+          "unchangedRunnableShellCount": null,
+          "commonMissingGlobals": null,
+          "blockedSurfaceCount": null,
+          "canCloseEmittedIrObligation": null,
+          "semanticEquivalentForAsciiFields": null,
+          "closesCodegenObligation": null,
+          "conclusionAllowed": false
+        },
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "text-materialization-boundary-audit.json",
+        "objective": "text-materialization-boundary-audit",
+        "contract": "text-cdata-materialization-headroom-is-not-full-string-counterexample",
+        "evidenceKinds": [
+          "SOURCE_FACT"
+        ],
+        "runtimes": [],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "summary": {
+          "status": "classified",
+          "shellCount": null,
+          "availableShellCount": null,
+          "jitStatusShellCount": null,
+          "binaryReadableShellCount": null,
+          "unchangedRunnableShellCount": null,
+          "commonMissingGlobals": null,
+          "blockedSurfaceCount": null,
+          "canCloseEmittedIrObligation": null,
+          "semanticEquivalentForAsciiFields": null,
+          "closesCodegenObligation": null,
+          "conclusionAllowed": false
+        },
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      }
+    ],
     "environmentArtifacts": [
       {
         "sourceArtifact": "firefox-spidermonkey-js-shell-availability-audit.json",
@@ -25110,6 +25733,8 @@
           "commonMissingGlobals": null,
           "blockedSurfaceCount": null,
           "canCloseEmittedIrObligation": null,
+          "semanticEquivalentForAsciiFields": null,
+          "closesCodegenObligation": null,
           "conclusionAllowed": false
         },
         "shell": null,
@@ -25141,6 +25766,8 @@
           "commonMissingGlobals": null,
           "blockedSurfaceCount": null,
           "canCloseEmittedIrObligation": null,
+          "semanticEquivalentForAsciiFields": null,
+          "closesCodegenObligation": null,
           "conclusionAllowed": false
         },
         "shell": null,
@@ -25172,6 +25799,8 @@
           "commonMissingGlobals": null,
           "blockedSurfaceCount": null,
           "canCloseEmittedIrObligation": null,
+          "semanticEquivalentForAsciiFields": null,
+          "closesCodegenObligation": null,
           "conclusionAllowed": false
         },
         "shell": null,
@@ -25343,6 +25972,8 @@
           ],
           "blockedSurfaceCount": 5,
           "canCloseEmittedIrObligation": false,
+          "semanticEquivalentForAsciiFields": null,
+          "closesCodegenObligation": null,
           "conclusionAllowed": false
         },
         "shell": null,
@@ -25559,6 +26190,8 @@
           "commonMissingGlobals": null,
           "blockedSurfaceCount": null,
           "canCloseEmittedIrObligation": null,
+          "semanticEquivalentForAsciiFields": null,
+          "closesCodegenObligation": null,
           "conclusionAllowed": false
         },
         "shell": null,
@@ -25678,6 +26311,40 @@
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": null,
           "closesEmittedIrObligation": false
+        },
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "spidermonkey-materialized-scope-distance-audit.json",
+        "objective": "spidermonkey-materialized-scope-distance-audit",
+        "contract": "materialized-js-shell-workload-equivalence-and-scope-distance",
+        "evidenceKinds": [
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD",
+          "SOURCE_FACT"
+        ],
+        "runtimes": [],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "summary": {
+          "status": null,
+          "shellCount": null,
+          "availableShellCount": null,
+          "jitStatusShellCount": null,
+          "binaryReadableShellCount": null,
+          "unchangedRunnableShellCount": null,
+          "commonMissingGlobals": null,
+          "blockedSurfaceCount": null,
+          "canCloseEmittedIrObligation": null,
+          "semanticEquivalentForAsciiFields": true,
+          "closesCodegenObligation": false,
+          "conclusionAllowed": false
         },
         "shell": null,
         "fixture": null,
@@ -25902,6 +26569,8 @@
           "commonMissingGlobals": null,
           "blockedSurfaceCount": null,
           "canCloseEmittedIrObligation": null,
+          "semanticEquivalentForAsciiFields": null,
+          "closesCodegenObligation": null,
           "conclusionAllowed": false
         },
         "shell": null,
@@ -25927,7 +26596,7 @@
     {
       "id": "codegen-traces-open",
       "status": "partial",
-      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Deno/V8 codegen trace evidence present (2 artifacts). Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=available, found=2, searchRoots=2); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey js-shell StAX API gap audit present (status=blocked-by-host-api-surface, unchangedRunnableShells=0/2, blockedSurfaces=5, commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch); it is host API surface evidence only, not emitted JIT IR. Firefox/SpiderMonkey public js-shell diagnostic flag sweep present (bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false); it rules out easy public-shell bytecode/dump flag paths but is not emitted JIT IR. Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell materialized string/object codegen audit present (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark. Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.",
+      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Deno/V8 codegen trace evidence present (2 artifacts). Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=available, found=2, searchRoots=2); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey js-shell StAX API gap audit present (status=blocked-by-host-api-surface, unchangedRunnableShells=0/2, blockedSurfaces=5, commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch); it is host API surface evidence only, not emitted JIT IR. Firefox/SpiderMonkey public js-shell diagnostic flag sweep present (bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false); it rules out easy public-shell bytecode/dump flag paths but is not emitted JIT IR. Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell materialized string/object codegen audit present (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark. Firefox/SpiderMonkey materialized scope-distance audit present (semanticEquivalentForAsciiFields=true, closesCodegenObligation=false); it records why the materialized js-shell codegen artifact is useful but still not closure evidence. Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.",
       "nextExperiment": "Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows."
     },
     {

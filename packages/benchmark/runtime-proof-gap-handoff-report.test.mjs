@@ -325,6 +325,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
     'spidermonkey-taskcluster-debug-jsshell-codegen-audit.json',
     'spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json',
     'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json',
+    'spidermonkey-materialized-scope-distance-audit.json',
     'spidermonkey-archival-debug-jsshell-codegen-audit.json',
     'firefox-spidermonkey-buildconfig-source-pin-audit.json',
   ]);
@@ -341,6 +342,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /current Taskcluster debug js-shell emits JitSpew codegen output \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007\), but sameContractStaxRow=false/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /current Taskcluster debug js-shell emits JitSpew codegen output while running the XML byte-tokenizer workload \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007\), but fullStringParity=false/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /current Taskcluster debug js-shell emits JitSpew codegen output while materializing JS strings and public event-shaped objects \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007\), but unchangedStaxBenchmark=false/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closesCodegenObligation=false/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /about:buildconfig records --enable-js-shell/.test(item)));
   assert.match(spiderMonkey.localClosure.scopeGuard, /Taskcluster debug-shell diagnostic facts/);
   assert.match(safari.sourceConsumptionContract.primaryParserInput, /StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/);

@@ -1,0 +1,197 @@
+{
+  "generatedAt": "2026-06-01T05:01:04.670Z",
+  "objective": "spidermonkey-materialized-scope-distance-audit",
+  "contract": "materialized-js-shell-workload-equivalence-and-scope-distance",
+  "note": "Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen artifact against the token-only codegen artifact, the js-shell StAX API gap, and the semantic materialization contract. This audit records exactly what the materialized js-shell workload proves and why it still cannot close the unchanged StAX codegen obligation.",
+  "parameters": {
+    "materializedJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
+    "tokenJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
+    "apiGapJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\firefox-spidermonkey-jsshell-stax-api-gap-audit.json",
+    "contractJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\materialization-contract-audit.json",
+    "selfTest": false
+  },
+  "sourceArtifacts": {
+    "materialized": {
+      "objective": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit",
+      "contract": "current-taskcluster-debug-spidermonkey-materialized-string-object-codegen-surface-not-unchanged-stax",
+      "outcome": {
+        "status": "available",
+        "hasJitExecutionStatus": null,
+        "hasIrDumpSurface": true,
+        "hasCodegenDumpOutput": true,
+        "hasMaterializedStringObjectCodegenOutput": true,
+        "hasNativeDisassemblySurface": true,
+        "nativeDumpComplete": true,
+        "scopeComparableToCurrentFirefox": true,
+        "sameSemanticChecksumFields": true,
+        "sameContractStaxRow": false,
+        "unchangedStaxBenchmark": false,
+        "fullStringParity": true,
+        "canRunCurrentStaxFullStringBenchmark": false,
+        "closesDiagnosticSurfaceObligation": true,
+        "closesEmittedIrObligation": false
+      }
+    },
+    "token": {
+      "objective": "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit",
+      "contract": "current-taskcluster-debug-spidermonkey-xml-workload-codegen-surface-not-same-contract-stax",
+      "outcome": {
+        "status": "available",
+        "hasJitExecutionStatus": null,
+        "hasIrDumpSurface": true,
+        "hasCodegenDumpOutput": true,
+        "hasXmlWorkloadCodegenOutput": true,
+        "hasNativeDisassemblySurface": true,
+        "nativeDumpComplete": true,
+        "scopeComparableToCurrentFirefox": true,
+        "sameContractStaxRow": false,
+        "fullStringParity": false,
+        "canRunCurrentStaxFullStringBenchmark": false,
+        "closesDiagnosticSurfaceObligation": true,
+        "closesEmittedIrObligation": false
+      }
+    },
+    "apiGap": {
+      "objective": "firefox-spidermonkey-jsshell-stax-api-gap-audit",
+      "contract": "spidermonkey-jsshell-current-stax-full-string-api-surface-gap",
+      "outcome": null
+    },
+    "contract": {
+      "objective": "materialization-contract-audit",
+      "contract": "semantic-materialization-not-object-shape",
+      "outcome": null
+    }
+  },
+  "workloadComparison": {
+    "token": {
+      "contractScope": "xml-token-boundary-no-string-materialization",
+      "fullStringParity": false,
+      "eventCount": 55759,
+      "checksum": 9292058,
+      "codegenMarkers": 151431
+    },
+    "materialized": {
+      "contractScope": "ascii-js-string-and-public-event-object-materialization",
+      "fullStringParity": true,
+      "sameSemanticChecksumFields": true,
+      "eventCount": 55759,
+      "checksum": -553631888,
+      "materializedStringCount": 61289,
+      "materializedObjectCount": 55759,
+      "codegenMarkers": 234522
+    }
+  },
+  "semanticContract": {
+    "semanticFields": [
+      "event type",
+      "element local name",
+      "attribute count",
+      "attribute local name",
+      "attribute value",
+      "trimmed non-empty text",
+      "trimmed non-empty CDATA",
+      "UTF-16-code-unit checksum"
+    ],
+    "staxEventPublicObjectsSupported": true,
+    "staxStreamIndexAccessorsSupported": true
+  },
+  "checks": [
+    {
+      "id": "same-current-debug-shell-build",
+      "status": "pass",
+      "evidence": [
+        "materializedTaskId=bzK0wWZvQoOguMjTIbRJ_g",
+        "tokenTaskId=bzK0wWZvQoOguMjTIbRJ_g",
+        "buildId=20260531212007"
+      ]
+    },
+    {
+      "id": "semantic-field-folding-present",
+      "status": "pass",
+      "evidence": [
+        "sameSemanticChecksumFields=true",
+        "fullStringParity=true",
+        "checksum=-553631888"
+      ]
+    },
+    {
+      "id": "materializes-js-strings-and-public-event-objects",
+      "status": "pass",
+      "evidence": [
+        "materializedStringCount=61289",
+        "materializedObjectCount=55759",
+        "materializedAttributeObjectCount=19586"
+      ]
+    },
+    {
+      "id": "token-to-materialized-workload-delta-recorded",
+      "status": "pass",
+      "evidence": [
+        "tokenFullStringParity=false",
+        "materializedFullStringParity=true",
+        "tokenChecksum=9292058",
+        "materializedChecksum=-553631888"
+      ]
+    },
+    {
+      "id": "unchanged-stax-host-api-gap-remains",
+      "status": "pass",
+      "evidence": [
+        "missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch",
+        "canRunCurrentStaxFullStringBenchmark=false"
+      ]
+    },
+    {
+      "id": "unchanged-stax-closure-blocked",
+      "status": "pass",
+      "evidence": [
+        "sameContractStaxRow=false",
+        "unchangedStaxBenchmark=false",
+        "closesEmittedIrObligation=false"
+      ]
+    }
+  ],
+  "summary": {
+    "allChecksPass": true,
+    "semanticEquivalentForAsciiFields": true,
+    "materializesJsStringsAndObjects": true,
+    "closesDiagnosticSurfaceObligation": true,
+    "closesCodegenObligation": false,
+    "unchangedStaxBenchmark": false,
+    "sameContractStaxRow": false,
+    "conclusionAllowed": false
+  },
+  "findings": [
+    {
+      "id": "materialized-js-shell-semantic-equivalence-bounded",
+      "classification": "SOURCE_FACT",
+      "summary": "The materialized js-shell workload folds the same semantic string fields for the ASCII corpus-seed scope and records positive JS string/object materialization counters.",
+      "evidence": [
+        "semanticEquivalentForAsciiFields=true",
+        "materializedStringCount=61289",
+        "materializedObjectCount=55759",
+        "checksum=-553631888"
+      ]
+    },
+    {
+      "id": "materialized-js-shell-not-unchanged-stax",
+      "classification": "SCOPE_GUARD",
+      "summary": "The same artifact remains outside unchanged StAX closure because the js-shell host API cannot run the TextDecoder/ReadableStream benchmark surface.",
+      "evidence": [
+        "sameContractStaxRow=false",
+        "unchangedStaxBenchmark=false",
+        "closesCodegenObligation=false"
+      ]
+    },
+    {
+      "id": "materialized-js-shell-closure-negative",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "This audit rejects using the materialized js-shell codegen artifact as closure evidence for codegen-traces-open.",
+      "evidence": [
+        "requiredClosure=same-contract full-string StAX emitted codegen",
+        "observedClosure=ASCII js-shell materialized workload codegen",
+        "allChecksPass=true"
+      ]
+    }
+  ]
+}

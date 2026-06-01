@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T04:53:31.018Z",
+  "generatedAt": "2026-06-01T05:02:25.693Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -176,6 +176,7 @@
     "spidermonkey-archival-debug-jsshell-codegen-audit.json",
     "spidermonkey-jsshell-diagnostic-flag-sweep.json",
     "spidermonkey-jsshell-tokenizer-headroom.json",
+    "spidermonkey-materialized-scope-distance-audit.json",
     "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
     "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
     "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
@@ -233,7 +234,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 212,
+    "scannedArtifactCount": 213,
     "ignoredArtifactCount": 7,
     "parseErrorCount": 0,
     "measuredRowCount": 1186,

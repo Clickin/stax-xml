@@ -266,7 +266,7 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 212 primary release JSON artifacts, recognizes 1,186
+The current scan covers 213 primary release JSON artifacts, recognizes 1,186
 sample throughput rows and 170 aggregate rows, and finds 792 JavaScript 1 GiB+
 full-string sample rows plus 133 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
@@ -593,10 +593,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 212 primary release artifacts and recognizes 1,186
-measured rows. It records 152 benchmark artifacts, 22 source artifacts, 15
+The current audit scans 213 primary release artifacts and recognizes 1,186
+measured rows. It records 152 benchmark artifacts, 23 source artifacts, 15
 trace/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and
-23 negative-result artifacts, 792 JavaScript 1 GiB+ full-string rows, and four
+24 negative-result artifacts, 792 JavaScript 1 GiB+ full-string rows, and four
 release corpus seeds: `books.xml`, `large.xml`, `midsize.xml`, and `treebank_e.xml`. The
 negative-result set now includes
 `concat-buffer-reuse-negative-result.json`, which records that reusable
@@ -1651,6 +1651,17 @@ unchanged benchmark: it uses an ASCII-only js-shell materializer because the
 host API lacks `TextDecoder`, `ReadableStream`, and `fetch`. The coverage audit
 therefore classifies it as `current-debug-materialized-codegen-scope-guard`,
 not `emitted-ir`, and it still does not close `codegen-traces-open`.
+
+`packages/benchmark/results/release/spidermonkey-materialized-scope-distance-audit.md`
+then compares the materialized js-shell artifact against the token-only XML
+codegen artifact, the js-shell host API gap, and the semantic materialization
+contract. It records all six checks as passing: same Taskcluster debug shell
+build, semantic field folding, positive JS string and public event-shaped object
+materialization counters, token-to-materialized delta, unchanged StAX host API
+gap, and unchanged StAX closure blocked. The audit therefore pins
+`semanticEquivalentForAsciiFields=true` while
+`closesCodegenObligation=false`, preventing the materialized js-shell codegen
+artifact from being cited as unchanged StAX closure evidence.
 
 `packages/benchmark/results/release/spidermonkey-archival-debug-jsshell-codegen-audit.md`
 then checks a Firefox 36 era debug js-shell from the archived

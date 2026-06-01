@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T04:54:04.274Z",
+  "generatedAt": "2026-06-01T05:03:24.256Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
@@ -9,7 +9,7 @@
     "comparisonGeneratedAt": "2026-06-01T02:05:04.582Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
-    "auditGeneratedAt": "2026-06-01T04:53:44.993Z",
+    "auditGeneratedAt": "2026-06-01T05:03:15.248Z",
     "auditObjective": "runtime-proof-coverage-audit",
     "auditContract": "static-release-artifact-proof-coverage"
   },
@@ -37,7 +37,7 @@
     "conclusionBlocker": "Open or partial obligations still require external runtime evidence before any runtime-limit conclusion."
   },
   "auditSummary": {
-    "artifactCount": 212,
+    "artifactCount": 213,
     "measuredRows": 1186,
     "counterexamples": null,
     "activeObligations": [
@@ -50,7 +50,7 @@
       {
         "id": "codegen-traces-open",
         "status": "partial",
-        "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Deno/V8 codegen trace evidence present (2 artifacts). Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=available, found=2, searchRoots=2); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey js-shell StAX API gap audit present (status=blocked-by-host-api-surface, unchangedRunnableShells=0/2, blockedSurfaces=5, commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch); it is host API surface evidence only, not emitted JIT IR. Firefox/SpiderMonkey public js-shell diagnostic flag sweep present (bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false); it rules out easy public-shell bytecode/dump flag paths but is not emitted JIT IR. Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell materialized string/object codegen audit present (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark. Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.",
+        "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Deno/V8 codegen trace evidence present (2 artifacts). Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=available, found=2, searchRoots=2); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey js-shell StAX API gap audit present (status=blocked-by-host-api-surface, unchangedRunnableShells=0/2, blockedSurfaces=5, commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch); it is host API surface evidence only, not emitted JIT IR. Firefox/SpiderMonkey public js-shell diagnostic flag sweep present (bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false); it rules out easy public-shell bytecode/dump flag paths but is not emitted JIT IR. Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell materialized string/object codegen audit present (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark. Firefox/SpiderMonkey materialized scope-distance audit present (semanticEquivalentForAsciiFields=true, closesCodegenObligation=false); it records why the materialized js-shell codegen artifact is useful but still not closure evidence. Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.",
         "nextExperiment": "Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows."
       }
     ]
@@ -446,6 +446,7 @@
         "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
         "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
         "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
+        "spidermonkey-materialized-scope-distance-audit.json",
         "spidermonkey-archival-debug-jsshell-codegen-audit.json",
         "firefox-spidermonkey-buildconfig-source-pin-audit.json"
       ],
@@ -460,6 +461,7 @@
         "A current Taskcluster debug js-shell emits JitSpew codegen output (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007), but sameContractStaxRow=false and canRunCurrentStaxFullStringBenchmark=false.",
         "A current Taskcluster debug js-shell emits JitSpew codegen output while running the XML byte-tokenizer workload (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007), but fullStringParity=false, sameContractStaxRow=false, and canRunCurrentStaxFullStringBenchmark=false.",
         "A current Taskcluster debug js-shell emits JitSpew codegen output while materializing JS strings and public event-shaped objects (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007), but unchangedStaxBenchmark=false, sameContractStaxRow=false, and canRunCurrentStaxFullStringBenchmark=false.",
+        "The materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closesCodegenObligation=false, preventing the materialized js-shell artifact from being cited as unchanged StAX closure evidence.",
         "Installed Firefox about:buildconfig records --enable-js-shell / MOZ_PACKAGE_JSSHELL but does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW."
       ],
       "scopeGuard": "These are local, official-shell, and Taskcluster debug-shell diagnostic facts only; they are not emitted SpiderMonkey JIT IR or optimized-code evidence for a same-contract StAX row."
@@ -572,6 +574,7 @@
           "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
           "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
           "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
+          "spidermonkey-materialized-scope-distance-audit.json",
           "spidermonkey-archival-debug-jsshell-codegen-audit.json",
           "firefox-spidermonkey-buildconfig-source-pin-audit.json"
         ],
@@ -586,6 +589,7 @@
           "A current Taskcluster debug js-shell emits JitSpew codegen output (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007), but sameContractStaxRow=false and canRunCurrentStaxFullStringBenchmark=false.",
           "A current Taskcluster debug js-shell emits JitSpew codegen output while running the XML byte-tokenizer workload (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007), but fullStringParity=false, sameContractStaxRow=false, and canRunCurrentStaxFullStringBenchmark=false.",
           "A current Taskcluster debug js-shell emits JitSpew codegen output while materializing JS strings and public event-shaped objects (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007), but unchangedStaxBenchmark=false, sameContractStaxRow=false, and canRunCurrentStaxFullStringBenchmark=false.",
+          "The materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closesCodegenObligation=false, preventing the materialized js-shell artifact from being cited as unchanged StAX closure evidence.",
           "Installed Firefox about:buildconfig records --enable-js-shell / MOZ_PACKAGE_JSSHELL but does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW."
         ],
         "scopeGuard": "These are local, official-shell, and Taskcluster debug-shell diagnostic facts only; they are not emitted SpiderMonkey JIT IR or optimized-code evidence for a same-contract StAX row."

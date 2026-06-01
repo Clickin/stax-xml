@@ -439,6 +439,7 @@ function createLocalClosure(activeObligations, audit) {
     const taskclusterDebugJsShell = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-codegen-audit.json') ?? null;
     const taskclusterDebugJsShellXml = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json') ?? null;
     const taskclusterDebugJsShellMaterialized = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json') ?? null;
+    const materializedScopeDistance = artifactByName.get('spidermonkey-materialized-scope-distance-audit.json') ?? null;
     const archivalDebugJsShell = artifactByName.get('spidermonkey-archival-debug-jsshell-codegen-audit.json') ?? null;
     const buildconfig = artifactByName.get('firefox-spidermonkey-buildconfig-source-pin-audit.json') ?? null;
     const diagnosticNoDump = diagnostic?.outcome?.status === 'no-dump-emitted'
@@ -471,6 +472,8 @@ function createLocalClosure(activeObligations, audit) {
       && taskclusterDebugJsShellMaterialized?.outcome?.scopeComparableToCurrentFirefox === true
       && taskclusterDebugJsShellMaterialized?.outcome?.sameContractStaxRow === false
       && taskclusterDebugJsShellMaterialized?.outcome?.closesEmittedIrObligation === false;
+    const materializedScopeDistancePinned = materializedScopeDistance?.summary?.semanticEquivalentForAsciiFields === true
+      && materializedScopeDistance?.summary?.closesCodegenObligation === false;
     const jsShellCommonMissing = Array.isArray(jsShellApiGap?.summary?.commonMissingGlobals)
       ? jsShellApiGap.summary.commonMissingGlobals.join(', ')
       : 'unknown';
@@ -483,7 +486,7 @@ function createLocalClosure(activeObligations, audit) {
       obligationId: 'codegen-traces-open',
       localStatus: blocked ? 'external-run-required' : 'partial-local-status',
       localRunnable: blocked ? false : null,
-      evidenceArtifacts: [diagnostic, jsShell, releaseJsShell, nightlyJsShell, jsShellApiGap, jsShellDiagnosticFlagSweep, taskclusterDebugJsShell, taskclusterDebugJsShellXml, taskclusterDebugJsShellMaterialized, archivalDebugJsShell, buildconfig]
+      evidenceArtifacts: [diagnostic, jsShell, releaseJsShell, nightlyJsShell, jsShellApiGap, jsShellDiagnosticFlagSweep, taskclusterDebugJsShell, taskclusterDebugJsShellXml, taskclusterDebugJsShellMaterialized, materializedScopeDistance, archivalDebugJsShell, buildconfig]
         .filter(Boolean)
         .map(artifact => artifact.sourceArtifact),
       blockers: [
@@ -519,6 +522,9 @@ function createLocalClosure(activeObligations, audit) {
         taskclusterDebugMaterializedCodegenScopeGuard
           ? `A current Taskcluster debug js-shell emits JitSpew codegen output while materializing JS strings and public event-shaped objects (taskId=${taskclusterDebugJsShellMaterialized.shell?.provenance?.taskId ?? 'unknown'}, buildId=${taskclusterDebugJsShellMaterialized.shell?.provenance?.buildId ?? 'unknown'}), but unchangedStaxBenchmark=false, sameContractStaxRow=false, and canRunCurrentStaxFullStringBenchmark=${taskclusterDebugJsShellMaterialized.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}.`
           : 'No current Taskcluster debug js-shell materialized string/object codegen scope guard is recorded.',
+        materializedScopeDistancePinned
+          ? 'The materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closesCodegenObligation=false, preventing the materialized js-shell artifact from being cited as unchanged StAX closure evidence.'
+          : 'No materialized scope-distance audit pins the semantic-equivalence and closure boundary.',
         buildconfigNoJitSpew
           ? 'Installed Firefox about:buildconfig records --enable-js-shell / MOZ_PACKAGE_JSSHELL but does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW.'
           : 'Installed Firefox buildconfig JitSpew boundary is not pinned as a no-JitSpew release build.',
