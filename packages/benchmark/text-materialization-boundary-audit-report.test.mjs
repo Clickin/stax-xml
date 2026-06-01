@@ -73,7 +73,7 @@ test('text materialization boundary audit separates partial headroom from full-s
   assert.equal(report.summary.fullRowsCrossTarget, 0);
   assert.equal(report.summary.noTrimRowsCrossTarget, 0);
   assert.equal(report.summary.foldTrimRowsCrossTarget, 0);
-  assert.equal(report.summary.negativeCandidateCount, 21);
+  assert.equal(report.summary.negativeCandidateCount, 27);
   assert.match(report.interpretation, /Text\/CDATA omission crosses the target as headroom evidence/);
   assert.ok(report.findings.some(entry => entry.id === 'full-string-target-not-crossed'));
   assert.ok(report.findings.some(entry => entry.id === 'without-text-is-partial-headroom'));

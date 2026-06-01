@@ -1,15 +1,15 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-01T08:08:34.055Z
+Generated: 2026-06-01T08:14:27.713Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-06-01T08:08:07.478Z
+- Audit generated: 2026-06-01T08:13:53.527Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
-- Comparison generated: 2026-06-01T07:30:50.160Z
+- Comparison generated: 2026-06-01T08:12:51.043Z
 - Active obligations: 2
 
 ## Summary
@@ -104,7 +104,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - No-trim to full ratio: 1.01x
 - Fold-trim to full ratio: 0.80x
 - Rows crossing target: full=0, withoutText=4, noTrim=0, foldTrim=0
-- Negative candidate count: 21
+- Negative candidate count: 27
 - Interpretation: Text/CDATA omission crosses the target as headroom evidence, while trim-only, fold-trim, cache, and ASCII candidates remain negative for the current full-string contract.
 
 ## Active Obligations

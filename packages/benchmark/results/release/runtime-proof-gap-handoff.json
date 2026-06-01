@@ -1,15 +1,15 @@
 {
-  "generatedAt": "2026-06-01T08:08:34.055Z",
+  "generatedAt": "2026-06-01T08:14:27.713Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
   "inputs": {
     "auditJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-coverage-audit.json",
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
-    "comparisonGeneratedAt": "2026-06-01T07:30:50.160Z",
+    "comparisonGeneratedAt": "2026-06-01T08:12:51.043Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
-    "auditGeneratedAt": "2026-06-01T08:08:07.478Z",
+    "auditGeneratedAt": "2026-06-01T08:13:53.527Z",
     "auditObjective": "runtime-proof-coverage-audit",
     "auditContract": "static-release-artifact-proof-coverage"
   },
@@ -414,7 +414,7 @@
     "fullRowsCrossTarget": 0,
     "noTrimRowsCrossTarget": 0,
     "foldTrimRowsCrossTarget": 0,
-    "negativeCandidateCount": 21,
+    "negativeCandidateCount": 27,
     "interpretation": "Text/CDATA omission crosses the target as headroom evidence, while trim-only, fold-trim, cache, and ASCII candidates remain negative for the current full-string contract."
   },
   "localClosure": [

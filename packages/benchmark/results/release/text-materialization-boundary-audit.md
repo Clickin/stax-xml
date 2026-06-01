@@ -1,6 +1,6 @@
 # Text Materialization Boundary Audit
 
-Generated: 2026-06-01T07:56:51.796Z
+Generated: 2026-06-01T08:13:27.247Z
 
 Audits the current text/CDATA materialization boundary from the same-contract aggregate. This is not a benchmark run and does not prove a JavaScript runtime ceiling.
 
@@ -23,7 +23,7 @@ Audits the current text/CDATA materialization boundary from the same-contract ag
 - Without-text rows crossing target: 4
 - No-trim rows crossing target: 0
 - Fold-trim rows crossing target: 0
-- Negative candidate count: 21
+- Negative candidate count: 27
 
 ## Findings
 
@@ -32,7 +32,7 @@ Audits the current text/CDATA materialization boundary from the same-contract ag
 | `full-string-target-not-crossed` | SOURCE_FACT | Current full-string rows crossing 200 MiB/s: 0. |
 | `without-text-is-partial-headroom` | SOURCE_FACT | Text/CDATA omission crosses the target in 4 rows but is not full-string parity. |
 | `trim-only-not-counterexample` | SOURCE_FACT | No no-trim or fold-trim row crosses the target under the current frontier. |
-| `negative-candidate-set-recorded` | SOURCE_FACT | 21 text/materialization candidates are recorded as negative or partial frontier evidence. |
+| `negative-candidate-set-recorded` | SOURCE_FACT | 27 text/materialization candidates are recorded as negative or partial frontier evidence. |
 
 Interpretation: Text/CDATA omission crosses the target as headroom evidence, while trim-only, fold-trim, cache, and ASCII candidates remain negative for the current full-string contract.
 

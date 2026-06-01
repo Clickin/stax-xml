@@ -571,6 +571,10 @@ fold-trim checksum at 0.84x of its control, the byte-boundary trim guard at
 1.00x of its control, ASCII byte pre-trim before decode at 0.99x of its control,
 manual ASCII materialization for all string spans at 0.63x of its control, and
 direct semantic byte checksum at 0.97x of its same-condition control.
+The same synthesis now also includes the batch-size-1 cross-runtime no-counter
+fold-cache rows: Node/V8, Bun/JSC, and Deno/V8 all preserve full-string parity,
+but both name-fold and string-fold cache candidates remain below their
+`rawFrameNameId` controls and below 200 MiB/s.
 `packages/benchmark/results/release/text-folding-cost-candidate.md` then
 separates text string creation from text checksum folding on the 1 GiB
 `books.xml` corpus-cycle. The control `rawFrameNameId` row averaged

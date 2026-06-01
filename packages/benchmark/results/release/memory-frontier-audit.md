@@ -1,6 +1,6 @@
 # Memory Frontier Audit
 
-Generated: 2026-06-01T07:56:37.579Z
+Generated: 2026-06-01T08:13:24.956Z
 
 Audits memory classification from the same-contract aggregate. This is not a benchmark run, does not normalize memory models across runtimes, and does not prove a JavaScript runtime ceiling.
 

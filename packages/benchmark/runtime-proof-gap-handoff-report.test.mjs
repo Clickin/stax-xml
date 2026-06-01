@@ -287,7 +287,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.equal(report.textMaterializationEvidence.fastestWithoutTextToFullRatio, 1.36);
   assert.equal(report.textMaterializationEvidence.fullRowsCrossTarget, 0);
   assert.equal(report.textMaterializationEvidence.noTextRowsCrossTarget, 4);
-  assert.equal(report.textMaterializationEvidence.negativeCandidateCount, 21);
+  assert.equal(report.textMaterializationEvidence.negativeCandidateCount, 27);
   assert.match(report.textMaterializationEvidence.interpretation, /Text\/CDATA omission crosses the target/);
   assert.equal(report.auditSummary.artifactCount, audit.scannedArtifacts.length);
   assert.equal(report.auditSummary.measuredRows, audit.summary.measuredRowCount);
