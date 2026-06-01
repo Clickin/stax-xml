@@ -57,6 +57,21 @@ test('target distance audit keeps Woodstox and quick-xml 0.9x goals explicit', (
   assert.equal(quickXml.remainingTo90PercentMiBPerSec, 95.06);
   assert.equal(quickXml.targetMet, false);
 
+  const fastestJsContract = report.summary.sameFixtureFastestJsContract;
+  assert.equal(fastestJsContract.group, 'file-backed-batch-size-sweep');
+  assert.equal(fastestJsContract.sourceArtifact, 'file-backed-batch-size-sweep.json');
+  assert.equal(fastestJsContract.caseId, 'stax-raw-frame-name-id-batch-8');
+  assert.equal(fastestJsContract.rateMiBPerSec, 152.11);
+  assert.equal(fastestJsContract.sourceMode, 'file-backed-sync-iterable-byte-batches');
+  assert.equal(fastestJsContract.directReadableStream, false);
+  assert.equal(fastestJsContract.fullArrayBufferParserInput, false);
+  assert.equal(fastestJsContract.boundedMemory, true);
+  assert.equal(fastestJsContract.memoryKind, 'process-rss');
+  assert.equal(fastestJsContract.maxRssMiB, 61.77);
+  assert.equal(fastestJsContract.maxHeapUsedMiB, 6.83);
+  assert.equal(fastestJsContract.maxExternalMiB, 3.66);
+  assert.equal(fastestJsContract.maxArrayBuffersMiB, 1.67);
+
   const external = report.summary.externalBaseline1024MiBFileSyncBatches;
   assert.equal(external.staxStreamRateMiBPerSec, 124.62);
   assert.equal(external.rawFrameNameIdRateMiBPerSec, 132.54);
@@ -83,16 +98,19 @@ test('target distance audit keeps Woodstox and quick-xml 0.9x goals explicit', (
   assert.ok(report.findings.some(entry => entry.id === 'woodstox-0-9x-target-not-met'));
   assert.ok(report.findings.some(entry => entry.id === 'quickxml-0-9x-target-not-met'));
   assert.ok(report.findings.some(entry => entry.id === 'external-baseline-separate-from-candidate-target'));
+  assert.ok(report.findings.some(entry => entry.id === 'same-fixture-fastest-js-contract-classified'));
   assert.ok(report.findings.some(entry => entry.id === 'target-distance-not-runtime-ceiling'));
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Target Distance Audit/);
   assert.match(markdown, /Same-fixture JS row: `stax-raw-frame-name-id-batch-8` 152\.11 MiB\/s/);
+  assert.match(markdown, /Same-fixture JS source\/memory contract: Node\/V8 `stax-raw-frame-name-id-batch-8` 152\.11 MiB\/s, sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=false, fullArrayBufferParserInput=false, boundedMemory=true, process-rss max 61\.77 MiB/);
   assert.match(markdown, /Woodstox target: 351\.56 MiB\/s; 0\.9x target 316\.40 MiB\/s; JS ratio 0\.43x; remaining 164\.29 MiB\/s; targetMet=false/);
   assert.match(markdown, /quick-xml target: 274\.63 MiB\/s; 0\.9x target 247\.17 MiB\/s; JS ratio 0\.55x; remaining 95\.06 MiB\/s; targetMet=false/);
   assert.match(markdown, /stax-stream: 124\.62 MiB\/s \(0\.37x Woodstox\)/);
   assert.match(markdown, /rawFrameNameId: 132\.54 MiB\/s \(0\.39x Woodstox\)/);
   assert.match(markdown, /quick-xml: 270\.26 MiB\/s \(0\.80x Woodstox\)/);
   assert.match(markdown, /\| `file-backed-batch-size-sweep` \| `stax-raw-frame-name-id-batch-8` \| 152\.11 \| `file-backed-short-attr-value-cache-candidate\.json` \| 274\.63 \| 247\.17 \| 95\.06 \| no \| same books 1024 MiB fixture family, but quick-xml reference comes from a separate candidate artifact \|/);
+  assert.match(markdown, /same-fixture fastest JavaScript target row is file-backed synchronous Iterable<Uint8Array\[\]> input/);
   assert.match(markdown, /A target-distance deficit is not proof that JavaScript runtimes have no further headroom/);
 });

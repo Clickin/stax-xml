@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-01T08:13:25.600Z",
+  "generatedAt": "2026-06-01T10:06:06.862Z",
   "objective": "target-distance-audit",
   "contract": "woodstox-and-quickxml-0.9x-target-distance",
   "note": "Audits the distance from current same-contract JavaScript rows to Woodstox and quick-xml targets. This is not a benchmark run, not object-shape equivalence, and not a JavaScript runtime ceiling proof.",
   "inputs": {
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
-    "comparisonGeneratedAt": "2026-06-01T08:12:51.043Z",
+    "comparisonGeneratedAt": "2026-06-01T09:53:34.432Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape"
   },
@@ -34,6 +34,22 @@
       "fastestJsQuickXmlRatio": 0.55,
       "remainingTo90PercentMiBPerSec": 95.06,
       "targetMet": false
+    },
+    "sameFixtureFastestJsContract": {
+      "group": "file-backed-batch-size-sweep",
+      "sourceArtifact": "file-backed-batch-size-sweep.json",
+      "runtimeLabel": "Node/V8",
+      "caseId": "stax-raw-frame-name-id-batch-8",
+      "rateMiBPerSec": 152.11,
+      "sourceMode": "file-backed-sync-iterable-byte-batches",
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "boundedMemory": true,
+      "memoryKind": "process-rss",
+      "maxRssMiB": 61.77,
+      "maxHeapUsedMiB": 6.83,
+      "maxExternalMiB": 3.66,
+      "maxArrayBuffersMiB": 1.67
     },
     "externalBaseline1024MiBFileSyncBatches": {
       "staxStreamRateMiBPerSec": 124.62,
@@ -163,6 +179,11 @@
       "id": "external-baseline-separate-from-candidate-target",
       "classification": "SOURCE_FACT",
       "summary": "The 1024 MiB external baseline keeps stax-stream, rawFrameNameId, Woodstox, and quick-xml rows visible separately from later same-fixture candidate targets."
+    },
+    {
+      "id": "same-fixture-fastest-js-contract-classified",
+      "classification": "SOURCE_FACT",
+      "summary": "The same-fixture fastest JavaScript target row is file-backed synchronous Iterable<Uint8Array[]> input, not direct ReadableStream, not full ArrayBuffer parser input, and bounded under process RSS."
     },
     {
       "id": "target-distance-not-runtime-ceiling",

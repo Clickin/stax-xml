@@ -70,14 +70,25 @@ function createReport(comparison, options) {
   const quickXmlTarget = summary.sameFixture1024MiBQuickXmlTarget;
   const externalBaseline = summary.externalBaseline1024MiBFileSyncBatches;
   const processRss = summary.sameFixture1024MiBProcessRssSnapshot;
+  const fastestComparableJsRow = findFastestComparableJsTargetRow(summary.sameFixture1024MiBTargetRows, woodstoxTarget);
   if (!woodstoxTarget || !quickXmlTarget || !externalBaseline) {
     throw new Error('same-contract comparison JSON does not contain required target-distance summaries');
   }
+  const fastestComparableJsContract = summarizeComparableJsTargetRow(fastestComparableJsRow);
+  const fastestComparableJsContractOk = fastestComparableJsContract
+    && fastestComparableJsContract.sourceMode === 'file-backed-sync-iterable-byte-batches'
+    && fastestComparableJsContract.directReadableStream === false
+    && fastestComparableJsContract.fullArrayBufferParserInput === false
+    && fastestComparableJsContract.boundedMemory === true
+    && fastestComparableJsContract.memoryKind === 'process-rss'
+    && typeof fastestComparableJsContract.maxRssMiB === 'number'
+    && fastestComparableJsContract.maxRssMiB < 128;
 
   const status = woodstoxTarget.targetMet === false
     && quickXmlTarget.targetMet === false
     && typeof woodstoxTarget.remainingTo90PercentMiBPerSec === 'number'
     && typeof quickXmlTarget.remainingTo90PercentMiBPerSec === 'number'
+    && fastestComparableJsContractOk
     ? 'classified'
     : 'partial';
 
@@ -96,13 +107,23 @@ function createReport(comparison, options) {
       status,
       sameFixture1024MiBWoodstoxTarget: summarizeWoodstoxTarget(woodstoxTarget),
       sameFixture1024MiBQuickXmlTarget: summarizeQuickXmlTarget(quickXmlTarget),
+      sameFixtureFastestJsContract: fastestComparableJsContract,
       externalBaseline1024MiBFileSyncBatches: summarizeExternalBaseline(externalBaseline),
       sameFixture1024MiBProcessRssSnapshot: summarizeProcessRssSnapshot(processRss),
       conclusionAllowed: false,
     },
     quickXmlTargetRows: (summary.sameFixture1024MiBQuickXmlTargetRows ?? []).map(summarizeQuickXmlTargetRow),
-    findings: createFindings(woodstoxTarget, quickXmlTarget, externalBaseline),
+    findings: createFindings(woodstoxTarget, quickXmlTarget, externalBaseline, fastestComparableJsContractOk),
   };
+}
+
+function findFastestComparableJsTargetRow(targetRows, target) {
+  if (!Array.isArray(targetRows) || !target) return null;
+  return targetRows.find(row =>
+    row.group === target.group
+    && row.fastestJs?.caseId === target.fastestJsCaseId
+    && row.fastestJs?.sourceArtifact === target.sourceArtifact
+  )?.fastestJs ?? null;
 }
 
 function summarizeWoodstoxTarget(target) {
@@ -132,6 +153,26 @@ function summarizeQuickXmlTarget(target) {
     fastestJsQuickXmlRatio: target.fastestJsQuickXmlRatio,
     remainingTo90PercentMiBPerSec: target.remainingTo90PercentMiBPerSec,
     targetMet: target.targetMet,
+  };
+}
+
+function summarizeComparableJsTargetRow(row) {
+  if (!row) return null;
+  return {
+    group: row.group,
+    sourceArtifact: row.sourceArtifact,
+    runtimeLabel: row.runtimeLabel,
+    caseId: row.caseId,
+    rateMiBPerSec: row.mibPerSec,
+    sourceMode: row.sourceMode ?? null,
+    directReadableStream: row.directReadableStream ?? null,
+    fullArrayBufferParserInput: row.fullArrayBufferParserInput ?? null,
+    boundedMemory: row.boundedMemory === true,
+    memoryKind: row.memory?.primaryKind ?? null,
+    maxRssMiB: row.memory?.maxMiB ?? null,
+    maxHeapUsedMiB: row.memory?.maxHeapUsedMiB ?? null,
+    maxExternalMiB: row.memory?.maxExternalMiB ?? null,
+    maxArrayBuffersMiB: row.memory?.maxArrayBuffersMiB ?? null,
   };
 }
 
@@ -185,7 +226,7 @@ function summarizeQuickXmlTargetRow(row) {
   };
 }
 
-function createFindings(woodstoxTarget, quickXmlTarget, externalBaseline) {
+function createFindings(woodstoxTarget, quickXmlTarget, externalBaseline, fastestComparableJsContractOk) {
   return [
     {
       id: 'woodstox-0-9x-target-not-met',
@@ -203,6 +244,13 @@ function createFindings(woodstoxTarget, quickXmlTarget, externalBaseline) {
       summary: `The 1024 MiB external baseline keeps stax-stream, rawFrameNameId, Woodstox, and quick-xml rows visible separately from later same-fixture candidate targets.`,
     },
     {
+      id: 'same-fixture-fastest-js-contract-classified',
+      classification: fastestComparableJsContractOk ? 'SOURCE_FACT' : 'HYPOTHESIS',
+      summary: fastestComparableJsContractOk
+        ? 'The same-fixture fastest JavaScript target row is file-backed synchronous Iterable<Uint8Array[]> input, not direct ReadableStream, not full ArrayBuffer parser input, and bounded under process RSS.'
+        : 'The same-fixture fastest JavaScript target row is missing or does not satisfy the expected source/memory contract.',
+    },
+    {
       id: 'target-distance-not-runtime-ceiling',
       classification: 'SOURCE_FACT',
       summary: 'A target-distance deficit is not proof that JavaScript runtimes have no further headroom.',
@@ -213,6 +261,7 @@ function createFindings(woodstoxTarget, quickXmlTarget, externalBaseline) {
 function renderMarkdown(report) {
   const woodstox = report.summary.sameFixture1024MiBWoodstoxTarget;
   const quickXml = report.summary.sameFixture1024MiBQuickXmlTarget;
+  const fastestJsContract = report.summary.sameFixtureFastestJsContract;
   const external = report.summary.externalBaseline1024MiBFileSyncBatches;
   const rss = report.summary.sameFixture1024MiBProcessRssSnapshot;
   const lines = [
@@ -227,6 +276,7 @@ function renderMarkdown(report) {
     `- Status: ${report.summary.status}`,
     `- Source artifact: ${report.inputs.comparisonJson}`,
     `- Same-fixture JS row: \`${woodstox.fastestJsCaseId}\` ${formatNumber(woodstox.fastestJsRateMiBPerSec)} MiB/s`,
+    `- Same-fixture JS source/memory contract: ${formatComparableJsTargetRow(fastestJsContract)}`,
     `- Woodstox target: ${formatNumber(woodstox.woodstoxRateMiBPerSec)} MiB/s; 0.9x target ${formatNumber(woodstox.target90MiBPerSec)} MiB/s; JS ratio ${formatNumber(woodstox.fastestJsWoodstoxRatio)}x; remaining ${formatNumber(woodstox.remainingTo90PercentMiBPerSec)} MiB/s; targetMet=${woodstox.targetMet}`,
     `- quick-xml target: ${formatNumber(quickXml.quickXmlRateMiBPerSec)} MiB/s; 0.9x target ${formatNumber(quickXml.target90MiBPerSec)} MiB/s; JS ratio ${formatNumber(quickXml.fastestJsQuickXmlRatio)}x; remaining ${formatNumber(quickXml.remainingTo90PercentMiBPerSec)} MiB/s; targetMet=${quickXml.targetMet}`,
     '',
@@ -277,6 +327,17 @@ function quickXmlTargetRowMarkdown(row) {
 function formatRssRow(row) {
   if (!row) return 'none';
   return `${row.runtimeLabel} \`${row.caseId}\` ${formatNumber(row.rateMiBPerSec)} MiB/s, process RSS ${formatNumber(row.maxRssMiB)} MiB from \`${row.sourceArtifact}\``;
+}
+
+function formatComparableJsTargetRow(row) {
+  if (!row) return 'none';
+  return `${row.runtimeLabel} \`${row.caseId}\` ${formatNumber(row.rateMiBPerSec)} MiB/s, sourceMode=${row.sourceMode}, directReadableStream=${formatBoolean(row.directReadableStream)}, fullArrayBufferParserInput=${formatBoolean(row.fullArrayBufferParserInput)}, boundedMemory=${formatBoolean(row.boundedMemory)}, ${row.memoryKind} max ${formatNumber(row.maxRssMiB)} MiB`;
+}
+
+function formatBoolean(value) {
+  if (value === true) return 'true';
+  if (value === false) return 'false';
+  return 'n/a';
 }
 
 function formatNumber(value) {
