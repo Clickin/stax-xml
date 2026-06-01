@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
@@ -956,6 +956,80 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.match(markdown, /fetch-async-iterable-byte-batches:2/);
   assert.match(markdown, /not-full-ArrayBuffer parser-input rows are generated-sync-iterable-byte-batches:382\/382, file-backed-sync-iterable-byte-batches:53\/53, async-iterable-byte-batches:15\/15/);
   assert.match(markdown, /web-readable-stream-pull:15\/15/);
+});
+
+test('runtime counterexample scan flags bounded Safari full-string rows above threshold', () => {
+  const syntheticDir = join(tmpDir, 'safari-counterexample');
+  const syntheticJsonOut = join(tmpDir, 'safari-counterexample.json');
+  const syntheticMdOut = join(tmpDir, 'safari-counterexample.md');
+  resetTmp();
+  mkdirSync(syntheticDir, { recursive: true });
+  writeFileSync(join(syntheticDir, 'safari-synthetic-browser-row.json'), `${JSON.stringify({
+    objective: 'safari-synthetic-browser-row',
+    contract: 'same-full-string-checksum-contract',
+    environment: {
+      runtimeName: 'browser',
+      browserName: 'Safari',
+      javascriptEngine: 'JavaScriptCore',
+    },
+    fixture: {
+      source: 'corpus-file',
+      sourceFile: 'books.xml',
+      sizeGiB: 1,
+    },
+    rows: [
+      {
+        id: 'safariRawFrameNameId',
+        mibPerSec: 210,
+        fullStringParity: true,
+        boundedMemory: true,
+        maxJsHeapUsedBytes: 96 * 1024 * 1024,
+        eventCount: 1,
+        checksum: 1,
+        contractScope: 'full-string-checksum',
+        sourceMode: 'generated-sync-iterable-byte-batches',
+        demandDrivenSource: true,
+        directReadableStream: false,
+        fullArrayBufferParserInput: false,
+      },
+    ],
+  }, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-counterexample-scan.mjs'),
+    '--release-dir',
+    syntheticDir,
+    '--json-out',
+    syntheticJsonOut,
+    '--md-out',
+    syntheticMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(syntheticJsonOut, 'utf8'));
+  assert.equal(report.summary.counterexampleCount, 1);
+  assert.equal(report.summary.largeJsFullRowCount, 1);
+  assert.equal(report.counterexamples.length, 1);
+  assert.equal(report.counterexamples[0].sourceArtifact, 'safari-synthetic-browser-row.json');
+  assert.equal(report.counterexamples[0].runtimeLabel, 'Safari/JavaScriptCore');
+  assert.equal(report.counterexamples[0].id, 'safariRawFrameNameId');
+  assert.equal(report.counterexamples[0].mibPerSec, 210);
+  assert.equal(report.counterexamples[0].fullStringParity, true);
+  assert.equal(report.counterexamples[0].boundedMemory, true);
+  assert.equal(report.counterexamples[0].hasMemoryProof, true);
+  assert.equal(report.counterexamples[0].memoryKind, 'browser-js-heap');
+  assert.equal(report.counterexamples[0].sourceMode, 'generated-sync-iterable-byte-batches');
+  assert.equal(report.counterexamples[0].fullArrayBufferParserInput, false);
+  assert.equal(report.counterexamples[0].demandDrivenSource, true);
+
+  const markdown = readFileSync(syntheticMdOut, 'utf8');
+  assert.match(markdown, /Counterexamples found: 1/);
+  assert.match(markdown, /Safari\/JavaScriptCore safariRawFrameNameId from safari-synthetic-browser-row\.json at 210\.00 MiB\/s/);
 });
 
 function resetTmp() {
