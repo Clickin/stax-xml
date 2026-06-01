@@ -31,6 +31,9 @@ const badTargetDistanceGateMdOut = join(tmpDir, 'target-distance-runtime-limit-p
 const badTextBoundaryJsonOut = join(tmpDir, 'text-boundary-trim-crosses-target.json');
 const badTextBoundaryGateJsonOut = join(tmpDir, 'text-boundary-runtime-limit-proof-obligation-gate.json');
 const badTextBoundaryGateMdOut = join(tmpDir, 'text-boundary-runtime-limit-proof-obligation-gate.md');
+const badHandoffJsonOut = join(tmpDir, 'handoff-missing-safari-comparison-check.json');
+const badHandoffGateJsonOut = join(tmpDir, 'handoff-runtime-limit-proof-obligation-gate.json');
+const badHandoffGateMdOut = join(tmpDir, 'handoff-runtime-limit-proof-obligation-gate.md');
 
 test('runtime-limit proof-obligation gate permits only a conservative non-conclusion ledger', () => {
   resetTmp();
@@ -172,6 +175,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'handoff-loaded' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-primary-byte-batch-contract' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-closure-checks-primary-bounded' && item.satisfied));
+  assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-closure-checks-same-contract-comparison' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-emitted-ir-required' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-materialized-scope-not-enough' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-unchanged-stax-required' && item.satisfied));
@@ -192,6 +196,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /## Handoff Snapshot/);
   assert.match(markdown, /Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff/);
   assert.match(markdown, /safari-primary-byte-batch-contract/);
+  assert.match(markdown, /safari-closure-checks-same-contract-comparison/);
   assert.match(markdown, /spidermonkey-materialized-scope-not-enough/);
   assert.match(markdown, /spidermonkey-unchanged-stax-required/);
   assert.match(markdown, /## Source Audit Snapshot/);
@@ -231,6 +236,44 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /Current coverage audit blockers: safari-jsc-source-and-browser-rows-open, codegen-traces-open/);
   assert.match(markdown, /Static disclosure guards may include evidence families that the latest coverage audit already marks covered/);
   assert.match(markdown, /A future 200 MiB\/s\+ bounded-memory full-string JavaScript row remains a counterexample/);
+});
+
+test('runtime-limit proof-obligation gate fails if Safari handoff omits same-contract comparison closure check', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
+  const safari = handoff.handoffs.find(item => item.id === 'safari-webkit-browser-row-handoff');
+  safari.closureChecks = safari.closureChecks.filter(item => !/primaryRowsInSameContractComparison/.test(item));
+  writeFileSync(badHandoffJsonOut, `${JSON.stringify(handoff, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--handoff-json',
+    badHandoffJsonOut,
+    '--json-out',
+    badHandoffGateJsonOut,
+    '--md-out',
+    badHandoffGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badHandoffGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.ok(report.handoffSnapshot.guards.some(item =>
+    item.id === 'safari-closure-checks-same-contract-comparison'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /primaryRowsInSameContractComparison/.test(error)));
+
+  const markdown = readFileSync(badHandoffGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /primaryRowsInSameContractComparison/);
 });
 
 test('runtime-limit proof-obligation gate fails if current artifacts contain a counterexample', () => {

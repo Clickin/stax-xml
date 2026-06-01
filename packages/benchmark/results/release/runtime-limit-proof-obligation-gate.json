@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T13:45:38.708Z",
+  "generatedAt": "2026-06-01T13:51:45.807Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -372,6 +372,11 @@
         "satisfied": true
       },
       {
+        "id": "safari-closure-checks-same-contract-comparison",
+        "description": "Safari closure checks must require bounded primary rows to match same-contract-runtime-comparison.json by row id, event count, and checksum via primaryRowsInSameContractComparison.",
+        "satisfied": true
+      },
+      {
         "id": "spidermonkey-emitted-ir-required",
         "description": "SpiderMonkey closure checks must require emitted IR/codegen evidence and no missing IR surface.",
         "satisfied": true
@@ -738,8 +743,8 @@
     "satisfiedProofRules": 18,
     "requiredProofRules": 18,
     "currentCounterexamples": 0,
-    "satisfiedHandoffGuards": 6,
-    "requiredHandoffGuards": 6,
+    "satisfiedHandoffGuards": 7,
+    "requiredHandoffGuards": 7,
     "satisfiedSourceAuditGuards": 6,
     "requiredSourceAuditGuards": 6,
     "satisfiedFrontierAuditGuards": 6,

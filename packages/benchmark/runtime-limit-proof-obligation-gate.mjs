@@ -764,6 +764,13 @@ function createHandoffGuards(byId) {
         && safariChecks.some(item => /closesSafariObligation must be true/.test(item)),
     },
     {
+      id: 'safari-closure-checks-same-contract-comparison',
+      description: 'Safari closure checks must require bounded primary rows to match same-contract-runtime-comparison.json by row id, event count, and checksum via primaryRowsInSameContractComparison.',
+      satisfied: safariChecks.some(item => /primaryRowsInSameContractComparison must be true/.test(item))
+        && safariChecks.some(item => /same-contract-runtime-comparison\.json/.test(item))
+        && safariChecks.some(item => /row id, event count, and checksum/.test(item)),
+    },
+    {
       id: 'spidermonkey-emitted-ir-required',
       description: 'SpiderMonkey closure checks must require emitted IR/codegen evidence and no missing IR surface.',
       satisfied: spiderChecks.some(item => /emittedIrEvidenceCount must be greater than 0/.test(item))

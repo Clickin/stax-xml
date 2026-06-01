@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T13:45:38.708Z
+Generated: 2026-06-01T13:51:45.807Z
 
 ## Scope
 
@@ -108,6 +108,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `handoff-loaded` | yes | runtime-proof-gap-handoff.json must be loaded by the gate. |
 | `safari-primary-byte-batch-contract` | yes | Safari handoff must require primary synchronous Iterable<Uint8Array[]> rows and keep direct ReadableStream rows separate. |
 | `safari-closure-checks-primary-bounded` | yes | Safari closure checks must require primary and bounded sync byte-batch rows plus closesSafariObligation=true. |
+| `safari-closure-checks-same-contract-comparison` | yes | Safari closure checks must require bounded primary rows to match same-contract-runtime-comparison.json by row id, event count, and checksum via primaryRowsInSameContractComparison. |
 | `spidermonkey-emitted-ir-required` | yes | SpiderMonkey closure checks must require emitted IR/codegen evidence and no missing IR surface. |
 | `spidermonkey-materialized-scope-not-enough` | yes | SpiderMonkey materialized js-shell codegen must require closureRequirementsBlocked=0 and closesCodegenObligation=true before closing. |
 | `spidermonkey-unchanged-stax-required` | yes | SpiderMonkey closing artifacts must require sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true unless a browser-row artifact supplies closure. |
