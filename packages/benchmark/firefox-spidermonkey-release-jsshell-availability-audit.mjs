@@ -182,6 +182,7 @@ function probeShell(options) {
   ]);
   const nativeDumpProbe = runNativeDumpProbe(jsShell);
   const bytecodeDumpProbe = runBytecodeDumpProbe(jsShell);
+  const envJitSpewProbe = runEnvJitSpewProbe(jsShell);
   const apiProbe = runApiProbe(jsShell);
   const binaryInputProbe = runBinaryInputProbe(jsShell, options.binaryProbeFile);
   return {
@@ -193,16 +194,18 @@ function probeShell(options) {
     jitProbe: summarizeJitProbe(jitProbe),
     nativeDumpProbe,
     bytecodeDumpProbe,
+    envJitSpewProbe,
     apiProbe,
     binaryInputProbe,
   };
 }
 
-function run(command, args) {
+function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
     timeout: 30_000,
+    env: options.env ?? process.env,
   });
   return {
     command,
@@ -330,6 +333,52 @@ function runBytecodeDumpProbe(jsShell) {
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
+}
+
+function runEnvJitSpewProbe(jsShell) {
+  const flags = 'logs,codegen,mir,lir,aborts,scripts';
+  const result = run(jsShell, [
+    '--ion-eager',
+    '--ion-offthread-compile=off',
+    '-e',
+    [
+      'let ionHits = 0;',
+      'function f(x) { if (inIon()) ionHits++; return ((x + 1) | 0); }',
+      'let checksum = 0;',
+      'for (let i = 0; i < 5000; i++) checksum = (checksum + f(i)) | 0;',
+      "print('ionHits=' + ionHits);",
+      "print('checksum=' + checksum);",
+    ].join(' '),
+  ], {
+    env: {
+      ...process.env,
+      IONFLAGS: flags,
+      JIT_SPEW: flags,
+    },
+  });
+  const combined = `${result.stdout}\n${result.stderr}`;
+  const ionHits = Number(firstMatch(combined, /ionHits=(\d+)/)?.[1] ?? NaN);
+  const checksum = Number(firstMatch(combined, /checksum=(-?\d+)/)?.[1] ?? NaN);
+  const diagnosticMarkerCount = countMatches(
+    combined,
+    /\b(?:JitSpew|IonBuilder|CodeGenerator|GenerateCode|Lowering|MIR|LIR|MBasicBlock|Snapshot|Bailout|RegisterAllocator)\b/g,
+  );
+  return {
+    status: result.exitCode === 0
+      ? diagnosticMarkerCount > 0 ? 'jitspew-output-emitted' : 'no-jitspew-output'
+      : 'failed',
+    flags,
+    exitCode: result.exitCode,
+    error: result.error,
+    ionHits: Number.isFinite(ionHits) ? ionHits : null,
+    checksum: Number.isFinite(checksum) ? checksum : null,
+    outputBytes: Buffer.byteLength(combined, 'utf8'),
+    diagnosticMarkerCount,
+    stdoutLineCount: lineCount(result.stdout),
+    stderrLineCount: lineCount(result.stderr),
+    stdout: keepShort(result.stdout, 4000),
+    stderr: keepShort(result.stderr, 4000),
+  };
 }
 
 function runApiProbe(jsShell) {
@@ -490,6 +539,20 @@ function createSelfTestReport(options) {
         stdout: 'checksum=210\n',
         stderr: '',
       },
+      envJitSpewProbe: {
+        status: 'no-jitspew-output',
+        flags: 'logs,codegen,mir,lir,aborts,scripts',
+        exitCode: 0,
+        error: null,
+        ionHits: 4988,
+        checksum: 12502500,
+        outputBytes: 29,
+        diagnosticMarkerCount: 0,
+        stdoutLineCount: 2,
+        stderrLineCount: 0,
+        stdout: 'ionHits=4988\nchecksum=12502500\n',
+        stderr: '',
+      },
       apiProbe: {
         exitCode: 0,
         error: null,
@@ -533,6 +596,7 @@ function createReport(options, packageVerification, shell) {
   const hasJitExecutionStatus = shell.jitProbe?.ionHits > 0 && shell.jitProbe?.ionEnable === 1;
   const hasIrDumpSurface = shell.help?.hasJitSpewFlag === true;
   const hasBytecodeDumpOutput = shell.bytecodeDumpProbe?.status === 'bytecode-output-emitted';
+  const hasEnvJitSpewOutput = shell.envJitSpewProbe?.status === 'jitspew-output-emitted';
   const report = {
     generatedAt: new Date().toISOString(),
     objective,
@@ -556,6 +620,7 @@ function createReport(options, packageVerification, shell) {
       hasJitExecutionStatus,
       hasIrDumpSurface,
       hasBytecodeDumpOutput,
+      hasEnvJitSpewOutput,
       hasNativeDisassemblySurface: shell.builtinProbe?.hasDisassemblerValue === 'true',
       nativeDumpComplete: shell.nativeDumpProbe?.fileCreated === true && shell.nativeDumpProbe?.disnativeWriteError === null,
       canReadBinaryInput: shell.binaryInputProbe?.status === 'ok',
@@ -614,6 +679,9 @@ function createFindings(report) {
         `hasDisassembler=${report.shell.builtinProbe?.hasDisassemblerValue ?? 'unknown'}`,
         `bytecodeDumpStatus=${report.shell.bytecodeDumpProbe?.status ?? 'unknown'}`,
         `bytecodeDumpMarkers=${report.shell.bytecodeDumpProbe?.bytecodeMarkerCount ?? 'unknown'}`,
+        `envJitSpewStatus=${report.shell.envJitSpewProbe?.status ?? 'unknown'}`,
+        `envJitSpewMarkers=${report.shell.envJitSpewProbe?.diagnosticMarkerCount ?? 'unknown'}`,
+        `envJitSpewStderrLines=${report.shell.envJitSpewProbe?.stderrLineCount ?? 'unknown'}`,
         `nativeDumpBytes=${report.shell.nativeDumpProbe?.fileBytes ?? 'unknown'}`,
         `nativeDumpError=${report.shell.nativeDumpProbe?.disnativeWriteError ?? 'none'}`,
         'This narrows the local diagnostic path but does not close the emitted JIT IR obligation.',
@@ -662,6 +730,7 @@ function renderMarkdown(report) {
     `- JIT execution status observed: ${report.outcome.hasJitExecutionStatus}`,
     `- IR dump surface present: ${report.outcome.hasIrDumpSurface}`,
     `- Bytecode dump output emitted: ${report.outcome.hasBytecodeDumpOutput}`,
+    `- IONFLAGS/JIT_SPEW output emitted: ${report.outcome.hasEnvJitSpewOutput}`,
     `- Native disassembly surface present: ${report.outcome.hasNativeDisassemblySurface}`,
     `- Native dump complete: ${report.outcome.nativeDumpComplete}`,
     `- Binary XML input readable: ${report.outcome.canReadBinaryInput}`,
@@ -713,6 +782,18 @@ function renderMarkdown(report) {
     `- Bytecode marker count: ${report.shell.bytecodeDumpProbe?.bytecodeMarkerCount ?? 'not-recorded'}`,
     `- Stdout lines: ${report.shell.bytecodeDumpProbe?.stdoutLineCount ?? 'not-recorded'}`,
     `- Stderr lines: ${report.shell.bytecodeDumpProbe?.stderrLineCount ?? 'not-recorded'}`,
+    '',
+    '## IONFLAGS/JIT_SPEW Probe',
+    '',
+    `- Status: ${report.shell.envJitSpewProbe?.status ?? 'not-run'}`,
+    `- Flags: ${report.shell.envJitSpewProbe?.flags ?? 'not-recorded'}`,
+    `- Exit code: ${report.shell.envJitSpewProbe?.exitCode ?? 'not-run'}`,
+    `- Ion hits: ${report.shell.envJitSpewProbe?.ionHits ?? 'not-recorded'}`,
+    `- Checksum: ${report.shell.envJitSpewProbe?.checksum ?? 'not-recorded'}`,
+    `- Output bytes: ${report.shell.envJitSpewProbe?.outputBytes ?? 'not-recorded'}`,
+    `- Diagnostic marker count: ${report.shell.envJitSpewProbe?.diagnosticMarkerCount ?? 'not-recorded'}`,
+    `- Stdout lines: ${report.shell.envJitSpewProbe?.stdoutLineCount ?? 'not-recorded'}`,
+    `- Stderr lines: ${report.shell.envJitSpewProbe?.stderrLineCount ?? 'not-recorded'}`,
     '',
     '## Native Dump Probe',
     '',

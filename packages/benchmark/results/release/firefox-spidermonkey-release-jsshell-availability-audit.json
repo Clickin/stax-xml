@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-31T14:14:07.261Z",
+  "generatedAt": "2026-06-01T02:48:05.241Z",
   "objective": "firefox-spidermonkey-release-jsshell-availability-audit",
   "contract": "official-firefox-release-jsshell-jit-status-and-diagnostic-surface",
   "note": "Checks an official Firefox release SpiderMonkey JavaScript shell package for local JIT execution status and diagnostic surface. This is not emitted JIT IR, optimized-code, throughput, or browser evidence.",
@@ -72,7 +72,7 @@
       "error": null,
       "fileCreated": true,
       "fileBytes": 93,
-      "fileSha256": "8aae95ca7a404d0aadbf44a264f3d1e7f696bd81a47e7da84067bfa340e9c22c",
+      "fileSha256": "6e6f5377861645946a62f67d6aca7739fd39c3db7fc9094e8ac4a1bd1ff65c42",
       "hasDisassembler": "false",
       "disnativeWriteError": "Error: Did not write all function bytes to the file.",
       "stdout": "hasDisassembler=false\r\ndisnativeWriteError=Error: Did not write all function bytes to the file.\r\n",
@@ -89,6 +89,20 @@
       "stdoutLineCount": 1,
       "stderrLineCount": 0,
       "stdout": "checksum=210\r\n",
+      "stderr": ""
+    },
+    "envJitSpewProbe": {
+      "status": "no-jitspew-output",
+      "flags": "logs,codegen,mir,lir,aborts,scripts",
+      "exitCode": 0,
+      "error": null,
+      "ionHits": 4988,
+      "checksum": 12502500,
+      "outputBytes": 34,
+      "diagnosticMarkerCount": 0,
+      "stdoutLineCount": 2,
+      "stderrLineCount": 0,
+      "stdout": "ionHits=4988\r\nchecksum=12502500\r\n",
       "stderr": ""
     },
     "apiProbe": {
@@ -131,6 +145,7 @@
     "hasJitExecutionStatus": true,
     "hasIrDumpSurface": false,
     "hasBytecodeDumpOutput": false,
+    "hasEnvJitSpewOutput": false,
     "hasNativeDisassemblySurface": false,
     "nativeDumpComplete": false,
     "canReadBinaryInput": true,
@@ -173,6 +188,9 @@
         "hasDisassembler=false",
         "bytecodeDumpStatus=no-bytecode-output",
         "bytecodeDumpMarkers=0",
+        "envJitSpewStatus=no-jitspew-output",
+        "envJitSpewMarkers=0",
+        "envJitSpewStderrLines=0",
         "nativeDumpBytes=93",
         "nativeDumpError=Error: Did not write all function bytes to the file.",
         "This narrows the local diagnostic path but does not close the emitted JIT IR obligation."

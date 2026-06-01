@@ -369,6 +369,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /Firefox\/SpiderMonkey codegen is also `external-run-required` with\s+`localRunnable=false`/);
   assert.match(markdown, /installed Firefox diagnostic audit emitted no\s+JIT diagnostic dump, the installed Firefox buildconfig does not expose the\s+JitSpew build flag, and the available release\/nightly SpiderMonkey JS shells do\s+not expose the unchanged StAX benchmark host API surface or an emitted\s+IR\/codegen dump surface/);
   assert.match(markdown, /official release jsshell artifact proves a\s+runnable release shell and Ion status probe, but also records no JitSpew\/IR\s+dump flag surface/i);
+  assert.match(markdown, /IONFLAGS=logs,codegen,mir,lir,aborts,scripts` and `JIT_SPEW` set to the same\s+value still reports `no-jitspew-output`, zero diagnostic markers, and zero\s+stderr lines/);
   assert.match(markdown, /firefox-spidermonkey-jsshell-stax-api-gap-audit\.md/);
   assert.match(markdown, /`status=blocked-by-host-api-surface`, two available shells, two shells with JIT\s+status probes, two shells that can read binary XML input, and zero shells that\s+can run the current full-string StAX benchmark unchanged/);
   assert.match(markdown, /Both shells have `Uint8Array`, but both lack `TextDecoder`, `TextEncoder`,\s+`ReadableStream`, and `fetch`/);
@@ -863,6 +864,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /can read the `books\.xml` probe as binary `Uint8Array`\s+\(`4551` bytes, checksum `356012`\)/);
   assert.match(markdown, /lacks `TextDecoder`, `TextEncoder`,\s+`ReadableStream`, and `fetch`, so it cannot run the current full-string\s+stax-xml benchmark unchanged/);
   assert.match(markdown, /records no JitSpew, `IONFLAGS`, MIR\/LIR,\s+or IR dump flag surface/);
+  assert.match(markdown, /The same\s+`IONFLAGS`\/`JIT_SPEW` environment probe also reports `no-jitspew-output`, zero\s+diagnostic markers, and zero stderr lines/);
   assert.match(markdown, /does not close the\s+`codegen-traces-open` obligation/);
   assert.match(markdown, /firefox-spidermonkey-nightly-jsshell-availability-audit\.md/);
   assert.match(markdown, /official Mozilla nightly jsshell package from\s+`2025-08-11-09-34-16-mozilla-central`/);
@@ -871,7 +873,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /observes the same `ionHits=4988`, `ion\.enable=1`, `ion\.warmup\.trigger=0`, and\s+checksum `12502500`/);
   assert.match(markdown, /has `hasDisassembler\(\): false`, creates only a failed 93-byte `disnative` file/);
   assert.match(markdown, /narrows one more\s+public Mozilla package path/);
-  assert.match(markdown, /does not close `codegen-traces-open`/);
+  assert.match(markdown, /does not close\s+`codegen-traces-open`/);
   assert.match(markdown, /same-process `runs=3`, `warmups=0` rerun/);
   assert.match(markdown, /`scanAllNoDecode` at `109\.41 MiB\/s`/);
   assert.match(markdown, /timing spread was\s+high at `25\.2%`/);

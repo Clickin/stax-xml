@@ -1,6 +1,6 @@
 # Firefox SpiderMonkey Release JS Shell Availability Audit
 
-Generated: 2026-05-31T14:14:07.261Z
+Generated: 2026-06-01T02:48:05.241Z
 
 Checks an official Firefox release SpiderMonkey JavaScript shell package for local JIT execution status and diagnostic surface. This is not emitted JIT IR, optimized-code, throughput, or browser evidence.
 
@@ -11,6 +11,7 @@ Checks an official Firefox release SpiderMonkey JavaScript shell package for loc
 - JIT execution status observed: true
 - IR dump surface present: false
 - Bytecode dump output emitted: false
+- IONFLAGS/JIT_SPEW output emitted: false
 - Native disassembly surface present: false
 - Native dump complete: false
 - Binary XML input readable: true
@@ -63,11 +64,23 @@ Checks an official Firefox release SpiderMonkey JavaScript shell package for loc
 - Stdout lines: 1
 - Stderr lines: 0
 
+## IONFLAGS/JIT_SPEW Probe
+
+- Status: no-jitspew-output
+- Flags: logs,codegen,mir,lir,aborts,scripts
+- Exit code: 0
+- Ion hits: 4988
+- Checksum: 12502500
+- Output bytes: 34
+- Diagnostic marker count: 0
+- Stdout lines: 2
+- Stderr lines: 0
+
 ## Native Dump Probe
 
 - File created: true
 - File bytes: 93
-- File SHA256: 8aae95ca7a404d0aadbf44a264f3d1e7f696bd81a47e7da84067bfa340e9c22c
+- File SHA256: 6e6f5377861645946a62f67d6aca7739fd39c3db7fc9094e8ac4a1bd1ff65c42
 - hasDisassembler: false
 - disnative write error: Error: Did not write all function bytes to the file.
 
@@ -100,6 +113,9 @@ Checks an official Firefox release SpiderMonkey JavaScript shell package for loc
   - hasDisassembler=false
   - bytecodeDumpStatus=no-bytecode-output
   - bytecodeDumpMarkers=0
+  - envJitSpewStatus=no-jitspew-output
+  - envJitSpewMarkers=0
+  - envJitSpewStderrLines=0
   - nativeDumpBytes=93
   - nativeDumpError=Error: Did not write all function bytes to the file.
   - This narrows the local diagnostic path but does not close the emitted JIT IR obligation.

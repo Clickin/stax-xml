@@ -1569,8 +1569,11 @@ the file.` The shell can read the `books.xml` probe as binary `Uint8Array`
 (`4551` bytes, checksum `356012`), but lacks `TextDecoder`, `TextEncoder`,
 `ReadableStream`, and `fetch`, so it cannot run the current full-string
 stax-xml benchmark unchanged. It also records no JitSpew, `IONFLAGS`, MIR/LIR,
-or IR dump flag surface, so this is not emitted JIT IR and does not close the
-`codegen-traces-open` obligation.
+or IR dump flag surface; a follow-up environment probe with
+`IONFLAGS=logs,codegen,mir,lir,aborts,scripts` and `JIT_SPEW` set to the same
+value still reports `no-jitspew-output`, zero diagnostic markers, and zero
+stderr lines while preserving `ionHits=4988` and checksum `12502500`. This is
+not emitted JIT IR and does not close the `codegen-traces-open` obligation.
 
 `packages/benchmark/results/release/firefox-spidermonkey-nightly-jsshell-availability-audit.md`
 then applies the same probe to an official Mozilla nightly jsshell package from
@@ -1582,9 +1585,12 @@ observes the same `ionHits=4988`, `ion.enable=1`, `ion.warmup.trigger=0`, and
 checksum `12502500`, and can read the same `books.xml` binary probe. It still
 has `hasDisassembler(): false`, creates only a failed 93-byte `disnative` file,
 lacks `TextDecoder`, `TextEncoder`, `ReadableStream`, and `fetch`, and records
-no JitSpew, `IONFLAGS`, MIR/LIR, or IR dump flag surface. This narrows one more
-public Mozilla package path, but it is still not emitted SpiderMonkey JIT IR and
-does not close `codegen-traces-open`.
+no JitSpew, `IONFLAGS`, MIR/LIR, or IR dump flag surface. The same
+`IONFLAGS`/`JIT_SPEW` environment probe also reports `no-jitspew-output`, zero
+diagnostic markers, and zero stderr lines while preserving `ionHits=4988` and
+checksum `12502500`. This narrows one more public Mozilla package path, but it
+is still not emitted SpiderMonkey JIT IR and does not close
+`codegen-traces-open`.
 
 ## Current Evidence: Firefox/SpiderMonkey JS Shell StAX API Gap Audit
 
