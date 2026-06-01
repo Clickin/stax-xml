@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T18:02:43.915Z
+Generated: 2026-06-01T18:10:32.539Z
 
 ## Scope
 
@@ -100,12 +100,18 @@ These are static disclosure guards. They must stay disclosed while the broad run
 ## Counterexample Snapshot
 
 - Same-contract comparison loaded: yes (2026-06-01T17:12:20.521Z)
+- Same-contract comparison contract: same-full-string-checksum-contract-not-same-object-shape; publicEventCase=eventObjectFull; objectShapeEquivalence=false; memoryEquivalence=false
+- Same-contract comparison rows: 289/289; largeFullJsRows=239
 - Same-contract comparison counterexamples: 0
 - Runtime counterexample scan loaded: yes (2026-06-01T17:12:49.119Z)
 - Counterexample scan contract: threshold=200.00 MiB/s, minSizeGiB=1.00, parseErrors=0
 - Counterexample scan coverage shape: artifacts=217/217, measuredRows=1253/1253
 - Runtime counterexample scan counterexamples: 0
 - Current release counterexamples: 0
+- [x] same-contract-comparison-loaded: same-contract-runtime-comparison.json must be loaded by the gate.
+- [x] same-contract-comparison-contract: same-contract-runtime-comparison.json must preserve checksum/event-count semantics without claiming JavaScript object-shape, memory, or source-mode equivalence.
+- [x] same-contract-comparison-row-count: same-contract-runtime-comparison.json summary.rowCount must match the actual comparisonRows length.
+- [x] same-contract-comparison-large-js-rows: same-contract-runtime-comparison.json must include large full-string JavaScript rows for the counterexample frontier.
 - [x] counterexample-scan-loaded: runtime-counterexample-scan.json must be loaded by the gate.
 - [x] counterexample-scan-parameters: runtime-counterexample-scan.json must preserve the 200 MiB/s and 0.999 GiB counterexample threshold contract.
 - [x] counterexample-scan-no-parse-errors: runtime-counterexample-scan.json must report zero release artifact parse errors.

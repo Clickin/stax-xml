@@ -949,10 +949,27 @@ function createHandoffGuards(byId) {
 
 function createCounterexampleSnapshot(comparison, counterexampleScan, coverageAudit = null) {
   const comparisonCount = comparison?.summary?.jsRuntimeCounterexamples200MiB ?? null;
+  const comparisonContract = comparison?.comparisonContract ?? null;
+  const comparisonRows = Array.isArray(comparison?.comparisonRows) ? comparison.comparisonRows : null;
   const scanCount = counterexampleScan?.summary?.counterexampleCount ?? null;
   const snapshot = {
     comparisonLoaded: Boolean(comparison),
     comparisonGeneratedAt: comparison?.generatedAt ?? null,
+    comparisonObjective: comparison?.objective ?? null,
+    comparisonContractId: comparison?.contract ?? null,
+    comparisonSemanticBasis: comparisonContract?.semanticBasis ?? null,
+    comparisonObjectShapeEquivalence: comparisonContract?.objectShapeEquivalence ?? null,
+    comparisonTargetDistanceOnly: comparisonContract?.targetDistanceOnly ?? null,
+    comparisonPrimaryJsPublicEventCase: comparisonContract?.primaryJsPublicEventCase ?? null,
+    comparisonPrimaryJsSourceContract: comparisonContract?.primaryJsSourceContract ?? null,
+    comparisonSourceModeEquivalence: comparisonContract?.sourceModeEquivalence ?? null,
+    comparisonMemoryEquivalence: comparisonContract?.memoryEquivalence ?? null,
+    comparisonExternalBaselineRuntimeIds: Array.isArray(comparisonContract?.externalBaselines)
+      ? comparisonContract.externalBaselines.map(entry => entry.runtimeId)
+      : [],
+    comparisonSummaryRowCount: comparison?.summary?.rowCount ?? null,
+    comparisonRowCount: comparisonRows ? comparisonRows.length : null,
+    comparisonJsLargeFullRowCount: comparison?.summary?.jsLargeFullRowCount ?? null,
     comparisonCounterexampleCount: typeof comparisonCount === 'number' ? comparisonCount : null,
     counterexampleScanLoaded: Boolean(counterexampleScan),
     counterexampleScanGeneratedAt: counterexampleScan?.generatedAt ?? null,
@@ -973,6 +990,40 @@ function createCounterexampleSnapshot(comparison, counterexampleScan, coverageAu
 
 function createCounterexampleScanGuards(snapshot) {
   return [
+    {
+      id: 'same-contract-comparison-loaded',
+      description: 'same-contract-runtime-comparison.json must be loaded by the gate.',
+      satisfied: snapshot.comparisonLoaded === true,
+    },
+    {
+      id: 'same-contract-comparison-contract',
+      description: 'same-contract-runtime-comparison.json must preserve checksum/event-count semantics without claiming JavaScript object-shape, memory, or source-mode equivalence.',
+      satisfied: snapshot.comparisonObjective === 'same-contract-runtime-comparison'
+        && snapshot.comparisonContractId === 'same-full-string-checksum-contract-not-same-object-shape'
+        && /same full-string event count and checksum/i.test(snapshot.comparisonSemanticBasis ?? '')
+        && snapshot.comparisonObjectShapeEquivalence === false
+        && snapshot.comparisonTargetDistanceOnly === true
+        && snapshot.comparisonPrimaryJsPublicEventCase === 'eventObjectFull'
+        && /synchronous Iterable<Uint8Array\[\]> byte batches/.test(snapshot.comparisonPrimaryJsSourceContract ?? '')
+        && /exclude direct ReadableStream/.test(snapshot.comparisonPrimaryJsSourceContract ?? '')
+        && /file-backed JavaScript rows use synchronous Iterable<Uint8Array\[\]>/.test(snapshot.comparisonSourceModeEquivalence ?? '')
+        && snapshot.comparisonMemoryEquivalence === false
+        && snapshot.comparisonExternalBaselineRuntimeIds.includes('woodstox-jvm')
+        && snapshot.comparisonExternalBaselineRuntimeIds.includes('quick-xml-rust'),
+    },
+    {
+      id: 'same-contract-comparison-row-count',
+      description: 'same-contract-runtime-comparison.json summary.rowCount must match the actual comparisonRows length.',
+      satisfied: typeof snapshot.comparisonSummaryRowCount === 'number'
+        && snapshot.comparisonSummaryRowCount > 0
+        && snapshot.comparisonSummaryRowCount === snapshot.comparisonRowCount,
+    },
+    {
+      id: 'same-contract-comparison-large-js-rows',
+      description: 'same-contract-runtime-comparison.json must include large full-string JavaScript rows for the counterexample frontier.',
+      satisfied: typeof snapshot.comparisonJsLargeFullRowCount === 'number'
+        && snapshot.comparisonJsLargeFullRowCount > 0,
+    },
     {
       id: 'counterexample-scan-loaded',
       description: 'runtime-counterexample-scan.json must be loaded by the gate.',
@@ -1188,6 +1239,8 @@ function renderMarkdown(report) {
     report.counterexampleSnapshot.comparisonLoaded
       ? `- Same-contract comparison loaded: yes (${report.counterexampleSnapshot.comparisonGeneratedAt ?? 'unknown generatedAt'})`
       : '- Same-contract comparison loaded: no',
+    `- Same-contract comparison contract: ${report.counterexampleSnapshot.comparisonContractId ?? 'unknown'}; publicEventCase=${report.counterexampleSnapshot.comparisonPrimaryJsPublicEventCase ?? 'unknown'}; objectShapeEquivalence=${String(report.counterexampleSnapshot.comparisonObjectShapeEquivalence)}; memoryEquivalence=${String(report.counterexampleSnapshot.comparisonMemoryEquivalence)}`,
+    `- Same-contract comparison rows: ${formatNullableCount(report.counterexampleSnapshot.comparisonSummaryRowCount)}/${formatNullableCount(report.counterexampleSnapshot.comparisonRowCount)}; largeFullJsRows=${formatNullableCount(report.counterexampleSnapshot.comparisonJsLargeFullRowCount)}`,
     `- Same-contract comparison counterexamples: ${formatNullableCount(report.counterexampleSnapshot.comparisonCounterexampleCount)}`,
     report.counterexampleSnapshot.counterexampleScanLoaded
       ? `- Runtime counterexample scan loaded: yes (${report.counterexampleSnapshot.counterexampleScanGeneratedAt ?? 'unknown generatedAt'})`

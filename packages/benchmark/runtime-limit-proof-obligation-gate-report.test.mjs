@@ -84,6 +84,17 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.summary.satisfiedSourceAuditGuards, report.summary.requiredSourceAuditGuards);
   assert.equal(report.summary.satisfiedFrontierAuditGuards, report.summary.requiredFrontierAuditGuards);
   assert.equal(report.counterexampleSnapshot.comparisonCounterexampleCount, 0);
+  assert.equal(report.counterexampleSnapshot.comparisonObjective, 'same-contract-runtime-comparison');
+  assert.equal(report.counterexampleSnapshot.comparisonContractId, 'same-full-string-checksum-contract-not-same-object-shape');
+  assert.equal(report.counterexampleSnapshot.comparisonObjectShapeEquivalence, false);
+  assert.equal(report.counterexampleSnapshot.comparisonTargetDistanceOnly, true);
+  assert.equal(report.counterexampleSnapshot.comparisonPrimaryJsPublicEventCase, 'eventObjectFull');
+  assert.match(report.counterexampleSnapshot.comparisonPrimaryJsSourceContract, /synchronous Iterable<Uint8Array\[\]> byte batches/);
+  assert.match(report.counterexampleSnapshot.comparisonPrimaryJsSourceContract, /exclude direct ReadableStream/);
+  assert.equal(report.counterexampleSnapshot.comparisonMemoryEquivalence, false);
+  assert.deepEqual(report.counterexampleSnapshot.comparisonExternalBaselineRuntimeIds, ['woodstox-jvm', 'quick-xml-rust']);
+  assert.equal(report.counterexampleSnapshot.comparisonSummaryRowCount, report.counterexampleSnapshot.comparisonRowCount);
+  assert.ok(report.counterexampleSnapshot.comparisonJsLargeFullRowCount > 0);
   assert.equal(report.counterexampleSnapshot.scanCounterexampleCount, 0);
   assert.equal(report.counterexampleSnapshot.currentCounterexampleCount, 0);
   assert.equal(report.counterexampleSnapshot.thresholdMiBPerSec, 200);
@@ -91,6 +102,10 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.counterexampleSnapshot.scanParseErrorCount, 0);
   assert.equal(report.counterexampleSnapshot.scanScannedArtifactCount, report.counterexampleSnapshot.coverageScannedArtifactCount);
   assert.equal(report.counterexampleSnapshot.scanMeasuredRowCount, report.counterexampleSnapshot.coverageMeasuredRowCount);
+  assert.ok(report.counterexampleSnapshot.guards.some(item => item.id === 'same-contract-comparison-loaded' && item.satisfied));
+  assert.ok(report.counterexampleSnapshot.guards.some(item => item.id === 'same-contract-comparison-contract' && item.satisfied));
+  assert.ok(report.counterexampleSnapshot.guards.some(item => item.id === 'same-contract-comparison-row-count' && item.satisfied));
+  assert.ok(report.counterexampleSnapshot.guards.some(item => item.id === 'same-contract-comparison-large-js-rows' && item.satisfied));
   assert.ok(report.counterexampleSnapshot.guards.some(item => item.id === 'counterexample-scan-loaded' && item.satisfied));
   assert.ok(report.counterexampleSnapshot.guards.some(item => item.id === 'counterexample-scan-parameters' && item.satisfied));
   assert.ok(report.counterexampleSnapshot.guards.some(item => item.id === 'counterexample-scan-no-parse-errors' && item.satisfied));
@@ -232,7 +247,12 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /spidermonkey-identity-status-counts-present/);
   assert.match(markdown, /spidermonkey-non-stax-diagnostic-rows-visible/);
   assert.match(markdown, /## Counterexample Snapshot/);
+  assert.match(markdown, /Same-contract comparison contract: same-full-string-checksum-contract-not-same-object-shape/);
+  assert.match(markdown, /objectShapeEquivalence=false; memoryEquivalence=false/);
+  assert.match(markdown, /Same-contract comparison rows: 289\/289; largeFullJsRows=239/);
   assert.match(markdown, /Same-contract comparison counterexamples: 0/);
+  assert.match(markdown, /same-contract-comparison-contract/);
+  assert.match(markdown, /same-contract-comparison-row-count/);
   assert.match(markdown, /Counterexample scan contract: threshold=200\.00 MiB\/s, minSizeGiB=1\.00, parseErrors=0/);
   assert.match(markdown, /Counterexample scan coverage shape: artifacts=217\/217, measuredRows=1253\/1253/);
   assert.match(markdown, /counterexample-scan-current-coverage-shape/);
@@ -683,6 +703,63 @@ test('runtime-limit proof-obligation gate fails if current artifacts contain a c
   assert.match(markdown, /Same-contract comparison counterexamples: 1/);
   assert.match(markdown, /Runtime counterexample scan counterexamples: 0/);
   assert.match(markdown, /Current release counterexamples: 1/);
+});
+
+test('runtime-limit proof-obligation gate fails if same-contract comparison semantics drift', () => {
+  resetTmp();
+  const comparisonJson = join(tmpDir, 'same-contract-runtime-comparison-bad-contract.json');
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const comparison = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'same-contract-runtime-comparison.json'), 'utf8'));
+  comparison.contract = 'same-object-shape';
+  comparison.comparisonContract.objectShapeEquivalence = true;
+  comparison.comparisonContract.targetDistanceOnly = false;
+  comparison.comparisonContract.primaryJsPublicEventCase = 'rawFrameNameId';
+  comparison.comparisonContract.primaryJsSourceContract = 'direct ReadableStream rows are equivalent';
+  comparison.comparisonContract.memoryEquivalence = true;
+  comparison.summary.rowCount += 1;
+  writeFileSync(comparisonJson, `${JSON.stringify(comparison, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--comparison-json',
+    comparisonJson,
+    '--json-out',
+    counterexampleJsonOut,
+    '--md-out',
+    counterexampleMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(counterexampleJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.equal(report.counterexampleSnapshot.comparisonContractId, 'same-object-shape');
+  assert.equal(report.counterexampleSnapshot.comparisonObjectShapeEquivalence, true);
+  assert.equal(report.counterexampleSnapshot.comparisonMemoryEquivalence, true);
+  assert.notEqual(report.counterexampleSnapshot.comparisonSummaryRowCount, report.counterexampleSnapshot.comparisonRowCount);
+  assert.ok(report.counterexampleSnapshot.guards.some(item =>
+    item.id === 'same-contract-comparison-contract'
+    && !item.satisfied
+  ));
+  assert.ok(report.counterexampleSnapshot.guards.some(item =>
+    item.id === 'same-contract-comparison-row-count'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /same-contract-comparison-contract/.test(error)));
+  assert.ok(report.gate.errors.some(error => /same-contract-comparison-row-count/.test(error)));
+
+  const markdown = readFileSync(counterexampleMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /Same-contract comparison contract: same-object-shape/);
+  assert.match(markdown, /objectShapeEquivalence=true; memoryEquivalence=true/);
+  assert.match(markdown, /same-contract-comparison-contract/);
+  assert.match(markdown, /same-contract-comparison-row-count/);
 });
 
 test('runtime-limit proof-obligation gate fails if counterexample scan contract or coverage shape is stale', () => {
