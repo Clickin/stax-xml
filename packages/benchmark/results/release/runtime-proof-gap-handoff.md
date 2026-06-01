@@ -1,6 +1,6 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-01T11:12:08.325Z
+Generated: 2026-06-01T11:37:27.064Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -75,8 +75,10 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - 1 GiB+ JS full-string memory rows: 239
 - Bounded rows: 222
 - Unbounded or unproven rows: 17
+- Unbounded or unproven rows at or above 200 MiB/s: 0
 - Memory kinds: browser-js-heap, browser-js-heap-unavailable, process-rss
 - Fastest bounded row: Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB)
+- Fastest unbounded or unproven row: Bun/JSC stringFull 99.71 MiB/s (process-rss max 1956.69 MiB)
 - Fastest process RSS row under 128 MiB: Node/V8 rawFrameNameId 185.50 MiB/s (process-rss max 60.45 MiB)
 - Fastest browser JS heap row: Chrome/V8 browser rawFrameNameId 69.90 MiB/s (browser-js-heap max 39.55 MiB)
 

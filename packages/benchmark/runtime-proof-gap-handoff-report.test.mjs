@@ -251,6 +251,12 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.equal(report.memoryFrontierEvidence.rows, 239);
   assert.equal(report.memoryFrontierEvidence.boundedRows, 222);
   assert.equal(report.memoryFrontierEvidence.unboundedRows, 17);
+  assert.equal(report.memoryFrontierEvidence.unboundedRowsAtOrAbove200MiBPerSec, 0);
+  assert.equal(report.memoryFrontierEvidence.fastestUnboundedRow.runtimeLabel, 'Bun/JSC');
+  assert.equal(report.memoryFrontierEvidence.fastestUnboundedRow.caseId, 'stringFull');
+  assert.equal(report.memoryFrontierEvidence.fastestUnboundedRow.mibPerSec, 99.71);
+  assert.equal(report.memoryFrontierEvidence.fastestUnboundedRow.memoryKind, 'process-rss');
+  assert.equal(report.memoryFrontierEvidence.fastestUnboundedRow.maxMiB, 1956.69);
   assert.deepEqual(report.memoryFrontierEvidence.memoryKinds, [
     'browser-js-heap',
     'browser-js-heap-unavailable',
@@ -518,8 +524,10 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /1 GiB\+ JS full-string memory rows: 239/);
   assert.match(markdown, /Bounded rows: 222/);
   assert.match(markdown, /Unbounded or unproven rows: 17/);
+  assert.match(markdown, /Unbounded or unproven rows at or above 200 MiB\/s: 0/);
   assert.match(markdown, /Memory kinds: browser-js-heap, browser-js-heap-unavailable, process-rss/);
   assert.match(markdown, /Fastest bounded row: Node\/V8 rawFrameNameId 185\.50 MiB\/s \(process-rss max 60\.45 MiB\)/);
+  assert.match(markdown, /Fastest unbounded or unproven row: Bun\/JSC stringFull 99\.71 MiB\/s \(process-rss max 1956\.69 MiB\)/);
   assert.match(markdown, /Fastest browser JS heap row: Chrome\/V8 browser rawFrameNameId 69\.90 MiB\/s \(browser-js-heap max 39\.55 MiB\)/);
   assert.match(markdown, /\| browser-js-heap-unavailable \| 9 \| 0 \| 9 \| n\/a MiB \| Firefox\/SpiderMonkey browser rawFrameNameId 64\.24 MiB\/s \(browser-js-heap-unavailable\) \| none \|/);
   assert.match(markdown, /## External Target Evidence/);

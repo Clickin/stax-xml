@@ -335,8 +335,22 @@ function summarizeMemoryFrontierEvidence(comparison) {
 
   const comparisonLargeFullRows = comparison.summary?.jsLargeFullRowCount ?? null;
   const fastestComparisonRow = comparison.summary?.fastestJsLargeFullRow ?? null;
+  const comparisonRows = Array.isArray(comparison.comparisonRows) ? comparison.comparisonRows : [];
+  const memoryRows = comparisonRows.filter(row =>
+    row.jsRuntime
+    && row.fullStringParity
+    && (row.fixture?.sizeGiB ?? 0) >= 0.999
+    && row.memory?.primaryKind
+  );
+  const unboundedMemoryRows = memoryRows.filter(row => row.boundedMemory !== true);
+  const unboundedRowsAtOrAbove200MiBPerSec = unboundedMemoryRows
+    .filter(row => typeof row.mibPerSec === 'number' && row.mibPerSec >= 200)
+    .length;
+  const fastestUnboundedRow = maxBy(unboundedMemoryRows, row => row.mibPerSec);
   return {
     status: frontier.rows === comparisonLargeFullRows
+      && memoryRows.length === frontier.rows
+      && unboundedMemoryRows.length === frontier.unboundedRows
       && frontier.fastestBoundedRow?.mibPerSec === fastestComparisonRow?.mibPerSec
       ? 'classified'
       : 'partial',
@@ -345,8 +359,10 @@ function summarizeMemoryFrontierEvidence(comparison) {
     rows: frontier.rows,
     boundedRows: frontier.boundedRows,
     unboundedRows: frontier.unboundedRows,
+    unboundedRowsAtOrAbove200MiBPerSec,
     memoryKinds: frontier.memoryKinds ?? [],
     fastestBoundedRow: summarizeMemoryRowForHandoff(frontier.fastestBoundedRow),
+    fastestUnboundedRow: summarizeMemoryRowForHandoff(fastestUnboundedRow),
     fastestProcessRssUnder128MiB: summarizeMemoryRowForHandoff(frontier.fastestProcessRssUnder128MiB),
     fastestBrowserJsHeapRow: summarizeMemoryRowForHandoff(frontier.fastestBrowserJsHeapRow),
     buckets: (frontier.buckets ?? []).map(bucket => ({
@@ -873,8 +889,10 @@ function renderMarkdown(report) {
       `- 1 GiB+ JS full-string memory rows: ${evidence.rows}`,
       `- Bounded rows: ${evidence.boundedRows}`,
       `- Unbounded or unproven rows: ${evidence.unboundedRows}`,
+      `- Unbounded or unproven rows at or above 200 MiB/s: ${evidence.unboundedRowsAtOrAbove200MiBPerSec}`,
       `- Memory kinds: ${evidence.memoryKinds.join(', ') || 'none'}`,
       `- Fastest bounded row: ${formatMemoryEvidenceRow(evidence.fastestBoundedRow)}`,
+      `- Fastest unbounded or unproven row: ${formatMemoryEvidenceRow(evidence.fastestUnboundedRow)}`,
       `- Fastest process RSS row under 128 MiB: ${formatMemoryEvidenceRow(evidence.fastestProcessRssUnder128MiB)}`,
       `- Fastest browser JS heap row: ${formatMemoryEvidenceRow(evidence.fastestBrowserJsHeapRow)}`,
       '',
@@ -1094,6 +1112,19 @@ function countBy(values, keyOf) {
     counts[key] = (counts[key] ?? 0) + 1;
   }
   return counts;
+}
+
+function maxBy(items, score) {
+  let best = null;
+  let bestScore = -Infinity;
+  for (const item of items) {
+    const value = score(item);
+    if (typeof value === 'number' && value > bestScore) {
+      best = item;
+      bestScore = value;
+    }
+  }
+  return best;
 }
 
 function printSummary(report) {
