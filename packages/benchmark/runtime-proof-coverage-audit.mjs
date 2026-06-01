@@ -300,6 +300,7 @@ function extractMeasuredRows(sourceArtifact, root) {
     if (typeof node.mibPerSec !== 'number' || !Number.isFinite(node.mibPerSec)) return;
     const fixture = normalizeFixture(node.fixture) ?? context.fixture;
     const memoryKind = classifyMemoryKind(node);
+    const peakMemoryBytes = extractPeakMemoryBytes(node, memoryKind);
     const sourceMode = classifySourceMode(sourceArtifact, node, context);
     rows.push({
       sourceArtifact,
@@ -316,6 +317,7 @@ function extractMeasuredRows(sourceArtifact, root) {
       fullStringParity: classifyFullStringParity(node, context),
       boundedMemory: classifyBoundedMemory(node, memoryKind),
       memoryKind,
+      peakMemoryBytes,
       eventCount: normalizeEventCount(node),
       checksum: node.checksum ?? null,
       contractScope: node.contractScope ?? node.workload ?? context.contract ?? null,
@@ -538,7 +540,7 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows, sameContra
     && typeof row.sourceMode === 'string'
     && /sync-iterable-byte-batches$/.test(row.sourceMode)
   );
-  const boundedPrimaryRows = safariPrimaryRows.filter(row => row.boundedMemory === true);
+  const boundedPrimaryRows = safariPrimaryRows.filter(hasAcceptedBoundedMemoryProof);
   const largeBoundedPrimaryRows = boundedPrimaryRows.filter(row =>
     typeof row.sizeGiB === 'number' && row.sizeGiB >= minLargeGiB
   );
@@ -611,6 +613,14 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows, sameContra
       && largeBoundedPrimaryRowsWithMeasuredExactBuildIdentity.length > 0
       && largePrimaryRowsInSameContractComparison,
   };
+}
+
+function hasAcceptedBoundedMemoryProof(row) {
+  return row?.boundedMemory === true
+    && (row.memoryKind === 'process-rss' || row.memoryKind === 'browser-js-heap')
+    && typeof row.peakMemoryBytes === 'number'
+    && Number.isFinite(row.peakMemoryBytes)
+    && row.peakMemoryBytes <= 512 * MIB;
 }
 
 function hasMeasuredSafariBuildIdentity(row) {

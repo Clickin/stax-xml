@@ -1322,6 +1322,7 @@ test('runtime proof coverage audit does not close Safari on rows alone', () => {
         mibPerSec: 150,
         fullStringParity: true,
         boundedMemory: true,
+        maxJsHeapUsedBytes: 100 * 1024 * 1024,
         eventCount: 1,
         checksum: 1,
         contractScope: 'full-string-checksum',
@@ -1403,6 +1404,7 @@ test('runtime proof coverage audit does not close Safari without primary bounded
         mibPerSec: 210,
         fullStringParity: true,
         boundedMemory: true,
+        maxJsHeapUsedBytes: 100 * 1024 * 1024,
         eventCount: 1,
         checksum: 1,
         contractScope: 'full-string-checksum',
@@ -1482,6 +1484,7 @@ test('runtime proof coverage audit does not close Safari for eager or full Array
         mibPerSec: 220,
         fullStringParity: true,
         boundedMemory: true,
+        maxJsHeapUsedBytes: 100 * 1024 * 1024,
         eventCount: 1,
         checksum: 1,
         contractScope: 'full-string-checksum',
@@ -1495,6 +1498,7 @@ test('runtime proof coverage audit does not close Safari for eager or full Array
         mibPerSec: 215,
         fullStringParity: true,
         boundedMemory: true,
+        maxJsHeapUsedBytes: 100 * 1024 * 1024,
         eventCount: 1,
         checksum: 1,
         contractScope: 'full-string-checksum',
@@ -1670,6 +1674,7 @@ test('runtime proof coverage audit does not close Safari unless direct stream ro
         mibPerSec: 210,
         fullStringParity: true,
         boundedMemory: true,
+        maxJsHeapUsedBytes: 100 * 1024 * 1024,
         eventCount: 1,
         checksum: 1,
         contractScope: 'full-string-checksum',
@@ -1765,6 +1770,7 @@ test('runtime proof coverage audit closes Safari with bounded primary byte-batch
         mibPerSec: 210,
         fullStringParity: true,
         boundedMemory: true,
+        maxJsHeapUsedBytes: 100 * 1024 * 1024,
         eventCount: 1,
         checksum: 1,
         contractScope: 'full-string-checksum',
@@ -1821,6 +1827,121 @@ test('runtime proof coverage audit closes Safari with bounded primary byte-batch
   assert.match(obligation.evidence, /bounded primary sync byte-batch full-string rows/);
 });
 
+test('runtime proof coverage audit does not close Safari without accepted numeric memory proof', () => {
+  const syntheticDir = join(tmpDir, 'safari-row-without-accepted-memory-proof');
+  const syntheticJsonOut = join(tmpDir, 'safari-row-without-accepted-memory-proof.json');
+  const syntheticMdOut = join(tmpDir, 'safari-row-without-accepted-memory-proof.md');
+  resetTmp();
+  mkdirSync(syntheticDir, { recursive: true });
+  writeFileSync(join(syntheticDir, 'safari-webkit-availability-audit.json'), `${JSON.stringify({
+    objective: 'safari-webkit-availability-audit',
+    summary: {
+      hostIsMacOS: true,
+      safariExecutableFound: true,
+      safaridriverFound: true,
+      currentHarnessSupportsSafari: true,
+      canRunSafariBrowserRows: true,
+      safariBenchmarkRowsRecorded: true,
+      exactSafariBuildIdentityRecorded: true,
+      safariSourceBoundaryPinned: true,
+      directReadableStreamRowsAreSeparateEvidence: true,
+      openObligationRemains: false,
+    },
+  }, null, 2)}\n`);
+  writeFileSync(join(syntheticDir, 'safari-synthetic-browser-row.json'), `${JSON.stringify({
+    objective: 'safari-synthetic-browser-row',
+    contract: 'same-full-string-checksum-contract',
+    environment: {
+      runtimeName: 'browser',
+      browserName: 'Safari',
+      browserVersion: '18.5',
+      javascriptEngine: 'JavaScriptCore',
+      userAgent: 'Mozilla/5.0 Version/18.5 Safari/605.1.15',
+    },
+    fixture: {
+      source: 'corpus-file',
+      sourceFile: 'books.xml',
+      sizeGiB: 1,
+    },
+    rows: [
+      {
+        id: 'safariFullStringPrimary',
+        mibPerSec: 210,
+        fullStringParity: true,
+        boundedMemory: true,
+        eventCount: 1,
+        checksum: 1,
+        contractScope: 'full-string-checksum',
+        sourceMode: 'generated-sync-iterable-byte-batches',
+        demandDrivenSource: true,
+        directReadableStream: false,
+        fullArrayBufferParserInput: false,
+      },
+      {
+        id: 'safariFullStringHighMemory',
+        mibPerSec: 205,
+        fullStringParity: true,
+        boundedMemory: true,
+        maxJsHeapUsedBytes: 900 * 1024 * 1024,
+        eventCount: 2,
+        checksum: 2,
+        contractScope: 'full-string-checksum',
+        sourceMode: 'generated-sync-iterable-byte-batches',
+        demandDrivenSource: true,
+        directReadableStream: false,
+        fullArrayBufferParserInput: false,
+      },
+    ],
+  }, null, 2)}\n`);
+  writeFileSync(join(syntheticDir, 'same-contract-runtime-comparison.json'), `${JSON.stringify({
+    objective: 'same-contract-runtime-comparison',
+    comparisonRows: [
+      {
+        id: 'safariFullStringPrimary',
+        runtimeId: 'safari-jsc-browser',
+        jsRuntime: true,
+        fullStringParity: true,
+        eventCount: 1,
+        checksum: 1,
+      },
+      {
+        id: 'safariFullStringHighMemory',
+        runtimeId: 'safari-jsc-browser',
+        jsRuntime: true,
+        fullStringParity: true,
+        eventCount: 2,
+        checksum: 2,
+      },
+    ],
+  }, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-coverage-audit.mjs'),
+    '--release-dir',
+    syntheticDir,
+    '--json-out',
+    syntheticJsonOut,
+    '--md-out',
+    syntheticMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(syntheticJsonOut, 'utf8'));
+  assert.equal(report.coverage.safariWebKitStatus.primarySyncByteBatchRowsRecorded, 2);
+  assert.equal(report.coverage.safariWebKitStatus.boundedPrimarySyncByteBatchRowsRecorded, 0);
+  assert.equal(report.coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsRecorded, 0);
+  assert.equal(report.coverage.safariWebKitStatus.primaryRowsInSameContractComparison, false);
+  assert.equal(report.coverage.safariWebKitStatus.largePrimaryRowsInSameContractComparison, false);
+  assert.equal(report.coverage.safariWebKitStatus.closesSafariObligation, false);
+  assertObligation(report, 'safari-jsc-source-and-browser-rows-open', 'partial');
+  const obligation = report.obligations.find(item => item.id === 'safari-jsc-source-and-browser-rows-open');
+  assert.match(obligation.evidence, /boundedPrimarySyncByteBatchRows=0/);
+});
+
 test('runtime proof coverage audit does not close Safari on sub-1GiB primary rows', () => {
   const syntheticDir = join(tmpDir, 'safari-row-with-small-primary-closure-shape');
   const syntheticJsonOut = join(tmpDir, 'safari-row-with-small-primary-closure-shape.json');
@@ -1863,6 +1984,7 @@ test('runtime proof coverage audit does not close Safari on sub-1GiB primary row
         mibPerSec: 230,
         fullStringParity: true,
         boundedMemory: true,
+        maxJsHeapUsedBytes: 100 * 1024 * 1024,
         eventCount: 1,
         checksum: 1,
         contractScope: 'full-string-checksum',
@@ -1959,6 +2081,7 @@ test('runtime proof coverage audit keeps Safari partial when primary rows are mi
         mibPerSec: 210,
         fullStringParity: true,
         boundedMemory: true,
+        maxJsHeapUsedBytes: 100 * 1024 * 1024,
         eventCount: 1,
         checksum: 1,
         contractScope: 'full-string-checksum',
@@ -2035,6 +2158,7 @@ test('runtime proof coverage audit keeps Safari partial without measured row bui
         mibPerSec: 210,
         fullStringParity: true,
         boundedMemory: true,
+        maxJsHeapUsedBytes: 100 * 1024 * 1024,
         eventCount: 1,
         checksum: 1,
         contractScope: 'full-string-checksum',
@@ -2128,6 +2252,7 @@ test('runtime proof coverage audit recognizes Safari browser rows by environment
         mibPerSec: 210,
         fullStringParity: true,
         boundedMemory: true,
+        maxJsHeapUsedBytes: 100 * 1024 * 1024,
         eventCount: 1,
         checksum: 1,
         contractScope: 'full-string-checksum',
