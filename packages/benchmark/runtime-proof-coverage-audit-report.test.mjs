@@ -1520,6 +1520,65 @@ test('runtime proof coverage audit does not close SpiderMonkey codegen on trace 
   assert.match(obligation.evidence, /Firefox\/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing/);
 });
 
+test('runtime proof coverage audit requires Deno codegen before closing runtime codegen coverage', () => {
+  const syntheticDir = join(tmpDir, 'codegen-without-deno');
+  const syntheticJsonOut = join(tmpDir, 'codegen-without-deno.json');
+  const syntheticMdOut = join(tmpDir, 'codegen-without-deno.md');
+  resetTmp();
+  mkdirSync(syntheticDir, { recursive: true });
+  writeFileSync(join(syntheticDir, 'node-v8-codegen-trace.json'), `${JSON.stringify({
+    objective: 'node-v8-codegen-trace',
+    runtimes: ['node-v8'],
+    traces: [{ kind: 'codegen' }],
+  }, null, 2)}\n`);
+  writeFileSync(join(syntheticDir, 'bun-jsc-codegen-trace.json'), `${JSON.stringify({
+    objective: 'bun-jsc-codegen-trace',
+    runtimes: ['bun-jsc'],
+    traces: [{ kind: 'codegen' }],
+  }, null, 2)}\n`);
+  writeFileSync(join(syntheticDir, 'browser-v8-codegen-trace.json'), `${JSON.stringify({
+    objective: 'browser-v8-codegen-trace',
+    environment: { runtimeName: 'browser', browserName: 'Chrome', javascriptEngine: 'V8' },
+    traces: [{ kind: 'codegen' }],
+  }, null, 2)}\n`);
+  writeFileSync(join(syntheticDir, 'spidermonkey-taskcluster-debug-jsshell-codegen-audit.json'), `${JSON.stringify({
+    objective: 'firefox-spidermonkey-emitted-ir',
+    runtime: { id: 'spidermonkey-jsshell' },
+    outcome: {
+      status: 'emitted-ir-captured',
+      hasJitExecutionStatus: true,
+      hasIrDumpSurface: true,
+      nativeDumpComplete: true,
+      closesEmittedIrObligation: true,
+    },
+  }, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-coverage-audit.mjs'),
+    '--release-dir',
+    syntheticDir,
+    '--json-out',
+    syntheticJsonOut,
+    '--md-out',
+    syntheticMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(syntheticJsonOut, 'utf8'));
+  assert.equal(report.coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount, 1);
+  assertObligation(report, 'codegen-traces-open', 'partial');
+  const obligation = report.obligations.find(item => item.id === 'codegen-traces-open');
+  assert.match(obligation.evidence, /Node\/V8 trace evidence present/);
+  assert.match(obligation.evidence, /Bun\/JSC codegen\/IR evidence present/);
+  assert.match(obligation.evidence, /Chrome\/V8 browser codegen trace evidence present/);
+  assert.match(obligation.evidence, /Deno\/V8 codegen trace evidence missing/);
+  assert.match(obligation.evidence, /Firefox\/SpiderMonkey emitted JIT IR or optimized-code dump evidence present/);
+});
+
 function assertObligation(report, id, status) {
   const row = report.obligations.find(item => item.id === id);
   assert.ok(row, `missing obligation: ${id}`);

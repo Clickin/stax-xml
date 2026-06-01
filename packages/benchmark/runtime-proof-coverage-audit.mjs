@@ -848,7 +848,7 @@ function createObligationRows(coverage) {
     },
     {
       id: 'codegen-traces-open',
-      status: hasNodeCodegen && hasBunCodegen && hasChromeCodegen && hasSpiderMonkeyEmittedIrEvidence ? 'covered' : 'partial',
+      status: hasNodeCodegen && hasBunCodegen && hasChromeCodegen && hasDenoCodegen && hasSpiderMonkeyEmittedIrEvidence ? 'covered' : 'partial',
       evidence: [
         hasNodeCodegen ? 'Node/V8 trace evidence present.' : 'Node/V8 trace evidence missing.',
         hasBunCodegen ? 'Bun/JSC codegen/IR evidence present.' : 'Bun/JSC has profiler/source evidence but no codegen/IR artifact.',
