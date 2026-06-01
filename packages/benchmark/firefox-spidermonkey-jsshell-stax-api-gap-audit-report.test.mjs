@@ -42,11 +42,12 @@ test('Firefox SpiderMonkey js-shell StAX API gap audit pins unchanged harness bl
     'ReadableStream',
     'fetch',
   ]);
-  assert.equal(report.summary.blockedSurfaceCount, 4);
+  assert.equal(report.summary.blockedSurfaceCount, 5);
   assert.equal(report.summary.canCloseEmittedIrObligation, false);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.deepEqual(report.requiredSurfaces.map(surface => surface.id), [
     'sync-byte-batch-full-string',
+    'sync-corpus-byte-batch-full-string',
     'async-byte-batch-full-string',
     'readable-stream-full-string',
     'browser-fetch-live-source',
@@ -59,6 +60,10 @@ test('Firefox SpiderMonkey js-shell StAX API gap audit pins unchanged harness bl
   assert.deepEqual(
     report.blockedSurfaces.find(surface => surface.id === 'sync-byte-batch-full-string').shellBlockers[0].missingGlobals,
     ['TextDecoder', 'TextEncoder'],
+  );
+  assert.deepEqual(
+    report.blockedSurfaces.find(surface => surface.id === 'sync-corpus-byte-batch-full-string').shellBlockers[0].missingGlobals,
+    ['TextDecoder'],
   );
   assert.deepEqual(
     report.blockedSurfaces.find(surface => surface.id === 'async-byte-batch-full-string').shellBlockers[0].missingGlobals,
@@ -94,17 +99,19 @@ test('Firefox SpiderMonkey js-shell StAX API gap audit pins unchanged harness bl
   assert.match(markdown, /Firefox\/SpiderMonkey JS Shell StAX API Gap Audit/);
   assert.match(markdown, /Status: blocked-by-host-api-surface/);
   assert.match(markdown, /Common missing globals: TextDecoder, TextEncoder, ReadableStream, fetch/);
-  assert.match(markdown, /Blocked current StAX surfaces: 4\/4/);
+  assert.match(markdown, /Blocked current StAX surfaces: 5\/5/);
   assert.match(markdown, /Unchanged current StAX full-string runnable shells: 0/);
   assert.match(markdown, /\| release \| JavaScript-C143\.0\.1 \| yes \| ok \| TextDecoder, TextEncoder, ReadableStream, fetch \| no \|/);
   assert.match(markdown, /\| nightly \| JavaScript-C143\.0a1 \| yes \| ok \| TextDecoder, TextEncoder, ReadableStream, fetch \| no \|/);
   assert.match(markdown, /## Blocked StAX Surfaces/);
-  assert.match(markdown, /\| StreamReaderSync Iterable<Uint8Array\[\]> full-string rows \| Primary same-contract StAX rows over synchronous byte batches\. \| Uint8Array, TextDecoder, TextEncoder \| 2\/2 \| TextDecoder, TextEncoder \|/);
+  assert.match(markdown, /\| StreamReaderSync generated-fixture Iterable<Uint8Array\[\]> full-string rows \| Generated-fixture same-contract StAX rows over synchronous byte batches\. \| Uint8Array, TextDecoder, TextEncoder \| 2\/2 \| TextDecoder, TextEncoder \|/);
+  assert.match(markdown, /\| StreamReaderSync corpus-file Iterable<Uint8Array\[\]> full-string rows \| Corpus-file same-contract StAX rows over synchronous byte batches\. \| Uint8Array, TextDecoder \| 2\/2 \| TextDecoder \|/);
   assert.match(markdown, /\| createEventReaderFromAsyncByteBatches full-string rows \| Async byte-batch public event rows without direct ReadableStream consumption\. \| Uint8Array, TextDecoder \| 2\/2 \| TextDecoder \|/);
   assert.match(markdown, /\| EventReader ReadableStream<Uint8Array> full-string rows \| Direct Web ReadableStream source-overhead rows\. \| Uint8Array, TextDecoder, ReadableStream \| 2\/2 \| TextDecoder, ReadableStream \|/);
   assert.match(markdown, /\| browser fetch live-source rows \| Live fetch Response\.body rows such as fetchReadableStreamFull and fetchAsyncByteBatchFull\. \| Uint8Array, TextDecoder, ReadableStream, fetch \| 2\/2 \| TextDecoder, ReadableStream, fetch \|/);
-  assert.match(markdown, /blockedSurfaces=4\/4/);
+  assert.match(markdown, /blockedSurfaces=5\/5/);
   assert.match(markdown, /Adding a polyfill or alternate decoder would create a different harness surface/);
+  assert.match(markdown, /Corpus-file byte-batch rows do not require TextEncoder/);
   assert.match(markdown, /not a SpiderMonkey throughput limit or emitted-code proof/);
 });
 

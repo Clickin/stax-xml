@@ -19,10 +19,17 @@ const requiredGlobals = [
 const requiredSurfaces = [
   {
     id: 'sync-byte-batch-full-string',
-    label: 'StreamReaderSync Iterable<Uint8Array[]> full-string rows',
-    contract: 'Primary same-contract StAX rows over synchronous byte batches.',
+    label: 'StreamReaderSync generated-fixture Iterable<Uint8Array[]> full-string rows',
+    contract: 'Generated-fixture same-contract StAX rows over synchronous byte batches.',
     requiredGlobals: ['Uint8Array', 'TextDecoder', 'TextEncoder'],
     reason: 'Uint8Array carries parser input, TextDecoder materializes StAX strings, and TextEncoder is used by the current generated-fixture harness.',
+  },
+  {
+    id: 'sync-corpus-byte-batch-full-string',
+    label: 'StreamReaderSync corpus-file Iterable<Uint8Array[]> full-string rows',
+    contract: 'Corpus-file same-contract StAX rows over synchronous byte batches.',
+    requiredGlobals: ['Uint8Array', 'TextDecoder'],
+    reason: 'The official shells can read binary XML with read(..., "binary"), so TextEncoder is not a corpus-file blocker; TextDecoder remains required for full StAX string materialization.',
   },
   {
     id: 'async-byte-batch-full-string',
@@ -209,6 +216,7 @@ function createFindings(report) {
       summary: 'This gap is a host API surface fact, not a SpiderMonkey throughput limit or emitted-code proof.',
       evidence: [
         'Adding a polyfill or alternate decoder would create a different harness surface and must not be counted as the unchanged current StAX full-string benchmark.',
+        'Corpus-file byte-batch rows do not require TextEncoder when binary input is read directly by the shell, but they still require TextDecoder for the public full-string contract.',
         'A diagnostic-capable shell or Firefox build can still close the emitted IR/codegen obligation.',
       ],
     },
