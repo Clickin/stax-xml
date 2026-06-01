@@ -1,13 +1,13 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-01T01:40:54.290Z
+Generated: 2026-06-01T01:49:30.418Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-06-01T01:40:41.896Z
+- Audit generated: 2026-06-01T01:47:30.043Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
 - Comparison generated: 2026-05-31T23:20:48.612Z
 - Active obligations: 2
@@ -169,6 +169,8 @@ Expected evidence:
 Closure checks:
 - runtime-proof-coverage-audit.json coverage.safariWebKitStatus.evidenceClass must be browser-row-evidence.
 - runtime-proof-coverage-audit.json coverage.safariWebKitStatus.benchmarkRowsRecorded must be greater than 0.
+- runtime-proof-coverage-audit.json coverage.safariWebKitStatus.primarySyncByteBatchRowsRecorded must be greater than 0.
+- runtime-proof-coverage-audit.json coverage.safariWebKitStatus.boundedPrimarySyncByteBatchRowsRecorded must be greater than 0.
 - runtime-proof-coverage-audit.json coverage.safariWebKitStatus.exactBuildIdentityRecorded must be true.
 - runtime-proof-coverage-audit.json coverage.safariWebKitStatus.sourceBoundaryPinned must be true.
 - runtime-proof-coverage-audit.json coverage.safariWebKitStatus.closesSafariObligation must be true before safari-jsc-source-and-browser-rows-open can be marked covered.

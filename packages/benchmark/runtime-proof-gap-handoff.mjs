@@ -557,6 +557,8 @@ function createHandoffs(activeObligations, localClosure) {
       closureChecks: [
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.evidenceClass must be browser-row-evidence.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.benchmarkRowsRecorded must be greater than 0.',
+        'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.primarySyncByteBatchRowsRecorded must be greater than 0.',
+        'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.boundedPrimarySyncByteBatchRowsRecorded must be greater than 0.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.exactBuildIdentityRecorded must be true.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.sourceBoundaryPinned must be true.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.closesSafariObligation must be true before safari-jsc-source-and-browser-rows-open can be marked covered.',

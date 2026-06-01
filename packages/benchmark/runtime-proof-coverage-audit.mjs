@@ -486,6 +486,15 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows) {
   ) ?? null;
   const availability = availabilityArtifact?.availability ?? {};
   const safariRows = browserBenchmarkRows.filter(row => row.runtimeId === 'safari-jsc-browser');
+  const safariFullRows = safariRows.filter(row => row.fullStringParity === true);
+  const safariPrimaryRows = safariFullRows.filter(row =>
+    row.directReadableStream === false
+    && row.fullArrayBufferParserInput === false
+    && row.demandDrivenSource === true
+    && typeof row.sourceMode === 'string'
+    && /sync-iterable-byte-batches$/.test(row.sourceMode)
+  );
+  const boundedPrimaryRows = safariPrimaryRows.filter(row => row.boundedMemory === true);
   return {
     availabilityArtifact: availabilityArtifact?.sourceArtifact ?? null,
     hostIsMacOS: availability.hostIsMacOS ?? null,
@@ -498,6 +507,9 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows) {
     exactBuildIdentityRecorded: availability.exactSafariBuildIdentityRecorded ?? null,
     sourceBoundaryPinned: availability.safariSourceBoundaryPinned ?? null,
     openObligationRemains: availability.openObligationRemains ?? null,
+    fullStringRowsRecorded: safariFullRows.length,
+    primarySyncByteBatchRowsRecorded: safariPrimaryRows.length,
+    boundedPrimarySyncByteBatchRowsRecorded: boundedPrimaryRows.length,
     evidenceClass: safariRows.length > 0
       ? 'browser-row-evidence'
       : availabilityArtifact
@@ -505,7 +517,8 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows) {
         : 'missing-availability-audit',
     closesSafariObligation: safariRows.length > 0
       && availability.exactSafariBuildIdentityRecorded === true
-      && availability.safariSourceBoundaryPinned === true,
+      && availability.safariSourceBoundaryPinned === true
+      && boundedPrimaryRows.length > 0,
   };
 }
 
@@ -763,11 +776,11 @@ function createObligationRows(coverage) {
       id: 'safari-jsc-source-and-browser-rows-open',
       status: closesSafariObligation ? 'covered' : hasSafariRows ? 'partial' : 'open',
       evidence: closesSafariObligation
-        ? `${coverage.browser.safariBenchmarkRows.length} Safari/WebKit browser benchmark rows found with exact build identity and source-boundary evidence.`
+        ? `${coverage.browser.safariBenchmarkRows.length} Safari/WebKit browser benchmark rows found with exact build identity, source-boundary evidence, and bounded primary sync byte-batch full-string rows.`
         : hasSafariRows
           ? [
             `${coverage.browser.safariBenchmarkRows.length} Safari/WebKit browser benchmark rows found, but the obligation is not closed.`,
-            `exactBuildIdentityRecorded=${coverage.safariWebKitStatus.exactBuildIdentityRecorded}; sourceBoundaryPinned=${coverage.safariWebKitStatus.sourceBoundaryPinned}; closesSafariObligation=${coverage.safariWebKitStatus.closesSafariObligation}.`,
+            `exactBuildIdentityRecorded=${coverage.safariWebKitStatus.exactBuildIdentityRecorded}; sourceBoundaryPinned=${coverage.safariWebKitStatus.sourceBoundaryPinned}; primarySyncByteBatchRows=${coverage.safariWebKitStatus.primarySyncByteBatchRowsRecorded}; boundedPrimarySyncByteBatchRows=${coverage.safariWebKitStatus.boundedPrimarySyncByteBatchRowsRecorded}; closesSafariObligation=${coverage.safariWebKitStatus.closesSafariObligation}.`,
           ].join(' ')
         : [
           'Bun/JSC and Bun-patched WebKit evidence is present, but no Safari/WebKit browser benchmark row was found.',
@@ -1308,9 +1321,9 @@ function renderMarkdown(report) {
     `Safari/WebKit evidence class: ${report.coverage.safariWebKitStatus.evidenceClass}`,
     `Safari/WebKit obligation closed: ${formatBoolean(report.coverage.safariWebKitStatus.closesSafariObligation)}`,
     '',
-    '| Availability artifact | macOS host | Safari executable | safaridriver | Harness support | Runnable here | Browser rows | Exact build identity | Source boundary pinned |',
-    '| --- | --- | --- | --- | --- | --- | ---: | --- | --- |',
-    `| ${formatOptionalArtifact(report.coverage.safariWebKitStatus.availabilityArtifact)} | ${formatBoolean(report.coverage.safariWebKitStatus.hostIsMacOS)} | ${formatBoolean(report.coverage.safariWebKitStatus.safariExecutableFound)} | ${formatBoolean(report.coverage.safariWebKitStatus.safaridriverFound)} | ${formatBoolean(report.coverage.safariWebKitStatus.harnessSupportsSafari)} | ${formatBoolean(report.coverage.safariWebKitStatus.canRunSafariBrowserRows)} | ${report.coverage.safariWebKitStatus.benchmarkRowsRecorded} | ${formatBoolean(report.coverage.safariWebKitStatus.exactBuildIdentityRecorded)} | ${formatBoolean(report.coverage.safariWebKitStatus.sourceBoundaryPinned)} |`,
+    '| Availability artifact | macOS host | Safari executable | safaridriver | Harness support | Runnable here | Browser rows | Full rows | Primary sync rows | Bounded primary rows | Exact build identity | Source boundary pinned |',
+    '| --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- |',
+    `| ${formatOptionalArtifact(report.coverage.safariWebKitStatus.availabilityArtifact)} | ${formatBoolean(report.coverage.safariWebKitStatus.hostIsMacOS)} | ${formatBoolean(report.coverage.safariWebKitStatus.safariExecutableFound)} | ${formatBoolean(report.coverage.safariWebKitStatus.safaridriverFound)} | ${formatBoolean(report.coverage.safariWebKitStatus.harnessSupportsSafari)} | ${formatBoolean(report.coverage.safariWebKitStatus.canRunSafariBrowserRows)} | ${report.coverage.safariWebKitStatus.benchmarkRowsRecorded} | ${report.coverage.safariWebKitStatus.fullStringRowsRecorded} | ${report.coverage.safariWebKitStatus.primarySyncByteBatchRowsRecorded} | ${report.coverage.safariWebKitStatus.boundedPrimarySyncByteBatchRowsRecorded} | ${formatBoolean(report.coverage.safariWebKitStatus.exactBuildIdentityRecorded)} | ${formatBoolean(report.coverage.safariWebKitStatus.sourceBoundaryPinned)} |`,
   );
 
   lines.push(
