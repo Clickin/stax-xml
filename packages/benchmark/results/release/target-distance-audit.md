@@ -1,6 +1,6 @@
 # Target Distance Audit
 
-Generated: 2026-06-01T10:06:06.862Z
+Generated: 2026-06-01T12:21:58.608Z
 
 Audits the distance from current same-contract JavaScript rows to Woodstox and quick-xml targets. This is not a benchmark run, not object-shape equivalence, and not a JavaScript runtime ceiling proof.
 
@@ -9,6 +9,7 @@ Audits the distance from current same-contract JavaScript rows to Woodstox and q
 - Status: classified
 - Source artifact: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
 - Same-fixture JS row: `stax-raw-frame-name-id-batch-8` 152.11 MiB/s
+- Woodstox and quick-xml target rows share JS baseline: true
 - Same-fixture JS source/memory contract: Node/V8 `stax-raw-frame-name-id-batch-8` 152.11 MiB/s, sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=false, fullArrayBufferParserInput=false, boundedMemory=true, process-rss max 61.77 MiB
 - Woodstox target: 351.56 MiB/s; 0.9x target 316.40 MiB/s; JS ratio 0.43x; remaining 164.29 MiB/s; targetMet=false
 - quick-xml target: 274.63 MiB/s; 0.9x target 247.17 MiB/s; JS ratio 0.55x; remaining 95.06 MiB/s; targetMet=false
@@ -46,6 +47,7 @@ Audits the distance from current same-contract JavaScript rows to Woodstox and q
 | `woodstox-0-9x-target-not-met` | SOURCE_FACT | Current fastest same-fixture JavaScript row is 164.29 MiB/s below the Woodstox 0.9x target. |
 | `quickxml-0-9x-target-not-met` | SOURCE_FACT | Current fastest same-fixture JavaScript row is 95.06 MiB/s below the quick-xml 0.9x target. |
 | `external-baseline-separate-from-candidate-target` | SOURCE_FACT | The 1024 MiB external baseline keeps stax-stream, rawFrameNameId, Woodstox, and quick-xml rows visible separately from later same-fixture candidate targets. |
+| `same-fixture-targets-share-js-row` | SOURCE_FACT | Woodstox and quick-xml 0.9x target distances use the same fastest JavaScript baseline row. |
 | `same-fixture-fastest-js-contract-classified` | SOURCE_FACT | The same-fixture fastest JavaScript target row is file-backed synchronous Iterable<Uint8Array[]> input, not direct ReadableStream, not full ArrayBuffer parser input, and bounded under process RSS. |
 | `target-distance-not-runtime-ceiling` | SOURCE_FACT | A target-distance deficit is not proof that JavaScript runtimes have no further headroom. |
 

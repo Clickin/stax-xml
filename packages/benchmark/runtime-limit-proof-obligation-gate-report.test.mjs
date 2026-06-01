@@ -97,6 +97,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.frontierAuditSnapshot.targetDistance.loaded);
   assert.equal(report.frontierAuditSnapshot.targetDistance.woodstoxTargetMet, false);
   assert.equal(report.frontierAuditSnapshot.targetDistance.quickXmlTargetMet, false);
+  assert.equal(report.frontierAuditSnapshot.targetDistance.sharedFastestJsTargetRow, true);
   assert.equal(report.frontierAuditSnapshot.targetDistance.woodstoxRemainingMiBPerSec, 164.29);
   assert.equal(report.frontierAuditSnapshot.targetDistance.quickXmlRemainingMiBPerSec, 95.06);
   assert.equal(report.frontierAuditSnapshot.targetDistance.fastestJsSourceMode, 'file-backed-sync-iterable-byte-batches');
@@ -202,6 +203,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /Bounded rows without numeric memory proof: 0/);
   assert.match(markdown, /Woodstox 0\.9x target met: no/);
   assert.match(markdown, /quick-xml 0\.9x target met: no/);
+  assert.match(markdown, /Shared JS target row: yes/);
   assert.match(markdown, /Target JS contract: sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=no, fullArrayBufferParserInput=no, boundedMemory=yes, memoryKind=process-rss, maxRssMiB=61\.77/);
   assert.match(markdown, /Full-string rows crossing 200 MiB\/s: 0/);
   assert.match(markdown, /No-trim rows crossing 200 MiB\/s: 0/);

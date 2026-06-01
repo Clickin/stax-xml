@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
@@ -10,6 +10,9 @@ const repoRoot = resolve(__dirname, '..', '..');
 const tmpDir = join(__dirname, 'results', 'tmp');
 const jsonOut = join(tmpDir, 'target-distance-audit-report-test.json');
 const mdOut = join(tmpDir, 'target-distance-audit-report-test.md');
+const driftComparisonOut = join(tmpDir, 'target-distance-drift-comparison.json');
+const driftJsonOut = join(tmpDir, 'target-distance-drift.json');
+const driftMdOut = join(tmpDir, 'target-distance-drift.md');
 
 test('target distance audit keeps Woodstox and quick-xml 0.9x goals explicit', () => {
   mkdirSync(tmpDir, { recursive: true });
@@ -36,6 +39,7 @@ test('target distance audit keeps Woodstox and quick-xml 0.9x goals explicit', (
   assert.equal(report.contract, 'woodstox-and-quickxml-0.9x-target-distance');
   assert.equal(report.summary.status, 'classified');
   assert.equal(report.summary.conclusionAllowed, false);
+  assert.equal(report.summary.sharedFastestJsTargetRow, true);
 
   const woodstox = report.summary.sameFixture1024MiBWoodstoxTarget;
   assert.equal(woodstox.fastestJsCaseId, 'stax-raw-frame-name-id-batch-8');
@@ -98,12 +102,14 @@ test('target distance audit keeps Woodstox and quick-xml 0.9x goals explicit', (
   assert.ok(report.findings.some(entry => entry.id === 'woodstox-0-9x-target-not-met'));
   assert.ok(report.findings.some(entry => entry.id === 'quickxml-0-9x-target-not-met'));
   assert.ok(report.findings.some(entry => entry.id === 'external-baseline-separate-from-candidate-target'));
+  assert.ok(report.findings.some(entry => entry.id === 'same-fixture-targets-share-js-row' && entry.classification === 'SOURCE_FACT'));
   assert.ok(report.findings.some(entry => entry.id === 'same-fixture-fastest-js-contract-classified'));
   assert.ok(report.findings.some(entry => entry.id === 'target-distance-not-runtime-ceiling'));
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Target Distance Audit/);
   assert.match(markdown, /Same-fixture JS row: `stax-raw-frame-name-id-batch-8` 152\.11 MiB\/s/);
+  assert.match(markdown, /Woodstox and quick-xml target rows share JS baseline: true/);
   assert.match(markdown, /Same-fixture JS source\/memory contract: Node\/V8 `stax-raw-frame-name-id-batch-8` 152\.11 MiB\/s, sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=false, fullArrayBufferParserInput=false, boundedMemory=true, process-rss max 61\.77 MiB/);
   assert.match(markdown, /Woodstox target: 351\.56 MiB\/s; 0\.9x target 316\.40 MiB\/s; JS ratio 0\.43x; remaining 164\.29 MiB\/s; targetMet=false/);
   assert.match(markdown, /quick-xml target: 274\.63 MiB\/s; 0\.9x target 247\.17 MiB\/s; JS ratio 0\.55x; remaining 95\.06 MiB\/s; targetMet=false/);
@@ -113,4 +119,48 @@ test('target distance audit keeps Woodstox and quick-xml 0.9x goals explicit', (
   assert.match(markdown, /\| `file-backed-batch-size-sweep` \| `stax-raw-frame-name-id-batch-8` \| 152\.11 \| `file-backed-short-attr-value-cache-candidate\.json` \| 274\.63 \| 247\.17 \| 95\.06 \| no \| same books 1024 MiB fixture family, but quick-xml reference comes from a separate candidate artifact \|/);
   assert.match(markdown, /same-fixture fastest JavaScript target row is file-backed synchronous Iterable<Uint8Array\[\]> input/);
   assert.match(markdown, /A target-distance deficit is not proof that JavaScript runtimes have no further headroom/);
+});
+
+test('target distance audit downgrades if Woodstox and quick-xml use different JS target rows', () => {
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [driftComparisonOut, driftJsonOut, driftMdOut]) {
+    if (existsSync(filePath)) rmSync(filePath);
+  }
+
+  const comparison = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'same-contract-runtime-comparison.json'), 'utf8'));
+  comparison.summary.sameFixture1024MiBQuickXmlTarget.fastestJsCaseId = 'stax-stream-batch-8';
+  comparison.summary.sameFixture1024MiBQuickXmlTarget.fastestJsMiBPerSec = 120.01;
+  comparison.summary.sameFixture1024MiBQuickXmlTarget.fastestJsQuickXmlRatio = 0.44;
+  comparison.summary.sameFixture1024MiBQuickXmlTarget.remainingTo90PercentMiBPerSec = 127.16;
+  writeFileSync(driftComparisonOut, `${JSON.stringify(comparison, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'target-distance-audit.mjs'),
+    '--comparison-json',
+    driftComparisonOut,
+    '--json-out',
+    driftJsonOut,
+    '--md-out',
+    driftMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(driftJsonOut, 'utf8'));
+  assert.equal(report.summary.status, 'partial');
+  assert.equal(report.summary.sharedFastestJsTargetRow, false);
+  assert.equal(report.summary.sameFixture1024MiBWoodstoxTarget.fastestJsCaseId, 'stax-raw-frame-name-id-batch-8');
+  assert.equal(report.summary.sameFixture1024MiBQuickXmlTarget.fastestJsCaseId, 'stax-stream-batch-8');
+  assert.ok(report.findings.some(entry =>
+    entry.id === 'same-fixture-targets-share-js-row'
+    && entry.classification === 'HYPOTHESIS'
+  ));
+
+  const markdown = readFileSync(driftMdOut, 'utf8');
+  assert.match(markdown, /Status: partial/);
+  assert.match(markdown, /Woodstox and quick-xml target rows share JS baseline: false/);
 });

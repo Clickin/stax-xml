@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-01T10:06:06.862Z",
+  "generatedAt": "2026-06-01T12:21:58.608Z",
   "objective": "target-distance-audit",
   "contract": "woodstox-and-quickxml-0.9x-target-distance",
   "note": "Audits the distance from current same-contract JavaScript rows to Woodstox and quick-xml targets. This is not a benchmark run, not object-shape equivalence, and not a JavaScript runtime ceiling proof.",
   "inputs": {
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
-    "comparisonGeneratedAt": "2026-06-01T09:53:34.432Z",
+    "comparisonGeneratedAt": "2026-06-01T10:21:54.633Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape"
   },
@@ -35,6 +35,7 @@
       "remainingTo90PercentMiBPerSec": 95.06,
       "targetMet": false
     },
+    "sharedFastestJsTargetRow": true,
     "sameFixtureFastestJsContract": {
       "group": "file-backed-batch-size-sweep",
       "sourceArtifact": "file-backed-batch-size-sweep.json",
@@ -179,6 +180,11 @@
       "id": "external-baseline-separate-from-candidate-target",
       "classification": "SOURCE_FACT",
       "summary": "The 1024 MiB external baseline keeps stax-stream, rawFrameNameId, Woodstox, and quick-xml rows visible separately from later same-fixture candidate targets."
+    },
+    {
+      "id": "same-fixture-targets-share-js-row",
+      "classification": "SOURCE_FACT",
+      "summary": "Woodstox and quick-xml 0.9x target distances use the same fastest JavaScript baseline row."
     },
     {
       "id": "same-fixture-fastest-js-contract-classified",

@@ -501,6 +501,7 @@ function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMateria
     status: targetDistance?.summary?.status ?? null,
     woodstoxTargetMet: woodstox.targetMet ?? null,
     quickXmlTargetMet: quickXml.targetMet ?? null,
+    sharedFastestJsTargetRow: targetDistance?.summary?.sharedFastestJsTargetRow ?? null,
     woodstoxRemainingMiBPerSec: woodstox.remainingTo90PercentMiBPerSec ?? null,
     quickXmlRemainingMiBPerSec: quickXml.remainingTo90PercentMiBPerSec ?? null,
     fastestJsCaseId: woodstox.fastestJsCaseId ?? null,
@@ -563,6 +564,7 @@ function createFrontierAuditGuards(memory, target, text) {
         && target.status === 'classified'
         && target.woodstoxTargetMet === false
         && target.quickXmlTargetMet === false
+        && target.sharedFastestJsTargetRow === true
         && typeof target.woodstoxRemainingMiBPerSec === 'number'
         && target.woodstoxRemainingMiBPerSec > 0
         && typeof target.quickXmlRemainingMiBPerSec === 'number'
@@ -1002,6 +1004,7 @@ function renderMarkdown(report) {
     `- Woodstox 0.9x remaining: ${formatNullableRate(report.frontierAuditSnapshot.targetDistance.woodstoxRemainingMiBPerSec)} MiB/s`,
     `- quick-xml 0.9x target met: ${formatYesNo(report.frontierAuditSnapshot.targetDistance.quickXmlTargetMet)}`,
     `- quick-xml 0.9x remaining: ${formatNullableRate(report.frontierAuditSnapshot.targetDistance.quickXmlRemainingMiBPerSec)} MiB/s`,
+    `- Shared JS target row: ${formatYesNo(report.frontierAuditSnapshot.targetDistance.sharedFastestJsTargetRow)}`,
     `- Target JS contract: sourceMode=${report.frontierAuditSnapshot.targetDistance.fastestJsSourceMode ?? 'unknown'}, directReadableStream=${formatYesNo(report.frontierAuditSnapshot.targetDistance.fastestJsDirectReadableStream)}, fullArrayBufferParserInput=${formatYesNo(report.frontierAuditSnapshot.targetDistance.fastestJsFullArrayBufferParserInput)}, boundedMemory=${formatYesNo(report.frontierAuditSnapshot.targetDistance.fastestJsBoundedMemory)}, memoryKind=${report.frontierAuditSnapshot.targetDistance.fastestJsMemoryKind ?? 'unknown'}, maxRssMiB=${formatNullableRate(report.frontierAuditSnapshot.targetDistance.fastestJsMaxRssMiB)}`,
     report.frontierAuditSnapshot.textMaterialization.loaded
       ? `- Text materialization boundary loaded: yes (${report.frontierAuditSnapshot.textMaterialization.generatedAt ?? 'unknown generatedAt'})`

@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T12:16:03.258Z
+Generated: 2026-06-01T12:22:49.353Z
 
 ## Scope
 
@@ -142,11 +142,12 @@ These are static disclosure guards. They must stay disclosed while the broad run
 - Unbounded or unproven memory rows: 17
 - Bounded rows without numeric memory proof: 0
 - Unbounded rows at or above 200 MiB/s: 0
-- Target distance loaded: yes (2026-06-01T10:06:06.862Z)
+- Target distance loaded: yes (2026-06-01T12:21:58.608Z)
 - Woodstox 0.9x target met: no
 - Woodstox 0.9x remaining: 164.29 MiB/s
 - quick-xml 0.9x target met: no
 - quick-xml 0.9x remaining: 95.06 MiB/s
+- Shared JS target row: yes
 - Target JS contract: sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=no, fullArrayBufferParserInput=no, boundedMemory=yes, memoryKind=process-rss, maxRssMiB=61.77
 - Text materialization boundary loaded: yes (2026-06-01T08:13:27.247Z)
 - Fastest full-string row: 185.50 MiB/s

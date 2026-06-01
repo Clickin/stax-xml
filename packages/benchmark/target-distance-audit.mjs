@@ -71,6 +71,7 @@ function createReport(comparison, options) {
   const externalBaseline = summary.externalBaseline1024MiBFileSyncBatches;
   const processRss = summary.sameFixture1024MiBProcessRssSnapshot;
   const fastestComparableJsRow = findFastestComparableJsTargetRow(summary.sameFixture1024MiBTargetRows, woodstoxTarget);
+  const sharedFastestJsTargetRow = targetsShareFastestJsRow(woodstoxTarget, quickXmlTarget);
   if (!woodstoxTarget || !quickXmlTarget || !externalBaseline) {
     throw new Error('same-contract comparison JSON does not contain required target-distance summaries');
   }
@@ -88,6 +89,7 @@ function createReport(comparison, options) {
     && quickXmlTarget.targetMet === false
     && typeof woodstoxTarget.remainingTo90PercentMiBPerSec === 'number'
     && typeof quickXmlTarget.remainingTo90PercentMiBPerSec === 'number'
+    && sharedFastestJsTargetRow
     && fastestComparableJsContractOk
     ? 'classified'
     : 'partial';
@@ -107,14 +109,23 @@ function createReport(comparison, options) {
       status,
       sameFixture1024MiBWoodstoxTarget: summarizeWoodstoxTarget(woodstoxTarget),
       sameFixture1024MiBQuickXmlTarget: summarizeQuickXmlTarget(quickXmlTarget),
+      sharedFastestJsTargetRow,
       sameFixtureFastestJsContract: fastestComparableJsContract,
       externalBaseline1024MiBFileSyncBatches: summarizeExternalBaseline(externalBaseline),
       sameFixture1024MiBProcessRssSnapshot: summarizeProcessRssSnapshot(processRss),
       conclusionAllowed: false,
     },
     quickXmlTargetRows: (summary.sameFixture1024MiBQuickXmlTargetRows ?? []).map(summarizeQuickXmlTargetRow),
-    findings: createFindings(woodstoxTarget, quickXmlTarget, externalBaseline, fastestComparableJsContractOk),
+    findings: createFindings(woodstoxTarget, quickXmlTarget, externalBaseline, fastestComparableJsContractOk, sharedFastestJsTargetRow),
   };
+}
+
+function targetsShareFastestJsRow(woodstoxTarget, quickXmlTarget) {
+  if (!woodstoxTarget || !quickXmlTarget) return false;
+  return woodstoxTarget.group === quickXmlTarget.group
+    && woodstoxTarget.sourceArtifact === quickXmlTarget.sourceArtifact
+    && woodstoxTarget.fastestJsCaseId === quickXmlTarget.fastestJsCaseId
+    && woodstoxTarget.fastestJsMiBPerSec === quickXmlTarget.fastestJsMiBPerSec;
 }
 
 function findFastestComparableJsTargetRow(targetRows, target) {
@@ -226,7 +237,7 @@ function summarizeQuickXmlTargetRow(row) {
   };
 }
 
-function createFindings(woodstoxTarget, quickXmlTarget, externalBaseline, fastestComparableJsContractOk) {
+function createFindings(woodstoxTarget, quickXmlTarget, externalBaseline, fastestComparableJsContractOk, sharedFastestJsTargetRow) {
   return [
     {
       id: 'woodstox-0-9x-target-not-met',
@@ -242,6 +253,13 @@ function createFindings(woodstoxTarget, quickXmlTarget, externalBaseline, fastes
       id: 'external-baseline-separate-from-candidate-target',
       classification: 'SOURCE_FACT',
       summary: `The 1024 MiB external baseline keeps stax-stream, rawFrameNameId, Woodstox, and quick-xml rows visible separately from later same-fixture candidate targets.`,
+    },
+    {
+      id: 'same-fixture-targets-share-js-row',
+      classification: sharedFastestJsTargetRow ? 'SOURCE_FACT' : 'HYPOTHESIS',
+      summary: sharedFastestJsTargetRow
+        ? 'Woodstox and quick-xml 0.9x target distances use the same fastest JavaScript baseline row.'
+        : 'Woodstox and quick-xml 0.9x target distances do not use the same fastest JavaScript baseline row.',
     },
     {
       id: 'same-fixture-fastest-js-contract-classified',
@@ -276,6 +294,7 @@ function renderMarkdown(report) {
     `- Status: ${report.summary.status}`,
     `- Source artifact: ${report.inputs.comparisonJson}`,
     `- Same-fixture JS row: \`${woodstox.fastestJsCaseId}\` ${formatNumber(woodstox.fastestJsRateMiBPerSec)} MiB/s`,
+    `- Woodstox and quick-xml target rows share JS baseline: ${formatBoolean(report.summary.sharedFastestJsTargetRow)}`,
     `- Same-fixture JS source/memory contract: ${formatComparableJsTargetRow(fastestJsContract)}`,
     `- Woodstox target: ${formatNumber(woodstox.woodstoxRateMiBPerSec)} MiB/s; 0.9x target ${formatNumber(woodstox.target90MiBPerSec)} MiB/s; JS ratio ${formatNumber(woodstox.fastestJsWoodstoxRatio)}x; remaining ${formatNumber(woodstox.remainingTo90PercentMiBPerSec)} MiB/s; targetMet=${woodstox.targetMet}`,
     `- quick-xml target: ${formatNumber(quickXml.quickXmlRateMiBPerSec)} MiB/s; 0.9x target ${formatNumber(quickXml.target90MiBPerSec)} MiB/s; JS ratio ${formatNumber(quickXml.fastestJsQuickXmlRatio)}x; remaining ${formatNumber(quickXml.remainingTo90PercentMiBPerSec)} MiB/s; targetMet=${quickXml.targetMet}`,
