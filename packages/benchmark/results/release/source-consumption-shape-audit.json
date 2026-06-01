@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-01T08:13:32.285Z",
+  "generatedAt": "2026-06-01T10:02:23.614Z",
   "objective": "source-consumption-shape-audit",
   "contract": "large-js-full-string-rows-are-not-full-arraybuffer-parser-input",
   "note": "Audits source-consumption metadata from the same-contract aggregate. This is not a benchmark run and not a runtime-limit conclusion.",
   "inputs": {
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
-    "comparisonGeneratedAt": "2026-06-01T08:12:51.043Z",
+    "comparisonGeneratedAt": "2026-06-01T09:53:34.432Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape"
   },
@@ -27,10 +27,66 @@
     "corpusSeedReplayRows": 150,
     "fileBackedSyncIterableRows": 36,
     "syncIterableRows": 195,
+    "primarySourceContract": "primary-sync-iterable-byte-batches",
+    "primarySyncByteBatchRows": 231,
+    "primaryExcludedRows": 8,
+    "primaryDirectReadableStreamRows": 0,
+    "primaryAsyncSourceRows": 0,
+    "primaryFullArrayBufferRows": 0,
+    "primaryUnknownSourceModeRows": 0,
+    "primarySourceModes": [
+      "file-backed-sync-iterable-byte-batches",
+      "sync-iterable-byte-batches"
+    ],
+    "primaryFastestRow": {
+      "sourceArtifact": "text-trim-cost-decomposition.json",
+      "runtimeLabel": "Node/V8",
+      "caseId": "rawFrameNameId",
+      "rateMiBPerSec": 185.5,
+      "boundedMemory": true
+    },
     "asyncOrReadableRowsRespectBackpressure": true,
     "browserLiveRowsRespectBackpressure": true,
     "conclusionAllowed": false
   },
+  "primaryExcludedBreakdown": [
+    {
+      "reason": "async-source-boundary",
+      "rows": 1,
+      "fastestRow": {
+        "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+        "runtimeLabel": "Chrome/V8 browser",
+        "caseId": "fetchAsyncByteBatchFull",
+        "rateMiBPerSec": 9.77,
+        "fullStringParity": true,
+        "boundedMemory": true
+      }
+    },
+    {
+      "reason": "direct-readable-stream",
+      "rows": 1,
+      "fastestRow": {
+        "sourceArtifact": "browser-fetch-readable-stream-books-corpus.json",
+        "runtimeLabel": "Chrome/V8 browser",
+        "caseId": "fetchReadableStreamFull",
+        "rateMiBPerSec": 9.68,
+        "fullStringParity": true,
+        "boundedMemory": true
+      }
+    },
+    {
+      "reason": "unknown-source-mode",
+      "rows": 6,
+      "fastestRow": {
+        "sourceArtifact": "textdecoder-span-variants.json",
+        "runtimeLabel": "Node/V8",
+        "caseId": "shortAsciiSubarraySharedDecoder",
+        "rateMiBPerSec": 51.6,
+        "fullStringParity": true,
+        "boundedMemory": true
+      }
+    }
+  ],
   "sourceModeBreakdown": [
     {
       "sourceMode": "fetch-async-iterable-byte-batches",
@@ -168,6 +224,11 @@
       "id": "direct-readable-stream-separated",
       "classification": "SOURCE_FACT",
       "summary": "Direct ReadableStream rows are counted separately from synchronous byte-batch parser rows."
+    },
+    {
+      "id": "primary-frontier-sync-byte-batches-only",
+      "classification": "SOURCE_FACT",
+      "summary": "Primary JavaScript frontier is restricted to synchronous Iterable<Uint8Array[]> byte-batch rows."
     },
     {
       "id": "backpressure-respected",

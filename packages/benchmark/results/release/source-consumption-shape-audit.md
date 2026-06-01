@@ -1,6 +1,6 @@
 # Source Consumption Shape Audit
 
-Generated: 2026-06-01T08:13:32.285Z
+Generated: 2026-06-01T10:02:23.614Z
 
 Audits source-consumption metadata from the same-contract aggregate. This is not a benchmark run and not a runtime-limit conclusion.
 
@@ -18,8 +18,24 @@ Audits source-consumption metadata from the same-contract aggregate. This is not
 - Corpus seed replay rows: 150
 - File-backed sync Iterable<Uint8Array[]> rows: 36
 - Sync Iterable<Uint8Array[]> rows: 195
+- Primary source contract: primary-sync-iterable-byte-batches
+- Primary sync byte-batch rows: 231
+- Primary excluded rows: 8
+- Primary direct ReadableStream rows: 0
+- Primary async source rows: 0
+- Primary full ArrayBuffer parser-input rows: 0
+- Primary unknown source-mode rows: 0
+- Primary fastest row: Node/V8 `rawFrameNameId` 185.50 MiB/s from `text-trim-cost-decomposition.json`
 - Async/readable source frontier respects backpressure: true
 - Browser live source frontier respects backpressure: true
+
+## Primary Exclusions
+
+| Reason | Rows | Fastest excluded row |
+| --- | ---: | --- |
+| `async-source-boundary` | 1 | Chrome/V8 browser `fetchAsyncByteBatchFull` 9.77 MiB/s from `browser-fetch-readable-stream-books-corpus.json` |
+| `direct-readable-stream` | 1 | Chrome/V8 browser `fetchReadableStreamFull` 9.68 MiB/s from `browser-fetch-readable-stream-books-corpus.json` |
+| `unknown-source-mode` | 6 | Node/V8 `shortAsciiSubarraySharedDecoder` 51.60 MiB/s from `textdecoder-span-variants.json` |
 
 ## Source Mode Breakdown
 
@@ -51,6 +67,7 @@ Audits source-consumption metadata from the same-contract aggregate. This is not
 | --- | --- | --- |
 | `source-contract-classified` | SOURCE_FACT | All current 1 GiB+ JavaScript full-string rows with source metadata are classified as not full ArrayBuffer parser input. |
 | `direct-readable-stream-separated` | SOURCE_FACT | Direct ReadableStream rows are counted separately from synchronous byte-batch parser rows. |
+| `primary-frontier-sync-byte-batches-only` | SOURCE_FACT | Primary JavaScript frontier is restricted to synchronous Iterable<Uint8Array[]> byte-batch rows. |
 | `backpressure-respected` | SOURCE_FACT | Rows that exercise async/readable or live fetch source paths record backpressure-respecting counters. |
 | `corpus-replay-not-full-target-arraybuffer` | SOURCE_FACT | Corpus-cycle rows replay smaller seed buffers and are not classified as one full-target ArrayBuffer parser input. |
 

@@ -67,12 +67,18 @@ function readComparison(comparisonJson) {
 function createReport(comparison, options) {
   const summary = comparison.summary ?? {};
   const sourceShape = summary.sourceShapeSafety ?? {};
+  const primarySourceShape = summary.primarySourceShapeSafety ?? {};
   const sourceFrontier = summary.sourceConsumptionFrontier ?? null;
   const browserFrontier = summary.browserLiveSourceFrontier ?? null;
   const largeRows = sourceShape.largeJsFullSourceModeRows ?? 0;
   const notFullArrayBufferRows = sourceShape.notFullArrayBufferRows ?? 0;
   const fullArrayBufferRows = sourceShape.fullArrayBufferRows ?? 0;
   const unknownArrayBufferRows = sourceShape.unknownArrayBufferRows ?? 0;
+  const primaryRows = primarySourceShape.rows ?? 0;
+  const primaryDirectReadableStreamRows = primarySourceShape.directReadableStreamRows ?? null;
+  const primaryAsyncSourceRows = primarySourceShape.asyncSourceRows ?? null;
+  const primaryFullArrayBufferRows = primarySourceShape.fullArrayBufferRows ?? null;
+  const primaryUnknownSourceModeRows = primarySourceShape.unknownSourceModeRows ?? null;
   const backpressureRows = sourceFrontier?.backpressureRows ?? 0;
   const backpressureRowsRespected = sourceFrontier?.backpressureRowsRespected ?? 0;
   const liveRows = browserFrontier?.liveRows ?? 0;
@@ -81,6 +87,11 @@ function createReport(comparison, options) {
     && notFullArrayBufferRows === largeRows
     && fullArrayBufferRows === 0
     && unknownArrayBufferRows === 0
+    && primaryRows > 0
+    && primaryDirectReadableStreamRows === 0
+    && primaryAsyncSourceRows === 0
+    && primaryFullArrayBufferRows === 0
+    && primaryUnknownSourceModeRows === 0
     && backpressureRows === backpressureRowsRespected
     && liveRows === liveRowsBackpressureRespected
     ? 'classified'
@@ -110,10 +121,24 @@ function createReport(comparison, options) {
       corpusSeedReplayRows: sourceShape.corpusSeedReplayRows ?? null,
       fileBackedSyncIterableRows: sourceShape.fileBackedSyncIterableRows ?? null,
       syncIterableRows: findBreakdownRows(sourceShape, 'sync-iterable-byte-batches'),
+      primarySourceContract: primarySourceShape.contract ?? null,
+      primarySyncByteBatchRows: primaryRows,
+      primaryExcludedRows: primarySourceShape.excludedRows ?? null,
+      primaryDirectReadableStreamRows,
+      primaryAsyncSourceRows,
+      primaryFullArrayBufferRows,
+      primaryUnknownSourceModeRows,
+      primarySourceModes: primarySourceShape.sourceModes ?? [],
+      primaryFastestRow: primarySourceShape.fastestRow ? summarizeRow(primarySourceShape.fastestRow) : null,
       asyncOrReadableRowsRespectBackpressure: backpressureRows === backpressureRowsRespected,
       browserLiveRowsRespectBackpressure: liveRows === liveRowsBackpressureRespected,
       conclusionAllowed: false,
     },
+    primaryExcludedBreakdown: (primarySourceShape.excludedBreakdown ?? []).map(entry => ({
+      reason: entry.reason,
+      rows: entry.rows,
+      fastestRow: entry.fastestRow ? summarizeRow(entry.fastestRow) : null,
+    })),
     sourceModeBreakdown: (sourceShape.sourceModeBreakdown ?? []).map(entry => ({
       sourceMode: entry.sourceMode,
       rows: entry.rows,
@@ -141,7 +166,7 @@ function createReport(comparison, options) {
       liveRowsBackpressureRespected,
       liveRowsFullArrayBufferInput: browserFrontier.liveRowsFullArrayBufferInput ?? null,
     } : null,
-    findings: createFindings(status, sourceShape, sourceFrontier, browserFrontier),
+    findings: createFindings(status, sourceShape, primarySourceShape, sourceFrontier, browserFrontier),
   };
 }
 
@@ -177,7 +202,13 @@ function summarizeFrontierRow(row) {
   };
 }
 
-function createFindings(status, sourceShape, sourceFrontier, browserFrontier) {
+function createFindings(status, sourceShape, primarySourceShape, sourceFrontier, browserFrontier) {
+  const primaryRows = primarySourceShape.rows ?? 0;
+  const primaryIsSyncByteBatchesOnly = primaryRows > 0
+    && (primarySourceShape.directReadableStreamRows ?? null) === 0
+    && (primarySourceShape.asyncSourceRows ?? null) === 0
+    && (primarySourceShape.fullArrayBufferRows ?? null) === 0
+    && (primarySourceShape.unknownSourceModeRows ?? null) === 0;
   const findings = [
     {
       id: 'source-contract-classified',
@@ -190,6 +221,13 @@ function createFindings(status, sourceShape, sourceFrontier, browserFrontier) {
       id: 'direct-readable-stream-separated',
       classification: 'SOURCE_FACT',
       summary: 'Direct ReadableStream rows are counted separately from synchronous byte-batch parser rows.',
+    },
+    {
+      id: 'primary-frontier-sync-byte-batches-only',
+      classification: primaryIsSyncByteBatchesOnly ? 'SOURCE_FACT' : 'HYPOTHESIS',
+      summary: primaryIsSyncByteBatchesOnly
+        ? 'Primary JavaScript frontier is restricted to synchronous Iterable<Uint8Array[]> byte-batch rows.'
+        : 'Primary JavaScript frontier source shape is not fully restricted to synchronous byte-batch rows.',
     },
   ];
 
@@ -234,8 +272,22 @@ function renderMarkdown(report) {
     `- Corpus seed replay rows: ${report.summary.corpusSeedReplayRows}`,
     `- File-backed sync Iterable<Uint8Array[]> rows: ${report.summary.fileBackedSyncIterableRows}`,
     `- Sync Iterable<Uint8Array[]> rows: ${report.summary.syncIterableRows}`,
+    `- Primary source contract: ${report.summary.primarySourceContract}`,
+    `- Primary sync byte-batch rows: ${report.summary.primarySyncByteBatchRows}`,
+    `- Primary excluded rows: ${report.summary.primaryExcludedRows}`,
+    `- Primary direct ReadableStream rows: ${report.summary.primaryDirectReadableStreamRows}`,
+    `- Primary async source rows: ${report.summary.primaryAsyncSourceRows}`,
+    `- Primary full ArrayBuffer parser-input rows: ${report.summary.primaryFullArrayBufferRows}`,
+    `- Primary unknown source-mode rows: ${report.summary.primaryUnknownSourceModeRows}`,
+    `- Primary fastest row: ${formatSummaryRow(report.summary.primaryFastestRow)}`,
     `- Async/readable source frontier respects backpressure: ${formatBoolean(report.summary.asyncOrReadableRowsRespectBackpressure)}`,
     `- Browser live source frontier respects backpressure: ${formatBoolean(report.summary.browserLiveRowsRespectBackpressure)}`,
+    '',
+    '## Primary Exclusions',
+    '',
+    '| Reason | Rows | Fastest excluded row |',
+    '| --- | ---: | --- |',
+    ...report.primaryExcludedBreakdown.map(primaryExcludedMarkdownRow),
     '',
     '## Source Mode Breakdown',
     '',
@@ -286,9 +338,18 @@ function renderMarkdown(report) {
 
 function sourceModeMarkdownRow(entry) {
   const fastest = entry.fastestRow
-    ? `${entry.fastestRow.runtimeLabel} \`${entry.fastestRow.caseId}\` ${formatNumber(entry.fastestRow.rateMiBPerSec)} MiB/s from \`${entry.fastestRow.sourceArtifact}\``
+    ? formatSummaryRow(entry.fastestRow)
     : 'n/a';
   return `| \`${entry.sourceMode}\` | ${entry.rows} | ${entry.notFullArrayBufferRows} | ${entry.fullArrayBufferRows} | ${entry.unknownArrayBufferRows} | ${entry.directReadableStreamRows} | ${entry.corpusSeedReplayRows} | ${fastest} |`;
+}
+
+function primaryExcludedMarkdownRow(entry) {
+  return `| \`${entry.reason}\` | ${entry.rows} | ${formatSummaryRow(entry.fastestRow)} |`;
+}
+
+function formatSummaryRow(row) {
+  if (!row) return 'n/a';
+  return `${row.runtimeLabel} \`${row.caseId}\` ${formatNumber(row.rateMiBPerSec)} MiB/s from \`${row.sourceArtifact}\``;
 }
 
 function formatFrontierRow(row) {

@@ -45,6 +45,20 @@ test('source consumption shape audit classifies ArrayBuffer and ReadableStream s
   assert.equal(report.summary.corpusSeedReplayRows, 150);
   assert.equal(report.summary.fileBackedSyncIterableRows, 36);
   assert.equal(report.summary.syncIterableRows, 195);
+  assert.equal(report.summary.primarySourceContract, 'primary-sync-iterable-byte-batches');
+  assert.equal(report.summary.primarySyncByteBatchRows, 231);
+  assert.equal(report.summary.primaryExcludedRows, 8);
+  assert.equal(report.summary.primaryDirectReadableStreamRows, 0);
+  assert.equal(report.summary.primaryAsyncSourceRows, 0);
+  assert.equal(report.summary.primaryFullArrayBufferRows, 0);
+  assert.equal(report.summary.primaryUnknownSourceModeRows, 0);
+  assert.deepEqual(report.summary.primarySourceModes, [
+    'file-backed-sync-iterable-byte-batches',
+    'sync-iterable-byte-batches',
+  ]);
+  assert.equal(report.summary.primaryFastestRow.caseId, 'rawFrameNameId');
+  assert.equal(report.summary.primaryFastestRow.rateMiBPerSec, 185.5);
+  assert.equal(report.summary.primaryFastestRow.sourceArtifact, 'text-trim-cost-decomposition.json');
   assert.equal(report.summary.asyncOrReadableRowsRespectBackpressure, true);
   assert.equal(report.summary.browserLiveRowsRespectBackpressure, true);
 
@@ -69,6 +83,25 @@ test('source consumption shape audit classifies ArrayBuffer and ReadableStream s
     && entry.directReadableStreamRows === 1
     && entry.notFullArrayBufferRows === 1
   ));
+  assert.ok(report.primaryExcludedBreakdown.some(entry =>
+    entry.reason === 'async-source-boundary'
+    && entry.rows === 1
+    && entry.fastestRow.caseId === 'fetchAsyncByteBatchFull'
+    && entry.fastestRow.rateMiBPerSec === 9.77
+  ));
+  assert.ok(report.primaryExcludedBreakdown.some(entry =>
+    entry.reason === 'direct-readable-stream'
+    && entry.rows === 1
+    && entry.fastestRow.caseId === 'fetchReadableStreamFull'
+    && entry.fastestRow.rateMiBPerSec === 9.68
+  ));
+  assert.ok(report.primaryExcludedBreakdown.some(entry =>
+    entry.reason === 'unknown-source-mode'
+    && entry.rows === 6
+    && entry.fastestRow.caseId === 'shortAsciiSubarraySharedDecoder'
+    && entry.fastestRow.rateMiBPerSec === 51.6
+    && entry.fastestRow.sourceArtifact === 'textdecoder-span-variants.json'
+  ));
   assert.equal(report.sourceConsumptionFrontier.fastestSyncIterable.id, 'sync-iterable-byte-batches-batch-8');
   assert.equal(report.sourceConsumptionFrontier.fastestSyncIterable.rateMiBPerSec, 71.96);
   assert.equal(report.sourceConsumptionFrontier.fastestReadableStream.id, 'web-readable-stream-raw-frame-ascii-batch-8');
@@ -83,6 +116,7 @@ test('source consumption shape audit classifies ArrayBuffer and ReadableStream s
   assert.equal(report.browserLiveSourceFrontier.liveRowsFullArrayBufferInput, 0);
   assert.ok(report.findings.some(entry => entry.id === 'source-contract-classified'));
   assert.ok(report.findings.some(entry => entry.id === 'direct-readable-stream-separated'));
+  assert.ok(report.findings.some(entry => entry.id === 'primary-frontier-sync-byte-batches-only'));
   assert.ok(report.findings.some(entry => entry.id === 'backpressure-respected'));
 
   const markdown = readFileSync(mdOut, 'utf8');
@@ -91,8 +125,18 @@ test('source consumption shape audit classifies ArrayBuffer and ReadableStream s
   assert.match(markdown, /Full ArrayBuffer parser-input rows: 0/);
   assert.match(markdown, /Direct ReadableStream rows: 1/);
   assert.match(markdown, /Sync Iterable<Uint8Array\[\]> rows: 195/);
+  assert.match(markdown, /Primary source contract: primary-sync-iterable-byte-batches/);
+  assert.match(markdown, /Primary sync byte-batch rows: 231/);
+  assert.match(markdown, /Primary excluded rows: 8/);
+  assert.match(markdown, /Primary direct ReadableStream rows: 0/);
+  assert.match(markdown, /Primary async source rows: 0/);
+  assert.match(markdown, /Primary full ArrayBuffer parser-input rows: 0/);
+  assert.match(markdown, /Primary unknown source-mode rows: 0/);
+  assert.match(markdown, /Primary fastest row: Node\/V8 `rawFrameNameId` 185\.50 MiB\/s from `text-trim-cost-decomposition\.json`/);
+  assert.match(markdown, /`direct-readable-stream` \| 1 \| Chrome\/V8 browser `fetchReadableStreamFull` 9\.68 MiB\/s/);
   assert.match(markdown, /Backpressure rows respected: 6\/6/);
   assert.match(markdown, /Live rows respecting backpressure: 2\/2/);
   assert.match(markdown, /directReadableStream=true, fullArrayBufferParserInput=false, respectsBackpressure=true/);
   assert.match(markdown, /Direct ReadableStream rows are counted separately from synchronous byte-batch parser rows/);
+  assert.match(markdown, /Primary JavaScript frontier is restricted to synchronous Iterable<Uint8Array\[\]> byte-batch rows/);
 });
