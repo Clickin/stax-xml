@@ -62,6 +62,8 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('directReadableStreamFullStringRowsRecorded')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('must not substitute for primarySyncByteBatchRowsRecorded')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('primaryRowsInSameContractComparison')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('largeBoundedPrimarySyncByteBatchRowsRecorded')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('largePrimaryRowsInSameContractComparison')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('same-contract-runtime-comparison')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('backpressure is respected')));
   assert.ok(spiderMonkey.requiredFlagPatterns.some(pattern => pattern.includes('FIREFOX_PATH')));
@@ -224,6 +226,45 @@ test('runtime proof handoff validation fails if Safari closure omits same-contra
   const safariCheck = report.handoffChecks.find(row => row.id === 'safari-webkit-browser-row-handoff');
   assert.equal(safariCheck.contractsPresent, false);
   assert.ok(safariCheck.requiredContractPatterns.some(pattern => /primaryRowsInSameContractComparison/.test(pattern)));
+
+  const markdown = readFileSync(badMdOut, 'utf8');
+  assert.match(markdown, /Pass: no/);
+  assert.match(markdown, /safari-webkit-browser-row-handoff/);
+});
+
+test('runtime proof handoff validation fails if Safari closure omits 1GiB primary row checks', () => {
+  resetTmp();
+  const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
+  const safari = handoff.handoffs.find(row => row.id === 'safari-webkit-browser-row-handoff');
+  safari.closureChecks = safari.closureChecks.filter(item =>
+    !/largeBoundedPrimarySyncByteBatchRowsRecorded/.test(item)
+    && !/largePrimaryRowsInSameContractComparison/.test(item)
+  );
+  writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-handoff-validation.mjs'),
+    '--handoff-json',
+    badHandoffJson,
+    '--json-out',
+    badJsonOut,
+    '--md-out',
+    badMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(badJsonOut, 'utf8'));
+  assert.equal(report.summary.pass, false);
+  assert.equal(report.summary.allContractsPresent, false);
+  const safariCheck = report.handoffChecks.find(row => row.id === 'safari-webkit-browser-row-handoff');
+  assert.equal(safariCheck.contractsPresent, false);
+  assert.ok(safariCheck.requiredContractPatterns.some(pattern => /largeBoundedPrimarySyncByteBatchRowsRecorded/.test(pattern)));
+  assert.ok(safariCheck.requiredContractPatterns.some(pattern => /largePrimaryRowsInSameContractComparison/.test(pattern)));
 
   const markdown = readFileSync(badMdOut, 'utf8');
   assert.match(markdown, /Pass: no/);

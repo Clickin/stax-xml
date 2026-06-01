@@ -156,6 +156,8 @@ function validateHandoff(handoff) {
         /directReadableStreamFullStringRowsRecorded/,
         /must not substitute for primarySyncByteBatchRowsRecorded/,
         /primaryRowsInSameContractComparison/,
+        /largeBoundedPrimarySyncByteBatchRowsRecorded/,
+        /largePrimaryRowsInSameContractComparison/,
         /same-contract-runtime-comparison\.json/,
         /row id, event count, and checksum/,
         /backpressure is respected/,
