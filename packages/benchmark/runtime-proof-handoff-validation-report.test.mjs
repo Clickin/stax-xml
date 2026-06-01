@@ -34,9 +34,9 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.equal(report.summary.handoffCount, 2);
   assert.equal(report.summary.requiredHandoffsPresent, true);
   assert.equal(report.summary.commandCount, 9);
-  assert.equal(report.summary.scriptsReferenced, 12);
+  assert.equal(report.summary.scriptsReferenced, 13);
   assert.equal(report.summary.missingScriptCount, 0);
-  assert.equal(report.summary.releaseOutputPathCount, 28);
+  assert.equal(report.summary.releaseOutputPathCount, 30);
   assert.equal(report.summary.nonReleaseOutputPathCount, 0);
   assert.equal(report.summary.rawOutputPathCount, 2);
   assert.equal(report.summary.rawOutputPathPolicyViolationCount, 0);
@@ -79,6 +79,14 @@ test('runtime proof handoff validation pins external runbook command and contrac
     check.id === 'firefox-diagnostic-installed-or-debug-build'
     && check.rawOutputPaths.some(output => output.path === 'packages/benchmark/results/firefox-spidermonkey-diagnostic-dump-audit')
   ));
+  const postSafariAudits = report.commandChecks.find(check => check.id === 'post-safari-audits');
+  assert.ok(postSafariAudits);
+  assert.match(postSafariAudits.command, /source-consumption-shape-audit\.mjs/);
+  assert.ok(
+    postSafariAudits.command.indexOf('source-consumption-shape-audit.mjs')
+      < postSafariAudits.command.indexOf('runtime-limit-proof-obligation-gate.mjs'),
+    'post-safari audits must refresh source-consumption-shape-audit before the runtime-limit gate',
+  );
   assert.ok(report.findings.some(finding =>
     finding.id === 'handoff-static-validation'
     && finding.classification === 'CONTRACT_FACT'
@@ -92,14 +100,15 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.match(markdown, /# Runtime Proof Handoff Validation/);
   assert.match(markdown, /Pass: yes/);
   assert.match(markdown, /Commands checked: 9/);
-  assert.match(markdown, /Scripts referenced: 12/);
+  assert.match(markdown, /Scripts referenced: 13/);
   assert.match(markdown, /Missing scripts: 0/);
-  assert.match(markdown, /Release output paths: 28/);
+  assert.match(markdown, /Release output paths: 30/);
   assert.match(markdown, /Raw output path policy violations: 0/);
   assert.match(markdown, /\| `safari-webkit-browser-row-handoff` \| external-run-required \| 4 \| yes \| yes \|/);
   assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| external-run-required \| 5 \| yes \| yes \|/);
-  assert.match(markdown, /\| `safari-webkit-browser-row-handoff` \| `safari-books-corpus-cross-process` \| yes \| yes \| yes \|/);
-  assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| `firefox-diagnostic-installed-or-debug-build` \| yes \| yes \| yes \|/);
+  assert.match(markdown, /\| `safari-webkit-browser-row-handoff` \| `safari-books-corpus-cross-process` \| .*? \| yes \| yes \| yes \|/);
+  assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| `firefox-diagnostic-installed-or-debug-build` \| .*? \| yes \| yes \| yes \|/);
+  assert.match(markdown, /source-consumption-shape-audit\.mjs/);
   assert.match(markdown, /cannot close Safari\/WebKit browser rows or SpiderMonkey emitted IR obligations/);
   assert.match(markdown, /No external benchmark command is executed by this audit/);
 });

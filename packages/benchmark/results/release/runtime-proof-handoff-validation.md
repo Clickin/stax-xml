@@ -1,6 +1,6 @@
 # Runtime Proof Handoff Validation
 
-Generated: 2026-06-01T10:33:06.401Z
+Generated: 2026-06-01T10:52:46.656Z
 
 Static validation for runtime-proof-gap-handoff external runbooks. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -10,9 +10,9 @@ Static validation for runtime-proof-gap-handoff external runbooks. This is not b
 - Handoffs: 2
 - Required handoffs present: yes
 - Commands checked: 9
-- Scripts referenced: 12
+- Scripts referenced: 13
 - Missing scripts: 0
-- Release output paths: 28
+- Release output paths: 30
 - Non-release output paths: 0
 - Raw output paths: 2
 - Raw output path policy violations: 0
@@ -30,17 +30,17 @@ Static validation for runtime-proof-gap-handoff external runbooks. This is not b
 
 ## Command Checks
 
-| Handoff | Command | Scripts existing | Release outputs curated | Raw outputs separated |
-| --- | --- | --- | --- | --- |
-| `safari-webkit-browser-row-handoff` | `safari-availability-audit` | yes | yes | none |
-| `safari-webkit-browser-row-handoff` | `safari-smoke` | yes | yes | none |
-| `safari-webkit-browser-row-handoff` | `safari-books-corpus-cross-process` | yes | yes | yes |
-| `safari-webkit-browser-row-handoff` | `post-safari-audits` | yes | yes | none |
-| `spidermonkey-codegen-handoff` | `firefox-buildconfig-boundary` | yes | yes | none |
-| `spidermonkey-codegen-handoff` | `firefox-diagnostic-installed-or-debug-build` | yes | yes | yes |
-| `spidermonkey-codegen-handoff` | `spidermonkey-js-shell-availability` | yes | yes | none |
-| `spidermonkey-codegen-handoff` | `spidermonkey-official-jsshell-surface` | yes | yes | none |
-| `spidermonkey-codegen-handoff` | `post-spidermonkey-audits` | yes | yes | none |
+| Handoff | Command | Scripts | Scripts existing | Release outputs curated | Raw outputs separated |
+| --- | --- | --- | --- | --- | --- |
+| `safari-webkit-browser-row-handoff` | `safari-availability-audit` | `packages/benchmark/safari-webkit-availability-audit.mjs` | yes | yes | none |
+| `safari-webkit-browser-row-handoff` | `safari-smoke` | `packages/benchmark/safari-webdriver-candidate-headroom.mjs` | yes | yes | none |
+| `safari-webkit-browser-row-handoff` | `safari-books-corpus-cross-process` | `packages/benchmark/browser-candidate-headroom-cross-process.mjs` | yes | yes | yes |
+| `safari-webkit-browser-row-handoff` | `post-safari-audits` | `packages/benchmark/same-contract-runtime-comparison.mjs`<br>`packages/benchmark/runtime-counterexample-scan.mjs`<br>`packages/benchmark/runtime-proof-coverage-audit.mjs`<br>`packages/benchmark/source-consumption-shape-audit.mjs`<br>`packages/benchmark/runtime-limit-proof-obligation-gate.mjs`<br>`packages/benchmark/runtime-proof-gap-handoff.mjs` | yes | yes | none |
+| `spidermonkey-codegen-handoff` | `firefox-buildconfig-boundary` | `packages/benchmark/firefox-spidermonkey-buildconfig-source-pin-audit.mjs` | yes | yes | none |
+| `spidermonkey-codegen-handoff` | `firefox-diagnostic-installed-or-debug-build` | `packages/benchmark/firefox-spidermonkey-diagnostic-dump-audit.mjs` | yes | yes | yes |
+| `spidermonkey-codegen-handoff` | `spidermonkey-js-shell-availability` | `packages/benchmark/firefox-spidermonkey-js-shell-availability-audit.mjs` | yes | yes | none |
+| `spidermonkey-codegen-handoff` | `spidermonkey-official-jsshell-surface` | `packages/benchmark/firefox-spidermonkey-release-jsshell-availability-audit.mjs` | yes | yes | none |
+| `spidermonkey-codegen-handoff` | `post-spidermonkey-audits` | `packages/benchmark/runtime-proof-coverage-audit.mjs` | yes | yes | none |
 
 ## Findings
 

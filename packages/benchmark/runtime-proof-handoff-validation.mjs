@@ -298,12 +298,15 @@ function renderMarkdown(report) {
   for (const check of report.handoffChecks) {
     lines.push(`| \`${check.id}\` | ${check.localStatus ?? 'unknown'} | ${check.commandCount} | ${check.requiredFlagsPresent ? 'yes' : 'no'} | ${check.contractsPresent ? 'yes' : 'no'} |`);
   }
-  lines.push('', '## Command Checks', '', '| Handoff | Command | Scripts existing | Release outputs curated | Raw outputs separated |', '| --- | --- | --- | --- | --- |');
+  lines.push('', '## Command Checks', '', '| Handoff | Command | Scripts | Scripts existing | Release outputs curated | Raw outputs separated |', '| --- | --- | --- | --- | --- | --- |');
   for (const check of report.commandChecks) {
     const scriptsOk = check.scriptPaths.length === 0 ? 'none' : check.scriptPaths.every(script => script.exists) ? 'yes' : 'no';
     const releaseOk = check.releaseOutputPaths.length === 0 ? 'none' : check.releaseOutputPaths.every(output => output.underRelease) ? 'yes' : 'no';
     const rawOk = check.rawOutputPaths.length === 0 ? 'none' : check.rawOutputPaths.every(output => output.underRawOrCrossProcess) ? 'yes' : 'no';
-    lines.push(`| \`${check.handoffId}\` | \`${check.id}\` | ${scriptsOk} | ${releaseOk} | ${rawOk} |`);
+    const scripts = check.scriptPaths.length === 0
+      ? 'none'
+      : check.scriptPaths.map(script => `\`${script.path}\``).join('<br>');
+    lines.push(`| \`${check.handoffId}\` | \`${check.id}\` | ${scripts} | ${scriptsOk} | ${releaseOk} | ${rawOk} |`);
   }
   lines.push('', '## Findings', '');
   for (const finding of report.findings) {
