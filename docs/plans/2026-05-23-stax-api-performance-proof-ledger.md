@@ -266,7 +266,7 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 210 primary release JSON artifacts, recognizes 1,185
+The current scan covers 211 primary release JSON artifacts, recognizes 1,186
 sample throughput rows and 170 aggregate rows, and finds 792 JavaScript 1 GiB+
 full-string sample rows plus 133 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
@@ -572,12 +572,12 @@ contract. The
 Firefox/SpiderMonkey rows are
 recognized by the scan, but they lack row-level heap proof and therefore cannot
 satisfy the bounded-memory counterexample rule. The scan now has zero measured
-rows with unknown full-string parity and 20 rows with unknown bounded-memory
-flags. The unknown bounded-memory set contains 4 JavaScript rows, 20
+rows with unknown full-string parity and 23 rows with unknown bounded-memory
+flags. The unknown bounded-memory set contains 7 JavaScript rows, 20
 full-string rows, 0 JavaScript 1 GiB+ full-string rows, and 10 rows that have
 raw memory counters but no recorded or inferred bounded-memory verdict. The
 coverage audit now explicitly classifies this as 0 counterexample-relevant
-unknown rows: 4 small/diagnostic JavaScript rows, 10 non-JS allocator-counter
+unknown rows: 7 small/diagnostic JavaScript rows, 10 non-JS allocator-counter
 rows, and 6 non-JS trace or shape rows without peak-memory counters. The
 scan reports 91 full-string rows failing the
 bounded-memory counterexample criterion: 91 carry explicit
@@ -593,10 +593,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 210 primary release artifacts and recognizes 1,185
-measured rows. It records 151 benchmark artifacts, 22 source artifacts, 13
+The current audit scans 211 primary release artifacts and recognizes 1,186
+measured rows. It records 152 benchmark artifacts, 22 source artifacts, 14
 trace/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and
-21 negative-result artifacts, 792 JavaScript 1 GiB+ full-string rows, and four
+22 negative-result artifacts, 792 JavaScript 1 GiB+ full-string rows, and four
 release corpus seeds: `books.xml`, `large.xml`, `midsize.xml`, and `treebank_e.xml`. The
 negative-result set now includes
 `concat-buffer-reuse-negative-result.json`, which records that reusable
@@ -1623,6 +1623,19 @@ and `fetch`; therefore `sameContractStaxRow=false`,
 `closesEmittedIrObligation=false`. The coverage audit classifies it as
 `current-debug-codegen-scope-guard`, not `emitted-ir`, because it is not emitted
 codegen for a same-contract full-string StAX row.
+
+`packages/benchmark/results/release/spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.md`
+then runs the same current Taskcluster debug js-shell against the repository XML
+byte-tokenizer workload under `IONFLAGS=codegen` and `JIT_SPEW=codegen`. The
+1 MiB `books.xml` corpus-seed replay emits 151,431 `[Codegen]` markers, 49
+IonScript mentions, and 55,580 assembly mnemonic matches while preserving
+55,759 token-boundary events and checksum `9292058`. This moves the current
+debug-shell diagnostic evidence from a trivial arithmetic probe to an XML byte
+scanner, but the artifact still records `fullStringParity=false`,
+`sameContractStaxRow=false`, and `canRunCurrentStaxFullStringBenchmark=false`.
+The coverage audit classifies it as `current-debug-xml-codegen-scope-guard`,
+not `emitted-ir`, because it is not emitted codegen for a same-contract
+full-string StAX row and does not close `codegen-traces-open`.
 
 `packages/benchmark/results/release/spidermonkey-archival-debug-jsshell-codegen-audit.md`
 then checks a Firefox 36 era debug js-shell from the archived

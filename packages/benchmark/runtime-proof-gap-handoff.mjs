@@ -437,6 +437,7 @@ function createLocalClosure(activeObligations, audit) {
     const jsShellApiGap = artifactByName.get('firefox-spidermonkey-jsshell-stax-api-gap-audit.json') ?? null;
     const jsShellDiagnosticFlagSweep = artifactByName.get('spidermonkey-jsshell-diagnostic-flag-sweep.json') ?? null;
     const taskclusterDebugJsShell = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-codegen-audit.json') ?? null;
+    const taskclusterDebugJsShellXml = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json') ?? null;
     const archivalDebugJsShell = artifactByName.get('spidermonkey-archival-debug-jsshell-codegen-audit.json') ?? null;
     const buildconfig = artifactByName.get('firefox-spidermonkey-buildconfig-source-pin-audit.json') ?? null;
     const diagnosticNoDump = diagnostic?.outcome?.status === 'no-dump-emitted'
@@ -461,6 +462,10 @@ function createLocalClosure(activeObligations, audit) {
       && taskclusterDebugJsShell?.outcome?.scopeComparableToCurrentFirefox === true
       && taskclusterDebugJsShell?.outcome?.sameContractStaxRow === false
       && taskclusterDebugJsShell?.outcome?.closesEmittedIrObligation === false;
+    const taskclusterDebugXmlCodegenScopeGuard = taskclusterDebugJsShellXml?.outcome?.hasXmlWorkloadCodegenOutput === true
+      && taskclusterDebugJsShellXml?.outcome?.scopeComparableToCurrentFirefox === true
+      && taskclusterDebugJsShellXml?.outcome?.sameContractStaxRow === false
+      && taskclusterDebugJsShellXml?.outcome?.closesEmittedIrObligation === false;
     const jsShellCommonMissing = Array.isArray(jsShellApiGap?.summary?.commonMissingGlobals)
       ? jsShellApiGap.summary.commonMissingGlobals.join(', ')
       : 'unknown';
@@ -473,7 +478,7 @@ function createLocalClosure(activeObligations, audit) {
       obligationId: 'codegen-traces-open',
       localStatus: blocked ? 'external-run-required' : 'partial-local-status',
       localRunnable: blocked ? false : null,
-      evidenceArtifacts: [diagnostic, jsShell, releaseJsShell, nightlyJsShell, jsShellApiGap, jsShellDiagnosticFlagSweep, taskclusterDebugJsShell, archivalDebugJsShell, buildconfig]
+      evidenceArtifacts: [diagnostic, jsShell, releaseJsShell, nightlyJsShell, jsShellApiGap, jsShellDiagnosticFlagSweep, taskclusterDebugJsShell, taskclusterDebugJsShellXml, archivalDebugJsShell, buildconfig]
         .filter(Boolean)
         .map(artifact => artifact.sourceArtifact),
       blockers: [
@@ -503,6 +508,9 @@ function createLocalClosure(activeObligations, audit) {
         taskclusterDebugCodegenScopeGuard
           ? `A current Taskcluster debug js-shell emits JitSpew codegen output (taskId=${taskclusterDebugJsShell.shell?.provenance?.taskId ?? 'unknown'}, buildId=${taskclusterDebugJsShell.shell?.provenance?.buildId ?? 'unknown'}), but sameContractStaxRow=false and canRunCurrentStaxFullStringBenchmark=${taskclusterDebugJsShell.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}.`
           : 'No current Taskcluster debug js-shell codegen scope guard is recorded.',
+        taskclusterDebugXmlCodegenScopeGuard
+          ? `A current Taskcluster debug js-shell emits JitSpew codegen output while running the XML byte-tokenizer workload (taskId=${taskclusterDebugJsShellXml.shell?.provenance?.taskId ?? 'unknown'}, buildId=${taskclusterDebugJsShellXml.shell?.provenance?.buildId ?? 'unknown'}), but fullStringParity=false, sameContractStaxRow=false, and canRunCurrentStaxFullStringBenchmark=${taskclusterDebugJsShellXml.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}.`
+          : 'No current Taskcluster debug js-shell XML workload codegen scope guard is recorded.',
         buildconfigNoJitSpew
           ? 'Installed Firefox about:buildconfig records --enable-js-shell / MOZ_PACKAGE_JSSHELL but does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW.'
           : 'Installed Firefox buildconfig JitSpew boundary is not pinned as a no-JitSpew release build.',

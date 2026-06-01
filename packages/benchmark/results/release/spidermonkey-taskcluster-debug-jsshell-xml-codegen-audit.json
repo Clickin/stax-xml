@@ -1,0 +1,284 @@
+{
+  "generatedAt": "2026-06-01T04:44:21.720Z",
+  "objective": "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit",
+  "contract": "current-taskcluster-debug-spidermonkey-xml-workload-codegen-surface-not-same-contract-stax",
+  "note": "Runs a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell with JitSpew codegen enabled on the repository XML byte-tokenizer workload. This ties current codegen diagnostics to XML byte scanning, but it is not a same-contract StAX full-string row because it avoids TextDecoder, string materialization, and public event objects.",
+  "environment": {
+    "platform": "win32-x64"
+  },
+  "fixture": {
+    "source": "corpus-seed-replay",
+    "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+    "corpusSeedBytes": 4551,
+    "targetBytes": 1048576,
+    "sizeMiB": 1,
+    "sizeGiB": 0.0009765625
+  },
+  "parameters": {
+    "jsShell": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell\\extract\\js.exe",
+    "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
+    "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
+    "artifactName": "public/build/target.jsshell.zip",
+    "artifactUrl": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/bzK0wWZvQoOguMjTIbRJ_g/artifacts/public/build/target.jsshell.zip",
+    "zipPath": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell\\target.jsshell.zip",
+    "targetTxt": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell\\target.txt",
+    "buildhubJson": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell\\buildhub.json",
+    "mozinfoJson": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell\\target.mozinfo.json",
+    "corpusFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+    "targetMiB": 1,
+    "runs": 1,
+    "warmups": 0,
+    "selfTest": false
+  },
+  "runtime": {
+    "id": "spidermonkey-jsshell",
+    "name": "SpiderMonkey js-shell",
+    "version": "JavaScript-C153.0a1"
+  },
+  "shell": {
+    "status": "available",
+    "provenance": {
+      "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
+      "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
+      "artifactName": "public/build/target.jsshell.zip",
+      "artifactUrl": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/bzK0wWZvQoOguMjTIbRJ_g/artifacts/public/build/target.jsshell.zip",
+      "artifactBytes": 24836220,
+      "targetTxt": {
+        "raw": "20260531212007\nhttps://hg.mozilla.org/mozilla-central/rev/71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+        "buildId": "20260531212007",
+        "sourceUrl": "https://hg.mozilla.org/mozilla-central/rev/71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+        "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7"
+      },
+      "buildhub": {
+        "buildId": "20260531212007",
+        "buildDate": "2026-05-31T21:20:07Z",
+        "sourceRepository": "https://hg.mozilla.org/mozilla-central",
+        "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+        "targetVersion": "153.0a1",
+        "targetPlatform": "win64",
+        "targetOs": "win"
+      },
+      "mozinfo": {
+        "buildtype": "debug",
+        "buildtypeGuess": "debug",
+        "debug": true,
+        "nightlyBuild": true,
+        "official": true,
+        "opt": false,
+        "testsEnabled": true,
+        "platformGuess": "win64"
+      }
+    },
+    "version": {
+      "exitCode": 0,
+      "error": null,
+      "value": "JavaScript-C153.0a1"
+    },
+    "xmlCodegenProbe": {
+      "status": "xml-workload-codegen-output-emitted",
+      "flags": "codegen",
+      "exitCode": 0,
+      "error": null,
+      "outputBytes": 6559098,
+      "stdoutLineCount": 1,
+      "stderrLineCount": 151432,
+      "codegenMarkerCount": 151431,
+      "ionScriptMarkerCount": 49,
+      "assemblyMnemonicCount": 55580,
+      "payload": {
+        "seedBytes": 4551,
+        "targetBytes": 1048576,
+        "samplesMs": [
+          1398.197021484375
+        ],
+        "avgMs": 1398.197021484375,
+        "result": {
+          "eventCount": 55759,
+          "startElementCount": 19586,
+          "endElementCount": 19583,
+          "textEventCount": 16590,
+          "attributeCount": 2765,
+          "checksum": 9292058
+        },
+        "throughputMiBPerSec": 0.7152067874800397
+      },
+      "excerpt": [
+        "xmlPayload={\"seedBytes\":4551,\"targetBytes\":1048576,\"samplesMs\":[1398.197021484375],\"avgMs\":1398.197021484375,\"mibPerSec\":0.7152067874800397,\"result\":{\"eventCount\":55759,\"startElementCount\":19586,\"endElementCount\":19583,\"textEventCount\":16590,\"attributeCount\":2765,\"checksum\":9292058}}",
+        "found tag: codegen",
+        "[Codegen] # Emitting bailout tail stub",
+        "[Codegen] # BEGIN creators: JitRuntime::generateBailoutTailStub",
+        "[Codegen] 000000  .set .Llabel0, .",
+        "[Codegen] 000000  testb      $0xff, %al",
+        "[Codegen] 000002  je         .Lfrom8",
+        "[Codegen] 000008  .set .Llabel8, .",
+        "[Codegen] 000008  movq       0x0(%r9), %rax",
+        "[Codegen] 00000b  cmpq       %rax, %rsp",
+        "[Codegen] 00000e  je         .Lfrom20",
+        "[Codegen] 000014  push       %r10",
+        "[Codegen] 000016  push       %r9",
+        "[Codegen] 000018  push       %r8",
+        "[Codegen] 00001a  push       %rdx",
+        "[Codegen] 00001b  push       %rcx",
+        "[Codegen] 00001c  push       %rax",
+        "[Codegen] 00001d  subq       $96, %rsp",
+        "[Codegen] 000021  .set .Llabel33, .",
+        "[Codegen] 000021  vmovdqu    %xmm5, 0x50(%rsp)",
+        "[Codegen] 000027  .set .Llabel39, .",
+        "[Codegen] 000027  vmovdqu    %xmm4, 0x40(%rsp)",
+        "[Codegen] 00002d  .set .Llabel45, .",
+        "[Codegen] 00002d  vmovdqu    %xmm3, 0x30(%rsp)",
+        "[Codegen] 000033  .set .Llabel51, .",
+        "[Codegen] 000033  vmovdqu    %xmm2, 0x20(%rsp)",
+        "[Codegen] 000039  .set .Llabel57, .",
+        "[Codegen] 000039  vmovdqu    %xmm1, 0x10(%rsp)",
+        "[Codegen] 00003f  .set .Llabel63, .",
+        "[Codegen] 00003f  vmovdqu    %xmm0, 0x0(%rsp)",
+        "[Codegen] 000044  movq       %rsp, %rax",
+        "[Codegen] 000047  andq       $0xfffffffffffffff0, %rsp",
+        "[Codegen] 00004b  push       %rax",
+        "[Codegen] 00004c  movabsq    $0x7ff7e99a224c, %rax",
+        "[Codegen] 000056  subq       $40, %rsp",
+        "[Codegen] 00005a  movq       %rax, %rcx",
+        "[Codegen] 00005d  testb      $0xf, %spl",
+        "[Codegen] 000061  je         .Lfrom103",
+        "[Codegen] 000067  .set .Llabel103, .",
+        "[Codegen] 000067  int3",
+        "[Codegen] 000068  .set .Llabel104, .",
+        "[Codegen] 000068  .set .Lfrom103, .Llabel104",
+        "[Codegen] 000068  call       .Lfrom109",
+        "[Codegen] 00006d  addq       $40, %rsp",
+        "[Codegen] 000071  pop        %rsp",
+        "[Codegen] 000072  .set .Llabel114, .",
+        "[Codegen] 000072  vmovdqu    0x50(%rsp), %xmm5",
+        "[Codegen] 000078  .set .Llabel120, .",
+        "[Codegen] 000078  vmovdqu    0x40(%rsp), %xmm4",
+        "[Codegen] 00007e  .set .Llabel126, ."
+      ]
+    },
+    "apiProbe": {
+      "status": "completed",
+      "exitCode": 0,
+      "error": null,
+      "globals": {
+        "TextDecoder": "undefined",
+        "TextEncoder": "undefined",
+        "ReadableStream": "undefined",
+        "fetch": "undefined",
+        "Uint8Array": "function",
+        "read": "function"
+      },
+      "missingGlobals": [
+        "TextDecoder",
+        "TextEncoder",
+        "ReadableStream",
+        "fetch"
+      ],
+      "canRunCurrentStaxFullStringBenchmark": false,
+      "excerpt": [
+        "apiProbe={\"TextDecoder\":\"undefined\",\"TextEncoder\":\"undefined\",\"ReadableStream\":\"undefined\",\"fetch\":\"undefined\",\"Uint8Array\":\"function\",\"read\":\"function\"}"
+      ]
+    }
+  },
+  "row": {
+    "id": "taskcluster-debug-spidermonkey-xml-token-boundary-codegen",
+    "tool": "spidermonkey-taskcluster-debug-jsshell",
+    "runtime": {
+      "id": "spidermonkey-jsshell",
+      "name": "SpiderMonkey js-shell",
+      "version": "JavaScript-C153.0a1",
+      "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
+      "buildId": "20260531212007"
+    },
+    "implementation": "SpiderMonkey debug js-shell XML token-boundary byte scanner under IONFLAGS/JIT_SPEW=codegen",
+    "family": "partial-spidermonkey-tokenizer-codegen",
+    "contractScope": "xml-token-boundary-no-string-materialization",
+    "fullStringParity": false,
+    "boundedMemory": null,
+    "memory": {
+      "primaryKind": "not-recorded",
+      "note": "SpiderMonkey js-shell codegen audit does not expose process RSS or JS heap counters."
+    },
+    "sourceMode": "corpus-seed-replay-sync-byte-loop",
+    "parserInput": "SpiderMonkey js-shell Uint8Array from read(file, \"binary\"), replayed as bounded corpus seed bytes",
+    "demandDrivenSource": true,
+    "directReadableStream": false,
+    "fullArrayBufferParserInput": false,
+    "corpusSeedReplay": true,
+    "corpusSeedBytes": 4551,
+    "targetBytes": 1048576,
+    "targetMiB": 1,
+    "corpusSeedToTargetRatio": 0.004340171813964844,
+    "sampleCount": 1,
+    "samplesMs": [
+      1398.197021484375
+    ],
+    "avgMs": 1398.197021484375,
+    "mibPerSec": 0.7152067874800397,
+    "eventCount": 55759,
+    "startElementCount": 19586,
+    "endElementCount": 19583,
+    "textEventCount": 16590,
+    "attributeCount": 2765,
+    "checksum": 9292058,
+    "codegenMarkers": 151431,
+    "options": {
+      "runs": 1,
+      "warmups": 0
+    }
+  },
+  "outcome": {
+    "status": "available",
+    "hasJitExecutionStatus": null,
+    "hasIrDumpSurface": true,
+    "hasCodegenDumpOutput": true,
+    "hasXmlWorkloadCodegenOutput": true,
+    "hasNativeDisassemblySurface": true,
+    "nativeDumpComplete": true,
+    "scopeComparableToCurrentFirefox": true,
+    "sameContractStaxRow": false,
+    "fullStringParity": false,
+    "canRunCurrentStaxFullStringBenchmark": false,
+    "closesDiagnosticSurfaceObligation": true,
+    "closesEmittedIrObligation": false
+  },
+  "findings": [
+    {
+      "id": "taskcluster-debug-jsshell-xml-codegen-emitted",
+      "classification": "TRACE_FACT",
+      "summary": "The current Taskcluster debug SpiderMonkey shell emits JitSpew codegen diagnostics while executing the XML byte-tokenizer workload.",
+      "evidence": [
+        "version=JavaScript-C153.0a1",
+        "taskId=bzK0wWZvQoOguMjTIbRJ_g",
+        "buildId=20260531212007",
+        "sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+        "status=xml-workload-codegen-output-emitted",
+        "codegenMarkers=151431",
+        "ionScriptMarkers=49",
+        "assemblyMnemonics=55580",
+        "eventCount=55759",
+        "checksum=9292058"
+      ]
+    },
+    {
+      "id": "taskcluster-debug-jsshell-xml-stax-scope-gap",
+      "classification": "SCOPE_GUARD",
+      "summary": "The XML workload is parser-core diagnostic evidence only, not a same-contract full-string StAX benchmark row.",
+      "evidence": [
+        "fullStringParity=false",
+        "sameContractStaxRow=false",
+        "contractScope=xml-token-boundary-no-string-materialization",
+        "closesEmittedIrObligation=false"
+      ]
+    },
+    {
+      "id": "taskcluster-debug-jsshell-stax-api-gap",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "The current debug js-shell lacks the host APIs needed to run the unchanged StAX full-string benchmark.",
+      "evidence": [
+        "missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch",
+        "canRunCurrentStaxFullStringBenchmark=false",
+        "sameContractStaxRow=false"
+      ]
+    }
+  ]
+}

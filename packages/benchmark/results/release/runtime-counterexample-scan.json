@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T03:57:55.360Z",
+  "generatedAt": "2026-06-01T04:28:52.462Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -177,6 +177,7 @@
     "spidermonkey-jsshell-diagnostic-flag-sweep.json",
     "spidermonkey-jsshell-tokenizer-headroom.json",
     "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
+    "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
     "stax-event-public-object-shape-audit.json",
     "stream-reader-1gb-allocation-diverse-shapes.json",
     "stream-reader-1gb-allocation-shapes.json",
@@ -231,14 +232,14 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 210,
+    "scannedArtifactCount": 211,
     "ignoredArtifactCount": 7,
     "parseErrorCount": 0,
-    "measuredRowCount": 1185,
+    "measuredRowCount": 1186,
     "aggregateRowCount": 170,
     "largeJsFullRowCount": 792,
     "largeJsFullAggregateRowCount": 133,
-    "sourceModeRowCount": 587,
+    "sourceModeRowCount": 588,
     "largeJsFullSourceModeRowCount": 433,
     "sourceModeBreakdown": [
       {
@@ -441,7 +442,7 @@
       },
       {
         "sourceMode": "corpus-seed-replay-sync-byte-loop",
-        "rowCount": 2,
+        "rowCount": 3,
         "fullStringRowCount": 0,
         "boundedFullStringRowCount": 0,
         "fastestMiBPerSec": 122.24,
@@ -465,10 +466,10 @@
           "fullArrayBufferParserInput": false,
           "directReadableStream": false
         },
-        "demandDrivenRows": 2,
+        "demandDrivenRows": 3,
         "backpressureRows": 0,
         "directReadableStreamRows": 0,
-        "notFullArrayBufferRows": 2,
+        "notFullArrayBufferRows": 3,
         "fullArrayBufferRows": 0,
         "unknownArrayBufferRows": 0
       },
@@ -839,18 +840,18 @@
       }
     ],
     "rowClassificationCompleteness": {
-      "measuredRows": 1185,
+      "measuredRows": 1186,
       "unknownFullStringParityRows": 0,
-      "unknownBoundedMemoryRows": 22
+      "unknownBoundedMemoryRows": 23
     },
     "unknownBoundedMemoryBreakdown": {
-      "total": 22,
-      "jsRows": 6,
+      "total": 23,
+      "jsRows": 7,
       "fullStringRows": 20,
       "jsFullStringRows": 4,
       "largeJsFullStringRows": 0,
       "counterexampleRelevantRows": 0,
-      "smallOrDiagnosticJsRows": 6,
+      "smallOrDiagnosticJsRows": 7,
       "nonJsAllocatorCounterRows": 10,
       "nonJsNoPeakMemoryRows": 6,
       "rowsWithMemoryCounter": 10
@@ -21139,6 +21140,32 @@
       "respectsBackpressure": null
     },
     {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
+      "jsonPath": "row",
+      "id": "taskcluster-debug-spidermonkey-xml-token-boundary-codegen",
+      "runtimeLabel": "SpiderMonkey js-shell",
+      "jsRuntime": true,
+      "fullStringParity": false,
+      "boundedMemory": null,
+      "sizeGiB": 0,
+      "sizeMiB": 1,
+      "mibPerSec": 0.72,
+      "eventCount": 55759,
+      "checksum": 9292058,
+      "contractScope": "xml-token-boundary-no-string-materialization",
+      "family": "partial-spidermonkey-tokenizer-codegen",
+      "counterexampleStatus": null,
+      "memoryKind": "not-recorded",
+      "hasMemoryProof": false,
+      "sourceMode": "corpus-seed-replay-sync-byte-loop",
+      "fullArrayBufferParserInput": false,
+      "directReadableStream": false,
+      "batchSize": null,
+      "chunkKiB": null,
+      "demandDrivenSource": true,
+      "respectsBackpressure": null
+    },
+    {
       "sourceArtifact": "stream-reader-4gb-shapes.json",
       "jsonPath": "results.0",
       "id": "0",
@@ -25973,7 +26000,7 @@
     {
       "id": "measured-row-classification-complete",
       "status": "LIMITED_EVIDENCE_PRESENT",
-      "summary": "1185 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 22 have unknown boundedMemory."
+      "summary": "1186 recognized measured row(s) include fullStringParity and boundedMemory classifications; 0 have unknown fullStringParity and 23 have unknown boundedMemory."
     },
     {
       "id": "cross-process-aggregate-rows-separated",

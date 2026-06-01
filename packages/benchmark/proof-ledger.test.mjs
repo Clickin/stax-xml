@@ -139,7 +139,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /does\s+not prove generated native code inside Bun Zig `TextDecoder`/);
   assert.match(markdown, /261 aggregated rows and 216 JavaScript 1 GiB\+\s+full-string rows/);
   assert.match(markdown, /zero 200 MiB\/s\+ bounded-memory JavaScript\s+counterexamples/);
-  assert.match(markdown, /current scan covers 210 primary release JSON artifacts/);
+  assert.match(markdown, /current scan covers 211 primary release JSON artifacts/);
   assert.match(markdown, /fastest aggregated 1 GiB\+ JavaScript\s+full-string row is Node\/V8 `rawFrameNameId` from\s+`text-trim-cost-decomposition\.json` at 185\.50 MiB\/s/);
   assert.match(markdown, /184\.09 to 186\.66 MiB\/s/);
   assert.match(markdown, /fastest aggregate\s+row is `sync-iterable-byte-batches`/);
@@ -167,7 +167,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /141\.06 to 142\.03 MiB\/s/);
   assert.match(markdown, /16 MiB\s+quick-xml row is 243\.43 MiB\/s with process RSS max 4\.79 MiB, or 0\.80x\s+Woodstox/);
   assert.match(markdown, /not a peak-memory equivalence proof and not a runtime-limit conclusion/);
-  assert.match(markdown, /recognizes 1,185\s+sample throughput rows and 170 aggregate rows/);
+  assert.match(markdown, /recognizes 1,186\s+sample throughput rows and 170 aggregate rows/);
   assert.match(markdown, /Safari benchmark rows are not recorded, the exact Safari\/WebKit build identity\s+is not recorded, and the Safari\/WebKit source boundary is not pinned/);
   assert.match(markdown, /`Safari benchmark rows recorded: no`/);
   assert.match(markdown, /`Exact Safari build identity recorded: no`/);
@@ -175,9 +175,9 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`safari-webdriver-candidate-headroom\.mjs` and\s+`browser-candidate-headroom-cross-process\.mjs`/);
   assert.match(markdown, /792 JavaScript 1 GiB\+\s+full-string sample rows plus 133 JavaScript 1 GiB\+ full-string aggregate rows/);
   assert.match(markdown, /zero bounded-memory 200 MiB\/s\+ counterexamples/);
-  assert.match(markdown, /zero measured\s+rows with unknown full-string parity and 20 rows with unknown bounded-memory\s+flags/);
-  assert.match(markdown, /unknown bounded-memory set contains 4 JavaScript rows, 20\s+full-string rows, 0 JavaScript 1 GiB\+\s+full-string rows, and 10 rows that have\s+raw memory counters/);
-  assert.match(markdown, /classifies this as 0 counterexample-relevant\s+unknown rows: 4 small\/diagnostic JavaScript rows, 10 non-JS allocator-counter\s+rows, and 6 non-JS trace or shape rows without peak-memory counters/);
+  assert.match(markdown, /zero measured\s+rows with unknown full-string parity and 23 rows with unknown bounded-memory\s+flags/);
+  assert.match(markdown, /unknown bounded-memory set contains 7 JavaScript rows, 20\s+full-string rows, 0 JavaScript 1 GiB\+\s+full-string rows, and 10 rows that have\s+raw memory counters/);
+  assert.match(markdown, /classifies this as 0 counterexample-relevant\s+unknown rows: 7 small\/diagnostic JavaScript rows, 10 non-JS allocator-counter\s+rows, and 6 non-JS trace or shape rows without peak-memory counters/);
   assert.match(markdown, /reports 91 full-string rows failing the\s+bounded-memory counterexample criterion/);
   assert.match(markdown, /91 carry explicit\s+`boundedMemory=false`/);
   assert.match(markdown, /0 have an unknown bounded-memory flag/);
@@ -299,9 +299,9 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /throughput `41\.10 MiB\/s`, peak heap used `4\.00 GiB`, and peak RSS\s+`13\.45 GiB`/);
   assert.match(markdown, /`sourceMode: "complete-js-string"` and\s+`boundedMemory: false` under the 512 MiB RSS gate/);
   assert.match(markdown, /headroom evidence rather than runtime-limit\s+counterexamples/);
-  assert.match(markdown, /recognizes 1,185\s+measured rows/);
-  assert.match(markdown, /current audit scans 210 primary release artifacts/);
-  assert.match(markdown, /151 benchmark artifacts, 22 source artifacts, 13\s+trace\/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and\s+21 negative-result artifacts, 792 JavaScript 1 GiB\+ full-string rows/);
+  assert.match(markdown, /recognizes 1,186\s+measured rows/);
+  assert.match(markdown, /current audit scans 211 primary release artifacts/);
+  assert.match(markdown, /152 benchmark artifacts, 22 source artifacts, 14\s+trace\/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and\s+22 negative-result artifacts, 792 JavaScript 1 GiB\+ full-string rows/);
   assert.match(markdown, /runtime-proof-handoff-validation\.md/);
   assert.match(markdown, /statically validates the two external-run handoffs/);
   assert.match(markdown, /12\s+referenced scripts exist, 28 release output paths are under the curated release\s+directory/);
@@ -320,6 +320,11 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`sameContractStaxRow=false`/);
   assert.match(markdown, /`canRunCurrentStaxFullStringBenchmark=false`/);
   assert.match(markdown, /current-debug-codegen-scope-guard/);
+  assert.match(markdown, /spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit\.md/);
+  assert.match(markdown, /XML\s+byte-tokenizer workload under `IONFLAGS=codegen` and `JIT_SPEW=codegen`/);
+  assert.match(markdown, /151,431\s+`\[Codegen\]` markers, 49\s+IonScript mentions, and 55,580 assembly mnemonic/);
+  assert.match(markdown, /55,759 token-boundary events and checksum `9292058`/);
+  assert.match(markdown, /`current-debug-xml-codegen-scope-guard`/);
   assert.match(markdown, /spidermonkey-archival-debug-jsshell-codegen-audit\.md/);
   assert.match(markdown, /Firefox 36 era debug js-shell/);
   assert.match(markdown, /archival-codegen-scope-guard/);

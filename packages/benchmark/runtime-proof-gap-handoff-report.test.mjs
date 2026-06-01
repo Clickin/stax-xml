@@ -323,6 +323,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
     'firefox-spidermonkey-jsshell-stax-api-gap-audit.json',
     'spidermonkey-jsshell-diagnostic-flag-sweep.json',
     'spidermonkey-taskcluster-debug-jsshell-codegen-audit.json',
+    'spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json',
     'spidermonkey-archival-debug-jsshell-codegen-audit.json',
     'firefox-spidermonkey-buildconfig-source-pin-audit.json',
   ]);
@@ -337,6 +338,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /diagnostic flag sweep tried 4 bytecode flag combinations and found 0 bytecode-output probes/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /archived Firefox 36 era debug js-shell emits JitSpew codegen output/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /current Taskcluster debug js-shell emits JitSpew codegen output \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007\), but sameContractStaxRow=false/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /current Taskcluster debug js-shell emits JitSpew codegen output while running the XML byte-tokenizer workload \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007\), but fullStringParity=false/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /about:buildconfig records --enable-js-shell/.test(item)));
   assert.match(spiderMonkey.localClosure.scopeGuard, /Taskcluster debug-shell diagnostic facts/);
   assert.match(safari.sourceConsumptionContract.primaryParserInput, /StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/);

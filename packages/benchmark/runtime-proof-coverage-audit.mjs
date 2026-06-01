@@ -532,6 +532,7 @@ function summarizeSpiderMonkeyDiagnostics(artifacts) {
   const jsShellApiGap = byName.get('firefox-spidermonkey-jsshell-stax-api-gap-audit.json') ?? null;
   const jsShellDiagnosticFlagSweep = byName.get('spidermonkey-jsshell-diagnostic-flag-sweep.json') ?? null;
   const taskclusterDebugJsShell = byName.get('spidermonkey-taskcluster-debug-jsshell-codegen-audit.json') ?? null;
+  const taskclusterDebugJsShellXml = byName.get('spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json') ?? null;
   const archivalDebugJsShell = byName.get('spidermonkey-archival-debug-jsshell-codegen-audit.json') ?? null;
   const buildconfig = byName.get('firefox-spidermonkey-buildconfig-source-pin-audit.json') ?? null;
   const rows = [
@@ -542,6 +543,7 @@ function summarizeSpiderMonkeyDiagnostics(artifacts) {
     summarizeSpiderMonkeyDiagnostic('official-jsshell-stax-api-gap', jsShellApiGap),
     summarizeSpiderMonkeyDiagnostic('official-jsshell-diagnostic-flag-sweep', jsShellDiagnosticFlagSweep),
     summarizeSpiderMonkeyDiagnostic('taskcluster-debug-jsshell-codegen', taskclusterDebugJsShell),
+    summarizeSpiderMonkeyDiagnostic('taskcluster-debug-jsshell-xml-codegen', taskclusterDebugJsShellXml),
     summarizeSpiderMonkeyDiagnostic('archival-debug-jsshell-codegen', archivalDebugJsShell),
     summarizeSpiderMonkeyDiagnostic('installed-buildconfig-source-pin', buildconfig),
   ].filter(Boolean);
@@ -629,6 +631,7 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact) {
 
 function classifySpiderMonkeyDiagnosticEvidence({ id, hasJitExecutionStatus, closesEmittedIrObligation, irDumpSurface, nativeDumpComplete, outcome, summary }) {
   if (closesEmittedIrObligation) return 'emitted-ir';
+  if (outcome?.hasXmlWorkloadCodegenOutput === true && outcome?.scopeComparableToCurrentFirefox === true && outcome?.sameContractStaxRow === false) return 'current-debug-xml-codegen-scope-guard';
   if (outcome?.hasCodegenDumpOutput === true && outcome?.scopeComparableToCurrentFirefox === true && outcome?.sameContractStaxRow === false) return 'current-debug-codegen-scope-guard';
   if (outcome?.hasCodegenDumpOutput === true && outcome?.scopeComparableToCurrentFirefox === false) return 'archival-codegen-scope-guard';
   if (outcome?.bytecodeProbeCount > 0 && outcome?.bytecodeOutputProbeCount === 0) return 'diagnostic-flag-sweep-negative';
@@ -772,6 +775,10 @@ function createObligationRows(coverage) {
     row.id === 'taskcluster-debug-jsshell-codegen'
   );
   const hasSpiderMonkeyTaskclusterDebugCodegen = Boolean(spiderMonkeyTaskclusterDebugCodegen);
+  const spiderMonkeyTaskclusterDebugXmlCodegen = coverage.spiderMonkeyDiagnostics.rows.find(row =>
+    row.id === 'taskcluster-debug-jsshell-xml-codegen'
+  );
+  const hasSpiderMonkeyTaskclusterDebugXmlCodegen = Boolean(spiderMonkeyTaskclusterDebugXmlCodegen);
   const hasSpiderMonkeyJitSpewSourcePin = coverage.sourcePins.some(pin =>
     pin.sourceArtifact === 'firefox-spidermonkey-jitspew-source-pin-audit.json'
   );
@@ -837,6 +844,7 @@ function createObligationRows(coverage) {
         hasSpiderMonkeyJsShellApiGapAudit ? `Firefox/SpiderMonkey js-shell StAX API gap audit present (status=${spiderMonkeyJsShellApiGapAudit.summary?.status ?? 'unknown'}, unchangedRunnableShells=${spiderMonkeyJsShellApiGapAudit.summary?.unchangedRunnableShellCount ?? 'unknown'}/${spiderMonkeyJsShellApiGapAudit.summary?.shellCount ?? 'unknown'}, blockedSurfaces=${spiderMonkeyJsShellApiGapAudit.summary?.blockedSurfaceCount ?? 'unknown'}, commonMissingGlobals=${(spiderMonkeyJsShellApiGapAudit.summary?.commonMissingGlobals ?? []).join(', ') || 'none'}); it is host API surface evidence only, not emitted JIT IR.` : 'Firefox/SpiderMonkey js-shell StAX API gap audit missing.',
         hasSpiderMonkeyJsShellDiagnosticFlagSweep ? `Firefox/SpiderMonkey public js-shell diagnostic flag sweep present (bytecodeProbes=${spiderMonkeyJsShellDiagnosticFlagSweep.outcome?.bytecodeProbeCount ?? 'unknown'}, bytecodeOutputProbes=${spiderMonkeyJsShellDiagnosticFlagSweep.outcome?.bytecodeOutputProbeCount ?? 'unknown'}, diagnosticPrefSurface=${spiderMonkeyJsShellDiagnosticFlagSweep.outcome?.hasDiagnosticPrefSurface ?? 'unknown'}); it rules out easy public-shell bytecode/dump flag paths but is not emitted JIT IR.` : 'Firefox/SpiderMonkey public js-shell diagnostic flag sweep missing.',
         hasSpiderMonkeyTaskclusterDebugCodegen ? `Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present (taskId=${spiderMonkeyTaskclusterDebugCodegen.taskId ?? 'unknown'}, buildId=${spiderMonkeyTaskclusterDebugCodegen.buildId ?? 'unknown'}, sourceRevision=${spiderMonkeyTaskclusterDebugCodegen.sourceRevision ?? 'unknown'}, codegenDump=${spiderMonkeyTaskclusterDebugCodegen.hasCodegenDumpOutput ?? 'unknown'}, sameContractStaxRow=${spiderMonkeyTaskclusterDebugCodegen.sameContractStaxRow ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyTaskclusterDebugCodegen.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row.` : 'Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit missing.',
+        hasSpiderMonkeyTaskclusterDebugXmlCodegen ? `Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present (taskId=${spiderMonkeyTaskclusterDebugXmlCodegen.taskId ?? 'unknown'}, buildId=${spiderMonkeyTaskclusterDebugXmlCodegen.buildId ?? 'unknown'}, sourceRevision=${spiderMonkeyTaskclusterDebugXmlCodegen.sourceRevision ?? 'unknown'}, codegenDump=${spiderMonkeyTaskclusterDebugXmlCodegen.hasCodegenDumpOutput ?? 'unknown'}, sameContractStaxRow=${spiderMonkeyTaskclusterDebugXmlCodegen.sameContractStaxRow ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyTaskclusterDebugXmlCodegen.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row.` : 'Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit missing.',
         hasSpiderMonkeyEmittedIrEvidence ? 'Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence present.' : 'Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.',
       ].join(' '),
       nextExperiment: 'Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows.',
@@ -1197,6 +1205,7 @@ function summarizeOutcome(outcome = {}) {
     hasJitExecutionStatus: typeof outcome.hasJitExecutionStatus === 'boolean' ? outcome.hasJitExecutionStatus : null,
     hasIrDumpSurface: typeof outcome.hasIrDumpSurface === 'boolean' ? outcome.hasIrDumpSurface : null,
     hasCodegenDumpOutput: typeof outcome.hasCodegenDumpOutput === 'boolean' ? outcome.hasCodegenDumpOutput : null,
+    hasXmlWorkloadCodegenOutput: typeof outcome.hasXmlWorkloadCodegenOutput === 'boolean' ? outcome.hasXmlWorkloadCodegenOutput : null,
     hasBytecodeDumpOutput: typeof outcome.hasBytecodeDumpOutput === 'boolean' ? outcome.hasBytecodeDumpOutput : null,
     bytecodeProbeCount: typeof outcome.bytecodeProbeCount === 'number' ? outcome.bytecodeProbeCount : null,
     bytecodeOutputProbeCount: typeof outcome.bytecodeOutputProbeCount === 'number' ? outcome.bytecodeOutputProbeCount : null,
