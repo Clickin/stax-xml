@@ -32,7 +32,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 213);
+  assert.equal(report.summary.scannedArtifactCount, 214);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'runtime-proof-handoff-validation.json'
     && artifact.objective === 'runtime-proof-handoff-validation'
@@ -121,6 +121,15 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.evidenceKinds.includes('SCOPE_GUARD')
     && artifact.evidenceKinds.includes('NEGATIVE_RESULT')
     && artifact.summary.semanticEquivalentForAsciiFields === true
+    && artifact.summary.closesCodegenObligation === false
+    && artifact.summary.conclusionAllowed === false
+  ));
+  assert.ok(report.scannedArtifacts.some(artifact =>
+    artifact.sourceArtifact === 'spidermonkey-ascii-scope-distance-audit.json'
+    && artifact.objective === 'spidermonkey-ascii-scope-distance-audit'
+    && artifact.measuredRowCount === 0
+    && artifact.evidenceKinds.includes('SOURCE_FACT')
+    && artifact.evidenceKinds.includes('SCOPE_GUARD')
     && artifact.summary.closesCodegenObligation === false
     && artifact.summary.conclusionAllowed === false
   ));
@@ -390,7 +399,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.corpusSeedCount, 4);
   assert.equal(report.summary.openObligationCount, 2);
   assert.equal(report.summary.benchmarkArtifactCount, 152);
-  assert.equal(report.summary.sourceArtifactCount, 23);
+  assert.equal(report.summary.sourceArtifactCount, 24);
   assert.equal(report.summary.traceArtifactCount, 15);
   assert.equal(report.summary.allocationArtifactCount, 16);
   assert.equal(report.summary.environmentArtifactCount, 4);
@@ -1167,8 +1176,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing/);
   assert.match(markdown, /16 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 4/);
-  assert.match(markdown, /Source artifacts: 23/);
-  assert.match(markdown, /Scanned primary artifacts: 213/);
+  assert.match(markdown, /Source artifacts: 24/);
+  assert.match(markdown, /Scanned primary artifacts: 214/);
   assert.equal(report.summary.traceArtifactCount, 15);
   assert.match(markdown, /Negative-result artifacts: 24/);
   assert.match(markdown, /\| Node\/V8 \| 108 \| 561 \| 384 \|/);

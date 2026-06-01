@@ -1,0 +1,170 @@
+{
+  "generatedAt": "2026-06-01T06:40:32.085Z",
+  "objective": "spidermonkey-ascii-scope-distance-audit",
+  "contract": "spidermonkey-js-shell-ascii-materializer-utf8-equivalence-scope",
+  "note": "Audits the ASCII-only scope in the SpiderMonkey debug js-shell materialized-codegen artifact. For corpus seeds whose bytes are all <= 0x7f, String.fromCharCode over bytes produces the same JavaScript string code units as non-streaming UTF-8 TextDecoder for those spans. This reduces the materialized js-shell scope distance for ASCII corpus seeds, but it still does not make the artifact the unchanged StAX benchmark or close the emitted-code obligation.",
+  "parameters": {
+    "materializedJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
+    "materializedSource": "G:\\programming\\stax-xml\\packages\\benchmark\\spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.mjs",
+    "corpusFiles": [
+      "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+      "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\midsize.xml",
+      "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\large.xml"
+    ],
+    "selfTest": false
+  },
+  "materializedArtifact": {
+    "objective": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit",
+    "contract": "current-taskcluster-debug-spidermonkey-materialized-string-object-codegen-surface-not-unchanged-stax",
+    "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+    "fixture": {
+      "source": "ascii-corpus-seed-replay",
+      "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+      "corpusSeedBytes": 4551,
+      "targetBytes": 1048576,
+      "sizeMiB": 1,
+      "sizeGiB": 0.0009765625
+    },
+    "outcome": {
+      "status": "available",
+      "hasJitExecutionStatus": null,
+      "hasIrDumpSurface": true,
+      "hasCodegenDumpOutput": true,
+      "hasMaterializedStringObjectCodegenOutput": true,
+      "hasNativeDisassemblySurface": true,
+      "nativeDumpComplete": true,
+      "scopeComparableToCurrentFirefox": true,
+      "sameSemanticChecksumFields": true,
+      "sameContractStaxRow": false,
+      "unchangedStaxBenchmark": false,
+      "fullStringParity": true,
+      "canRunCurrentStaxFullStringBenchmark": false,
+      "closesDiagnosticSurfaceObligation": true,
+      "closesEmittedIrObligation": false
+    },
+    "workload": {
+      "fullStringParity": true,
+      "eventCount": 55759,
+      "checksum": -553631888,
+      "materializedStringCount": 61289,
+      "materializedObjectCount": 55759
+    }
+  },
+  "materializedSourceChecks": {
+    "asciiFromBytes": true,
+    "fromCharCode": true,
+    "processTag": true,
+    "foldString": true
+  },
+  "corpusRows": [
+    {
+      "filePath": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+      "basename": "books.xml",
+      "byteLength": 4551,
+      "maxByte": 122,
+      "nonAsciiByteCount": 0,
+      "asciiByteToStringEquivalentToUtf8": true,
+      "utf8EquivalenceRule": "all bytes <= 0x7f, so each UTF-8 byte maps to the same UTF-16 code unit as String.fromCharCode(byte)"
+    },
+    {
+      "filePath": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\midsize.xml",
+      "basename": "midsize.xml",
+      "byteLength": 14017532,
+      "maxByte": 121,
+      "nonAsciiByteCount": 0,
+      "asciiByteToStringEquivalentToUtf8": true,
+      "utf8EquivalenceRule": "all bytes <= 0x7f, so each UTF-8 byte maps to the same UTF-16 code unit as String.fromCharCode(byte)"
+    },
+    {
+      "filePath": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\large.xml",
+      "basename": "large.xml",
+      "byteLength": 105131540,
+      "maxByte": 121,
+      "nonAsciiByteCount": 0,
+      "asciiByteToStringEquivalentToUtf8": true,
+      "utf8EquivalenceRule": "all bytes <= 0x7f, so each UTF-8 byte maps to the same UTF-16 code unit as String.fromCharCode(byte)"
+    }
+  ],
+  "checks": [
+    {
+      "id": "materialized-source-uses-ascii-byte-materializer",
+      "status": "pass",
+      "evidence": [
+        "asciiFromBytes=true",
+        "fromCharCode=true",
+        "processTag=true",
+        "foldString=true"
+      ]
+    },
+    {
+      "id": "materialized-workload-folds-semantic-strings",
+      "status": "pass",
+      "evidence": [
+        "sameSemanticChecksumFields=true",
+        "fullStringParity=true",
+        "materializedStringCount=61289",
+        "materializedObjectCount=55759"
+      ]
+    },
+    {
+      "id": "materialized-corpus-seed-is-ascii",
+      "status": "pass",
+      "evidence": [
+        "file=G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "maxByte=122",
+        "nonAsciiByteCount=0"
+      ]
+    },
+    {
+      "id": "ascii-corpus-byte-to-string-equivalence",
+      "status": "pass",
+      "evidence": [
+        "books.xml: bytes=4551 maxByte=122 nonAscii=0",
+        "midsize.xml: bytes=14017532 maxByte=121 nonAscii=0",
+        "large.xml: bytes=105131540 maxByte=121 nonAscii=0"
+      ]
+    },
+    {
+      "id": "unchanged-stax-closure-still-blocked",
+      "status": "pass",
+      "evidence": [
+        "sameContractStaxRow=false",
+        "unchangedStaxBenchmark=false",
+        "closesEmittedIrObligation=false"
+      ]
+    }
+  ],
+  "summary": {
+    "allChecksPass": true,
+    "corpusFileCount": 3,
+    "allCorpusFilesAscii": true,
+    "materializedCorpusSeedAscii": true,
+    "asciiByteToStringEquivalentToUtf8": true,
+    "semanticMaterializedWorkload": true,
+    "reducesScopeDistance": true,
+    "closesCodegenObligation": false,
+    "conclusionAllowed": false
+  },
+  "findings": [
+    {
+      "id": "spidermonkey-materialized-ascii-utf8-equivalence",
+      "classification": "SOURCE_FACT",
+      "summary": "For ASCII-only corpus seeds, the SpiderMonkey js-shell materializer creates the same JS string code units that UTF-8 TextDecoder would create for those byte spans.",
+      "evidence": [
+        "allCorpusFilesAscii=true",
+        "materializedCorpusSeedAscii=true",
+        "asciiByteToStringEquivalentToUtf8=true"
+      ]
+    },
+    {
+      "id": "spidermonkey-materialized-codegen-scope-narrowed",
+      "classification": "SCOPE_GUARD",
+      "summary": "The ASCII equivalence narrows the materialized js-shell codegen scope gap for ASCII corpus seeds but does not close the unchanged StAX emitted-code obligation.",
+      "evidence": [
+        "reducesScopeDistance=true",
+        "closesCodegenObligation=false",
+        "conclusionAllowed=false"
+      ]
+    }
+  ]
+}

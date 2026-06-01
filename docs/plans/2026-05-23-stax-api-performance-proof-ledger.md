@@ -266,7 +266,7 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 213 primary release JSON artifacts, recognizes 1,201
+The current scan covers 214 primary release JSON artifacts, recognizes 1,201
 sample throughput rows and 170 aggregate rows, and finds 807 JavaScript 1 GiB+
 full-string sample rows plus 133 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
@@ -593,8 +593,8 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 213 primary release artifacts and recognizes 1,201
-measured rows. It records 152 benchmark artifacts, 23 source artifacts, 15
+The current audit scans 214 primary release artifacts and recognizes 1,201
+measured rows. It records 152 benchmark artifacts, 24 source artifacts, 15
 trace/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and
 24 negative-result artifacts, 807 JavaScript 1 GiB+ full-string rows, and four
 release corpus seeds: `books.xml`, `large.xml`, `midsize.xml`, and `treebank_e.xml`. The
@@ -1662,6 +1662,21 @@ gap, and unchanged StAX closure blocked. The audit therefore pins
 `semanticEquivalentForAsciiFields=true` while
 `closesCodegenObligation=false`, preventing the materialized js-shell codegen
 artifact from being cited as unchanged StAX closure evidence.
+
+`packages/benchmark/results/release/spidermonkey-ascii-scope-distance-audit.md`
+then narrows the ASCII-only part of that scope guard. It checks the release
+corpus seeds available locally (`books.xml`, `midsize.xml`, and `large.xml`)
+byte-by-byte and records that all three are ASCII-only: `books.xml` has 4,551
+bytes with max byte 122, `midsize.xml` has 14,017,532 bytes with max byte 121,
+and `large.xml` has 105,131,540 bytes with max byte 121. It also pins that the
+materialized js-shell source uses `asciiFromBytes` plus
+`String.fromCharCode.apply`, so for these ASCII corpus seeds each byte maps to
+the same UTF-16 code unit that non-streaming UTF-8 `TextDecoder` would produce.
+The artifact records `All corpus files ASCII-only: yes` and
+`ASCII byte materializer equals UTF-8 TextDecoder for checked ASCII spans: yes`.
+This reduces the SpiderMonkey materialized js-shell scope distance for ASCII
+corpus seeds, but still records `Closes emitted-code obligation: no` because it
+does not make the artifact the unchanged StAX benchmark.
 
 `packages/benchmark/results/release/spidermonkey-archival-debug-jsshell-codegen-audit.md`
 then checks a Firefox 36 era debug js-shell from the archived
