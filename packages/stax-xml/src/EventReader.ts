@@ -29,6 +29,8 @@ export interface EventReaderLike extends AsyncIterable<AnyXmlEvent>, AsyncIterat
   readonly XmlEventType: typeof XmlEventType;
 }
 
+const DEFAULT_READABLE_STREAM_BATCH_SIZE = 16;
+
 /**
  * Event-object adapter over the batch-first async stream core.
  *
@@ -42,8 +44,7 @@ export class EventReader implements AsyncIterable<AnyXmlEvent>, AsyncIterator<An
       throw new Error('xmlStream must be a web standard ReadableStream');
     }
 
-    const source = new IterableBackendEventBatchSource(
-      new IterableEventBackendIterator(xmlStream, {
+    const source = new ReadableStreamEventSource(xmlStream, {
         autoDecodeEntities: options.autoDecodeEntities ?? true,
         addEntities: options.addEntities,
         eventFilter: options.eventFilter,
@@ -52,8 +53,7 @@ export class EventReader implements AsyncIterable<AnyXmlEvent>, AsyncIterator<An
         trimText: false,
         maxChunkBytes: options.maxChunkBytes,
         batchSize: options.batchSize,
-      }),
-    );
+      });
 
     this.backend = new EventReaderBackend(source);
   }
@@ -227,16 +227,124 @@ interface AsyncEventBatchSource {
   return(): Promise<void>;
 }
 
-class IterableBackendEventBatchSource implements AsyncEventBatchSource {
-  constructor(private readonly iterator: IterableEventBackendIterator) {}
+class ReadableStreamEventSource implements AsyncEventBatchSource {
+  private readonly reader: ReadableStreamDefaultReader<Uint8Array>;
+  private readonly parser: IterableReader;
+  private readonly materializer: IterableEventMaterializer;
+  private readonly batchSize: number;
+  private readonly maxChunkBytes: number | undefined;
+  private pendingChunk: Uint8Array | undefined;
+  private pendingOffset = 0;
+  private sourceDone = false;
+  private finished = false;
+  private lockReleased = false;
+
+  constructor(
+    stream: ReadableStream<Uint8Array>,
+    options: EventReaderOptions & { trimText?: boolean },
+  ) {
+    this.reader = stream.getReader();
+    this.parser = new IterableReader([], {
+      documentMode: options.documentMode,
+    });
+    this.materializer = new IterableEventMaterializer({
+      autoDecodeEntities: options.autoDecodeEntities ?? true,
+      addEntities: options.addEntities,
+      eventFilter: options.eventFilter,
+      namespaceAware: options.namespaceAware ?? true,
+      trimText: options.trimText ?? false,
+    });
+    this.batchSize = normalizeReadableStreamBatchSize(options.batchSize);
+    this.maxChunkBytes = options.maxChunkBytes && options.maxChunkBytes > 0
+      ? options.maxChunkBytes
+      : undefined;
+  }
 
   async nextBatch(): Promise<AnyXmlEvent[] | null> {
-    const batch = await this.iterator.nextBatch();
-    return batch.length > 0 ? batch : null;
+    while (!this.finished) {
+      const byteBatch = await this.readNextByteBatch();
+      if (byteBatch.length > 0 && this.parser.pushByteBatch(byteBatch, false)) {
+        const batch = this.materializer.materializeBatch(this.parser);
+        if (batch.length > 0) {
+          return batch;
+        }
+      }
+
+      if (this.sourceDone) {
+        this.finished = true;
+        this.parser.pushByteBatch([], true);
+        this.releaseLock();
+        const finalBatch = this.materializer.materializeBatch(this.parser);
+        return finalBatch.length > 0 ? finalBatch : null;
+      }
+    }
+    return null;
   }
 
   async return(): Promise<void> {
-    await this.iterator.return();
+    this.finished = true;
+    this.releaseLock();
+  }
+
+  private async readNextByteBatch(): Promise<ByteBatch> {
+    const byteBatch: Uint8Array[] = [];
+    while (!this.sourceDone && byteBatch.length < this.batchSize) {
+      const chunk = await this.readNextChunk();
+      if (!chunk) {
+        break;
+      }
+      byteBatch.push(chunk);
+    }
+    return byteBatch;
+  }
+
+  private async readNextChunk(): Promise<Uint8Array | undefined> {
+    if (this.pendingChunk) {
+      return this.readPendingChunkSegment();
+    }
+
+    let result: ReadableStreamReadResult<Uint8Array>;
+    try {
+      result = await this.reader.read();
+    } catch (error) {
+      this.finished = true;
+      this.releaseLock();
+      throw error;
+    }
+
+    if (result.done) {
+      this.sourceDone = true;
+      return undefined;
+    }
+
+    const chunk = result.value;
+    if (!this.maxChunkBytes || chunk.byteLength <= this.maxChunkBytes) {
+      return chunk;
+    }
+
+    this.pendingChunk = chunk;
+    this.pendingOffset = 0;
+    return this.readPendingChunkSegment();
+  }
+
+  private readPendingChunkSegment(): Uint8Array {
+    const chunk = this.pendingChunk!;
+    const nextOffset = Math.min(this.pendingOffset + this.maxChunkBytes!, chunk.byteLength);
+    const segment = chunk.subarray(this.pendingOffset, nextOffset);
+    this.pendingOffset = nextOffset;
+    if (this.pendingOffset >= chunk.byteLength) {
+      this.pendingChunk = undefined;
+      this.pendingOffset = 0;
+    }
+    return segment;
+  }
+
+  private releaseLock(): void {
+    if (this.lockReleased) {
+      return;
+    }
+    this.lockReleased = true;
+    this.reader.releaseLock();
   }
 }
 
@@ -290,6 +398,14 @@ class AsyncByteBatchEventSource implements AsyncEventBatchSource {
       await this.iterator.return();
     }
   }
+}
+
+function normalizeReadableStreamBatchSize(value: number | undefined): number {
+  const batchSize = value ?? DEFAULT_READABLE_STREAM_BATCH_SIZE;
+  if (!Number.isInteger(batchSize) || batchSize <= 0) {
+    throw new RangeError('batchSize must be a positive integer.');
+  }
+  return batchSize;
 }
 
 export default EventReader;
