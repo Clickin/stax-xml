@@ -47,7 +47,9 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.metadata.coverageLoaded, true);
   assert.equal(report.metadata.comparisonLoaded, true);
   assert.equal(report.metadata.counterexampleScanLoaded, true);
+  assert.equal(report.metadata.handoffLoaded, true);
   assert.equal(report.summary.currentCounterexamples, 0);
+  assert.equal(report.summary.satisfiedHandoffGuards, report.summary.requiredHandoffGuards);
   assert.equal(report.counterexampleSnapshot.comparisonCounterexampleCount, 0);
   assert.equal(report.counterexampleSnapshot.scanCounterexampleCount, 0);
   assert.equal(report.counterexampleSnapshot.currentCounterexampleCount, 0);
@@ -82,6 +84,21 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.proofRules.some(item => item.id === 'handoff-text-materialization-frontier-classified' && item.satisfied));
   assert.ok(report.proofRules.some(item => item.id === 'woodstox-reference-not-identical-input' && item.satisfied));
   assert.ok(report.proofRules.some(item => item.id === 'same-fixture-woodstox-target-unmet' && item.satisfied));
+  assert.ok(report.handoffSnapshot.loaded);
+  assert.deepEqual(report.handoffSnapshot.activeObligationIds, [
+    'safari-jsc-source-and-browser-rows-open',
+    'codegen-traces-open',
+  ]);
+  assert.deepEqual(report.handoffSnapshot.handoffIds, [
+    'safari-webkit-browser-row-handoff',
+    'spidermonkey-codegen-handoff',
+  ]);
+  assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'handoff-loaded' && item.satisfied));
+  assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-primary-byte-batch-contract' && item.satisfied));
+  assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-closure-checks-primary-bounded' && item.satisfied));
+  assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-emitted-ir-required' && item.satisfied));
+  assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-materialized-scope-not-enough' && item.satisfied));
+  assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-unchanged-stax-required' && item.satisfied));
 
   const markdown = readFileSync(goodMdOut, 'utf8');
   assert.match(markdown, /# Runtime-Limit Proof Obligation Gate/);
@@ -96,6 +113,11 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /Same-contract comparison counterexamples: 0/);
   assert.match(markdown, /Runtime counterexample scan counterexamples: 0/);
   assert.match(markdown, /Current release counterexamples: 0/);
+  assert.match(markdown, /## Handoff Snapshot/);
+  assert.match(markdown, /Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff/);
+  assert.match(markdown, /safari-primary-byte-batch-contract/);
+  assert.match(markdown, /spidermonkey-materialized-scope-not-enough/);
+  assert.match(markdown, /spidermonkey-unchanged-stax-required/);
   assert.match(markdown, /## Proof Rules/);
   assert.match(markdown, /target-contract-not-object-shape/);
   assert.match(markdown, /lazy-getters-reopen-burden/);

@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T09:54:16.978Z
+Generated: 2026-06-01T10:36:04.392Z
 
 ## Scope
 
@@ -82,17 +82,32 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-01T09:15:21.324Z)
+- Coverage audit loaded: yes (2026-06-01T10:28:54.396Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 
 ## Counterexample Snapshot
 
-- Same-contract comparison loaded: yes (2026-06-01T09:53:34.432Z)
+- Same-contract comparison loaded: yes (2026-06-01T10:21:54.633Z)
 - Same-contract comparison counterexamples: 0
 - Runtime counterexample scan loaded: yes (2026-06-01T09:06:54.303Z)
 - Runtime counterexample scan counterexamples: 0
 - Current release counterexamples: 0
+
+## Handoff Snapshot
+
+- Handoff loaded: yes (2026-06-01T10:32:51.280Z)
+- Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
+- Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
+
+| ID | Satisfied | Meaning |
+| --- | --- | --- |
+| `handoff-loaded` | yes | runtime-proof-gap-handoff.json must be loaded by the gate. |
+| `safari-primary-byte-batch-contract` | yes | Safari handoff must require primary synchronous Iterable<Uint8Array[]> rows and keep direct ReadableStream rows separate. |
+| `safari-closure-checks-primary-bounded` | yes | Safari closure checks must require primary and bounded sync byte-batch rows plus closesSafariObligation=true. |
+| `spidermonkey-emitted-ir-required` | yes | SpiderMonkey closure checks must require emitted IR/codegen evidence and no missing IR surface. |
+| `spidermonkey-materialized-scope-not-enough` | yes | SpiderMonkey materialized js-shell codegen must require closureRequirementsBlocked=0 and closesCodegenObligation=true before closing. |
+| `spidermonkey-unchanged-stax-required` | yes | SpiderMonkey closing artifacts must require sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true unless a browser-row artifact supplies closure. |
 
 ## Proof Rules
 

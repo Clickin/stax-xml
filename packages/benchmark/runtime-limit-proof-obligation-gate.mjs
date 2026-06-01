@@ -8,6 +8,7 @@ const defaultLedgerPath = resolve(repoRoot, 'docs', 'plans', '2026-05-23-stax-ap
 const defaultCoverageJson = resolve(__dirname, 'results', 'release', 'runtime-proof-coverage-audit.json');
 const defaultComparisonJson = resolve(__dirname, 'results', 'release', 'same-contract-runtime-comparison.json');
 const defaultCounterexampleScanJson = resolve(__dirname, 'results', 'release', 'runtime-counterexample-scan.json');
+const defaultHandoffJson = resolve(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json');
 const defaultJsonOut = resolve(__dirname, 'results', 'release', 'runtime-limit-proof-obligation-gate.json');
 const defaultMdOut = resolve(__dirname, 'results', 'release', 'runtime-limit-proof-obligation-gate.md');
 
@@ -231,6 +232,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     coverageJson: defaultCoverageJson,
     comparisonJson: defaultComparisonJson,
     counterexampleScanJson: defaultCounterexampleScanJson,
+    handoffJson: defaultHandoffJson,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
   };
@@ -260,6 +262,9 @@ function parseArgs(argv = process.argv.slice(2)) {
       case '--counterexample-scan-json':
         options.counterexampleScanJson = resolve(process.cwd(), readValue());
         break;
+      case '--handoff-json':
+        options.handoffJson = resolve(process.cwd(), readValue());
+        break;
       case '--json-out':
         options.jsonOut = resolve(process.cwd(), readValue());
         break;
@@ -283,7 +288,8 @@ function main() {
   const coverageAudit = readCoverageAudit(options.coverageJson);
   const comparison = readOptionalJson(options.comparisonJson, 'same-contract-runtime-comparison');
   const counterexampleScan = readOptionalJson(options.counterexampleScanJson, 'runtime-counterexample-scan');
-  const report = createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan });
+  const handoff = readOptionalJson(options.handoffJson, 'runtime-proof-gap-handoff');
+  const report = createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan, handoff });
   writeOutput(options.jsonOut, `${JSON.stringify(report, null, 2)}\n`);
   writeOutput(options.mdOut, renderMarkdown(report));
   printSummary(report);
@@ -310,10 +316,11 @@ function readCoverageAudit(coverageJson) {
   return audit;
 }
 
-function createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan }) {
+function createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan, handoff }) {
   const claims = parseClaimRows(ledgerMarkdown);
   const coverageSnapshot = createCoverageSnapshot(coverageAudit);
   const counterexampleSnapshot = createCounterexampleSnapshot(comparison, counterexampleScan);
+  const handoffSnapshot = createHandoffSnapshot(handoff);
   const claimGuards = requiredClaimGuards.map(requirement => evaluateClaimGuard(requirement, claims));
   const artifactMentions = requiredArtifactMentions.map(file => ({
     id: file,
@@ -358,6 +365,9 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
   if (counterexampleSnapshot.currentCounterexampleCount > 0) {
     errors.push(`Current release artifacts contain ${counterexampleSnapshot.currentCounterexampleCount} bounded full-string JavaScript counterexample(s); the runtime-limit ledger must be updated before the gate can pass.`);
   }
+  for (const guard of handoffSnapshot.guards.filter(item => !item.satisfied)) {
+    errors.push(`Missing handoff guard ${guard.id}: ${guard.description}`);
+  }
 
   const pass = errors.length === 0;
   return {
@@ -370,9 +380,11 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
       coverageJson: options.coverageJson,
       comparisonJson: options.comparisonJson,
       counterexampleScanJson: options.counterexampleScanJson,
+      handoffJson: options.handoffJson,
       coverageLoaded: coverageSnapshot.loaded,
       comparisonLoaded: counterexampleSnapshot.comparisonLoaded,
       counterexampleScanLoaded: counterexampleSnapshot.counterexampleScanLoaded,
+      handoffLoaded: handoffSnapshot.loaded,
     },
     conclusionClaim: runtimeLimitClaimId,
     conclusionAllowed: false,
@@ -389,6 +401,7 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
     claimGuards,
     artifactMentions,
     counterexampleSnapshot,
+    handoffSnapshot,
     coverageSnapshot,
     openObligations,
     proofRules,
@@ -402,8 +415,84 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
       satisfiedProofRules: proofRules.filter(item => item.satisfied).length,
       requiredProofRules: proofRules.length,
       currentCounterexamples: counterexampleSnapshot.currentCounterexampleCount,
+      satisfiedHandoffGuards: handoffSnapshot.guards.filter(item => item.satisfied).length,
+      requiredHandoffGuards: handoffSnapshot.guards.length,
     },
   };
+}
+
+function createHandoffSnapshot(handoff) {
+  if (!handoff) {
+    return {
+      loaded: false,
+      generatedAt: null,
+      activeObligationIds: [],
+      guards: createHandoffGuards(null),
+    };
+  }
+  const handoffs = Array.isArray(handoff.handoffs) ? handoff.handoffs : [];
+  const byId = new Map(handoffs.map(item => [item.id, item]));
+  const activeObligationIds = (handoff.auditSummary?.activeObligations ?? [])
+    .map(obligation => obligation.id)
+    .filter(Boolean);
+  return {
+    loaded: true,
+    generatedAt: handoff.generatedAt ?? null,
+    activeObligationIds,
+    summary: {
+      sourceConsumptionEvidenceStatus: handoff.summary?.sourceConsumptionEvidenceStatus ?? null,
+      directReadableStreamScope: handoff.summary?.directReadableStreamScope ?? null,
+      directReadableStreamBackpressureRequired: handoff.summary?.directReadableStreamBackpressureRequired ?? null,
+      conclusionAllowed: handoff.summary?.conclusionAllowed ?? null,
+    },
+    handoffIds: handoffs.map(item => item.id),
+    guards: createHandoffGuards(byId),
+  };
+}
+
+function createHandoffGuards(byId) {
+  const safari = byId?.get('safari-webkit-browser-row-handoff') ?? null;
+  const spiderMonkey = byId?.get('spidermonkey-codegen-handoff') ?? null;
+  const safariChecks = safari?.closureChecks ?? [];
+  const spiderChecks = spiderMonkey?.closureChecks ?? [];
+  return [
+    {
+      id: 'handoff-loaded',
+      description: 'runtime-proof-gap-handoff.json must be loaded by the gate.',
+      satisfied: Boolean(byId),
+    },
+    {
+      id: 'safari-primary-byte-batch-contract',
+      description: 'Safari handoff must require primary synchronous Iterable<Uint8Array[]> rows and keep direct ReadableStream rows separate.',
+      satisfied: /synchronous Iterable<Uint8Array\[\]>/.test(safari?.sourceConsumptionContract?.primaryParserInput ?? '')
+        && /source-overhead evidence only/.test(safari?.sourceConsumptionContract?.directReadableStreamScope ?? '')
+        && /not merged/.test(safari?.sourceConsumptionContract?.directReadableStreamScope ?? ''),
+    },
+    {
+      id: 'safari-closure-checks-primary-bounded',
+      description: 'Safari closure checks must require primary and bounded sync byte-batch rows plus closesSafariObligation=true.',
+      satisfied: safariChecks.some(item => /primarySyncByteBatchRowsRecorded must be greater than 0/.test(item))
+        && safariChecks.some(item => /boundedPrimarySyncByteBatchRowsRecorded must be greater than 0/.test(item))
+        && safariChecks.some(item => /closesSafariObligation must be true/.test(item)),
+    },
+    {
+      id: 'spidermonkey-emitted-ir-required',
+      description: 'SpiderMonkey closure checks must require emitted IR/codegen evidence and no missing IR surface.',
+      satisfied: spiderChecks.some(item => /emittedIrEvidenceCount must be greater than 0/.test(item))
+        && spiderChecks.some(item => /missingIrSurfaceCount must be 0/.test(item)),
+    },
+    {
+      id: 'spidermonkey-materialized-scope-not-enough',
+      description: 'SpiderMonkey materialized js-shell codegen must require closureRequirementsBlocked=0 and closesCodegenObligation=true before closing.',
+      satisfied: spiderChecks.some(item => /closureRequirementsBlocked must be 0/.test(item))
+        && spiderChecks.some(item => /closesCodegenObligation must be true/.test(item)),
+    },
+    {
+      id: 'spidermonkey-unchanged-stax-required',
+      description: 'SpiderMonkey closing artifacts must require sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true unless a browser-row artifact supplies closure.',
+      satisfied: spiderChecks.some(item => /sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true/.test(item)),
+    },
+  ];
 }
 
 function createCounterexampleSnapshot(comparison, counterexampleScan) {
@@ -573,6 +662,23 @@ function renderMarkdown(report) {
     `- Runtime counterexample scan counterexamples: ${formatNullableCount(report.counterexampleSnapshot.scanCounterexampleCount)}`,
     `- Current release counterexamples: ${report.counterexampleSnapshot.currentCounterexampleCount}`,
   );
+
+  lines.push(
+    '',
+    '## Handoff Snapshot',
+    '',
+    report.handoffSnapshot.loaded
+      ? `- Handoff loaded: yes (${report.handoffSnapshot.generatedAt ?? 'unknown generatedAt'})`
+      : '- Handoff loaded: no',
+    `- Handoff active obligations: ${report.handoffSnapshot.activeObligationIds.join(', ') || 'none'}`,
+    `- Handoff IDs: ${report.handoffSnapshot.handoffIds?.join(', ') || 'none'}`,
+    '',
+    '| ID | Satisfied | Meaning |',
+    '| --- | --- | --- |',
+  );
+  for (const item of report.handoffSnapshot.guards) {
+    lines.push(`| \`${item.id}\` | ${item.satisfied ? 'yes' : 'no'} | ${item.description} |`);
+  }
 
   lines.push(
     '',
