@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T20:37:17.780Z",
+  "generatedAt": "2026-06-01T20:42:15.733Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -417,7 +417,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-01T20:33:28.735Z",
+    "generatedAt": "2026-06-01T20:41:57.615Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -492,9 +492,9 @@
   },
   "handoffValidationSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-01T20:37:09.539Z",
-    "validatedHandoffGeneratedAt": "2026-06-01T20:33:28.735Z",
-    "currentHandoffGeneratedAt": "2026-06-01T20:33:28.735Z",
+    "generatedAt": "2026-06-01T20:42:05.750Z",
+    "validatedHandoffGeneratedAt": "2026-06-01T20:41:57.615Z",
+    "currentHandoffGeneratedAt": "2026-06-01T20:41:57.615Z",
     "pass": true,
     "allContractsPresent": true,
     "requiredHandoffsPresent": true,
@@ -538,11 +538,11 @@
   },
   "sourceAuditSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-01T20:28:03.153Z",
+    "generatedAt": "2026-06-01T20:41:29.222Z",
     "inputComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
     "currentComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
-    "inputCoverageGeneratedAt": "2026-06-01T20:26:23.834Z",
-    "currentCoverageGeneratedAt": "2026-06-01T20:26:23.834Z",
+    "inputCoverageGeneratedAt": "2026-06-01T20:41:18.593Z",
+    "currentCoverageGeneratedAt": "2026-06-01T20:41:18.593Z",
     "status": "classified",
     "primarySourceContract": "primary-sync-iterable-byte-batches",
     "primaryParserInput": "synchronous Iterable<Uint8Array[]>",
@@ -600,7 +600,7 @@
   "frontierAuditSnapshot": {
     "memory": {
       "loaded": true,
-      "generatedAt": "2026-06-01T20:28:02.993Z",
+      "generatedAt": "2026-06-01T20:41:37.881Z",
       "inputComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
       "currentComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
       "status": "classified",
@@ -613,7 +613,7 @@
     },
     "targetDistance": {
       "loaded": true,
-      "generatedAt": "2026-06-01T20:28:03.380Z",
+      "generatedAt": "2026-06-01T20:41:49.335Z",
       "inputComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
       "currentComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
       "status": "classified",
@@ -634,7 +634,7 @@
     },
     "textMaterialization": {
       "loaded": true,
-      "generatedAt": "2026-06-01T20:28:02.933Z",
+      "generatedAt": "2026-06-01T20:41:49.257Z",
       "inputComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
       "currentComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
       "status": "classified",
@@ -687,7 +687,7 @@
   },
   "coverageSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-01T20:26:23.834Z",
+    "generatedAt": "2026-06-01T20:41:18.593Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"

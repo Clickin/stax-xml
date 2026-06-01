@@ -1,6 +1,6 @@
 # SpiderMonkey Codegen Closure Audit
 
-Generated: 2026-06-01T20:11:59.612Z
+Generated: 2026-06-01T20:41:10.102Z
 
 Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.
 
@@ -15,7 +15,28 @@ Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requi
 - Closing metadata count: 5
 - Qualified closures: 0
 - Contradicted closure claims: 0
+- Minimum blocked requirement count: 4
+- Closest blocked candidate count: 5
 - Conclusion allowed: no
+
+## Missing Requirement Histogram
+
+- closingMetadata: 10
+- emittedCodegenSurface: 9
+- evidenceClassAllowed: 11
+- sameContractStaxRow: 15
+- selectedRowMetadata: 15
+- unchangedRunnable: 15
+
+## Closest Blocked Candidates
+
+| Artifact | Evidence class | Missing count | Missing |
+| --- | --- | --- | --- |
+| `spidermonkey-taskcluster-debug-jsshell-codegen-audit.json` | current-debug-codegen-scope-guard | 4 | sameContractStaxRow, unchangedRunnable, selectedRowMetadata, evidenceClassAllowed | |
+| `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json` | current-debug-codegen-scope-guard | 4 | sameContractStaxRow, unchangedRunnable, selectedRowMetadata, evidenceClassAllowed | |
+| `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json` | current-debug-materialized-codegen-scope-guard | 4 | sameContractStaxRow, unchangedRunnable, selectedRowMetadata, evidenceClassAllowed | |
+| `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json` | current-debug-materialized-codegen-scope-guard | 4 | sameContractStaxRow, unchangedRunnable, selectedRowMetadata, evidenceClassAllowed | |
+| `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json` | current-debug-xml-codegen-scope-guard | 4 | sameContractStaxRow, unchangedRunnable, selectedRowMetadata, evidenceClassAllowed | |
 
 ## Closure Matrix
 

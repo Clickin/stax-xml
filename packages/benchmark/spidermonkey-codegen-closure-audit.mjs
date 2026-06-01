@@ -177,6 +177,8 @@ function buildReport(options, artifacts) {
   const qualified = candidates.filter(candidate => candidate.qualifiedClosure);
   const contradicted = candidates.filter(candidate => candidate.declaresClosure && !candidate.qualifiedClosure);
   const blocked = candidates.filter(candidate => !candidate.qualifiedClosure);
+  const missingRequirementHistogram = createMissingRequirementHistogram(blocked);
+  const closestBlockedCandidates = createClosestBlockedCandidates(blocked);
   const report = {
     generatedAt: new Date().toISOString(),
     objective: 'spidermonkey-codegen-closure-audit',
@@ -187,6 +189,8 @@ function buildReport(options, artifacts) {
       selfTest: options.selfTest,
     },
     candidates,
+    missingRequirementHistogram,
+    closestBlockedCandidates,
     summary: {
       candidateCount: candidates.length,
       diagnosticSurfaceCount: candidates.filter(candidate => candidate.hasAnyDiagnosticSurface).length,
@@ -198,6 +202,8 @@ function buildReport(options, artifacts) {
       qualifiedClosureCount: qualified.length,
       contradictedClosureClaimCount: contradicted.length,
       blockedCandidateCount: blocked.length,
+      minimumBlockedRequirementCount: closestBlockedCandidates[0]?.unmetRequirementCount ?? 0,
+      closestBlockedCandidateCount: closestBlockedCandidates.length,
       conclusionAllowed: qualified.length > 0,
     },
   };
@@ -304,6 +310,33 @@ function createCandidate(artifact) {
   };
 }
 
+function createMissingRequirementHistogram(candidates) {
+  const histogram = {};
+  for (const candidate of candidates) {
+    for (const requirement of candidate.unmetRequirements) {
+      histogram[requirement] = (histogram[requirement] ?? 0) + 1;
+    }
+  }
+  return Object.fromEntries(Object.entries(histogram).sort(([left], [right]) => left.localeCompare(right)));
+}
+
+function createClosestBlockedCandidates(candidates) {
+  const minimum = candidates.reduce((best, candidate) => {
+    const count = candidate.unmetRequirements.length;
+    return count < best ? count : best;
+  }, Number.POSITIVE_INFINITY);
+  if (!Number.isFinite(minimum)) return [];
+  return candidates
+    .filter(candidate => candidate.unmetRequirements.length === minimum)
+    .map(candidate => ({
+      sourceArtifact: candidate.sourceArtifact,
+      objective: candidate.objective,
+      evidenceClass: candidate.evidenceClass,
+      unmetRequirementCount: candidate.unmetRequirements.length,
+      unmetRequirements: candidate.unmetRequirements,
+    }));
+}
+
 function createFindings(report) {
   const findings = [
     {
@@ -350,7 +383,25 @@ function renderMarkdown(report) {
     `- Closing metadata count: ${report.summary.closingMetadataCount}`,
     `- Qualified closures: ${report.summary.qualifiedClosureCount}`,
     `- Contradicted closure claims: ${report.summary.contradictedClosureClaimCount}`,
+    `- Minimum blocked requirement count: ${report.summary.minimumBlockedRequirementCount}`,
+    `- Closest blocked candidate count: ${report.summary.closestBlockedCandidateCount}`,
     `- Conclusion allowed: ${report.summary.conclusionAllowed ? 'yes' : 'no'}`,
+    '',
+    '## Missing Requirement Histogram',
+    '',
+    ...Object.entries(report.missingRequirementHistogram).map(([requirement, count]) => `- ${requirement}: ${count}`),
+    '',
+    '## Closest Blocked Candidates',
+    '',
+    '| Artifact | Evidence class | Missing count | Missing |',
+    '| --- | --- | --- | --- |',
+    ...report.closestBlockedCandidates.map(candidate => [
+      `| \`${candidate.sourceArtifact}\``,
+      candidate.evidenceClass ?? 'unknown',
+      candidate.unmetRequirementCount,
+      candidate.unmetRequirements.length ? candidate.unmetRequirements.join(', ') : 'none',
+      '|',
+    ].join(' | ')),
     '',
     '## Closure Matrix',
     '',

@@ -35,7 +35,23 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.equal(report.summary.sameContractStaxRowCount, 1);
   assert.equal(report.summary.unchangedRunnableCount, 1);
   assert.equal(report.summary.qualifiedClosureCount, 1);
+  assert.equal(report.summary.minimumBlockedRequirementCount, 4);
+  assert.equal(report.summary.closestBlockedCandidateCount, 1);
   assert.equal(report.summary.conclusionAllowed, true);
+  assert.deepEqual(report.missingRequirementHistogram, {
+    sameContractStaxRow: 1,
+    unchangedRunnable: 1,
+    selectedRowMetadata: 1,
+    evidenceClassAllowed: 1,
+  });
+  assert.equal(report.closestBlockedCandidates.length, 1);
+  assert.equal(report.closestBlockedCandidates[0].sourceArtifact, 'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json');
+  assert.deepEqual(report.closestBlockedCandidates[0].unmetRequirements, [
+    'sameContractStaxRow',
+    'unchangedRunnable',
+    'selectedRowMetadata',
+    'evidenceClassAllowed',
+  ]);
 
   const blocked = report.candidates.find(candidate =>
     candidate.sourceArtifact === 'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json'
@@ -55,6 +71,8 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# SpiderMonkey Codegen Closure Audit/);
   assert.match(markdown, /Qualified closures: 1/);
+  assert.match(markdown, /Closest blocked candidate count: 1/);
+  assert.match(markdown, /sameContractStaxRow: 1/);
   assert.match(markdown, /sameContractStaxRow/);
 });
 

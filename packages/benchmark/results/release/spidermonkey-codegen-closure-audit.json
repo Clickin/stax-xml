@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T20:11:59.612Z",
+  "generatedAt": "2026-06-01T20:41:10.102Z",
   "objective": "spidermonkey-codegen-closure-audit",
   "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
   "note": "Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.",
@@ -999,6 +999,76 @@
       "qualifiedClosure": false
     }
   ],
+  "missingRequirementHistogram": {
+    "closingMetadata": 10,
+    "emittedCodegenSurface": 9,
+    "evidenceClassAllowed": 11,
+    "sameContractStaxRow": 15,
+    "selectedRowMetadata": 15,
+    "unchangedRunnable": 15
+  },
+  "closestBlockedCandidates": [
+    {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
+      "objective": "spidermonkey-taskcluster-debug-jsshell-codegen-audit",
+      "evidenceClass": "current-debug-codegen-scope-guard",
+      "unmetRequirementCount": 4,
+      "unmetRequirements": [
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "evidenceClassAllowed"
+      ]
+    },
+    {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
+      "objective": "spidermonkey-taskcluster-debug-jsshell-codegen-audit",
+      "evidenceClass": "current-debug-codegen-scope-guard",
+      "unmetRequirementCount": 4,
+      "unmetRequirements": [
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "evidenceClassAllowed"
+      ]
+    },
+    {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
+      "objective": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit",
+      "evidenceClass": "current-debug-materialized-codegen-scope-guard",
+      "unmetRequirementCount": 4,
+      "unmetRequirements": [
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "evidenceClassAllowed"
+      ]
+    },
+    {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
+      "objective": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit",
+      "evidenceClass": "current-debug-materialized-codegen-scope-guard",
+      "unmetRequirementCount": 4,
+      "unmetRequirements": [
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "evidenceClassAllowed"
+      ]
+    },
+    {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
+      "objective": "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit",
+      "evidenceClass": "current-debug-xml-codegen-scope-guard",
+      "unmetRequirementCount": 4,
+      "unmetRequirements": [
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "evidenceClassAllowed"
+      ]
+    }
+  ],
   "summary": {
     "candidateCount": 15,
     "diagnosticSurfaceCount": 6,
@@ -1010,6 +1080,8 @@
     "qualifiedClosureCount": 0,
     "contradictedClosureClaimCount": 0,
     "blockedCandidateCount": 15,
+    "minimumBlockedRequirementCount": 4,
+    "closestBlockedCandidateCount": 5,
     "conclusionAllowed": false
   },
   "findings": [
