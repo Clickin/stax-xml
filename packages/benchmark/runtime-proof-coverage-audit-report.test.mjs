@@ -1540,6 +1540,107 @@ test('runtime proof coverage audit does not close Safari for eager or full Array
   assert.match(obligation.evidence, /primarySyncByteBatchRows=0; boundedPrimarySyncByteBatchRows=0; largeBoundedPrimarySyncByteBatchRows=0; primaryRowsInSameContractComparison=false; largePrimaryRowsInSameContractComparison=false; closesSafariObligation=false/);
 });
 
+test('runtime proof coverage audit does not let row flags override Safari full ArrayBuffer source contracts', () => {
+  const syntheticDir = join(tmpDir, 'safari-row-with-full-arraybuffer-source-contract');
+  const syntheticJsonOut = join(tmpDir, 'safari-row-with-full-arraybuffer-source-contract.json');
+  const syntheticMdOut = join(tmpDir, 'safari-row-with-full-arraybuffer-source-contract.md');
+  resetTmp();
+  mkdirSync(syntheticDir, { recursive: true });
+  writeFileSync(join(syntheticDir, 'safari-webkit-availability-audit.json'), `${JSON.stringify({
+    objective: 'safari-webkit-availability-audit',
+    summary: {
+      hostIsMacOS: true,
+      safariExecutableFound: true,
+      safaridriverFound: true,
+      currentHarnessSupportsSafari: true,
+      canRunSafariBrowserRows: true,
+      safariBenchmarkRowsRecorded: true,
+      exactSafariBuildIdentityRecorded: true,
+      safariSourceBoundaryPinned: true,
+      directReadableStreamRowsAreSeparateEvidence: true,
+      openObligationRemains: false,
+    },
+  }, null, 2)}\n`);
+  writeFileSync(join(syntheticDir, 'safari-synthetic-browser-row.json'), `${JSON.stringify({
+    objective: 'safari-synthetic-browser-row',
+    contract: 'same-full-string-checksum-contract',
+    sourceContract: {
+      parserInput: 'complete XML ArrayBuffer parser input',
+      arrayBufferConsumption: 'The benchmark passes one full XML ArrayBuffer to the parser.',
+    },
+    environment: {
+      runtimeName: 'browser',
+      browserName: 'Safari',
+      browserVersion: '18.5',
+      javascriptEngine: 'JavaScriptCore',
+      userAgent: 'Mozilla/5.0 Version/18.5 Safari/605.1.15',
+    },
+    fixture: {
+      source: 'corpus-file',
+      sourceFile: 'books.xml',
+      sizeGiB: 1,
+    },
+    rows: [
+      {
+        id: 'safariFullStringPrimary',
+        mibPerSec: 210,
+        fullStringParity: true,
+        boundedMemory: true,
+        maxJsHeapUsedBytes: 100 * 1024 * 1024,
+        eventCount: 1,
+        checksum: 1,
+        contractScope: 'full-string-checksum',
+        sourceMode: 'generated-sync-iterable-byte-batches',
+        demandDrivenSource: true,
+        directReadableStream: false,
+        fullArrayBufferParserInput: false,
+      },
+    ],
+  }, null, 2)}\n`);
+  writeFileSync(join(syntheticDir, 'same-contract-runtime-comparison.json'), `${JSON.stringify({
+    objective: 'same-contract-runtime-comparison',
+    comparisonRows: [
+      {
+        id: 'safariFullStringPrimary',
+        runtimeId: 'safari-jsc-browser',
+        jsRuntime: true,
+        fullStringParity: true,
+        eventCount: 1,
+        checksum: 1,
+      },
+    ],
+  }, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-coverage-audit.mjs'),
+    '--release-dir',
+    syntheticDir,
+    '--json-out',
+    syntheticJsonOut,
+    '--md-out',
+    syntheticMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(syntheticJsonOut, 'utf8'));
+  assert.equal(report.coverage.safariWebKitStatus.fullStringRowsRecorded, 1);
+  assert.equal(report.coverage.safariWebKitStatus.primarySyncByteBatchRowsRecorded, 0);
+  assert.equal(report.coverage.safariWebKitStatus.boundedPrimarySyncByteBatchRowsRecorded, 0);
+  assert.equal(report.coverage.safariWebKitStatus.primaryRowsInSameContractComparison, false);
+  assert.equal(report.coverage.safariWebKitStatus.closesSafariObligation, false);
+  assert.ok(report.summary.largeJsFullSourceInputSafety.sourceModeBreakdown.some(entry =>
+    entry.sourceMode === 'generated-sync-iterable-byte-batches'
+    && entry.fullArrayBufferRows === 1
+  ));
+  assertObligation(report, 'safari-jsc-source-and-browser-rows-open', 'partial');
+  const obligation = report.obligations.find(item => item.id === 'safari-jsc-source-and-browser-rows-open');
+  assert.match(obligation.evidence, /primarySyncByteBatchRows=0/);
+});
+
 test('runtime proof coverage audit keeps direct Safari ReadableStream rows separate from primary byte-batch closure', () => {
   const syntheticDir = join(tmpDir, 'safari-direct-readable-stream-row');
   const syntheticJsonOut = join(tmpDir, 'safari-direct-readable-stream-row.json');

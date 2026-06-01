@@ -377,21 +377,21 @@ function classifyDirectReadableStream(node, sourceMode = null) {
 }
 
 function classifyFullArrayBufferParserInput(node, sourceMode = null, context = null) {
+  const sourceContract = context?.sourceContract?.childSourceContract ?? context?.sourceContract;
+  const parserInput = sourceContract?.parserInput ?? '';
+  const arrayBufferConsumption = sourceContract?.arrayBufferConsumption ?? '';
+  const combined = `${parserInput} ${arrayBufferConsumption}`;
+  if (/full XML ArrayBuffer parser input|complete XML ArrayBuffer/i.test(combined)) {
+    return true;
+  }
   if (typeof node.fullArrayBufferParserInput === 'boolean') return node.fullArrayBufferParserInput;
   const mode = typeof sourceMode === 'string' ? sourceMode : '';
   if (/sync-iterable-byte-batches|async-iterable-byte-batches|readable-stream-pull|complete-js-string/.test(mode)) {
     return false;
   }
 
-  const sourceContract = context?.sourceContract?.childSourceContract ?? context?.sourceContract;
-  const parserInput = sourceContract?.parserInput ?? '';
-  const arrayBufferConsumption = sourceContract?.arrayBufferConsumption ?? '';
-  const combined = `${parserInput} ${arrayBufferConsumption}`;
   if (/does not prebuild|does not use a full XML ArrayBuffer|Neither measured row constructs/i.test(combined)) {
     return false;
-  }
-  if (/full XML ArrayBuffer parser input|complete XML ArrayBuffer/i.test(combined)) {
-    return true;
   }
   return null;
 }
