@@ -1,6 +1,6 @@
 # SpiderMonkey Materialized Scope Distance Audit
 
-Generated: 2026-06-01T07:48:30.040Z
+Generated: 2026-06-01T10:12:48.139Z
 
 Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen artifact against the token-only codegen artifact, the js-shell StAX API gap, and the semantic materialization contract. This audit records exactly what the materialized js-shell workload proves and why it still cannot close the unchanged StAX codegen obligation.
 
@@ -10,6 +10,8 @@ Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen arti
 - Semantic-equivalent for ASCII fields: true
 - Materializes JS strings and objects: true
 - Closes diagnostic surface obligation: true
+- Closure requirements met: 2
+- Closure requirements blocked: 4
 - Closes codegen obligation: false
 - Same-contract StAX row: false
 - Unchanged StAX benchmark: false
@@ -18,6 +20,17 @@ Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen arti
 
 - Token workload: xml-token-boundary-no-string-materialization, fullStringParity=false, checksum=9292058, codegenMarkers=151431
 - Materialized workload: ascii-js-string-and-public-event-object-materialization, fullStringParity=true, checksum=167904020, materializedStringCount=245161, materializedObjectCount=223041, codegenMarkers=234522
+
+## Closure Requirement Matrix
+
+| Requirement | Status | Required | Observed |
+| --- | --- | --- | --- |
+| `emitted-codegen-surface` | met | The diagnostic shell emits codegen/IR or optimized-code output for the tested workload. | codegenDump=true, nativeDumpComplete=true |
+| `full-string-semantic-materialization` | met | The workload materializes JS strings and public event objects for the checksum fields under test. | fullStringParity=true, materializedStringCount=245161, materializedObjectCount=223041 |
+| `same-contract-stax-row` | blocked | The emitted codegen corresponds to the unchanged same-contract StAX benchmark row. | sameContractStaxRow=false |
+| `unchanged-stax-benchmark` | blocked | The benchmark harness is unchanged from the current TextDecoder/ReadableStream StAX row. | unchangedStaxBenchmark=false |
+| `host-api-surface` | blocked | The js-shell can run the current full-string StAX harness without host API substitution. | canRunCurrentStaxFullStringBenchmark=false, missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch |
+| `closure-declared-by-source-artifact` | blocked | The source artifact declares that it closes the emitted-IR obligation. | closesEmittedIrObligation=false |
 
 ## Checks
 

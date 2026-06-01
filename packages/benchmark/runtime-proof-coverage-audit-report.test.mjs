@@ -121,6 +121,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.evidenceKinds.includes('SCOPE_GUARD')
     && artifact.evidenceKinds.includes('NEGATIVE_RESULT')
     && artifact.summary.semanticEquivalentForAsciiFields === true
+    && artifact.summary.closureRequirementsMet === 2
+    && artifact.summary.closureRequirementsBlocked === 4
     && artifact.summary.closesCodegenObligation === false
     && artifact.summary.conclusionAllowed === false
   ));
@@ -1196,7 +1198,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey current Taskcluster debug js-shell codegen audit present \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false\); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row/);
   assert.match(markdown, /Firefox\/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false\); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row/);
   assert.match(markdown, /Firefox\/SpiderMonkey current Taskcluster debug js-shell materialized string\/object codegen audit present \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false\); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark/);
-  assert.match(markdown, /Firefox\/SpiderMonkey materialized scope-distance audit present \(semanticEquivalentForAsciiFields=true, closesCodegenObligation=false\); it records why the materialized js-shell codegen artifact is useful but still not closure evidence/);
+  assert.match(markdown, /Firefox\/SpiderMonkey materialized scope-distance audit present \(semanticEquivalentForAsciiFields=true, closureRequirementsMet=2, closureRequirementsBlocked=4, closesCodegenObligation=false\); it records why the materialized js-shell codegen artifact is useful but still not closure evidence/);
   assert.match(markdown, /Firefox\/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing/);
   assert.match(markdown, /16 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 4/);

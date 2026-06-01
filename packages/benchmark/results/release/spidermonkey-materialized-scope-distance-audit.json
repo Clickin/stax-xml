@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T07:48:30.040Z",
+  "generatedAt": "2026-06-01T10:12:48.139Z",
   "objective": "spidermonkey-materialized-scope-distance-audit",
   "contract": "materialized-js-shell-workload-equivalence-and-scope-distance",
   "note": "Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen artifact against the token-only codegen artifact, the js-shell StAX API gap, and the semantic materialization contract. This audit records exactly what the materialized js-shell workload proves and why it still cannot close the unchanged StAX codegen obligation.",
@@ -95,6 +95,44 @@
     "staxEventPublicObjectsSupported": true,
     "staxStreamIndexAccessorsSupported": true
   },
+  "closureMatrix": [
+    {
+      "id": "emitted-codegen-surface",
+      "required": "The diagnostic shell emits codegen/IR or optimized-code output for the tested workload.",
+      "observed": "codegenDump=true, nativeDumpComplete=true",
+      "status": "met"
+    },
+    {
+      "id": "full-string-semantic-materialization",
+      "required": "The workload materializes JS strings and public event objects for the checksum fields under test.",
+      "observed": "fullStringParity=true, materializedStringCount=245161, materializedObjectCount=223041",
+      "status": "met"
+    },
+    {
+      "id": "same-contract-stax-row",
+      "required": "The emitted codegen corresponds to the unchanged same-contract StAX benchmark row.",
+      "observed": "sameContractStaxRow=false",
+      "status": "blocked"
+    },
+    {
+      "id": "unchanged-stax-benchmark",
+      "required": "The benchmark harness is unchanged from the current TextDecoder/ReadableStream StAX row.",
+      "observed": "unchangedStaxBenchmark=false",
+      "status": "blocked"
+    },
+    {
+      "id": "host-api-surface",
+      "required": "The js-shell can run the current full-string StAX harness without host API substitution.",
+      "observed": "canRunCurrentStaxFullStringBenchmark=false, missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch",
+      "status": "blocked"
+    },
+    {
+      "id": "closure-declared-by-source-artifact",
+      "required": "The source artifact declares that it closes the emitted-IR obligation.",
+      "observed": "closesEmittedIrObligation=false",
+      "status": "blocked"
+    }
+  ],
   "checks": [
     {
       "id": "same-current-debug-shell-build",
@@ -156,6 +194,8 @@
     "semanticEquivalentForAsciiFields": true,
     "materializesJsStringsAndObjects": true,
     "closesDiagnosticSurfaceObligation": true,
+    "closureRequirementsMet": 2,
+    "closureRequirementsBlocked": 4,
     "closesCodegenObligation": false,
     "unchangedStaxBenchmark": false,
     "sameContractStaxRow": false,

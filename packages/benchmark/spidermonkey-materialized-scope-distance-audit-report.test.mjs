@@ -34,6 +34,8 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
   assert.equal(report.summary.semanticEquivalentForAsciiFields, true);
   assert.equal(report.summary.materializesJsStringsAndObjects, true);
   assert.equal(report.summary.closesDiagnosticSurfaceObligation, true);
+  assert.equal(report.summary.closureRequirementsMet, 2);
+  assert.equal(report.summary.closureRequirementsBlocked, 4);
   assert.equal(report.summary.closesCodegenObligation, false);
   assert.equal(report.summary.sameContractStaxRow, false);
   assert.equal(report.summary.unchangedStaxBenchmark, false);
@@ -41,6 +43,21 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
   assert.equal(report.workloadComparison.materialized.fullStringParity, true);
   assert.equal(report.workloadComparison.materialized.materializedStringCount, 61289);
   assert.equal(report.workloadComparison.materialized.materializedObjectCount, 55759);
+  assert.deepEqual(
+    report.closureMatrix.map(item => ({ id: item.id, status: item.status })),
+    [
+      { id: 'emitted-codegen-surface', status: 'met' },
+      { id: 'full-string-semantic-materialization', status: 'met' },
+      { id: 'same-contract-stax-row', status: 'blocked' },
+      { id: 'unchanged-stax-benchmark', status: 'blocked' },
+      { id: 'host-api-surface', status: 'blocked' },
+      { id: 'closure-declared-by-source-artifact', status: 'blocked' },
+    ],
+  );
+  assert.match(
+    report.closureMatrix.find(item => item.id === 'host-api-surface').observed,
+    /missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch/,
+  );
   assert.ok(report.checks.every(check => check.status === 'pass'));
   assert.ok(report.findings.some(finding =>
     finding.id === 'materialized-js-shell-semantic-equivalence-bounded'
@@ -58,9 +75,13 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /SpiderMonkey Materialized Scope Distance Audit/);
   assert.match(markdown, /Semantic-equivalent for ASCII fields: true/);
+  assert.match(markdown, /Closure requirements met: 2/);
+  assert.match(markdown, /Closure requirements blocked: 4/);
   assert.match(markdown, /Closes codegen obligation: false/);
   assert.match(markdown, /Token workload: xml-token-boundary-no-string-materialization, fullStringParity=false/);
   assert.match(markdown, /Materialized workload: ascii-js-string-and-public-event-object-materialization, fullStringParity=true/);
+  assert.match(markdown, /\| `same-contract-stax-row` \| blocked \| The emitted codegen corresponds to the unchanged same-contract StAX benchmark row\. \| sameContractStaxRow=false \|/);
+  assert.match(markdown, /\| `host-api-surface` \| blocked \| The js-shell can run the current full-string StAX harness without host API substitution\. \| canRunCurrentStaxFullStringBenchmark=false, missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch \|/);
   assert.match(markdown, /unchanged-stax-host-api-gap-remains: pass/);
 });
 

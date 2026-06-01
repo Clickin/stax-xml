@@ -156,6 +156,7 @@ function buildReport(options, sources) {
     },
   ];
   const allPass = checks.every(check => check.status === 'pass');
+  const closureMatrix = createClosureRequirementMatrix({ materialized, workload, missingGlobals });
   const report = {
     generatedAt: new Date().toISOString(),
     objective: 'spidermonkey-materialized-scope-distance-audit',
@@ -198,12 +199,15 @@ function buildReport(options, sources) {
       staxEventPublicObjectsSupported: Boolean(contract.sourceChecks?.items?.some(item => item.id === 'stax-event-public-objects' && item.supported === true)),
       staxStreamIndexAccessorsSupported: Boolean(contract.sourceChecks?.items?.some(item => item.id === 'stax-stream-index-accessors' && item.supported === true)),
     },
+    closureMatrix,
     checks,
     summary: {
       allChecksPass: allPass,
       semanticEquivalentForAsciiFields: allPass && materialized.outcome?.sameSemanticChecksumFields === true,
       materializesJsStringsAndObjects: workload.materializedStringCount > 0 && workload.materializedObjectCount > 0,
       closesDiagnosticSurfaceObligation: materialized.outcome?.closesDiagnosticSurfaceObligation === true,
+      closureRequirementsMet: closureMatrix.filter(item => item.status === 'met').length,
+      closureRequirementsBlocked: closureMatrix.filter(item => item.status === 'blocked').length,
       closesCodegenObligation: false,
       unchangedStaxBenchmark: materialized.outcome?.unchangedStaxBenchmark === true,
       sameContractStaxRow: materialized.outcome?.sameContractStaxRow === true,
@@ -212,6 +216,51 @@ function buildReport(options, sources) {
   };
   report.findings = createFindings(report);
   return report;
+}
+
+function createClosureRequirementMatrix({ materialized, workload, missingGlobals }) {
+  return [
+    {
+      id: 'emitted-codegen-surface',
+      required: 'The diagnostic shell emits codegen/IR or optimized-code output for the tested workload.',
+      observed: materialized.outcome?.hasCodegenDumpOutput === true
+        ? `codegenDump=true, nativeDumpComplete=${materialized.outcome?.nativeDumpComplete ?? 'unknown'}`
+        : `codegenDump=${materialized.outcome?.hasCodegenDumpOutput ?? 'unknown'}`,
+      status: materialized.outcome?.hasCodegenDumpOutput === true ? 'met' : 'blocked',
+    },
+    {
+      id: 'full-string-semantic-materialization',
+      required: 'The workload materializes JS strings and public event objects for the checksum fields under test.',
+      observed: `fullStringParity=${workload.fullStringParity ?? materialized.outcome?.fullStringParity ?? 'unknown'}, materializedStringCount=${workload.materializedStringCount ?? 'unknown'}, materializedObjectCount=${workload.materializedObjectCount ?? 'unknown'}`,
+      status: workload.fullStringParity === true && workload.materializedStringCount > 0 && workload.materializedObjectCount > 0
+        ? 'met'
+        : 'blocked',
+    },
+    {
+      id: 'same-contract-stax-row',
+      required: 'The emitted codegen corresponds to the unchanged same-contract StAX benchmark row.',
+      observed: `sameContractStaxRow=${materialized.outcome?.sameContractStaxRow ?? 'unknown'}`,
+      status: materialized.outcome?.sameContractStaxRow === true ? 'met' : 'blocked',
+    },
+    {
+      id: 'unchanged-stax-benchmark',
+      required: 'The benchmark harness is unchanged from the current TextDecoder/ReadableStream StAX row.',
+      observed: `unchangedStaxBenchmark=${materialized.outcome?.unchangedStaxBenchmark ?? 'unknown'}`,
+      status: materialized.outcome?.unchangedStaxBenchmark === true ? 'met' : 'blocked',
+    },
+    {
+      id: 'host-api-surface',
+      required: 'The js-shell can run the current full-string StAX harness without host API substitution.',
+      observed: `canRunCurrentStaxFullStringBenchmark=${materialized.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, missingGlobals=${missingGlobals.join(', ') || 'none'}`,
+      status: materialized.outcome?.canRunCurrentStaxFullStringBenchmark === true ? 'met' : 'blocked',
+    },
+    {
+      id: 'closure-declared-by-source-artifact',
+      required: 'The source artifact declares that it closes the emitted-IR obligation.',
+      observed: `closesEmittedIrObligation=${materialized.outcome?.closesEmittedIrObligation ?? 'unknown'}`,
+      status: materialized.outcome?.closesEmittedIrObligation === true ? 'met' : 'blocked',
+    },
+  ];
 }
 
 function sourceSummary(root) {
@@ -265,6 +314,7 @@ function createSelfTestReport(options) {
       contract: 'current-taskcluster-debug-spidermonkey-materialized-string-object-codegen-surface-not-unchanged-stax',
       outcome: {
         sameSemanticChecksumFields: true,
+        hasCodegenDumpOutput: true,
         fullStringParity: true,
         sameContractStaxRow: false,
         unchangedStaxBenchmark: false,
@@ -344,6 +394,8 @@ function renderMarkdown(report) {
     `- Semantic-equivalent for ASCII fields: ${report.summary.semanticEquivalentForAsciiFields}`,
     `- Materializes JS strings and objects: ${report.summary.materializesJsStringsAndObjects}`,
     `- Closes diagnostic surface obligation: ${report.summary.closesDiagnosticSurfaceObligation}`,
+    `- Closure requirements met: ${report.summary.closureRequirementsMet}`,
+    `- Closure requirements blocked: ${report.summary.closureRequirementsBlocked}`,
     `- Closes codegen obligation: ${report.summary.closesCodegenObligation}`,
     `- Same-contract StAX row: ${report.summary.sameContractStaxRow}`,
     `- Unchanged StAX benchmark: ${report.summary.unchangedStaxBenchmark}`,
@@ -352,6 +404,12 @@ function renderMarkdown(report) {
     '',
     `- Token workload: ${report.workloadComparison.token.contractScope}, fullStringParity=${report.workloadComparison.token.fullStringParity}, checksum=${report.workloadComparison.token.checksum}, codegenMarkers=${report.workloadComparison.token.codegenMarkers}`,
     `- Materialized workload: ${report.workloadComparison.materialized.contractScope}, fullStringParity=${report.workloadComparison.materialized.fullStringParity}, checksum=${report.workloadComparison.materialized.checksum}, materializedStringCount=${report.workloadComparison.materialized.materializedStringCount}, materializedObjectCount=${report.workloadComparison.materialized.materializedObjectCount}, codegenMarkers=${report.workloadComparison.materialized.codegenMarkers}`,
+    '',
+    '## Closure Requirement Matrix',
+    '',
+    '| Requirement | Status | Required | Observed |',
+    '| --- | --- | --- | --- |',
+    ...report.closureMatrix.map(item => `| \`${item.id}\` | ${item.status} | ${item.required} | ${item.observed} |`),
     '',
     '## Checks',
     '',
