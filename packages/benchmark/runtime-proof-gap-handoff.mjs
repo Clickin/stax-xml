@@ -435,6 +435,7 @@ function createLocalClosure(activeObligations, audit) {
     const releaseJsShell = artifactByName.get('firefox-spidermonkey-release-jsshell-availability-audit.json') ?? null;
     const nightlyJsShell = artifactByName.get('firefox-spidermonkey-nightly-jsshell-availability-audit.json') ?? null;
     const jsShellApiGap = artifactByName.get('firefox-spidermonkey-jsshell-stax-api-gap-audit.json') ?? null;
+    const jsShellDiagnosticFlagSweep = artifactByName.get('spidermonkey-jsshell-diagnostic-flag-sweep.json') ?? null;
     const archivalDebugJsShell = artifactByName.get('spidermonkey-archival-debug-jsshell-codegen-audit.json') ?? null;
     const buildconfig = artifactByName.get('firefox-spidermonkey-buildconfig-source-pin-audit.json') ?? null;
     const diagnosticNoDump = diagnostic?.outcome?.status === 'no-dump-emitted'
@@ -451,6 +452,8 @@ function createLocalClosure(activeObligations, audit) {
     const nightlyBytecodeStatus = nightlyJsShell?.shell?.bytecodeDumpProbe?.status ?? 'unknown';
     const jsShellApiGapStatus = jsShellApiGap?.summary?.status ?? null;
     const jsShellApiGapPinned = jsShellApiGapStatus === 'blocked-by-host-api-surface';
+    const jsShellDiagnosticFlagSweepNegative = jsShellDiagnosticFlagSweep?.outcome?.bytecodeProbeCount > 0
+      && jsShellDiagnosticFlagSweep?.outcome?.bytecodeOutputProbeCount === 0;
     const archivalDebugCodegen = archivalDebugJsShell?.outcome?.hasCodegenDumpOutput === true
       && archivalDebugJsShell?.outcome?.scopeComparableToCurrentFirefox === false;
     const jsShellCommonMissing = Array.isArray(jsShellApiGap?.summary?.commonMissingGlobals)
@@ -465,7 +468,7 @@ function createLocalClosure(activeObligations, audit) {
       obligationId: 'codegen-traces-open',
       localStatus: blocked ? 'external-run-required' : 'partial-local-status',
       localRunnable: blocked ? false : null,
-      evidenceArtifacts: [diagnostic, jsShell, releaseJsShell, nightlyJsShell, jsShellApiGap, archivalDebugJsShell, buildconfig]
+      evidenceArtifacts: [diagnostic, jsShell, releaseJsShell, nightlyJsShell, jsShellApiGap, jsShellDiagnosticFlagSweep, archivalDebugJsShell, buildconfig]
         .filter(Boolean)
         .map(artifact => artifact.sourceArtifact),
       blockers: [
@@ -486,6 +489,9 @@ function createLocalClosure(activeObligations, audit) {
         jsShellApiGapPinned
           ? `The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface, with common missing globals: ${jsShellCommonMissing}.`
           : 'The js-shell StAX API gap audit is missing or does not pin the unchanged-harness host API blocker.',
+        jsShellDiagnosticFlagSweepNegative
+          ? `The public js-shell diagnostic flag sweep tried ${jsShellDiagnosticFlagSweep.outcome.bytecodeProbeCount} bytecode flag combinations and found ${jsShellDiagnosticFlagSweep.outcome.bytecodeOutputProbeCount} bytecode-output probes plus diagnosticPrefSurface=${jsShellDiagnosticFlagSweep.outcome.hasDiagnosticPrefSurface}.`
+          : 'The public js-shell diagnostic flag sweep is missing or did not confirm the no-bytecode-output flag surface.',
         archivalDebugCodegen
           ? 'An archived Firefox 36 era debug js-shell emits JitSpew codegen output, proving the expected diagnostic surface shape, but it is not comparable to the current Firefox/SpiderMonkey benchmark rows.'
           : 'No scoped archival debug js-shell codegen surface proof is recorded.',

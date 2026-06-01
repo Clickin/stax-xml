@@ -1,0 +1,174 @@
+{
+  "generatedAt": "2026-06-01T03:29:10.900Z",
+  "objective": "spidermonkey-jsshell-diagnostic-flag-sweep",
+  "contract": "public-spidermonkey-jsshell-diagnostic-flag-negative-sweep",
+  "note": "Sweeps public SpiderMonkey js-shell diagnostic flags that are easy to mistake for emitted IR/codegen evidence. This is not benchmark evidence and does not close the SpiderMonkey emitted-code obligation.",
+  "environment": {
+    "platform": "win32-x64"
+  },
+  "parameters": {
+    "jsShell": "G:\\tmp\\stax-spidermonkey-latest-jsshell-153\\extract\\js.exe",
+    "selfTest": false
+  },
+  "shell": {
+    "status": "available",
+    "version": {
+      "command": "G:\\tmp\\stax-spidermonkey-latest-jsshell-153\\extract\\js.exe",
+      "args": [
+        "--version"
+      ],
+      "exitCode": 0,
+      "error": null,
+      "stdout": "JavaScript-C153.0a1\r\n",
+      "stderr": ""
+    },
+    "help": {
+      "exitCode": 0,
+      "error": null,
+      "versionLine": "Version: JavaScript-C153.0a1",
+      "hasDumpBytecode": true,
+      "hasShortD": true,
+      "hasJitSpewFlag": false
+    },
+    "probes": [
+      {
+        "id": "dump-bytecode-inline",
+        "args": [
+          "--dump-bytecode",
+          "-e",
+          "function f(x) { return ((x + 1) | 0); }\nlet checksum = 0;\nfor (let i = 0; i < 20; i++) checksum = (checksum + f(i)) | 0;\nprint('checksum=' + checksum);"
+        ],
+        "exitCode": 0,
+        "error": null,
+        "checksum": 210,
+        "outputBytes": 15,
+        "stdoutLineCount": 1,
+        "stderrLineCount": 0,
+        "bytecodeMarkerCount": 0,
+        "diagnosticMarkerCount": 0,
+        "emittedBytecodeDump": false,
+        "emittedIrOrCodegenDump": false,
+        "stdout": "checksum=210\r\n",
+        "stderr": ""
+      },
+      {
+        "id": "dump-bytecode-file",
+        "args": [
+          "--dump-bytecode",
+          "C:\\Users\\z1z0b\\AppData\\Local\\Temp\\stax-spidermonkey-diagnostic-sweep-qxNrHz\\bytecode-probe.js"
+        ],
+        "exitCode": 0,
+        "error": null,
+        "checksum": 210,
+        "outputBytes": 15,
+        "stdoutLineCount": 1,
+        "stderrLineCount": 0,
+        "bytecodeMarkerCount": 0,
+        "diagnosticMarkerCount": 0,
+        "emittedBytecodeDump": false,
+        "emittedIrOrCodegenDump": false,
+        "stdout": "checksum=210\r\n",
+        "stderr": ""
+      },
+      {
+        "id": "short-D-file",
+        "args": [
+          "-D",
+          "C:\\Users\\z1z0b\\AppData\\Local\\Temp\\stax-spidermonkey-diagnostic-sweep-qxNrHz\\bytecode-probe.js"
+        ],
+        "exitCode": 0,
+        "error": null,
+        "checksum": 210,
+        "outputBytes": 15,
+        "stdoutLineCount": 1,
+        "stderrLineCount": 0,
+        "bytecodeMarkerCount": 0,
+        "diagnosticMarkerCount": 0,
+        "emittedBytecodeDump": false,
+        "emittedIrOrCodegenDump": false,
+        "stdout": "checksum=210\r\n",
+        "stderr": ""
+      },
+      {
+        "id": "dump-bytecode-compileonly-file",
+        "args": [
+          "--dump-bytecode",
+          "--compileonly",
+          "C:\\Users\\z1z0b\\AppData\\Local\\Temp\\stax-spidermonkey-diagnostic-sweep-qxNrHz\\bytecode-probe.js"
+        ],
+        "exitCode": 0,
+        "error": null,
+        "checksum": null,
+        "outputBytes": 1,
+        "stdoutLineCount": 0,
+        "stderrLineCount": 0,
+        "bytecodeMarkerCount": 0,
+        "diagnosticMarkerCount": 0,
+        "emittedBytecodeDump": false,
+        "emittedIrOrCodegenDump": false,
+        "stdout": "",
+        "stderr": ""
+      }
+    ],
+    "prefProbe": {
+      "exitCode": 1,
+      "error": null,
+      "matchingPrefs": [
+        "experimental.joint_iteration=true",
+        "experimental.wasm_esm_integration=false",
+        "ion.regalloc=0",
+        "warn_asmjs_deprecation=true",
+        "wasm_exception_force_stack_trace=false",
+        "wasm_js_promise_integration=true",
+        "wasm_test_serialization=false"
+      ],
+      "matchingPrefCount": 7,
+      "hasJitSpewPref": false,
+      "hasDumpPref": false
+    }
+  },
+  "outcome": {
+    "status": "available",
+    "version": "JavaScript-C153.0a1",
+    "helpAdvertisesDumpBytecode": true,
+    "helpAdvertisesJitSpewFlag": false,
+    "bytecodeProbeCount": 4,
+    "bytecodeOutputProbeCount": 0,
+    "irOrCodegenProbeCount": 0,
+    "hasBytecodeDumpOutput": false,
+    "hasIrOrCodegenDumpOutput": false,
+    "hasDiagnosticPrefSurface": false,
+    "closesEmittedIrObligation": false
+  },
+  "findings": [
+    {
+      "id": "public-jsshell-dump-bytecode-no-output",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "The public SpiderMonkey js-shell advertises --dump-bytecode, but the swept inline/file/-D/compileonly probes emitted no bytecode dump markers.",
+      "evidence": [
+        "version=JavaScript-C153.0a1",
+        "helpAdvertisesDumpBytecode=true",
+        "bytecodeProbeCount=4",
+        "bytecodeOutputProbeCount=0"
+      ]
+    },
+    {
+      "id": "public-jsshell-no-diagnostic-pref-surface",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "The public SpiderMonkey js-shell --list-prefs surface does not expose JitSpew, dump, bytecode, or disassembler prefs.",
+      "evidence": [
+        "matchingPrefCount=7",
+        "matchingPrefs=experimental.joint_iteration=true, experimental.wasm_esm_integration=false, ion.regalloc=0, warn_asmjs_deprecation=true, wasm_exception_force_stack_trace=false, wasm_js_promise_integration=true, wasm_test_serialization=false"
+      ]
+    },
+    {
+      "id": "public-jsshell-diagnostic-sweep-scope",
+      "classification": "SCOPE_GUARD",
+      "summary": "This sweep only rules out easy public-shell diagnostic flag paths; it is not current Firefox emitted IR/codegen evidence.",
+      "evidence": [
+        "A diagnostic-capable SpiderMonkey build is still required for emitted MIR/LIR/codegen proof.",
+        "Bytecode dump output, even if later found, would still not be optimized native code evidence."
+      ]
+    }
+  ]
+}
