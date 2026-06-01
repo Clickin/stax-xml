@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T17:06:04.811Z
+Generated: 2026-06-01T17:12:59.683Z
 
 ## Scope
 
@@ -86,7 +86,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-01T16:58:53.613Z)
+- Coverage audit loaded: yes (2026-06-01T17:12:50.501Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7
@@ -99,15 +99,15 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Counterexample Snapshot
 
-- Same-contract comparison loaded: yes (2026-06-01T16:58:19.929Z)
+- Same-contract comparison loaded: yes (2026-06-01T17:12:20.521Z)
 - Same-contract comparison counterexamples: 0
-- Runtime counterexample scan loaded: yes (2026-06-01T16:58:37.020Z)
+- Runtime counterexample scan loaded: yes (2026-06-01T17:12:49.119Z)
 - Runtime counterexample scan counterexamples: 0
 - Current release counterexamples: 0
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-01T17:05:56.414Z)
+- Handoff loaded: yes (2026-06-01T17:12:50.403Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -144,7 +144,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-01T12:34:07.036Z)
+- Source audit loaded: yes (2026-06-01T17:12:32.712Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary sync byte-batch rows: 231
@@ -169,12 +169,12 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Frontier Audit Snapshot
 
-- Memory frontier loaded: yes (2026-06-01T16:59:07.547Z)
+- Memory frontier loaded: yes (2026-06-01T17:12:34.047Z)
 - Fastest bounded JS row: 185.50 MiB/s at 60.45 MiB
 - Unbounded or unproven memory rows: 17
 - Bounded rows without numeric memory proof: 0
 - Unbounded rows at or above 200 MiB/s: 0
-- Target distance loaded: yes (2026-06-01T16:59:22.851Z)
+- Target distance loaded: yes (2026-06-01T17:12:35.960Z)
 - Woodstox 0.9x target met: no
 - Woodstox 0.9x remaining: 164.29 MiB/s
 - quick-xml 0.9x target met: no

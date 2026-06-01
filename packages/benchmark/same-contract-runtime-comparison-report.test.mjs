@@ -1479,6 +1479,103 @@ test('same-contract runtime comparison rejects bounded aggregate flags without n
   assert.match(markdown, /\| not-recorded \| 1 \| 0 \| 1 \| n\/a MiB \| Node\/V8 rawFrameNameId at 205\.00 MiB\/s \(not-recorded\) \| none \|/);
 });
 
+test('same-contract runtime comparison does not let row flags override full ArrayBuffer source contracts', () => {
+  const syntheticReleaseDir = join(tmpDir, 'release-with-full-arraybuffer-source-contract');
+  const syntheticJsonOut = join(tmpDir, 'same-contract-runtime-comparison-full-arraybuffer-source.json');
+  const syntheticMdOut = join(tmpDir, 'same-contract-runtime-comparison-full-arraybuffer-source.md');
+  resetTmp();
+  cpSync(join(__dirname, 'results', 'release'), syntheticReleaseDir, { recursive: true });
+  writeFileSync(join(syntheticReleaseDir, 'candidate-headroom-cross-process-books-corpus.json'), `${JSON.stringify({
+    objective: 'candidate-headroom-cross-process',
+    contract: 'same-full-string-checksum-contract',
+    options: {
+      fixtureShape: 'corpus-cycle',
+    },
+    sourceContract: {
+      parserInput: 'complete XML ArrayBuffer parser input',
+      arrayBufferConsumption: 'The benchmark passes one full XML ArrayBuffer to the parser.',
+    },
+    runtimes: [
+      {
+        runtime: 'node',
+        sampleCount: 3,
+        environment: {
+          runtimeName: 'node',
+          javascriptEngine: 'V8',
+        },
+        fixture: {
+          source: 'corpus-file',
+          sourceFile: 'books.xml',
+          sizeGiB: 1,
+          actualBytes: 1024 * 1024 * 1024,
+          rowCycleSize: 1,
+          maxRowBytes: 1024 * 1024,
+        },
+        variants: [
+          {
+            id: 'rawFrameNameId',
+            avgMiBPerSec: 150,
+            minMiBPerSec: 149,
+            maxMiBPerSec: 151,
+            spreadRatio: 0.01,
+            sampleCount: 3,
+            boundedMemoryAll: true,
+            maxRssBytes: 90 * 1024 * 1024,
+            fullStringParity: true,
+            stableResult: true,
+            eventCounts: [1],
+            checksums: [1],
+            contractScope: 'full-string-checksum',
+            sourceMode: 'sync-iterable-byte-batches',
+            fullArrayBufferParserInput: false,
+          },
+        ],
+      },
+    ],
+  }, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'same-contract-runtime-comparison.mjs'),
+    '--release-dir',
+    syntheticReleaseDir,
+    '--json-out',
+    syntheticJsonOut,
+    '--md-out',
+    syntheticMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(syntheticJsonOut, 'utf8'));
+  const row = report.comparisonRows.find(entry =>
+    entry.sourceArtifact === 'candidate-headroom-cross-process-books-corpus.json'
+    && entry.caseId === 'rawFrameNameId'
+  );
+  assert.ok(row);
+  assert.equal(row.sourceMode, 'sync-iterable-byte-batches');
+  assert.equal(row.fullArrayBufferParserInput, true);
+  assert.equal(row.runtimeLimitCounterexample, false);
+  assert.ok(!report.summary.primarySourceShapeSafety.sourceModes.includes('sync-iterable-byte-batches')
+    || report.summary.primarySourceShapeSafety.fullArrayBufferRows === 0);
+  assert.ok(report.summary.primarySourceShapeSafety.excludedBreakdown.some(entry =>
+    entry.reason === 'full-arraybuffer-parser-input'
+    && entry.rows >= 1
+    && entry.fastestRow.sourceArtifact === 'candidate-headroom-cross-process-books-corpus.json'
+    && entry.fastestRow.caseId === 'rawFrameNameId'
+  ));
+  assert.ok(report.summary.sourceShapeSafety.sourceModeBreakdown.some(entry =>
+    entry.sourceMode === 'sync-iterable-byte-batches'
+    && entry.fullArrayBufferRows >= 1
+  ));
+
+  const markdown = readFileSync(syntheticMdOut, 'utf8');
+  assert.match(markdown, /\| `full-arraybuffer-parser-input` \| 1 \| Node\/V8 `rawFrameNameId` 150\.00 MiB\/s from `candidate-headroom-cross-process-books-corpus\.json` \|/);
+});
+
 function resetTmp() {
   rmSync(tmpDir, { recursive: true, force: true });
   mkdirSync(tmpDir, { recursive: true });
