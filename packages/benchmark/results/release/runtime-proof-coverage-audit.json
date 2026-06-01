@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T19:45:03.559Z",
+  "generatedAt": "2026-06-01T19:55:06.601Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -5093,6 +5093,76 @@
       "measuredRowCount": 0
     },
     {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
+      "objective": "spidermonkey-taskcluster-debug-jsshell-codegen-audit",
+      "contract": "current-taskcluster-debug-spidermonkey-codegen-surface-not-same-contract-stax",
+      "evidenceKinds": [
+        "NEGATIVE_RESULT",
+        "SCOPE_GUARD",
+        "TRACE_FACT"
+      ],
+      "runtimes": [
+        "spidermonkey-jsshell"
+      ],
+      "parameters": {
+        "searchRoots": null
+      },
+      "availability": null,
+      "outcome": {
+        "status": "available",
+        "completed": null,
+        "emittedDump": null,
+        "dumpFileCount": null,
+        "foundCount": null,
+        "foundCandidates": null,
+        "packageVerified": null,
+        "hasJitExecutionStatus": null,
+        "hasIrDumpSurface": true,
+        "hasCodegenDumpOutput": true,
+        "hasXmlWorkloadCodegenOutput": null,
+        "hasMaterializedStringObjectCodegenOutput": null,
+        "hasBytecodeDumpOutput": null,
+        "bytecodeProbeCount": null,
+        "bytecodeOutputProbeCount": null,
+        "irOrCodegenProbeCount": null,
+        "hasDiagnosticPrefSurface": null,
+        "hasNativeDisassemblySurface": true,
+        "nativeDumpComplete": true,
+        "scopeComparableToCurrentFirefox": true,
+        "sameContractStaxRow": false,
+        "canReadBinaryInput": null,
+        "canRunCurrentStaxFullStringBenchmark": false,
+        "closesEmittedIrObligation": false,
+        "selectedRowId": null,
+        "selectedEventCount": null,
+        "selectedChecksum": null
+      },
+      "shell": {
+        "codegenProbe": {
+          "status": "codegen-output-emitted",
+          "flags": "codegen",
+          "outputBytes": 2339559,
+          "codegenMarkerCount": 54756,
+          "ionScriptMarkerCount": 5,
+          "assemblyMnemonicCount": 20931
+        },
+        "provenance": {
+          "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
+          "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
+          "artifactName": "public/build/target.jsshell.zip",
+          "artifactBytes": null,
+          "buildId": "20260531212007",
+          "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+          "targetVersion": "153.0a1",
+          "debug": true,
+          "official": true
+        }
+      },
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
       "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
       "objective": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit",
       "contract": "current-taskcluster-debug-spidermonkey-materialized-string-object-codegen-surface-not-unchanged-stax",
@@ -5151,6 +5221,83 @@
           "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
           "artifactName": "public/build/target.jsshell.zip",
           "artifactBytes": 24836220,
+          "buildId": "20260531212007",
+          "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+          "targetVersion": "153.0a1",
+          "debug": true,
+          "official": true
+        }
+      },
+      "fixture": {
+        "source": "ascii-corpus-seed-replay",
+        "shape": null,
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 0,
+        "sizeMiB": 4,
+        "actualBytes": null
+      },
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
+      "objective": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit",
+      "contract": "current-taskcluster-debug-spidermonkey-materialized-string-object-codegen-surface-not-unchanged-stax",
+      "evidenceKinds": [
+        "NEGATIVE_RESULT",
+        "SCOPE_GUARD",
+        "TRACE_FACT"
+      ],
+      "runtimes": [
+        "spidermonkey-jsshell"
+      ],
+      "parameters": {
+        "searchRoots": null
+      },
+      "availability": null,
+      "outcome": {
+        "status": "available",
+        "completed": null,
+        "emittedDump": null,
+        "dumpFileCount": null,
+        "foundCount": null,
+        "foundCandidates": null,
+        "packageVerified": null,
+        "hasJitExecutionStatus": null,
+        "hasIrDumpSurface": true,
+        "hasCodegenDumpOutput": true,
+        "hasXmlWorkloadCodegenOutput": null,
+        "hasMaterializedStringObjectCodegenOutput": true,
+        "hasBytecodeDumpOutput": null,
+        "bytecodeProbeCount": null,
+        "bytecodeOutputProbeCount": null,
+        "irOrCodegenProbeCount": null,
+        "hasDiagnosticPrefSurface": null,
+        "hasNativeDisassemblySurface": true,
+        "nativeDumpComplete": true,
+        "scopeComparableToCurrentFirefox": true,
+        "sameContractStaxRow": false,
+        "canReadBinaryInput": null,
+        "canRunCurrentStaxFullStringBenchmark": false,
+        "closesEmittedIrObligation": false,
+        "selectedRowId": null,
+        "selectedEventCount": null,
+        "selectedChecksum": null
+      },
+      "shell": {
+        "materializedCodegenProbe": {
+          "status": "materialized-string-object-codegen-output-emitted",
+          "flags": "codegen",
+          "outputBytes": 10108061,
+          "codegenMarkerCount": 234522,
+          "ionScriptMarkerCount": 60,
+          "assemblyMnemonicCount": 86190
+        },
+        "provenance": {
+          "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
+          "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
+          "artifactName": "public/build/target.jsshell.zip",
+          "artifactBytes": null,
           "buildId": "20260531212007",
           "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
           "targetVersion": "153.0a1",
@@ -6460,7 +6607,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 221,
+    "scannedArtifactCount": 223,
     "ignoredArtifactCount": 7,
     "parseErrorCount": 0,
     "measuredRowCount": 1255,
@@ -6483,10 +6630,10 @@
     },
     "benchmarkArtifactCount": 156,
     "sourceArtifactCount": 25,
-    "traceArtifactCount": 16,
+    "traceArtifactCount": 18,
     "allocationArtifactCount": 16,
     "environmentArtifactCount": 4,
-    "negativeArtifactCount": 26,
+    "negativeArtifactCount": 28,
     "largeJsFullRowCount": 848,
     "largeJsFullSourceInputSafety": {
       "rows": 848,
@@ -6866,7 +7013,7 @@
       {
         "runtimeId": "spidermonkey-jsshell",
         "runtimeLabel": "SpiderMonkey js-shell",
-        "artifactCount": 7,
+        "artifactCount": 9,
         "measuredRowCount": 5,
         "largeFullStringRowCount": 0,
         "fastestLargeFullStringRow": null,
@@ -6874,7 +7021,9 @@
         "traceArtifacts": [
           "spidermonkey-archival-debug-jsshell-codegen-audit.json",
           "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
+          "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
           "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
+          "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
           "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
         ],
         "allocationArtifacts": []
@@ -26045,6 +26194,76 @@
         "measuredRowCount": 0
       },
       {
+        "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
+        "objective": "spidermonkey-taskcluster-debug-jsshell-codegen-audit",
+        "contract": "current-taskcluster-debug-spidermonkey-codegen-surface-not-same-contract-stax",
+        "evidenceKinds": [
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD",
+          "TRACE_FACT"
+        ],
+        "runtimes": [
+          "spidermonkey-jsshell"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": {
+          "status": "available",
+          "completed": null,
+          "emittedDump": null,
+          "dumpFileCount": null,
+          "foundCount": null,
+          "foundCandidates": null,
+          "packageVerified": null,
+          "hasJitExecutionStatus": null,
+          "hasIrDumpSurface": true,
+          "hasCodegenDumpOutput": true,
+          "hasXmlWorkloadCodegenOutput": null,
+          "hasMaterializedStringObjectCodegenOutput": null,
+          "hasBytecodeDumpOutput": null,
+          "bytecodeProbeCount": null,
+          "bytecodeOutputProbeCount": null,
+          "irOrCodegenProbeCount": null,
+          "hasDiagnosticPrefSurface": null,
+          "hasNativeDisassemblySurface": true,
+          "nativeDumpComplete": true,
+          "scopeComparableToCurrentFirefox": true,
+          "sameContractStaxRow": false,
+          "canReadBinaryInput": null,
+          "canRunCurrentStaxFullStringBenchmark": false,
+          "closesEmittedIrObligation": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null
+        },
+        "shell": {
+          "codegenProbe": {
+            "status": "codegen-output-emitted",
+            "flags": "codegen",
+            "outputBytes": 2339559,
+            "codegenMarkerCount": 54756,
+            "ionScriptMarkerCount": 5,
+            "assemblyMnemonicCount": 20931
+          },
+          "provenance": {
+            "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
+            "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
+            "artifactName": "public/build/target.jsshell.zip",
+            "artifactBytes": null,
+            "buildId": "20260531212007",
+            "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+            "targetVersion": "153.0a1",
+            "debug": true,
+            "official": true
+          }
+        },
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
         "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
         "objective": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit",
         "contract": "current-taskcluster-debug-spidermonkey-materialized-string-object-codegen-surface-not-unchanged-stax",
@@ -26103,6 +26322,83 @@
             "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
             "artifactName": "public/build/target.jsshell.zip",
             "artifactBytes": 24836220,
+            "buildId": "20260531212007",
+            "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+            "targetVersion": "153.0a1",
+            "debug": true,
+            "official": true
+          }
+        },
+        "fixture": {
+          "source": "ascii-corpus-seed-replay",
+          "shape": null,
+          "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+          "sizeGiB": 0,
+          "sizeMiB": 4,
+          "actualBytes": null
+        },
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
+        "objective": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit",
+        "contract": "current-taskcluster-debug-spidermonkey-materialized-string-object-codegen-surface-not-unchanged-stax",
+        "evidenceKinds": [
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD",
+          "TRACE_FACT"
+        ],
+        "runtimes": [
+          "spidermonkey-jsshell"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": {
+          "status": "available",
+          "completed": null,
+          "emittedDump": null,
+          "dumpFileCount": null,
+          "foundCount": null,
+          "foundCandidates": null,
+          "packageVerified": null,
+          "hasJitExecutionStatus": null,
+          "hasIrDumpSurface": true,
+          "hasCodegenDumpOutput": true,
+          "hasXmlWorkloadCodegenOutput": null,
+          "hasMaterializedStringObjectCodegenOutput": true,
+          "hasBytecodeDumpOutput": null,
+          "bytecodeProbeCount": null,
+          "bytecodeOutputProbeCount": null,
+          "irOrCodegenProbeCount": null,
+          "hasDiagnosticPrefSurface": null,
+          "hasNativeDisassemblySurface": true,
+          "nativeDumpComplete": true,
+          "scopeComparableToCurrentFirefox": true,
+          "sameContractStaxRow": false,
+          "canReadBinaryInput": null,
+          "canRunCurrentStaxFullStringBenchmark": false,
+          "closesEmittedIrObligation": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null
+        },
+        "shell": {
+          "materializedCodegenProbe": {
+            "status": "materialized-string-object-codegen-output-emitted",
+            "flags": "codegen",
+            "outputBytes": 10108061,
+            "codegenMarkerCount": 234522,
+            "ionScriptMarkerCount": 60,
+            "assemblyMnemonicCount": 86190
+          },
+          "provenance": {
+            "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
+            "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
+            "artifactName": "public/build/target.jsshell.zip",
+            "artifactBytes": null,
             "buildId": "20260531212007",
             "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
             "targetVersion": "153.0a1",
@@ -28647,6 +28943,76 @@
         "measuredRowCount": 0
       },
       {
+        "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
+        "objective": "spidermonkey-taskcluster-debug-jsshell-codegen-audit",
+        "contract": "current-taskcluster-debug-spidermonkey-codegen-surface-not-same-contract-stax",
+        "evidenceKinds": [
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD",
+          "TRACE_FACT"
+        ],
+        "runtimes": [
+          "spidermonkey-jsshell"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": {
+          "status": "available",
+          "completed": null,
+          "emittedDump": null,
+          "dumpFileCount": null,
+          "foundCount": null,
+          "foundCandidates": null,
+          "packageVerified": null,
+          "hasJitExecutionStatus": null,
+          "hasIrDumpSurface": true,
+          "hasCodegenDumpOutput": true,
+          "hasXmlWorkloadCodegenOutput": null,
+          "hasMaterializedStringObjectCodegenOutput": null,
+          "hasBytecodeDumpOutput": null,
+          "bytecodeProbeCount": null,
+          "bytecodeOutputProbeCount": null,
+          "irOrCodegenProbeCount": null,
+          "hasDiagnosticPrefSurface": null,
+          "hasNativeDisassemblySurface": true,
+          "nativeDumpComplete": true,
+          "scopeComparableToCurrentFirefox": true,
+          "sameContractStaxRow": false,
+          "canReadBinaryInput": null,
+          "canRunCurrentStaxFullStringBenchmark": false,
+          "closesEmittedIrObligation": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null
+        },
+        "shell": {
+          "codegenProbe": {
+            "status": "codegen-output-emitted",
+            "flags": "codegen",
+            "outputBytes": 2339559,
+            "codegenMarkerCount": 54756,
+            "ionScriptMarkerCount": 5,
+            "assemblyMnemonicCount": 20931
+          },
+          "provenance": {
+            "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
+            "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
+            "artifactName": "public/build/target.jsshell.zip",
+            "artifactBytes": null,
+            "buildId": "20260531212007",
+            "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+            "targetVersion": "153.0a1",
+            "debug": true,
+            "official": true
+          }
+        },
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
         "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
         "objective": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit",
         "contract": "current-taskcluster-debug-spidermonkey-materialized-string-object-codegen-surface-not-unchanged-stax",
@@ -28705,6 +29071,83 @@
             "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
             "artifactName": "public/build/target.jsshell.zip",
             "artifactBytes": 24836220,
+            "buildId": "20260531212007",
+            "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+            "targetVersion": "153.0a1",
+            "debug": true,
+            "official": true
+          }
+        },
+        "fixture": {
+          "source": "ascii-corpus-seed-replay",
+          "shape": null,
+          "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+          "sizeGiB": 0,
+          "sizeMiB": 4,
+          "actualBytes": null
+        },
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
+        "objective": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit",
+        "contract": "current-taskcluster-debug-spidermonkey-materialized-string-object-codegen-surface-not-unchanged-stax",
+        "evidenceKinds": [
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD",
+          "TRACE_FACT"
+        ],
+        "runtimes": [
+          "spidermonkey-jsshell"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": {
+          "status": "available",
+          "completed": null,
+          "emittedDump": null,
+          "dumpFileCount": null,
+          "foundCount": null,
+          "foundCandidates": null,
+          "packageVerified": null,
+          "hasJitExecutionStatus": null,
+          "hasIrDumpSurface": true,
+          "hasCodegenDumpOutput": true,
+          "hasXmlWorkloadCodegenOutput": null,
+          "hasMaterializedStringObjectCodegenOutput": true,
+          "hasBytecodeDumpOutput": null,
+          "bytecodeProbeCount": null,
+          "bytecodeOutputProbeCount": null,
+          "irOrCodegenProbeCount": null,
+          "hasDiagnosticPrefSurface": null,
+          "hasNativeDisassemblySurface": true,
+          "nativeDumpComplete": true,
+          "scopeComparableToCurrentFirefox": true,
+          "sameContractStaxRow": false,
+          "canReadBinaryInput": null,
+          "canRunCurrentStaxFullStringBenchmark": false,
+          "closesEmittedIrObligation": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null
+        },
+        "shell": {
+          "materializedCodegenProbe": {
+            "status": "materialized-string-object-codegen-output-emitted",
+            "flags": "codegen",
+            "outputBytes": 10108061,
+            "codegenMarkerCount": 234522,
+            "ionScriptMarkerCount": 60,
+            "assemblyMnemonicCount": 86190
+          },
+          "provenance": {
+            "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
+            "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
+            "artifactName": "public/build/target.jsshell.zip",
+            "artifactBytes": null,
             "buildId": "20260531212007",
             "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
             "targetVersion": "153.0a1",

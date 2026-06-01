@@ -254,7 +254,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /same-contract-comparison-contract/);
   assert.match(markdown, /same-contract-comparison-row-count/);
   assert.match(markdown, /Counterexample scan contract: threshold=200\.00 MiB\/s, minSizeGiB=1\.00, parseErrors=0/);
-  assert.match(markdown, /Counterexample scan coverage shape: artifacts=221\/221, measuredRows=1255\/1255/);
+  assert.match(markdown, /Counterexample scan coverage shape: artifacts=223\/223, measuredRows=1255\/1255/);
   assert.match(markdown, /counterexample-scan-current-coverage-shape/);
   assert.match(markdown, /Runtime counterexample scan counterexamples: 0/);
   assert.match(markdown, /Current release counterexamples: 0/);

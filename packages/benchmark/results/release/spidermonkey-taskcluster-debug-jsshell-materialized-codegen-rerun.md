@@ -1,0 +1,127 @@
+# SpiderMonkey Taskcluster Debug JS Shell Materialized Codegen Audit
+
+Generated: 2026-06-01T19:53:16.832Z
+
+Runs a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell with JitSpew codegen enabled on an ASCII XML workload that materializes JS string primitives and public event-shaped objects before folding the same semantic checksum fields. This is stronger than token-boundary codegen evidence, but it is not the unchanged StAX benchmark because the js-shell host API lacks TextDecoder, ReadableStream, and fetch.
+
+## Summary
+
+- Status: available
+- Version: JavaScript-C153.0a1
+- Task ID: bzK0wWZvQoOguMjTIbRJ_g
+- Route: gecko.v2.mozilla-central.latest.firefox.win64-debug
+- Artifact bytes: not-recorded
+- Build ID: 20260531212007
+- Source revision: 71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7
+- Target version: 153.0a1
+- Materialized string/object codegen output emitted: true
+- Same semantic checksum fields: true
+- Full-string parity: true
+- Same-contract StAX row: false
+- Unchanged StAX benchmark: false
+- Can run current StAX full-string benchmark: false
+- Closes emitted IR obligation: false
+
+## Materialized Workload
+
+- Contract scope: ascii-js-string-and-public-event-object-materialization
+- Target MiB: 4
+- Event count: 223041
+- Checksum: 167904020
+- Materialized string count: 245161
+- Materialized object count: 223041
+- Materialized attribute object count: 78342
+- Throughput MiB/s: 0.47
+
+## Codegen Probe
+
+- Status: materialized-string-object-codegen-output-emitted
+- Codegen marker count: 234522
+- IonScript marker count: 60
+- Assembly mnemonic count: 86190
+
+## Host API Probe
+
+- Missing globals: TextDecoder, TextEncoder, ReadableStream, fetch
+- Can run current StAX full-string benchmark: false
+
+## Excerpt
+
+```text
+materializedPayload={"seedBytes":4551,"targetBytes":4194304,"samplesMs":[8456.403076171875],"avgMs":8456.403076171875,"mibPerSec":0.47301434947809484,"result":{"eventCount":223041,"checksum":167904020,"startElementCount":78342,"endElementCount":78339,"textEventCount":66360,"attributeCount":11060,"materializedStringCount":245161,"materializedObjectCount":223041,"materializedAttributeObjectCount":78342}}
+found tag: codegen
+[Codegen] # Emitting bailout tail stub
+[Codegen] # BEGIN creators: JitRuntime::generateBailoutTailStub
+[Codegen] 000000  .set .Llabel0, .
+[Codegen] 000000  testb      $0xff, %al
+[Codegen] 000002  je         .Lfrom8
+[Codegen] 000008  .set .Llabel8, .
+[Codegen] 000008  movq       0x0(%r9), %rax
+[Codegen] 00000b  cmpq       %rax, %rsp
+[Codegen] 00000e  je         .Lfrom20
+[Codegen] 000014  push       %r10
+[Codegen] 000016  push       %r9
+[Codegen] 000018  push       %r8
+[Codegen] 00001a  push       %rdx
+[Codegen] 00001b  push       %rcx
+[Codegen] 00001c  push       %rax
+[Codegen] 00001d  subq       $96, %rsp
+[Codegen] 000021  .set .Llabel33, .
+[Codegen] 000021  vmovdqu    %xmm5, 0x50(%rsp)
+[Codegen] 000027  .set .Llabel39, .
+[Codegen] 000027  vmovdqu    %xmm4, 0x40(%rsp)
+[Codegen] 00002d  .set .Llabel45, .
+[Codegen] 00002d  vmovdqu    %xmm3, 0x30(%rsp)
+[Codegen] 000033  .set .Llabel51, .
+[Codegen] 000033  vmovdqu    %xmm2, 0x20(%rsp)
+[Codegen] 000039  .set .Llabel57, .
+[Codegen] 000039  vmovdqu    %xmm1, 0x10(%rsp)
+[Codegen] 00003f  .set .Llabel63, .
+[Codegen] 00003f  vmovdqu    %xmm0, 0x0(%rsp)
+[Codegen] 000044  movq       %rsp, %rax
+[Codegen] 000047  andq       $0xfffffffffffffff0, %rsp
+[Codegen] 00004b  push       %rax
+[Codegen] 00004c  movabsq    $0x7ff6ebc9224c, %rax
+[Codegen] 000056  subq       $40, %rsp
+[Codegen] 00005a  movq       %rax, %rcx
+[Codegen] 00005d  testb      $0xf, %spl
+[Codegen] 000061  je         .Lfrom103
+[Codegen] 000067  .set .Llabel103, .
+[Codegen] 000067  int3
+[Codegen] 000068  .set .Llabel104, .
+[Codegen] 000068  .set .Lfrom103, .Llabel104
+[Codegen] 000068  call       .Lfrom109
+[Codegen] 00006d  addq       $40, %rsp
+[Codegen] 000071  pop        %rsp
+[Codegen] 000072  .set .Llabel114, .
+[Codegen] 000072  vmovdqu    0x50(%rsp), %xmm5
+[Codegen] 000078  .set .Llabel120, .
+[Codegen] 000078  vmovdqu    0x40(%rsp), %xmm4
+[Codegen] 00007e  .set .Llabel126, .
+```
+
+## Findings
+
+- taskcluster-debug-jsshell-materialized-codegen-emitted (TRACE_FACT): The current Taskcluster debug SpiderMonkey shell emits JitSpew codegen diagnostics while executing an XML workload that materializes JS strings and public event-shaped objects.
+  - version=JavaScript-C153.0a1
+  - taskId=bzK0wWZvQoOguMjTIbRJ_g
+  - buildId=20260531212007
+  - sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7
+  - status=materialized-string-object-codegen-output-emitted
+  - codegenMarkers=234522
+  - ionScriptMarkers=60
+  - assemblyMnemonics=86190
+  - eventCount=223041
+  - checksum=167904020
+  - materializedStringCount=245161
+  - materializedObjectCount=223041
+- taskcluster-debug-jsshell-materialized-stax-scope-gap (SCOPE_GUARD): The materialized workload folds the same semantic string fields but is not the unchanged StAX benchmark or a browser TextDecoder row.
+  - sameSemanticChecksumFields=true
+  - fullStringParity=true
+  - sameContractStaxRow=false
+  - unchangedStaxBenchmark=false
+  - closesEmittedIrObligation=false
+- taskcluster-debug-jsshell-stax-api-gap (NEGATIVE_RESULT): The current debug js-shell lacks the host APIs needed to run the unchanged StAX full-string benchmark.
+  - missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch
+  - canRunCurrentStaxFullStringBenchmark=false
+  - sameContractStaxRow=false

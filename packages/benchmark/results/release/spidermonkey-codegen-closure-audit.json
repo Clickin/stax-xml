@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T19:44:35.723Z",
+  "generatedAt": "2026-06-01T19:53:34.078Z",
   "objective": "spidermonkey-codegen-closure-audit",
   "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
   "note": "Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.",
@@ -739,7 +739,137 @@
       "qualifiedClosure": false
     },
     {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
+      "objective": "spidermonkey-taskcluster-debug-jsshell-codegen-audit",
+      "status": "available",
+      "evidenceClass": "current-debug-codegen-scope-guard",
+      "hasAnyDiagnosticSurface": true,
+      "selectedRowIdentityStatus": null,
+      "requirements": {
+        "emittedCodegenSurface": {
+          "met": true,
+          "evidence": [
+            "hasCodegenDumpOutput=true",
+            "irDumpSurface=false",
+            "nativeDumpComplete=true",
+            "codegenMarkers=54756"
+          ]
+        },
+        "sameContractStaxRow": {
+          "met": false,
+          "evidence": [
+            "sameContractStaxRow=false"
+          ]
+        },
+        "unchangedRunnable": {
+          "met": false,
+          "evidence": [
+            "canRunCurrentStaxFullStringBenchmark=false",
+            "unchangedStaxBenchmark=unknown"
+          ]
+        },
+        "selectedRowMetadata": {
+          "met": false,
+          "evidence": [
+            "selectedRowId=unknown",
+            "selectedEventCount=unknown",
+            "selectedChecksum=unknown"
+          ]
+        },
+        "closingMetadata": {
+          "met": true,
+          "evidence": [
+            "taskId=bzK0wWZvQoOguMjTIbRJ_g",
+            "buildId=20260531212007",
+            "sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+            "runtimeBuildIdentityRecorded=true",
+            "diagnosticFlagsRecorded=true",
+            "emittedDumpMetadataRecorded=true"
+          ]
+        },
+        "evidenceClassAllowed": {
+          "met": false,
+          "evidence": [
+            "evidenceClass=current-debug-codegen-scope-guard"
+          ]
+        }
+      },
+      "unmetRequirements": [
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "evidenceClassAllowed"
+      ],
+      "declaresClosure": false,
+      "qualifiedClosure": false
+    },
+    {
       "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
+      "objective": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit",
+      "status": "available",
+      "evidenceClass": "current-debug-materialized-codegen-scope-guard",
+      "hasAnyDiagnosticSurface": true,
+      "selectedRowIdentityStatus": null,
+      "requirements": {
+        "emittedCodegenSurface": {
+          "met": true,
+          "evidence": [
+            "hasCodegenDumpOutput=true",
+            "irDumpSurface=false",
+            "nativeDumpComplete=true",
+            "codegenMarkers=234522"
+          ]
+        },
+        "sameContractStaxRow": {
+          "met": false,
+          "evidence": [
+            "sameContractStaxRow=false"
+          ]
+        },
+        "unchangedRunnable": {
+          "met": false,
+          "evidence": [
+            "canRunCurrentStaxFullStringBenchmark=false",
+            "unchangedStaxBenchmark=false"
+          ]
+        },
+        "selectedRowMetadata": {
+          "met": false,
+          "evidence": [
+            "selectedRowId=unknown",
+            "selectedEventCount=unknown",
+            "selectedChecksum=unknown"
+          ]
+        },
+        "closingMetadata": {
+          "met": true,
+          "evidence": [
+            "taskId=bzK0wWZvQoOguMjTIbRJ_g",
+            "buildId=20260531212007",
+            "sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+            "runtimeBuildIdentityRecorded=true",
+            "diagnosticFlagsRecorded=true",
+            "emittedDumpMetadataRecorded=true"
+          ]
+        },
+        "evidenceClassAllowed": {
+          "met": false,
+          "evidence": [
+            "evidenceClass=current-debug-materialized-codegen-scope-guard"
+          ]
+        }
+      },
+      "unmetRequirements": [
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "evidenceClassAllowed"
+      ],
+      "declaresClosure": false,
+      "qualifiedClosure": false
+    },
+    {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
       "objective": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit",
       "status": "available",
       "evidenceClass": "current-debug-materialized-codegen-scope-guard",
@@ -870,16 +1000,16 @@
     }
   ],
   "summary": {
-    "candidateCount": 13,
-    "diagnosticSurfaceCount": 4,
-    "emittedCodegenSurfaceCount": 4,
+    "candidateCount": 15,
+    "diagnosticSurfaceCount": 6,
+    "emittedCodegenSurfaceCount": 6,
     "sameContractStaxRowCount": 0,
     "unchangedRunnableCount": 0,
     "selectedRowMetadataCount": 0,
-    "closingMetadataCount": 3,
+    "closingMetadataCount": 5,
     "qualifiedClosureCount": 0,
     "contradictedClosureClaimCount": 0,
-    "blockedCandidateCount": 13,
+    "blockedCandidateCount": 15,
     "conclusionAllowed": false
   },
   "findings": [
@@ -888,7 +1018,7 @@
       "classification": "SCOPE_GUARD",
       "summary": "SpiderMonkey diagnostic/codegen artifacts are classified through the same-contract closure matrix before they can close codegen-traces-open.",
       "evidence": [
-        "candidates=13",
+        "candidates=15",
         "qualifiedClosures=0"
       ]
     },
@@ -897,7 +1027,7 @@
       "classification": "NEGATIVE_RESULT",
       "summary": "No current SpiderMonkey diagnostic/codegen artifact satisfies emitted-codegen, unchanged StAX, selected-row metadata, and closing-metadata requirements together.",
       "evidence": [
-        "emittedCodegenSurface=4",
+        "emittedCodegenSurface=6",
         "sameContractStaxRows=0",
         "unchangedRunnable=0"
       ]

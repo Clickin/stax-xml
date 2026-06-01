@@ -554,6 +554,8 @@ function createLocalClosure(activeObligations, audit, options = {}) {
     const taskclusterDebugJsShell = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-codegen-audit.json') ?? null;
     const taskclusterDebugJsShellXml = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json') ?? null;
     const taskclusterDebugJsShellMaterialized = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json') ?? null;
+    const taskclusterDebugJsShellRerun = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json') ?? null;
+    const taskclusterDebugJsShellMaterializedRerun = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json') ?? null;
     const asciiScopeDistance = artifactByName.get('spidermonkey-ascii-scope-distance-audit.json') ?? null;
     const materializedScopeDistance = artifactByName.get('spidermonkey-materialized-scope-distance-audit.json') ?? null;
     const codegenClosureAudit = artifactByName.get('spidermonkey-codegen-closure-audit.json') ?? null;
@@ -610,6 +612,14 @@ function createLocalClosure(activeObligations, audit, options = {}) {
       && taskclusterDebugJsShellMaterialized?.outcome?.scopeComparableToCurrentFirefox === true
       && taskclusterDebugJsShellMaterialized?.outcome?.sameContractStaxRow === false
       && taskclusterDebugJsShellMaterialized?.outcome?.closesEmittedIrObligation === false;
+    const taskclusterDebugCodegenRerunScopeGuard = taskclusterDebugJsShellRerun?.outcome?.hasCodegenDumpOutput === true
+      && taskclusterDebugJsShellRerun?.outcome?.scopeComparableToCurrentFirefox === true
+      && taskclusterDebugJsShellRerun?.outcome?.sameContractStaxRow === false
+      && taskclusterDebugJsShellRerun?.outcome?.closesEmittedIrObligation === false;
+    const taskclusterDebugMaterializedCodegenRerunScopeGuard = taskclusterDebugJsShellMaterializedRerun?.outcome?.hasMaterializedStringObjectCodegenOutput === true
+      && taskclusterDebugJsShellMaterializedRerun?.outcome?.scopeComparableToCurrentFirefox === true
+      && taskclusterDebugJsShellMaterializedRerun?.outcome?.sameContractStaxRow === false
+      && taskclusterDebugJsShellMaterializedRerun?.outcome?.closesEmittedIrObligation === false;
     const materializedScopeDistancePinned = materializedScopeDistance?.summary?.semanticEquivalentForAsciiFields === true
       && materializedScopeDistance?.summary?.closesCodegenObligation === false;
     const codegenClosureAuditPinned = codegenClosureAudit?.contract === 'spidermonkey-emitted-codegen-same-contract-closure-matrix'
@@ -634,7 +644,7 @@ function createLocalClosure(activeObligations, audit, options = {}) {
       obligationId: 'codegen-traces-open',
       localStatus: blocked ? 'external-run-required' : 'partial-local-status',
       localRunnable: blocked ? false : null,
-      evidenceArtifacts: [diagnostic, jsShell, releaseJsShell, nightlyJsShell, jsShellApiGap, staxHostApiBoundary, jsShellTokenizerHeadroom, jsShellMaterializedHeadroom, jsShellDiagnosticFlagSweep, taskclusterDebugJsShell, taskclusterDebugJsShellXml, taskclusterDebugJsShellMaterialized, asciiScopeDistance, materializedScopeDistance, codegenClosureAudit, archivalDebugJsShell, buildconfig]
+      evidenceArtifacts: [diagnostic, jsShell, releaseJsShell, nightlyJsShell, jsShellApiGap, staxHostApiBoundary, jsShellTokenizerHeadroom, jsShellMaterializedHeadroom, jsShellDiagnosticFlagSweep, taskclusterDebugJsShell, taskclusterDebugJsShellXml, taskclusterDebugJsShellMaterialized, taskclusterDebugJsShellRerun, taskclusterDebugJsShellMaterializedRerun, asciiScopeDistance, materializedScopeDistance, codegenClosureAudit, archivalDebugJsShell, buildconfig]
         .filter(Boolean)
         .map(artifact => artifact.sourceArtifact),
       blockers: [
@@ -679,6 +689,12 @@ function createLocalClosure(activeObligations, audit, options = {}) {
         taskclusterDebugMaterializedCodegenScopeGuard
           ? `A current Taskcluster debug js-shell emits JitSpew codegen output while materializing JS strings and public event-shaped objects (taskId=${taskclusterDebugJsShellMaterialized.shell?.provenance?.taskId ?? 'unknown'}, buildId=${taskclusterDebugJsShellMaterialized.shell?.provenance?.buildId ?? 'unknown'}), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=${taskclusterDebugJsShellMaterialized.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, and selectedRowIdentityStatus=${spiderMonkeyDiagnosticById.get('taskcluster-debug-jsshell-materialized-codegen')?.selectedRowIdentityStatus ?? 'unknown'}.`
           : 'No current Taskcluster debug js-shell materialized string/object codegen scope guard is recorded.',
+        taskclusterDebugCodegenRerunScopeGuard
+          ? `A rerun of the current Taskcluster debug js-shell codegen probe reproduces JitSpew output (taskId=${taskclusterDebugJsShellRerun.shell?.provenance?.taskId ?? 'unknown'}, codegenMarkers=${taskclusterDebugJsShellRerun.shell?.codegenProbe?.codegenMarkerCount ?? 'unknown'}), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=${taskclusterDebugJsShellRerun.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, and closesEmittedIrObligation=false.`
+          : 'No rerun Taskcluster debug js-shell codegen scope guard is recorded.',
+        taskclusterDebugMaterializedCodegenRerunScopeGuard
+          ? `A rerun of the current Taskcluster debug js-shell materialized string/object probe reproduces JitSpew output (taskId=${taskclusterDebugJsShellMaterializedRerun.shell?.provenance?.taskId ?? 'unknown'}, codegenMarkers=${taskclusterDebugJsShellMaterializedRerun.shell?.materializedCodegenProbe?.codegenMarkerCount ?? 'unknown'}, throughputMiBPerSec=${formatNumber(taskclusterDebugJsShellMaterializedRerun.shell?.materializedCodegenProbe?.payload?.throughputMiBPerSec)}), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=${taskclusterDebugJsShellMaterializedRerun.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, and closesEmittedIrObligation=false.`
+          : 'No rerun Taskcluster debug js-shell materialized string/object codegen scope guard is recorded.',
         `Coverage diagnostic identity status counts: selectedRowIdentityStatusCounts ${formatCountMap(diagnosticIdentityStatusCounts)}.`,
         asciiScopeDistancePinned
           ? `The ASCII scope-distance audit pins corpusFileCount=${asciiScopeDistance.summary?.corpusFileCount ?? 'unknown'}, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, and reducesScopeDistance=true while closesCodegenObligation=false, so ASCII corpus equivalence narrows materialized js-shell scope but does not supply unchanged StAX closure evidence.`
