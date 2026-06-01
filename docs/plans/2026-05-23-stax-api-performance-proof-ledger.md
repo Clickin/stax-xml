@@ -266,7 +266,7 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 207 primary release JSON artifacts, recognizes 1,185
+The current scan covers 208 primary release JSON artifacts, recognizes 1,185
 sample throughput rows and 170 aggregate rows, and finds 792 JavaScript 1 GiB+
 full-string sample rows plus 133 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
@@ -593,8 +593,8 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 207 primary release artifacts and recognizes 1,185
-measured rows. It records 151 benchmark artifacts, 22 source artifacts, 11
+The current audit scans 208 primary release artifacts and recognizes 1,185
+measured rows. It records 151 benchmark artifacts, 22 source artifacts, 12
 trace/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and
 19 negative-result artifacts, 792 JavaScript 1 GiB+ full-string rows, and four
 release corpus seeds: `books.xml`, `large.xml`, `midsize.xml`, and `treebank_e.xml`. The
@@ -1591,6 +1591,18 @@ diagnostic markers, and zero stderr lines while preserving `ionHits=4988` and
 checksum `12502500`. This narrows one more public Mozilla package path, but it
 is still not emitted SpiderMonkey JIT IR and does not close
 `codegen-traces-open`.
+
+`packages/benchmark/results/release/spidermonkey-archival-debug-jsshell-codegen-audit.md`
+then checks a Firefox 36 era debug js-shell from the archived
+`2015-01-03-mozilla-aurora-debug` package. It records
+`Version: JavaScript-C36.0a2`, build id `20150102133716`, source revision
+`b6b89746c58b`, and emitted `[Codegen]`, `Created IonScript`, and assembly
+mnemonic diagnostics under `IONFLAGS=codegen` and `JIT_SPEW=codegen` while
+preserving checksum `5050`. The coverage audit classifies this as
+`archival-codegen-scope-guard`: it proves the expected diagnostic surface shape
+exists in a debug shell, but records `scopeComparableToCurrentFirefox=false`,
+`sameContractStaxRow=false`, and `closesEmittedIrObligation=false`. It is not
+current Firefox 143 evidence and does not close `codegen-traces-open`.
 
 ## Current Evidence: Firefox/SpiderMonkey JS Shell StAX API Gap Audit
 

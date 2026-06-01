@@ -1,0 +1,131 @@
+{
+  "generatedAt": "2026-06-01T03:00:26.989Z",
+  "objective": "spidermonkey-archival-debug-jsshell-codegen-audit",
+  "contract": "archival-debug-spidermonkey-codegen-surface-not-current-stax-evidence",
+  "note": "Checks an archived Mozilla debug SpiderMonkey js-shell for JitSpew codegen output. This proves the expected diagnostic surface shape, but the shell is Firefox 36 era and is not current Firefox/SpiderMonkey StAX evidence.",
+  "environment": {
+    "platform": "win32-x64"
+  },
+  "parameters": {
+    "jsShell": "G:\\tmp\\stax-spidermonkey-debug-jsshell-2015\\extract\\js.exe",
+    "packageUrl": "https://archive.mozilla.org/pub/firefox/nightly/2015/01/2015-01-03-mozilla-aurora-debug/jsshell-win64-x86_64.zip",
+    "buildInfoUrl": "https://archive.mozilla.org/pub/firefox/nightly/2015/01/2015-01-03-mozilla-aurora-debug/firefox-36.0a2.en-US.debug-win64-x86_64.txt",
+    "selfTest": false
+  },
+  "shell": {
+    "status": "available",
+    "buildInfo": {
+      "status": "ok",
+      "url": "https://archive.mozilla.org/pub/firefox/nightly/2015/01/2015-01-03-mozilla-aurora-debug/firefox-36.0a2.en-US.debug-win64-x86_64.txt",
+      "httpStatus": 200,
+      "raw": "20150102133716\nhttps://hg.mozilla.org/releases/mozilla-aurora/rev/b6b89746c58b",
+      "buildId": "20150102133716",
+      "sourceRevision": "b6b89746c58b",
+      "sourceUrl": "https://hg.mozilla.org/releases/mozilla-aurora/rev/b6b89746c58b"
+    },
+    "help": {
+      "exitCode": 0,
+      "error": null,
+      "versionLine": "Version: JavaScript-C36.0a2",
+      "hasIonEager": true,
+      "hasIonOffthreadCompile": true,
+      "hasDumpBytecode": true,
+      "mentionsJitCodegen": true
+    },
+    "codegenProbe": {
+      "status": "codegen-output-emitted",
+      "flags": "codegen",
+      "exitCode": 0,
+      "error": null,
+      "checksum": 5050,
+      "outputBytes": 1490940,
+      "stdoutLineCount": 1,
+      "stderrLineCount": 42040,
+      "codegenMarkerCount": 42040,
+      "ionScriptMarkerCount": 8,
+      "assemblyMnemonicCount": 19105,
+      "excerpt": [
+        "checksum=5050",
+        "[Codegen] # Emitting exception tail stub",
+        "[Codegen] subq       $0x30, %rsp",
+        "[Codegen] movq       %rsp, %rax",
+        "[Codegen] movq       %rsp, %rcx",
+        "[Codegen] andq       $0xfffffff0, %rsp",
+        "[Codegen] push       %rcx",
+        "[Codegen] subq       $0x28, %rsp",
+        "[Codegen] movq       %rax, %rcx",
+        "[Codegen] testb      $0xf, %ah/spl",
+        "[Codegen] je         ((32))",
+        "[Codegen] int3",
+        "[Codegen] #label     ((33))",
+        "[Codegen] ##link     ((32)) jumps to ((33))",
+        "[Codegen] ##setRel32 ((from=00000008CCFFE850)) ((to=00000008CCFFE851))",
+        "[Codegen] movabsq    $0x7ff7268c1b60, %rax",
+        "[Codegen] call       *%rax",
+        "[Codegen] addq       $0x28, %rsp",
+        "[Codegen] pop        %rsp",
+        "[Codegen] movq       0x18(%rsp), %rax",
+        "[Codegen] testl      %eax, %eax",
+        "[Codegen] je         ((63))",
+        "[Codegen] cmpl       $0x1, %eax",
+        "[Codegen] je         ((72))",
+        "[Codegen] cmpl       $0x2, %eax",
+        "[Codegen] je         ((81))",
+        "[Codegen] cmpl       $0x3, %eax",
+        "[Codegen] je         ((90))",
+        "[Codegen] cmpl       $0x4, %eax",
+        "[Codegen] je         ((99))",
+        "[Codegen] int3",
+        "[Codegen] #label     ((100))",
+        "[Codegen] ##link     ((63)) jumps to ((100))",
+        "[Codegen] ##setRel32 ((from=00000008CCFFE86F)) ((to=00000008CCFFE894))",
+        "[Codegen] movabsq    $0xfffa00000000000e, %rcx",
+        "[Codegen] movq       0x8(%rsp), %rsp",
+        "[Codegen] ret",
+        "[Codegen] #label     ((116))",
+        "[Codegen] ##link     ((72)) jumps to ((116))",
+        "[Codegen] ##setRel32 ((from=00000008CCFFE878)) ((to=00000008CCFFE8A4))"
+      ]
+    }
+  },
+  "outcome": {
+    "status": "available",
+    "hasJitExecutionStatus": null,
+    "hasIrDumpSurface": true,
+    "hasCodegenDumpOutput": true,
+    "hasNativeDisassemblySurface": true,
+    "nativeDumpComplete": true,
+    "scopeComparableToCurrentFirefox": false,
+    "sameContractStaxRow": false,
+    "canRunCurrentStaxFullStringBenchmark": false,
+    "closesEmittedIrObligation": false
+  },
+  "findings": [
+    {
+      "id": "archival-debug-jsshell-codegen-emitted",
+      "classification": "TRACE_FACT",
+      "summary": "The archived debug SpiderMonkey shell emits JitSpew codegen diagnostics under IONFLAGS/JIT_SPEW.",
+      "evidence": [
+        "version=Version: JavaScript-C36.0a2",
+        "buildId=20150102133716",
+        "sourceRevision=b6b89746c58b",
+        "status=codegen-output-emitted",
+        "codegenMarkers=42040",
+        "ionScriptMarkers=8",
+        "assemblyMnemonics=19105",
+        "checksum=5050"
+      ]
+    },
+    {
+      "id": "archival-debug-jsshell-scope-guard",
+      "classification": "SCOPE_GUARD",
+      "summary": "This is diagnostic-surface evidence for an archived Firefox 36 era shell, not current Firefox 143/SpiderMonkey benchmark evidence.",
+      "evidence": [
+        "scopeComparableToCurrentFirefox=false",
+        "sameContractStaxRow=false",
+        "closesEmittedIrObligation=false",
+        "A current diagnostic-capable Firefox/SpiderMonkey build is still required for the open codegen obligation."
+      ]
+    }
+  ]
+}

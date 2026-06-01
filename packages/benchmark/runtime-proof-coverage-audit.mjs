@@ -230,7 +230,7 @@ function classifyEvidenceKinds(sourceArtifact, root, measuredRows) {
   if (measuredRows.length > 0) kinds.add('BENCH_FACT');
   if (/source-pin-audit|shape-audit|materialization-contract-audit|memory-frontier-audit|target-distance-audit|text-materialization-boundary-audit/.test(sourceArtifact)) kinds.add('SOURCE_FACT');
   if (/availability-audit/.test(sourceArtifact)) kinds.add('ENVIRONMENT_FACT');
-  if (/trace|profiler-trace|cpu-profile|hotspot|machine-code/.test(sourceArtifact)) kinds.add('TRACE_FACT');
+  if (/trace|profiler-trace|cpu-profile|hotspot|machine-code|codegen/.test(sourceArtifact)) kinds.add('TRACE_FACT');
   if (/allocation|jfr/.test(sourceArtifact)) kinds.add('ALLOCATION_FACT');
   for (const classification of findingClassifications(root)) {
     if (!findingEvidenceKinds.has(classification)) continue;
@@ -530,6 +530,7 @@ function summarizeSpiderMonkeyDiagnostics(artifacts) {
   const releaseJsShell = byName.get('firefox-spidermonkey-release-jsshell-availability-audit.json') ?? null;
   const nightlyJsShell = byName.get('firefox-spidermonkey-nightly-jsshell-availability-audit.json') ?? null;
   const jsShellApiGap = byName.get('firefox-spidermonkey-jsshell-stax-api-gap-audit.json') ?? null;
+  const archivalDebugJsShell = byName.get('spidermonkey-archival-debug-jsshell-codegen-audit.json') ?? null;
   const buildconfig = byName.get('firefox-spidermonkey-buildconfig-source-pin-audit.json') ?? null;
   const rows = [
     summarizeSpiderMonkeyDiagnostic('installed-browser-diagnostic-dump', diagnosticDump),
@@ -537,6 +538,7 @@ function summarizeSpiderMonkeyDiagnostics(artifacts) {
     summarizeSpiderMonkeyDiagnostic('official-release-jsshell', releaseJsShell),
     summarizeSpiderMonkeyDiagnostic('official-nightly-jsshell', nightlyJsShell),
     summarizeSpiderMonkeyDiagnostic('official-jsshell-stax-api-gap', jsShellApiGap),
+    summarizeSpiderMonkeyDiagnostic('archival-debug-jsshell-codegen', archivalDebugJsShell),
     summarizeSpiderMonkeyDiagnostic('installed-buildconfig-source-pin', buildconfig),
   ].filter(Boolean);
   return {
@@ -614,6 +616,7 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact) {
 
 function classifySpiderMonkeyDiagnosticEvidence({ id, hasJitExecutionStatus, closesEmittedIrObligation, irDumpSurface, nativeDumpComplete, outcome, summary }) {
   if (closesEmittedIrObligation) return 'emitted-ir';
+  if (outcome?.hasCodegenDumpOutput === true && outcome?.scopeComparableToCurrentFirefox === false) return 'archival-codegen-scope-guard';
   if (id.includes('stax-api-gap') || summary?.status === 'blocked-by-host-api-surface') return 'host-api-surface-gap';
   if (hasJitExecutionStatus) return 'jit-status-only';
   if (irDumpSurface === false || nativeDumpComplete === false) return 'negative-diagnostic-surface';
@@ -967,7 +970,7 @@ function classifyRuntimeFromArtifact(sourceArtifact, root) {
   if (sourceArtifact.startsWith('node-')) return 'node-v8';
   if (sourceArtifact.startsWith('bun-')) return 'bun-jsc';
   if (sourceArtifact.startsWith('deno-')) return 'deno-v8';
-  if (sourceArtifact.startsWith('spidermonkey-jsshell-')) return 'spidermonkey-jsshell';
+  if (sourceArtifact.startsWith('spidermonkey-jsshell-') || sourceArtifact.startsWith('spidermonkey-archival-debug-jsshell-')) return 'spidermonkey-jsshell';
   if (sourceArtifact.startsWith('browser-') || sourceArtifact.startsWith('chrome-')) return 'chrome-v8-browser';
   if (sourceArtifact.startsWith('firefox-')) return 'firefox-spidermonkey-browser';
   if (sourceArtifact.startsWith('woodstox-')) return 'woodstox-jvm';
@@ -999,7 +1002,12 @@ function classifyRuntime(sourceArtifact, node, context) {
 
   if (runtimeName === 'bun' || sourceArtifact.startsWith('bun-')) return 'bun-jsc';
   if (runtimeName === 'deno') return 'deno-v8';
-  if (runtimeName === 'spidermonkey-jsshell' || runtime.id === 'spidermonkey-jsshell' || sourceArtifact.startsWith('spidermonkey-jsshell-')) return 'spidermonkey-jsshell';
+  if (
+    runtimeName === 'spidermonkey-jsshell'
+    || runtime.id === 'spidermonkey-jsshell'
+    || sourceArtifact.startsWith('spidermonkey-jsshell-')
+    || sourceArtifact.startsWith('spidermonkey-archival-debug-jsshell-')
+  ) return 'spidermonkey-jsshell';
   if (runtimeName === 'browser') {
     if (browserName.includes('firefox') || engine.includes('spidermonkey')) return 'firefox-spidermonkey-browser';
     if (browserName.includes('safari') || browserName.includes('webkit') || engine.includes('jsc') || engine.includes('javascriptcore')) return 'safari-jsc-browser';
@@ -1162,9 +1170,12 @@ function summarizeOutcome(outcome = {}) {
     packageVerified: typeof outcome.packageVerified === 'boolean' ? outcome.packageVerified : null,
     hasJitExecutionStatus: typeof outcome.hasJitExecutionStatus === 'boolean' ? outcome.hasJitExecutionStatus : null,
     hasIrDumpSurface: typeof outcome.hasIrDumpSurface === 'boolean' ? outcome.hasIrDumpSurface : null,
+    hasCodegenDumpOutput: typeof outcome.hasCodegenDumpOutput === 'boolean' ? outcome.hasCodegenDumpOutput : null,
     hasBytecodeDumpOutput: typeof outcome.hasBytecodeDumpOutput === 'boolean' ? outcome.hasBytecodeDumpOutput : null,
     hasNativeDisassemblySurface: typeof outcome.hasNativeDisassemblySurface === 'boolean' ? outcome.hasNativeDisassemblySurface : null,
     nativeDumpComplete: typeof outcome.nativeDumpComplete === 'boolean' ? outcome.nativeDumpComplete : null,
+    scopeComparableToCurrentFirefox: typeof outcome.scopeComparableToCurrentFirefox === 'boolean' ? outcome.scopeComparableToCurrentFirefox : null,
+    sameContractStaxRow: typeof outcome.sameContractStaxRow === 'boolean' ? outcome.sameContractStaxRow : null,
     canReadBinaryInput: typeof outcome.canReadBinaryInput === 'boolean' ? outcome.canReadBinaryInput : null,
     canRunCurrentStaxFullStringBenchmark: typeof outcome.canRunCurrentStaxFullStringBenchmark === 'boolean' ? outcome.canRunCurrentStaxFullStringBenchmark : null,
     closesEmittedIrObligation: typeof outcome.closesEmittedIrObligation === 'boolean' ? outcome.closesEmittedIrObligation : null,

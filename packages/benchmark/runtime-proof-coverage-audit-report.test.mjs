@@ -32,7 +32,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 207);
+  assert.equal(report.summary.scannedArtifactCount, 208);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'runtime-proof-handoff-validation.json'
     && artifact.objective === 'runtime-proof-handoff-validation'
@@ -54,6 +54,15 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.objective === 'spidermonkey-jsshell-tokenizer-headroom'
     && artifact.measuredRowCount === 2
     && artifact.runtimes.includes('spidermonkey-jsshell')
+  ));
+  assert.ok(report.scannedArtifacts.some(artifact =>
+    artifact.sourceArtifact === 'spidermonkey-archival-debug-jsshell-codegen-audit.json'
+    && artifact.objective === 'spidermonkey-archival-debug-jsshell-codegen-audit'
+    && artifact.measuredRowCount === 0
+    && artifact.evidenceKinds.includes('TRACE_FACT')
+    && artifact.outcome.hasCodegenDumpOutput === true
+    && artifact.outcome.scopeComparableToCurrentFirefox === false
+    && artifact.outcome.closesEmittedIrObligation === false
   ));
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'file-backed-materialization-profile.json'
@@ -312,7 +321,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.openObligationCount, 2);
   assert.equal(report.summary.benchmarkArtifactCount, 151);
   assert.equal(report.summary.sourceArtifactCount, 22);
-  assert.equal(report.summary.traceArtifactCount, 11);
+  assert.equal(report.summary.traceArtifactCount, 12);
   assert.equal(report.summary.allocationArtifactCount, 16);
   assert.equal(report.summary.environmentArtifactCount, 4);
   assert.equal(report.summary.negativeArtifactCount, 19);
@@ -1026,6 +1035,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /JIT-status-only SpiderMonkey shell artifacts: 2/);
   assert.match(markdown, /\| `official-release-jsshell` \| `firefox-spidermonkey-release-jsshell-availability-audit\.json` \| available \| jit-status-only \| yes \| no \| no \(no-bytecode-output, markers=0\) \| no \| no \| no \|/);
   assert.match(markdown, /\| `official-nightly-jsshell` \| `firefox-spidermonkey-nightly-jsshell-availability-audit\.json` \| available \| jit-status-only \| yes \| no \| no \(no-bytecode-output, markers=0\) \| no \| no \| no \|/);
+  assert.match(markdown, /\| `archival-debug-jsshell-codegen` \| `spidermonkey-archival-debug-jsshell-codegen-audit\.json` \| available \| archival-codegen-scope-guard \| unknown \| yes \| unknown \| yes \| no \| no \|/);
+  const archival = report.coverage.spiderMonkeyDiagnostics.rows.find(row => row.id === 'archival-debug-jsshell-codegen');
+  assert.equal(archival.evidenceClass, 'archival-codegen-scope-guard');
+  assert.equal(archival.irDumpSurface, true);
+  assert.equal(archival.nativeDumpComplete, true);
+  assert.equal(archival.closesEmittedIrObligation, false);
   assert.match(markdown, /Firefox\/SpiderMonkey Gecko Profiler trace evidence present/);
   assert.match(markdown, /Firefox\/SpiderMonkey JitSpew\/IONFLAGS source gate evidence present, but it is not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey installed buildconfig source pin present \(buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true\)/);
@@ -1039,7 +1054,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /16 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 4/);
   assert.match(markdown, /Source artifacts: 22/);
-  assert.match(markdown, /Scanned primary artifacts: 207/);
+  assert.match(markdown, /Scanned primary artifacts: 208/);
+  assert.equal(report.summary.traceArtifactCount, 12);
   assert.match(markdown, /Negative-result artifacts: 19/);
   assert.match(markdown, /\| Node\/V8 \| 108 \| 558 \| 381 \|/);
   assert.match(markdown, /\| Bun\/JSC \| 40 \| 301 \| 194 \|/);

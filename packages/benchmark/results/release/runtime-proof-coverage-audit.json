@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T02:48:35.237Z",
+  "generatedAt": "2026-06-01T03:13:14.682Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -2749,9 +2749,12 @@
         "packageVerified": null,
         "hasJitExecutionStatus": null,
         "hasIrDumpSurface": null,
+        "hasCodegenDumpOutput": null,
         "hasBytecodeDumpOutput": null,
         "hasNativeDisassemblySurface": null,
         "nativeDumpComplete": null,
+        "scopeComparableToCurrentFirefox": null,
+        "sameContractStaxRow": null,
         "canReadBinaryInput": null,
         "canRunCurrentStaxFullStringBenchmark": null,
         "closesEmittedIrObligation": null
@@ -2830,9 +2833,12 @@
         "packageVerified": null,
         "hasJitExecutionStatus": null,
         "hasIrDumpSurface": null,
+        "hasCodegenDumpOutput": null,
         "hasBytecodeDumpOutput": null,
         "hasNativeDisassemblySurface": null,
         "nativeDumpComplete": null,
+        "scopeComparableToCurrentFirefox": null,
+        "sameContractStaxRow": null,
         "canReadBinaryInput": null,
         "canRunCurrentStaxFullStringBenchmark": null,
         "closesEmittedIrObligation": null
@@ -2894,9 +2900,12 @@
         "packageVerified": null,
         "hasJitExecutionStatus": null,
         "hasIrDumpSurface": null,
+        "hasCodegenDumpOutput": null,
         "hasBytecodeDumpOutput": null,
         "hasNativeDisassemblySurface": null,
         "nativeDumpComplete": null,
+        "scopeComparableToCurrentFirefox": null,
+        "sameContractStaxRow": null,
         "canReadBinaryInput": null,
         "canRunCurrentStaxFullStringBenchmark": null,
         "closesEmittedIrObligation": null
@@ -2990,9 +2999,12 @@
         "packageVerified": false,
         "hasJitExecutionStatus": true,
         "hasIrDumpSurface": false,
+        "hasCodegenDumpOutput": null,
         "hasBytecodeDumpOutput": false,
         "hasNativeDisassemblySurface": false,
         "nativeDumpComplete": false,
+        "scopeComparableToCurrentFirefox": null,
+        "sameContractStaxRow": null,
         "canReadBinaryInput": true,
         "canRunCurrentStaxFullStringBenchmark": false,
         "closesEmittedIrObligation": false
@@ -3062,9 +3074,12 @@
         "packageVerified": true,
         "hasJitExecutionStatus": true,
         "hasIrDumpSurface": false,
+        "hasCodegenDumpOutput": null,
         "hasBytecodeDumpOutput": false,
         "hasNativeDisassemblySurface": false,
         "nativeDumpComplete": false,
+        "scopeComparableToCurrentFirefox": null,
+        "sameContractStaxRow": null,
         "canReadBinaryInput": true,
         "canRunCurrentStaxFullStringBenchmark": false,
         "closesEmittedIrObligation": false
@@ -4316,6 +4331,46 @@
       "measuredRowCount": 0
     },
     {
+      "sourceArtifact": "spidermonkey-archival-debug-jsshell-codegen-audit.json",
+      "objective": "spidermonkey-archival-debug-jsshell-codegen-audit",
+      "contract": "archival-debug-spidermonkey-codegen-surface-not-current-stax-evidence",
+      "evidenceKinds": [
+        "SCOPE_GUARD",
+        "TRACE_FACT"
+      ],
+      "runtimes": [
+        "spidermonkey-jsshell"
+      ],
+      "parameters": {
+        "searchRoots": null
+      },
+      "availability": null,
+      "outcome": {
+        "status": "available",
+        "completed": null,
+        "emittedDump": null,
+        "dumpFileCount": null,
+        "foundCount": null,
+        "foundCandidates": null,
+        "packageVerified": null,
+        "hasJitExecutionStatus": null,
+        "hasIrDumpSurface": true,
+        "hasCodegenDumpOutput": true,
+        "hasBytecodeDumpOutput": null,
+        "hasNativeDisassemblySurface": true,
+        "nativeDumpComplete": true,
+        "scopeComparableToCurrentFirefox": false,
+        "sameContractStaxRow": false,
+        "canReadBinaryInput": null,
+        "canRunCurrentStaxFullStringBenchmark": false,
+        "closesEmittedIrObligation": false
+      },
+      "shell": null,
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
       "sourceArtifact": "spidermonkey-jsshell-tokenizer-headroom.json",
       "objective": "spidermonkey-jsshell-tokenizer-headroom",
       "contract": "spidermonkey-jsshell-corpus-token-boundary-headroom-not-stax",
@@ -5461,7 +5516,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 207,
+    "scannedArtifactCount": 208,
     "ignoredArtifactCount": 7,
     "parseErrorCount": 0,
     "measuredRowCount": 1185,
@@ -5484,7 +5539,7 @@
     },
     "benchmarkArtifactCount": 151,
     "sourceArtifactCount": 22,
-    "traceArtifactCount": 11,
+    "traceArtifactCount": 12,
     "allocationArtifactCount": 16,
     "environmentArtifactCount": 4,
     "negativeArtifactCount": 19,
@@ -5867,12 +5922,14 @@
       {
         "runtimeId": "spidermonkey-jsshell",
         "runtimeLabel": "SpiderMonkey js-shell",
-        "artifactCount": 1,
+        "artifactCount": 2,
         "measuredRowCount": 2,
         "largeFullStringRowCount": 0,
         "fastestLargeFullStringRow": null,
         "sourcePins": [],
-        "traceArtifacts": [],
+        "traceArtifacts": [
+          "spidermonkey-archival-debug-jsshell-codegen-audit.json"
+        ],
         "allocationArtifacts": []
       },
       {
@@ -23358,6 +23415,27 @@
           "evidenceClass": "host-api-surface-gap"
         },
         {
+          "id": "archival-debug-jsshell-codegen",
+          "sourceArtifact": "spidermonkey-archival-debug-jsshell-codegen-audit.json",
+          "status": "available",
+          "packageVerified": null,
+          "foundCount": null,
+          "searchRoots": null,
+          "dumpFileCount": null,
+          "hasJitExecutionStatus": null,
+          "irDumpSurface": true,
+          "nativeDisassemblySurface": true,
+          "nativeDumpComplete": true,
+          "bytecodeDumpOutput": null,
+          "bytecodeDumpStatus": null,
+          "bytecodeDumpMarkers": null,
+          "canReadBinaryInput": null,
+          "canRunCurrentStaxFullStringBenchmark": false,
+          "commonMissingGlobals": null,
+          "closesEmittedIrObligation": false,
+          "evidenceClass": "archival-codegen-scope-guard"
+        },
+        {
           "id": "installed-buildconfig-source-pin",
           "sourceArtifact": "firefox-spidermonkey-buildconfig-source-pin-audit.json",
           "status": "source-pin",
@@ -23634,6 +23712,46 @@
         },
         "corpusSeed": null,
         "measuredRowCount": 3
+      },
+      {
+        "sourceArtifact": "spidermonkey-archival-debug-jsshell-codegen-audit.json",
+        "objective": "spidermonkey-archival-debug-jsshell-codegen-audit",
+        "contract": "archival-debug-spidermonkey-codegen-surface-not-current-stax-evidence",
+        "evidenceKinds": [
+          "SCOPE_GUARD",
+          "TRACE_FACT"
+        ],
+        "runtimes": [
+          "spidermonkey-jsshell"
+        ],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": {
+          "status": "available",
+          "completed": null,
+          "emittedDump": null,
+          "dumpFileCount": null,
+          "foundCount": null,
+          "foundCandidates": null,
+          "packageVerified": null,
+          "hasJitExecutionStatus": null,
+          "hasIrDumpSurface": true,
+          "hasCodegenDumpOutput": true,
+          "hasBytecodeDumpOutput": null,
+          "hasNativeDisassemblySurface": true,
+          "nativeDumpComplete": true,
+          "scopeComparableToCurrentFirefox": false,
+          "sameContractStaxRow": false,
+          "canReadBinaryInput": null,
+          "canRunCurrentStaxFullStringBenchmark": false,
+          "closesEmittedIrObligation": false
+        },
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
       },
       {
         "sourceArtifact": "v8-monomorphic-shape-trace.json",
@@ -24153,9 +24271,12 @@
           "packageVerified": null,
           "hasJitExecutionStatus": null,
           "hasIrDumpSurface": null,
+          "hasCodegenDumpOutput": null,
           "hasBytecodeDumpOutput": null,
           "hasNativeDisassemblySurface": null,
           "nativeDumpComplete": null,
+          "scopeComparableToCurrentFirefox": null,
+          "sameContractStaxRow": null,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": null,
           "closesEmittedIrObligation": null
@@ -24191,9 +24312,12 @@
           "packageVerified": false,
           "hasJitExecutionStatus": true,
           "hasIrDumpSurface": false,
+          "hasCodegenDumpOutput": null,
           "hasBytecodeDumpOutput": false,
           "hasNativeDisassemblySurface": false,
           "nativeDumpComplete": false,
+          "scopeComparableToCurrentFirefox": null,
+          "sameContractStaxRow": null,
           "canReadBinaryInput": true,
           "canRunCurrentStaxFullStringBenchmark": false,
           "closesEmittedIrObligation": false
@@ -24234,9 +24358,12 @@
           "packageVerified": true,
           "hasJitExecutionStatus": true,
           "hasIrDumpSurface": false,
+          "hasCodegenDumpOutput": null,
           "hasBytecodeDumpOutput": false,
           "hasNativeDisassemblySurface": false,
           "nativeDumpComplete": false,
+          "scopeComparableToCurrentFirefox": null,
+          "sameContractStaxRow": null,
           "canReadBinaryInput": true,
           "canRunCurrentStaxFullStringBenchmark": false,
           "closesEmittedIrObligation": false
@@ -24419,9 +24546,12 @@
           "packageVerified": null,
           "hasJitExecutionStatus": null,
           "hasIrDumpSurface": null,
+          "hasCodegenDumpOutput": null,
           "hasBytecodeDumpOutput": null,
           "hasNativeDisassemblySurface": null,
           "nativeDumpComplete": null,
+          "scopeComparableToCurrentFirefox": null,
+          "sameContractStaxRow": null,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": null,
           "closesEmittedIrObligation": null
@@ -24479,9 +24609,12 @@
           "packageVerified": null,
           "hasJitExecutionStatus": null,
           "hasIrDumpSurface": null,
+          "hasCodegenDumpOutput": null,
           "hasBytecodeDumpOutput": null,
           "hasNativeDisassemblySurface": null,
           "nativeDumpComplete": null,
+          "scopeComparableToCurrentFirefox": null,
+          "sameContractStaxRow": null,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": null,
           "closesEmittedIrObligation": null
@@ -24555,9 +24688,12 @@
           "packageVerified": false,
           "hasJitExecutionStatus": true,
           "hasIrDumpSurface": false,
+          "hasCodegenDumpOutput": null,
           "hasBytecodeDumpOutput": false,
           "hasNativeDisassemblySurface": false,
           "nativeDumpComplete": false,
+          "scopeComparableToCurrentFirefox": null,
+          "sameContractStaxRow": null,
           "canReadBinaryInput": true,
           "canRunCurrentStaxFullStringBenchmark": false,
           "closesEmittedIrObligation": false
@@ -24598,9 +24734,12 @@
           "packageVerified": true,
           "hasJitExecutionStatus": true,
           "hasIrDumpSurface": false,
+          "hasCodegenDumpOutput": null,
           "hasBytecodeDumpOutput": false,
           "hasNativeDisassemblySurface": false,
           "nativeDumpComplete": false,
+          "scopeComparableToCurrentFirefox": null,
+          "sameContractStaxRow": null,
           "canReadBinaryInput": true,
           "canRunCurrentStaxFullStringBenchmark": false,
           "closesEmittedIrObligation": false

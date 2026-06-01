@@ -1,13 +1,13 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-01T02:48:37.535Z
+Generated: 2026-06-01T03:13:14.878Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-06-01T02:48:35.237Z
+- Audit generated: 2026-06-01T03:13:14.682Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
 - Comparison generated: 2026-06-01T02:05:04.582Z
 - Active obligations: 2
@@ -18,7 +18,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Unhandled obligations: 0
 - External-run required closures: 2
 - Locally runnable closures: 0
-- Audit artifacts: 207
+- Audit artifacts: 208
 - Audit measured rows: 1185
 - Primary source consumption: synchronous Iterable<Uint8Array[]> byte batches
 - Direct ReadableStream scope: separate source-overhead evidence only
@@ -196,8 +196,9 @@ Scope guards:
   - Official Firefox release jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface, bytecode dump status is no-bytecode-output, and it cannot run the current stax full-string benchmark unchanged.
   - Official Firefox nightly jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface, bytecode dump status is no-bytecode-output, and it cannot run the current stax full-string benchmark unchanged.
   - The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface, with common missing globals: TextDecoder, TextEncoder, ReadableStream, fetch.
+  - An archived Firefox 36 era debug js-shell emits JitSpew codegen output, proving the expected diagnostic surface shape, but it is not comparable to the current Firefox/SpiderMonkey benchmark rows.
   - Installed Firefox about:buildconfig records --enable-js-shell / MOZ_PACKAGE_JSSHELL but does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW.
-- Local evidence artifacts: firefox-spidermonkey-diagnostic-dump-audit.json, firefox-spidermonkey-js-shell-availability-audit.json, firefox-spidermonkey-release-jsshell-availability-audit.json, firefox-spidermonkey-nightly-jsshell-availability-audit.json, firefox-spidermonkey-jsshell-stax-api-gap-audit.json, firefox-spidermonkey-buildconfig-source-pin-audit.json
+- Local evidence artifacts: firefox-spidermonkey-diagnostic-dump-audit.json, firefox-spidermonkey-js-shell-availability-audit.json, firefox-spidermonkey-release-jsshell-availability-audit.json, firefox-spidermonkey-nightly-jsshell-availability-audit.json, firefox-spidermonkey-jsshell-stax-api-gap-audit.json, spidermonkey-archival-debug-jsshell-codegen-audit.json, firefox-spidermonkey-buildconfig-source-pin-audit.json
 
 Prerequisites:
 - Diagnostic-capable Firefox build or SpiderMonkey shell built with the required JitSpew/codegen diagnostics enabled.
