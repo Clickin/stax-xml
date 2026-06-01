@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T11:07:26.864Z",
+  "generatedAt": "2026-06-01T11:18:38.652Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -340,7 +340,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-01T10:55:57.631Z",
+    "generatedAt": "2026-06-01T11:12:08.325Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -392,6 +392,14 @@
     "loaded": true,
     "generatedAt": "2026-06-01T10:44:57.207Z",
     "status": "classified",
+    "primarySourceContract": "primary-sync-iterable-byte-batches",
+    "primaryParserInput": "synchronous Iterable<Uint8Array[]>",
+    "primarySourceBoundary": "demand-driven StreamReaderSync parser pulls",
+    "primarySyncByteBatchRows": 231,
+    "primaryDirectReadableStreamRows": 0,
+    "primaryAsyncSourceRows": 0,
+    "primaryFullArrayBufferRows": 0,
+    "primaryUnknownSourceModeRows": 0,
     "coverageCrosscheckStatus": "consistent",
     "coverageSourceModeRows": 474,
     "coverageNotFullArrayBufferRows": 474,
@@ -417,6 +425,11 @@
       {
         "id": "coverage-crosscheck-readable-stream-separated",
         "description": "Coverage crosscheck must keep direct ReadableStream rows visible as separate source-overhead evidence.",
+        "satisfied": true
+      },
+      {
+        "id": "primary-source-sync-byte-batches-only",
+        "description": "Primary source audit rows must stay synchronous Iterable<Uint8Array[]> byte batches with async and direct ReadableStream rows excluded.",
         "satisfied": true
       }
     ]
@@ -694,8 +707,8 @@
     "currentCounterexamples": 0,
     "satisfiedHandoffGuards": 6,
     "requiredHandoffGuards": 6,
-    "satisfiedSourceAuditGuards": 4,
-    "requiredSourceAuditGuards": 4,
+    "satisfiedSourceAuditGuards": 5,
+    "requiredSourceAuditGuards": 5,
     "satisfiedFrontierAuditGuards": 3,
     "requiredFrontierAuditGuards": 3
   }

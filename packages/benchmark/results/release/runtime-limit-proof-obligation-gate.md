@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T11:07:26.864Z
+Generated: 2026-06-01T11:18:38.652Z
 
 ## Scope
 
@@ -99,7 +99,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-01T10:55:57.631Z)
+- Handoff loaded: yes (2026-06-01T11:12:08.325Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -116,6 +116,11 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 - Source audit loaded: yes (2026-06-01T10:44:57.207Z)
 - Source audit status: classified
+- Primary parser input: synchronous Iterable<Uint8Array[]>
+- Primary sync byte-batch rows: 231
+- Primary direct ReadableStream rows: 0
+- Primary async source rows: 0
+- Primary full ArrayBuffer parser-input rows: 0
 - Coverage crosscheck status: consistent
 - Coverage source-mode rows: 474
 - Coverage not-full-ArrayBuffer rows: 474/474
@@ -128,6 +133,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `coverage-crosscheck-consistent` | yes | Source audit coverage crosscheck must be consistent with the wider coverage source-mode scan. |
 | `coverage-crosscheck-not-full-arraybuffer` | yes | Coverage crosscheck must report every source-mode row as not full ArrayBuffer parser input. |
 | `coverage-crosscheck-readable-stream-separated` | yes | Coverage crosscheck must keep direct ReadableStream rows visible as separate source-overhead evidence. |
+| `primary-source-sync-byte-batches-only` | yes | Primary source audit rows must stay synchronous Iterable<Uint8Array[]> byte batches with async and direct ReadableStream rows excluded. |
 
 ## Frontier Audit Snapshot
 

@@ -570,10 +570,25 @@ function createSourceAuditSnapshot(sourceAudit) {
   const fullArrayBufferRows = coverageCrosscheck?.fullArrayBufferRows ?? null;
   const unknownArrayBufferRows = coverageCrosscheck?.unknownArrayBufferRows ?? null;
   const directReadableStreamRows = coverageCrosscheck?.directReadableStreamRows ?? null;
+  const summary = sourceAudit?.summary ?? null;
+  const primaryParserInput = summary?.primaryParserInput ?? null;
+  const primarySyncByteBatchRows = summary?.primarySyncByteBatchRows ?? null;
+  const primaryDirectReadableStreamRows = summary?.primaryDirectReadableStreamRows ?? null;
+  const primaryAsyncSourceRows = summary?.primaryAsyncSourceRows ?? null;
+  const primaryFullArrayBufferRows = summary?.primaryFullArrayBufferRows ?? null;
+  const primaryUnknownSourceModeRows = summary?.primaryUnknownSourceModeRows ?? null;
   return {
     loaded: Boolean(sourceAudit),
     generatedAt: sourceAudit?.generatedAt ?? null,
-    status: sourceAudit?.summary?.status ?? null,
+    status: summary?.status ?? null,
+    primarySourceContract: summary?.primarySourceContract ?? null,
+    primaryParserInput,
+    primarySourceBoundary: summary?.primarySourceBoundary ?? null,
+    primarySyncByteBatchRows,
+    primaryDirectReadableStreamRows,
+    primaryAsyncSourceRows,
+    primaryFullArrayBufferRows,
+    primaryUnknownSourceModeRows,
     coverageCrosscheckStatus: coverageCrosscheck?.status ?? null,
     coverageSourceModeRows: sourceModeRows,
     coverageNotFullArrayBufferRows: notFullArrayBufferRows,
@@ -588,6 +603,12 @@ function createSourceAuditSnapshot(sourceAudit) {
       fullArrayBufferRows,
       unknownArrayBufferRows,
       directReadableStreamRows,
+      primaryParserInput,
+      primarySyncByteBatchRows,
+      primaryDirectReadableStreamRows,
+      primaryAsyncSourceRows,
+      primaryFullArrayBufferRows,
+      primaryUnknownSourceModeRows,
     }),
   };
 }
@@ -618,6 +639,17 @@ function createSourceAuditGuards(snapshot) {
       description: 'Coverage crosscheck must keep direct ReadableStream rows visible as separate source-overhead evidence.',
       satisfied: typeof snapshot.directReadableStreamRows === 'number'
         && snapshot.directReadableStreamRows > 0,
+    },
+    {
+      id: 'primary-source-sync-byte-batches-only',
+      description: 'Primary source audit rows must stay synchronous Iterable<Uint8Array[]> byte batches with async and direct ReadableStream rows excluded.',
+      satisfied: snapshot.primaryParserInput === 'synchronous Iterable<Uint8Array[]>'
+        && typeof snapshot.primarySyncByteBatchRows === 'number'
+        && snapshot.primarySyncByteBatchRows > 0
+        && snapshot.primaryDirectReadableStreamRows === 0
+        && snapshot.primaryAsyncSourceRows === 0
+        && snapshot.primaryFullArrayBufferRows === 0
+        && snapshot.primaryUnknownSourceModeRows === 0,
     },
   ];
 }
@@ -889,6 +921,11 @@ function renderMarkdown(report) {
       ? `- Source audit loaded: yes (${report.sourceAuditSnapshot.generatedAt ?? 'unknown generatedAt'})`
       : '- Source audit loaded: no',
     `- Source audit status: ${report.sourceAuditSnapshot.status ?? 'unknown'}`,
+    `- Primary parser input: ${report.sourceAuditSnapshot.primaryParserInput ?? 'unknown'}`,
+    `- Primary sync byte-batch rows: ${formatNullableCount(report.sourceAuditSnapshot.primarySyncByteBatchRows)}`,
+    `- Primary direct ReadableStream rows: ${formatNullableCount(report.sourceAuditSnapshot.primaryDirectReadableStreamRows)}`,
+    `- Primary async source rows: ${formatNullableCount(report.sourceAuditSnapshot.primaryAsyncSourceRows)}`,
+    `- Primary full ArrayBuffer parser-input rows: ${formatNullableCount(report.sourceAuditSnapshot.primaryFullArrayBufferRows)}`,
     `- Coverage crosscheck status: ${report.sourceAuditSnapshot.coverageCrosscheckStatus ?? 'unknown'}`,
     `- Coverage source-mode rows: ${formatNullableCount(report.sourceAuditSnapshot.coverageSourceModeRows)}`,
     `- Coverage not-full-ArrayBuffer rows: ${formatNullableCount(report.sourceAuditSnapshot.coverageNotFullArrayBufferRows)}/${formatNullableCount(report.sourceAuditSnapshot.coverageSourceModeRows)}`,
