@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T20:46:28.547Z",
+  "generatedAt": "2026-06-01T20:58:00.434Z",
   "objective": "runtime-proof-handoff-validation",
   "contract": "external-run-handoff-command-and-contract-static-validation",
   "note": "Static validation for runtime-proof-gap-handoff external runbooks. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
@@ -59,6 +59,8 @@
         "summary\\.qualifiedClosureCount must be greater than 0",
         "qualifiedClosureCount=0",
         "Safari\\/WebKit closure audit checks",
+        "Current host cannot run Safari\\/WebKit browser rows",
+        "candidateRows=0",
         "backpressure is respected",
         "Memory evidence is classified explicitly",
         "missing Safari JS heap counters must not be treated as bounded-memory proof",

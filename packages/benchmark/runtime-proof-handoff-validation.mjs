@@ -170,6 +170,8 @@ function validateHandoff(handoff) {
         /summary\.qualifiedClosureCount must be greater than 0/,
         /qualifiedClosureCount=0/,
         /Safari\/WebKit closure audit checks/,
+        /Current host cannot run Safari\/WebKit browser rows/,
+        /candidateRows=0/,
         /backpressure is respected/,
         /Memory evidence is classified explicitly/,
         /missing Safari JS heap counters must not be treated as bounded-memory proof/,

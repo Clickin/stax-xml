@@ -70,6 +70,8 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('summary\\.qualifiedClosureCount')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('qualifiedClosureCount=0')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('Safari\\/WebKit closure audit checks')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('Current host cannot run Safari')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('candidateRows=0')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('backpressure is respected')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('Memory evidence is classified explicitly')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('missing Safari JS heap counters')));
