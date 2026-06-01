@@ -638,6 +638,12 @@ function createLocalClosure(activeObligations, audit, options = {}) {
       && codegenClosureAuditRaw?.missingRequirementHistogram?.sameContractStaxRow === codegenClosureAuditRaw?.summary?.candidateCount
       && codegenClosureAuditRaw?.missingRequirementHistogram?.selectedRowMetadata === codegenClosureAuditRaw?.summary?.candidateCount
       && codegenClosureAuditRaw?.missingRequirementHistogram?.unchangedRunnable === codegenClosureAuditRaw?.summary?.candidateCount;
+    const closestBlockedCandidateSources = Array.isArray(codegenClosureAuditRaw?.closestBlockedCandidates)
+      ? codegenClosureAuditRaw.closestBlockedCandidates
+        .map(candidate => candidate?.sourceArtifact)
+        .filter(sourceArtifact => typeof sourceArtifact === 'string' && sourceArtifact.length > 0)
+        .sort()
+      : [];
     const codegenRerunStabilityContract = codegenRerunStability?.contract ?? codegenRerunStabilityRaw?.contract ?? null;
     const codegenRerunStabilityPinned = codegenRerunStabilityContract === 'spidermonkey-debug-jsshell-codegen-rerun-reproducibility-not-closure'
       && codegenRerunStabilitySummary.pairCount === 2
@@ -726,7 +732,7 @@ function createLocalClosure(activeObligations, audit, options = {}) {
           ? `The SpiderMonkey codegen closure audit checks ${codegenClosureAuditRaw.summary.candidateCount} diagnostic/codegen candidates, finds emittedCodegenSurfaceCount=${codegenClosureAuditRaw.summary.emittedCodegenSurfaceCount}, sameContractStaxRowCount=${codegenClosureAuditRaw.summary.sameContractStaxRowCount}, unchangedRunnableCount=${codegenClosureAuditRaw.summary.unchangedRunnableCount}, selectedRowMetadataCount=${codegenClosureAuditRaw.summary.selectedRowMetadataCount}, selectedRowMetadataMissingFieldCounts ${formatCountMap(codegenClosureAuditRaw.summary.selectedRowMetadataMissingFieldCounts)}, closingMetadataMissingFieldCounts ${formatCountMap(codegenClosureAuditRaw.summary.closingMetadataMissingFieldCounts)}, disallowedEvidenceClassCounts ${formatCountMap(codegenClosureAuditRaw.summary.disallowedEvidenceClassCounts)}, selectedRowIdentityStatusCounts ${formatCountMap(codegenClosureAuditRaw.summary.selectedRowIdentityStatusCounts)}, qualifiedClosureCount=0, contradictedClosureClaimCount=0, and conclusionAllowed=false.`
           : 'No SpiderMonkey codegen closure audit pins the same-contract closure matrix for current diagnostic/codegen artifacts.',
         codegenClosureFrontierPinned
-          ? `The SpiderMonkey codegen closure frontier has closestBlockedCandidateCount=${codegenClosureAuditRaw.summary.closestBlockedCandidateCount}, minimumBlockedRequirementCount=${codegenClosureAuditRaw.summary.minimumBlockedRequirementCount}, and common missing requirements sameContractStaxRow=${codegenClosureAuditRaw.missingRequirementHistogram.sameContractStaxRow}, selectedRowMetadata=${codegenClosureAuditRaw.missingRequirementHistogram.selectedRowMetadata}, unchangedRunnable=${codegenClosureAuditRaw.missingRequirementHistogram.unchangedRunnable}.`
+          ? `The SpiderMonkey codegen closure frontier has closestBlockedCandidateCount=${codegenClosureAuditRaw.summary.closestBlockedCandidateCount}, minimumBlockedRequirementCount=${codegenClosureAuditRaw.summary.minimumBlockedRequirementCount}, closestBlockedCandidates=${formatStringList(closestBlockedCandidateSources)}, and common missing requirements sameContractStaxRow=${codegenClosureAuditRaw.missingRequirementHistogram.sameContractStaxRow}, selectedRowMetadata=${codegenClosureAuditRaw.missingRequirementHistogram.selectedRowMetadata}, unchangedRunnable=${codegenClosureAuditRaw.missingRequirementHistogram.unchangedRunnable}.`
           : 'No SpiderMonkey codegen closure frontier summary pins closest blocked candidates and common missing requirements.',
         codegenRerunStabilityPinned
           ? `The SpiderMonkey codegen rerun stability audit compares ${codegenRerunStabilitySummary.pairCount} original/rerun pairs, reproduces ${codegenRerunStabilitySummary.reproduciblePairs} pairs on the same Taskcluster build and codegen marker counts, but qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false, and conclusionAllowed=false.`
@@ -1258,6 +1264,12 @@ function formatCountMap(counts) {
   const entries = Object.entries(counts ?? {}).sort(([left], [right]) => left.localeCompare(right));
   return entries.length > 0
     ? entries.map(([key, value]) => `${key}=${value}`).join(', ')
+    : 'none';
+}
+
+function formatStringList(values) {
+  return Array.isArray(values) && values.length > 0
+    ? values.map(value => `\`${value}\``).join(', ')
     : 'none';
 }
 

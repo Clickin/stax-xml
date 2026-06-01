@@ -996,10 +996,15 @@ function createHandoffGuards(byId) {
     },
     {
       id: 'spidermonkey-closure-frontier-blockers',
-      description: 'SpiderMonkey handoff must preserve closest blocked candidates and common missing requirements from the closure audit frontier.',
+      description: 'SpiderMonkey handoff must preserve named closest blocked candidates and common missing requirements from the closure audit frontier.',
       satisfied: spiderBlockers.some(item =>
         /closestBlockedCandidateCount=\d+/.test(item)
         && /minimumBlockedRequirementCount=\d+/.test(item)
+        && /closestBlockedCandidates=.*spidermonkey-taskcluster-debug-jsshell-codegen-audit\.json/.test(item)
+        && /closestBlockedCandidates=.*spidermonkey-taskcluster-debug-jsshell-codegen-rerun\.json/.test(item)
+        && /closestBlockedCandidates=.*spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit\.json/.test(item)
+        && /closestBlockedCandidates=.*spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun\.json/.test(item)
+        && /closestBlockedCandidates=.*spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit\.json/.test(item)
         && /sameContractStaxRow=\d+/.test(item)
         && /selectedRowMetadata=\d+/.test(item)
         && /unchangedRunnable=\d+/.test(item)

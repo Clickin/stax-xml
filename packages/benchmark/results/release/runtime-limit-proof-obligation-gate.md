@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T22:03:10.994Z
+Generated: 2026-06-01T22:10:02.068Z
 
 ## Scope
 
@@ -125,7 +125,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-01T21:48:53.026Z)
+- Handoff loaded: yes (2026-06-01T22:09:37.702Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -148,13 +148,13 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `spidermonkey-selected-row-metadata-missing-fields` | yes | SpiderMonkey closure audit must preserve which selected-row metadata fields are missing from closure-matrix candidates. |
 | `spidermonkey-closing-metadata-missing-fields` | yes | SpiderMonkey closure audit must preserve which closing metadata subfields are missing from closure-matrix candidates. |
 | `spidermonkey-disallowed-evidence-class-counts` | yes | SpiderMonkey closure audit must preserve which diagnostic scope-guard evidence classes are disallowed as closure evidence. |
-| `spidermonkey-closure-frontier-blockers` | yes | SpiderMonkey handoff must preserve closest blocked candidates and common missing requirements from the closure audit frontier. |
+| `spidermonkey-closure-frontier-blockers` | yes | SpiderMonkey handoff must preserve named closest blocked candidates and common missing requirements from the closure audit frontier. |
 | `spidermonkey-contradicted-closure-claims-clear` | yes | SpiderMonkey closure audit must preserve contradictedClosureClaimCount=0 before codegen evidence can be reclassified. |
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-01T21:49:03.974Z)
-- Handoff validation target handoff generatedAt: 2026-06-01T21:48:53.026Z (current 2026-06-01T21:48:53.026Z)
+- Handoff validation loaded: yes (2026-06-01T22:09:49.265Z)
+- Handoff validation target handoff generatedAt: 2026-06-01T22:09:37.702Z (current 2026-06-01T22:09:37.702Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes
 - Required contracts present: yes

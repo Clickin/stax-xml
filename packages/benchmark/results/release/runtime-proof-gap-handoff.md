@@ -1,13 +1,13 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-01T21:48:53.026Z
+Generated: 2026-06-01T22:09:37.702Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-06-01T21:43:26.851Z
+- Audit generated: 2026-06-01T22:02:49.465Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
 - Comparison generated: 2026-06-01T17:12:20.521Z
 - Active obligations: 2
@@ -242,7 +242,7 @@ Scope guards:
   - The ASCII scope-distance audit pins corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, and reducesScopeDistance=true while closesCodegenObligation=false, so ASCII corpus equivalence narrows materialized js-shell scope but does not supply unchanged StAX closure evidence.
   - The materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=2 and closureRequirementsBlocked=4; primarySyncByteBatchMissingGlobals=TextDecoder; asciiTextDecoderEquivalent=true; diagnosticThroughputMiBPerSec=0.4909373604499916; throughputCountsAsTargetEvidence=false; closesCodegenObligation=false, preventing the materialized js-shell artifact from being cited as unchanged StAX closure evidence.
   - The SpiderMonkey codegen closure audit checks 15 diagnostic/codegen candidates, finds emittedCodegenSurfaceCount=6, sameContractStaxRowCount=0, unchangedRunnableCount=0, selectedRowMetadataCount=0, selectedRowMetadataMissingFieldCounts selectedChecksum=15, selectedEventCount=15, selectedRowId=15, closingMetadataMissingFieldCounts diagnosticFlags=9, emittedDumpMetadata=9, runtimeBuildIdentity=10, disallowedEvidenceClassCounts archival-codegen-scope-guard=1, availability-only=3, current-debug-codegen-scope-guard=2, current-debug-materialized-codegen-scope-guard=2, current-debug-xml-codegen-scope-guard=1, diagnostic-flag-sweep-negative=1, host-api-surface-gap=1, materialized-headroom-only=1, negative-diagnostic-surface=1, parser-core-headroom-only=1, source-pin-only=1, selectedRowIdentityStatusCounts not-claimed-non-stax-diagnostic=15, qualifiedClosureCount=0, contradictedClosureClaimCount=0, and conclusionAllowed=false.
-  - The SpiderMonkey codegen closure frontier has closestBlockedCandidateCount=5, minimumBlockedRequirementCount=4, and common missing requirements sameContractStaxRow=15, selectedRowMetadata=15, unchangedRunnable=15.
+  - The SpiderMonkey codegen closure frontier has closestBlockedCandidateCount=5, minimumBlockedRequirementCount=4, closestBlockedCandidates=`spidermonkey-taskcluster-debug-jsshell-codegen-audit.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json`, and common missing requirements sameContractStaxRow=15, selectedRowMetadata=15, unchangedRunnable=15.
   - The SpiderMonkey codegen rerun stability audit compares 2 original/rerun pairs, reproduces 2 pairs on the same Taskcluster build and codegen marker counts, but qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false, and conclusionAllowed=false.
   - Installed Firefox about:buildconfig records --enable-js-shell / MOZ_PACKAGE_JSSHELL but does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW.
 - Local evidence artifacts: firefox-spidermonkey-diagnostic-dump-audit.json, firefox-spidermonkey-js-shell-availability-audit.json, firefox-spidermonkey-release-jsshell-availability-audit.json, firefox-spidermonkey-nightly-jsshell-availability-audit.json, firefox-spidermonkey-jsshell-stax-api-gap-audit.json, stax-public-reader-host-api-boundary-audit.json, spidermonkey-jsshell-tokenizer-headroom.json, spidermonkey-jsshell-materialized-headroom.json, spidermonkey-jsshell-diagnostic-flag-sweep.json, spidermonkey-taskcluster-debug-jsshell-codegen-audit.json, spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json, spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json, spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json, spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json, spidermonkey-ascii-scope-distance-audit.json, spidermonkey-materialized-scope-distance-audit.json, spidermonkey-codegen-closure-audit.json, spidermonkey-codegen-rerun-stability-audit.json, spidermonkey-archival-debug-jsshell-codegen-audit.json, firefox-spidermonkey-buildconfig-source-pin-audit.json

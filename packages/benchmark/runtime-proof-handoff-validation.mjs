@@ -221,6 +221,7 @@ function validateHandoff(handoff) {
           /contradictedClosureClaimCount=0/,
           /closestBlockedCandidateCount=/,
           /minimumBlockedRequirementCount=/,
+          /closestBlockedCandidates=.*spidermonkey-taskcluster-debug-jsshell-codegen-audit\.json.*spidermonkey-taskcluster-debug-jsshell-codegen-rerun\.json.*spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit\.json.*spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun\.json.*spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit\.json/,
           /summary\.qualifiedClosureCount must be greater than 0/,
           /summary\.qualifiedClosureCount must remain 0/,
           /closesCodegenObligation=false/,
