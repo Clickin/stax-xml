@@ -466,6 +466,17 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.evidenceKinds.includes('NEGATIVE_RESULT')
     && row.measuredRowCount === 0
   ));
+  assert.ok(report.coverage.spiderMonkeyDiagnostics.rows.some(row =>
+    row.id === 'official-jsshell-stax-api-gap'
+    && row.sourceArtifact === 'firefox-spidermonkey-jsshell-stax-api-gap-audit.json'
+    && row.status === 'blocked-by-host-api-surface'
+    && row.evidenceClass === 'host-api-surface-gap'
+    && row.hasJitExecutionStatus === true
+    && row.canReadBinaryInput === true
+    && row.canRunCurrentStaxFullStringBenchmark === false
+    && row.closesEmittedIrObligation === false
+    && row.commonMissingGlobals.join(', ') === 'TextDecoder, TextEncoder, ReadableStream, fetch'
+  ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'quick-xml-allocation-count-stability.json'
     && row.runtimes.includes('quick-xml-rust')
@@ -1013,6 +1024,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey local js-shell availability audit present \(status=available, found=2, searchRoots=2\); no emitted JIT IR is recorded by that audit/);
   assert.match(markdown, /Firefox\/SpiderMonkey official release js-shell audit present \(status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is JIT-status evidence only, not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey official nightly js-shell audit present \(status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is JIT-status evidence only, not emitted JIT IR/);
+  assert.match(markdown, /\| `official-jsshell-stax-api-gap` \| `firefox-spidermonkey-jsshell-stax-api-gap-audit\.json` \| blocked-by-host-api-surface \| host-api-surface-gap \| yes \| unknown \| unknown \| unknown \| no \| no \|/);
+  assert.match(markdown, /Firefox\/SpiderMonkey js-shell StAX API gap audit present \(status=blocked-by-host-api-surface, unchangedRunnableShells=0\/2, commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch\); it is host API surface evidence only, not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing/);
   assert.match(markdown, /16 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 4/);

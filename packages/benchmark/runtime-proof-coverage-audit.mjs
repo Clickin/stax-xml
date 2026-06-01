@@ -171,6 +171,7 @@ function createArtifactRecord(sourceArtifact, root, options) {
     runtimes,
     environment: summarizeEnvironment(root.environment),
     parameters: summarizeParameters(root.parameters),
+    summary: summarizeArtifactSummary(root.summary),
     availability: summarizeAvailability(root.summary),
     outcome: summarizeOutcome(root.outcome),
     shell: summarizeShell(root.shell),
@@ -179,6 +180,24 @@ function createArtifactRecord(sourceArtifact, root, options) {
     measuredRows,
     sourcePins: classifySourcePins(sourceArtifact, root),
   };
+}
+
+function summarizeArtifactSummary(summary = {}) {
+  if (!summary || typeof summary !== 'object') return null;
+  const result = {
+    status: summary.status ?? null,
+    shellCount: typeof summary.shellCount === 'number' ? summary.shellCount : null,
+    availableShellCount: typeof summary.availableShellCount === 'number' ? summary.availableShellCount : null,
+    jitStatusShellCount: typeof summary.jitStatusShellCount === 'number' ? summary.jitStatusShellCount : null,
+    binaryReadableShellCount: typeof summary.binaryReadableShellCount === 'number' ? summary.binaryReadableShellCount : null,
+    unchangedRunnableShellCount: typeof summary.unchangedRunnableShellCount === 'number' ? summary.unchangedRunnableShellCount : null,
+    commonMissingGlobals: Array.isArray(summary.commonMissingGlobals) ? summary.commonMissingGlobals : null,
+    canCloseEmittedIrObligation: typeof summary.canCloseEmittedIrObligation === 'boolean'
+      ? summary.canCloseEmittedIrObligation
+      : null,
+    conclusionAllowed: typeof summary.conclusionAllowed === 'boolean' ? summary.conclusionAllowed : null,
+  };
+  return Object.values(result).some(value => value !== null) ? result : null;
 }
 
 function summarizeAvailability(summary = {}) {
@@ -495,18 +514,20 @@ function summarizeSpiderMonkeyDiagnostics(artifacts) {
   const localJsShell = byName.get('firefox-spidermonkey-js-shell-availability-audit.json') ?? null;
   const releaseJsShell = byName.get('firefox-spidermonkey-release-jsshell-availability-audit.json') ?? null;
   const nightlyJsShell = byName.get('firefox-spidermonkey-nightly-jsshell-availability-audit.json') ?? null;
+  const jsShellApiGap = byName.get('firefox-spidermonkey-jsshell-stax-api-gap-audit.json') ?? null;
   const buildconfig = byName.get('firefox-spidermonkey-buildconfig-source-pin-audit.json') ?? null;
   const rows = [
     summarizeSpiderMonkeyDiagnostic('installed-browser-diagnostic-dump', diagnosticDump),
     summarizeSpiderMonkeyDiagnostic('local-js-shell-discovery', localJsShell),
     summarizeSpiderMonkeyDiagnostic('official-release-jsshell', releaseJsShell),
     summarizeSpiderMonkeyDiagnostic('official-nightly-jsshell', nightlyJsShell),
+    summarizeSpiderMonkeyDiagnostic('official-jsshell-stax-api-gap', jsShellApiGap),
     summarizeSpiderMonkeyDiagnostic('installed-buildconfig-source-pin', buildconfig),
   ].filter(Boolean);
   return {
     rows,
     emittedIrEvidenceCount: rows.filter(row => row.closesEmittedIrObligation === true).length,
-    jitStatusOnlyCount: rows.filter(row => row.hasJitExecutionStatus === true && row.closesEmittedIrObligation === false).length,
+    jitStatusOnlyCount: rows.filter(row => row.evidenceClass === 'jit-status-only').length,
     availabilityOnlyCount: rows.filter(row => row.evidenceClass === 'availability-only').length,
     missingIrSurfaceCount: rows.filter(row => row.irDumpSurface === false || row.nativeDumpComplete === false).length,
   };
@@ -515,8 +536,11 @@ function summarizeSpiderMonkeyDiagnostics(artifacts) {
 function summarizeSpiderMonkeyDiagnostic(id, artifact) {
   if (!artifact) return null;
   const outcome = artifact.outcome ?? {};
+  const summary = artifact.summary ?? {};
   const hasJitExecutionStatus = typeof outcome.hasJitExecutionStatus === 'boolean'
     ? outcome.hasJitExecutionStatus
+    : typeof summary.jitStatusShellCount === 'number' && typeof summary.shellCount === 'number'
+      ? summary.jitStatusShellCount === summary.shellCount && summary.shellCount > 0
     : null;
   const closesEmittedIrObligation = typeof outcome.closesEmittedIrObligation === 'boolean'
     ? outcome.closesEmittedIrObligation
@@ -533,7 +557,7 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact) {
   return {
     id,
     sourceArtifact: artifact.sourceArtifact,
-    status: outcome.status ?? 'source-pin',
+    status: outcome.status ?? summary.status ?? 'source-pin',
     packageVerified: typeof outcome.packageVerified === 'boolean' ? outcome.packageVerified : null,
     foundCount: typeof outcome.foundCount === 'number' ? outcome.foundCount : null,
     searchRoots: artifact.parameters?.searchRoots?.length ?? null,
@@ -549,10 +573,17 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact) {
     bytecodeDumpMarkers: typeof artifact.shell?.bytecodeDumpProbe?.bytecodeMarkerCount === 'number'
       ? artifact.shell.bytecodeDumpProbe.bytecodeMarkerCount
       : null,
-    canReadBinaryInput: typeof outcome.canReadBinaryInput === 'boolean' ? outcome.canReadBinaryInput : null,
+    canReadBinaryInput: typeof outcome.canReadBinaryInput === 'boolean'
+      ? outcome.canReadBinaryInput
+      : typeof summary.binaryReadableShellCount === 'number' && typeof summary.shellCount === 'number'
+        ? summary.binaryReadableShellCount === summary.shellCount && summary.shellCount > 0
+        : null,
     canRunCurrentStaxFullStringBenchmark: typeof outcome.canRunCurrentStaxFullStringBenchmark === 'boolean'
       ? outcome.canRunCurrentStaxFullStringBenchmark
-      : null,
+      : typeof summary.unchangedRunnableShellCount === 'number'
+        ? summary.unchangedRunnableShellCount > 0
+        : null,
+    commonMissingGlobals: Array.isArray(summary.commonMissingGlobals) ? summary.commonMissingGlobals : null,
     closesEmittedIrObligation,
     evidenceClass: classifySpiderMonkeyDiagnosticEvidence({
       id,
@@ -561,12 +592,14 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact) {
       irDumpSurface,
       nativeDumpComplete,
       outcome,
+      summary,
     }),
   };
 }
 
-function classifySpiderMonkeyDiagnosticEvidence({ id, hasJitExecutionStatus, closesEmittedIrObligation, irDumpSurface, nativeDumpComplete, outcome }) {
+function classifySpiderMonkeyDiagnosticEvidence({ id, hasJitExecutionStatus, closesEmittedIrObligation, irDumpSurface, nativeDumpComplete, outcome, summary }) {
   if (closesEmittedIrObligation) return 'emitted-ir';
+  if (id.includes('stax-api-gap') || summary?.status === 'blocked-by-host-api-surface') return 'host-api-surface-gap';
   if (hasJitExecutionStatus) return 'jit-status-only';
   if (irDumpSurface === false || nativeDumpComplete === false) return 'negative-diagnostic-surface';
   if (outcome?.status === 'no-dump-emitted' || outcome?.status === 'not-found') return 'negative-diagnostic-surface';
@@ -694,6 +727,10 @@ function createObligationRows(coverage) {
     artifact.sourceArtifact === 'firefox-spidermonkey-nightly-jsshell-availability-audit.json'
   );
   const hasSpiderMonkeyNightlyJsShellAvailabilityAudit = Boolean(spiderMonkeyNightlyJsShellAvailabilityAudit);
+  const spiderMonkeyJsShellApiGapAudit = coverage.negativeArtifacts.find(artifact =>
+    artifact.sourceArtifact === 'firefox-spidermonkey-jsshell-stax-api-gap-audit.json'
+  );
+  const hasSpiderMonkeyJsShellApiGapAudit = Boolean(spiderMonkeyJsShellApiGapAudit);
   const hasSpiderMonkeyJitSpewSourcePin = coverage.sourcePins.some(pin =>
     pin.sourceArtifact === 'firefox-spidermonkey-jitspew-source-pin-audit.json'
   );
@@ -756,6 +793,7 @@ function createObligationRows(coverage) {
         hasSpiderMonkeyJsShellAvailabilityAudit ? `Firefox/SpiderMonkey local js-shell availability audit present (status=${spiderMonkeyJsShellAvailabilityAudit.outcome?.status ?? 'unknown'}, found=${spiderMonkeyJsShellAvailabilityAudit.outcome?.foundCount ?? 'unknown'}, searchRoots=${spiderMonkeyJsShellAvailabilityAudit.parameters?.searchRoots?.length ?? 0}); no emitted JIT IR is recorded by that audit.` : 'Firefox/SpiderMonkey local js-shell availability audit missing.',
         hasSpiderMonkeyReleaseJsShellAvailabilityAudit ? `Firefox/SpiderMonkey official release js-shell audit present (status=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.status ?? 'unknown'}, packageVerified=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.packageVerified ?? 'unknown'}, jitStatus=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.hasJitExecutionStatus ?? 'unknown'}, irDumpSurface=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.hasIrDumpSurface ?? 'unknown'}, bytecodeDumpOutput=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.hasBytecodeDumpOutput ?? 'unknown'}, bytecodeDumpStatus=${spiderMonkeyReleaseJsShellAvailabilityAudit.shell?.bytecodeDumpProbe?.status ?? 'unknown'}, nativeDisassemblySurface=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.hasNativeDisassemblySurface ?? 'unknown'}, nativeDumpComplete=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.nativeDumpComplete ?? 'unknown'}, canReadBinaryInput=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.canReadBinaryInput ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}); it is JIT-status evidence only, not emitted JIT IR.` : 'Firefox/SpiderMonkey official release js-shell audit missing.',
         hasSpiderMonkeyNightlyJsShellAvailabilityAudit ? `Firefox/SpiderMonkey official nightly js-shell audit present (status=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.status ?? 'unknown'}, packageVerified=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.packageVerified ?? 'unknown'}, jitStatus=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasJitExecutionStatus ?? 'unknown'}, irDumpSurface=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasIrDumpSurface ?? 'unknown'}, bytecodeDumpOutput=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasBytecodeDumpOutput ?? 'unknown'}, bytecodeDumpStatus=${spiderMonkeyNightlyJsShellAvailabilityAudit.shell?.bytecodeDumpProbe?.status ?? 'unknown'}, nativeDisassemblySurface=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasNativeDisassemblySurface ?? 'unknown'}, nativeDumpComplete=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.nativeDumpComplete ?? 'unknown'}, canReadBinaryInput=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.canReadBinaryInput ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}); it is JIT-status evidence only, not emitted JIT IR.` : 'Firefox/SpiderMonkey official nightly js-shell audit missing.',
+        hasSpiderMonkeyJsShellApiGapAudit ? `Firefox/SpiderMonkey js-shell StAX API gap audit present (status=${spiderMonkeyJsShellApiGapAudit.summary?.status ?? 'unknown'}, unchangedRunnableShells=${spiderMonkeyJsShellApiGapAudit.summary?.unchangedRunnableShellCount ?? 'unknown'}/${spiderMonkeyJsShellApiGapAudit.summary?.shellCount ?? 'unknown'}, commonMissingGlobals=${(spiderMonkeyJsShellApiGapAudit.summary?.commonMissingGlobals ?? []).join(', ') || 'none'}); it is host API surface evidence only, not emitted JIT IR.` : 'Firefox/SpiderMonkey js-shell StAX API gap audit missing.',
         hasSpiderMonkeyEmittedIrEvidence ? 'Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence present.' : 'Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.',
       ].join(' '),
       nextExperiment: 'Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows.',
@@ -1140,6 +1178,7 @@ function summarizeArtifact(artifact) {
     parameters: artifact.parameters,
     availability: artifact.availability,
     outcome: artifact.outcome,
+    ...(artifact.summary ? { summary: artifact.summary } : {}),
     shell: artifact.shell,
     fixture: artifact.fixture,
     corpusSeed: artifact.corpusSeed,

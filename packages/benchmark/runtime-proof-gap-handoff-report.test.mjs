@@ -50,6 +50,9 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   const audit = JSON.parse(readFileSync(auditJsonOut, 'utf8'));
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
   const activeObligations = audit.obligations.filter(obligation => obligation.status !== 'covered');
+  assert.equal(report.inputs.auditGeneratedAt, audit.generatedAt);
+  assert.equal(report.inputs.auditObjective, audit.objective);
+  assert.equal(report.inputs.auditContract, audit.contract);
   assert.equal(report.objective, 'runtime-proof-gap-handoff');
   assert.equal(report.contract, 'external-proof-gap-runbook-linked-to-coverage-audit');
   assert.equal(report.summary.activeObligationCount, activeObligations.length);
@@ -317,6 +320,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
     'firefox-spidermonkey-js-shell-availability-audit.json',
     'firefox-spidermonkey-release-jsshell-availability-audit.json',
     'firefox-spidermonkey-nightly-jsshell-availability-audit.json',
+    'firefox-spidermonkey-jsshell-stax-api-gap-audit.json',
     'firefox-spidermonkey-buildconfig-source-pin-audit.json',
   ]);
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /emitted no JIT diagnostic dump/.test(item)));
@@ -325,6 +329,8 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /Official Firefox nightly jsshell is executable/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /release jsshell.*bytecode dump status is no-bytecode-output/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /nightly jsshell.*bytecode dump status is no-bytecode-output/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /js-shell StAX API gap audit pins the unchanged-harness blocker/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /TextDecoder, TextEncoder, ReadableStream, fetch/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /about:buildconfig records --enable-js-shell/.test(item)));
   assert.match(spiderMonkey.localClosure.scopeGuard, /official-shell diagnostic availability facts/);
   assert.match(safari.sourceConsumptionContract.primaryParserInput, /StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/);
@@ -373,6 +379,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Locally runnable closures: 0/);
   assert.match(markdown, new RegExp(`Audit artifacts: ${audit.scannedArtifacts.length}`));
   assert.match(markdown, new RegExp(`Audit measured rows: ${audit.summary.measuredRowCount}`));
+  assert.match(markdown, new RegExp(`Audit generated: ${escapeRegExp(audit.generatedAt)}`));
   assert.match(markdown, /Primary source consumption: synchronous Iterable<Uint8Array\[\]> byte batches/);
   assert.match(markdown, /Direct ReadableStream scope: separate source-overhead evidence only/);
   assert.match(markdown, /Direct ReadableStream backpressure required: yes/);
@@ -424,6 +431,8 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Official Firefox release jsshell is executable/);
   assert.match(markdown, /Official Firefox nightly jsshell is executable/);
   assert.match(markdown, /bytecode dump status is no-bytecode-output/);
+  assert.match(markdown, /The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface/);
+  assert.match(markdown, /common missing globals: TextDecoder, TextEncoder, ReadableStream, fetch/);
   assert.match(markdown, /Installed Firefox about:buildconfig records --enable-js-shell/);
   assert.match(markdown, /safaridriver/);
   assert.match(markdown, /Source consumption contract/);
@@ -443,3 +452,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /environment evidence only until a dump or IR artifact is captured/);
   assert.match(markdown, /not itself benchmark, allocation, or codegen evidence/);
 });
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
