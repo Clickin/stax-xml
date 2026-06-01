@@ -242,6 +242,12 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /handoff-validation-contracts-present/);
   assert.match(markdown, /handoff-validation-current-handoff/);
   assert.match(markdown, /## Source Audit Snapshot/);
+  assert.equal(report.sourceAuditSnapshot.inputComparisonGeneratedAt, report.counterexampleSnapshot.comparisonGeneratedAt);
+  assert.equal(report.sourceAuditSnapshot.currentComparisonGeneratedAt, report.counterexampleSnapshot.comparisonGeneratedAt);
+  assert.equal(report.sourceAuditSnapshot.inputCoverageGeneratedAt, report.coverageSnapshot.generatedAt);
+  assert.equal(report.sourceAuditSnapshot.currentCoverageGeneratedAt, report.coverageSnapshot.generatedAt);
+  assert.ok(report.sourceAuditSnapshot.guards.some(item => item.id === 'source-audit-current-inputs' && item.satisfied));
+  assert.match(markdown, /Source audit inputs: comparison=/);
   assert.match(markdown, /Primary parser input: synchronous Iterable<Uint8Array\[\]>/);
   assert.match(markdown, /Primary sync byte-batch rows: 231/);
   assert.match(markdown, /Primary direct ReadableStream rows: 0/);
@@ -250,6 +256,11 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /coverage-crosscheck-readable-stream-separated/);
   assert.match(markdown, /primary-source-sync-byte-batches-only/);
   assert.match(markdown, /## Frontier Audit Snapshot/);
+  assert.equal(report.frontierAuditSnapshot.memory.inputComparisonGeneratedAt, report.counterexampleSnapshot.comparisonGeneratedAt);
+  assert.equal(report.frontierAuditSnapshot.targetDistance.inputComparisonGeneratedAt, report.counterexampleSnapshot.comparisonGeneratedAt);
+  assert.equal(report.frontierAuditSnapshot.textMaterialization.inputComparisonGeneratedAt, report.counterexampleSnapshot.comparisonGeneratedAt);
+  assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'frontier-audits-current-comparison' && item.satisfied));
+  assert.match(markdown, /Frontier audit comparison inputs:/);
   assert.match(markdown, /Fastest bounded JS row: 185\.50 MiB\/s at 60\.45 MiB/);
   assert.match(markdown, /Unbounded rows at or above 200 MiB\/s: 0/);
   assert.match(markdown, /Bounded rows without numeric memory proof: 0/);
@@ -714,6 +725,50 @@ test('runtime-limit proof-obligation gate fails if primary source audit mixes as
   assert.match(markdown, /primary-source-sync-byte-batches-only/);
 });
 
+test('runtime-limit proof-obligation gate fails if source audit targets stale comparison or coverage', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const sourceAudit = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'source-consumption-shape-audit.json'), 'utf8'));
+  sourceAudit.inputs.comparisonGeneratedAt = '2026-06-01T00:00:00.000Z';
+  sourceAudit.inputs.coverageGeneratedAt = '2026-06-01T00:00:01.000Z';
+  writeFileSync(badSourceAuditJsonOut, `${JSON.stringify(sourceAudit, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--source-audit-json',
+    badSourceAuditJsonOut,
+    '--json-out',
+    badSourceAuditGateJsonOut,
+    '--md-out',
+    badSourceAuditGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(badSourceAuditGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.notEqual(report.sourceAuditSnapshot.inputComparisonGeneratedAt, report.sourceAuditSnapshot.currentComparisonGeneratedAt);
+  assert.notEqual(report.sourceAuditSnapshot.inputCoverageGeneratedAt, report.sourceAuditSnapshot.currentCoverageGeneratedAt);
+  assert.ok(report.sourceAuditSnapshot.guards.some(item =>
+    item.id === 'source-audit-current-inputs'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error =>
+    /Missing source audit guard source-audit-current-inputs/.test(error)
+  ));
+
+  const markdown = readFileSync(badSourceAuditGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /Source audit inputs: comparison=/);
+  assert.match(markdown, /source-audit-current-inputs/);
+});
+
 test('runtime-limit proof-obligation gate fails if representative stream rows lose backpressure proof', () => {
   resetTmp();
   writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
@@ -805,6 +860,48 @@ test('runtime-limit proof-obligation gate fails if unbounded memory rows cross t
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /Unbounded rows at or above 200 MiB\/s: 1/);
   assert.match(markdown, /memory-frontier-no-unbounded-target-row/);
+});
+
+test('runtime-limit proof-obligation gate fails if frontier audits target stale comparison', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const textBoundary = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'text-materialization-boundary-audit.json'), 'utf8'));
+  textBoundary.inputs.comparisonGeneratedAt = '2026-06-01T00:00:00.000Z';
+  writeFileSync(badTextBoundaryJsonOut, `${JSON.stringify(textBoundary, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--text-materialization-boundary-json',
+    badTextBoundaryJsonOut,
+    '--json-out',
+    badTextBoundaryGateJsonOut,
+    '--md-out',
+    badTextBoundaryGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(badTextBoundaryGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.notEqual(report.frontierAuditSnapshot.textMaterialization.inputComparisonGeneratedAt, report.frontierAuditSnapshot.textMaterialization.currentComparisonGeneratedAt);
+  assert.ok(report.frontierAuditSnapshot.guards.some(item =>
+    item.id === 'frontier-audits-current-comparison'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error =>
+    /Missing frontier audit guard frontier-audits-current-comparison/.test(error)
+  ));
+
+  const markdown = readFileSync(badTextBoundaryGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /Frontier audit comparison inputs:/);
+  assert.match(markdown, /frontier-audits-current-comparison/);
 });
 
 test('runtime-limit proof-obligation gate fails if target-distance JS row is not primary bounded sync input', () => {

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T17:51:26.783Z",
+  "generatedAt": "2026-06-01T17:57:14.903Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -347,7 +347,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-01T17:40:50.874Z",
+    "generatedAt": "2026-06-01T17:56:56.489Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -422,9 +422,9 @@
   },
   "handoffValidationSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-01T17:47:23.771Z",
-    "validatedHandoffGeneratedAt": "2026-06-01T17:40:50.874Z",
-    "currentHandoffGeneratedAt": "2026-06-01T17:40:50.874Z",
+    "generatedAt": "2026-06-01T17:57:05.916Z",
+    "validatedHandoffGeneratedAt": "2026-06-01T17:56:56.489Z",
+    "currentHandoffGeneratedAt": "2026-06-01T17:56:56.489Z",
     "pass": true,
     "allContractsPresent": true,
     "requiredHandoffsPresent": true,
@@ -469,6 +469,10 @@
   "sourceAuditSnapshot": {
     "loaded": true,
     "generatedAt": "2026-06-01T17:40:53.121Z",
+    "inputComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
+    "currentComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
+    "inputCoverageGeneratedAt": "2026-06-01T17:40:40.458Z",
+    "currentCoverageGeneratedAt": "2026-06-01T17:40:40.458Z",
     "status": "classified",
     "primarySourceContract": "primary-sync-iterable-byte-batches",
     "primaryParserInput": "synchronous Iterable<Uint8Array[]>",
@@ -489,6 +493,11 @@
       {
         "id": "source-audit-loaded",
         "description": "source-consumption-shape-audit.json must be loaded by the gate.",
+        "satisfied": true
+      },
+      {
+        "id": "source-audit-current-inputs",
+        "description": "source-consumption-shape-audit.json must reference the currently loaded comparison and coverage audit generatedAt values.",
         "satisfied": true
       },
       {
@@ -521,7 +530,9 @@
   "frontierAuditSnapshot": {
     "memory": {
       "loaded": true,
-      "generatedAt": "2026-06-01T17:12:34.047Z",
+      "generatedAt": "2026-06-01T17:56:44.815Z",
+      "inputComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
+      "currentComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
       "status": "classified",
       "fastestBoundedRateMiBPerSec": 185.5,
       "fastestBoundedMaxMiB": 60.45,
@@ -532,7 +543,9 @@
     },
     "targetDistance": {
       "loaded": true,
-      "generatedAt": "2026-06-01T17:12:35.960Z",
+      "generatedAt": "2026-06-01T17:56:43.023Z",
+      "inputComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
+      "currentComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
       "status": "classified",
       "woodstoxTargetMet": false,
       "quickXmlTargetMet": false,
@@ -551,7 +564,9 @@
     },
     "textMaterialization": {
       "loaded": true,
-      "generatedAt": "2026-06-01T08:13:27.247Z",
+      "generatedAt": "2026-06-01T17:56:45.237Z",
+      "inputComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
+      "currentComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
       "status": "classified",
       "fastestFullRateMiBPerSec": 185.5,
       "fastestWithoutTextFullStringParity": false,
@@ -563,6 +578,11 @@
       "conclusionAllowed": false
     },
     "guards": [
+      {
+        "id": "frontier-audits-current-comparison",
+        "description": "Frontier audits must reference the currently loaded same-contract-runtime-comparison.json generatedAt.",
+        "satisfied": true
+      },
       {
         "id": "memory-frontier-classified",
         "description": "memory-frontier-audit.json must classify 1 GiB+ JavaScript full-string memory rows and keep unbounded rows visible.",
@@ -845,9 +865,9 @@
     "requiredHandoffGuards": 11,
     "satisfiedHandoffValidationGuards": 6,
     "requiredHandoffValidationGuards": 6,
-    "satisfiedSourceAuditGuards": 6,
-    "requiredSourceAuditGuards": 6,
-    "satisfiedFrontierAuditGuards": 6,
-    "requiredFrontierAuditGuards": 6
+    "satisfiedSourceAuditGuards": 7,
+    "requiredSourceAuditGuards": 7,
+    "satisfiedFrontierAuditGuards": 7,
+    "requiredFrontierAuditGuards": 7
   }
 }

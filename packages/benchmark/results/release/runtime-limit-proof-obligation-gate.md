@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T17:51:26.783Z
+Generated: 2026-06-01T17:57:14.903Z
 
 ## Scope
 
@@ -107,7 +107,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-01T17:40:50.874Z)
+- Handoff loaded: yes (2026-06-01T17:56:56.489Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -127,8 +127,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-01T17:47:23.771Z)
-- Handoff validation target handoff generatedAt: 2026-06-01T17:40:50.874Z (current 2026-06-01T17:40:50.874Z)
+- Handoff validation loaded: yes (2026-06-01T17:57:05.916Z)
+- Handoff validation target handoff generatedAt: 2026-06-01T17:56:56.489Z (current 2026-06-01T17:56:56.489Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes
 - Required contracts present: yes
@@ -147,6 +147,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 ## Source Audit Snapshot
 
 - Source audit loaded: yes (2026-06-01T17:40:53.121Z)
+- Source audit inputs: comparison=2026-06-01T17:12:20.521Z (current 2026-06-01T17:12:20.521Z), coverage=2026-06-01T17:40:40.458Z (current 2026-06-01T17:40:40.458Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary sync byte-batch rows: 231
@@ -163,6 +164,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | ID | Satisfied | Meaning |
 | --- | --- | --- |
 | `source-audit-loaded` | yes | source-consumption-shape-audit.json must be loaded by the gate. |
+| `source-audit-current-inputs` | yes | source-consumption-shape-audit.json must reference the currently loaded comparison and coverage audit generatedAt values. |
 | `coverage-crosscheck-consistent` | yes | Source audit coverage crosscheck must be consistent with the wider coverage source-mode scan. |
 | `coverage-crosscheck-not-full-arraybuffer` | yes | Coverage crosscheck must report every source-mode row as not full ArrayBuffer parser input. |
 | `coverage-crosscheck-readable-stream-separated` | yes | Coverage crosscheck must keep direct ReadableStream rows visible as separate source-overhead evidence. |
@@ -171,19 +173,20 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Frontier Audit Snapshot
 
-- Memory frontier loaded: yes (2026-06-01T17:12:34.047Z)
+- Memory frontier loaded: yes (2026-06-01T17:56:44.815Z)
+- Frontier audit comparison inputs: memory=2026-06-01T17:12:20.521Z, target=2026-06-01T17:12:20.521Z, text=2026-06-01T17:12:20.521Z (current 2026-06-01T17:12:20.521Z)
 - Fastest bounded JS row: 185.50 MiB/s at 60.45 MiB
 - Unbounded or unproven memory rows: 17
 - Bounded rows without numeric memory proof: 0
 - Unbounded rows at or above 200 MiB/s: 0
-- Target distance loaded: yes (2026-06-01T17:12:35.960Z)
+- Target distance loaded: yes (2026-06-01T17:56:43.023Z)
 - Woodstox 0.9x target met: no
 - Woodstox 0.9x remaining: 164.29 MiB/s
 - quick-xml 0.9x target met: no
 - quick-xml 0.9x remaining: 95.06 MiB/s
 - Shared JS target row: yes
 - Target JS contract: sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=no, fullArrayBufferParserInput=no, boundedMemory=yes, memoryKind=process-rss, maxRssMiB=61.77
-- Text materialization boundary loaded: yes (2026-06-01T08:13:27.247Z)
+- Text materialization boundary loaded: yes (2026-06-01T17:56:45.237Z)
 - Fastest full-string row: 185.50 MiB/s
 - Full-string rows crossing 200 MiB/s: 0
 - No-text rows crossing 200 MiB/s: 4
@@ -193,6 +196,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 | ID | Satisfied | Meaning |
 | --- | --- | --- |
+| `frontier-audits-current-comparison` | yes | Frontier audits must reference the currently loaded same-contract-runtime-comparison.json generatedAt. |
 | `memory-frontier-classified` | yes | memory-frontier-audit.json must classify 1 GiB+ JavaScript full-string memory rows and keep unbounded rows visible. |
 | `memory-frontier-no-unbounded-target-row` | yes | memory-frontier-audit.json must show unbounded or unproven-memory full-string rows do not reach the 200 MiB/s target. |
 | `target-distance-not-met` | yes | target-distance-audit.json must show same-fixture JavaScript remains below both Woodstox and quick-xml 0.9x targets. |

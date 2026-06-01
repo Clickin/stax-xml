@@ -1,6 +1,6 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-01T17:40:50.874Z
+Generated: 2026-06-01T17:56:56.489Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 

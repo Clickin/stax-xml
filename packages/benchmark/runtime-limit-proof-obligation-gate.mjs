@@ -366,8 +366,8 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
   const counterexampleSnapshot = createCounterexampleSnapshot(comparison, counterexampleScan);
   const handoffSnapshot = createHandoffSnapshot(handoff);
   const handoffValidationSnapshot = createHandoffValidationSnapshot(handoffValidation, handoffSnapshot);
-  const sourceAuditSnapshot = createSourceAuditSnapshot(sourceAudit);
-  const frontierAuditSnapshot = createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMaterializationBoundary);
+  const sourceAuditSnapshot = createSourceAuditSnapshot(sourceAudit, comparison, coverageAudit);
+  const frontierAuditSnapshot = createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMaterializationBoundary, comparison);
   const claimGuards = requiredClaimGuards.map(requirement => evaluateClaimGuard(requirement, claims));
   const artifactMentions = requiredArtifactMentions.map(file => ({
     id: file,
@@ -501,10 +501,12 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
   };
 }
 
-function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMaterializationBoundary) {
+function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMaterializationBoundary, comparison = null) {
   const memory = {
     loaded: Boolean(memoryFrontier),
     generatedAt: memoryFrontier?.generatedAt ?? null,
+    inputComparisonGeneratedAt: memoryFrontier?.inputs?.comparisonGeneratedAt ?? null,
+    currentComparisonGeneratedAt: comparison?.generatedAt ?? null,
     status: memoryFrontier?.summary?.status ?? null,
     fastestBoundedRateMiBPerSec: memoryFrontier?.summary?.fastestBoundedRow?.rateMiBPerSec ?? null,
     fastestBoundedMaxMiB: memoryFrontier?.summary?.fastestBoundedRow?.maxMiB ?? null,
@@ -519,6 +521,8 @@ function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMateria
   const target = {
     loaded: Boolean(targetDistance),
     generatedAt: targetDistance?.generatedAt ?? null,
+    inputComparisonGeneratedAt: targetDistance?.inputs?.comparisonGeneratedAt ?? null,
+    currentComparisonGeneratedAt: comparison?.generatedAt ?? null,
     status: targetDistance?.summary?.status ?? null,
     woodstoxTargetMet: woodstox.targetMet ?? null,
     quickXmlTargetMet: quickXml.targetMet ?? null,
@@ -538,6 +542,8 @@ function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMateria
   const text = {
     loaded: Boolean(textMaterializationBoundary),
     generatedAt: textMaterializationBoundary?.generatedAt ?? null,
+    inputComparisonGeneratedAt: textMaterializationBoundary?.inputs?.comparisonGeneratedAt ?? null,
+    currentComparisonGeneratedAt: comparison?.generatedAt ?? null,
     status: textMaterializationBoundary?.summary?.status ?? null,
     fastestFullRateMiBPerSec: textMaterializationBoundary?.summary?.fastestFull?.rateMiBPerSec ?? null,
     fastestWithoutTextFullStringParity: textMaterializationBoundary?.summary?.fastestWithoutText?.fullStringParity ?? null,
@@ -558,6 +564,17 @@ function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMateria
 
 function createFrontierAuditGuards(memory, target, text) {
   return [
+    {
+      id: 'frontier-audits-current-comparison',
+      description: 'Frontier audits must reference the currently loaded same-contract-runtime-comparison.json generatedAt.',
+      satisfied: memory.loaded
+        && target.loaded
+        && text.loaded
+        && typeof memory.inputComparisonGeneratedAt === 'string'
+        && memory.inputComparisonGeneratedAt === memory.currentComparisonGeneratedAt
+        && target.inputComparisonGeneratedAt === target.currentComparisonGeneratedAt
+        && text.inputComparisonGeneratedAt === text.currentComparisonGeneratedAt,
+    },
     {
       id: 'memory-frontier-classified',
       description: 'memory-frontier-audit.json must classify 1 GiB+ JavaScript full-string memory rows and keep unbounded rows visible.',
@@ -631,7 +648,7 @@ function createFrontierAuditGuards(memory, target, text) {
   ];
 }
 
-function createSourceAuditSnapshot(sourceAudit) {
+function createSourceAuditSnapshot(sourceAudit, comparison = null, coverageAudit = null) {
   const coverageCrosscheck = sourceAudit?.coverageCrosscheck ?? null;
   const sourceModeRows = coverageCrosscheck?.sourceModeRows ?? null;
   const notFullArrayBufferRows = coverageCrosscheck?.notFullArrayBufferRows ?? null;
@@ -649,6 +666,10 @@ function createSourceAuditSnapshot(sourceAudit) {
   return {
     loaded: Boolean(sourceAudit),
     generatedAt: sourceAudit?.generatedAt ?? null,
+    inputComparisonGeneratedAt: sourceAudit?.inputs?.comparisonGeneratedAt ?? null,
+    currentComparisonGeneratedAt: comparison?.generatedAt ?? null,
+    inputCoverageGeneratedAt: sourceAudit?.inputs?.coverageGeneratedAt ?? null,
+    currentCoverageGeneratedAt: coverageAudit?.generatedAt ?? null,
     status: summary?.status ?? null,
     primarySourceContract: summary?.primarySourceContract ?? null,
     primaryParserInput,
@@ -667,6 +688,10 @@ function createSourceAuditSnapshot(sourceAudit) {
     coverageDirectReadableStreamRows: directReadableStreamRows,
     guards: createSourceAuditGuards({
       loaded: Boolean(sourceAudit),
+      inputComparisonGeneratedAt: sourceAudit?.inputs?.comparisonGeneratedAt ?? null,
+      currentComparisonGeneratedAt: comparison?.generatedAt ?? null,
+      inputCoverageGeneratedAt: sourceAudit?.inputs?.coverageGeneratedAt ?? null,
+      currentCoverageGeneratedAt: coverageAudit?.generatedAt ?? null,
       coverageCrosscheck,
       sourceModeRows,
       notFullArrayBufferRows,
@@ -690,6 +715,14 @@ function createSourceAuditGuards(snapshot) {
       id: 'source-audit-loaded',
       description: 'source-consumption-shape-audit.json must be loaded by the gate.',
       satisfied: snapshot.loaded,
+    },
+    {
+      id: 'source-audit-current-inputs',
+      description: 'source-consumption-shape-audit.json must reference the currently loaded comparison and coverage audit generatedAt values.',
+      satisfied: typeof snapshot.inputComparisonGeneratedAt === 'string'
+        && snapshot.inputComparisonGeneratedAt === snapshot.currentComparisonGeneratedAt
+        && typeof snapshot.inputCoverageGeneratedAt === 'string'
+        && snapshot.inputCoverageGeneratedAt === snapshot.currentCoverageGeneratedAt,
     },
     {
       id: 'coverage-crosscheck-consistent',
@@ -1165,6 +1198,7 @@ function renderMarkdown(report) {
     report.sourceAuditSnapshot.loaded
       ? `- Source audit loaded: yes (${report.sourceAuditSnapshot.generatedAt ?? 'unknown generatedAt'})`
       : '- Source audit loaded: no',
+    `- Source audit inputs: comparison=${report.sourceAuditSnapshot.inputComparisonGeneratedAt ?? 'unknown'} (current ${report.sourceAuditSnapshot.currentComparisonGeneratedAt ?? 'unknown'}), coverage=${report.sourceAuditSnapshot.inputCoverageGeneratedAt ?? 'unknown'} (current ${report.sourceAuditSnapshot.currentCoverageGeneratedAt ?? 'unknown'})`,
     `- Source audit status: ${report.sourceAuditSnapshot.status ?? 'unknown'}`,
     `- Primary parser input: ${report.sourceAuditSnapshot.primaryParserInput ?? 'unknown'}`,
     `- Primary sync byte-batch rows: ${formatNullableCount(report.sourceAuditSnapshot.primarySyncByteBatchRows)}`,
@@ -1192,6 +1226,7 @@ function renderMarkdown(report) {
     report.frontierAuditSnapshot.memory.loaded
       ? `- Memory frontier loaded: yes (${report.frontierAuditSnapshot.memory.generatedAt ?? 'unknown generatedAt'})`
       : '- Memory frontier loaded: no',
+    `- Frontier audit comparison inputs: memory=${report.frontierAuditSnapshot.memory.inputComparisonGeneratedAt ?? 'unknown'}, target=${report.frontierAuditSnapshot.targetDistance.inputComparisonGeneratedAt ?? 'unknown'}, text=${report.frontierAuditSnapshot.textMaterialization.inputComparisonGeneratedAt ?? 'unknown'} (current ${report.frontierAuditSnapshot.memory.currentComparisonGeneratedAt ?? report.frontierAuditSnapshot.targetDistance.currentComparisonGeneratedAt ?? report.frontierAuditSnapshot.textMaterialization.currentComparisonGeneratedAt ?? 'unknown'})`,
     `- Fastest bounded JS row: ${formatNullableRate(report.frontierAuditSnapshot.memory.fastestBoundedRateMiBPerSec)} MiB/s at ${formatNullableRate(report.frontierAuditSnapshot.memory.fastestBoundedMaxMiB)} MiB`,
     `- Unbounded or unproven memory rows: ${formatNullableCount(report.frontierAuditSnapshot.memory.unboundedRows)}`,
     `- Bounded rows without numeric memory proof: ${formatNullableCount(report.frontierAuditSnapshot.memory.boundedRowsWithoutNumericMemoryProof)}`,
