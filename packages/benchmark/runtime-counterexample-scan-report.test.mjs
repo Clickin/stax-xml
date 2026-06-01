@@ -33,13 +33,14 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 219);
+  assert.equal(report.summary.scannedArtifactCount, 220);
   assert.ok(report.scannedArtifacts.includes('concat-buffer-reuse-negative-result.json'));
   assert.ok(report.scannedArtifacts.includes('firefox-spidermonkey-nightly-jsshell-availability-audit.json'));
   assert.ok(report.scannedArtifacts.includes('firefox-spidermonkey-release-jsshell-availability-audit.json'));
   assert.ok(report.scannedArtifacts.includes('firefox-spidermonkey-jsshell-stax-api-gap-audit.json'));
   assert.ok(report.scannedArtifacts.includes('spidermonkey-jsshell-tokenizer-headroom.json'));
   assert.ok(report.scannedArtifacts.includes('spidermonkey-jsshell-materialized-headroom.json'));
+  assert.ok(report.scannedArtifacts.includes('spidermonkey-codegen-closure-audit.json'));
   assert.ok(report.scannedArtifacts.includes('spidermonkey-taskcluster-debug-jsshell-codegen-audit.json'));
   assert.ok(report.scannedArtifacts.includes('spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json'));
   assert.ok(report.scannedArtifacts.includes('spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json'));
@@ -915,7 +916,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Runtime Counterexample Scan/);
   assert.match(markdown, /Counterexamples found: 0/);
-  assert.match(markdown, /Scanned artifacts: 219/);
+  assert.match(markdown, /Scanned artifacts: 220/);
   assert.match(markdown, /Measured rows recognized: 1255/);
   assert.match(markdown, /Aggregate rows recognized: 182/);
   assert.match(markdown, /1 GiB\+ JS full-string aggregate rows recognized: 142/);

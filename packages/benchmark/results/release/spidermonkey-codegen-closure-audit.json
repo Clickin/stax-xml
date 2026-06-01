@@ -1,0 +1,906 @@
+{
+  "generatedAt": "2026-06-01T19:12:40.317Z",
+  "objective": "spidermonkey-codegen-closure-audit",
+  "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
+  "note": "Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.",
+  "parameters": {
+    "releaseDir": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release",
+    "selfTest": false
+  },
+  "candidates": [
+    {
+      "sourceArtifact": "firefox-spidermonkey-buildconfig-source-pin-audit.json",
+      "objective": "firefox-spidermonkey-buildconfig-source-pin-audit",
+      "status": null,
+      "evidenceClass": "source-pin-only",
+      "hasAnyDiagnosticSurface": false,
+      "selectedRowIdentityStatus": null,
+      "requirements": {
+        "emittedCodegenSurface": {
+          "met": false,
+          "evidence": [
+            "hasCodegenDumpOutput=false",
+            "irDumpSurface=false",
+            "nativeDumpComplete=false",
+            "codegenMarkers=unknown"
+          ]
+        },
+        "sameContractStaxRow": {
+          "met": false,
+          "evidence": [
+            "sameContractStaxRow=unknown"
+          ]
+        },
+        "unchangedRunnable": {
+          "met": false,
+          "evidence": [
+            "canRunCurrentStaxFullStringBenchmark=unknown",
+            "unchangedStaxBenchmark=unknown"
+          ]
+        },
+        "selectedRowMetadata": {
+          "met": false,
+          "evidence": [
+            "selectedRowId=unknown",
+            "selectedEventCount=unknown",
+            "selectedChecksum=unknown"
+          ]
+        },
+        "closingMetadata": {
+          "met": false,
+          "evidence": [
+            "taskId=unknown",
+            "buildId=unknown",
+            "sourceRevision=unknown",
+            "runtimeBuildIdentityRecorded=unknown",
+            "diagnosticFlagsRecorded=unknown",
+            "emittedDumpMetadataRecorded=unknown"
+          ]
+        },
+        "evidenceClassAllowed": {
+          "met": false,
+          "evidence": [
+            "evidenceClass=source-pin-only"
+          ]
+        }
+      },
+      "unmetRequirements": [
+        "emittedCodegenSurface",
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "closingMetadata",
+        "evidenceClassAllowed"
+      ],
+      "declaresClosure": false,
+      "qualifiedClosure": false
+    },
+    {
+      "sourceArtifact": "firefox-spidermonkey-diagnostic-dump-audit.json",
+      "objective": "firefox-spidermonkey-diagnostic-dump-audit",
+      "status": "no-dump-emitted",
+      "evidenceClass": "negative-diagnostic-surface",
+      "hasAnyDiagnosticSurface": false,
+      "selectedRowIdentityStatus": null,
+      "requirements": {
+        "emittedCodegenSurface": {
+          "met": false,
+          "evidence": [
+            "hasCodegenDumpOutput=false",
+            "irDumpSurface=false",
+            "nativeDumpComplete=false",
+            "codegenMarkers=unknown"
+          ]
+        },
+        "sameContractStaxRow": {
+          "met": false,
+          "evidence": [
+            "sameContractStaxRow=unknown"
+          ]
+        },
+        "unchangedRunnable": {
+          "met": false,
+          "evidence": [
+            "canRunCurrentStaxFullStringBenchmark=unknown",
+            "unchangedStaxBenchmark=unknown"
+          ]
+        },
+        "selectedRowMetadata": {
+          "met": false,
+          "evidence": [
+            "selectedRowId=unknown",
+            "selectedEventCount=unknown",
+            "selectedChecksum=unknown"
+          ]
+        },
+        "closingMetadata": {
+          "met": false,
+          "evidence": [
+            "taskId=unknown",
+            "buildId=unknown",
+            "sourceRevision=unknown",
+            "runtimeBuildIdentityRecorded=unknown",
+            "diagnosticFlagsRecorded=unknown",
+            "emittedDumpMetadataRecorded=unknown"
+          ]
+        },
+        "evidenceClassAllowed": {
+          "met": false,
+          "evidence": [
+            "evidenceClass=negative-diagnostic-surface"
+          ]
+        }
+      },
+      "unmetRequirements": [
+        "emittedCodegenSurface",
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "closingMetadata",
+        "evidenceClassAllowed"
+      ],
+      "declaresClosure": false,
+      "qualifiedClosure": false
+    },
+    {
+      "sourceArtifact": "firefox-spidermonkey-js-shell-availability-audit.json",
+      "objective": "firefox-spidermonkey-js-shell-availability-audit",
+      "status": "available",
+      "evidenceClass": "availability-only",
+      "hasAnyDiagnosticSurface": false,
+      "selectedRowIdentityStatus": null,
+      "requirements": {
+        "emittedCodegenSurface": {
+          "met": false,
+          "evidence": [
+            "hasCodegenDumpOutput=false",
+            "irDumpSurface=false",
+            "nativeDumpComplete=false",
+            "codegenMarkers=unknown"
+          ]
+        },
+        "sameContractStaxRow": {
+          "met": false,
+          "evidence": [
+            "sameContractStaxRow=unknown"
+          ]
+        },
+        "unchangedRunnable": {
+          "met": false,
+          "evidence": [
+            "canRunCurrentStaxFullStringBenchmark=unknown",
+            "unchangedStaxBenchmark=unknown"
+          ]
+        },
+        "selectedRowMetadata": {
+          "met": false,
+          "evidence": [
+            "selectedRowId=unknown",
+            "selectedEventCount=unknown",
+            "selectedChecksum=unknown"
+          ]
+        },
+        "closingMetadata": {
+          "met": false,
+          "evidence": [
+            "taskId=unknown",
+            "buildId=unknown",
+            "sourceRevision=unknown",
+            "runtimeBuildIdentityRecorded=unknown",
+            "diagnosticFlagsRecorded=unknown",
+            "emittedDumpMetadataRecorded=unknown"
+          ]
+        },
+        "evidenceClassAllowed": {
+          "met": false,
+          "evidence": [
+            "evidenceClass=availability-only"
+          ]
+        }
+      },
+      "unmetRequirements": [
+        "emittedCodegenSurface",
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "closingMetadata",
+        "evidenceClassAllowed"
+      ],
+      "declaresClosure": false,
+      "qualifiedClosure": false
+    },
+    {
+      "sourceArtifact": "firefox-spidermonkey-jsshell-stax-api-gap-audit.json",
+      "objective": "firefox-spidermonkey-jsshell-stax-api-gap-audit",
+      "status": "blocked-by-host-api-surface",
+      "evidenceClass": "unknown",
+      "hasAnyDiagnosticSurface": false,
+      "selectedRowIdentityStatus": null,
+      "requirements": {
+        "emittedCodegenSurface": {
+          "met": false,
+          "evidence": [
+            "hasCodegenDumpOutput=false",
+            "irDumpSurface=false",
+            "nativeDumpComplete=false",
+            "codegenMarkers=unknown"
+          ]
+        },
+        "sameContractStaxRow": {
+          "met": false,
+          "evidence": [
+            "sameContractStaxRow=unknown"
+          ]
+        },
+        "unchangedRunnable": {
+          "met": false,
+          "evidence": [
+            "canRunCurrentStaxFullStringBenchmark=unknown",
+            "unchangedStaxBenchmark=unknown"
+          ]
+        },
+        "selectedRowMetadata": {
+          "met": false,
+          "evidence": [
+            "selectedRowId=unknown",
+            "selectedEventCount=unknown",
+            "selectedChecksum=unknown"
+          ]
+        },
+        "closingMetadata": {
+          "met": false,
+          "evidence": [
+            "taskId=unknown",
+            "buildId=unknown",
+            "sourceRevision=unknown",
+            "runtimeBuildIdentityRecorded=unknown",
+            "diagnosticFlagsRecorded=unknown",
+            "emittedDumpMetadataRecorded=unknown"
+          ]
+        },
+        "evidenceClassAllowed": {
+          "met": true,
+          "evidence": [
+            "evidenceClass=unknown"
+          ]
+        }
+      },
+      "unmetRequirements": [
+        "emittedCodegenSurface",
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "closingMetadata"
+      ],
+      "declaresClosure": false,
+      "qualifiedClosure": false
+    },
+    {
+      "sourceArtifact": "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
+      "objective": "firefox-spidermonkey-nightly-jsshell-availability-audit",
+      "status": "available",
+      "evidenceClass": "availability-only",
+      "hasAnyDiagnosticSurface": false,
+      "selectedRowIdentityStatus": null,
+      "requirements": {
+        "emittedCodegenSurface": {
+          "met": false,
+          "evidence": [
+            "hasCodegenDumpOutput=false",
+            "irDumpSurface=false",
+            "nativeDumpComplete=false",
+            "codegenMarkers=unknown"
+          ]
+        },
+        "sameContractStaxRow": {
+          "met": false,
+          "evidence": [
+            "sameContractStaxRow=unknown"
+          ]
+        },
+        "unchangedRunnable": {
+          "met": false,
+          "evidence": [
+            "canRunCurrentStaxFullStringBenchmark=false",
+            "unchangedStaxBenchmark=unknown"
+          ]
+        },
+        "selectedRowMetadata": {
+          "met": false,
+          "evidence": [
+            "selectedRowId=unknown",
+            "selectedEventCount=unknown",
+            "selectedChecksum=unknown"
+          ]
+        },
+        "closingMetadata": {
+          "met": false,
+          "evidence": [
+            "taskId=unknown",
+            "buildId=unknown",
+            "sourceRevision=unknown",
+            "runtimeBuildIdentityRecorded=unknown",
+            "diagnosticFlagsRecorded=unknown",
+            "emittedDumpMetadataRecorded=unknown"
+          ]
+        },
+        "evidenceClassAllowed": {
+          "met": false,
+          "evidence": [
+            "evidenceClass=availability-only"
+          ]
+        }
+      },
+      "unmetRequirements": [
+        "emittedCodegenSurface",
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "closingMetadata",
+        "evidenceClassAllowed"
+      ],
+      "declaresClosure": false,
+      "qualifiedClosure": false
+    },
+    {
+      "sourceArtifact": "firefox-spidermonkey-release-jsshell-availability-audit.json",
+      "objective": "firefox-spidermonkey-release-jsshell-availability-audit",
+      "status": "available",
+      "evidenceClass": "availability-only",
+      "hasAnyDiagnosticSurface": false,
+      "selectedRowIdentityStatus": null,
+      "requirements": {
+        "emittedCodegenSurface": {
+          "met": false,
+          "evidence": [
+            "hasCodegenDumpOutput=false",
+            "irDumpSurface=false",
+            "nativeDumpComplete=false",
+            "codegenMarkers=unknown"
+          ]
+        },
+        "sameContractStaxRow": {
+          "met": false,
+          "evidence": [
+            "sameContractStaxRow=unknown"
+          ]
+        },
+        "unchangedRunnable": {
+          "met": false,
+          "evidence": [
+            "canRunCurrentStaxFullStringBenchmark=false",
+            "unchangedStaxBenchmark=unknown"
+          ]
+        },
+        "selectedRowMetadata": {
+          "met": false,
+          "evidence": [
+            "selectedRowId=unknown",
+            "selectedEventCount=unknown",
+            "selectedChecksum=unknown"
+          ]
+        },
+        "closingMetadata": {
+          "met": false,
+          "evidence": [
+            "taskId=unknown",
+            "buildId=unknown",
+            "sourceRevision=unknown",
+            "runtimeBuildIdentityRecorded=unknown",
+            "diagnosticFlagsRecorded=unknown",
+            "emittedDumpMetadataRecorded=unknown"
+          ]
+        },
+        "evidenceClassAllowed": {
+          "met": false,
+          "evidence": [
+            "evidenceClass=availability-only"
+          ]
+        }
+      },
+      "unmetRequirements": [
+        "emittedCodegenSurface",
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "closingMetadata",
+        "evidenceClassAllowed"
+      ],
+      "declaresClosure": false,
+      "qualifiedClosure": false
+    },
+    {
+      "sourceArtifact": "spidermonkey-archival-debug-jsshell-codegen-audit.json",
+      "objective": "spidermonkey-archival-debug-jsshell-codegen-audit",
+      "status": "available",
+      "evidenceClass": "archival-codegen-scope-guard",
+      "hasAnyDiagnosticSurface": true,
+      "selectedRowIdentityStatus": null,
+      "requirements": {
+        "emittedCodegenSurface": {
+          "met": true,
+          "evidence": [
+            "hasCodegenDumpOutput=true",
+            "irDumpSurface=false",
+            "nativeDumpComplete=true",
+            "codegenMarkers=42040"
+          ]
+        },
+        "sameContractStaxRow": {
+          "met": false,
+          "evidence": [
+            "sameContractStaxRow=false"
+          ]
+        },
+        "unchangedRunnable": {
+          "met": false,
+          "evidence": [
+            "canRunCurrentStaxFullStringBenchmark=false",
+            "unchangedStaxBenchmark=unknown"
+          ]
+        },
+        "selectedRowMetadata": {
+          "met": false,
+          "evidence": [
+            "selectedRowId=unknown",
+            "selectedEventCount=unknown",
+            "selectedChecksum=unknown"
+          ]
+        },
+        "closingMetadata": {
+          "met": false,
+          "evidence": [
+            "taskId=unknown",
+            "buildId=unknown",
+            "sourceRevision=unknown",
+            "runtimeBuildIdentityRecorded=unknown",
+            "diagnosticFlagsRecorded=unknown",
+            "emittedDumpMetadataRecorded=unknown"
+          ]
+        },
+        "evidenceClassAllowed": {
+          "met": false,
+          "evidence": [
+            "evidenceClass=archival-codegen-scope-guard"
+          ]
+        }
+      },
+      "unmetRequirements": [
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "closingMetadata",
+        "evidenceClassAllowed"
+      ],
+      "declaresClosure": false,
+      "qualifiedClosure": false
+    },
+    {
+      "sourceArtifact": "spidermonkey-jsshell-diagnostic-flag-sweep.json",
+      "objective": "spidermonkey-jsshell-diagnostic-flag-sweep",
+      "status": "available",
+      "evidenceClass": "unknown",
+      "hasAnyDiagnosticSurface": false,
+      "selectedRowIdentityStatus": null,
+      "requirements": {
+        "emittedCodegenSurface": {
+          "met": false,
+          "evidence": [
+            "hasCodegenDumpOutput=false",
+            "irDumpSurface=false",
+            "nativeDumpComplete=false",
+            "codegenMarkers=unknown"
+          ]
+        },
+        "sameContractStaxRow": {
+          "met": false,
+          "evidence": [
+            "sameContractStaxRow=unknown"
+          ]
+        },
+        "unchangedRunnable": {
+          "met": false,
+          "evidence": [
+            "canRunCurrentStaxFullStringBenchmark=unknown",
+            "unchangedStaxBenchmark=unknown"
+          ]
+        },
+        "selectedRowMetadata": {
+          "met": false,
+          "evidence": [
+            "selectedRowId=unknown",
+            "selectedEventCount=unknown",
+            "selectedChecksum=unknown"
+          ]
+        },
+        "closingMetadata": {
+          "met": false,
+          "evidence": [
+            "taskId=unknown",
+            "buildId=unknown",
+            "sourceRevision=unknown",
+            "runtimeBuildIdentityRecorded=unknown",
+            "diagnosticFlagsRecorded=unknown",
+            "emittedDumpMetadataRecorded=unknown"
+          ]
+        },
+        "evidenceClassAllowed": {
+          "met": true,
+          "evidence": [
+            "evidenceClass=unknown"
+          ]
+        }
+      },
+      "unmetRequirements": [
+        "emittedCodegenSurface",
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "closingMetadata"
+      ],
+      "declaresClosure": false,
+      "qualifiedClosure": false
+    },
+    {
+      "sourceArtifact": "spidermonkey-jsshell-materialized-headroom.json",
+      "objective": "spidermonkey-jsshell-materialized-headroom",
+      "status": null,
+      "evidenceClass": "unknown",
+      "hasAnyDiagnosticSurface": false,
+      "selectedRowIdentityStatus": null,
+      "requirements": {
+        "emittedCodegenSurface": {
+          "met": false,
+          "evidence": [
+            "hasCodegenDumpOutput=false",
+            "irDumpSurface=false",
+            "nativeDumpComplete=false",
+            "codegenMarkers=unknown"
+          ]
+        },
+        "sameContractStaxRow": {
+          "met": false,
+          "evidence": [
+            "sameContractStaxRow=unknown"
+          ]
+        },
+        "unchangedRunnable": {
+          "met": false,
+          "evidence": [
+            "canRunCurrentStaxFullStringBenchmark=unknown",
+            "unchangedStaxBenchmark=unknown"
+          ]
+        },
+        "selectedRowMetadata": {
+          "met": false,
+          "evidence": [
+            "selectedRowId=unknown",
+            "selectedEventCount=unknown",
+            "selectedChecksum=unknown"
+          ]
+        },
+        "closingMetadata": {
+          "met": false,
+          "evidence": [
+            "taskId=unknown",
+            "buildId=unknown",
+            "sourceRevision=unknown",
+            "runtimeBuildIdentityRecorded=unknown",
+            "diagnosticFlagsRecorded=unknown",
+            "emittedDumpMetadataRecorded=unknown"
+          ]
+        },
+        "evidenceClassAllowed": {
+          "met": true,
+          "evidence": [
+            "evidenceClass=unknown"
+          ]
+        }
+      },
+      "unmetRequirements": [
+        "emittedCodegenSurface",
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "closingMetadata"
+      ],
+      "declaresClosure": false,
+      "qualifiedClosure": false
+    },
+    {
+      "sourceArtifact": "spidermonkey-jsshell-tokenizer-headroom.json",
+      "objective": "spidermonkey-jsshell-tokenizer-headroom",
+      "status": null,
+      "evidenceClass": "unknown",
+      "hasAnyDiagnosticSurface": false,
+      "selectedRowIdentityStatus": null,
+      "requirements": {
+        "emittedCodegenSurface": {
+          "met": false,
+          "evidence": [
+            "hasCodegenDumpOutput=false",
+            "irDumpSurface=false",
+            "nativeDumpComplete=false",
+            "codegenMarkers=unknown"
+          ]
+        },
+        "sameContractStaxRow": {
+          "met": false,
+          "evidence": [
+            "sameContractStaxRow=unknown"
+          ]
+        },
+        "unchangedRunnable": {
+          "met": false,
+          "evidence": [
+            "canRunCurrentStaxFullStringBenchmark=unknown",
+            "unchangedStaxBenchmark=unknown"
+          ]
+        },
+        "selectedRowMetadata": {
+          "met": false,
+          "evidence": [
+            "selectedRowId=unknown",
+            "selectedEventCount=unknown",
+            "selectedChecksum=unknown"
+          ]
+        },
+        "closingMetadata": {
+          "met": false,
+          "evidence": [
+            "taskId=unknown",
+            "buildId=unknown",
+            "sourceRevision=unknown",
+            "runtimeBuildIdentityRecorded=unknown",
+            "diagnosticFlagsRecorded=unknown",
+            "emittedDumpMetadataRecorded=unknown"
+          ]
+        },
+        "evidenceClassAllowed": {
+          "met": true,
+          "evidence": [
+            "evidenceClass=unknown"
+          ]
+        }
+      },
+      "unmetRequirements": [
+        "emittedCodegenSurface",
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "closingMetadata"
+      ],
+      "declaresClosure": false,
+      "qualifiedClosure": false
+    },
+    {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
+      "objective": "spidermonkey-taskcluster-debug-jsshell-codegen-audit",
+      "status": "available",
+      "evidenceClass": "current-debug-codegen-scope-guard",
+      "hasAnyDiagnosticSurface": true,
+      "selectedRowIdentityStatus": null,
+      "requirements": {
+        "emittedCodegenSurface": {
+          "met": true,
+          "evidence": [
+            "hasCodegenDumpOutput=true",
+            "irDumpSurface=false",
+            "nativeDumpComplete=true",
+            "codegenMarkers=54756"
+          ]
+        },
+        "sameContractStaxRow": {
+          "met": false,
+          "evidence": [
+            "sameContractStaxRow=false"
+          ]
+        },
+        "unchangedRunnable": {
+          "met": false,
+          "evidence": [
+            "canRunCurrentStaxFullStringBenchmark=false",
+            "unchangedStaxBenchmark=unknown"
+          ]
+        },
+        "selectedRowMetadata": {
+          "met": false,
+          "evidence": [
+            "selectedRowId=unknown",
+            "selectedEventCount=unknown",
+            "selectedChecksum=unknown"
+          ]
+        },
+        "closingMetadata": {
+          "met": true,
+          "evidence": [
+            "taskId=bzK0wWZvQoOguMjTIbRJ_g",
+            "buildId=20260531212007",
+            "sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+            "runtimeBuildIdentityRecorded=unknown",
+            "diagnosticFlagsRecorded=unknown",
+            "emittedDumpMetadataRecorded=unknown"
+          ]
+        },
+        "evidenceClassAllowed": {
+          "met": false,
+          "evidence": [
+            "evidenceClass=current-debug-codegen-scope-guard"
+          ]
+        }
+      },
+      "unmetRequirements": [
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "evidenceClassAllowed"
+      ],
+      "declaresClosure": false,
+      "qualifiedClosure": false
+    },
+    {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
+      "objective": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit",
+      "status": "available",
+      "evidenceClass": "current-debug-materialized-codegen-scope-guard",
+      "hasAnyDiagnosticSurface": true,
+      "selectedRowIdentityStatus": null,
+      "requirements": {
+        "emittedCodegenSurface": {
+          "met": true,
+          "evidence": [
+            "hasCodegenDumpOutput=true",
+            "irDumpSurface=false",
+            "nativeDumpComplete=true",
+            "codegenMarkers=234522"
+          ]
+        },
+        "sameContractStaxRow": {
+          "met": false,
+          "evidence": [
+            "sameContractStaxRow=false"
+          ]
+        },
+        "unchangedRunnable": {
+          "met": false,
+          "evidence": [
+            "canRunCurrentStaxFullStringBenchmark=false",
+            "unchangedStaxBenchmark=false"
+          ]
+        },
+        "selectedRowMetadata": {
+          "met": false,
+          "evidence": [
+            "selectedRowId=unknown",
+            "selectedEventCount=unknown",
+            "selectedChecksum=unknown"
+          ]
+        },
+        "closingMetadata": {
+          "met": true,
+          "evidence": [
+            "taskId=bzK0wWZvQoOguMjTIbRJ_g",
+            "buildId=20260531212007",
+            "sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+            "runtimeBuildIdentityRecorded=unknown",
+            "diagnosticFlagsRecorded=unknown",
+            "emittedDumpMetadataRecorded=unknown"
+          ]
+        },
+        "evidenceClassAllowed": {
+          "met": false,
+          "evidence": [
+            "evidenceClass=current-debug-materialized-codegen-scope-guard"
+          ]
+        }
+      },
+      "unmetRequirements": [
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "evidenceClassAllowed"
+      ],
+      "declaresClosure": false,
+      "qualifiedClosure": false
+    },
+    {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
+      "objective": "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit",
+      "status": "available",
+      "evidenceClass": "current-debug-xml-codegen-scope-guard",
+      "hasAnyDiagnosticSurface": true,
+      "selectedRowIdentityStatus": null,
+      "requirements": {
+        "emittedCodegenSurface": {
+          "met": true,
+          "evidence": [
+            "hasCodegenDumpOutput=true",
+            "irDumpSurface=false",
+            "nativeDumpComplete=true",
+            "codegenMarkers=151431"
+          ]
+        },
+        "sameContractStaxRow": {
+          "met": false,
+          "evidence": [
+            "sameContractStaxRow=false"
+          ]
+        },
+        "unchangedRunnable": {
+          "met": false,
+          "evidence": [
+            "canRunCurrentStaxFullStringBenchmark=false",
+            "unchangedStaxBenchmark=unknown"
+          ]
+        },
+        "selectedRowMetadata": {
+          "met": false,
+          "evidence": [
+            "selectedRowId=unknown",
+            "selectedEventCount=unknown",
+            "selectedChecksum=unknown"
+          ]
+        },
+        "closingMetadata": {
+          "met": true,
+          "evidence": [
+            "taskId=bzK0wWZvQoOguMjTIbRJ_g",
+            "buildId=20260531212007",
+            "sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+            "runtimeBuildIdentityRecorded=unknown",
+            "diagnosticFlagsRecorded=unknown",
+            "emittedDumpMetadataRecorded=unknown"
+          ]
+        },
+        "evidenceClassAllowed": {
+          "met": false,
+          "evidence": [
+            "evidenceClass=current-debug-xml-codegen-scope-guard"
+          ]
+        }
+      },
+      "unmetRequirements": [
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "evidenceClassAllowed"
+      ],
+      "declaresClosure": false,
+      "qualifiedClosure": false
+    }
+  ],
+  "summary": {
+    "candidateCount": 13,
+    "diagnosticSurfaceCount": 4,
+    "emittedCodegenSurfaceCount": 4,
+    "sameContractStaxRowCount": 0,
+    "unchangedRunnableCount": 0,
+    "selectedRowMetadataCount": 0,
+    "closingMetadataCount": 3,
+    "qualifiedClosureCount": 0,
+    "contradictedClosureClaimCount": 0,
+    "blockedCandidateCount": 13,
+    "conclusionAllowed": false
+  },
+  "findings": [
+    {
+      "id": "spidermonkey-codegen-closure-matrix",
+      "classification": "SCOPE_GUARD",
+      "summary": "SpiderMonkey diagnostic/codegen artifacts are classified through the same-contract closure matrix before they can close codegen-traces-open.",
+      "evidence": [
+        "candidates=13",
+        "qualifiedClosures=0"
+      ]
+    },
+    {
+      "id": "spidermonkey-codegen-closure-not-met",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "No current SpiderMonkey diagnostic/codegen artifact satisfies emitted-codegen, unchanged StAX, selected-row metadata, and closing-metadata requirements together.",
+      "evidence": [
+        "emittedCodegenSurface=4",
+        "sameContractStaxRows=0",
+        "unchangedRunnable=0"
+      ]
+    }
+  ]
+}

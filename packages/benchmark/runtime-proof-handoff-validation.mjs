@@ -149,6 +149,7 @@ function validateHandoff(handoff) {
           /stax-public-reader-host-api-boundary-audit\.mjs/,
           /spidermonkey-jsshell-tokenizer-headroom\.mjs/,
           /spidermonkey-jsshell-materialized-headroom\.mjs/,
+          /spidermonkey-codegen-closure-audit\.mjs/,
         ]
       : [];
   const requiredContracts = isSafari
@@ -197,6 +198,9 @@ function validateHandoff(handoff) {
           /fullStringParity=false/,
           /memoryProofRows=0/,
           /counterexamples200MiB=0/,
+          /spidermonkey-codegen-closure-audit\.json/,
+          /qualifiedClosureCount=0/,
+          /summary\.qualifiedClosureCount must be greater than 0/,
           /closesCodegenObligation=false/,
           /jit-status-only/,
           /environment evidence only/,

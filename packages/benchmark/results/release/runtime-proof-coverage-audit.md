@@ -1,12 +1,12 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-06-01T18:56:47.071Z
+Generated: 2026-06-01T19:15:24.733Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 219
+- Scanned primary artifacts: 220
 - Ignored derived artifacts: 7
 - Measured rows recognized: 1255
 - Rows with unknown full-string parity: 0
@@ -21,10 +21,10 @@ This audit scans current release artifacts to show which proof obligations are c
   - Unknown bounded-memory rows with memory counters: 10
 - Benchmark artifacts: 156
 - Source artifacts: 25
-- Trace/profile artifacts: 15
+- Trace/profile artifacts: 16
 - Allocation artifacts: 16
 - Environment artifacts: 4
-- Negative-result artifacts: 24
+- Negative-result artifacts: 25
 - 1 GiB+ JS full-string rows: 848
 - 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 474/474
 - 1 GiB+ JS full-string separate direct ReadableStream source-overhead rows: 17
