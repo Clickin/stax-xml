@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T12:51:27.105Z",
+  "generatedAt": "2026-06-01T13:21:48.957Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -2775,7 +2775,10 @@
         "sameContractStaxRow": null,
         "canReadBinaryInput": null,
         "canRunCurrentStaxFullStringBenchmark": null,
-        "closesEmittedIrObligation": null
+        "closesEmittedIrObligation": null,
+        "selectedRowId": null,
+        "selectedEventCount": null,
+        "selectedChecksum": null
       },
       "shell": null,
       "fixture": null,
@@ -2865,7 +2868,10 @@
         "sameContractStaxRow": null,
         "canReadBinaryInput": null,
         "canRunCurrentStaxFullStringBenchmark": null,
-        "closesEmittedIrObligation": null
+        "closesEmittedIrObligation": null,
+        "selectedRowId": null,
+        "selectedEventCount": null,
+        "selectedChecksum": null
       },
       "shell": null,
       "fixture": null,
@@ -2938,7 +2944,10 @@
         "sameContractStaxRow": null,
         "canReadBinaryInput": null,
         "canRunCurrentStaxFullStringBenchmark": null,
-        "closesEmittedIrObligation": null
+        "closesEmittedIrObligation": null,
+        "selectedRowId": null,
+        "selectedEventCount": null,
+        "selectedChecksum": null
       },
       "shell": null,
       "fixture": null,
@@ -3047,7 +3056,10 @@
         "sameContractStaxRow": null,
         "canReadBinaryInput": true,
         "canRunCurrentStaxFullStringBenchmark": false,
-        "closesEmittedIrObligation": false
+        "closesEmittedIrObligation": false,
+        "selectedRowId": null,
+        "selectedEventCount": null,
+        "selectedChecksum": null
       },
       "shell": {
         "bytecodeDumpProbe": {
@@ -3128,7 +3140,10 @@
         "sameContractStaxRow": null,
         "canReadBinaryInput": true,
         "canRunCurrentStaxFullStringBenchmark": false,
-        "closesEmittedIrObligation": false
+        "closesEmittedIrObligation": false,
+        "selectedRowId": null,
+        "selectedEventCount": null,
+        "selectedChecksum": null
       },
       "shell": {
         "bytecodeDumpProbe": {
@@ -4533,7 +4548,10 @@
         "sameContractStaxRow": false,
         "canReadBinaryInput": null,
         "canRunCurrentStaxFullStringBenchmark": false,
-        "closesEmittedIrObligation": false
+        "closesEmittedIrObligation": false,
+        "selectedRowId": null,
+        "selectedEventCount": null,
+        "selectedChecksum": null
       },
       "shell": null,
       "fixture": null,
@@ -4614,7 +4632,10 @@
         "sameContractStaxRow": null,
         "canReadBinaryInput": null,
         "canRunCurrentStaxFullStringBenchmark": null,
-        "closesEmittedIrObligation": false
+        "closesEmittedIrObligation": false,
+        "selectedRowId": null,
+        "selectedEventCount": null,
+        "selectedChecksum": null
       },
       "shell": null,
       "fixture": null,
@@ -4741,7 +4762,10 @@
         "sameContractStaxRow": false,
         "canReadBinaryInput": null,
         "canRunCurrentStaxFullStringBenchmark": false,
-        "closesEmittedIrObligation": false
+        "closesEmittedIrObligation": false,
+        "selectedRowId": null,
+        "selectedEventCount": null,
+        "selectedChecksum": null
       },
       "shell": {
         "provenance": {
@@ -4800,7 +4824,10 @@
         "sameContractStaxRow": false,
         "canReadBinaryInput": null,
         "canRunCurrentStaxFullStringBenchmark": false,
-        "closesEmittedIrObligation": false
+        "closesEmittedIrObligation": false,
+        "selectedRowId": null,
+        "selectedEventCount": null,
+        "selectedChecksum": null
       },
       "shell": {
         "provenance": {
@@ -4867,7 +4894,10 @@
         "sameContractStaxRow": false,
         "canReadBinaryInput": null,
         "canRunCurrentStaxFullStringBenchmark": false,
-        "closesEmittedIrObligation": false
+        "closesEmittedIrObligation": false,
+        "selectedRowId": null,
+        "selectedEventCount": null,
+        "selectedChecksum": null
       },
       "shell": {
         "provenance": {
@@ -24725,6 +24755,10 @@
           "hasDiagnosticPrefSurface": null,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": null,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null,
+          "selectedRowMatchesCurrentComparison": null,
           "commonMissingGlobals": null,
           "taskId": null,
           "route": null,
@@ -24756,6 +24790,10 @@
           "hasDiagnosticPrefSurface": null,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": null,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null,
+          "selectedRowMatchesCurrentComparison": null,
           "commonMissingGlobals": null,
           "taskId": null,
           "route": null,
@@ -24787,6 +24825,10 @@
           "hasDiagnosticPrefSurface": null,
           "canReadBinaryInput": true,
           "canRunCurrentStaxFullStringBenchmark": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null,
+          "selectedRowMatchesCurrentComparison": null,
           "commonMissingGlobals": null,
           "taskId": null,
           "route": null,
@@ -24818,6 +24860,10 @@
           "hasDiagnosticPrefSurface": null,
           "canReadBinaryInput": true,
           "canRunCurrentStaxFullStringBenchmark": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null,
+          "selectedRowMatchesCurrentComparison": null,
           "commonMissingGlobals": null,
           "taskId": null,
           "route": null,
@@ -24849,6 +24895,10 @@
           "hasDiagnosticPrefSurface": null,
           "canReadBinaryInput": true,
           "canRunCurrentStaxFullStringBenchmark": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null,
+          "selectedRowMatchesCurrentComparison": null,
           "commonMissingGlobals": [
             "TextDecoder",
             "TextEncoder",
@@ -24885,6 +24935,10 @@
           "hasDiagnosticPrefSurface": false,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": null,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null,
+          "selectedRowMatchesCurrentComparison": null,
           "commonMissingGlobals": null,
           "taskId": null,
           "route": null,
@@ -24916,6 +24970,10 @@
           "hasDiagnosticPrefSurface": null,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null,
+          "selectedRowMatchesCurrentComparison": null,
           "commonMissingGlobals": null,
           "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
           "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
@@ -24947,6 +25005,10 @@
           "hasDiagnosticPrefSurface": null,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null,
+          "selectedRowMatchesCurrentComparison": null,
           "commonMissingGlobals": null,
           "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
           "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
@@ -24978,6 +25040,10 @@
           "hasDiagnosticPrefSurface": null,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null,
+          "selectedRowMatchesCurrentComparison": null,
           "commonMissingGlobals": null,
           "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
           "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
@@ -25009,6 +25075,10 @@
           "hasDiagnosticPrefSurface": null,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null,
+          "selectedRowMatchesCurrentComparison": null,
           "commonMissingGlobals": null,
           "taskId": null,
           "route": null,
@@ -25040,6 +25110,10 @@
           "hasDiagnosticPrefSurface": null,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": null,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null,
+          "selectedRowMatchesCurrentComparison": null,
           "commonMissingGlobals": null,
           "taskId": null,
           "route": null,
@@ -25348,7 +25422,10 @@
           "sameContractStaxRow": false,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": false,
-          "closesEmittedIrObligation": false
+          "closesEmittedIrObligation": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null
         },
         "shell": null,
         "fixture": null,
@@ -25395,7 +25472,10 @@
           "sameContractStaxRow": false,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": false,
-          "closesEmittedIrObligation": false
+          "closesEmittedIrObligation": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null
         },
         "shell": {
           "provenance": {
@@ -25454,7 +25534,10 @@
           "sameContractStaxRow": false,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": false,
-          "closesEmittedIrObligation": false
+          "closesEmittedIrObligation": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null
         },
         "shell": {
           "provenance": {
@@ -25521,7 +25604,10 @@
           "sameContractStaxRow": false,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": false,
-          "closesEmittedIrObligation": false
+          "closesEmittedIrObligation": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null
         },
         "shell": {
           "provenance": {
@@ -26707,7 +26793,10 @@
           "sameContractStaxRow": null,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": null,
-          "closesEmittedIrObligation": null
+          "closesEmittedIrObligation": null,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null
         },
         "shell": null,
         "fixture": null,
@@ -26754,7 +26843,10 @@
           "sameContractStaxRow": null,
           "canReadBinaryInput": true,
           "canRunCurrentStaxFullStringBenchmark": false,
-          "closesEmittedIrObligation": false
+          "closesEmittedIrObligation": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null
         },
         "shell": {
           "bytecodeDumpProbe": {
@@ -26806,7 +26898,10 @@
           "sameContractStaxRow": null,
           "canReadBinaryInput": true,
           "canRunCurrentStaxFullStringBenchmark": false,
-          "closesEmittedIrObligation": false
+          "closesEmittedIrObligation": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null
         },
         "shell": {
           "bytecodeDumpProbe": {
@@ -27034,7 +27129,10 @@
           "sameContractStaxRow": null,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": null,
-          "closesEmittedIrObligation": null
+          "closesEmittedIrObligation": null,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null
         },
         "shell": null,
         "fixture": null,
@@ -27103,7 +27201,10 @@
           "sameContractStaxRow": null,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": null,
-          "closesEmittedIrObligation": null
+          "closesEmittedIrObligation": null,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null
         },
         "shell": null,
         "fixture": null,
@@ -27192,7 +27293,10 @@
           "sameContractStaxRow": null,
           "canReadBinaryInput": true,
           "canRunCurrentStaxFullStringBenchmark": false,
-          "closesEmittedIrObligation": false
+          "closesEmittedIrObligation": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null
         },
         "shell": {
           "bytecodeDumpProbe": {
@@ -27244,7 +27348,10 @@
           "sameContractStaxRow": null,
           "canReadBinaryInput": true,
           "canRunCurrentStaxFullStringBenchmark": false,
-          "closesEmittedIrObligation": false
+          "closesEmittedIrObligation": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null
         },
         "shell": {
           "bytecodeDumpProbe": {
@@ -27483,7 +27590,10 @@
           "sameContractStaxRow": null,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": null,
-          "closesEmittedIrObligation": false
+          "closesEmittedIrObligation": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null
         },
         "shell": null,
         "fixture": null,
@@ -27582,7 +27692,10 @@
           "sameContractStaxRow": false,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": false,
-          "closesEmittedIrObligation": false
+          "closesEmittedIrObligation": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null
         },
         "shell": {
           "provenance": {
@@ -27641,7 +27754,10 @@
           "sameContractStaxRow": false,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": false,
-          "closesEmittedIrObligation": false
+          "closesEmittedIrObligation": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null
         },
         "shell": {
           "provenance": {
@@ -27708,7 +27824,10 @@
           "sameContractStaxRow": false,
           "canReadBinaryInput": null,
           "canRunCurrentStaxFullStringBenchmark": false,
-          "closesEmittedIrObligation": false
+          "closesEmittedIrObligation": false,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null
         },
         "shell": {
           "provenance": {

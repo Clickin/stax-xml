@@ -91,10 +91,19 @@ function createReport(options) {
   const artifacts = [];
   const ignored = [];
   const parseErrors = [];
+  let sameContractComparisonRows = [];
 
   for (const file of artifactFiles) {
     if (ignoredArtifacts.has(file)) {
       ignored.push(file);
+      if (file === 'same-contract-runtime-comparison.json') {
+        try {
+          const root = JSON.parse(readFileSync(join(options.releaseDir, file), 'utf8'));
+          sameContractComparisonRows = extractSameContractComparisonRows(root);
+        } catch (error) {
+          parseErrors.push({ file, message: error?.message ?? String(error) });
+        }
+      }
       continue;
     }
     try {
@@ -105,7 +114,7 @@ function createReport(options) {
     }
   }
 
-  const coverage = createCoverage(artifacts, options);
+  const coverage = createCoverage(artifacts, options, sameContractComparisonRows);
   const obligations = createObligationRows(coverage);
   const unknownBoundedMemoryRows = artifacts
     .flatMap(artifact => artifact.measuredRows)
@@ -419,7 +428,7 @@ function extendContext(node, context) {
   };
 }
 
-function createCoverage(artifacts, options) {
+function createCoverage(artifacts, options, sameContractComparisonRows = []) {
   const allRows = artifacts.flatMap(artifact => artifact.measuredRows);
   const largeJsFullRows = allRows.filter(row =>
     isJsRuntime(row.runtimeId)
@@ -454,7 +463,7 @@ function createCoverage(artifacts, options) {
       .slice(0, 12)),
     sourcePins: artifacts.flatMap(artifact => artifact.sourcePins.map(pin => ({ ...pin, sourceArtifact: artifact.sourceArtifact }))),
     safariWebKitStatus: summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows),
-    spiderMonkeyDiagnostics: summarizeSpiderMonkeyDiagnostics(artifacts),
+    spiderMonkeyDiagnostics: summarizeSpiderMonkeyDiagnostics(artifacts, sameContractComparisonRows),
     codegenArtifacts: artifacts
       .filter(artifact => artifact.evidenceKinds.includes('TRACE_FACT'))
       .map(artifact => summarizeArtifact(artifact)),
@@ -553,7 +562,7 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows) {
   };
 }
 
-function summarizeSpiderMonkeyDiagnostics(artifacts) {
+function summarizeSpiderMonkeyDiagnostics(artifacts, sameContractComparisonRows = []) {
   const byName = new Map(artifacts.map(artifact => [artifact.sourceArtifact, artifact]));
   const diagnosticDump = byName.get('firefox-spidermonkey-diagnostic-dump-audit.json') ?? null;
   const localJsShell = byName.get('firefox-spidermonkey-js-shell-availability-audit.json') ?? null;
@@ -567,17 +576,17 @@ function summarizeSpiderMonkeyDiagnostics(artifacts) {
   const archivalDebugJsShell = byName.get('spidermonkey-archival-debug-jsshell-codegen-audit.json') ?? null;
   const buildconfig = byName.get('firefox-spidermonkey-buildconfig-source-pin-audit.json') ?? null;
   const rows = [
-    summarizeSpiderMonkeyDiagnostic('installed-browser-diagnostic-dump', diagnosticDump),
-    summarizeSpiderMonkeyDiagnostic('local-js-shell-discovery', localJsShell),
-    summarizeSpiderMonkeyDiagnostic('official-release-jsshell', releaseJsShell),
-    summarizeSpiderMonkeyDiagnostic('official-nightly-jsshell', nightlyJsShell),
-    summarizeSpiderMonkeyDiagnostic('official-jsshell-stax-api-gap', jsShellApiGap),
-    summarizeSpiderMonkeyDiagnostic('official-jsshell-diagnostic-flag-sweep', jsShellDiagnosticFlagSweep),
-    summarizeSpiderMonkeyDiagnostic('taskcluster-debug-jsshell-codegen', taskclusterDebugJsShell),
-    summarizeSpiderMonkeyDiagnostic('taskcluster-debug-jsshell-xml-codegen', taskclusterDebugJsShellXml),
-    summarizeSpiderMonkeyDiagnostic('taskcluster-debug-jsshell-materialized-codegen', taskclusterDebugJsShellMaterialized),
-    summarizeSpiderMonkeyDiagnostic('archival-debug-jsshell-codegen', archivalDebugJsShell),
-    summarizeSpiderMonkeyDiagnostic('installed-buildconfig-source-pin', buildconfig),
+    summarizeSpiderMonkeyDiagnostic('installed-browser-diagnostic-dump', diagnosticDump, sameContractComparisonRows),
+    summarizeSpiderMonkeyDiagnostic('local-js-shell-discovery', localJsShell, sameContractComparisonRows),
+    summarizeSpiderMonkeyDiagnostic('official-release-jsshell', releaseJsShell, sameContractComparisonRows),
+    summarizeSpiderMonkeyDiagnostic('official-nightly-jsshell', nightlyJsShell, sameContractComparisonRows),
+    summarizeSpiderMonkeyDiagnostic('official-jsshell-stax-api-gap', jsShellApiGap, sameContractComparisonRows),
+    summarizeSpiderMonkeyDiagnostic('official-jsshell-diagnostic-flag-sweep', jsShellDiagnosticFlagSweep, sameContractComparisonRows),
+    summarizeSpiderMonkeyDiagnostic('taskcluster-debug-jsshell-codegen', taskclusterDebugJsShell, sameContractComparisonRows),
+    summarizeSpiderMonkeyDiagnostic('taskcluster-debug-jsshell-xml-codegen', taskclusterDebugJsShellXml, sameContractComparisonRows),
+    summarizeSpiderMonkeyDiagnostic('taskcluster-debug-jsshell-materialized-codegen', taskclusterDebugJsShellMaterialized, sameContractComparisonRows),
+    summarizeSpiderMonkeyDiagnostic('archival-debug-jsshell-codegen', archivalDebugJsShell, sameContractComparisonRows),
+    summarizeSpiderMonkeyDiagnostic('installed-buildconfig-source-pin', buildconfig, sameContractComparisonRows),
   ].filter(Boolean);
   return {
     rows,
@@ -589,7 +598,7 @@ function summarizeSpiderMonkeyDiagnostics(artifacts) {
   };
 }
 
-function summarizeSpiderMonkeyDiagnostic(id, artifact) {
+function summarizeSpiderMonkeyDiagnostic(id, artifact, sameContractComparisonRows = []) {
   if (!artifact) return null;
   const outcome = artifact.outcome ?? {};
   const summary = artifact.summary ?? {};
@@ -607,9 +616,25 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact) {
     : typeof summary.unchangedRunnableShellCount === 'number'
       ? summary.unchangedRunnableShellCount > 0
       : null;
+  const selectedRowId = outcome.selectedRowId ?? outcome.selectedCaseId ?? outcome.rowId ?? null;
+  const selectedEventCount = typeof outcome.selectedEventCount === 'number'
+    ? outcome.selectedEventCount
+    : typeof outcome.eventCount === 'number'
+      ? outcome.eventCount
+      : null;
+  const selectedChecksum = outcome.selectedChecksum ?? outcome.checksum ?? null;
+  const selectedRowMatchesCurrentComparison = closesEmittedIrObligation === true
+    ? matchSameContractComparisonRow({
+        selectedRowId,
+        selectedEventCount,
+        selectedChecksum,
+        comparisonRows: sameContractComparisonRows,
+      })
+    : null;
   const emittedIrClosureQualified = closesEmittedIrObligation === true
     && sameContractStaxRow === true
-    && canRunCurrentStaxFullStringBenchmark === true;
+    && canRunCurrentStaxFullStringBenchmark === true
+    && selectedRowMatchesCurrentComparison !== false;
   const irDumpSurface = typeof outcome.hasIrDumpSurface === 'boolean'
     ? outcome.hasIrDumpSurface
     : null;
@@ -647,6 +672,10 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact) {
         ? summary.binaryReadableShellCount === summary.shellCount && summary.shellCount > 0
         : null,
     canRunCurrentStaxFullStringBenchmark,
+    selectedRowId,
+    selectedEventCount,
+    selectedChecksum,
+    selectedRowMatchesCurrentComparison,
     commonMissingGlobals: Array.isArray(summary.commonMissingGlobals) ? summary.commonMissingGlobals : null,
     taskId: artifact.shell?.provenance?.taskId ?? null,
     route: artifact.shell?.provenance?.route ?? null,
@@ -663,15 +692,48 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact) {
       emittedIrClosureQualified,
       irDumpSurface,
       nativeDumpComplete,
+      selectedRowMatchesCurrentComparison,
       outcome,
       summary,
     }),
   };
 }
 
-function classifySpiderMonkeyDiagnosticEvidence({ id, hasJitExecutionStatus, closesEmittedIrObligation, emittedIrClosureQualified, irDumpSurface, nativeDumpComplete, outcome, summary }) {
+function matchSameContractComparisonRow({ selectedRowId, selectedEventCount, selectedChecksum, comparisonRows }) {
+  if (!Array.isArray(comparisonRows) || comparisonRows.length === 0) return null;
+  if (typeof selectedRowId !== 'string' || selectedRowId.length === 0) return false;
+  const row = comparisonRows.find(candidate => candidate.id === selectedRowId);
+  if (!row) return false;
+  if (typeof selectedEventCount !== 'number' || row.eventCount !== selectedEventCount) return false;
+  if (selectedChecksum === null || selectedChecksum === undefined || row.checksum !== selectedChecksum) return false;
+  return true;
+}
+
+function extractSameContractComparisonRows(root) {
+  const rows = Array.isArray(root?.comparisonRows)
+    ? root.comparisonRows
+    : Array.isArray(root?.rows)
+      ? root.rows
+      : [];
+  return rows
+    .map(row => ({
+      id: row.id ?? row.caseId ?? null,
+      runtimeId: row.runtimeId ?? row.runtime?.id ?? null,
+      jsRuntime: row.jsRuntime === true || isJsRuntime(row.runtimeId ?? row.runtime?.id),
+      fullStringParity: row.fullStringParity === true,
+      eventCount: normalizeEventCount(row),
+      checksum: row.checksum ?? null,
+    }))
+    .filter(row =>
+      typeof row.id === 'string'
+      && row.jsRuntime
+      && row.fullStringParity
+    );
+}
+
+function classifySpiderMonkeyDiagnosticEvidence({ id, hasJitExecutionStatus, closesEmittedIrObligation, emittedIrClosureQualified, irDumpSurface, nativeDumpComplete, selectedRowMatchesCurrentComparison, outcome, summary }) {
   if (emittedIrClosureQualified) return 'emitted-ir';
-  if (closesEmittedIrObligation) return 'emitted-ir-scope-guard';
+  if (closesEmittedIrObligation || selectedRowMatchesCurrentComparison === false) return 'emitted-ir-scope-guard';
   if (outcome?.hasMaterializedStringObjectCodegenOutput === true && outcome?.scopeComparableToCurrentFirefox === true && outcome?.sameContractStaxRow === false) return 'current-debug-materialized-codegen-scope-guard';
   if (outcome?.hasXmlWorkloadCodegenOutput === true && outcome?.scopeComparableToCurrentFirefox === true && outcome?.sameContractStaxRow === false) return 'current-debug-xml-codegen-scope-guard';
   if (outcome?.hasCodegenDumpOutput === true && outcome?.scopeComparableToCurrentFirefox === true && outcome?.sameContractStaxRow === false) return 'current-debug-codegen-scope-guard';
@@ -1271,6 +1333,19 @@ function summarizeOutcome(outcome = {}) {
     canReadBinaryInput: typeof outcome.canReadBinaryInput === 'boolean' ? outcome.canReadBinaryInput : null,
     canRunCurrentStaxFullStringBenchmark: typeof outcome.canRunCurrentStaxFullStringBenchmark === 'boolean' ? outcome.canRunCurrentStaxFullStringBenchmark : null,
     closesEmittedIrObligation: typeof outcome.closesEmittedIrObligation === 'boolean' ? outcome.closesEmittedIrObligation : null,
+    selectedRowId: typeof outcome.selectedRowId === 'string'
+      ? outcome.selectedRowId
+      : typeof outcome.selectedCaseId === 'string'
+        ? outcome.selectedCaseId
+        : typeof outcome.rowId === 'string'
+          ? outcome.rowId
+          : null,
+    selectedEventCount: typeof outcome.selectedEventCount === 'number'
+      ? outcome.selectedEventCount
+      : typeof outcome.eventCount === 'number'
+        ? outcome.eventCount
+        : null,
+    selectedChecksum: outcome.selectedChecksum ?? outcome.checksum ?? null,
   };
   return Object.values(summary).some(value => value !== null) ? summary : null;
 }
