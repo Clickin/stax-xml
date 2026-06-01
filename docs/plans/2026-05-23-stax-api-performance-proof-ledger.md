@@ -119,9 +119,10 @@ this ledger's claim table, checks required guard claims and artifact mentions,
 and records whether the broad runtime-limit conclusion is currently allowed.
 
 The current gate report passes with status `incomplete-proof-correctly-blocked`:
-all 10 required claim guards are satisfied, all 35 required artifact mentions
-are present, all 5 required open-obligation disclosures are present, and all 16
-proof-rule checks are satisfied. It also loads
+all 10 required claim guards are satisfied, all 38 required artifact mentions
+are present, all 5 required open-obligation disclosures are present, all 18
+proof-rule checks are satisfied, all 5 source-audit guards are satisfied, and
+all 3 frontier-audit guards are satisfied. It also loads
 `runtime-proof-gap-handoff.json` directly and requires the handoff-level closure
 guards to stay present. The important result is
 `conclusionAllowed: false`, not a proof of impossibility.
