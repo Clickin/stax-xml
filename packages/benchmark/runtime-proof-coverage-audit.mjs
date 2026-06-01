@@ -700,7 +700,7 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact, sameContractComparisonRow
 }
 
 function matchSameContractComparisonRow({ selectedRowId, selectedEventCount, selectedChecksum, comparisonRows }) {
-  if (!Array.isArray(comparisonRows) || comparisonRows.length === 0) return null;
+  if (!Array.isArray(comparisonRows) || comparisonRows.length === 0) return false;
   if (typeof selectedRowId !== 'string' || selectedRowId.length === 0) return false;
   const row = comparisonRows.find(candidate => candidate.id === selectedRowId);
   if (!row) return false;
