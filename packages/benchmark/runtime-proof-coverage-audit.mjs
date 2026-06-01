@@ -497,6 +497,7 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows) {
   const availability = availabilityArtifact?.availability ?? {};
   const safariRows = browserBenchmarkRows.filter(row => row.runtimeId === 'safari-jsc-browser');
   const safariFullRows = safariRows.filter(row => row.fullStringParity === true);
+  const safariDirectReadableFullRows = safariFullRows.filter(row => row.directReadableStream === true);
   const safariPrimaryRows = safariFullRows.filter(row =>
     row.directReadableStream === false
     && row.fullArrayBufferParserInput === false
@@ -518,6 +519,7 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows) {
     sourceBoundaryPinned: availability.safariSourceBoundaryPinned ?? null,
     openObligationRemains: availability.openObligationRemains ?? null,
     fullStringRowsRecorded: safariFullRows.length,
+    directReadableStreamFullStringRowsRecorded: safariDirectReadableFullRows.length,
     primarySyncByteBatchRowsRecorded: safariPrimaryRows.length,
     boundedPrimarySyncByteBatchRowsRecorded: boundedPrimaryRows.length,
     evidenceClass: safariRows.length > 0
@@ -834,7 +836,7 @@ function createObligationRows(coverage) {
         : hasSafariRows
           ? [
             `${coverage.browser.safariBenchmarkRows.length} Safari/WebKit browser benchmark rows found, but the obligation is not closed.`,
-            `exactBuildIdentityRecorded=${coverage.safariWebKitStatus.exactBuildIdentityRecorded}; sourceBoundaryPinned=${coverage.safariWebKitStatus.sourceBoundaryPinned}; primarySyncByteBatchRows=${coverage.safariWebKitStatus.primarySyncByteBatchRowsRecorded}; boundedPrimarySyncByteBatchRows=${coverage.safariWebKitStatus.boundedPrimarySyncByteBatchRowsRecorded}; closesSafariObligation=${coverage.safariWebKitStatus.closesSafariObligation}.`,
+            `exactBuildIdentityRecorded=${coverage.safariWebKitStatus.exactBuildIdentityRecorded}; sourceBoundaryPinned=${coverage.safariWebKitStatus.sourceBoundaryPinned}; directReadableStreamFullStringRows=${coverage.safariWebKitStatus.directReadableStreamFullStringRowsRecorded}; primarySyncByteBatchRows=${coverage.safariWebKitStatus.primarySyncByteBatchRowsRecorded}; boundedPrimarySyncByteBatchRows=${coverage.safariWebKitStatus.boundedPrimarySyncByteBatchRowsRecorded}; closesSafariObligation=${coverage.safariWebKitStatus.closesSafariObligation}.`,
           ].join(' ')
         : [
           'Bun/JSC and Bun-patched WebKit evidence is present, but no Safari/WebKit browser benchmark row was found.',
