@@ -71,6 +71,8 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('selected row id')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('selectedRowIdentityStatus')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('selectedRowIdentityStatusCounts')));
+  assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('spidermonkey-ascii-scope-distance-audit')));
+  assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('ASCII scope-distance audit pins')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('same-contract-runtime-comparison')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('checksum parity')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('emitted IR or optimized-code dump metadata')));
@@ -229,6 +231,45 @@ test('runtime proof handoff validation fails if SpiderMonkey omits diagnostic id
   const spiderMonkeyCheck = report.handoffChecks.find(row => row.id === 'spidermonkey-codegen-handoff');
   assert.equal(spiderMonkeyCheck.contractsPresent, false);
   assert.ok(spiderMonkeyCheck.requiredContractPatterns.some(pattern => /selectedRowIdentityStatusCounts/.test(pattern)));
+
+  const markdown = readFileSync(badMdOut, 'utf8');
+  assert.match(markdown, /Pass: no/);
+  assert.match(markdown, /spidermonkey-codegen-handoff/);
+});
+
+test('runtime proof handoff validation fails if SpiderMonkey omits ASCII scope-distance boundary', () => {
+  resetTmp();
+  const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
+  const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  spiderMonkey.localClosure.evidenceArtifacts = spiderMonkey.localClosure.evidenceArtifacts
+    .filter(item => item !== 'spidermonkey-ascii-scope-distance-audit.json');
+  spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
+    .filter(item => !/ASCII scope-distance audit/.test(item));
+  writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-handoff-validation.mjs'),
+    '--handoff-json',
+    badHandoffJson,
+    '--json-out',
+    badJsonOut,
+    '--md-out',
+    badMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(badJsonOut, 'utf8'));
+  assert.equal(report.summary.pass, false);
+  assert.equal(report.summary.allContractsPresent, false);
+  const spiderMonkeyCheck = report.handoffChecks.find(row => row.id === 'spidermonkey-codegen-handoff');
+  assert.equal(spiderMonkeyCheck.contractsPresent, false);
+  assert.ok(spiderMonkeyCheck.requiredContractPatterns.some(pattern => /spidermonkey-ascii-scope-distance-audit/.test(pattern)));
+  assert.ok(spiderMonkeyCheck.requiredContractPatterns.some(pattern => /ASCII scope-distance audit pins/.test(pattern)));
 
   const markdown = readFileSync(badMdOut, 'utf8');
   assert.match(markdown, /Pass: no/);

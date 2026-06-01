@@ -176,6 +176,9 @@ function validateHandoff(handoff) {
           /emitted IR or optimized-code dump metadata/,
           /selectedRowIdentityStatus=/,
           /selectedRowIdentityStatusCounts/,
+          /spidermonkey-ascii-scope-distance-audit\.json/,
+          /ASCII scope-distance audit pins/,
+          /closesCodegenObligation=false/,
           /jit-status-only/,
           /environment evidence only/,
         ]
@@ -183,6 +186,7 @@ function validateHandoff(handoff) {
   const contractText = [
     ...Object.values(sourceConsumption),
     ...Object.values(sourceBoundary),
+    ...(handoff.localClosure?.evidenceArtifacts ?? []),
     ...(handoff.localClosure?.blockers ?? []),
     JSON.stringify(handoff.localClosure?.diagnosticIdentityStatusCounts ?? {}),
     handoff.localClosure?.scopeGuard ?? '',
