@@ -36,10 +36,10 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.equal(report.summary.pass, true);
   assert.equal(report.summary.handoffCount, 2);
   assert.equal(report.summary.requiredHandoffsPresent, true);
-  assert.equal(report.summary.commandCount, 10);
-  assert.equal(report.summary.scriptsReferenced, 17);
+  assert.equal(report.summary.commandCount, 11);
+  assert.equal(report.summary.scriptsReferenced, 18);
   assert.equal(report.summary.missingScriptCount, 0);
-  assert.equal(report.summary.releaseOutputPathCount, 52);
+  assert.equal(report.summary.releaseOutputPathCount, 58);
   assert.equal(report.summary.nonReleaseOutputPathCount, 0);
   assert.equal(report.summary.rawOutputPathCount, 2);
   assert.equal(report.summary.rawOutputPathPolicyViolationCount, 0);
@@ -55,7 +55,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.equal(safari.commandCount, 4);
   assert.equal(safari.requiredFlagsPresent, true);
   assert.equal(safari.contractsPresent, true);
-  assert.equal(spiderMonkey.commandCount, 6);
+  assert.equal(spiderMonkey.commandCount, 7);
   assert.equal(spiderMonkey.requiredFlagsPresent, true);
   assert.equal(spiderMonkey.contractsPresent, true);
   assert.ok(safari.requiredFlagPatterns.some(pattern => pattern.includes('--harness safari-webdriver')));
@@ -72,6 +72,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('200 MiB')));
   assert.ok(spiderMonkey.requiredFlagPatterns.some(pattern => pattern.includes('FIREFOX_PATH')));
   assert.ok(spiderMonkey.requiredFlagPatterns.some(pattern => pattern.includes('stax-public-reader-host-api-boundary-audit')));
+  assert.ok(spiderMonkey.requiredFlagPatterns.some(pattern => pattern.includes('spidermonkey-jsshell-tokenizer-headroom')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('diagnostic flags')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('selected row id')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('selectedRowIdentityStatus')));
@@ -80,6 +81,8 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('ASCII scope-distance audit pins')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('stax-public-reader-host-api-boundary-audit')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('alternateDecoderWouldBeUnchangedClosure')));
+  assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('spidermonkey-jsshell-tokenizer-headroom')));
+  assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('memoryProofRows=0')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('same-contract-runtime-comparison')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('checksum parity')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('emitted IR or optimized-code dump metadata')));
@@ -105,6 +108,10 @@ test('runtime proof handoff validation pins external runbook command and contrac
     check.id === 'stax-public-reader-host-api-boundary'
     && /stax-public-reader-host-api-boundary-audit\.mjs/.test(check.command)
   ));
+  assert.ok(report.commandChecks.some(check =>
+    check.id === 'spidermonkey-jsshell-tokenizer-headroom'
+    && /spidermonkey-jsshell-tokenizer-headroom\.mjs/.test(check.command)
+  ));
   const postSafariAudits = report.commandChecks.find(check => check.id === 'post-safari-audits');
   assert.ok(postSafariAudits);
   assert.match(postSafariAudits.command, /source-consumption-shape-audit\.mjs/);
@@ -125,6 +132,8 @@ test('runtime proof handoff validation pins external runbook command and contrac
   const postSpiderMonkeyAudits = report.commandChecks.find(check => check.id === 'post-spidermonkey-audits');
   assert.ok(postSpiderMonkeyAudits);
   assert.match(postSpiderMonkeyAudits.command, /stax-public-reader-host-api-boundary-audit\.mjs/);
+  assert.match(postSpiderMonkeyAudits.command, /spidermonkey-jsshell-tokenizer-headroom\.mjs/);
+  assert.match(postSpiderMonkeyAudits.command, /runtime-counterexample-scan\.mjs/);
   assert.match(postSpiderMonkeyAudits.command, /runtime-proof-coverage-audit\.mjs/);
   assert.match(postSpiderMonkeyAudits.command, /source-consumption-shape-audit\.mjs/);
   assert.match(postSpiderMonkeyAudits.command, /memory-frontier-audit\.mjs/);
@@ -134,7 +143,11 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.match(postSpiderMonkeyAudits.command, /runtime-proof-gap-handoff\.mjs/);
   assert.ok(
     postSpiderMonkeyAudits.command.indexOf('stax-public-reader-host-api-boundary-audit.mjs')
-      < postSpiderMonkeyAudits.command.indexOf('runtime-proof-coverage-audit.mjs')
+      < postSpiderMonkeyAudits.command.indexOf('spidermonkey-jsshell-tokenizer-headroom.mjs')
+      && postSpiderMonkeyAudits.command.indexOf('spidermonkey-jsshell-tokenizer-headroom.mjs')
+        < postSpiderMonkeyAudits.command.indexOf('runtime-counterexample-scan.mjs')
+      && postSpiderMonkeyAudits.command.indexOf('runtime-counterexample-scan.mjs')
+        < postSpiderMonkeyAudits.command.indexOf('runtime-proof-coverage-audit.mjs')
       && postSpiderMonkeyAudits.command.indexOf('runtime-proof-coverage-audit.mjs')
         < postSpiderMonkeyAudits.command.indexOf('source-consumption-shape-audit.mjs')
       && postSpiderMonkeyAudits.command.indexOf('source-consumption-shape-audit.mjs')
@@ -147,7 +160,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
         < postSpiderMonkeyAudits.command.indexOf('runtime-limit-proof-obligation-gate.mjs')
       && postSpiderMonkeyAudits.command.indexOf('runtime-limit-proof-obligation-gate.mjs')
         < postSpiderMonkeyAudits.command.indexOf('runtime-proof-gap-handoff.mjs'),
-    'post-spidermonkey audits must refresh host boundary, coverage, source audit, frontier audits, gate, and handoff in order',
+    'post-spidermonkey audits must refresh host boundary, tokenizer headroom, counterexample scan, coverage, source audit, frontier audits, gate, and handoff in order',
   );
   assert.ok(report.findings.some(finding =>
     finding.id === 'handoff-static-validation'
@@ -161,16 +174,18 @@ test('runtime proof handoff validation pins external runbook command and contrac
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Runtime Proof Handoff Validation/);
   assert.match(markdown, /Pass: yes/);
-  assert.match(markdown, /Commands checked: 10/);
-  assert.match(markdown, /Scripts referenced: 17/);
+  assert.match(markdown, /Commands checked: 11/);
+  assert.match(markdown, /Scripts referenced: 18/);
   assert.match(markdown, /Missing scripts: 0/);
-  assert.match(markdown, /Release output paths: 52/);
+  assert.match(markdown, /Release output paths: 58/);
   assert.match(markdown, /Raw output path policy violations: 0/);
   assert.match(markdown, /\| `safari-webkit-browser-row-handoff` \| external-run-required \| 4 \| yes \| yes \|/);
-  assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| external-run-required \| 6 \| yes \| yes \|/);
+  assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| external-run-required \| 7 \| yes \| yes \|/);
   assert.match(markdown, /\| `safari-webkit-browser-row-handoff` \| `safari-books-corpus-cross-process` \| .*? \| yes \| yes \| yes \|/);
   assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| `firefox-diagnostic-installed-or-debug-build` \| .*? \| yes \| yes \| yes \|/);
+  assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| `spidermonkey-jsshell-tokenizer-headroom` \| .*? \| yes \| yes \| none \|/);
   assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| `stax-public-reader-host-api-boundary` \| .*? \| yes \| yes \| none \|/);
+  assert.match(markdown, /spidermonkey-jsshell-tokenizer-headroom\.mjs/);
   assert.match(markdown, /stax-public-reader-host-api-boundary-audit\.mjs/);
   assert.match(markdown, /source-consumption-shape-audit\.mjs/);
   assert.match(markdown, /memory-frontier-audit\.mjs/);

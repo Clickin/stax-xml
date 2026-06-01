@@ -81,10 +81,15 @@ function readComparison(comparisonJson) {
   return comparison;
 }
 
+function readOptionalJson(filePath) {
+  if (!existsSync(filePath)) return null;
+  return JSON.parse(readFileSync(filePath, 'utf8'));
+}
+
 function createReport(audit, comparison, options) {
   const obligations = audit.obligations ?? [];
   const activeObligations = obligations.filter(obligation => obligation.status !== 'covered');
-  const localClosure = createLocalClosure(activeObligations, audit);
+  const localClosure = createLocalClosure(activeObligations, audit, options);
   const handoffs = createHandoffs(activeObligations, localClosure);
   const handled = new Set(handoffs.flatMap(handoff => handoff.obligationIds));
   const unhandledObligations = activeObligations
@@ -491,9 +496,10 @@ function createSummary(
   };
 }
 
-function createLocalClosure(activeObligations, audit) {
+function createLocalClosure(activeObligations, audit, options = {}) {
   const activeById = new Map(activeObligations.map(obligation => [obligation.id, obligation]));
   const artifactByName = new Map((audit.scannedArtifacts ?? []).map(artifact => [artifact.sourceArtifact, artifact]));
+  const releaseDir = options.auditJson ? dirname(options.auditJson) : dirname(defaultAuditJson);
   const items = [];
 
   if (activeById.has('safari-jsc-source-and-browser-rows-open')) {
@@ -529,6 +535,9 @@ function createLocalClosure(activeObligations, audit) {
     const nightlyJsShell = artifactByName.get('firefox-spidermonkey-nightly-jsshell-availability-audit.json') ?? null;
     const jsShellApiGap = artifactByName.get('firefox-spidermonkey-jsshell-stax-api-gap-audit.json') ?? null;
     const staxHostApiBoundary = artifactByName.get('stax-public-reader-host-api-boundary-audit.json') ?? null;
+    const jsShellTokenizerHeadroom = artifactByName.get('spidermonkey-jsshell-tokenizer-headroom.json') ?? null;
+    const jsShellTokenizerHeadroomRaw = readOptionalJson(resolve(releaseDir, 'spidermonkey-jsshell-tokenizer-headroom.json'))
+      ?? readOptionalJson(resolve(dirname(defaultAuditJson), 'spidermonkey-jsshell-tokenizer-headroom.json'));
     const jsShellDiagnosticFlagSweep = artifactByName.get('spidermonkey-jsshell-diagnostic-flag-sweep.json') ?? null;
     const taskclusterDebugJsShell = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-codegen-audit.json') ?? null;
     const taskclusterDebugJsShellXml = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json') ?? null;
@@ -558,6 +567,11 @@ function createLocalClosure(activeObligations, audit) {
       && staxHostApiBoundary?.summary?.directReadableStreamRequiresReadableStream === true
       && staxHostApiBoundary?.summary?.stringInputRequiresTextEncoder === true
       && staxHostApiBoundary?.summary?.alternateDecoderWouldBeUnchangedClosure === false;
+    const jsShellTokenizerHeadroomPinned = jsShellTokenizerHeadroom?.contract === 'spidermonkey-jsshell-corpus-token-boundary-headroom-not-stax'
+      && jsShellTokenizerHeadroom?.measuredRowCount > 0
+      && jsShellTokenizerHeadroomRaw?.summary?.counterexamples200MiB === 0
+      && jsShellTokenizerHeadroomRaw?.summary?.memoryProofRows === 0
+      && jsShellTokenizerHeadroomRaw?.summary?.fastest?.fullStringParity === false;
     const jsShellDiagnosticFlagSweepNegative = jsShellDiagnosticFlagSweep?.outcome?.bytecodeProbeCount > 0
       && jsShellDiagnosticFlagSweep?.outcome?.bytecodeOutputProbeCount === 0;
     const archivalDebugCodegen = archivalDebugJsShell?.outcome?.hasCodegenDumpOutput === true
@@ -593,7 +607,7 @@ function createLocalClosure(activeObligations, audit) {
       obligationId: 'codegen-traces-open',
       localStatus: blocked ? 'external-run-required' : 'partial-local-status',
       localRunnable: blocked ? false : null,
-      evidenceArtifacts: [diagnostic, jsShell, releaseJsShell, nightlyJsShell, jsShellApiGap, staxHostApiBoundary, jsShellDiagnosticFlagSweep, taskclusterDebugJsShell, taskclusterDebugJsShellXml, taskclusterDebugJsShellMaterialized, asciiScopeDistance, materializedScopeDistance, archivalDebugJsShell, buildconfig]
+      evidenceArtifacts: [diagnostic, jsShell, releaseJsShell, nightlyJsShell, jsShellApiGap, staxHostApiBoundary, jsShellTokenizerHeadroom, jsShellDiagnosticFlagSweep, taskclusterDebugJsShell, taskclusterDebugJsShellXml, taskclusterDebugJsShellMaterialized, asciiScopeDistance, materializedScopeDistance, archivalDebugJsShell, buildconfig]
         .filter(Boolean)
         .map(artifact => artifact.sourceArtifact),
       blockers: [
@@ -617,6 +631,9 @@ function createLocalClosure(activeObligations, audit) {
         staxHostApiBoundaryPinned
           ? 'The StAX public reader host API boundary audit pins the current TextDecoder/ReadableStream/TextEncoder boundary: primarySyncByteBatchRequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, and alternateDecoderWouldBeUnchangedClosure=false.'
           : 'The StAX public reader host API boundary audit is missing or does not pin the current TextDecoder/ReadableStream/TextEncoder boundary.',
+        jsShellTokenizerHeadroomPinned
+          ? `The SpiderMonkey js-shell tokenizer headroom audit records partial parser-core headroom only: fastest=${formatNumber(jsShellTokenizerHeadroomRaw.summary.fastest.mibPerSec)} MiB/s, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0.`
+          : 'The SpiderMonkey js-shell tokenizer headroom audit is missing or does not pin non-StAX partial headroom as non-counterexample evidence.',
         jsShellDiagnosticFlagSweepNegative
           ? `The public js-shell diagnostic flag sweep tried ${jsShellDiagnosticFlagSweep.outcome.bytecodeProbeCount} bytecode flag combinations and found ${jsShellDiagnosticFlagSweep.outcome.bytecodeOutputProbeCount} bytecode-output probes plus diagnosticPrefSurface=${jsShellDiagnosticFlagSweep.outcome.hasDiagnosticPrefSurface}.`
           : 'The public js-shell diagnostic flag sweep is missing or did not confirm the no-bytecode-output flag surface.',
@@ -770,6 +787,11 @@ function createHandoffs(activeObligations, localClosure) {
           command: 'node packages/benchmark/firefox-spidermonkey-release-jsshell-availability-audit.mjs --package-kind release --json-out packages/benchmark/results/release/firefox-spidermonkey-release-jsshell-availability-audit.json --md-out packages/benchmark/results/release/firefox-spidermonkey-release-jsshell-availability-audit.md && node packages/benchmark/firefox-spidermonkey-release-jsshell-availability-audit.mjs --package-kind nightly --json-out packages/benchmark/results/release/firefox-spidermonkey-nightly-jsshell-availability-audit.json --md-out packages/benchmark/results/release/firefox-spidermonkey-nightly-jsshell-availability-audit.md',
         },
         {
+          id: 'spidermonkey-jsshell-tokenizer-headroom',
+          purpose: 'Refresh js-shell tokenizer headroom as partial non-StAX evidence before reclassifying runtime-limit or counterexample status.',
+          command: 'node packages/benchmark/spidermonkey-jsshell-tokenizer-headroom.mjs --json-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.json --md-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.md',
+        },
+        {
           id: 'stax-public-reader-host-api-boundary',
           purpose: 'Re-pin the current StAX public reader TextDecoder/ReadableStream/TextEncoder boundary before evaluating js-shell closure.',
           command: 'node packages/benchmark/stax-public-reader-host-api-boundary-audit.mjs --json-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.json --md-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.md',
@@ -777,7 +799,7 @@ function createHandoffs(activeObligations, localClosure) {
         {
           id: 'post-spidermonkey-audits',
           purpose: 'Reclassify the codegen obligation after diagnostic artifacts are generated.',
-          command: 'node packages/benchmark/stax-public-reader-host-api-boundary-audit.mjs --json-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.json --md-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.md && node packages/benchmark/runtime-proof-coverage-audit.mjs --json-out packages/benchmark/results/release/runtime-proof-coverage-audit.json --md-out packages/benchmark/results/release/runtime-proof-coverage-audit.md && node packages/benchmark/source-consumption-shape-audit.mjs --json-out packages/benchmark/results/release/source-consumption-shape-audit.json --md-out packages/benchmark/results/release/source-consumption-shape-audit.md && node packages/benchmark/memory-frontier-audit.mjs --json-out packages/benchmark/results/release/memory-frontier-audit.json --md-out packages/benchmark/results/release/memory-frontier-audit.md && node packages/benchmark/target-distance-audit.mjs --json-out packages/benchmark/results/release/target-distance-audit.json --md-out packages/benchmark/results/release/target-distance-audit.md && node packages/benchmark/text-materialization-boundary-audit.mjs --json-out packages/benchmark/results/release/text-materialization-boundary-audit.json --md-out packages/benchmark/results/release/text-materialization-boundary-audit.md && node packages/benchmark/runtime-limit-proof-obligation-gate.mjs --json-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.json --md-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.md && node packages/benchmark/runtime-proof-gap-handoff.mjs --json-out packages/benchmark/results/release/runtime-proof-gap-handoff.json --md-out packages/benchmark/results/release/runtime-proof-gap-handoff.md',
+          command: 'node packages/benchmark/stax-public-reader-host-api-boundary-audit.mjs --json-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.json --md-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.md && node packages/benchmark/spidermonkey-jsshell-tokenizer-headroom.mjs --json-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.json --md-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.md && node packages/benchmark/runtime-counterexample-scan.mjs --json-out packages/benchmark/results/release/runtime-counterexample-scan.json --md-out packages/benchmark/results/release/runtime-counterexample-scan.md && node packages/benchmark/runtime-proof-coverage-audit.mjs --json-out packages/benchmark/results/release/runtime-proof-coverage-audit.json --md-out packages/benchmark/results/release/runtime-proof-coverage-audit.md && node packages/benchmark/source-consumption-shape-audit.mjs --json-out packages/benchmark/results/release/source-consumption-shape-audit.json --md-out packages/benchmark/results/release/source-consumption-shape-audit.md && node packages/benchmark/memory-frontier-audit.mjs --json-out packages/benchmark/results/release/memory-frontier-audit.json --md-out packages/benchmark/results/release/memory-frontier-audit.md && node packages/benchmark/target-distance-audit.mjs --json-out packages/benchmark/results/release/target-distance-audit.json --md-out packages/benchmark/results/release/target-distance-audit.md && node packages/benchmark/text-materialization-boundary-audit.mjs --json-out packages/benchmark/results/release/text-materialization-boundary-audit.json --md-out packages/benchmark/results/release/text-materialization-boundary-audit.md && node packages/benchmark/runtime-limit-proof-obligation-gate.mjs --json-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.json --md-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.md && node packages/benchmark/runtime-proof-gap-handoff.mjs --json-out packages/benchmark/results/release/runtime-proof-gap-handoff.json --md-out packages/benchmark/results/release/runtime-proof-gap-handoff.md',
         },
       ],
       expectedEvidence: [

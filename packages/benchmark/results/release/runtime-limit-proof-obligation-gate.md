@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T18:36:02.746Z
+Generated: 2026-06-01T18:48:44.611Z
 
 ## Scope
 
@@ -104,7 +104,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 - Same-contract comparison contract: same-full-string-checksum-contract-not-same-object-shape; publicEventCase=eventObjectFull; objectShapeEquivalence=false; memoryEquivalence=false
 - Same-contract comparison rows: 289/289; largeFullJsRows=239
 - Same-contract comparison counterexamples: 0
-- Runtime counterexample scan loaded: yes (2026-06-01T18:21:42.158Z)
+- Runtime counterexample scan loaded: yes (2026-06-01T18:47:10.987Z)
 - Counterexample scan contract: threshold=200.00 MiB/s, minSizeGiB=1.00, parseErrors=0
 - Counterexample scan coverage shape: artifacts=218/218, measuredRows=1253/1253
 - Runtime counterexample scan counterexamples: 0
@@ -120,7 +120,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-01T18:35:38.033Z)
+- Handoff loaded: yes (2026-06-01T18:48:22.713Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -140,8 +140,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-01T18:35:50.959Z)
-- Handoff validation target handoff generatedAt: 2026-06-01T18:35:38.033Z (current 2026-06-01T18:35:38.033Z)
+- Handoff validation loaded: yes (2026-06-01T18:48:32.855Z)
+- Handoff validation target handoff generatedAt: 2026-06-01T18:48:22.713Z (current 2026-06-01T18:48:22.713Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes
 - Required contracts present: yes
