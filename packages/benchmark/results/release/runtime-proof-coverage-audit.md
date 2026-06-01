@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-06-01T21:43:26.851Z
+Generated: 2026-06-01T21:54:47.756Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -111,6 +111,7 @@ Safari/WebKit obligation closed: no
 
 Emitted SpiderMonkey IR/codegen evidence artifacts: 0
 Raw SpiderMonkey emitted-IR closure claims: 0
+SpiderMonkey diagnostics rows vs closure candidates: 11/15 (gap=4, closureQualified=0)
 SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7
 JIT-status-only SpiderMonkey shell artifacts: 2
 

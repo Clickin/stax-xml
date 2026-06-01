@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T21:49:14.837Z",
+  "generatedAt": "2026-06-01T21:55:08.472Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -578,11 +578,11 @@
   },
   "sourceAuditSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-01T21:44:09.703Z",
+    "generatedAt": "2026-06-01T21:54:58.070Z",
     "inputComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
     "currentComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
-    "inputCoverageGeneratedAt": "2026-06-01T21:43:26.851Z",
-    "currentCoverageGeneratedAt": "2026-06-01T21:43:26.851Z",
+    "inputCoverageGeneratedAt": "2026-06-01T21:54:47.756Z",
+    "currentCoverageGeneratedAt": "2026-06-01T21:54:47.756Z",
     "status": "classified",
     "primarySourceContract": "primary-sync-iterable-byte-batches",
     "primaryParserInput": "synchronous Iterable<Uint8Array[]>",
@@ -727,7 +727,7 @@
   },
   "coverageSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-01T21:43:26.851Z",
+    "generatedAt": "2026-06-01T21:54:47.756Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -787,7 +787,11 @@
       "selectedRowIdentityStatusCounts": {
         "not-claimed": 4,
         "not-claimed-non-stax-diagnostic": 7
-      }
+      },
+      "diagnosticRowCount": 11,
+      "closureAuditCandidateCount": 15,
+      "closureAuditDiagnosticRowGap": 4,
+      "closureAuditQualifiedClosureCount": 0
     },
     "guards": [
       {
@@ -803,6 +807,11 @@
       {
         "id": "spidermonkey-non-stax-diagnostic-rows-visible",
         "description": "Coverage audit must keep non-StAX SpiderMonkey diagnostic rows visible via selectedRowIdentityStatusCounts.not-claimed-non-stax-diagnostic.",
+        "satisfied": true
+      },
+      {
+        "id": "spidermonkey-closure-audit-surface-visible",
+        "description": "Coverage audit must expose SpiderMonkey diagnostic row count, closure-audit candidate count, their gap, and qualifiedClosureCount so gate review sees the curated coverage surface is not the full closure matrix.",
         "satisfied": true
       }
     ]
@@ -971,8 +980,8 @@
     "currentCounterexamples": 0,
     "satisfiedCounterexampleScanGuards": 8,
     "requiredCounterexampleScanGuards": 8,
-    "satisfiedCoverageGuards": 3,
-    "requiredCoverageGuards": 3,
+    "satisfiedCoverageGuards": 4,
+    "requiredCoverageGuards": 4,
     "satisfiedHandoffGuards": 19,
     "requiredHandoffGuards": 19,
     "satisfiedHandoffValidationGuards": 6,

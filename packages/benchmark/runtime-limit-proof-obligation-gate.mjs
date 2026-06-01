@@ -1121,6 +1121,10 @@ function createCoverageSnapshot(audit) {
       byId: {},
       spiderMonkeyDiagnostics: {
         selectedRowIdentityStatusCounts: {},
+        diagnosticRowCount: null,
+        closureAuditCandidateCount: null,
+        closureAuditDiagnosticRowGap: null,
+        closureAuditQualifiedClosureCount: null,
       },
       guards: createCoverageGuards(null),
     };
@@ -1129,6 +1133,10 @@ function createCoverageSnapshot(audit) {
   const obligations = Array.isArray(audit.obligations) ? audit.obligations : [];
   const spiderMonkeyDiagnostics = {
     selectedRowIdentityStatusCounts: audit.coverage?.spiderMonkeyDiagnostics?.selectedRowIdentityStatusCounts ?? {},
+    diagnosticRowCount: audit.coverage?.spiderMonkeyDiagnostics?.diagnosticRowCount ?? null,
+    closureAuditCandidateCount: audit.coverage?.spiderMonkeyDiagnostics?.closureAuditCandidateCount ?? null,
+    closureAuditDiagnosticRowGap: audit.coverage?.spiderMonkeyDiagnostics?.closureAuditDiagnosticRowGap ?? null,
+    closureAuditQualifiedClosureCount: audit.coverage?.spiderMonkeyDiagnostics?.closureAuditQualifiedClosureCount ?? null,
   };
   const snapshot = {
     loaded: true,
@@ -1156,6 +1164,7 @@ function createCoverageSnapshot(audit) {
 
 function createCoverageGuards(snapshot) {
   const counts = snapshot?.spiderMonkeyDiagnostics?.selectedRowIdentityStatusCounts ?? {};
+  const spiderMonkeyDiagnostics = snapshot?.spiderMonkeyDiagnostics ?? {};
   return [
     {
       id: 'coverage-loaded',
@@ -1174,6 +1183,16 @@ function createCoverageGuards(snapshot) {
       description: 'Coverage audit must keep non-StAX SpiderMonkey diagnostic rows visible via selectedRowIdentityStatusCounts.not-claimed-non-stax-diagnostic.',
       satisfied: typeof counts['not-claimed-non-stax-diagnostic'] === 'number'
         && counts['not-claimed-non-stax-diagnostic'] > 0,
+    },
+    {
+      id: 'spidermonkey-closure-audit-surface-visible',
+      description: 'Coverage audit must expose SpiderMonkey diagnostic row count, closure-audit candidate count, their gap, and qualifiedClosureCount so gate review sees the curated coverage surface is not the full closure matrix.',
+      satisfied: typeof spiderMonkeyDiagnostics.diagnosticRowCount === 'number'
+        && typeof spiderMonkeyDiagnostics.closureAuditCandidateCount === 'number'
+        && typeof spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap === 'number'
+        && spiderMonkeyDiagnostics.closureAuditCandidateCount >= spiderMonkeyDiagnostics.diagnosticRowCount
+        && spiderMonkeyDiagnostics.closureAuditCandidateCount - spiderMonkeyDiagnostics.diagnosticRowCount === spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap
+        && typeof spiderMonkeyDiagnostics.closureAuditQualifiedClosureCount === 'number',
     },
   ];
 }
@@ -1279,11 +1298,12 @@ function renderMarkdown(report) {
     '## Coverage Snapshot',
     '',
     report.coverageSnapshot.loaded
-      ? `- Coverage audit loaded: yes (${report.coverageSnapshot.generatedAt ?? 'unknown generatedAt'})`
-      : '- Coverage audit loaded: no',
-    `- Active coverage obligations: ${report.coverageSnapshot.activeObligationIds.join(', ') || 'none'}`,
-    `- Covered coverage obligations: ${report.coverageSnapshot.coveredObligationIds.join(', ') || 'none'}`,
-    `- SpiderMonkey selected row identity statuses: ${formatCountMap(report.coverageSnapshot.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts)}`,
+    ? `- Coverage audit loaded: yes (${report.coverageSnapshot.generatedAt ?? 'unknown generatedAt'})`
+    : '- Coverage audit loaded: no',
+  `- Active coverage obligations: ${report.coverageSnapshot.activeObligationIds.join(', ') || 'none'}`,
+  `- Covered coverage obligations: ${report.coverageSnapshot.coveredObligationIds.join(', ') || 'none'}`,
+  `- SpiderMonkey diagnostics rows vs closure candidates: ${report.coverageSnapshot.spiderMonkeyDiagnostics.diagnosticRowCount ?? 'unknown'}/${report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditCandidateCount ?? 'unknown'} (gap=${report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap ?? 'unknown'}, closureQualified=${report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditQualifiedClosureCount ?? 'unknown'})`,
+  `- SpiderMonkey selected row identity statuses: ${formatCountMap(report.coverageSnapshot.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts)}`,
     '',
     '| ID | Satisfied | Meaning |',
     '| --- | --- | --- |',

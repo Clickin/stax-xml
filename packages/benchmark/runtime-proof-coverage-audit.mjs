@@ -247,6 +247,9 @@ function summarizeArtifactSummary(summary = {}) {
     sameCodegenMarkerPairs: typeof summary.sameCodegenMarkerPairs === 'number'
       ? summary.sameCodegenMarkerPairs
       : null,
+    candidateCount: typeof summary.candidateCount === 'number'
+      ? summary.candidateCount
+      : null,
     qualifiedClosureCount: typeof summary.qualifiedClosureCount === 'number'
       ? summary.qualifiedClosureCount
       : null,
@@ -688,6 +691,7 @@ function summarizeSpiderMonkeyDiagnostics(artifacts, sameContractComparisonRows 
   const taskclusterDebugJsShellMaterialized = byName.get('spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json') ?? null;
   const archivalDebugJsShell = byName.get('spidermonkey-archival-debug-jsshell-codegen-audit.json') ?? null;
   const buildconfig = byName.get('firefox-spidermonkey-buildconfig-source-pin-audit.json') ?? null;
+  const closureAudit = byName.get('spidermonkey-codegen-closure-audit.json') ?? null;
   const rows = [
     summarizeSpiderMonkeyDiagnostic('installed-browser-diagnostic-dump', diagnosticDump, sameContractComparisonRows),
     summarizeSpiderMonkeyDiagnostic('local-js-shell-discovery', localJsShell, sameContractComparisonRows),
@@ -701,8 +705,18 @@ function summarizeSpiderMonkeyDiagnostics(artifacts, sameContractComparisonRows 
     summarizeSpiderMonkeyDiagnostic('archival-debug-jsshell-codegen', archivalDebugJsShell, sameContractComparisonRows),
     summarizeSpiderMonkeyDiagnostic('installed-buildconfig-source-pin', buildconfig, sameContractComparisonRows),
   ].filter(Boolean);
+  const closureAuditCandidateCount = closureAudit?.summary?.candidateCount ?? null;
+  const closureAuditQualifiedClosureCount = closureAudit?.summary?.qualifiedClosureCount ?? null;
+  const closureAuditConclusionAllowed = closureAudit?.summary?.conclusionAllowed ?? null;
   return {
     rows,
+    diagnosticRowCount: rows.length,
+    closureAuditCandidateCount,
+    closureAuditDiagnosticRowGap: typeof closureAuditCandidateCount === 'number'
+      ? closureAuditCandidateCount - rows.length
+      : null,
+    closureAuditQualifiedClosureCount,
+    closureAuditConclusionAllowed,
     emittedIrEvidenceCount: rows.filter(row => row.emittedIrClosureQualified === true).length,
     emittedIrClaimCount: rows.filter(row => row.closesEmittedIrObligation === true).length,
     jitStatusOnlyCount: rows.filter(row => row.evidenceClass === 'jit-status-only').length,
@@ -1846,6 +1860,7 @@ function renderMarkdown(report) {
     '',
     `Emitted SpiderMonkey IR/codegen evidence artifacts: ${report.coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount}`,
     `Raw SpiderMonkey emitted-IR closure claims: ${report.coverage.spiderMonkeyDiagnostics.emittedIrClaimCount}`,
+    `SpiderMonkey diagnostics rows vs closure candidates: ${report.coverage.spiderMonkeyDiagnostics.diagnosticRowCount ?? 'unknown'}/${report.coverage.spiderMonkeyDiagnostics.closureAuditCandidateCount ?? 'unknown'} (gap=${report.coverage.spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap ?? 'unknown'}, closureQualified=${report.coverage.spiderMonkeyDiagnostics.closureAuditQualifiedClosureCount ?? 'unknown'})`,
     `SpiderMonkey selected row identity statuses: ${formatCountMap(report.coverage.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts)}`,
     `JIT-status-only SpiderMonkey shell artifacts: ${report.coverage.spiderMonkeyDiagnostics.jitStatusOnlyCount}`,
     '',

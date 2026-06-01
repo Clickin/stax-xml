@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T21:49:14.837Z
+Generated: 2026-06-01T21:55:08.472Z
 
 ## Scope
 
@@ -87,9 +87,10 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-01T21:43:26.851Z)
+- Coverage audit loaded: yes (2026-06-01T21:54:47.756Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
+- SpiderMonkey diagnostics rows vs closure candidates: 11/15 (gap=4, closureQualified=0)
 - SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7
 
 | ID | Satisfied | Meaning |
@@ -97,6 +98,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `coverage-loaded` | yes | runtime-proof-coverage-audit.json must be loaded by the gate. |
 | `spidermonkey-identity-status-counts-present` | yes | Coverage audit must expose coverage.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts for gate-level review. |
 | `spidermonkey-non-stax-diagnostic-rows-visible` | yes | Coverage audit must keep non-StAX SpiderMonkey diagnostic rows visible via selectedRowIdentityStatusCounts.not-claimed-non-stax-diagnostic. |
+| `spidermonkey-closure-audit-surface-visible` | yes | Coverage audit must expose SpiderMonkey diagnostic row count, closure-audit candidate count, their gap, and qualifiedClosureCount so gate review sees the curated coverage surface is not the full closure matrix. |
 
 ## Counterexample Snapshot
 
@@ -167,8 +169,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-01T21:44:09.703Z)
-- Source audit inputs: comparison=2026-06-01T17:12:20.521Z (current 2026-06-01T17:12:20.521Z), coverage=2026-06-01T21:43:26.851Z (current 2026-06-01T21:43:26.851Z)
+- Source audit loaded: yes (2026-06-01T21:54:58.070Z)
+- Source audit inputs: comparison=2026-06-01T17:12:20.521Z (current 2026-06-01T17:12:20.521Z), coverage=2026-06-01T21:54:47.756Z (current 2026-06-01T21:54:47.756Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary sync byte-batch rows: 231

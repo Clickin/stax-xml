@@ -169,9 +169,14 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
     'not-claimed': 4,
     'not-claimed-non-stax-diagnostic': 7,
   });
+  assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.diagnosticRowCount, 11);
+  assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditCandidateCount, 15);
+  assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap, 4);
+  assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditQualifiedClosureCount, 0);
   assert.ok(report.coverageSnapshot.guards.some(item => item.id === 'coverage-loaded' && item.satisfied));
   assert.ok(report.coverageSnapshot.guards.some(item => item.id === 'spidermonkey-identity-status-counts-present' && item.satisfied));
   assert.ok(report.coverageSnapshot.guards.some(item => item.id === 'spidermonkey-non-stax-diagnostic-rows-visible' && item.satisfied));
+  assert.ok(report.coverageSnapshot.guards.some(item => item.id === 'spidermonkey-closure-audit-surface-visible' && item.satisfied));
   assert.equal(report.coverageSnapshot.byId['allocation-profiles-open'].status, 'covered');
   assert.equal(report.coverageSnapshot.byId['independent-corpus-suite-open'].status, 'covered');
   assert.equal(report.summary.satisfiedClaimGuards, report.summary.requiredClaimGuards);
@@ -252,8 +257,10 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open/);
   assert.match(markdown, /allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open/);
   assert.match(markdown, /SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7/);
+  assert.match(markdown, /SpiderMonkey diagnostics rows vs closure candidates: 11\/15 \(gap=4, closureQualified=0\)/);
   assert.match(markdown, /spidermonkey-identity-status-counts-present/);
   assert.match(markdown, /spidermonkey-non-stax-diagnostic-rows-visible/);
+  assert.match(markdown, /spidermonkey-closure-audit-surface-visible/);
   assert.match(markdown, /## Counterexample Snapshot/);
   assert.match(markdown, /Same-contract comparison contract: same-full-string-checksum-contract-not-same-object-shape/);
   assert.match(markdown, /objectShapeEquivalence=false; memoryEquivalence=false/);
@@ -379,6 +386,46 @@ test('runtime-limit proof-obligation gate fails if coverage omits SpiderMonkey i
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /SpiderMonkey selected row identity statuses: none/);
   assert.match(markdown, /spidermonkey-identity-status-counts-present/);
+});
+
+test('runtime-limit proof-obligation gate fails if coverage omits SpiderMonkey closure-audit surface counts', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const coverage = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-coverage-audit.json'), 'utf8'));
+  delete coverage.coverage.spiderMonkeyDiagnostics.closureAuditCandidateCount;
+  delete coverage.coverage.spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap;
+  delete coverage.coverage.spiderMonkeyDiagnostics.closureAuditQualifiedClosureCount;
+  writeFileSync(badCoverageJsonOut, `${JSON.stringify(coverage, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--coverage-json',
+    badCoverageJsonOut,
+    '--json-out',
+    badCoverageGateJsonOut,
+    '--md-out',
+    badCoverageGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badCoverageGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.ok(report.coverageSnapshot.guards.some(item =>
+    item.id === 'spidermonkey-closure-audit-surface-visible'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /diagnostic row count, closure-audit candidate count/.test(error)));
+
+  const markdown = readFileSync(badCoverageGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /SpiderMonkey diagnostics rows vs closure candidates: 11\/unknown/);
+  assert.match(markdown, /spidermonkey-closure-audit-surface-visible/);
 });
 
 test('runtime-limit proof-obligation gate fails if Safari handoff omits same-contract comparison closure check', () => {
