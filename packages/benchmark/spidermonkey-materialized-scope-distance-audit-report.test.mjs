@@ -42,10 +42,14 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
   assert.equal(report.summary.sourceArtifactDeclaresClosure, false);
   assert.equal(report.summary.closureClaimContradictedByScope, false);
   assert.equal(report.summary.closesCodegenObligation, false);
+  assert.equal(report.summary.throughputCountsAsTargetEvidence, false);
   assert.equal(report.summary.sameContractStaxRow, false);
   assert.equal(report.summary.unchangedStaxBenchmark, false);
   assert.equal(report.workloadComparison.token.fullStringParity, false);
   assert.equal(report.workloadComparison.materialized.fullStringParity, true);
+  assert.equal(report.workloadComparison.materialized.diagnosticThroughputMiBPerSec, 0.49);
+  assert.equal(report.workloadComparison.materialized.diagnosticThroughputClass, 'debug-jitspew-diagnostic-not-frontier');
+  assert.equal(report.workloadComparison.materialized.throughputCountsAsTargetEvidence, false);
   assert.equal(report.workloadComparison.materialized.materializedStringCount, 61289);
   assert.equal(report.workloadComparison.materialized.materializedObjectCount, 55759);
   assert.deepEqual(report.hostApiSurface.primarySyncByteBatchMissingGlobals, ['TextDecoder']);
@@ -89,6 +93,11 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
     finding.id === 'materialized-js-shell-closure-negative'
     && finding.classification === 'NEGATIVE_RESULT'
   ));
+  assert.ok(report.findings.some(finding =>
+    finding.id === 'materialized-js-shell-diagnostic-throughput-not-frontier'
+    && finding.classification === 'SCOPE_GUARD'
+    && finding.evidence.includes('throughputCountsAsTargetEvidence=false')
+  ));
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /SpiderMonkey Materialized Scope Distance Audit/);
@@ -98,11 +107,14 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
   assert.match(markdown, /Source artifact declares emitted-IR closure: false/);
   assert.match(markdown, /Closure claim contradicted by scope: false/);
   assert.match(markdown, /Closes codegen obligation: false/);
+  assert.match(markdown, /Diagnostic throughput MiB\/s: 0\.49/);
+  assert.match(markdown, /Diagnostic throughput class: debug-jitspew-diagnostic-not-frontier/);
+  assert.match(markdown, /Throughput counts as target evidence: false/);
   assert.match(markdown, /Primary sync byte-batch missing globals: TextDecoder/);
   assert.match(markdown, /Non-primary harness missing globals: TextEncoder, ReadableStream, fetch/);
   assert.match(markdown, /ASCII TextDecoder equivalence reduces scope distance: true/);
   assert.match(markdown, /Token workload: xml-token-boundary-no-string-materialization, fullStringParity=false/);
-  assert.match(markdown, /Materialized workload: ascii-js-string-and-public-event-object-materialization, fullStringParity=true/);
+  assert.match(markdown, /Materialized workload: ascii-js-string-and-public-event-object-materialization, fullStringParity=true, diagnosticThroughputMiBPerSec=0\.49, throughputCountsAsTargetEvidence=false/);
   assert.match(markdown, /\| `same-contract-stax-row` \| blocked \| The emitted codegen corresponds to the unchanged same-contract StAX benchmark row\. \| sameContractStaxRow=false \|/);
   assert.match(markdown, /\| `host-api-surface` \| blocked \| The js-shell can run the current full-string StAX harness without host API substitution\. \| canRunCurrentStaxFullStringBenchmark=false, missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=TextDecoder \|/);
   assert.match(markdown, /unchanged-stax-host-api-gap-remains: pass/);

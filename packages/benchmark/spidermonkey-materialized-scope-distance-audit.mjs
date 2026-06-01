@@ -175,6 +175,7 @@ function buildReport(options, sources) {
     && !closureRequirementsSatisfied;
   const closesCodegenObligation = sourceArtifactDeclaresClosure
     && closureRequirementsSatisfied;
+  const throughputClassification = classifyDiagnosticThroughput(materialized, workload);
   const report = {
     generatedAt: new Date().toISOString(),
     objective: 'spidermonkey-materialized-scope-distance-audit',
@@ -206,6 +207,9 @@ function buildReport(options, sources) {
       materialized: {
         contractScope: workload.contractScope ?? null,
         fullStringParity: workload.fullStringParity ?? materialized.outcome?.fullStringParity ?? null,
+        diagnosticThroughputMiBPerSec: throughputClassification.diagnosticThroughputMiBPerSec,
+        diagnosticThroughputClass: throughputClassification.diagnosticThroughputClass,
+        throughputCountsAsTargetEvidence: throughputClassification.throughputCountsAsTargetEvidence,
         sameSemanticChecksumFields: materialized.outcome?.sameSemanticChecksumFields ?? null,
         eventCount: workload.eventCount ?? null,
         checksum: workload.checksum ?? null,
@@ -233,6 +237,9 @@ function buildReport(options, sources) {
       sourceArtifactDeclaresClosure,
       closureClaimContradictedByScope,
       closesCodegenObligation,
+      diagnosticThroughputMiBPerSec: throughputClassification.diagnosticThroughputMiBPerSec,
+      diagnosticThroughputClass: throughputClassification.diagnosticThroughputClass,
+      throughputCountsAsTargetEvidence: throughputClassification.throughputCountsAsTargetEvidence,
       unchangedStaxBenchmark: materialized.outcome?.unchangedStaxBenchmark === true,
       sameContractStaxRow: materialized.outcome?.sameContractStaxRow === true,
       conclusionAllowed: false,
@@ -240,6 +247,34 @@ function buildReport(options, sources) {
   };
   report.findings = createFindings(report);
   return report;
+}
+
+function classifyDiagnosticThroughput(materialized, workload) {
+  const throughput = firstFiniteNumber(
+    workload.throughputMiBPerSec,
+    materialized.shell?.materializedCodegenProbe?.payload?.throughputMiBPerSec,
+    materialized.shell?.materializedCodegenProbe?.throughputMiBPerSec,
+  );
+  const debugDiagnosticRun = materialized.outcome?.hasCodegenDumpOutput === true
+    && materialized.outcome?.sameContractStaxRow === false
+    && materialized.outcome?.unchangedStaxBenchmark === false;
+  return {
+    diagnosticThroughputMiBPerSec: throughput,
+    diagnosticThroughputClass: debugDiagnosticRun
+      ? 'debug-jitspew-diagnostic-not-frontier'
+      : 'unclassified-throughput',
+    throughputCountsAsTargetEvidence: false,
+    reason: debugDiagnosticRun
+      ? 'Throughput was measured while a debug js-shell emitted JitSpew/codegen diagnostics for a small materialized workload outside the unchanged same-contract StAX benchmark.'
+      : 'Throughput is not classified as target evidence by this scope-distance audit.',
+  };
+}
+
+function firstFiniteNumber(...values) {
+  for (const value of values) {
+    if (Number.isFinite(value)) return value;
+  }
+  return null;
 }
 
 function summarizeHostApiSurface(apiGap, missingGlobals) {
@@ -372,6 +407,17 @@ function createFindings(report) {
         `allChecksPass=${report.summary.allChecksPass}`,
       ],
     },
+    {
+      id: 'materialized-js-shell-diagnostic-throughput-not-frontier',
+      classification: 'SCOPE_GUARD',
+      summary: 'The measured MiB/s from the current debug js-shell JitSpew run is recorded for reproducibility but cannot be cited as target-distance, frontier, or counterexample evidence.',
+      evidence: [
+        `diagnosticThroughputMiBPerSec=${report.summary.diagnosticThroughputMiBPerSec ?? 'unknown'}`,
+        `diagnosticThroughputClass=${report.summary.diagnosticThroughputClass}`,
+        `throughputCountsAsTargetEvidence=${report.summary.throughputCountsAsTargetEvidence}`,
+        'reason=debug shell plus codegen diagnostic output, small ASCII materialized workload, and not the unchanged same-contract StAX row',
+      ],
+    },
   ];
   if (report.summary.closureClaimContradictedByScope) {
     findings.push({
@@ -414,6 +460,7 @@ function createSelfTestReport(options) {
       materializedWorkload: {
         contractScope: 'ascii-js-string-and-public-event-object-materialization',
         fullStringParity: true,
+        throughputMiBPerSec: 0.49,
         eventCount: 55759,
         checksum: -553631888,
         materializedStringCount: 61289,
@@ -501,6 +548,9 @@ function renderMarkdown(report) {
     `- Source artifact declares emitted-IR closure: ${report.summary.sourceArtifactDeclaresClosure}`,
     `- Closure claim contradicted by scope: ${report.summary.closureClaimContradictedByScope}`,
     `- Closes codegen obligation: ${report.summary.closesCodegenObligation}`,
+    `- Diagnostic throughput MiB/s: ${report.summary.diagnosticThroughputMiBPerSec ?? 'unknown'}`,
+    `- Diagnostic throughput class: ${report.summary.diagnosticThroughputClass}`,
+    `- Throughput counts as target evidence: ${report.summary.throughputCountsAsTargetEvidence}`,
     `- Same-contract StAX row: ${report.summary.sameContractStaxRow}`,
     `- Unchanged StAX benchmark: ${report.summary.unchangedStaxBenchmark}`,
     `- Primary sync byte-batch missing globals: ${report.hostApiSurface.primarySyncByteBatchMissingGlobals.join(', ') || 'none'}`,
@@ -510,7 +560,7 @@ function renderMarkdown(report) {
     '## Workload Comparison',
     '',
     `- Token workload: ${report.workloadComparison.token.contractScope}, fullStringParity=${report.workloadComparison.token.fullStringParity}, checksum=${report.workloadComparison.token.checksum}, codegenMarkers=${report.workloadComparison.token.codegenMarkers}`,
-    `- Materialized workload: ${report.workloadComparison.materialized.contractScope}, fullStringParity=${report.workloadComparison.materialized.fullStringParity}, checksum=${report.workloadComparison.materialized.checksum}, materializedStringCount=${report.workloadComparison.materialized.materializedStringCount}, materializedObjectCount=${report.workloadComparison.materialized.materializedObjectCount}, codegenMarkers=${report.workloadComparison.materialized.codegenMarkers}`,
+    `- Materialized workload: ${report.workloadComparison.materialized.contractScope}, fullStringParity=${report.workloadComparison.materialized.fullStringParity}, diagnosticThroughputMiBPerSec=${report.workloadComparison.materialized.diagnosticThroughputMiBPerSec ?? 'unknown'}, throughputCountsAsTargetEvidence=${report.workloadComparison.materialized.throughputCountsAsTargetEvidence}, checksum=${report.workloadComparison.materialized.checksum}, materializedStringCount=${report.workloadComparison.materialized.materializedStringCount}, materializedObjectCount=${report.workloadComparison.materialized.materializedObjectCount}, codegenMarkers=${report.workloadComparison.materialized.codegenMarkers}`,
     '',
     '## Closure Requirement Matrix',
     '',
