@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T12:44:08.128Z",
+  "generatedAt": "2026-06-01T14:19:17.406Z",
   "objective": "spidermonkey-materialized-scope-distance-audit",
   "contract": "materialized-js-shell-workload-equivalence-and-scope-distance",
   "note": "Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen artifact against the token-only codegen artifact, the js-shell StAX API gap, and the semantic materialization contract. This audit records exactly what the materialized js-shell workload proves and why it still cannot close the unchanged StAX codegen obligation.",
@@ -95,6 +95,24 @@
     "staxEventPublicObjectsSupported": true,
     "staxStreamIndexAccessorsSupported": true
   },
+  "hostApiSurface": {
+    "commonMissingGlobals": [
+      "TextDecoder",
+      "TextEncoder",
+      "ReadableStream",
+      "fetch"
+    ],
+    "primarySyncByteBatchSurfaceId": "sync-corpus-byte-batch-full-string",
+    "primarySyncByteBatchMissingGlobals": [
+      "TextDecoder"
+    ],
+    "nonPrimaryHarnessMissingGlobals": [
+      "TextEncoder",
+      "ReadableStream",
+      "fetch"
+    ],
+    "interpretation": "For corpus-file synchronous Iterable<Uint8Array[]> StAX closure, the js-shell blocker narrows to TextDecoder; TextEncoder, ReadableStream, and fetch are generated-fixture, direct-stream, or browser-live-source harness blockers."
+  },
   "closureMatrix": [
     {
       "id": "emitted-codegen-surface",
@@ -123,7 +141,7 @@
     {
       "id": "host-api-surface",
       "required": "The js-shell can run the current full-string StAX harness without host API substitution.",
-      "observed": "canRunCurrentStaxFullStringBenchmark=false, missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch",
+      "observed": "canRunCurrentStaxFullStringBenchmark=false, missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=TextDecoder",
       "status": "blocked"
     },
     {

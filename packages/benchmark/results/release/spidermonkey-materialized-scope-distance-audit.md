@@ -1,6 +1,6 @@
 # SpiderMonkey Materialized Scope Distance Audit
 
-Generated: 2026-06-01T12:44:08.128Z
+Generated: 2026-06-01T14:19:17.406Z
 
 Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen artifact against the token-only codegen artifact, the js-shell StAX API gap, and the semantic materialization contract. This audit records exactly what the materialized js-shell workload proves and why it still cannot close the unchanged StAX codegen obligation.
 
@@ -17,6 +17,8 @@ Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen arti
 - Closes codegen obligation: false
 - Same-contract StAX row: false
 - Unchanged StAX benchmark: false
+- Primary sync byte-batch missing globals: TextDecoder
+- Non-primary harness missing globals: TextEncoder, ReadableStream, fetch
 
 ## Workload Comparison
 
@@ -31,7 +33,7 @@ Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen arti
 | `full-string-semantic-materialization` | met | The workload materializes JS strings and public event objects for the checksum fields under test. | fullStringParity=true, materializedStringCount=245161, materializedObjectCount=223041 |
 | `same-contract-stax-row` | blocked | The emitted codegen corresponds to the unchanged same-contract StAX benchmark row. | sameContractStaxRow=false |
 | `unchanged-stax-benchmark` | blocked | The benchmark harness is unchanged from the current TextDecoder/ReadableStream StAX row. | unchangedStaxBenchmark=false |
-| `host-api-surface` | blocked | The js-shell can run the current full-string StAX harness without host API substitution. | canRunCurrentStaxFullStringBenchmark=false, missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch |
+| `host-api-surface` | blocked | The js-shell can run the current full-string StAX harness without host API substitution. | canRunCurrentStaxFullStringBenchmark=false, missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=TextDecoder |
 | `closure-declared-by-source-artifact` | blocked | The source artifact declares that it closes the emitted-IR obligation. | closesEmittedIrObligation=false |
 
 ## Checks

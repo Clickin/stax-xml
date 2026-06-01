@@ -87,6 +87,7 @@ function buildReport(options, sources) {
   const missingGlobals = apiGap.summary?.commonMissingGlobals
     ?? materialized.shell?.apiProbe?.missingGlobals
     ?? [];
+  const hostApiSurface = summarizeHostApiSurface(apiGap, missingGlobals);
   const sameTaskclusterBuild = [
     materialized.shell?.provenance?.taskId,
     token.shell?.provenance?.taskId,
@@ -156,7 +157,7 @@ function buildReport(options, sources) {
     },
   ];
   const allPass = checks.every(check => check.status === 'pass');
-  const closureMatrix = createClosureRequirementMatrix({ materialized, workload, missingGlobals });
+  const closureMatrix = createClosureRequirementMatrix({ materialized, workload, missingGlobals, hostApiSurface });
   const closureRequirementsMet = closureMatrix.filter(item => item.status === 'met').length;
   const closureRequirementsBlocked = closureMatrix.filter(item => item.status === 'blocked').length;
   const closureRequirementsSatisfied = closureRequirementsBlocked === 0
@@ -208,6 +209,7 @@ function buildReport(options, sources) {
       staxEventPublicObjectsSupported: Boolean(contract.sourceChecks?.items?.some(item => item.id === 'stax-event-public-objects' && item.supported === true)),
       staxStreamIndexAccessorsSupported: Boolean(contract.sourceChecks?.items?.some(item => item.id === 'stax-stream-index-accessors' && item.supported === true)),
     },
+    hostApiSurface,
     closureMatrix,
     checks,
     summary: {
@@ -229,7 +231,26 @@ function buildReport(options, sources) {
   return report;
 }
 
-function createClosureRequirementMatrix({ materialized, workload, missingGlobals }) {
+function summarizeHostApiSurface(apiGap, missingGlobals) {
+  const primarySurface = Array.isArray(apiGap.blockedSurfaces)
+    ? apiGap.blockedSurfaces.find(surface => surface.id === 'sync-corpus-byte-batch-full-string')
+    : null;
+  const primarySyncByteBatchMissingGlobals = uniqueStrings(
+    primarySurface
+      ? primarySurface.shellBlockers?.flatMap(shell => shell.missingGlobals ?? []) ?? []
+      : missingGlobals.filter(name => name === 'TextDecoder'),
+  );
+  const nonPrimaryHarnessMissingGlobals = missingGlobals.filter(name => !primarySyncByteBatchMissingGlobals.includes(name));
+  return {
+    commonMissingGlobals: missingGlobals,
+    primarySyncByteBatchSurfaceId: primarySurface?.id ?? 'sync-corpus-byte-batch-full-string',
+    primarySyncByteBatchMissingGlobals,
+    nonPrimaryHarnessMissingGlobals,
+    interpretation: 'For corpus-file synchronous Iterable<Uint8Array[]> StAX closure, the js-shell blocker narrows to TextDecoder; TextEncoder, ReadableStream, and fetch are generated-fixture, direct-stream, or browser-live-source harness blockers.',
+  };
+}
+
+function createClosureRequirementMatrix({ materialized, workload, missingGlobals, hostApiSurface }) {
   return [
     {
       id: 'emitted-codegen-surface',
@@ -262,7 +283,7 @@ function createClosureRequirementMatrix({ materialized, workload, missingGlobals
     {
       id: 'host-api-surface',
       required: 'The js-shell can run the current full-string StAX harness without host API substitution.',
-      observed: `canRunCurrentStaxFullStringBenchmark=${materialized.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, missingGlobals=${missingGlobals.join(', ') || 'none'}`,
+      observed: `canRunCurrentStaxFullStringBenchmark=${materialized.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, missingGlobals=${missingGlobals.join(', ') || 'none'}, primarySyncByteBatchMissingGlobals=${hostApiSurface.primarySyncByteBatchMissingGlobals.join(', ') || 'none'}`,
       status: materialized.outcome?.canRunCurrentStaxFullStringBenchmark === true ? 'met' : 'blocked',
     },
     {
@@ -272,6 +293,10 @@ function createClosureRequirementMatrix({ materialized, workload, missingGlobals
       status: materialized.outcome?.closesEmittedIrObligation === true ? 'met' : 'blocked',
     },
   ];
+}
+
+function uniqueStrings(values = []) {
+  return [...new Set(values.filter(value => typeof value === 'string' && value.length > 0))];
 }
 
 function sourceSummary(root) {
@@ -385,6 +410,15 @@ function createSelfTestReport(options) {
       summary: {
         commonMissingGlobals: ['TextDecoder', 'TextEncoder', 'ReadableStream', 'fetch'],
       },
+      blockedSurfaces: [
+        {
+          id: 'sync-corpus-byte-batch-full-string',
+          shellBlockers: [
+            { packageKind: 'release', blocked: true, missingGlobals: ['TextDecoder'] },
+            { packageKind: 'nightly', blocked: true, missingGlobals: ['TextDecoder'] },
+          ],
+        },
+      ],
     },
     contract: {
       objective: 'materialization-contract-audit',
@@ -426,6 +460,8 @@ function renderMarkdown(report) {
     `- Closes codegen obligation: ${report.summary.closesCodegenObligation}`,
     `- Same-contract StAX row: ${report.summary.sameContractStaxRow}`,
     `- Unchanged StAX benchmark: ${report.summary.unchangedStaxBenchmark}`,
+    `- Primary sync byte-batch missing globals: ${report.hostApiSurface.primarySyncByteBatchMissingGlobals.join(', ') || 'none'}`,
+    `- Non-primary harness missing globals: ${report.hostApiSurface.nonPrimaryHarnessMissingGlobals.join(', ') || 'none'}`,
     '',
     '## Workload Comparison',
     '',

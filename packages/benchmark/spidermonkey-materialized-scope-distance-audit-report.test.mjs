@@ -48,6 +48,8 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
   assert.equal(report.workloadComparison.materialized.fullStringParity, true);
   assert.equal(report.workloadComparison.materialized.materializedStringCount, 61289);
   assert.equal(report.workloadComparison.materialized.materializedObjectCount, 55759);
+  assert.deepEqual(report.hostApiSurface.primarySyncByteBatchMissingGlobals, ['TextDecoder']);
+  assert.deepEqual(report.hostApiSurface.nonPrimaryHarnessMissingGlobals, ['TextEncoder', 'ReadableStream', 'fetch']);
   assert.deepEqual(
     report.closureMatrix.map(item => ({ id: item.id, status: item.status })),
     [
@@ -62,6 +64,10 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
   assert.match(
     report.closureMatrix.find(item => item.id === 'host-api-surface').observed,
     /missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch/,
+  );
+  assert.match(
+    report.closureMatrix.find(item => item.id === 'host-api-surface').observed,
+    /primarySyncByteBatchMissingGlobals=TextDecoder/,
   );
   assert.ok(report.checks.every(check => check.status === 'pass'));
   assert.ok(report.findings.some(finding =>
@@ -85,10 +91,12 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
   assert.match(markdown, /Source artifact declares emitted-IR closure: false/);
   assert.match(markdown, /Closure claim contradicted by scope: false/);
   assert.match(markdown, /Closes codegen obligation: false/);
+  assert.match(markdown, /Primary sync byte-batch missing globals: TextDecoder/);
+  assert.match(markdown, /Non-primary harness missing globals: TextEncoder, ReadableStream, fetch/);
   assert.match(markdown, /Token workload: xml-token-boundary-no-string-materialization, fullStringParity=false/);
   assert.match(markdown, /Materialized workload: ascii-js-string-and-public-event-object-materialization, fullStringParity=true/);
   assert.match(markdown, /\| `same-contract-stax-row` \| blocked \| The emitted codegen corresponds to the unchanged same-contract StAX benchmark row\. \| sameContractStaxRow=false \|/);
-  assert.match(markdown, /\| `host-api-surface` \| blocked \| The js-shell can run the current full-string StAX harness without host API substitution\. \| canRunCurrentStaxFullStringBenchmark=false, missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch \|/);
+  assert.match(markdown, /\| `host-api-surface` \| blocked \| The js-shell can run the current full-string StAX harness without host API substitution\. \| canRunCurrentStaxFullStringBenchmark=false, missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=TextDecoder \|/);
   assert.match(markdown, /unchanged-stax-host-api-gap-remains: pass/);
 });
 
