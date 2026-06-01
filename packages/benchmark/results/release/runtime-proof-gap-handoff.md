@@ -1,15 +1,15 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-01T10:15:21.741Z
+Generated: 2026-06-01T10:22:21.582Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-06-01T10:15:11.271Z
+- Audit generated: 2026-06-01T10:22:05.150Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
-- Comparison generated: 2026-06-01T09:53:34.432Z
+- Comparison generated: 2026-06-01T10:21:54.633Z
 - Active obligations: 2
 
 ## Summary
@@ -43,6 +43,10 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - File-backed sync Iterable<Uint8Array[]> rows: 36
 - Separate direct ReadableStream source-overhead rows: 1
 - Primary source contract: primary-sync-iterable-byte-batches
+- Primary parser input: synchronous Iterable<Uint8Array[]>
+- Primary source boundary: demand-driven StreamReaderSync parser pulls
+- Primary ArrayBuffer parser input: full-target ArrayBuffer parser input is excluded; corpus rows may replay smaller seed buffers as byte batches.
+- Primary backpressure contract: Primary sync rows yield one grouped Uint8Array[] batch per parser pull; async and direct ReadableStream rows must stay separate and record backpressure counters.
 - Primary sync byte-batch rows: 231; excluded rows: 8
 - Primary source modes: file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches
 - Primary excluded direct/async/full-ArrayBuffer/unknown rows: 0/0/0/0

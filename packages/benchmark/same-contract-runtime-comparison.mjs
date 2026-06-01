@@ -1097,6 +1097,10 @@ function summarizePrimarySourceShapeSafety(primaryRows, allJsLargeFullRows) {
   const excludedRows = allJsLargeFullRows.filter(row => !isPrimaryJsLargeFullSourceRow(row));
   return {
     contract: 'primary-sync-iterable-byte-batches',
+    parserInput: 'synchronous Iterable<Uint8Array[]>',
+    sourceBoundary: 'demand-driven StreamReaderSync parser pulls',
+    arrayBufferParserInput: 'full-target ArrayBuffer parser input is excluded; corpus rows may replay smaller seed buffers as byte batches.',
+    backpressureContract: 'Primary sync rows yield one grouped Uint8Array[] batch per parser pull; async and direct ReadableStream rows must stay separate and record backpressure counters.',
     rows: primaryRows.length,
     excludedRows: excludedRows.length,
     directReadableStreamRows: primaryRows.filter(row => row.directReadableStream === true).length,
@@ -1919,6 +1923,11 @@ function renderMarkdown(report) {
     '### Primary JS Frontier Source Contract',
     '',
     'The primary JavaScript frontier uses only synchronous byte-batch parser pulls. Direct `ReadableStream`, async source-boundary, unknown-source, and full ArrayBuffer parser-input rows remain visible elsewhere but do not define this primary frontier.',
+    '',
+    `- Primary parser input: ${report.summary.primarySourceShapeSafety.parserInput}`,
+    `- Primary source boundary: ${report.summary.primarySourceShapeSafety.sourceBoundary}`,
+    `- ArrayBuffer parser input: ${report.summary.primarySourceShapeSafety.arrayBufferParserInput}`,
+    `- Backpressure contract: ${report.summary.primarySourceShapeSafety.backpressureContract}`,
     '',
     '| Contract | Rows | Excluded rows | Source modes | Direct ReadableStream | Async source rows | Full ArrayBuffer input | Unknown source mode | Fastest row |',
     '| --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | --- |',

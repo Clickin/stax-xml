@@ -347,6 +347,10 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   });
   assert.deepEqual(report.summary.primarySourceShapeSafety, {
     contract: 'primary-sync-iterable-byte-batches',
+    parserInput: 'synchronous Iterable<Uint8Array[]>',
+    sourceBoundary: 'demand-driven StreamReaderSync parser pulls',
+    arrayBufferParserInput: 'full-target ArrayBuffer parser input is excluded; corpus rows may replay smaller seed buffers as byte batches.',
+    backpressureContract: 'Primary sync rows yield one grouped Uint8Array[] batch per parser pull; async and direct ReadableStream rows must stay separate and record backpressure counters.',
     rows: 231,
     excludedRows: 8,
     directReadableStreamRows: 0,
@@ -1214,6 +1218,10 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /\| 1 GiB\+ JS full-string rows with source mode metadata \| 233 \| 233 \| 0 \| 0 \| 36 \| 1 \| 150 \| 100\.26 MiB \|/);
   assert.match(markdown, /### Primary JS Frontier Source Contract/);
   assert.match(markdown, /The primary JavaScript frontier uses only synchronous byte-batch parser pulls/);
+  assert.match(markdown, /Primary parser input: synchronous Iterable<Uint8Array\[\]>/);
+  assert.match(markdown, /Primary source boundary: demand-driven StreamReaderSync parser pulls/);
+  assert.match(markdown, /ArrayBuffer parser input: full-target ArrayBuffer parser input is excluded/);
+  assert.match(markdown, /Backpressure contract: Primary sync rows yield one grouped Uint8Array\[\] batch per parser pull/);
   assert.match(markdown, /\| `primary-sync-iterable-byte-batches` \| 231 \| 8 \| `file-backed-sync-iterable-byte-batches`, `sync-iterable-byte-batches` \| 0 \| 0 \| 0 \| 0 \| Node\/V8 rawFrameNameId at 185\.50 MiB\/s/);
   assert.match(markdown, /\| `async-source-boundary` \| 1 \| Chrome\/V8 browser `fetchAsyncByteBatchFull` 9\.77 MiB\/s from `browser-fetch-readable-stream-books-corpus\.json` \|/);
   assert.match(markdown, /\| `direct-readable-stream` \| 1 \| Chrome\/V8 browser `fetchReadableStreamFull` 9\.68 MiB\/s from `browser-fetch-readable-stream-books-corpus\.json` \|/);

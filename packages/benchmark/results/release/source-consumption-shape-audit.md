@@ -1,6 +1,6 @@
 # Source Consumption Shape Audit
 
-Generated: 2026-06-01T10:02:23.614Z
+Generated: 2026-06-01T10:22:11.615Z
 
 Audits source-consumption metadata from the same-contract aggregate. This is not a benchmark run and not a runtime-limit conclusion.
 
@@ -19,6 +19,10 @@ Audits source-consumption metadata from the same-contract aggregate. This is not
 - File-backed sync Iterable<Uint8Array[]> rows: 36
 - Sync Iterable<Uint8Array[]> rows: 195
 - Primary source contract: primary-sync-iterable-byte-batches
+- Primary parser input: synchronous Iterable<Uint8Array[]>
+- Primary source boundary: demand-driven StreamReaderSync parser pulls
+- Primary ArrayBuffer parser input: full-target ArrayBuffer parser input is excluded; corpus rows may replay smaller seed buffers as byte batches.
+- Primary backpressure contract: Primary sync rows yield one grouped Uint8Array[] batch per parser pull; async and direct ReadableStream rows must stay separate and record backpressure counters.
 - Primary sync byte-batch rows: 231
 - Primary excluded rows: 8
 - Primary direct ReadableStream rows: 0

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T09:53:34.432Z",
+  "generatedAt": "2026-06-01T10:21:54.633Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -2674,6 +2674,10 @@
     },
     "primarySourceShapeSafety": {
       "contract": "primary-sync-iterable-byte-batches",
+      "parserInput": "synchronous Iterable<Uint8Array[]>",
+      "sourceBoundary": "demand-driven StreamReaderSync parser pulls",
+      "arrayBufferParserInput": "full-target ArrayBuffer parser input is excluded; corpus rows may replay smaller seed buffers as byte batches.",
+      "backpressureContract": "Primary sync rows yield one grouped Uint8Array[] batch per parser pull; async and direct ReadableStream rows must stay separate and record backpressure counters.",
       "rows": 231,
       "excludedRows": 8,
       "directReadableStreamRows": 0,

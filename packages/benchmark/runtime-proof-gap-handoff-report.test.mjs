@@ -165,6 +165,10 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   });
   assert.deepEqual(report.sourceConsumptionEvidence.primarySourceShapeSafety, {
     contract: 'primary-sync-iterable-byte-batches',
+    parserInput: 'synchronous Iterable<Uint8Array[]>',
+    sourceBoundary: 'demand-driven StreamReaderSync parser pulls',
+    arrayBufferParserInput: 'full-target ArrayBuffer parser input is excluded; corpus rows may replay smaller seed buffers as byte batches.',
+    backpressureContract: 'Primary sync rows yield one grouped Uint8Array[] batch per parser pull; async and direct ReadableStream rows must stay separate and record backpressure counters.',
     rows: 231,
     excludedRows: 8,
     directReadableStreamRows: 0,
@@ -490,6 +494,10 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /File-backed sync Iterable<Uint8Array\[\]> rows: 36/);
   assert.match(markdown, /Separate direct ReadableStream source-overhead rows: 1/);
   assert.match(markdown, /Primary source contract: primary-sync-iterable-byte-batches/);
+  assert.match(markdown, /Primary parser input: synchronous Iterable<Uint8Array\[\]>/);
+  assert.match(markdown, /Primary source boundary: demand-driven StreamReaderSync parser pulls/);
+  assert.match(markdown, /Primary ArrayBuffer parser input: full-target ArrayBuffer parser input is excluded/);
+  assert.match(markdown, /Primary backpressure contract: Primary sync rows yield one grouped Uint8Array\[\] batch per parser pull/);
   assert.match(markdown, /Primary sync byte-batch rows: 231; excluded rows: 8/);
   assert.match(markdown, /Primary source modes: file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches/);
   assert.match(markdown, /Primary excluded direct\/async\/full-ArrayBuffer\/unknown rows: 0\/0\/0\/0/);

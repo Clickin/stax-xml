@@ -46,6 +46,10 @@ test('source consumption shape audit classifies ArrayBuffer and ReadableStream s
   assert.equal(report.summary.fileBackedSyncIterableRows, 36);
   assert.equal(report.summary.syncIterableRows, 195);
   assert.equal(report.summary.primarySourceContract, 'primary-sync-iterable-byte-batches');
+  assert.equal(report.summary.primaryParserInput, 'synchronous Iterable<Uint8Array[]>');
+  assert.equal(report.summary.primarySourceBoundary, 'demand-driven StreamReaderSync parser pulls');
+  assert.match(report.summary.primaryArrayBufferParserInput, /full-target ArrayBuffer parser input is excluded/);
+  assert.match(report.summary.primaryBackpressureContract, /one grouped Uint8Array\[\] batch per parser pull/);
   assert.equal(report.summary.primarySyncByteBatchRows, 231);
   assert.equal(report.summary.primaryExcludedRows, 8);
   assert.equal(report.summary.primaryDirectReadableStreamRows, 0);
@@ -126,6 +130,10 @@ test('source consumption shape audit classifies ArrayBuffer and ReadableStream s
   assert.match(markdown, /Direct ReadableStream rows: 1/);
   assert.match(markdown, /Sync Iterable<Uint8Array\[\]> rows: 195/);
   assert.match(markdown, /Primary source contract: primary-sync-iterable-byte-batches/);
+  assert.match(markdown, /Primary parser input: synchronous Iterable<Uint8Array\[\]>/);
+  assert.match(markdown, /Primary source boundary: demand-driven StreamReaderSync parser pulls/);
+  assert.match(markdown, /Primary ArrayBuffer parser input: full-target ArrayBuffer parser input is excluded/);
+  assert.match(markdown, /Primary backpressure contract: Primary sync rows yield one grouped Uint8Array\[\] batch per parser pull/);
   assert.match(markdown, /Primary sync byte-batch rows: 231/);
   assert.match(markdown, /Primary excluded rows: 8/);
   assert.match(markdown, /Primary direct ReadableStream rows: 0/);

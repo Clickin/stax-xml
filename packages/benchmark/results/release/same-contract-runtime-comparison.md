@@ -1,6 +1,6 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-06-01T09:53:34.432Z
+Generated: 2026-06-01T10:21:54.633Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
@@ -164,6 +164,11 @@ Interpretation: This is the public event-object frontier; raw-frame rows are rep
 ### Primary JS Frontier Source Contract
 
 The primary JavaScript frontier uses only synchronous byte-batch parser pulls. Direct `ReadableStream`, async source-boundary, unknown-source, and full ArrayBuffer parser-input rows remain visible elsewhere but do not define this primary frontier.
+
+- Primary parser input: synchronous Iterable<Uint8Array[]>
+- Primary source boundary: demand-driven StreamReaderSync parser pulls
+- ArrayBuffer parser input: full-target ArrayBuffer parser input is excluded; corpus rows may replay smaller seed buffers as byte batches.
+- Backpressure contract: Primary sync rows yield one grouped Uint8Array[] batch per parser pull; async and direct ReadableStream rows must stay separate and record backpressure counters.
 
 | Contract | Rows | Excluded rows | Source modes | Direct ReadableStream | Async source rows | Full ArrayBuffer input | Unknown source mode | Fastest row |
 | --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | --- |

@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-01T10:02:23.614Z",
+  "generatedAt": "2026-06-01T10:22:11.615Z",
   "objective": "source-consumption-shape-audit",
   "contract": "large-js-full-string-rows-are-not-full-arraybuffer-parser-input",
   "note": "Audits source-consumption metadata from the same-contract aggregate. This is not a benchmark run and not a runtime-limit conclusion.",
   "inputs": {
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
-    "comparisonGeneratedAt": "2026-06-01T09:53:34.432Z",
+    "comparisonGeneratedAt": "2026-06-01T10:21:54.633Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape"
   },
@@ -28,6 +28,10 @@
     "fileBackedSyncIterableRows": 36,
     "syncIterableRows": 195,
     "primarySourceContract": "primary-sync-iterable-byte-batches",
+    "primaryParserInput": "synchronous Iterable<Uint8Array[]>",
+    "primarySourceBoundary": "demand-driven StreamReaderSync parser pulls",
+    "primaryArrayBufferParserInput": "full-target ArrayBuffer parser input is excluded; corpus rows may replay smaller seed buffers as byte batches.",
+    "primaryBackpressureContract": "Primary sync rows yield one grouped Uint8Array[] batch per parser pull; async and direct ReadableStream rows must stay separate and record backpressure counters.",
     "primarySyncByteBatchRows": 231,
     "primaryExcludedRows": 8,
     "primaryDirectReadableStreamRows": 0,
