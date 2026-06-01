@@ -174,7 +174,8 @@ function validateHandoff(handoff) {
           /event count/,
           /checksum parity/,
           /emitted IR or optimized-code dump metadata/,
-          /selectedRowIdentityStatus/,
+          /selectedRowIdentityStatus=/,
+          /selectedRowIdentityStatusCounts/,
           /jit-status-only/,
           /environment evidence only/,
         ]
@@ -183,6 +184,7 @@ function validateHandoff(handoff) {
     ...Object.values(sourceConsumption),
     ...Object.values(sourceBoundary),
     ...(handoff.localClosure?.blockers ?? []),
+    JSON.stringify(handoff.localClosure?.diagnosticIdentityStatusCounts ?? {}),
     handoff.localClosure?.scopeGuard ?? '',
     ...closureChecks,
     ...expectedEvidence,

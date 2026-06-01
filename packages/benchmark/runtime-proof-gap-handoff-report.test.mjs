@@ -435,6 +435,11 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /current Taskcluster debug js-shell emits JitSpew codegen output \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007\), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /current Taskcluster debug js-shell emits JitSpew codegen output while running the XML byte-tokenizer workload \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007\), but fullStringParity=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /current Taskcluster debug js-shell emits JitSpew codegen output while materializing JS strings and public event-shaped objects \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007\), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic/.test(item)));
+  assert.deepEqual(spiderMonkey.localClosure.diagnosticIdentityStatusCounts, {
+    'not-claimed': 4,
+    'not-claimed-non-stax-diagnostic': 7,
+  });
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /selectedRowIdentityStatusCounts not-claimed=4, not-claimed-non-stax-diagnostic=7/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=2 and closureRequirementsBlocked=4; primarySyncByteBatchMissingGlobals=TextDecoder; asciiTextDecoderEquivalent=true; diagnosticThroughputMiBPerSec=0\.4909373604499916; throughputCountsAsTargetEvidence=false; closesCodegenObligation=false/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /about:buildconfig records --enable-js-shell/.test(item)));
   assert.match(spiderMonkey.localClosure.scopeGuard, /Taskcluster debug-shell diagnostic facts/);
@@ -570,6 +575,8 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /bytecode dump status is no-bytecode-output/);
   assert.match(markdown, /The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface/);
   assert.match(markdown, /common missing globals: TextDecoder, TextEncoder, ReadableStream, fetch/);
+  assert.match(markdown, /Diagnostic identity status counts: not-claimed=4, not-claimed-non-stax-diagnostic=7/);
+  assert.match(markdown, /selectedRowIdentityStatusCounts not-claimed=4, not-claimed-non-stax-diagnostic=7/);
   assert.match(markdown, /Installed Firefox about:buildconfig records --enable-js-shell/);
   assert.match(markdown, /safaridriver/);
   assert.match(markdown, /Source consumption contract/);

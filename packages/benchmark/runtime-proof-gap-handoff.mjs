@@ -527,6 +527,7 @@ function createLocalClosure(activeObligations, audit) {
     const buildconfig = artifactByName.get('firefox-spidermonkey-buildconfig-source-pin-audit.json') ?? null;
     const spiderMonkeyDiagnosticById = new Map((audit.coverage?.spiderMonkeyDiagnostics?.rows ?? [])
       .map(row => [row.id, row]));
+    const diagnosticIdentityStatusCounts = audit.coverage?.spiderMonkeyDiagnostics?.selectedRowIdentityStatusCounts ?? {};
     const diagnosticNoDump = diagnostic?.outcome?.status === 'no-dump-emitted'
       && diagnostic?.outcome?.emittedDump === false;
     const jsShellMissing = jsShell?.outcome?.status === 'not-found'
@@ -607,6 +608,7 @@ function createLocalClosure(activeObligations, audit) {
         taskclusterDebugMaterializedCodegenScopeGuard
           ? `A current Taskcluster debug js-shell emits JitSpew codegen output while materializing JS strings and public event-shaped objects (taskId=${taskclusterDebugJsShellMaterialized.shell?.provenance?.taskId ?? 'unknown'}, buildId=${taskclusterDebugJsShellMaterialized.shell?.provenance?.buildId ?? 'unknown'}), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=${taskclusterDebugJsShellMaterialized.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, and selectedRowIdentityStatus=${spiderMonkeyDiagnosticById.get('taskcluster-debug-jsshell-materialized-codegen')?.selectedRowIdentityStatus ?? 'unknown'}.`
           : 'No current Taskcluster debug js-shell materialized string/object codegen scope guard is recorded.',
+        `Coverage diagnostic identity status counts: selectedRowIdentityStatusCounts ${formatCountMap(diagnosticIdentityStatusCounts)}.`,
         materializedScopeDistancePinned
           ? `The materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=${materializedScopeDistance.summary?.closureRequirementsMet ?? 'unknown'} and closureRequirementsBlocked=${materializedScopeDistance.summary?.closureRequirementsBlocked ?? 'unknown'}; primarySyncByteBatchMissingGlobals=${(materializedScopeDistance.hostApiSurface?.primarySyncByteBatchMissingGlobals ?? []).join(', ') || 'unknown'}; asciiTextDecoderEquivalent=${materializedScopeDistance.asciiScopeDistance?.asciiByteToStringEquivalentToUtf8 ?? 'unknown'}; diagnosticThroughputMiBPerSec=${materializedScopeDistance.summary?.diagnosticThroughputMiBPerSec ?? 'unknown'}; throughputCountsAsTargetEvidence=${materializedScopeDistance.summary?.throughputCountsAsTargetEvidence ?? 'unknown'}; closesCodegenObligation=false, preventing the materialized js-shell artifact from being cited as unchanged StAX closure evidence.`
           : 'No materialized scope-distance audit pins the semantic-equivalence and closure boundary.',
@@ -614,6 +616,7 @@ function createLocalClosure(activeObligations, audit) {
           ? 'Installed Firefox about:buildconfig records --enable-js-shell / MOZ_PACKAGE_JSSHELL but does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW.'
           : 'Installed Firefox buildconfig JitSpew boundary is not pinned as a no-JitSpew release build.',
       ],
+      diagnosticIdentityStatusCounts,
       scopeGuard: 'These are local, official-shell, and Taskcluster debug-shell diagnostic facts only; they are not emitted SpiderMonkey JIT IR or optimized-code evidence for a same-contract StAX row.',
     });
   }
@@ -1007,6 +1010,9 @@ function renderMarkdown(report) {
       lines.push(`- Local closure status: ${handoff.localClosure.localStatus}`);
       lines.push(`- Locally runnable now: ${formatNullableBoolean(handoff.localClosure.localRunnable)}`);
       lines.push(`- Local closure scope: ${handoff.localClosure.scopeGuard}`);
+      if (handoff.localClosure.diagnosticIdentityStatusCounts) {
+        lines.push(`- Diagnostic identity status counts: ${formatCountMap(handoff.localClosure.diagnosticIdentityStatusCounts)}`);
+      }
       lines.push('- Local blockers:');
       for (const blocker of handoff.localClosure.blockers) {
         lines.push(`  - ${blocker}`);
@@ -1090,6 +1096,13 @@ function formatNullableBoolean(value) {
 
 function formatNumber(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value.toFixed(2) : 'n/a';
+}
+
+function formatCountMap(counts) {
+  const entries = Object.entries(counts ?? {}).sort(([left], [right]) => left.localeCompare(right));
+  return entries.length > 0
+    ? entries.map(([key, value]) => `${key}=${value}`).join(', ')
+    : 'none';
 }
 
 function sourceShapeMarkdownRow(entry) {

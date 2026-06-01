@@ -1,6 +1,6 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-01T15:17:07.528Z
+Generated: 2026-06-01T15:32:30.071Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -217,6 +217,7 @@ Scope guards:
 - Local closure status: external-run-required
 - Locally runnable now: no
 - Local closure scope: These are local, official-shell, and Taskcluster debug-shell diagnostic facts only; they are not emitted SpiderMonkey JIT IR or optimized-code evidence for a same-contract StAX row.
+- Diagnostic identity status counts: not-claimed=4, not-claimed-non-stax-diagnostic=7
 - Local blockers:
   - Installed Firefox diagnostic dump audit emitted no JIT diagnostic dump.
   - Local SpiderMonkey JS shell candidates are available (2), but this availability audit records no emitted JIT IR or optimized-code dump.
@@ -228,6 +229,7 @@ Scope guards:
   - A current Taskcluster debug js-shell emits JitSpew codegen output (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic.
   - A current Taskcluster debug js-shell emits JitSpew codegen output while running the XML byte-tokenizer workload (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007), but fullStringParity=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic.
   - A current Taskcluster debug js-shell emits JitSpew codegen output while materializing JS strings and public event-shaped objects (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic.
+  - Coverage diagnostic identity status counts: selectedRowIdentityStatusCounts not-claimed=4, not-claimed-non-stax-diagnostic=7.
   - The materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=2 and closureRequirementsBlocked=4; primarySyncByteBatchMissingGlobals=TextDecoder; asciiTextDecoderEquivalent=true; diagnosticThroughputMiBPerSec=0.4909373604499916; throughputCountsAsTargetEvidence=false; closesCodegenObligation=false, preventing the materialized js-shell artifact from being cited as unchanged StAX closure evidence.
   - Installed Firefox about:buildconfig records --enable-js-shell / MOZ_PACKAGE_JSSHELL but does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW.
 - Local evidence artifacts: firefox-spidermonkey-diagnostic-dump-audit.json, firefox-spidermonkey-js-shell-availability-audit.json, firefox-spidermonkey-release-jsshell-availability-audit.json, firefox-spidermonkey-nightly-jsshell-availability-audit.json, firefox-spidermonkey-jsshell-stax-api-gap-audit.json, spidermonkey-jsshell-diagnostic-flag-sweep.json, spidermonkey-taskcluster-debug-jsshell-codegen-audit.json, spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json, spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json, spidermonkey-materialized-scope-distance-audit.json, spidermonkey-archival-debug-jsshell-codegen-audit.json, firefox-spidermonkey-buildconfig-source-pin-audit.json
