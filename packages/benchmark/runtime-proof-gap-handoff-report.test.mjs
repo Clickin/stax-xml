@@ -478,6 +478,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.closureChecks.some(item => /closureRequirementsBlocked must be 0/.test(item)));
   assert.ok(spiderMonkey.closureChecks.some(item => /closesCodegenObligation must be true/.test(item)));
   assert.ok(spiderMonkey.closureChecks.some(item => /sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true/.test(item)));
+  assert.ok(spiderMonkey.closureChecks.some(item => /selected row id must match a current same-contract full-string JavaScript row/.test(item)));
   assert.ok(spiderMonkey.closureChecks.some(item => /jit-status-only/.test(item)));
   assert.ok(spiderMonkey.closureChecks.some(item => /emitted IR or optimized-code dump metadata/.test(item)));
   assert.ok(spiderMonkey.scopeGuards.some(item => /no-dump diagnostic audit is a negative result for the installed browser build only/.test(item)));
@@ -584,6 +585,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /summary\.closureRequirementsBlocked must be 0/);
   assert.match(markdown, /summary\.closesCodegenObligation must be true/);
   assert.match(markdown, /sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true/);
+  assert.match(markdown, /selected row id must match a current same-contract full-string JavaScript row/);
   assert.match(markdown, /evidenceClass jit-status-only/);
   assert.match(markdown, /firefox-spidermonkey-diagnostic-dump-audit/);
   assert.match(markdown, /firefox-spidermonkey-buildconfig-source-pin-audit/);

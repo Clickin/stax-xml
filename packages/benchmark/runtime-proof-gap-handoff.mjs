@@ -751,6 +751,7 @@ function createHandoffs(activeObligations, localClosure) {
         'spidermonkey-materialized-scope-distance-audit.json summary.closureRequirementsBlocked must be 0 before any materialized js-shell codegen artifact can be cited as same-contract StAX closure evidence.',
         'spidermonkey-materialized-scope-distance-audit.json summary.closesCodegenObligation must be true before materialized string/object codegen can close codegen-traces-open.',
         'Any SpiderMonkey closing artifact must report sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true, or explicitly explain why the browser-row artifact rather than js-shell artifact supplies unchanged StAX closure.',
+        'The closing artifact selected row id must match a current same-contract full-string JavaScript row in same-contract-runtime-comparison.json, with event count and checksum parity recorded.',
         'The closing artifact must not have evidenceClass jit-status-only, source-pin-only, negative-diagnostic-surface, or missing-availability-audit.',
         'The closing artifact must include runtime/build identity, diagnostic flags, selected row id, event count, checksum parity, and emitted IR or optimized-code dump metadata.',
       ],
