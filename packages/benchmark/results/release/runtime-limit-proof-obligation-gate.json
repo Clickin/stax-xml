@@ -1,12 +1,16 @@
 {
-  "generatedAt": "2026-06-01T09:15:44.155Z",
+  "generatedAt": "2026-06-01T09:47:00.284Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
   "metadata": {
     "ledger": "G:\\programming\\stax-xml\\docs\\plans\\2026-05-23-stax-api-performance-proof-ledger.md",
     "coverageJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-coverage-audit.json",
-    "coverageLoaded": true
+    "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
+    "counterexampleScanJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-counterexample-scan.json",
+    "coverageLoaded": true,
+    "comparisonLoaded": true,
+    "counterexampleScanLoaded": true
   },
   "conclusionClaim": "CLAIM-JS-RUNTIME-LIMIT-200MIB",
   "conclusionAllowed": false,
@@ -300,6 +304,15 @@
       "present": true
     }
   ],
+  "counterexampleSnapshot": {
+    "comparisonLoaded": true,
+    "comparisonGeneratedAt": "2026-06-01T09:33:02.839Z",
+    "comparisonCounterexampleCount": 0,
+    "counterexampleScanLoaded": true,
+    "counterexampleScanGeneratedAt": "2026-06-01T09:06:54.303Z",
+    "scanCounterexampleCount": 0,
+    "currentCounterexampleCount": 0
+  },
   "coverageSnapshot": {
     "loaded": true,
     "generatedAt": "2026-06-01T09:15:21.324Z",
@@ -507,6 +520,7 @@
     "disclosedOpenObligations": 5,
     "requiredOpenObligations": 5,
     "satisfiedProofRules": 16,
-    "requiredProofRules": 16
+    "requiredProofRules": 16,
+    "currentCounterexamples": 0
   }
 }

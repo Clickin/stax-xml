@@ -6,6 +6,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..', '..');
 const defaultLedgerPath = resolve(repoRoot, 'docs', 'plans', '2026-05-23-stax-api-performance-proof-ledger.md');
 const defaultCoverageJson = resolve(__dirname, 'results', 'release', 'runtime-proof-coverage-audit.json');
+const defaultComparisonJson = resolve(__dirname, 'results', 'release', 'same-contract-runtime-comparison.json');
+const defaultCounterexampleScanJson = resolve(__dirname, 'results', 'release', 'runtime-counterexample-scan.json');
 const defaultJsonOut = resolve(__dirname, 'results', 'release', 'runtime-limit-proof-obligation-gate.json');
 const defaultMdOut = resolve(__dirname, 'results', 'release', 'runtime-limit-proof-obligation-gate.md');
 
@@ -227,6 +229,8 @@ function parseArgs(argv = process.argv.slice(2)) {
   const options = {
     ledger: defaultLedgerPath,
     coverageJson: defaultCoverageJson,
+    comparisonJson: defaultComparisonJson,
+    counterexampleScanJson: defaultCounterexampleScanJson,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
   };
@@ -250,6 +254,12 @@ function parseArgs(argv = process.argv.slice(2)) {
       case '--coverage-json':
         options.coverageJson = resolve(process.cwd(), readValue());
         break;
+      case '--comparison-json':
+        options.comparisonJson = resolve(process.cwd(), readValue());
+        break;
+      case '--counterexample-scan-json':
+        options.counterexampleScanJson = resolve(process.cwd(), readValue());
+        break;
       case '--json-out':
         options.jsonOut = resolve(process.cwd(), readValue());
         break;
@@ -271,13 +281,24 @@ function main() {
   const options = parseArgs();
   const ledgerMarkdown = readFileSync(options.ledger, 'utf8');
   const coverageAudit = readCoverageAudit(options.coverageJson);
-  const report = createReport({ options, ledgerMarkdown, coverageAudit });
+  const comparison = readOptionalJson(options.comparisonJson, 'same-contract-runtime-comparison');
+  const counterexampleScan = readOptionalJson(options.counterexampleScanJson, 'runtime-counterexample-scan');
+  const report = createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan });
   writeOutput(options.jsonOut, `${JSON.stringify(report, null, 2)}\n`);
   writeOutput(options.mdOut, renderMarkdown(report));
   printSummary(report);
   if (!report.gate.pass) {
     process.exitCode = 1;
   }
+}
+
+function readOptionalJson(filePath, expectedObjective) {
+  if (!filePath || !existsSync(filePath)) return null;
+  const artifact = JSON.parse(readFileSync(filePath, 'utf8'));
+  if (artifact.objective !== expectedObjective) {
+    throw new Error(`expected ${expectedObjective} JSON, got ${artifact.objective ?? 'unknown'}`);
+  }
+  return artifact;
 }
 
 function readCoverageAudit(coverageJson) {
@@ -289,9 +310,10 @@ function readCoverageAudit(coverageJson) {
   return audit;
 }
 
-function createReport({ options, ledgerMarkdown, coverageAudit }) {
+function createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan }) {
   const claims = parseClaimRows(ledgerMarkdown);
   const coverageSnapshot = createCoverageSnapshot(coverageAudit);
+  const counterexampleSnapshot = createCounterexampleSnapshot(comparison, counterexampleScan);
   const claimGuards = requiredClaimGuards.map(requirement => evaluateClaimGuard(requirement, claims));
   const artifactMentions = requiredArtifactMentions.map(file => ({
     id: file,
@@ -333,6 +355,9 @@ function createReport({ options, ledgerMarkdown, coverageAudit }) {
   for (const item of missingProofRules) {
     errors.push(`Missing proof rule: ${item.id}.`);
   }
+  if (counterexampleSnapshot.currentCounterexampleCount > 0) {
+    errors.push(`Current release artifacts contain ${counterexampleSnapshot.currentCounterexampleCount} bounded full-string JavaScript counterexample(s); the runtime-limit ledger must be updated before the gate can pass.`);
+  }
 
   const pass = errors.length === 0;
   return {
@@ -343,7 +368,11 @@ function createReport({ options, ledgerMarkdown, coverageAudit }) {
     metadata: {
       ledger: options.ledger,
       coverageJson: options.coverageJson,
+      comparisonJson: options.comparisonJson,
+      counterexampleScanJson: options.counterexampleScanJson,
       coverageLoaded: coverageSnapshot.loaded,
+      comparisonLoaded: counterexampleSnapshot.comparisonLoaded,
+      counterexampleScanLoaded: counterexampleSnapshot.counterexampleScanLoaded,
     },
     conclusionClaim: runtimeLimitClaimId,
     conclusionAllowed: false,
@@ -359,6 +388,7 @@ function createReport({ options, ledgerMarkdown, coverageAudit }) {
     } : null,
     claimGuards,
     artifactMentions,
+    counterexampleSnapshot,
     coverageSnapshot,
     openObligations,
     proofRules,
@@ -371,7 +401,23 @@ function createReport({ options, ledgerMarkdown, coverageAudit }) {
       requiredOpenObligations: openObligations.length,
       satisfiedProofRules: proofRules.filter(item => item.satisfied).length,
       requiredProofRules: proofRules.length,
+      currentCounterexamples: counterexampleSnapshot.currentCounterexampleCount,
     },
+  };
+}
+
+function createCounterexampleSnapshot(comparison, counterexampleScan) {
+  const comparisonCount = comparison?.summary?.jsRuntimeCounterexamples200MiB ?? null;
+  const scanCount = counterexampleScan?.summary?.counterexampleCount ?? null;
+  return {
+    comparisonLoaded: Boolean(comparison),
+    comparisonGeneratedAt: comparison?.generatedAt ?? null,
+    comparisonCounterexampleCount: typeof comparisonCount === 'number' ? comparisonCount : null,
+    counterexampleScanLoaded: Boolean(counterexampleScan),
+    counterexampleScanGeneratedAt: counterexampleScan?.generatedAt ?? null,
+    scanCounterexampleCount: typeof scanCount === 'number' ? scanCount : null,
+    currentCounterexampleCount: (typeof comparisonCount === 'number' ? comparisonCount : 0)
+      + (typeof scanCount === 'number' ? scanCount : 0),
   };
 }
 
@@ -515,6 +561,21 @@ function renderMarkdown(report) {
 
   lines.push(
     '',
+    '## Counterexample Snapshot',
+    '',
+    report.counterexampleSnapshot.comparisonLoaded
+      ? `- Same-contract comparison loaded: yes (${report.counterexampleSnapshot.comparisonGeneratedAt ?? 'unknown generatedAt'})`
+      : '- Same-contract comparison loaded: no',
+    `- Same-contract comparison counterexamples: ${formatNullableCount(report.counterexampleSnapshot.comparisonCounterexampleCount)}`,
+    report.counterexampleSnapshot.counterexampleScanLoaded
+      ? `- Runtime counterexample scan loaded: yes (${report.counterexampleSnapshot.counterexampleScanGeneratedAt ?? 'unknown generatedAt'})`
+      : '- Runtime counterexample scan loaded: no',
+    `- Runtime counterexample scan counterexamples: ${formatNullableCount(report.counterexampleSnapshot.scanCounterexampleCount)}`,
+    `- Current release counterexamples: ${report.counterexampleSnapshot.currentCounterexampleCount}`,
+  );
+
+  lines.push(
+    '',
     '## Proof Rules',
     '',
     'These checks keep known semantic distinctions from being collapsed into a stronger runtime-limit claim.',
@@ -534,6 +595,10 @@ function renderMarkdown(report) {
   );
 
   return `${lines.join('\n')}\n`;
+}
+
+function formatNullableCount(value) {
+  return typeof value === 'number' ? String(value) : 'unknown';
 }
 
 function createInterpretation(report) {

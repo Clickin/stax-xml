@@ -14,6 +14,8 @@ const goodJsonOut = join(tmpDir, 'good-runtime-limit-proof-obligation-gate.json'
 const goodMdOut = join(tmpDir, 'good-runtime-limit-proof-obligation-gate.md');
 const badJsonOut = join(tmpDir, 'bad-runtime-limit-proof-obligation-gate.json');
 const badMdOut = join(tmpDir, 'bad-runtime-limit-proof-obligation-gate.md');
+const counterexampleJsonOut = join(tmpDir, 'counterexample-runtime-limit-proof-obligation-gate.json');
+const counterexampleMdOut = join(tmpDir, 'counterexample-runtime-limit-proof-obligation-gate.md');
 
 test('runtime-limit proof-obligation gate permits only a conservative non-conclusion ledger', () => {
   resetTmp();
@@ -43,6 +45,12 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.conclusionAllowed, false);
   assert.equal(report.runtimeClaim.markedConclusion, false);
   assert.equal(report.metadata.coverageLoaded, true);
+  assert.equal(report.metadata.comparisonLoaded, true);
+  assert.equal(report.metadata.counterexampleScanLoaded, true);
+  assert.equal(report.summary.currentCounterexamples, 0);
+  assert.equal(report.counterexampleSnapshot.comparisonCounterexampleCount, 0);
+  assert.equal(report.counterexampleSnapshot.scanCounterexampleCount, 0);
+  assert.equal(report.counterexampleSnapshot.currentCounterexampleCount, 0);
   assert.ok(report.coverageSnapshot.loaded);
   assert.deepEqual(report.coverageSnapshot.activeObligationIds, [
     'safari-jsc-source-and-browser-rows-open',
@@ -84,6 +92,10 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /## Coverage Snapshot/);
   assert.match(markdown, /Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open/);
   assert.match(markdown, /allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open/);
+  assert.match(markdown, /## Counterexample Snapshot/);
+  assert.match(markdown, /Same-contract comparison counterexamples: 0/);
+  assert.match(markdown, /Runtime counterexample scan counterexamples: 0/);
+  assert.match(markdown, /Current release counterexamples: 0/);
   assert.match(markdown, /## Proof Rules/);
   assert.match(markdown, /target-contract-not-object-shape/);
   assert.match(markdown, /lazy-getters-reopen-burden/);
@@ -98,6 +110,62 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /Current coverage audit blockers: safari-jsc-source-and-browser-rows-open, codegen-traces-open/);
   assert.match(markdown, /Static disclosure guards may include evidence families that the latest coverage audit already marks covered/);
   assert.match(markdown, /A future 200 MiB\/s\+ bounded-memory full-string JavaScript row remains a counterexample/);
+});
+
+test('runtime-limit proof-obligation gate fails if current artifacts contain a counterexample', () => {
+  resetTmp();
+  const comparisonJson = join(tmpDir, 'same-contract-runtime-comparison-counterexample.json');
+  const scanJson = join(tmpDir, 'runtime-counterexample-scan-counterexample.json');
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  writeFileSync(comparisonJson, `${JSON.stringify({
+    generatedAt: '2026-06-01T00:00:00.000Z',
+    objective: 'same-contract-runtime-comparison',
+    summary: {
+      jsRuntimeCounterexamples200MiB: 1,
+    },
+  }, null, 2)}\n`);
+  writeFileSync(scanJson, `${JSON.stringify({
+    generatedAt: '2026-06-01T00:00:01.000Z',
+    objective: 'runtime-counterexample-scan',
+    summary: {
+      counterexampleCount: 0,
+    },
+  }, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--comparison-json',
+    comparisonJson,
+    '--counterexample-scan-json',
+    scanJson,
+    '--json-out',
+    counterexampleJsonOut,
+    '--md-out',
+    counterexampleMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(counterexampleJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.equal(report.conclusionAllowed, false);
+  assert.equal(report.summary.currentCounterexamples, 1);
+  assert.equal(report.counterexampleSnapshot.comparisonCounterexampleCount, 1);
+  assert.equal(report.counterexampleSnapshot.scanCounterexampleCount, 0);
+  assert.ok(report.gate.errors.some(error => /Current release artifacts contain 1 bounded full-string JavaScript counterexample/.test(error)));
+
+  const markdown = readFileSync(counterexampleMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /Current release artifacts contain 1 bounded full-string JavaScript counterexample/);
+  assert.match(markdown, /Same-contract comparison counterexamples: 1/);
+  assert.match(markdown, /Runtime counterexample scan counterexamples: 0/);
+  assert.match(markdown, /Current release counterexamples: 1/);
 });
 
 test('runtime-limit proof-obligation gate fails if the broad claim is upgraded too early', () => {
@@ -136,7 +204,7 @@ test('runtime-limit proof-obligation gate fails if the broad claim is upgraded t
 function resetTmp() {
   rmSync(tmpDir, { recursive: true, force: true });
   mkdirSync(tmpDir, { recursive: true });
-  for (const filePath of [goodJsonOut, goodMdOut, badJsonOut, badMdOut]) {
+  for (const filePath of [goodJsonOut, goodMdOut, badJsonOut, badMdOut, counterexampleJsonOut, counterexampleMdOut]) {
     if (existsSync(filePath)) {
       rmSync(filePath);
     }

@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T09:15:44.155Z
+Generated: 2026-06-01T09:47:00.284Z
 
 ## Scope
 
@@ -85,6 +85,14 @@ These are static disclosure guards. They must stay disclosed while the broad run
 - Coverage audit loaded: yes (2026-06-01T09:15:21.324Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
+
+## Counterexample Snapshot
+
+- Same-contract comparison loaded: yes (2026-06-01T09:33:02.839Z)
+- Same-contract comparison counterexamples: 0
+- Runtime counterexample scan loaded: yes (2026-06-01T09:06:54.303Z)
+- Runtime counterexample scan counterexamples: 0
+- Current release counterexamples: 0
 
 ## Proof Rules
 
