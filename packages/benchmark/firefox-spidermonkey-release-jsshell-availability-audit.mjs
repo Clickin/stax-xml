@@ -37,6 +37,8 @@ function parseArgs(argv = process.argv.slice(2)) {
     sumsUrl: defaultSumsUrl,
     packagePathInSums: defaultPackagePathInSums,
     packageKind: 'release',
+    buildInfoUrl: null,
+    buildInfoFile: null,
     binaryProbeFile: defaultBinaryProbeFile,
     selfTest: false,
     jsonOut: defaultJsonOut,
@@ -74,6 +76,12 @@ function parseArgs(argv = process.argv.slice(2)) {
         break;
       case '--package-kind':
         options.packageKind = parsePackageKind(readValue(), name);
+        break;
+      case '--build-info-url':
+        options.buildInfoUrl = readValue();
+        break;
+      case '--build-info-file':
+        options.buildInfoFile = resolve(process.cwd(), readValue());
         break;
       case '--binary-probe-file':
         options.binaryProbeFile = resolve(process.cwd(), readValue());
@@ -610,8 +618,10 @@ function createReport(options, packageVerification, shell) {
       sumsUrl: options.sumsUrl,
       packagePathInSums: options.packagePathInSums,
       packageKind: options.packageKind,
+      buildInfoUrl: options.buildInfoUrl,
       selfTest: options.selfTest,
     },
+    buildInfo: readBuildInfo(options),
     packageVerification,
     shell,
     outcome: {
@@ -635,6 +645,43 @@ function createReport(options, packageVerification, shell) {
   };
   report.findings = createFindings(report);
   return report;
+}
+
+function readBuildInfo(options) {
+  if (!options.buildInfoFile) {
+    return {
+      status: 'not-configured',
+      url: options.buildInfoUrl,
+      file: null,
+      buildId: null,
+      sourceRevision: null,
+      sourceUrl: null,
+      raw: null,
+    };
+  }
+  if (!existsSync(options.buildInfoFile)) {
+    return {
+      status: 'missing-input',
+      url: options.buildInfoUrl,
+      file: options.buildInfoFile,
+      buildId: null,
+      sourceRevision: null,
+      sourceUrl: null,
+      raw: null,
+    };
+  }
+  const raw = readFileSync(options.buildInfoFile, 'utf8').trim();
+  const lines = raw.split(/\r?\n/);
+  const sourceUrl = firstMatch(raw, /(https:\/\/hg\.mozilla\.org\/[^\s]+)/)?.[1] ?? null;
+  return {
+    status: 'ok',
+    url: options.buildInfoUrl,
+    file: options.buildInfoFile,
+    buildId: lines[0] ?? null,
+    sourceRevision: firstMatch(raw, /https:\/\/hg\.mozilla\.org\/[^\s]+\/rev\/([0-9a-f]+)/)?.[1] ?? null,
+    sourceUrl,
+    raw,
+  };
 }
 
 function createFindings(report) {
@@ -738,6 +785,8 @@ function renderMarkdown(report) {
     `- Closes emitted IR obligation: ${report.outcome.closesEmittedIrObligation}`,
     `- Package URL: ${report.parameters.packageUrl}`,
     `- Sums URL: ${report.parameters.sumsUrl}`,
+    `- Build id: ${report.buildInfo.buildId ?? 'not-recorded'}`,
+    `- Source revision: ${report.buildInfo.sourceRevision ?? 'not-recorded'}`,
     '',
     '## Package Verification',
     '',
@@ -745,6 +794,15 @@ function renderMarkdown(report) {
     `- SHA512 match: ${report.packageVerification.hashMatches}`,
     `- SHA512: ${report.packageVerification.packageSha512 ?? 'not-recorded'}`,
     `- Expected line: ${report.packageVerification.expectedLine ?? 'not-recorded'}`,
+    '',
+    '## Build Info',
+    '',
+    `- Status: ${report.buildInfo.status}`,
+    `- URL: ${report.buildInfo.url ?? 'not-recorded'}`,
+    `- File: ${report.buildInfo.file ?? 'not-recorded'}`,
+    `- Build id: ${report.buildInfo.buildId ?? 'not-recorded'}`,
+    `- Source revision: ${report.buildInfo.sourceRevision ?? 'not-recorded'}`,
+    `- Source URL: ${report.buildInfo.sourceUrl ?? 'not-recorded'}`,
     '',
     '## Shell Surface',
     '',

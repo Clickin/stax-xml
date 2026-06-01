@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
@@ -107,11 +107,17 @@ test('Firefox SpiderMonkey release jsshell audit records JIT status without clos
 
 test('Firefox SpiderMonkey jsshell audit records package kind in objective and findings', () => {
   resetTmp();
+  const buildInfoFile = join(tmpDir, 'firefox-nightly.txt');
+  writeFileSync(buildInfoFile, '20260531212007\nhttps://hg.mozilla.org/mozilla-central/rev/71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7\n');
   const result = spawnSync(process.execPath, [
     join(__dirname, 'firefox-spidermonkey-release-jsshell-availability-audit.mjs'),
     '--self-test',
     '--package-kind',
     'nightly',
+    '--build-info-url',
+    'https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central/firefox-153.0a1.en-US.win64.txt',
+    '--build-info-file',
+    buildInfoFile,
     '--json-out',
     jsonOut,
     '--md-out',
@@ -128,6 +134,9 @@ test('Firefox SpiderMonkey jsshell audit records package kind in objective and f
   assert.equal(report.objective, 'firefox-spidermonkey-nightly-jsshell-availability-audit');
   assert.equal(report.contract, 'official-firefox-nightly-jsshell-jit-status-and-diagnostic-surface');
   assert.equal(report.parameters.packageKind, 'nightly');
+  assert.equal(report.buildInfo.status, 'ok');
+  assert.equal(report.buildInfo.buildId, '20260531212007');
+  assert.equal(report.buildInfo.sourceRevision, '71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7');
   assert.ok(report.findings.some(finding => finding.id === 'official-nightly-jsshell-available'));
   assert.ok(report.findings.some(finding => finding.id === 'spidermonkey-nightly-jsshell-no-ir-dump-surface'));
   assert.ok(report.findings.some(finding => finding.id === 'spidermonkey-nightly-jsshell-stax-api-gap'));
@@ -136,6 +145,8 @@ test('Firefox SpiderMonkey jsshell audit records package kind in objective and f
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /Firefox SpiderMonkey Nightly JS Shell Availability Audit/);
   assert.match(markdown, /official Firefox nightly SpiderMonkey JavaScript shell package/);
+  assert.match(markdown, /Build id: 20260531212007/);
+  assert.match(markdown, /Source revision: 71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7/);
 });
 
 function resetTmp() {

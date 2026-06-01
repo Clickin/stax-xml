@@ -1,6 +1,6 @@
 # Firefox/SpiderMonkey JS Shell StAX API Gap Audit
 
-Generated: 2026-06-01T02:13:20.862Z
+Generated: 2026-06-01T03:19:51.531Z
 
 Synthesizes the official release/nightly SpiderMonkey js-shell API probes against the unchanged current full-string stax benchmark surface. This is not benchmark evidence, emitted JIT IR, optimized-code evidence, or a runtime-limit conclusion.
 
@@ -22,7 +22,7 @@ Synthesizes the official release/nightly SpiderMonkey js-shell API probes agains
 | Shell | Version | JIT status | Binary input | Missing required globals | Current benchmark unchanged |
 | --- | --- | --- | --- | --- | --- |
 | release | JavaScript-C143.0.1 | yes | ok | TextDecoder, TextEncoder, ReadableStream, fetch | no |
-| nightly | JavaScript-C143.0a1 | yes | ok | TextDecoder, TextEncoder, ReadableStream, fetch | no |
+| nightly | JavaScript-C153.0a1 | yes | ok | TextDecoder, TextEncoder, ReadableStream, fetch | no |
 
 ## Required Globals
 

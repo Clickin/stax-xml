@@ -1577,13 +1577,17 @@ not emitted JIT IR and does not close the `codegen-traces-open` obligation.
 
 `packages/benchmark/results/release/firefox-spidermonkey-nightly-jsshell-availability-audit.md`
 then applies the same probe to an official Mozilla nightly jsshell package from
-`2025-08-11-09-34-16-mozilla-central`. The package hash is recorded as SHA512
-`c6dc2165aa054017a3cbdc422d29a5fec7b23e3d537dc81cd8f22c30a15b45399e556ed930f619dd4994a507b4ae48f3ca1a87bfc527f24a1a992b7fe9a28497`,
-but no matching `SHA512SUMS` verification file was supplied for this nightly
-probe, so `packageVerified=false`. The shell runs as `JavaScript-C143.0a1`,
+`latest-mozilla-central` as of 2026-05-31. The artifact records package URL
+`https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central/jsshell-win64.zip`,
+SHA512
+`4d27579cc95d07b22e6e841ce8e9d63906853ed9b284ddd20902f770c879acadb489254a6c818435dfb9e34e69e64bbdff136cdebe3930b8a1e98e5445d7da7a`,
+build id `20260531212007`, and source revision
+`71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7`. No matching `SHA512SUMS`
+verification file was supplied for this latest-nightly probe, so
+`packageVerified=false`. The shell runs as `JavaScript-C153.0a1`,
 observes the same `ionHits=4988`, `ion.enable=1`, `ion.warmup.trigger=0`, and
 checksum `12502500`, and can read the same `books.xml` binary probe. It still
-has `hasDisassembler(): false`, creates only a failed 93-byte `disnative` file,
+has `hasDisassembler(): false`, creates only a failed 83-byte `disnative` file,
 lacks `TextDecoder`, `TextEncoder`, `ReadableStream`, and `fetch`, and records
 no JitSpew, `IONFLAGS`, MIR/LIR, or IR dump flag surface. The same
 `IONFLAGS`/`JIT_SPEW` environment probe also reports `no-jitspew-output`, zero

@@ -871,11 +871,12 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /The same\s+`IONFLAGS`\/`JIT_SPEW` environment probe also reports `no-jitspew-output`, zero\s+diagnostic markers, and zero stderr lines/);
   assert.match(markdown, /does not close the\s+`codegen-traces-open` obligation/);
   assert.match(markdown, /firefox-spidermonkey-nightly-jsshell-availability-audit\.md/);
-  assert.match(markdown, /official Mozilla nightly jsshell package from\s+`2025-08-11-09-34-16-mozilla-central`/);
+  assert.match(markdown, /official Mozilla nightly jsshell package from\s+`latest-mozilla-central` as of 2026-05-31/);
+  assert.match(markdown, /build id `20260531212007`, and source revision\s+`71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7`/);
   assert.match(markdown, /packageVerified=false/);
-  assert.match(markdown, /runs as `JavaScript-C143\.0a1`/);
+  assert.match(markdown, /runs as `JavaScript-C153\.0a1`/);
   assert.match(markdown, /observes the same `ionHits=4988`, `ion\.enable=1`, `ion\.warmup\.trigger=0`, and\s+checksum `12502500`/);
-  assert.match(markdown, /has `hasDisassembler\(\): false`, creates only a failed 93-byte `disnative` file/);
+  assert.match(markdown, /has `hasDisassembler\(\): false`, creates only a failed 83-byte `disnative` file/);
   assert.match(markdown, /narrows one more\s+public Mozilla package path/);
   assert.match(markdown, /does not close\s+`codegen-traces-open`/);
   assert.match(markdown, /same-process `runs=3`, `warmups=0` rerun/);

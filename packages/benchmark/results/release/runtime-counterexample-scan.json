@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T03:13:14.813Z",
+  "generatedAt": "2026-06-01T03:19:51.780Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",

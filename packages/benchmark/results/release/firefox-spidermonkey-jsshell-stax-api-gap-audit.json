@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T02:13:20.862Z",
+  "generatedAt": "2026-06-01T03:19:51.531Z",
   "objective": "firefox-spidermonkey-jsshell-stax-api-gap-audit",
   "contract": "spidermonkey-jsshell-current-stax-full-string-api-surface-gap",
   "note": "Synthesizes the official release/nightly SpiderMonkey js-shell API probes against the unchanged current full-string stax benchmark surface. This is not benchmark evidence, emitted JIT IR, optimized-code evidence, or a runtime-limit conclusion.",
@@ -139,7 +139,7 @@
       "sourceArtifact": "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
       "status": "available",
       "packageVerified": false,
-      "version": "JavaScript-C143.0a1",
+      "version": "JavaScript-C153.0a1",
       "hasJitExecutionStatus": true,
       "hasIrDumpSurface": false,
       "canReadBinaryInput": true,

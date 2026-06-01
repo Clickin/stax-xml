@@ -102,7 +102,7 @@ test('Firefox SpiderMonkey js-shell StAX API gap audit pins unchanged harness bl
   assert.match(markdown, /Blocked current StAX surfaces: 5\/5/);
   assert.match(markdown, /Unchanged current StAX full-string runnable shells: 0/);
   assert.match(markdown, /\| release \| JavaScript-C143\.0\.1 \| yes \| ok \| TextDecoder, TextEncoder, ReadableStream, fetch \| no \|/);
-  assert.match(markdown, /\| nightly \| JavaScript-C143\.0a1 \| yes \| ok \| TextDecoder, TextEncoder, ReadableStream, fetch \| no \|/);
+  assert.match(markdown, /\| nightly \| JavaScript-C153\.0a1 \| yes \| ok \| TextDecoder, TextEncoder, ReadableStream, fetch \| no \|/);
   assert.match(markdown, /## Blocked StAX Surfaces/);
   assert.match(markdown, /\| StreamReaderSync generated-fixture Iterable<Uint8Array\[\]> full-string rows \| Generated-fixture same-contract StAX rows over synchronous byte batches\. \| Uint8Array, TextDecoder, TextEncoder \| 2\/2 \| TextDecoder, TextEncoder \|/);
   assert.match(markdown, /\| StreamReaderSync corpus-file Iterable<Uint8Array\[\]> full-string rows \| Corpus-file same-contract StAX rows over synchronous byte batches\. \| Uint8Array, TextDecoder \| 2\/2 \| TextDecoder \|/);

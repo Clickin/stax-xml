@@ -1,6 +1,6 @@
 # Firefox SpiderMonkey Nightly JS Shell Availability Audit
 
-Generated: 2026-06-01T02:48:09.761Z
+Generated: 2026-06-01T03:19:26.498Z
 
 Checks an official Firefox nightly SpiderMonkey JavaScript shell package for local JIT execution status and diagnostic surface. This is not emitted JIT IR, optimized-code, throughput, or browser evidence.
 
@@ -17,21 +17,32 @@ Checks an official Firefox nightly SpiderMonkey JavaScript shell package for loc
 - Binary XML input readable: true
 - Can run current stax full-string benchmark unchanged: false
 - Closes emitted IR obligation: false
-- Package URL: https://archive.mozilla.org/pub/firefox/nightly/2025/08/2025-08-11-09-34-16-mozilla-central/jsshell-win64.zip
-- Sums URL: https://archive.mozilla.org/pub/firefox/nightly/2025/08/2025-08-11-09-34-16-mozilla-central/
+- Package URL: https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central/jsshell-win64.zip
+- Sums URL: https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central/
+- Build id: 20260531212007
+- Source revision: 71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7
 
 ## Package Verification
 
 - Status: not-checked
 - SHA512 match: null
-- SHA512: c6dc2165aa054017a3cbdc422d29a5fec7b23e3d537dc81cd8f22c30a15b45399e556ed930f619dd4994a507b4ae48f3ca1a87bfc527f24a1a992b7fe9a28497
+- SHA512: 4d27579cc95d07b22e6e841ce8e9d63906853ed9b284ddd20902f770c879acadb489254a6c818435dfb9e34e69e64bbdff136cdebe3930b8a1e98e5445d7da7a
 - Expected line: not-recorded
+
+## Build Info
+
+- Status: ok
+- URL: https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central/firefox-153.0a1.en-US.win64.txt
+- File: G:\tmp\stax-spidermonkey-latest-jsshell-153\firefox-153.0a1.en-US.win64.txt
+- Build id: 20260531212007
+- Source revision: 71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7
+- Source URL: https://hg.mozilla.org/mozilla-central/rev/71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7
 
 ## Shell Surface
 
-- JS shell: G:\tmp\stax-spidermonkey-nightly-jsshell\js.exe
-- Version: JavaScript-C143.0a1
-- Help version: Version: JavaScript-C143.0a1
+- JS shell: G:\tmp\stax-spidermonkey-latest-jsshell-153\extract\js.exe
+- Version: JavaScript-C153.0a1
+- Help version: Version: JavaScript-C153.0a1
 - has --ion-eager: true
 - has --ion-offthread-compile: true
 - has --dump-bytecode: true
@@ -79,8 +90,8 @@ Checks an official Firefox nightly SpiderMonkey JavaScript shell package for loc
 ## Native Dump Probe
 
 - File created: true
-- File bytes: 93
-- File SHA256: a7e70ca7bc86831b4852e2d041f838e3308703fac4a8d03393ff58c9cc07521e
+- File bytes: 83
+- File SHA256: 9ead8303f5e4c342b7178e1ee085601ac628258bf5cd555334762f7f7c454a98
 - hasDisassembler: false
 - disnative write error: Error: Did not write all function bytes to the file.
 
@@ -95,9 +106,9 @@ Checks an official Firefox nightly SpiderMonkey JavaScript shell package for loc
 ## Findings
 
 - official-nightly-jsshell-available (ENVIRONMENT_FACT): The official Firefox nightly SpiderMonkey JavaScript shell is executable locally.
-  - version=JavaScript-C143.0a1
+  - version=JavaScript-C153.0a1
   - packageVerified=false
-  - packageUrl=https://archive.mozilla.org/pub/firefox/nightly/2025/08/2025-08-11-09-34-16-mozilla-central/jsshell-win64.zip
+  - packageUrl=https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central/jsshell-win64.zip
 - spidermonkey-jit-status-observed (TRACE_FACT): The nightly SpiderMonkey shell can observe Ion execution status with inIon() under --ion-eager.
   - ionHits=4988
   - checksum=12502500
@@ -116,7 +127,7 @@ Checks an official Firefox nightly SpiderMonkey JavaScript shell package for loc
   - envJitSpewStatus=no-jitspew-output
   - envJitSpewMarkers=0
   - envJitSpewStderrLines=0
-  - nativeDumpBytes=93
+  - nativeDumpBytes=83
   - nativeDumpError=Error: Did not write all function bytes to the file.
   - This narrows the local diagnostic path but does not close the emitted JIT IR obligation.
 - spidermonkey-nightly-jsshell-stax-api-gap (NEGATIVE_RESULT): The nightly SpiderMonkey shell can read binary XML into Uint8Array, but lacks TextDecoder/TextEncoder and Web stream globals needed to run the current full-string stax-xml benchmark unchanged.
