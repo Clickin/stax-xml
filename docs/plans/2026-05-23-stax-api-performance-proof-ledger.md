@@ -266,7 +266,7 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 205 primary release JSON artifacts, recognizes 1,183
+The current scan covers 206 primary release JSON artifacts, recognizes 1,183
 sample throughput rows and 170 aggregate rows, and finds 792 JavaScript 1 GiB+
 full-string sample rows plus 133 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
@@ -593,15 +593,19 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 205 primary release artifacts and recognizes 1,183
+The current audit scans 206 primary release artifacts and recognizes 1,183
 measured rows. It records 150 benchmark artifacts, 22 source artifacts, 11
 trace/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and
-18 negative-result artifacts, 792 JavaScript 1 GiB+ full-string rows, and four
+19 negative-result artifacts, 792 JavaScript 1 GiB+ full-string rows, and four
 release corpus seeds: `books.xml`, `large.xml`, `midsize.xml`, and `treebank_e.xml`. The
 negative-result set now includes
 `concat-buffer-reuse-negative-result.json`, which records that reusable
 multi-chunk concat storage did not improve the current 32 KiB file-backed
-`Iterable<Uint8Array[]>` batch-size sweep and was not retained in source. The
+`Iterable<Uint8Array[]>` batch-size sweep and was not retained in source, and
+`firefox-spidermonkey-jsshell-stax-api-gap-audit.json`, which records that the
+available official release and nightly SpiderMonkey js-shells still cannot run
+the current full-string StAX benchmark unchanged because the Web-compatible
+host API surface is missing. The
 `file-backed-core-decomposition.json` artifact now includes
 `stax-raw-frame-span-stats`, a partial raw-frame metadata row that folds event
 types, name ids, and span lengths without string materialization; it confirms
@@ -715,13 +719,16 @@ cannot run Safari/WebKit browser rows through the normal Safari/safaridriver
 path. Firefox/SpiderMonkey codegen is also `external-run-required` with
 `localRunnable=false` because the installed Firefox diagnostic audit emitted no
 JIT diagnostic dump, the installed Firefox buildconfig does not expose the
-JitSpew build flag, and no local SpiderMonkey JS shell was found on the
-configured env, `PATH`, or filesystem search-root probes. The official release
-jsshell artifact proves a runnable release shell and Ion status probe, but also
-records no JitSpew/IR dump flag surface, no active disassembler, and an
-incomplete `disnative` byte dump. These are local availability and
-JIT-status/diagnostic-surface facts, not Safari/WebKit benchmark evidence, not emitted
-SpiderMonkey JIT IR, and not runtime-limit proof.
+JitSpew build flag, and the available release/nightly SpiderMonkey JS shells do
+not expose the unchanged StAX benchmark host API surface or an emitted
+IR/codegen dump surface. The official release jsshell artifact proves a
+runnable release shell and Ion status probe, but also records no JitSpew/IR
+dump flag surface, no active disassembler, and an incomplete `disnative` byte
+dump. The separate js-shell StAX API gap audit records the unchanged-harness
+blocker as `TextDecoder`, `TextEncoder`, `ReadableStream`, and `fetch`, with
+`Uint8Array` present. These are local availability, host API surface, and
+JIT-status/diagnostic-surface facts, not Safari/WebKit benchmark evidence, not
+emitted SpiderMonkey JIT IR, and not runtime-limit proof.
 
 The handoff also consumes `same-contract-runtime-comparison.json` as structured
 source-consumption evidence. Its source-consumption evidence status is
@@ -1573,6 +1580,25 @@ lacks `TextDecoder`, `TextEncoder`, `ReadableStream`, and `fetch`, and records
 no JitSpew, `IONFLAGS`, MIR/LIR, or IR dump flag surface. This narrows one more
 public Mozilla package path, but it is still not emitted SpiderMonkey JIT IR and
 does not close `codegen-traces-open`.
+
+## Current Evidence: Firefox/SpiderMonkey JS Shell StAX API Gap Audit
+
+`packages/benchmark/results/release/firefox-spidermonkey-jsshell-stax-api-gap-audit.md`
+synthesizes the release and nightly js-shell availability probes against the
+current full-string StAX benchmark host API surface. It records
+`status=blocked-by-host-api-surface`, two available shells, two shells with JIT
+status probes, two shells that can read binary XML input, and zero shells that
+can run the current full-string StAX benchmark unchanged.
+
+Both shells have `Uint8Array`, but both lack `TextDecoder`, `TextEncoder`,
+`ReadableStream`, and `fetch`. This is a `NEGATIVE_RESULT` plus `SCOPE_GUARD`:
+it is not a benchmark row, not SpiderMonkey emitted IR, not optimized-code
+evidence, and not a runtime ceiling. Adding a polyfill or alternate decoder
+would create a different harness surface and must not be counted as the
+unchanged current StAX full-string benchmark. The remaining SpiderMonkey
+codegen obligation therefore still requires a diagnostic-capable Firefox or
+SpiderMonkey build/shell that can preserve the same benchmark contract and emit
+IR or optimized-code evidence.
 
 ### Node/V8 1 GiB Candidate Headroom Stability Rerun
 

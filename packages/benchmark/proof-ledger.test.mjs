@@ -55,6 +55,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /## Current Evidence: Firefox\/SpiderMonkey TextDecoder Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Firefox\/SpiderMonkey Memory API Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Firefox\/SpiderMonkey Allocation Profile/);
+  assert.match(markdown, /## Current Evidence: Firefox\/SpiderMonkey JS Shell StAX API Gap Audit/);
   assert.match(markdown, /## Current Evidence: Bun-Patched WebKit TextDecoder Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Bun TextDecoder Dispatch Source Pin Audit/);
   assert.match(markdown, /## Current Evidence: Bun\/JSC TextDecoder Codegen Trace/);
@@ -138,7 +139,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /does\s+not prove generated native code inside Bun Zig `TextDecoder`/);
   assert.match(markdown, /261 aggregated rows and 216 JavaScript 1 GiB\+\s+full-string rows/);
   assert.match(markdown, /zero 200 MiB\/s\+ bounded-memory JavaScript\s+counterexamples/);
-  assert.match(markdown, /current scan covers 205 primary release JSON artifacts/);
+  assert.match(markdown, /current scan covers 206 primary release JSON artifacts/);
   assert.match(markdown, /fastest aggregated 1 GiB\+ JavaScript\s+full-string row is Node\/V8 `rawFrameNameId` from\s+`text-trim-cost-decomposition\.json` at 185\.50 MiB\/s/);
   assert.match(markdown, /184\.09 to 186\.66 MiB\/s/);
   assert.match(markdown, /fastest aggregate\s+row is `sync-iterable-byte-batches`/);
@@ -299,8 +300,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`sourceMode: "complete-js-string"` and\s+`boundedMemory: false` under the 512 MiB RSS gate/);
   assert.match(markdown, /headroom evidence rather than runtime-limit\s+counterexamples/);
   assert.match(markdown, /recognizes 1,183\s+measured rows/);
-  assert.match(markdown, /current audit scans 205 primary release artifacts/);
-  assert.match(markdown, /150 benchmark artifacts, 22 source artifacts, 11\s+trace\/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and\s+18 negative-result artifacts, 792 JavaScript 1 GiB\+ full-string rows/);
+  assert.match(markdown, /current audit scans 206 primary release artifacts/);
+  assert.match(markdown, /150 benchmark artifacts, 22 source artifacts, 11\s+trace\/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and\s+19 negative-result artifacts, 792 JavaScript 1 GiB\+ full-string rows/);
   assert.match(markdown, /runtime-proof-handoff-validation\.md/);
   assert.match(markdown, /statically validates the two external-run handoffs/);
   assert.match(markdown, /12\s+referenced scripts exist, 28 release output paths are under the curated release\s+directory/);
@@ -366,9 +367,13 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /structured `localClosure` status/);
   assert.match(markdown, /Safari is\s+`external-run-required` with `localRunnable=false`/);
   assert.match(markdown, /Firefox\/SpiderMonkey codegen is also `external-run-required` with\s+`localRunnable=false`/);
-  assert.match(markdown, /installed Firefox diagnostic audit emitted no\s+JIT diagnostic dump, the installed Firefox buildconfig does not expose the\s+JitSpew build flag, and no local SpiderMonkey JS shell was found/);
-  assert.match(markdown, /official release\s+jsshell artifact proves a runnable release shell and Ion status probe, but also\s+records no JitSpew\/IR dump flag surface/);
-  assert.match(markdown, /no active disassembler, and an\s+incomplete `disnative` byte dump/);
+  assert.match(markdown, /installed Firefox diagnostic audit emitted no\s+JIT diagnostic dump, the installed Firefox buildconfig does not expose the\s+JitSpew build flag, and the available release\/nightly SpiderMonkey JS shells do\s+not expose the unchanged StAX benchmark host API surface or an emitted\s+IR\/codegen dump surface/);
+  assert.match(markdown, /official release jsshell artifact proves a\s+runnable release shell and Ion status probe, but also records no JitSpew\/IR\s+dump flag surface/i);
+  assert.match(markdown, /firefox-spidermonkey-jsshell-stax-api-gap-audit\.md/);
+  assert.match(markdown, /`status=blocked-by-host-api-surface`, two available shells, two shells with JIT\s+status probes, two shells that can read binary XML input, and zero shells that\s+can run the current full-string StAX benchmark unchanged/);
+  assert.match(markdown, /Both shells have `Uint8Array`, but both lack `TextDecoder`, `TextEncoder`,\s+`ReadableStream`, and `fetch`/);
+  assert.match(markdown, /Adding a polyfill or alternate decoder\s+would create a different harness surface/);
+  assert.match(markdown, /no active disassembler, and an\s+incomplete `disnative` byte\s+dump/);
   assert.match(markdown, /candidate-headroom-cross-process-books-corpus-batch16\.md/);
   assert.match(markdown, /multi-item batch is\s+concatenated into one parser buffer/);
   assert.match(markdown, /Node\/V8 `rawFrameNameId` averaged `99\.83 MiB\/s`/);
