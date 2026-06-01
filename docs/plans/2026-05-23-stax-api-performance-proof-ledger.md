@@ -121,7 +121,9 @@ and records whether the broad runtime-limit conclusion is currently allowed.
 The current gate report passes with status `incomplete-proof-correctly-blocked`:
 all 10 required claim guards are satisfied, all 35 required artifact mentions
 are present, all 5 required open-obligation disclosures are present, and all 16
-proof-rule checks are satisfied. The important result is
+proof-rule checks are satisfied. It also loads
+`runtime-proof-gap-handoff.json` directly and requires the handoff-level closure
+guards to stay present. The important result is
 `conclusionAllowed: false`, not a proof of impossibility.
 The runtime-limit claim remains `HYPOTHESIS`, while the gate confirms that
 Woodstox/quick-xml object-shape parity claims are rejected, lazy getters remain
@@ -129,18 +131,32 @@ a negative result, Node `Buffer` is not a neutral/browser primary lane, and the
 Node/Chrome/Bun/Deno/Firefox TextDecoder source-boundary claims are present. It
 also requires source-consumption shape evidence: direct `ReadableStream`
 overhead rows must remain distinct from synchronous byte-batch parser rows,
-large byte-batch matrices must not be described as one prebuilt 1 GiB
-`ArrayBuffer` parser input, and byte-batch rows must preserve demand-driven
-pulls. It also requires the Woodstox target distinction: cross-fixture ratios
-remain target-distance references, while the current same-fixture 1024 MiB JS
-row is still below the 0.9x Woodstox target even after the file-backed source
-and batch-size sweep rows are included. The gate now also requires the handoff
-to carry the external Woodstox and quick-xml target-distance evidence under the
-same checksum contract so future external rows are judged against both the
-200 MiB/s counterexample threshold and the 0.9x Woodstox goal. Finally, it
-requires the text-materialization frontier to stay visible: no-text/CDATA
-omission can cross 200 MiB/s as headroom evidence, but it must not be counted
-as a full-string StAX counterexample.
+the primary parser source is synchronous `Iterable<Uint8Array[]>` consumed by
+`StreamReaderSync`, large byte-batch matrices must not be described as one
+prebuilt 1 GiB `ArrayBuffer` parser input, and byte-batch rows must preserve
+demand-driven pulls. Direct `ReadableStream` and async source rows are
+source-overhead evidence only unless they are separately named and carry
+backpressure counters. It also requires the Woodstox target distinction:
+cross-fixture ratios remain target-distance references, while the current
+same-fixture 1024 MiB JS row is still below the 0.9x Woodstox target even after
+the file-backed source and batch-size sweep rows are included. The gate now also
+requires the handoff to carry the external Woodstox and quick-xml
+target-distance evidence under the same checksum contract so future external
+rows are judged against both the 200 MiB/s counterexample threshold and the
+0.9x Woodstox goal. Finally, it requires the text-materialization frontier to
+stay visible: no-text/CDATA omission can cross 200 MiB/s as headroom evidence,
+but it must not be counted as a full-string StAX counterexample.
+
+The loaded handoff guards prevent two false closures. Safari/WebKit closure
+must require bounded primary sync byte-batch browser rows, exact build/source
+identity, and `closesSafariObligation=true`; the current availability matrix is
+still `closureRequirementsMet=2`, `closureRequirementsBlocked=9`, and
+`closesSafariObligation=false`. Firefox/SpiderMonkey closure must require
+emitted IR or optimized-code evidence for a same-contract row, not only a
+materialized js-shell scope-distance artifact; the gate requires
+`closureRequirementsBlocked=0`, `closesCodegenObligation=true`,
+`sameContractStaxRow=true`, and `canRunCurrentStaxFullStringBenchmark=true`
+unless a browser-row artifact supplies unchanged closure.
 
 This is deliberately a conservative proof-language step: a passing gate means
 the ledger is not overclaiming. It does not run benchmark rows, inspect
@@ -793,6 +809,15 @@ MiB/s and `fetchAsyncByteBatchFull` at 9.77 MiB/s with backpressure 2/2. This
 classification closes only the source-consumption guard; Safari/WebKit browser
 rows and SpiderMonkey emitted IR remain active obligations.
 
+The same aggregate now records the primary parser input explicitly as
+synchronous `Iterable<Uint8Array[]>` byte batches. Full-target `ArrayBuffer`
+parser input is excluded from primary rows; direct `ReadableStream` rows and
+manual async byte-batch rows remain separated source-overhead evidence and must
+record backpressure. This distinction is part of the proof contract: direct
+browser `ReadableStream` overhead must not be used to weaken the primary
+bounded-memory reader target, and a prebuilt full XML `ArrayBuffer` must not be
+used to make a 1 GiB row look streaming.
+
 The same handoff now carries the same-contract memory frontier from that
 aggregate: 239 JavaScript 1 GiB+ full-string memory rows, 222 bounded rows, and
 17 unbounded or unproven rows across `process-rss`, `browser-js-heap`, and
@@ -934,7 +959,10 @@ It records `win32-x64`, no local Safari executable, no `safaridriver`, and
 `Current harness supports Safari/WebKit: yes`. It also records the current
 source-boundary state explicitly: `Safari benchmark rows recorded: no`,
 `Exact Safari build identity recorded: no`, and `Safari source boundary pinned:
-no`. The existing browser harness family now supports Chrome/Edge through CDP,
+no`. Its closure matrix records `closureRequirementsMet=2`,
+`closureRequirementsBlocked=9`, and `closesSafariObligation=false`, including
+that no bounded primary sync byte-batch Safari row is recorded. The existing
+browser harness family now supports Chrome/Edge through CDP,
 Firefox through built-in WebDriver BiDi, and Safari/WebKit through the
 safaridriver WebDriver wrapper when `safaridriver` is available, including the
 cross-process stability runner. The audit preserves the relevant environment
@@ -948,7 +976,9 @@ Safari/WebKit browser benchmark rows. It does not close the
 Safari/WebKit, and does not prove Safari/WebKit cannot exceed any throughput
 threshold. The wrapper can now produce rows on an appropriate host, but a future
 Safari/WebKit row must still pin the exact browser/WebKit build, preserve the
-same full-string contract, and flow through the runtime counterexample scanner.
+same full-string contract through primary synchronous `Iterable<Uint8Array[]>`
+byte batches, keep any direct `ReadableStream` source-overhead rows separate,
+record backpressure, and flow through the runtime counterexample scanner.
 
 ## Current Evidence: Woodstox HotSpot Trace
 
@@ -1699,13 +1729,18 @@ not `emitted-ir`, and it still does not close `codegen-traces-open`.
 `packages/benchmark/results/release/spidermonkey-materialized-scope-distance-audit.md`
 then compares the materialized js-shell artifact against the token-only XML
 codegen artifact, the js-shell host API gap, and the semantic materialization
-contract. It records all six checks as passing: same Taskcluster debug shell
-build, semantic field folding, positive JS string and public event-shaped object
-materialization counters, token-to-materialized delta, unchanged StAX host API
-gap, and unchanged StAX closure blocked. The audit therefore pins
-`semanticEquivalentForAsciiFields=true` while
-`closesCodegenObligation=false`, preventing the materialized js-shell codegen
-artifact from being cited as unchanged StAX closure evidence.
+contract. It records the useful semantic checks as passing: same Taskcluster
+debug shell build, semantic field folding, positive JS string and public
+event-shaped object materialization counters, and token-to-materialized delta.
+It also records the closure blockers explicitly:
+`closureRequirementsMet=2`, `closureRequirementsBlocked=4`, and
+`closesCodegenObligation=false`. The audit therefore pins
+`semanticEquivalentForAsciiFields=true` while preventing the materialized
+js-shell codegen artifact from being cited as unchanged StAX closure evidence.
+The handoff and runtime-limit gate require `closureRequirementsBlocked=0`,
+`closesCodegenObligation=true`, `sameContractStaxRow=true`, and
+`canRunCurrentStaxFullStringBenchmark=true` before this line can close
+`codegen-traces-open`.
 
 `packages/benchmark/results/release/spidermonkey-ascii-scope-distance-audit.md`
 then narrows the ASCII-only part of that scope guard. It checks the release
