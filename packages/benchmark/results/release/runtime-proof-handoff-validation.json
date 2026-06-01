@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-01T20:42:05.750Z",
+  "generatedAt": "2026-06-01T20:46:28.547Z",
   "objective": "runtime-proof-handoff-validation",
   "contract": "external-run-handoff-command-and-contract-static-validation",
   "note": "Static validation for runtime-proof-gap-handoff external runbooks. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
   "inputs": {
     "handoffJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-gap-handoff.json",
-    "handoffGeneratedAt": "2026-06-01T20:41:57.615Z",
+    "handoffGeneratedAt": "2026-06-01T20:46:19.979Z",
     "handoffObjective": "runtime-proof-gap-handoff",
     "handoffContract": "external-proof-gap-runbook-linked-to-coverage-audit"
   },
@@ -116,6 +116,8 @@
         "spidermonkey-codegen-closure-audit\\.json",
         "spidermonkey-codegen-rerun-stability-audit\\.json",
         "qualifiedClosureCount=0",
+        "closestBlockedCandidateCount=",
+        "minimumBlockedRequirementCount=",
         "summary\\.qualifiedClosureCount must be greater than 0",
         "summary\\.qualifiedClosureCount must remain 0",
         "closesCodegenObligation=false",

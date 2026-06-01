@@ -207,6 +207,8 @@ function validateHandoff(handoff) {
           /spidermonkey-codegen-closure-audit\.json/,
           /spidermonkey-codegen-rerun-stability-audit\.json/,
           /qualifiedClosureCount=0/,
+          /closestBlockedCandidateCount=/,
+          /minimumBlockedRequirementCount=/,
           /summary\.qualifiedClosureCount must be greater than 0/,
           /summary\.qualifiedClosureCount must remain 0/,
           /closesCodegenObligation=false/,

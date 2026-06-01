@@ -467,6 +467,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /ASCII scope-distance audit pins corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, and reducesScopeDistance=true while closesCodegenObligation=false/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=2 and closureRequirementsBlocked=4; primarySyncByteBatchMissingGlobals=TextDecoder; asciiTextDecoderEquivalent=true; diagnosticThroughputMiBPerSec=0\.4909373604499916; throughputCountsAsTargetEvidence=false; closesCodegenObligation=false/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /SpiderMonkey codegen closure audit checks 15 diagnostic\/codegen candidates, finds emittedCodegenSurfaceCount=6, sameContractStaxRowCount=0, unchangedRunnableCount=0, selectedRowMetadataCount=0, qualifiedClosureCount=0, and conclusionAllowed=false/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /SpiderMonkey codegen closure frontier has closestBlockedCandidateCount=5, minimumBlockedRequirementCount=4, and common missing requirements sameContractStaxRow=15, selectedRowMetadata=15, unchangedRunnable=15/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /SpiderMonkey codegen rerun stability audit compares 2 original\/rerun pairs/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /about:buildconfig records --enable-js-shell/.test(item)));
   assert.match(spiderMonkey.localClosure.scopeGuard, /Taskcluster debug-shell diagnostic facts/);
@@ -648,6 +649,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /sameSemanticChecksumFields=true, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0/);
   assert.match(markdown, /spidermonkey-jsshell-materialized-headroom/);
   assert.match(markdown, /SpiderMonkey codegen closure audit checks 15 diagnostic\/codegen candidates/);
+  assert.match(markdown, /SpiderMonkey codegen closure frontier has closestBlockedCandidateCount=5, minimumBlockedRequirementCount=4/);
   assert.match(markdown, /SpiderMonkey codegen rerun stability audit compares 2 original\/rerun pairs/);
   assert.match(markdown, /spidermonkey-codegen-closure-audit/);
   assert.match(markdown, /Diagnostic identity status counts: not-claimed=4, not-claimed-non-stax-diagnostic=7/);

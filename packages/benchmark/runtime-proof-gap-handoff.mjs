@@ -631,6 +631,12 @@ function createLocalClosure(activeObligations, audit, options = {}) {
       && codegenClosureAuditRaw?.summary?.emittedCodegenSurfaceCount > 0
       && codegenClosureAuditRaw?.summary?.qualifiedClosureCount === 0
       && codegenClosureAuditRaw?.summary?.conclusionAllowed === false;
+    const codegenClosureFrontierPinned = codegenClosureAuditPinned
+      && codegenClosureAuditRaw?.summary?.closestBlockedCandidateCount > 0
+      && codegenClosureAuditRaw?.summary?.minimumBlockedRequirementCount > 0
+      && codegenClosureAuditRaw?.missingRequirementHistogram?.sameContractStaxRow === codegenClosureAuditRaw?.summary?.candidateCount
+      && codegenClosureAuditRaw?.missingRequirementHistogram?.selectedRowMetadata === codegenClosureAuditRaw?.summary?.candidateCount
+      && codegenClosureAuditRaw?.missingRequirementHistogram?.unchangedRunnable === codegenClosureAuditRaw?.summary?.candidateCount;
     const codegenRerunStabilityContract = codegenRerunStability?.contract ?? codegenRerunStabilityRaw?.contract ?? null;
     const codegenRerunStabilityPinned = codegenRerunStabilityContract === 'spidermonkey-debug-jsshell-codegen-rerun-reproducibility-not-closure'
       && codegenRerunStabilitySummary.pairCount === 2
@@ -718,6 +724,9 @@ function createLocalClosure(activeObligations, audit, options = {}) {
         codegenClosureAuditPinned
           ? `The SpiderMonkey codegen closure audit checks ${codegenClosureAuditRaw.summary.candidateCount} diagnostic/codegen candidates, finds emittedCodegenSurfaceCount=${codegenClosureAuditRaw.summary.emittedCodegenSurfaceCount}, sameContractStaxRowCount=${codegenClosureAuditRaw.summary.sameContractStaxRowCount}, unchangedRunnableCount=${codegenClosureAuditRaw.summary.unchangedRunnableCount}, selectedRowMetadataCount=${codegenClosureAuditRaw.summary.selectedRowMetadataCount}, qualifiedClosureCount=0, and conclusionAllowed=false.`
           : 'No SpiderMonkey codegen closure audit pins the same-contract closure matrix for current diagnostic/codegen artifacts.',
+        codegenClosureFrontierPinned
+          ? `The SpiderMonkey codegen closure frontier has closestBlockedCandidateCount=${codegenClosureAuditRaw.summary.closestBlockedCandidateCount}, minimumBlockedRequirementCount=${codegenClosureAuditRaw.summary.minimumBlockedRequirementCount}, and common missing requirements sameContractStaxRow=${codegenClosureAuditRaw.missingRequirementHistogram.sameContractStaxRow}, selectedRowMetadata=${codegenClosureAuditRaw.missingRequirementHistogram.selectedRowMetadata}, unchangedRunnable=${codegenClosureAuditRaw.missingRequirementHistogram.unchangedRunnable}.`
+          : 'No SpiderMonkey codegen closure frontier summary pins closest blocked candidates and common missing requirements.',
         codegenRerunStabilityPinned
           ? `The SpiderMonkey codegen rerun stability audit compares ${codegenRerunStabilitySummary.pairCount} original/rerun pairs, reproduces ${codegenRerunStabilitySummary.reproduciblePairs} pairs on the same Taskcluster build and codegen marker counts, but qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false, and conclusionAllowed=false.`
           : 'No SpiderMonkey codegen rerun stability audit pins original/rerun reproducibility as non-closure evidence.',
