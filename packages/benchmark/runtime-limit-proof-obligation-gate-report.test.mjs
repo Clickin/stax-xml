@@ -202,9 +202,12 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.handoffValidationSnapshot.pass, true);
   assert.equal(report.handoffValidationSnapshot.allContractsPresent, true);
   assert.equal(report.handoffValidationSnapshot.unhandledObligationCount, 0);
+  assert.equal(report.handoffValidationSnapshot.validatedHandoffGeneratedAt, report.handoffSnapshot.generatedAt);
+  assert.equal(report.handoffValidationSnapshot.currentHandoffGeneratedAt, report.handoffSnapshot.generatedAt);
   assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-loaded' && item.satisfied));
   assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-pass' && item.satisfied));
   assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-contracts-present' && item.satisfied));
+  assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-current-handoff' && item.satisfied));
 
   const markdown = readFileSync(goodMdOut, 'utf8');
   assert.match(markdown, /# Runtime-Limit Proof Obligation Gate/);
@@ -234,8 +237,10 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /spidermonkey-diagnostic-row-identity-blocker/);
   assert.match(markdown, /## Handoff Validation Snapshot/);
   assert.match(markdown, /Handoff validation loaded: yes/);
+  assert.match(markdown, /Handoff validation target handoff generatedAt:/);
   assert.match(markdown, /Handoff validation pass: yes/);
   assert.match(markdown, /handoff-validation-contracts-present/);
+  assert.match(markdown, /handoff-validation-current-handoff/);
   assert.match(markdown, /## Source Audit Snapshot/);
   assert.match(markdown, /Primary parser input: synchronous Iterable<Uint8Array\[\]>/);
   assert.match(markdown, /Primary sync byte-batch rows: 231/);
@@ -560,6 +565,44 @@ test('runtime-limit proof-obligation gate fails if handoff validation does not p
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /Handoff validation pass: no/);
   assert.match(markdown, /handoff-validation-contracts-present/);
+});
+
+test('runtime-limit proof-obligation gate fails if handoff validation targets stale handoff', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
+  handoff.generatedAt = '2026-06-01T00:00:00.000Z';
+  writeFileSync(badHandoffJsonOut, `${JSON.stringify(handoff, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--handoff-json',
+    badHandoffJsonOut,
+    '--json-out',
+    badHandoffValidationGateJsonOut,
+    '--md-out',
+    badHandoffValidationGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badHandoffValidationGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.notEqual(report.handoffValidationSnapshot.validatedHandoffGeneratedAt, report.handoffValidationSnapshot.currentHandoffGeneratedAt);
+  assert.ok(report.handoffValidationSnapshot.guards.some(item =>
+    item.id === 'handoff-validation-current-handoff'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /currently loaded runtime-proof-gap-handoff\.json generatedAt/.test(error)));
+
+  const markdown = readFileSync(badHandoffValidationGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /handoff-validation-current-handoff/);
 });
 
 test('runtime-limit proof-obligation gate fails if current artifacts contain a counterexample', () => {

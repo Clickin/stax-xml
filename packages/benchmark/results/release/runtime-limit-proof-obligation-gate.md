@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T17:47:33.110Z
+Generated: 2026-06-01T17:51:26.783Z
 
 ## Scope
 
@@ -128,6 +128,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 ## Handoff Validation Snapshot
 
 - Handoff validation loaded: yes (2026-06-01T17:47:23.771Z)
+- Handoff validation target handoff generatedAt: 2026-06-01T17:40:50.874Z (current 2026-06-01T17:40:50.874Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes
 - Required contracts present: yes
@@ -140,6 +141,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `handoff-validation-pass` | yes | runtime-proof-handoff-validation.json summary.pass must be true before the gate can pass. |
 | `handoff-validation-contracts-present` | yes | runtime-proof-handoff-validation.json must report all required contracts present. |
 | `handoff-validation-required-handoffs-present` | yes | runtime-proof-handoff-validation.json must report required Safari and SpiderMonkey handoffs present. |
+| `handoff-validation-current-handoff` | yes | runtime-proof-handoff-validation.json must validate the currently loaded runtime-proof-gap-handoff.json generatedAt. |
 | `handoff-validation-no-unhandled-obligations` | yes | runtime-proof-handoff-validation.json must validate a handoff with zero unhandled obligations. |
 
 ## Source Audit Snapshot

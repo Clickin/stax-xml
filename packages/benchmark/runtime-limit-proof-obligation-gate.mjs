@@ -365,7 +365,7 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
   const coverageSnapshot = createCoverageSnapshot(coverageAudit);
   const counterexampleSnapshot = createCounterexampleSnapshot(comparison, counterexampleScan);
   const handoffSnapshot = createHandoffSnapshot(handoff);
-  const handoffValidationSnapshot = createHandoffValidationSnapshot(handoffValidation);
+  const handoffValidationSnapshot = createHandoffValidationSnapshot(handoffValidation, handoffSnapshot);
   const sourceAuditSnapshot = createSourceAuditSnapshot(sourceAudit);
   const frontierAuditSnapshot = createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMaterializationBoundary);
   const claimGuards = requiredClaimGuards.map(requirement => evaluateClaimGuard(requirement, claims));
@@ -759,11 +759,13 @@ function createHandoffSnapshot(handoff) {
   };
 }
 
-function createHandoffValidationSnapshot(validation) {
+function createHandoffValidationSnapshot(validation, handoffSnapshot = null) {
   if (!validation) {
     return {
       loaded: false,
       generatedAt: null,
+      validatedHandoffGeneratedAt: null,
+      currentHandoffGeneratedAt: handoffSnapshot?.generatedAt ?? null,
       pass: null,
       allContractsPresent: null,
       requiredHandoffsPresent: null,
@@ -777,6 +779,8 @@ function createHandoffValidationSnapshot(validation) {
   const snapshot = {
     loaded: true,
     generatedAt: validation.generatedAt ?? null,
+    validatedHandoffGeneratedAt: validation.inputs?.handoffGeneratedAt ?? null,
+    currentHandoffGeneratedAt: handoffSnapshot?.generatedAt ?? null,
     pass: validation.summary?.pass ?? null,
     allContractsPresent: validation.summary?.allContractsPresent ?? null,
     requiredHandoffsPresent: validation.summary?.requiredHandoffsPresent ?? null,
@@ -809,6 +813,12 @@ function createHandoffValidationGuards(snapshot) {
       id: 'handoff-validation-required-handoffs-present',
       description: 'runtime-proof-handoff-validation.json must report required Safari and SpiderMonkey handoffs present.',
       satisfied: snapshot?.requiredHandoffsPresent === true,
+    },
+    {
+      id: 'handoff-validation-current-handoff',
+      description: 'runtime-proof-handoff-validation.json must validate the currently loaded runtime-proof-gap-handoff.json generatedAt.',
+      satisfied: typeof snapshot?.validatedHandoffGeneratedAt === 'string'
+        && snapshot.validatedHandoffGeneratedAt === snapshot.currentHandoffGeneratedAt,
     },
     {
       id: 'handoff-validation-no-unhandled-obligations',
@@ -1134,6 +1144,7 @@ function renderMarkdown(report) {
     report.handoffValidationSnapshot.loaded
       ? `- Handoff validation loaded: yes (${report.handoffValidationSnapshot.generatedAt ?? 'unknown generatedAt'})`
       : '- Handoff validation loaded: no',
+    `- Handoff validation target handoff generatedAt: ${report.handoffValidationSnapshot.validatedHandoffGeneratedAt ?? 'unknown'} (current ${report.handoffValidationSnapshot.currentHandoffGeneratedAt ?? 'unknown'})`,
     `- Handoff validation pass: ${formatYesNo(report.handoffValidationSnapshot.pass)}`,
     `- Required handoffs present: ${formatYesNo(report.handoffValidationSnapshot.requiredHandoffsPresent)}`,
     `- Required contracts present: ${formatYesNo(report.handoffValidationSnapshot.allContractsPresent)}`,
