@@ -493,6 +493,7 @@ function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMateria
   };
   const woodstox = targetDistance?.summary?.sameFixture1024MiBWoodstoxTarget ?? {};
   const quickXml = targetDistance?.summary?.sameFixture1024MiBQuickXmlTarget ?? {};
+  const fastestJsContract = targetDistance?.summary?.sameFixtureFastestJsContract ?? {};
   const target = {
     loaded: Boolean(targetDistance),
     generatedAt: targetDistance?.generatedAt ?? null,
@@ -503,6 +504,12 @@ function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMateria
     quickXmlRemainingMiBPerSec: quickXml.remainingTo90PercentMiBPerSec ?? null,
     fastestJsCaseId: woodstox.fastestJsCaseId ?? null,
     fastestJsRateMiBPerSec: woodstox.fastestJsRateMiBPerSec ?? null,
+    fastestJsSourceMode: fastestJsContract.sourceMode ?? null,
+    fastestJsDirectReadableStream: fastestJsContract.directReadableStream ?? null,
+    fastestJsFullArrayBufferParserInput: fastestJsContract.fullArrayBufferParserInput ?? null,
+    fastestJsBoundedMemory: fastestJsContract.boundedMemory ?? null,
+    fastestJsMemoryKind: fastestJsContract.memoryKind ?? null,
+    fastestJsMaxRssMiB: fastestJsContract.maxRssMiB ?? null,
     conclusionAllowed: targetDistance?.summary?.conclusionAllowed ?? null,
   };
   const text = {
@@ -555,6 +562,20 @@ function createFrontierAuditGuards(memory, target, text) {
         && target.woodstoxRemainingMiBPerSec > 0
         && typeof target.quickXmlRemainingMiBPerSec === 'number'
         && target.quickXmlRemainingMiBPerSec > 0
+        && target.conclusionAllowed === false,
+    },
+    {
+      id: 'target-distance-js-contract-primary-bounded',
+      description: 'target-distance-audit.json must compare external targets against a bounded file-backed synchronous byte-batch JavaScript row, not direct streams or full ArrayBuffer parser input.',
+      satisfied: target.loaded
+        && target.status === 'classified'
+        && target.fastestJsSourceMode === 'file-backed-sync-iterable-byte-batches'
+        && target.fastestJsDirectReadableStream === false
+        && target.fastestJsFullArrayBufferParserInput === false
+        && target.fastestJsBoundedMemory === true
+        && target.fastestJsMemoryKind === 'process-rss'
+        && typeof target.fastestJsMaxRssMiB === 'number'
+        && target.fastestJsMaxRssMiB < 128
         && target.conclusionAllowed === false,
     },
     {
@@ -965,6 +986,7 @@ function renderMarkdown(report) {
     `- Woodstox 0.9x remaining: ${formatNullableRate(report.frontierAuditSnapshot.targetDistance.woodstoxRemainingMiBPerSec)} MiB/s`,
     `- quick-xml 0.9x target met: ${formatYesNo(report.frontierAuditSnapshot.targetDistance.quickXmlTargetMet)}`,
     `- quick-xml 0.9x remaining: ${formatNullableRate(report.frontierAuditSnapshot.targetDistance.quickXmlRemainingMiBPerSec)} MiB/s`,
+    `- Target JS contract: sourceMode=${report.frontierAuditSnapshot.targetDistance.fastestJsSourceMode ?? 'unknown'}, directReadableStream=${formatYesNo(report.frontierAuditSnapshot.targetDistance.fastestJsDirectReadableStream)}, fullArrayBufferParserInput=${formatYesNo(report.frontierAuditSnapshot.targetDistance.fastestJsFullArrayBufferParserInput)}, boundedMemory=${formatYesNo(report.frontierAuditSnapshot.targetDistance.fastestJsBoundedMemory)}, memoryKind=${report.frontierAuditSnapshot.targetDistance.fastestJsMemoryKind ?? 'unknown'}, maxRssMiB=${formatNullableRate(report.frontierAuditSnapshot.targetDistance.fastestJsMaxRssMiB)}`,
     report.frontierAuditSnapshot.textMaterialization.loaded
       ? `- Text materialization boundary loaded: yes (${report.frontierAuditSnapshot.textMaterialization.generatedAt ?? 'unknown generatedAt'})`
       : '- Text materialization boundary loaded: no',

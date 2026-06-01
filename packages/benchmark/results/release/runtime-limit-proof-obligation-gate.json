@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T11:31:57.205Z",
+  "generatedAt": "2026-06-01T11:43:48.116Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -340,7 +340,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-01T11:12:08.325Z",
+    "generatedAt": "2026-06-01T11:37:27.064Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -455,6 +455,12 @@
       "quickXmlRemainingMiBPerSec": 95.06,
       "fastestJsCaseId": "stax-raw-frame-name-id-batch-8",
       "fastestJsRateMiBPerSec": 152.11,
+      "fastestJsSourceMode": "file-backed-sync-iterable-byte-batches",
+      "fastestJsDirectReadableStream": false,
+      "fastestJsFullArrayBufferParserInput": false,
+      "fastestJsBoundedMemory": true,
+      "fastestJsMemoryKind": "process-rss",
+      "fastestJsMaxRssMiB": 61.77,
       "conclusionAllowed": false
     },
     "textMaterialization": {
@@ -481,6 +487,11 @@
       {
         "id": "target-distance-not-met",
         "description": "target-distance-audit.json must show same-fixture JavaScript remains below both Woodstox and quick-xml 0.9x targets.",
+        "satisfied": true
+      },
+      {
+        "id": "target-distance-js-contract-primary-bounded",
+        "description": "target-distance-audit.json must compare external targets against a bounded file-backed synchronous byte-batch JavaScript row, not direct streams or full ArrayBuffer parser input.",
         "satisfied": true
       },
       {
@@ -715,7 +726,7 @@
     "requiredHandoffGuards": 6,
     "satisfiedSourceAuditGuards": 5,
     "requiredSourceAuditGuards": 5,
-    "satisfiedFrontierAuditGuards": 4,
-    "requiredFrontierAuditGuards": 4
+    "satisfiedFrontierAuditGuards": 5,
+    "requiredFrontierAuditGuards": 5
   }
 }

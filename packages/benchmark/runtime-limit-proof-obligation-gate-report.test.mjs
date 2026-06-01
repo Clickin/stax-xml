@@ -22,6 +22,9 @@ const badSourceAuditGateMdOut = join(tmpDir, 'source-audit-runtime-limit-proof-o
 const badMemoryFrontierJsonOut = join(tmpDir, 'memory-frontier-unbounded-counterexample.json');
 const badMemoryFrontierGateJsonOut = join(tmpDir, 'memory-frontier-runtime-limit-proof-obligation-gate.json');
 const badMemoryFrontierGateMdOut = join(tmpDir, 'memory-frontier-runtime-limit-proof-obligation-gate.md');
+const badTargetDistanceJsonOut = join(tmpDir, 'target-distance-bad-js-contract.json');
+const badTargetDistanceGateJsonOut = join(tmpDir, 'target-distance-runtime-limit-proof-obligation-gate.json');
+const badTargetDistanceGateMdOut = join(tmpDir, 'target-distance-runtime-limit-proof-obligation-gate.md');
 
 test('runtime-limit proof-obligation gate permits only a conservative non-conclusion ledger', () => {
   resetTmp();
@@ -92,6 +95,12 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.frontierAuditSnapshot.targetDistance.quickXmlTargetMet, false);
   assert.equal(report.frontierAuditSnapshot.targetDistance.woodstoxRemainingMiBPerSec, 164.29);
   assert.equal(report.frontierAuditSnapshot.targetDistance.quickXmlRemainingMiBPerSec, 95.06);
+  assert.equal(report.frontierAuditSnapshot.targetDistance.fastestJsSourceMode, 'file-backed-sync-iterable-byte-batches');
+  assert.equal(report.frontierAuditSnapshot.targetDistance.fastestJsDirectReadableStream, false);
+  assert.equal(report.frontierAuditSnapshot.targetDistance.fastestJsFullArrayBufferParserInput, false);
+  assert.equal(report.frontierAuditSnapshot.targetDistance.fastestJsBoundedMemory, true);
+  assert.equal(report.frontierAuditSnapshot.targetDistance.fastestJsMemoryKind, 'process-rss');
+  assert.equal(report.frontierAuditSnapshot.targetDistance.fastestJsMaxRssMiB, 61.77);
   assert.ok(report.frontierAuditSnapshot.textMaterialization.loaded);
   assert.equal(report.frontierAuditSnapshot.textMaterialization.fastestFullRateMiBPerSec, 185.5);
   assert.equal(report.frontierAuditSnapshot.textMaterialization.fullRowsCrossTarget, 0);
@@ -99,6 +108,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'memory-frontier-classified' && item.satisfied));
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'memory-frontier-no-unbounded-target-row' && item.satisfied));
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'target-distance-not-met' && item.satisfied));
+  assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'target-distance-js-contract-primary-bounded' && item.satisfied));
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'text-frontier-no-full-counterexample' && item.satisfied));
   assert.ok(report.coverageSnapshot.loaded);
   assert.deepEqual(report.coverageSnapshot.activeObligationIds, [
@@ -183,6 +193,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /Unbounded rows at or above 200 MiB\/s: 0/);
   assert.match(markdown, /Woodstox 0\.9x target met: no/);
   assert.match(markdown, /quick-xml 0\.9x target met: no/);
+  assert.match(markdown, /Target JS contract: sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=no, fullArrayBufferParserInput=no, boundedMemory=yes, memoryKind=process-rss, maxRssMiB=61\.77/);
   assert.match(markdown, /Full-string rows crossing 200 MiB\/s: 0/);
   assert.match(markdown, /## Proof Rules/);
   assert.match(markdown, /target-contract-not-object-shape/);
@@ -360,6 +371,56 @@ test('runtime-limit proof-obligation gate fails if unbounded memory rows cross t
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /Unbounded rows at or above 200 MiB\/s: 1/);
   assert.match(markdown, /memory-frontier-no-unbounded-target-row/);
+});
+
+test('runtime-limit proof-obligation gate fails if target-distance JS row is not primary bounded sync input', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const targetDistance = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'target-distance-audit.json'), 'utf8'));
+  targetDistance.summary.sameFixtureFastestJsContract.sourceMode = 'fetch-readable-stream-pull';
+  targetDistance.summary.sameFixtureFastestJsContract.directReadableStream = true;
+  targetDistance.summary.sameFixtureFastestJsContract.fullArrayBufferParserInput = true;
+  targetDistance.summary.sameFixtureFastestJsContract.boundedMemory = false;
+  targetDistance.summary.sameFixtureFastestJsContract.memoryKind = 'browser-js-heap-unavailable';
+  targetDistance.summary.sameFixtureFastestJsContract.maxRssMiB = null;
+  writeFileSync(badTargetDistanceJsonOut, `${JSON.stringify(targetDistance, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--target-distance-json',
+    badTargetDistanceJsonOut,
+    '--json-out',
+    badTargetDistanceGateJsonOut,
+    '--md-out',
+    badTargetDistanceGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(badTargetDistanceGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.equal(report.frontierAuditSnapshot.targetDistance.fastestJsSourceMode, 'fetch-readable-stream-pull');
+  assert.equal(report.frontierAuditSnapshot.targetDistance.fastestJsDirectReadableStream, true);
+  assert.equal(report.frontierAuditSnapshot.targetDistance.fastestJsFullArrayBufferParserInput, true);
+  assert.equal(report.frontierAuditSnapshot.targetDistance.fastestJsBoundedMemory, false);
+  assert.ok(report.frontierAuditSnapshot.guards.some(item =>
+    item.id === 'target-distance-js-contract-primary-bounded'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error =>
+    /Missing frontier audit guard target-distance-js-contract-primary-bounded/.test(error)
+  ));
+
+  const markdown = readFileSync(badTargetDistanceGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /Target JS contract: sourceMode=fetch-readable-stream-pull, directReadableStream=yes, fullArrayBufferParserInput=yes, boundedMemory=no/);
+  assert.match(markdown, /target-distance-js-contract-primary-bounded/);
 });
 
 test('runtime-limit proof-obligation gate fails if the broad claim is upgraded too early', () => {
