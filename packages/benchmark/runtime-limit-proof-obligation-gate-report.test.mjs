@@ -176,11 +176,13 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-primary-byte-batch-contract' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-closure-checks-primary-bounded' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-closure-checks-same-contract-comparison' && item.satisfied));
+  assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-closure-checks-1gib-primary' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-emitted-ir-required' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-materialized-scope-not-enough' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-unchanged-stax-required' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-same-contract-comparison-required' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-closing-metadata-required' && item.satisfied));
+  assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-diagnostic-row-identity-blocker' && item.satisfied));
 
   const markdown = readFileSync(goodMdOut, 'utf8');
   assert.match(markdown, /# Runtime-Limit Proof Obligation Gate/);
@@ -199,10 +201,12 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff/);
   assert.match(markdown, /safari-primary-byte-batch-contract/);
   assert.match(markdown, /safari-closure-checks-same-contract-comparison/);
+  assert.match(markdown, /safari-closure-checks-1gib-primary/);
   assert.match(markdown, /spidermonkey-materialized-scope-not-enough/);
   assert.match(markdown, /spidermonkey-unchanged-stax-required/);
   assert.match(markdown, /spidermonkey-same-contract-comparison-required/);
   assert.match(markdown, /spidermonkey-closing-metadata-required/);
+  assert.match(markdown, /spidermonkey-diagnostic-row-identity-blocker/);
   assert.match(markdown, /## Source Audit Snapshot/);
   assert.match(markdown, /Primary parser input: synchronous Iterable<Uint8Array\[\]>/);
   assert.match(markdown, /Primary sync byte-batch rows: 231/);
@@ -280,6 +284,49 @@ test('runtime-limit proof-obligation gate fails if Safari handoff omits same-con
   assert.match(markdown, /primaryRowsInSameContractComparison/);
 });
 
+test('runtime-limit proof-obligation gate fails if Safari handoff omits 1GiB primary closure checks', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
+  const safari = handoff.handoffs.find(item => item.id === 'safari-webkit-browser-row-handoff');
+  safari.closureChecks = safari.closureChecks.filter(item =>
+    !/largeBoundedPrimarySyncByteBatchRowsRecorded/.test(item)
+    && !/largePrimaryRowsInSameContractComparison/.test(item)
+  );
+  writeFileSync(badHandoffJsonOut, `${JSON.stringify(handoff, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--handoff-json',
+    badHandoffJsonOut,
+    '--json-out',
+    badHandoffGateJsonOut,
+    '--md-out',
+    badHandoffGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badHandoffGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.ok(report.handoffSnapshot.guards.some(item =>
+    item.id === 'safari-closure-checks-1gib-primary'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /largeBoundedPrimarySyncByteBatchRowsRecorded/.test(error)));
+  assert.ok(report.gate.errors.some(error => /largePrimaryRowsInSameContractComparison/.test(error)));
+
+  const markdown = readFileSync(badHandoffGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /largeBoundedPrimarySyncByteBatchRowsRecorded/);
+  assert.match(markdown, /largePrimaryRowsInSameContractComparison/);
+});
+
 test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff omits same-contract comparison closure check', () => {
   resetTmp();
   writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
@@ -316,6 +363,45 @@ test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff omits sa
   const markdown = readFileSync(badHandoffGateMdOut, 'utf8');
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /selected row id/);
+});
+
+test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff omits diagnostic row identity blockers', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
+  const spiderMonkey = handoff.handoffs.find(item => item.id === 'spidermonkey-codegen-handoff');
+  spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
+    .map(item => item.replace(/, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic/g, ''));
+  writeFileSync(badHandoffJsonOut, `${JSON.stringify(handoff, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--handoff-json',
+    badHandoffJsonOut,
+    '--json-out',
+    badHandoffGateJsonOut,
+    '--md-out',
+    badHandoffGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badHandoffGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.ok(report.handoffSnapshot.guards.some(item =>
+    item.id === 'spidermonkey-diagnostic-row-identity-blocker'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /selectedRowIdentityStatus=not-claimed-non-stax-diagnostic/.test(error)));
+
+  const markdown = readFileSync(badHandoffGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /selectedRowIdentityStatus=not-claimed-non-stax-diagnostic/);
 });
 
 test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff omits closing metadata requirements', () => {

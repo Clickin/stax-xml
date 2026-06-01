@@ -743,6 +743,7 @@ function createHandoffGuards(byId) {
   const spiderMonkey = byId?.get('spidermonkey-codegen-handoff') ?? null;
   const safariChecks = safari?.closureChecks ?? [];
   const spiderChecks = spiderMonkey?.closureChecks ?? [];
+  const spiderBlockers = spiderMonkey?.localClosure?.blockers ?? [];
   return [
     {
       id: 'handoff-loaded',
@@ -769,6 +770,13 @@ function createHandoffGuards(byId) {
       satisfied: safariChecks.some(item => /primaryRowsInSameContractComparison must be true/.test(item))
         && safariChecks.some(item => /same-contract-runtime-comparison\.json/.test(item))
         && safariChecks.some(item => /row id, event count, and checksum/.test(item)),
+    },
+    {
+      id: 'safari-closure-checks-1gib-primary',
+      description: 'Safari closure checks must require largeBoundedPrimarySyncByteBatchRowsRecorded and largePrimaryRowsInSameContractComparison for 1 GiB+ bounded primary row id, event count, and checksum parity.',
+      satisfied: safariChecks.some(item => /largeBoundedPrimarySyncByteBatchRowsRecorded must be greater than 0/.test(item))
+        && safariChecks.some(item => /largePrimaryRowsInSameContractComparison must be true/.test(item))
+        && safariChecks.some(item => /1 GiB\+ bounded primary row id, event count, and checksum/.test(item)),
     },
     {
       id: 'spidermonkey-emitted-ir-required',
@@ -802,6 +810,11 @@ function createHandoffGuards(byId) {
         && spiderChecks.some(item => /selected row id/.test(item))
         && spiderChecks.some(item => /checksum parity/.test(item))
         && spiderChecks.some(item => /emitted IR or optimized-code dump metadata/.test(item)),
+    },
+    {
+      id: 'spidermonkey-diagnostic-row-identity-blocker',
+      description: 'SpiderMonkey diagnostic rows must remain blocked with selectedRowIdentityStatus=not-claimed-non-stax-diagnostic until they are same-contract StAX closure evidence.',
+      satisfied: spiderBlockers.some(item => /selectedRowIdentityStatus=not-claimed-non-stax-diagnostic/.test(item)),
     },
   ];
 }
