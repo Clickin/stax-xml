@@ -1032,6 +1032,83 @@ test('runtime counterexample scan flags bounded Safari full-string rows above th
   assert.match(markdown, /Safari\/JavaScriptCore safariRawFrameNameId from safari-synthetic-browser-row\.json at 210\.00 MiB\/s/);
 });
 
+test('runtime counterexample scan rejects Safari bounded flags without row memory proof', () => {
+  const syntheticDir = join(tmpDir, 'safari-flag-only-bounded');
+  const syntheticJsonOut = join(tmpDir, 'safari-flag-only-bounded.json');
+  const syntheticMdOut = join(tmpDir, 'safari-flag-only-bounded.md');
+  resetTmp();
+  mkdirSync(syntheticDir, { recursive: true });
+  writeFileSync(join(syntheticDir, 'safari-synthetic-browser-row.json'), `${JSON.stringify({
+    objective: 'safari-synthetic-browser-row',
+    contract: 'same-full-string-checksum-contract',
+    environment: {
+      runtimeName: 'browser',
+      browserName: 'Safari',
+      javascriptEngine: 'JavaScriptCore',
+    },
+    fixture: {
+      source: 'corpus-file',
+      sourceFile: 'books.xml',
+      sizeGiB: 1,
+    },
+    rows: [
+      {
+        id: 'safariFlagOnlyFastFullString',
+        mibPerSec: 215,
+        fullStringParity: true,
+        boundedMemory: true,
+        eventCount: 1,
+        checksum: 1,
+        contractScope: 'full-string-checksum',
+        sourceMode: 'generated-sync-iterable-byte-batches',
+        demandDrivenSource: true,
+        directReadableStream: false,
+        fullArrayBufferParserInput: false,
+      },
+    ],
+  }, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-counterexample-scan.mjs'),
+    '--release-dir',
+    syntheticDir,
+    '--json-out',
+    syntheticJsonOut,
+    '--md-out',
+    syntheticMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(syntheticJsonOut, 'utf8'));
+  assert.equal(report.summary.counterexampleCount, 0);
+  assert.equal(report.summary.largeJsFullRowCount, 1);
+  assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 1);
+  assert.deepEqual(report.summary.largeFullMemoryRejectionBreakdown, {
+    total: 1,
+    explicitNotBounded: 0,
+    boundedFlagWithoutRowMemoryProof: 1,
+    unknownBoundedFlag: 0,
+    missingRowMemoryProof: 1,
+  });
+  assert.equal(report.unboundedOrUnknownLargeFullRows.length, 1);
+  assert.equal(report.unboundedOrUnknownLargeFullRows[0].sourceArtifact, 'safari-synthetic-browser-row.json');
+  assert.equal(report.unboundedOrUnknownLargeFullRows[0].runtimeLabel, 'Safari/JavaScriptCore');
+  assert.equal(report.unboundedOrUnknownLargeFullRows[0].id, 'safariFlagOnlyFastFullString');
+  assert.equal(report.unboundedOrUnknownLargeFullRows[0].mibPerSec, 215);
+  assert.equal(report.unboundedOrUnknownLargeFullRows[0].boundedMemory, true);
+  assert.equal(report.unboundedOrUnknownLargeFullRows[0].hasMemoryProof, false);
+
+  const markdown = readFileSync(syntheticMdOut, 'utf8');
+  assert.match(markdown, /Counterexamples found: 0/);
+  assert.match(markdown, /Bounded flag without row-level memory proof: 1/);
+  assert.match(markdown, /A row must carry row-level memory evidence, not only a derived bounded flag/);
+});
+
 function resetTmp() {
   rmSync(tmpDir, { recursive: true, force: true });
   mkdirSync(tmpDir, { recursive: true });
