@@ -1,0 +1,203 @@
+{
+  "generatedAt": "2026-06-01T03:54:23.771Z",
+  "objective": "spidermonkey-taskcluster-debug-jsshell-codegen-audit",
+  "contract": "current-taskcluster-debug-spidermonkey-codegen-surface-not-same-contract-stax",
+  "note": "Checks a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell for JitSpew codegen output. This proves a current diagnostic-capable shell surface, but it is not a same-contract StAX full-string row because the js-shell host API surface cannot run the unchanged benchmark.",
+  "environment": {
+    "platform": "win32-x64"
+  },
+  "parameters": {
+    "jsShell": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell\\extract\\js.exe",
+    "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
+    "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
+    "artifactName": "public/build/target.jsshell.zip",
+    "artifactUrl": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/bzK0wWZvQoOguMjTIbRJ_g/artifacts/public/build/target.jsshell.zip",
+    "zipPath": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell\\target.jsshell.zip",
+    "targetTxt": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell\\target.txt",
+    "buildhubJson": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell\\buildhub.json",
+    "mozinfoJson": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell\\target.mozinfo.json",
+    "selfTest": false
+  },
+  "shell": {
+    "status": "available",
+    "provenance": {
+      "taskId": "bzK0wWZvQoOguMjTIbRJ_g",
+      "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
+      "artifactName": "public/build/target.jsshell.zip",
+      "artifactUrl": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/bzK0wWZvQoOguMjTIbRJ_g/artifacts/public/build/target.jsshell.zip",
+      "artifactBytes": 24836220,
+      "targetTxt": {
+        "raw": "20260531212007\nhttps://hg.mozilla.org/mozilla-central/rev/71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+        "buildId": "20260531212007",
+        "sourceUrl": "https://hg.mozilla.org/mozilla-central/rev/71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+        "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7"
+      },
+      "buildhub": {
+        "buildId": "20260531212007",
+        "buildDate": "2026-05-31T21:20:07Z",
+        "sourceRepository": "https://hg.mozilla.org/mozilla-central",
+        "sourceRevision": "71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+        "targetVersion": "153.0a1",
+        "targetPlatform": "win64",
+        "targetOs": "win"
+      },
+      "mozinfo": {
+        "buildtype": "debug",
+        "buildtypeGuess": "debug",
+        "debug": true,
+        "nightlyBuild": true,
+        "official": true,
+        "opt": false,
+        "testsEnabled": true,
+        "platformGuess": "win64"
+      }
+    },
+    "help": {
+      "exitCode": 0,
+      "error": null,
+      "hasIonEager": true,
+      "hasIonOffthreadCompile": true,
+      "hasDumpBytecode": true,
+      "mentionsJitCodegen": true
+    },
+    "version": {
+      "exitCode": 0,
+      "error": null,
+      "value": "JavaScript-C153.0a1"
+    },
+    "codegenProbe": {
+      "status": "codegen-output-emitted",
+      "flags": "codegen",
+      "exitCode": 0,
+      "error": null,
+      "checksum": 5050,
+      "outputBytes": 2339587,
+      "stdoutLineCount": 1,
+      "stderrLineCount": 54757,
+      "codegenMarkerCount": 54756,
+      "ionScriptMarkerCount": 5,
+      "assemblyMnemonicCount": 20931,
+      "excerpt": [
+        "checksum=5050",
+        "[Codegen] # Emitting bailout tail stub",
+        "[Codegen] # BEGIN creators: JitRuntime::generateBailoutTailStub",
+        "[Codegen] 000000  .set .Llabel0, .",
+        "[Codegen] 000000  testb      $0xff, %al",
+        "[Codegen] 000002  je         .Lfrom8",
+        "[Codegen] 000008  .set .Llabel8, .",
+        "[Codegen] 000008  movq       0x0(%r9), %rax",
+        "[Codegen] 00000b  cmpq       %rax, %rsp",
+        "[Codegen] 00000e  je         .Lfrom20",
+        "[Codegen] 000014  push       %r10",
+        "[Codegen] 000016  push       %r9",
+        "[Codegen] 000018  push       %r8",
+        "[Codegen] 00001a  push       %rdx",
+        "[Codegen] 00001b  push       %rcx",
+        "[Codegen] 00001c  push       %rax",
+        "[Codegen] 00001d  subq       $96, %rsp",
+        "[Codegen] 000021  .set .Llabel33, .",
+        "[Codegen] 000021  vmovdqu    %xmm5, 0x50(%rsp)",
+        "[Codegen] 000027  .set .Llabel39, .",
+        "[Codegen] 000027  vmovdqu    %xmm4, 0x40(%rsp)",
+        "[Codegen] 00002d  .set .Llabel45, .",
+        "[Codegen] 00002d  vmovdqu    %xmm3, 0x30(%rsp)",
+        "[Codegen] 000033  .set .Llabel51, .",
+        "[Codegen] 000033  vmovdqu    %xmm2, 0x20(%rsp)",
+        "[Codegen] 000039  .set .Llabel57, .",
+        "[Codegen] 000039  vmovdqu    %xmm1, 0x10(%rsp)",
+        "[Codegen] 00003f  .set .Llabel63, .",
+        "[Codegen] 00003f  vmovdqu    %xmm0, 0x0(%rsp)",
+        "[Codegen] 000044  movq       %rsp, %rax",
+        "[Codegen] 000047  andq       $0xfffffffffffffff0, %rsp",
+        "[Codegen] 00004b  push       %rax",
+        "[Codegen] 00004c  movabsq    $0x7ff7e99a224c, %rax",
+        "[Codegen] 000056  subq       $40, %rsp",
+        "[Codegen] 00005a  movq       %rax, %rcx",
+        "[Codegen] 00005d  testb      $0xf, %spl",
+        "[Codegen] 000061  je         .Lfrom103",
+        "[Codegen] 000067  .set .Llabel103, .",
+        "[Codegen] 000067  int3",
+        "[Codegen] 000068  .set .Llabel104, ."
+      ]
+    },
+    "apiProbe": {
+      "status": "completed",
+      "exitCode": 0,
+      "error": null,
+      "globals": {
+        "TextDecoder": "undefined",
+        "TextEncoder": "undefined",
+        "ReadableStream": "undefined",
+        "fetch": "undefined",
+        "Uint8Array": "function",
+        "read": "function"
+      },
+      "missingGlobals": [
+        "TextDecoder",
+        "TextEncoder",
+        "ReadableStream",
+        "fetch"
+      ],
+      "canRunCurrentStaxFullStringBenchmark": false,
+      "excerpt": [
+        "apiProbe={\"TextDecoder\":\"undefined\",\"TextEncoder\":\"undefined\",\"ReadableStream\":\"undefined\",\"fetch\":\"undefined\",\"Uint8Array\":\"function\",\"read\":\"function\"}"
+      ]
+    }
+  },
+  "outcome": {
+    "status": "available",
+    "hasJitExecutionStatus": null,
+    "hasIrDumpSurface": true,
+    "hasCodegenDumpOutput": true,
+    "hasNativeDisassemblySurface": true,
+    "nativeDumpComplete": true,
+    "scopeComparableToCurrentFirefox": true,
+    "sameContractStaxRow": false,
+    "canRunCurrentStaxFullStringBenchmark": false,
+    "closesDiagnosticSurfaceObligation": true,
+    "closesEmittedIrObligation": false
+  },
+  "findings": [
+    {
+      "id": "taskcluster-debug-jsshell-codegen-emitted",
+      "classification": "TRACE_FACT",
+      "summary": "The current Taskcluster debug SpiderMonkey shell emits JitSpew codegen diagnostics under IONFLAGS/JIT_SPEW.",
+      "evidence": [
+        "version=JavaScript-C153.0a1",
+        "taskId=bzK0wWZvQoOguMjTIbRJ_g",
+        "route=gecko.v2.mozilla-central.latest.firefox.win64-debug",
+        "buildId=20260531212007",
+        "sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7",
+        "debug=true",
+        "official=true",
+        "status=codegen-output-emitted",
+        "codegenMarkers=54756",
+        "ionScriptMarkers=5",
+        "assemblyMnemonics=20931",
+        "checksum=5050"
+      ]
+    },
+    {
+      "id": "taskcluster-debug-jsshell-stax-api-gap",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "The current debug js-shell lacks the host APIs needed to run the unchanged StAX full-string benchmark.",
+      "evidence": [
+        "missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch",
+        "canRunCurrentStaxFullStringBenchmark=false",
+        "sameContractStaxRow=false",
+        "closesEmittedIrObligation=false"
+      ]
+    },
+    {
+      "id": "taskcluster-debug-jsshell-scope-guard",
+      "classification": "SCOPE_GUARD",
+      "summary": "This is current diagnostic-shell evidence, not emitted codegen for a same-contract StAX full-string benchmark row.",
+      "evidence": [
+        "scopeComparableToCurrentFirefox=true",
+        "sameContractStaxRow=false",
+        "closesDiagnosticSurfaceObligation=true",
+        "closesEmittedIrObligation=false"
+      ]
+    }
+  ]
+}

@@ -531,6 +531,7 @@ function summarizeSpiderMonkeyDiagnostics(artifacts) {
   const nightlyJsShell = byName.get('firefox-spidermonkey-nightly-jsshell-availability-audit.json') ?? null;
   const jsShellApiGap = byName.get('firefox-spidermonkey-jsshell-stax-api-gap-audit.json') ?? null;
   const jsShellDiagnosticFlagSweep = byName.get('spidermonkey-jsshell-diagnostic-flag-sweep.json') ?? null;
+  const taskclusterDebugJsShell = byName.get('spidermonkey-taskcluster-debug-jsshell-codegen-audit.json') ?? null;
   const archivalDebugJsShell = byName.get('spidermonkey-archival-debug-jsshell-codegen-audit.json') ?? null;
   const buildconfig = byName.get('firefox-spidermonkey-buildconfig-source-pin-audit.json') ?? null;
   const rows = [
@@ -540,6 +541,7 @@ function summarizeSpiderMonkeyDiagnostics(artifacts) {
     summarizeSpiderMonkeyDiagnostic('official-nightly-jsshell', nightlyJsShell),
     summarizeSpiderMonkeyDiagnostic('official-jsshell-stax-api-gap', jsShellApiGap),
     summarizeSpiderMonkeyDiagnostic('official-jsshell-diagnostic-flag-sweep', jsShellDiagnosticFlagSweep),
+    summarizeSpiderMonkeyDiagnostic('taskcluster-debug-jsshell-codegen', taskclusterDebugJsShell),
     summarizeSpiderMonkeyDiagnostic('archival-debug-jsshell-codegen', archivalDebugJsShell),
     summarizeSpiderMonkeyDiagnostic('installed-buildconfig-source-pin', buildconfig),
   ].filter(Boolean);
@@ -606,6 +608,12 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact) {
         ? summary.unchangedRunnableShellCount > 0
         : null,
     commonMissingGlobals: Array.isArray(summary.commonMissingGlobals) ? summary.commonMissingGlobals : null,
+    taskId: artifact.shell?.provenance?.taskId ?? null,
+    route: artifact.shell?.provenance?.route ?? null,
+    buildId: artifact.shell?.provenance?.buildId ?? null,
+    sourceRevision: artifact.shell?.provenance?.sourceRevision ?? null,
+    hasCodegenDumpOutput: typeof outcome.hasCodegenDumpOutput === 'boolean' ? outcome.hasCodegenDumpOutput : null,
+    sameContractStaxRow: typeof outcome.sameContractStaxRow === 'boolean' ? outcome.sameContractStaxRow : null,
     closesEmittedIrObligation,
     evidenceClass: classifySpiderMonkeyDiagnosticEvidence({
       id,
@@ -621,6 +629,7 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact) {
 
 function classifySpiderMonkeyDiagnosticEvidence({ id, hasJitExecutionStatus, closesEmittedIrObligation, irDumpSurface, nativeDumpComplete, outcome, summary }) {
   if (closesEmittedIrObligation) return 'emitted-ir';
+  if (outcome?.hasCodegenDumpOutput === true && outcome?.scopeComparableToCurrentFirefox === true && outcome?.sameContractStaxRow === false) return 'current-debug-codegen-scope-guard';
   if (outcome?.hasCodegenDumpOutput === true && outcome?.scopeComparableToCurrentFirefox === false) return 'archival-codegen-scope-guard';
   if (outcome?.bytecodeProbeCount > 0 && outcome?.bytecodeOutputProbeCount === 0) return 'diagnostic-flag-sweep-negative';
   if (id.includes('stax-api-gap') || summary?.status === 'blocked-by-host-api-surface') return 'host-api-surface-gap';
@@ -759,6 +768,10 @@ function createObligationRows(coverage) {
     artifact.sourceArtifact === 'spidermonkey-jsshell-diagnostic-flag-sweep.json'
   );
   const hasSpiderMonkeyJsShellDiagnosticFlagSweep = Boolean(spiderMonkeyJsShellDiagnosticFlagSweep);
+  const spiderMonkeyTaskclusterDebugCodegen = coverage.spiderMonkeyDiagnostics.rows.find(row =>
+    row.id === 'taskcluster-debug-jsshell-codegen'
+  );
+  const hasSpiderMonkeyTaskclusterDebugCodegen = Boolean(spiderMonkeyTaskclusterDebugCodegen);
   const hasSpiderMonkeyJitSpewSourcePin = coverage.sourcePins.some(pin =>
     pin.sourceArtifact === 'firefox-spidermonkey-jitspew-source-pin-audit.json'
   );
@@ -823,6 +836,7 @@ function createObligationRows(coverage) {
         hasSpiderMonkeyNightlyJsShellAvailabilityAudit ? `Firefox/SpiderMonkey official nightly js-shell audit present (status=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.status ?? 'unknown'}, packageVerified=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.packageVerified ?? 'unknown'}, jitStatus=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasJitExecutionStatus ?? 'unknown'}, irDumpSurface=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasIrDumpSurface ?? 'unknown'}, bytecodeDumpOutput=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasBytecodeDumpOutput ?? 'unknown'}, bytecodeDumpStatus=${spiderMonkeyNightlyJsShellAvailabilityAudit.shell?.bytecodeDumpProbe?.status ?? 'unknown'}, nativeDisassemblySurface=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasNativeDisassemblySurface ?? 'unknown'}, nativeDumpComplete=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.nativeDumpComplete ?? 'unknown'}, canReadBinaryInput=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.canReadBinaryInput ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}); it is JIT-status evidence only, not emitted JIT IR.` : 'Firefox/SpiderMonkey official nightly js-shell audit missing.',
         hasSpiderMonkeyJsShellApiGapAudit ? `Firefox/SpiderMonkey js-shell StAX API gap audit present (status=${spiderMonkeyJsShellApiGapAudit.summary?.status ?? 'unknown'}, unchangedRunnableShells=${spiderMonkeyJsShellApiGapAudit.summary?.unchangedRunnableShellCount ?? 'unknown'}/${spiderMonkeyJsShellApiGapAudit.summary?.shellCount ?? 'unknown'}, blockedSurfaces=${spiderMonkeyJsShellApiGapAudit.summary?.blockedSurfaceCount ?? 'unknown'}, commonMissingGlobals=${(spiderMonkeyJsShellApiGapAudit.summary?.commonMissingGlobals ?? []).join(', ') || 'none'}); it is host API surface evidence only, not emitted JIT IR.` : 'Firefox/SpiderMonkey js-shell StAX API gap audit missing.',
         hasSpiderMonkeyJsShellDiagnosticFlagSweep ? `Firefox/SpiderMonkey public js-shell diagnostic flag sweep present (bytecodeProbes=${spiderMonkeyJsShellDiagnosticFlagSweep.outcome?.bytecodeProbeCount ?? 'unknown'}, bytecodeOutputProbes=${spiderMonkeyJsShellDiagnosticFlagSweep.outcome?.bytecodeOutputProbeCount ?? 'unknown'}, diagnosticPrefSurface=${spiderMonkeyJsShellDiagnosticFlagSweep.outcome?.hasDiagnosticPrefSurface ?? 'unknown'}); it rules out easy public-shell bytecode/dump flag paths but is not emitted JIT IR.` : 'Firefox/SpiderMonkey public js-shell diagnostic flag sweep missing.',
+        hasSpiderMonkeyTaskclusterDebugCodegen ? `Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present (taskId=${spiderMonkeyTaskclusterDebugCodegen.taskId ?? 'unknown'}, buildId=${spiderMonkeyTaskclusterDebugCodegen.buildId ?? 'unknown'}, sourceRevision=${spiderMonkeyTaskclusterDebugCodegen.sourceRevision ?? 'unknown'}, codegenDump=${spiderMonkeyTaskclusterDebugCodegen.hasCodegenDumpOutput ?? 'unknown'}, sameContractStaxRow=${spiderMonkeyTaskclusterDebugCodegen.sameContractStaxRow ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyTaskclusterDebugCodegen.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row.` : 'Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit missing.',
         hasSpiderMonkeyEmittedIrEvidence ? 'Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence present.' : 'Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.',
       ].join(' '),
       nextExperiment: 'Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows.',
@@ -981,7 +995,7 @@ function classifyRuntimeFromArtifact(sourceArtifact, root) {
   if (sourceArtifact.startsWith('node-')) return 'node-v8';
   if (sourceArtifact.startsWith('bun-')) return 'bun-jsc';
   if (sourceArtifact.startsWith('deno-')) return 'deno-v8';
-  if (sourceArtifact.startsWith('spidermonkey-jsshell-') || sourceArtifact.startsWith('spidermonkey-archival-debug-jsshell-')) return 'spidermonkey-jsshell';
+  if (sourceArtifact.startsWith('spidermonkey-jsshell-') || sourceArtifact.startsWith('spidermonkey-archival-debug-jsshell-') || sourceArtifact.startsWith('spidermonkey-taskcluster-debug-jsshell-')) return 'spidermonkey-jsshell';
   if (sourceArtifact.startsWith('browser-') || sourceArtifact.startsWith('chrome-')) return 'chrome-v8-browser';
   if (sourceArtifact.startsWith('firefox-')) return 'firefox-spidermonkey-browser';
   if (sourceArtifact.startsWith('woodstox-')) return 'woodstox-jvm';
@@ -1018,6 +1032,7 @@ function classifyRuntime(sourceArtifact, node, context) {
     || runtime.id === 'spidermonkey-jsshell'
     || sourceArtifact.startsWith('spidermonkey-jsshell-')
     || sourceArtifact.startsWith('spidermonkey-archival-debug-jsshell-')
+    || sourceArtifact.startsWith('spidermonkey-taskcluster-debug-jsshell-')
   ) return 'spidermonkey-jsshell';
   if (runtimeName === 'browser') {
     if (browserName.includes('firefox') || engine.includes('spidermonkey')) return 'firefox-spidermonkey-browser';
@@ -1208,8 +1223,24 @@ function summarizeShell(shell = {}) {
           : null,
       }
     : null;
-  if (!bytecodeDumpProbe) return null;
-  return { bytecodeDumpProbe };
+  const provenance = shell.provenance && typeof shell.provenance === 'object'
+    ? {
+        taskId: shell.provenance.taskId ?? null,
+        route: shell.provenance.route ?? null,
+        artifactName: shell.provenance.artifactName ?? null,
+        artifactBytes: typeof shell.provenance.artifactBytes === 'number' ? shell.provenance.artifactBytes : null,
+        buildId: shell.provenance.targetTxt?.buildId ?? shell.provenance.buildhub?.buildId ?? null,
+        sourceRevision: shell.provenance.targetTxt?.sourceRevision ?? shell.provenance.buildhub?.sourceRevision ?? null,
+        targetVersion: shell.provenance.buildhub?.targetVersion ?? null,
+        debug: typeof shell.provenance.mozinfo?.debug === 'boolean' ? shell.provenance.mozinfo.debug : null,
+        official: typeof shell.provenance.mozinfo?.official === 'boolean' ? shell.provenance.mozinfo.official : null,
+      }
+    : null;
+  const summary = {
+    ...(bytecodeDumpProbe ? { bytecodeDumpProbe } : {}),
+    ...(provenance ? { provenance } : {}),
+  };
+  return Object.keys(summary).length > 0 ? summary : null;
 }
 
 function summarizeArtifact(artifact) {

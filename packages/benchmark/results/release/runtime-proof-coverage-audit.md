@@ -1,12 +1,12 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-06-01T03:33:56.819Z
+Generated: 2026-06-01T04:01:02.225Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 209
+- Scanned primary artifacts: 210
 - Ignored derived artifacts: 7
 - Measured rows recognized: 1185
 - Rows with unknown full-string parity: 0
@@ -21,10 +21,10 @@ This audit scans current release artifacts to show which proof obligations are c
   - Unknown bounded-memory rows with memory counters: 10
 - Benchmark artifacts: 151
 - Source artifacts: 22
-- Trace/profile artifacts: 12
+- Trace/profile artifacts: 13
 - Allocation artifacts: 16
 - Environment artifacts: 4
-- Negative-result artifacts: 20
+- Negative-result artifacts: 21
 - 1 GiB+ JS full-string rows: 792
 - 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 433/433
 - 1 GiB+ JS full-string separate direct ReadableStream source-overhead rows: 17
@@ -82,7 +82,7 @@ This classifies the parser input shape for 1 GiB+ JavaScript full-string rows th
 | Node/V8 | 108 | 558 | 381 | rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json | 2 | 2 | 5 |
 | Bun/JSC | 40 | 301 | 194 | rawFrameNameId 178.52 MiB/s from bun-candidate-headroom-books-corpus-stability.json | 3 | 4 | 2 |
 | Deno/V8 | 16 | 110 | 89 | rawFrameNameId 110.54 MiB/s from text-trim-cost-cross-process-books-corpus.json | 1 | 2 | 2 |
-| SpiderMonkey js-shell | 3 | 2 | 0 | none | 0 | 1 | 0 |
+| SpiderMonkey js-shell | 4 | 2 | 0 | none | 0 | 2 | 0 |
 | Chrome/V8 browser | 15 | 100 | 58 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |
 | Firefox/SpiderMonkey browser | 23 | 82 | 70 | rawFrameNameId 76.90 MiB/s from firefox-bidi-candidate-headroom-cross-process-books-corpus.json | 5 | 1 | 1 |
 | Safari/WebKit browser | 1 | 0 | 0 | none | 0 | 0 | 0 |
@@ -111,6 +111,7 @@ JIT-status-only SpiderMonkey shell artifacts: 2
 | `official-nightly-jsshell` | `firefox-spidermonkey-nightly-jsshell-availability-audit.json` | available | jit-status-only | yes | no | no (no-bytecode-output, markers=0) | no | no | no |
 | `official-jsshell-stax-api-gap` | `firefox-spidermonkey-jsshell-stax-api-gap-audit.json` | blocked-by-host-api-surface | host-api-surface-gap | yes | unknown | unknown | unknown | no | no |
 | `official-jsshell-diagnostic-flag-sweep` | `spidermonkey-jsshell-diagnostic-flag-sweep.json` | available | diagnostic-flag-sweep-negative | unknown | unknown | no (unknown, markers=unknown) | unknown | unknown | no |
+| `taskcluster-debug-jsshell-codegen` | `spidermonkey-taskcluster-debug-jsshell-codegen-audit.json` | available | current-debug-codegen-scope-guard | unknown | yes | unknown | yes | no | no |
 | `archival-debug-jsshell-codegen` | `spidermonkey-archival-debug-jsshell-codegen-audit.json` | available | archival-codegen-scope-guard | unknown | yes | unknown | yes | no | no |
 | `installed-buildconfig-source-pin` | `firefox-spidermonkey-buildconfig-source-pin-audit.json` | source-pin | source-pin-only | unknown | unknown | unknown | unknown | unknown | no |
 
@@ -120,7 +121,7 @@ JIT-status-only SpiderMonkey shell artifacts: 2
 | --- | --- | --- | --- |
 | `firefox-browser-rows-open` | covered | 82 Firefox/SpiderMonkey browser benchmark rows found. | Broaden Firefox coverage with corpus/projection rows plus SpiderMonkey codegen and allocation evidence. |
 | `safari-jsc-source-and-browser-rows-open` | open | Bun/JSC and Bun-patched WebKit evidence is present, but no Safari/WebKit browser benchmark row was found. Local Safari/WebKit availability audit is present and records that the current host cannot run Safari rows even though the repository has a safaridriver harness when safaridriver is available. | Run same-contract Safari/WebKit rows on a macOS host through the safaridriver wrapper and cross-process stability runner. |
-| `codegen-traces-open` | partial | Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Deno/V8 codegen trace evidence present (2 artifacts). Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=available, found=2, searchRoots=2); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey js-shell StAX API gap audit present (status=blocked-by-host-api-surface, unchangedRunnableShells=0/2, blockedSurfaces=5, commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch); it is host API surface evidence only, not emitted JIT IR. Firefox/SpiderMonkey public js-shell diagnostic flag sweep present (bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false); it rules out easy public-shell bytecode/dump flag paths but is not emitted JIT IR. Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing. | Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows. |
+| `codegen-traces-open` | partial | Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Deno/V8 codegen trace evidence present (2 artifacts). Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=available, found=2, searchRoots=2); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is JIT-status evidence only, not emitted JIT IR. Firefox/SpiderMonkey js-shell StAX API gap audit present (status=blocked-by-host-api-surface, unchangedRunnableShells=0/2, blockedSurfaces=5, commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch); it is host API surface evidence only, not emitted JIT IR. Firefox/SpiderMonkey public js-shell diagnostic flag sweep present (bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false); it rules out easy public-shell bytecode/dump flag paths but is not emitted JIT IR. Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present (taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007, sourceRevision=71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row. Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing. | Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows. |
 | `allocation-profiles-open` | covered | 16 allocation/profile artifacts found. Bun/JSC allocation evidence present. Non-V8 browser allocation evidence present. | Add Bun/JSC and non-V8 browser allocation or heap-profile artifacts for the same full-string rows. |
 | `non-v8-browser-coverage-open` | covered | 82 non-V8 browser benchmark rows found. | Broaden non-V8 browser coverage with Safari/WebKit plus corpus/projection rows and allocation evidence. |
 | `independent-corpus-suite-open` | covered | 4 release corpus seed(s) found: books.xml, large.xml, midsize.xml, treebank_e.xml. | Keep new corpus rows flowing through the counterexample scanner before broadening claims. |

@@ -266,7 +266,7 @@ bounded memory with row-level memory evidence, and throughput at or above
 200 MiB/s. Derived summary and comparison projections are ignored to avoid
 circular evidence.
 
-The current scan covers 209 primary release JSON artifacts, recognizes 1,185
+The current scan covers 210 primary release JSON artifacts, recognizes 1,185
 sample throughput rows and 170 aggregate rows, and finds 792 JavaScript 1 GiB+
 full-string sample rows plus 133 JavaScript 1 GiB+ full-string aggregate rows.
 It still finds zero bounded-memory 200 MiB/s+ counterexamples. The fastest
@@ -593,10 +593,10 @@ current release artifacts for runtime, browser-engine, corpus, codegen/profile,
 and allocation coverage. It is a static coverage audit, not a benchmark run and
 not a runtime-limit proof.
 
-The current audit scans 209 primary release artifacts and recognizes 1,185
-measured rows. It records 151 benchmark artifacts, 22 source artifacts, 12
+The current audit scans 210 primary release artifacts and recognizes 1,185
+measured rows. It records 151 benchmark artifacts, 22 source artifacts, 13
 trace/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and
-20 negative-result artifacts, 792 JavaScript 1 GiB+ full-string rows, and four
+21 negative-result artifacts, 792 JavaScript 1 GiB+ full-string rows, and four
 release corpus seeds: `books.xml`, `large.xml`, `midsize.xml`, and `treebank_e.xml`. The
 negative-result set now includes
 `concat-buffer-reuse-negative-result.json`, which records that reusable
@@ -1606,6 +1606,23 @@ bytecode-output probes, and `diagnosticPrefSurface=false` from `--list-prefs`.
 This removes an easy false closure path for SpiderMonkey diagnostics: the
 public shell advertises a bytecode flag, but this artifact still does not emit
 SpiderMonkey IR or optimized code and does not close `codegen-traces-open`.
+
+`packages/benchmark/results/release/spidermonkey-taskcluster-debug-jsshell-codegen-audit.md`
+then checks a current Mozilla Taskcluster `mozilla-central` win64-debug
+js-shell from route `gecko.v2.mozilla-central.latest.firefox.win64-debug`
+(task `bzK0wWZvQoOguMjTIbRJ_g`). It records build id `20260531212007`,
+source revision `71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7`, target version
+`153.0a1`, `debug=true`, `official=true`, and shell version
+`JavaScript-C153.0a1`. Under `IONFLAGS=codegen` and `JIT_SPEW=codegen`, the
+small deterministic JIT probe preserves checksum `5050` and emits 54,756
+`[Codegen]` markers, 5 IonScript mentions, and 20,931 assembly mnemonic
+matches. This closes the current-debug-shell diagnostic-surface lookup, but the
+same artifact records missing `TextDecoder`, `TextEncoder`, `ReadableStream`,
+and `fetch`; therefore `sameContractStaxRow=false`,
+`canRunCurrentStaxFullStringBenchmark=false`, and
+`closesEmittedIrObligation=false`. The coverage audit classifies it as
+`current-debug-codegen-scope-guard`, not `emitted-ir`, because it is not emitted
+codegen for a same-contract full-string StAX row.
 
 `packages/benchmark/results/release/spidermonkey-archival-debug-jsshell-codegen-audit.md`
 then checks a Firefox 36 era debug js-shell from the archived

@@ -139,7 +139,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /does\s+not prove generated native code inside Bun Zig `TextDecoder`/);
   assert.match(markdown, /261 aggregated rows and 216 JavaScript 1 GiB\+\s+full-string rows/);
   assert.match(markdown, /zero 200 MiB\/s\+ bounded-memory JavaScript\s+counterexamples/);
-  assert.match(markdown, /current scan covers 209 primary release JSON artifacts/);
+  assert.match(markdown, /current scan covers 210 primary release JSON artifacts/);
   assert.match(markdown, /fastest aggregated 1 GiB\+ JavaScript\s+full-string row is Node\/V8 `rawFrameNameId` from\s+`text-trim-cost-decomposition\.json` at 185\.50 MiB\/s/);
   assert.match(markdown, /184\.09 to 186\.66 MiB\/s/);
   assert.match(markdown, /fastest aggregate\s+row is `sync-iterable-byte-batches`/);
@@ -300,8 +300,8 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /`sourceMode: "complete-js-string"` and\s+`boundedMemory: false` under the 512 MiB RSS gate/);
   assert.match(markdown, /headroom evidence rather than runtime-limit\s+counterexamples/);
   assert.match(markdown, /recognizes 1,185\s+measured rows/);
-  assert.match(markdown, /current audit scans 209 primary release artifacts/);
-  assert.match(markdown, /151 benchmark artifacts, 22 source artifacts, 12\s+trace\/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and\s+20 negative-result artifacts, 792 JavaScript 1 GiB\+ full-string rows/);
+  assert.match(markdown, /current audit scans 210 primary release artifacts/);
+  assert.match(markdown, /151 benchmark artifacts, 22 source artifacts, 13\s+trace\/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and\s+21 negative-result artifacts, 792 JavaScript 1 GiB\+ full-string rows/);
   assert.match(markdown, /runtime-proof-handoff-validation\.md/);
   assert.match(markdown, /statically validates the two external-run handoffs/);
   assert.match(markdown, /12\s+referenced scripts exist, 28 release output paths are under the curated release\s+directory/);
@@ -311,6 +311,15 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /spidermonkey-jsshell-diagnostic-flag-sweep\.md/);
   assert.match(markdown, /four public-shell bytecode flag combinations/);
   assert.match(markdown, /zero\s+bytecode-output probes, and `diagnosticPrefSurface=false`/);
+  assert.match(markdown, /spidermonkey-taskcluster-debug-jsshell-codegen-audit\.md/);
+  assert.match(markdown, /Taskcluster `mozilla-central` win64-debug/);
+  assert.match(markdown, /task `bzK0wWZvQoOguMjTIbRJ_g`/);
+  assert.match(markdown, /build id `20260531212007`/);
+  assert.match(markdown, /source revision `71e37c8757f87e7682d7db7d9b9ec9f7f81e24f7`/);
+  assert.match(markdown, /54,756\s+`\[Codegen\]` markers, 5 IonScript mentions, and 20,931 assembly mnemonic/);
+  assert.match(markdown, /`sameContractStaxRow=false`/);
+  assert.match(markdown, /`canRunCurrentStaxFullStringBenchmark=false`/);
+  assert.match(markdown, /current-debug-codegen-scope-guard/);
   assert.match(markdown, /spidermonkey-archival-debug-jsshell-codegen-audit\.md/);
   assert.match(markdown, /Firefox 36 era debug js-shell/);
   assert.match(markdown, /archival-codegen-scope-guard/);
