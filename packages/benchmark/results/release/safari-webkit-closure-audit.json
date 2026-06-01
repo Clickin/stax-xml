@@ -1,0 +1,61 @@
+{
+  "generatedAt": "2026-06-01T19:31:43.418Z",
+  "objective": "safari-webkit-closure-audit",
+  "contract": "safari-webkit-same-contract-browser-row-closure-matrix",
+  "note": "Audits Safari/WebKit browser-row artifacts against the exact closure requirements for safari-jsc-source-and-browser-rows-open. This is not a Safari benchmark run; it prevents availability rows, Bun/JSC rows, direct ReadableStream rows, and rows without build/source/memory proof from closing the obligation.",
+  "parameters": {
+    "releaseDir": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release",
+    "minLargeGiB": 0.999,
+    "selfTest": false
+  },
+  "availability": {
+    "present": true,
+    "hostIsMacOS": false,
+    "safariExecutableFound": false,
+    "safaridriverFound": false,
+    "currentHarnessSupportsSafari": true,
+    "canRunSafariBrowserRows": false,
+    "safariBenchmarkRowsRecorded": false,
+    "exactSafariBuildIdentityRecorded": false,
+    "safariSourceBoundaryPinned": false,
+    "directReadableStreamRowsAreSeparateEvidence": true,
+    "closureRequirementsMet": 2,
+    "closureRequirementsBlocked": 9,
+    "closesSafariObligation": false
+  },
+  "candidates": [],
+  "summary": {
+    "candidateCount": 0,
+    "fullStringRows": 0,
+    "primarySyncByteBatchRows": 0,
+    "boundedPrimaryRows": 0,
+    "largeBoundedPrimaryRows": 0,
+    "rowsInSameContractComparison": 0,
+    "measuredExactBuildIdentityRows": 0,
+    "sourceBoundaryPinned": false,
+    "qualifiedClosureCount": 0,
+    "contradictedAvailabilityClosure": false,
+    "conclusionAllowed": false
+  },
+  "findings": [
+    {
+      "id": "safari-webkit-closure-matrix",
+      "classification": "SCOPE_GUARD",
+      "summary": "Safari/WebKit rows are classified through a same-contract browser-row closure matrix before they can close safari-jsc-source-and-browser-rows-open.",
+      "evidence": [
+        "candidates=0",
+        "qualifiedClosures=0"
+      ]
+    },
+    {
+      "id": "safari-webkit-closure-not-met",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "No current Safari/WebKit artifact satisfies browser-row, primary sync byte-batch, bounded memory, 1 GiB, same-contract comparison, exact build identity, and source-boundary requirements together.",
+      "evidence": [
+        "candidateRows=0",
+        "largeBoundedPrimaryRows=0",
+        "rowsInSameContractComparison=0"
+      ]
+    }
+  ]
+}

@@ -32,7 +32,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 220);
+  assert.equal(report.summary.scannedArtifactCount, 221);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'runtime-proof-handoff-validation.json'
     && artifact.objective === 'runtime-proof-handoff-validation'
@@ -44,6 +44,15 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.evidenceKinds.includes('TRACE_FACT')
     && artifact.evidenceKinds.includes('NEGATIVE_RESULT')
     && artifact.evidenceKinds.includes('SCOPE_GUARD')
+  ));
+  assert.ok(report.scannedArtifacts.some(artifact =>
+    artifact.sourceArtifact === 'safari-webkit-closure-audit.json'
+    && artifact.objective === 'safari-webkit-closure-audit'
+    && artifact.contract === 'safari-webkit-same-contract-browser-row-closure-matrix'
+    && artifact.measuredRowCount === 0
+    && artifact.evidenceKinds.includes('NEGATIVE_RESULT')
+    && artifact.evidenceKinds.includes('SCOPE_GUARD')
+    && artifact.summary.conclusionAllowed === false
   ));
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'firefox-spidermonkey-nightly-jsshell-availability-audit.json'
@@ -485,7 +494,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.traceArtifactCount, 16);
   assert.equal(report.summary.allocationArtifactCount, 16);
   assert.equal(report.summary.environmentArtifactCount, 4);
-  assert.equal(report.summary.negativeArtifactCount, 25);
+  assert.equal(report.summary.negativeArtifactCount, 26);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'firefox-spidermonkey-js-shell-availability-audit.json'
     && artifact.evidenceKinds.includes('ENVIRONMENT_FACT')
@@ -1296,9 +1305,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /16 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 4/);
   assert.match(markdown, /Source artifacts: 25/);
-  assert.match(markdown, /Scanned primary artifacts: 220/);
+  assert.match(markdown, /Scanned primary artifacts: 221/);
   assert.equal(report.summary.traceArtifactCount, 16);
-  assert.match(markdown, /Negative-result artifacts: 25/);
+  assert.match(markdown, /Negative-result artifacts: 26/);
   assert.match(markdown, /\| Node\/V8 \| 111 \| 589 \| 407 \|/);
   assert.match(markdown, /\| Bun\/JSC \| 41 \| 319 \| 209 \|/);
   assert.match(markdown, /\| Deno\/V8 \| 17 \| 128 \| 104 \|/);

@@ -138,6 +138,7 @@ function validateHandoff(handoff) {
         /--fixture-shape corpus-cycle/,
         /--corpus-file packages\/benchmark\/assets\/books\.xml/,
         /--cases stringFull,eventObjectFull,rawFrameNameId/,
+        /safari-webkit-closure-audit\.mjs/,
       ]
     : isSpiderMonkey
       ? [
@@ -164,6 +165,10 @@ function validateHandoff(handoff) {
         /largePrimaryRowsInSameContractComparison/,
         /same-contract-runtime-comparison\.json/,
         /row id, event count, and checksum/,
+        /safari-webkit-closure-audit\.json/,
+        /summary\.qualifiedClosureCount must be greater than 0/,
+        /qualifiedClosureCount=0/,
+        /Safari\/WebKit closure audit checks/,
         /backpressure is respected/,
         /Memory evidence is classified explicitly/,
         /missing Safari JS heap counters must not be treated as bounded-memory proof/,

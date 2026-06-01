@@ -36,10 +36,10 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.equal(report.summary.pass, true);
   assert.equal(report.summary.handoffCount, 2);
   assert.equal(report.summary.requiredHandoffsPresent, true);
-  assert.equal(report.summary.commandCount, 13);
-  assert.equal(report.summary.scriptsReferenced, 20);
+  assert.equal(report.summary.commandCount, 14);
+  assert.equal(report.summary.scriptsReferenced, 21);
   assert.equal(report.summary.missingScriptCount, 0);
-  assert.equal(report.summary.releaseOutputPathCount, 66);
+  assert.equal(report.summary.releaseOutputPathCount, 70);
   assert.equal(report.summary.nonReleaseOutputPathCount, 0);
   assert.equal(report.summary.rawOutputPathCount, 2);
   assert.equal(report.summary.rawOutputPathPolicyViolationCount, 0);
@@ -52,19 +52,24 @@ test('runtime proof handoff validation pins external runbook command and contrac
   const spiderMonkey = report.handoffChecks.find(row => row.id === 'spidermonkey-codegen-handoff');
   assert.ok(safari);
   assert.ok(spiderMonkey);
-  assert.equal(safari.commandCount, 4);
+  assert.equal(safari.commandCount, 5);
   assert.equal(safari.requiredFlagsPresent, true);
   assert.equal(safari.contractsPresent, true);
   assert.equal(spiderMonkey.commandCount, 9);
   assert.equal(spiderMonkey.requiredFlagsPresent, true);
   assert.equal(spiderMonkey.contractsPresent, true);
   assert.ok(safari.requiredFlagPatterns.some(pattern => pattern.includes('--harness safari-webdriver')));
+  assert.ok(safari.requiredFlagPatterns.some(pattern => pattern.includes('safari-webkit-closure-audit')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('directReadableStreamFullStringRowsRecorded')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('must not substitute for primarySyncByteBatchRowsRecorded')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('primaryRowsInSameContractComparison')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('largeBoundedPrimarySyncByteBatchRowsRecorded')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('largePrimaryRowsInSameContractComparison')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('same-contract-runtime-comparison')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('safari-webkit-closure-audit')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('summary\\.qualifiedClosureCount')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('qualifiedClosureCount=0')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('Safari\\/WebKit closure audit checks')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('backpressure is respected')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('Memory evidence is classified explicitly')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('missing Safari JS heap counters')));
@@ -126,22 +131,35 @@ test('runtime proof handoff validation pins external runbook command and contrac
     check.id === 'spidermonkey-codegen-closure-audit'
     && /spidermonkey-codegen-closure-audit\.mjs/.test(check.command)
   ));
+  assert.ok(report.commandChecks.some(check =>
+    check.id === 'safari-webkit-closure-audit'
+    && /safari-webkit-closure-audit\.mjs/.test(check.command)
+  ));
   const postSafariAudits = report.commandChecks.find(check => check.id === 'post-safari-audits');
   assert.ok(postSafariAudits);
+  assert.match(postSafariAudits.command, /safari-webkit-closure-audit\.mjs/);
   assert.match(postSafariAudits.command, /source-consumption-shape-audit\.mjs/);
   assert.match(postSafariAudits.command, /memory-frontier-audit\.mjs/);
   assert.match(postSafariAudits.command, /target-distance-audit\.mjs/);
   assert.match(postSafariAudits.command, /text-materialization-boundary-audit\.mjs/);
   assert.ok(
-    postSafariAudits.command.indexOf('source-consumption-shape-audit.mjs')
-      < postSafariAudits.command.indexOf('memory-frontier-audit.mjs')
+    postSafariAudits.command.indexOf('same-contract-runtime-comparison.mjs')
+      < postSafariAudits.command.indexOf('safari-webkit-closure-audit.mjs')
+      && postSafariAudits.command.indexOf('safari-webkit-closure-audit.mjs')
+        < postSafariAudits.command.indexOf('runtime-counterexample-scan.mjs')
+      && postSafariAudits.command.indexOf('runtime-counterexample-scan.mjs')
+        < postSafariAudits.command.indexOf('runtime-proof-coverage-audit.mjs')
+      && postSafariAudits.command.indexOf('runtime-proof-coverage-audit.mjs')
+        < postSafariAudits.command.indexOf('source-consumption-shape-audit.mjs')
+      && postSafariAudits.command.indexOf('source-consumption-shape-audit.mjs')
+        < postSafariAudits.command.indexOf('memory-frontier-audit.mjs')
       && postSafariAudits.command.indexOf('memory-frontier-audit.mjs')
         < postSafariAudits.command.indexOf('target-distance-audit.mjs')
       && postSafariAudits.command.indexOf('target-distance-audit.mjs')
         < postSafariAudits.command.indexOf('text-materialization-boundary-audit.mjs')
       && postSafariAudits.command.indexOf('text-materialization-boundary-audit.mjs')
         < postSafariAudits.command.indexOf('runtime-limit-proof-obligation-gate.mjs'),
-    'post-safari audits must refresh source and frontier audits before the runtime-limit gate',
+    'post-safari audits must refresh comparison, Safari closure, counterexample, coverage, source, frontier, gate, and handoff in order',
   );
   const postSpiderMonkeyAudits = report.commandChecks.find(check => check.id === 'post-spidermonkey-audits');
   assert.ok(postSpiderMonkeyAudits);
@@ -194,14 +212,15 @@ test('runtime proof handoff validation pins external runbook command and contrac
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Runtime Proof Handoff Validation/);
   assert.match(markdown, /Pass: yes/);
-  assert.match(markdown, /Commands checked: 13/);
-  assert.match(markdown, /Scripts referenced: 20/);
+  assert.match(markdown, /Commands checked: 14/);
+  assert.match(markdown, /Scripts referenced: 21/);
   assert.match(markdown, /Missing scripts: 0/);
-  assert.match(markdown, /Release output paths: 66/);
+  assert.match(markdown, /Release output paths: 70/);
   assert.match(markdown, /Raw output path policy violations: 0/);
-  assert.match(markdown, /\| `safari-webkit-browser-row-handoff` \| external-run-required \| 4 \| yes \| yes \|/);
+  assert.match(markdown, /\| `safari-webkit-browser-row-handoff` \| external-run-required \| 5 \| yes \| yes \|/);
   assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| external-run-required \| 9 \| yes \| yes \|/);
   assert.match(markdown, /\| `safari-webkit-browser-row-handoff` \| `safari-books-corpus-cross-process` \| .*? \| yes \| yes \| yes \|/);
+  assert.match(markdown, /\| `safari-webkit-browser-row-handoff` \| `safari-webkit-closure-audit` \| .*? \| yes \| yes \| none \|/);
   assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| `firefox-diagnostic-installed-or-debug-build` \| .*? \| yes \| yes \| yes \|/);
   assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| `spidermonkey-jsshell-tokenizer-headroom` \| .*? \| yes \| yes \| none \|/);
   assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| `spidermonkey-jsshell-materialized-headroom` \| .*? \| yes \| yes \| none \|/);
@@ -211,6 +230,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.match(markdown, /spidermonkey-codegen-closure-audit\.mjs/);
   assert.match(markdown, /spidermonkey-jsshell-tokenizer-headroom\.mjs/);
   assert.match(markdown, /stax-public-reader-host-api-boundary-audit\.mjs/);
+  assert.match(markdown, /safari-webkit-closure-audit\.mjs/);
   assert.match(markdown, /source-consumption-shape-audit\.mjs/);
   assert.match(markdown, /memory-frontier-audit\.mjs/);
   assert.match(markdown, /target-distance-audit\.mjs/);

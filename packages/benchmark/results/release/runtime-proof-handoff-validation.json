@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-01T19:16:31.086Z",
+  "generatedAt": "2026-06-01T19:34:01.274Z",
   "objective": "runtime-proof-handoff-validation",
   "contract": "external-run-handoff-command-and-contract-static-validation",
   "note": "Static validation for runtime-proof-gap-handoff external runbooks. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
   "inputs": {
     "handoffJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-gap-handoff.json",
-    "handoffGeneratedAt": "2026-06-01T19:16:21.194Z",
+    "handoffGeneratedAt": "2026-06-01T19:32:48.205Z",
     "handoffObjective": "runtime-proof-gap-handoff",
     "handoffContract": "external-proof-gap-runbook-linked-to-coverage-audit"
   },
@@ -13,10 +13,10 @@
     "pass": true,
     "handoffCount": 2,
     "requiredHandoffsPresent": true,
-    "commandCount": 13,
-    "scriptsReferenced": 20,
+    "commandCount": 14,
+    "scriptsReferenced": 21,
     "missingScriptCount": 0,
-    "releaseOutputPathCount": 66,
+    "releaseOutputPathCount": 70,
     "nonReleaseOutputPathCount": 0,
     "rawOutputPathCount": 2,
     "rawOutputPathPolicyViolationCount": 0,
@@ -31,7 +31,7 @@
       "classification": "EXTERNAL_RUN_REQUIRED",
       "localRunnable": false,
       "localStatus": "external-run-required",
-      "commandCount": 4,
+      "commandCount": 5,
       "requiredFlagsPresent": true,
       "contractsPresent": true,
       "requiredFlagPatterns": [
@@ -41,7 +41,8 @@
         "--size-gib 1",
         "--fixture-shape corpus-cycle",
         "--corpus-file packages\\/benchmark\\/assets\\/books\\.xml",
-        "--cases stringFull,eventObjectFull,rawFrameNameId"
+        "--cases stringFull,eventObjectFull,rawFrameNameId",
+        "safari-webkit-closure-audit\\.mjs"
       ],
       "requiredContractPatterns": [
         "synchronous Iterable<Uint8Array\\[\\]>",
@@ -54,6 +55,10 @@
         "largePrimaryRowsInSameContractComparison",
         "same-contract-runtime-comparison\\.json",
         "row id, event count, and checksum",
+        "safari-webkit-closure-audit\\.json",
+        "summary\\.qualifiedClosureCount must be greater than 0",
+        "qualifiedClosureCount=0",
+        "Safari\\/WebKit closure audit checks",
         "backpressure is respected",
         "Memory evidence is classified explicitly",
         "missing Safari JS heap counters must not be treated as bounded-memory proof",
@@ -190,10 +195,36 @@
     },
     {
       "handoffId": "safari-webkit-browser-row-handoff",
+      "id": "safari-webkit-closure-audit",
+      "scriptPaths": [
+        {
+          "path": "packages/benchmark/safari-webkit-closure-audit.mjs",
+          "exists": true
+        }
+      ],
+      "releaseOutputPaths": [
+        {
+          "path": "packages/benchmark/results/release/safari-webkit-closure-audit.json",
+          "underRelease": true
+        },
+        {
+          "path": "packages/benchmark/results/release/safari-webkit-closure-audit.md",
+          "underRelease": true
+        }
+      ],
+      "rawOutputPaths": [],
+      "command": "node packages/benchmark/safari-webkit-closure-audit.mjs --json-out packages/benchmark/results/release/safari-webkit-closure-audit.json --md-out packages/benchmark/results/release/safari-webkit-closure-audit.md"
+    },
+    {
+      "handoffId": "safari-webkit-browser-row-handoff",
       "id": "post-safari-audits",
       "scriptPaths": [
         {
           "path": "packages/benchmark/same-contract-runtime-comparison.mjs",
+          "exists": true
+        },
+        {
+          "path": "packages/benchmark/safari-webkit-closure-audit.mjs",
           "exists": true
         },
         {
@@ -235,6 +266,10 @@
           "underRelease": true
         },
         {
+          "path": "packages/benchmark/results/release/safari-webkit-closure-audit.json",
+          "underRelease": true
+        },
+        {
           "path": "packages/benchmark/results/release/runtime-counterexample-scan.json",
           "underRelease": true
         },
@@ -271,6 +306,10 @@
           "underRelease": true
         },
         {
+          "path": "packages/benchmark/results/release/safari-webkit-closure-audit.md",
+          "underRelease": true
+        },
+        {
           "path": "packages/benchmark/results/release/runtime-counterexample-scan.md",
           "underRelease": true
         },
@@ -304,7 +343,7 @@
         }
       ],
       "rawOutputPaths": [],
-      "command": "node packages/benchmark/same-contract-runtime-comparison.mjs --json-out packages/benchmark/results/release/same-contract-runtime-comparison.json --md-out packages/benchmark/results/release/same-contract-runtime-comparison.md && node packages/benchmark/runtime-counterexample-scan.mjs --json-out packages/benchmark/results/release/runtime-counterexample-scan.json --md-out packages/benchmark/results/release/runtime-counterexample-scan.md && node packages/benchmark/runtime-proof-coverage-audit.mjs --json-out packages/benchmark/results/release/runtime-proof-coverage-audit.json --md-out packages/benchmark/results/release/runtime-proof-coverage-audit.md && node packages/benchmark/source-consumption-shape-audit.mjs --json-out packages/benchmark/results/release/source-consumption-shape-audit.json --md-out packages/benchmark/results/release/source-consumption-shape-audit.md && node packages/benchmark/memory-frontier-audit.mjs --json-out packages/benchmark/results/release/memory-frontier-audit.json --md-out packages/benchmark/results/release/memory-frontier-audit.md && node packages/benchmark/target-distance-audit.mjs --json-out packages/benchmark/results/release/target-distance-audit.json --md-out packages/benchmark/results/release/target-distance-audit.md && node packages/benchmark/text-materialization-boundary-audit.mjs --json-out packages/benchmark/results/release/text-materialization-boundary-audit.json --md-out packages/benchmark/results/release/text-materialization-boundary-audit.md && node packages/benchmark/runtime-limit-proof-obligation-gate.mjs --json-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.json --md-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.md && node packages/benchmark/runtime-proof-gap-handoff.mjs --json-out packages/benchmark/results/release/runtime-proof-gap-handoff.json --md-out packages/benchmark/results/release/runtime-proof-gap-handoff.md"
+      "command": "node packages/benchmark/same-contract-runtime-comparison.mjs --json-out packages/benchmark/results/release/same-contract-runtime-comparison.json --md-out packages/benchmark/results/release/same-contract-runtime-comparison.md && node packages/benchmark/safari-webkit-closure-audit.mjs --json-out packages/benchmark/results/release/safari-webkit-closure-audit.json --md-out packages/benchmark/results/release/safari-webkit-closure-audit.md && node packages/benchmark/runtime-counterexample-scan.mjs --json-out packages/benchmark/results/release/runtime-counterexample-scan.json --md-out packages/benchmark/results/release/runtime-counterexample-scan.md && node packages/benchmark/runtime-proof-coverage-audit.mjs --json-out packages/benchmark/results/release/runtime-proof-coverage-audit.json --md-out packages/benchmark/results/release/runtime-proof-coverage-audit.md && node packages/benchmark/source-consumption-shape-audit.mjs --json-out packages/benchmark/results/release/source-consumption-shape-audit.json --md-out packages/benchmark/results/release/source-consumption-shape-audit.md && node packages/benchmark/memory-frontier-audit.mjs --json-out packages/benchmark/results/release/memory-frontier-audit.json --md-out packages/benchmark/results/release/memory-frontier-audit.md && node packages/benchmark/target-distance-audit.mjs --json-out packages/benchmark/results/release/target-distance-audit.json --md-out packages/benchmark/results/release/target-distance-audit.md && node packages/benchmark/text-materialization-boundary-audit.mjs --json-out packages/benchmark/results/release/text-materialization-boundary-audit.json --md-out packages/benchmark/results/release/text-materialization-boundary-audit.md && node packages/benchmark/runtime-limit-proof-obligation-gate.mjs --json-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.json --md-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.md && node packages/benchmark/runtime-proof-gap-handoff.mjs --json-out packages/benchmark/results/release/runtime-proof-gap-handoff.json --md-out packages/benchmark/results/release/runtime-proof-gap-handoff.md"
     },
     {
       "handoffId": "spidermonkey-codegen-handoff",
@@ -657,7 +696,7 @@
       "summary": "Every current runtime proof handoff has existing local entrypoint scripts, curated release outputs, separated raw outputs, and required closure contracts.",
       "evidence": [
         "handoffs=safari-webkit-browser-row-handoff:ok, spidermonkey-codegen-handoff:ok",
-        "commands=13"
+        "commands=14"
       ]
     },
     {

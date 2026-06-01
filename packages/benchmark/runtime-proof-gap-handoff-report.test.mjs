@@ -403,11 +403,15 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.deepEqual(spiderMonkey.obligationIds, ['codegen-traces-open']);
   assert.equal(safari.localClosure.localStatus, 'external-run-required');
   assert.equal(safari.localClosure.localRunnable, false);
-  assert.deepEqual(safari.localClosure.evidenceArtifacts, ['safari-webkit-availability-audit.json']);
+  assert.deepEqual(safari.localClosure.evidenceArtifacts, [
+    'safari-webkit-availability-audit.json',
+    'safari-webkit-closure-audit.json',
+  ]);
   assert.ok(safari.localClosure.blockers.some(item => /Current host cannot run Safari\/WebKit browser rows/.test(item)));
   assert.ok(safari.localClosure.blockers.some(item => /No Safari\/WebKit benchmark row is recorded/.test(item)));
   assert.ok(safari.localClosure.blockers.some(item => /No exact Safari\/WebKit source-boundary pin is recorded/.test(item)));
   assert.ok(safari.localClosure.blockers.some(item => /Safari closure matrix reports closureRequirementsMet=2, closureRequirementsBlocked=9, closesSafariObligation=false/.test(item)));
+  assert.ok(safari.localClosure.blockers.some(item => /Safari\/WebKit closure audit checks candidateRows=0, largeBoundedPrimaryRows=0, rowsInSameContractComparison=0, measuredExactBuildIdentityRows=0, sourceBoundaryPinned=false, qualifiedClosureCount=0, and conclusionAllowed=false/.test(item)));
   assert.match(safari.localClosure.scopeGuard, /not a Safari\/WebKit benchmark row/);
   assert.equal(spiderMonkey.localClosure.localStatus, 'external-run-required');
   assert.equal(spiderMonkey.localClosure.localRunnable, false);
@@ -471,6 +475,17 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(safari.commands.some(command => /browser-candidate-headroom-cross-process\.mjs/.test(command.command)));
   assert.ok(safari.commands.some(command => /--harness safari-webdriver/.test(command.command)));
   assert.ok(safari.commands.some(command => /same-contract-runtime-comparison\.mjs/.test(command.command)));
+  assert.ok(safari.commands.some(command =>
+    command.id === 'safari-webkit-closure-audit'
+    && /safari-webkit-closure-audit\.mjs/.test(command.command)
+  ));
+  assert.ok(safari.commands.some(command =>
+    command.id === 'post-safari-audits'
+    && command.command.indexOf('same-contract-runtime-comparison.mjs')
+      < command.command.indexOf('safari-webkit-closure-audit.mjs')
+    && command.command.indexOf('safari-webkit-closure-audit.mjs')
+      < command.command.indexOf('runtime-counterexample-scan.mjs')
+  ));
   assert.ok(safari.commands.some(command => /runtime-limit-proof-obligation-gate\.mjs/.test(command.command)));
   assert.ok(safari.expectedEvidence.some(item => /fullStringParity/.test(item)));
   assert.ok(safari.expectedEvidence.some(item => /synchronous Iterable<Uint8Array\[\]> source contract/.test(item)));
@@ -486,6 +501,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(safari.closureChecks.some(item => /largeBoundedPrimarySyncByteBatchRowsRecorded must be greater than 0/.test(item)));
   assert.ok(safari.closureChecks.some(item => /largePrimaryRowsInSameContractComparison must be true/.test(item)));
   assert.ok(safari.closureChecks.some(item => /same-contract-runtime-comparison\.json/.test(item)));
+  assert.ok(safari.closureChecks.some(item => /safari-webkit-closure-audit\.json summary\.qualifiedClosureCount must be greater than 0/.test(item)));
   assert.ok(safari.closureChecks.some(item => /closesSafariObligation must be true/.test(item)));
   assert.ok(safari.closureChecks.some(item => /200 MiB\/s\+ bounded-memory row as a counterexample/.test(item)));
   assert.ok(safari.closureChecks.some(item => /target-distance-audit\.json must be regenerated/.test(item)));
@@ -595,6 +611,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Rows crossing target: full=0, withoutText=4, noTrim=0, foldTrim=0/);
   assert.match(markdown, /Runtime-limit conclusion allowed: no/);
   assert.match(markdown, /safari-webkit-browser-row-handoff/);
+  assert.match(markdown, /safari-webkit-closure-audit/);
   assert.match(markdown, /spidermonkey-codegen-handoff/);
   assert.match(markdown, /Local closure status: external-run-required/);
   assert.match(markdown, /Locally runnable now: no/);

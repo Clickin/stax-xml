@@ -505,23 +505,32 @@ function createLocalClosure(activeObligations, audit, options = {}) {
   if (activeById.has('safari-jsc-source-and-browser-rows-open')) {
     const obligation = activeById.get('safari-jsc-source-and-browser-rows-open');
     const availability = artifactByName.get('safari-webkit-availability-audit.json') ?? null;
+    const safariClosureAudit = artifactByName.get('safari-webkit-closure-audit.json') ?? null;
+    const safariClosureAuditRaw = readOptionalJson(resolve(releaseDir, 'safari-webkit-closure-audit.json'))
+      ?? readOptionalJson(resolve(dirname(defaultAuditJson), 'safari-webkit-closure-audit.json'));
     const localHostCannotRun = /current host cannot run Safari rows/i.test(obligation.evidence ?? '');
     const safariRowsRecorded = availability?.availability?.safariBenchmarkRowsRecorded === true;
     const sourceBoundaryPinned = availability?.availability?.safariSourceBoundaryPinned === true;
     const closureRequirementsMet = availability?.availability?.closureRequirementsMet ?? 'unknown';
     const closureRequirementsBlocked = availability?.availability?.closureRequirementsBlocked ?? 'unknown';
     const closesSafariObligation = availability?.availability?.closesSafariObligation === true;
+    const safariClosureAuditPinned = safariClosureAudit?.contract === 'safari-webkit-same-contract-browser-row-closure-matrix'
+      && safariClosureAuditRaw?.summary?.qualifiedClosureCount === 0
+      && safariClosureAuditRaw?.summary?.conclusionAllowed === false;
     items.push({
       obligationId: 'safari-jsc-source-and-browser-rows-open',
       localStatus: localHostCannotRun ? 'external-run-required' : 'unknown-local-status',
       localRunnable: localHostCannotRun ? false : null,
-      evidenceArtifacts: availability ? [availability.sourceArtifact] : [],
+      evidenceArtifacts: [availability, safariClosureAudit].filter(Boolean).map(artifact => artifact.sourceArtifact),
       blockers: localHostCannotRun
         ? [
             'Current host cannot run Safari/WebKit browser rows through the normal Safari/safaridriver path.',
             safariRowsRecorded ? 'Safari/WebKit benchmark rows are recorded.' : 'No Safari/WebKit benchmark row is recorded by the availability audit.',
             sourceBoundaryPinned ? 'Safari/WebKit source boundary is pinned.' : 'No exact Safari/WebKit source-boundary pin is recorded by the availability audit.',
             `Safari closure matrix reports closureRequirementsMet=${closureRequirementsMet}, closureRequirementsBlocked=${closureRequirementsBlocked}, closesSafariObligation=${closesSafariObligation}.`,
+            safariClosureAuditPinned
+              ? `The Safari/WebKit closure audit checks candidateRows=${safariClosureAuditRaw.summary.candidateCount}, largeBoundedPrimaryRows=${safariClosureAuditRaw.summary.largeBoundedPrimaryRows}, rowsInSameContractComparison=${safariClosureAuditRaw.summary.rowsInSameContractComparison}, measuredExactBuildIdentityRows=${safariClosureAuditRaw.summary.measuredExactBuildIdentityRows}, sourceBoundaryPinned=${safariClosureAuditRaw.summary.sourceBoundaryPinned}, qualifiedClosureCount=0, and conclusionAllowed=false.`
+              : 'No Safari/WebKit closure audit pins the same-contract browser-row closure matrix.',
           ]
         : ['Safari/WebKit local runnable status was not established by the coverage audit.'],
       scopeGuard: 'This is environment availability evidence only; it is not a Safari/WebKit benchmark row or runtime limitation.',
@@ -739,9 +748,14 @@ function createHandoffs(activeObligations, localClosure) {
           command: 'node packages/benchmark/browser-candidate-headroom-cross-process.mjs --harness safari-webdriver --driver-executable /usr/bin/safaridriver --process-runs 3 --size-gib 1 --fixture-shape corpus-cycle --corpus-file packages/benchmark/assets/books.xml --batch-size 1 --cases stringFull,eventObjectFull,rawFrameNameId --output-dir packages/benchmark/results/cross-process/safari-webdriver-books-corpus --json-out packages/benchmark/results/release/safari-webdriver-candidate-headroom-cross-process-books-corpus.json --md-out packages/benchmark/results/release/safari-webdriver-candidate-headroom-cross-process-books-corpus.md',
         },
         {
+          id: 'safari-webkit-closure-audit',
+          purpose: 'Recompute the same-contract Safari/WebKit browser-row closure matrix before reclassifying the obligation.',
+          command: 'node packages/benchmark/safari-webkit-closure-audit.mjs --json-out packages/benchmark/results/release/safari-webkit-closure-audit.json --md-out packages/benchmark/results/release/safari-webkit-closure-audit.md',
+        },
+        {
           id: 'post-safari-audits',
           purpose: 'Classify whether Safari rows close the obligation or create a counterexample.',
-          command: 'node packages/benchmark/same-contract-runtime-comparison.mjs --json-out packages/benchmark/results/release/same-contract-runtime-comparison.json --md-out packages/benchmark/results/release/same-contract-runtime-comparison.md && node packages/benchmark/runtime-counterexample-scan.mjs --json-out packages/benchmark/results/release/runtime-counterexample-scan.json --md-out packages/benchmark/results/release/runtime-counterexample-scan.md && node packages/benchmark/runtime-proof-coverage-audit.mjs --json-out packages/benchmark/results/release/runtime-proof-coverage-audit.json --md-out packages/benchmark/results/release/runtime-proof-coverage-audit.md && node packages/benchmark/source-consumption-shape-audit.mjs --json-out packages/benchmark/results/release/source-consumption-shape-audit.json --md-out packages/benchmark/results/release/source-consumption-shape-audit.md && node packages/benchmark/memory-frontier-audit.mjs --json-out packages/benchmark/results/release/memory-frontier-audit.json --md-out packages/benchmark/results/release/memory-frontier-audit.md && node packages/benchmark/target-distance-audit.mjs --json-out packages/benchmark/results/release/target-distance-audit.json --md-out packages/benchmark/results/release/target-distance-audit.md && node packages/benchmark/text-materialization-boundary-audit.mjs --json-out packages/benchmark/results/release/text-materialization-boundary-audit.json --md-out packages/benchmark/results/release/text-materialization-boundary-audit.md && node packages/benchmark/runtime-limit-proof-obligation-gate.mjs --json-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.json --md-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.md && node packages/benchmark/runtime-proof-gap-handoff.mjs --json-out packages/benchmark/results/release/runtime-proof-gap-handoff.json --md-out packages/benchmark/results/release/runtime-proof-gap-handoff.md',
+          command: 'node packages/benchmark/same-contract-runtime-comparison.mjs --json-out packages/benchmark/results/release/same-contract-runtime-comparison.json --md-out packages/benchmark/results/release/same-contract-runtime-comparison.md && node packages/benchmark/safari-webkit-closure-audit.mjs --json-out packages/benchmark/results/release/safari-webkit-closure-audit.json --md-out packages/benchmark/results/release/safari-webkit-closure-audit.md && node packages/benchmark/runtime-counterexample-scan.mjs --json-out packages/benchmark/results/release/runtime-counterexample-scan.json --md-out packages/benchmark/results/release/runtime-counterexample-scan.md && node packages/benchmark/runtime-proof-coverage-audit.mjs --json-out packages/benchmark/results/release/runtime-proof-coverage-audit.json --md-out packages/benchmark/results/release/runtime-proof-coverage-audit.md && node packages/benchmark/source-consumption-shape-audit.mjs --json-out packages/benchmark/results/release/source-consumption-shape-audit.json --md-out packages/benchmark/results/release/source-consumption-shape-audit.md && node packages/benchmark/memory-frontier-audit.mjs --json-out packages/benchmark/results/release/memory-frontier-audit.json --md-out packages/benchmark/results/release/memory-frontier-audit.md && node packages/benchmark/target-distance-audit.mjs --json-out packages/benchmark/results/release/target-distance-audit.json --md-out packages/benchmark/results/release/target-distance-audit.md && node packages/benchmark/text-materialization-boundary-audit.mjs --json-out packages/benchmark/results/release/text-materialization-boundary-audit.json --md-out packages/benchmark/results/release/text-materialization-boundary-audit.md && node packages/benchmark/runtime-limit-proof-obligation-gate.mjs --json-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.json --md-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.md && node packages/benchmark/runtime-proof-gap-handoff.mjs --json-out packages/benchmark/results/release/runtime-proof-gap-handoff.json --md-out packages/benchmark/results/release/runtime-proof-gap-handoff.md',
         },
       ],
       expectedEvidence: [
@@ -764,6 +778,7 @@ function createHandoffs(activeObligations, localClosure) {
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.largePrimaryRowsInSameContractComparison must be true, with 1 GiB+ bounded primary row id, event count, and checksum matching same-contract-runtime-comparison.json.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.exactBuildIdentityRecorded must be true.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.sourceBoundaryPinned must be true.',
+        'safari-webkit-closure-audit.json summary.qualifiedClosureCount must be greater than 0 before safari-jsc-source-and-browser-rows-open can be closed.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.closesSafariObligation must be true before safari-jsc-source-and-browser-rows-open can be marked covered.',
         'runtime-counterexample-scan.json must include any Safari/WebKit full-string rows and classify any 200 MiB/s+ bounded-memory row as a counterexample.',
         'target-distance-audit.json must be regenerated after Safari/WebKit rows so Woodstox and quick-xml 0.9x target distances use the same updated JavaScript comparison set.',

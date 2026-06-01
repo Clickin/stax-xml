@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T19:15:24.733Z",
+  "generatedAt": "2026-06-01T19:32:07.716Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -4445,6 +4445,53 @@
       "measuredRowCount": 0
     },
     {
+      "sourceArtifact": "safari-webkit-closure-audit.json",
+      "objective": "safari-webkit-closure-audit",
+      "contract": "safari-webkit-same-contract-browser-row-closure-matrix",
+      "evidenceKinds": [
+        "NEGATIVE_RESULT",
+        "SCOPE_GUARD"
+      ],
+      "runtimes": [],
+      "parameters": {
+        "searchRoots": null
+      },
+      "availability": null,
+      "outcome": null,
+      "summary": {
+        "status": null,
+        "shellCount": null,
+        "availableShellCount": null,
+        "jitStatusShellCount": null,
+        "binaryReadableShellCount": null,
+        "unchangedRunnableShellCount": null,
+        "commonMissingGlobals": null,
+        "blockedSurfaceCount": null,
+        "canCloseEmittedIrObligation": null,
+        "semanticEquivalentForAsciiFields": null,
+        "allCorpusFilesAscii": null,
+        "corpusFileCount": null,
+        "asciiByteToStringEquivalentToUtf8": null,
+        "semanticMaterializedWorkload": null,
+        "reducesScopeDistance": null,
+        "closesCodegenObligation": null,
+        "closureRequirementsMet": null,
+        "closureRequirementsBlocked": null,
+        "diagnosticThroughputMiBPerSec": null,
+        "diagnosticThroughputClass": null,
+        "throughputCountsAsTargetEvidence": null,
+        "primarySyncByteBatchRequiresTextDecoder": null,
+        "directReadableStreamRequiresReadableStream": null,
+        "stringInputRequiresTextEncoder": null,
+        "alternateDecoderWouldBeUnchangedClosure": null,
+        "conclusionAllowed": false
+      },
+      "shell": null,
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
       "sourceArtifact": "segment-scan-headroom.json",
       "objective": "segment-scan-headroom",
       "contract": "file-backed-delimiter-scan-headroom",
@@ -6413,7 +6460,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 220,
+    "scannedArtifactCount": 221,
     "ignoredArtifactCount": 7,
     "parseErrorCount": 0,
     "measuredRowCount": 1255,
@@ -6439,7 +6486,7 @@
     "traceArtifactCount": 16,
     "allocationArtifactCount": 16,
     "environmentArtifactCount": 4,
-    "negativeArtifactCount": 25,
+    "negativeArtifactCount": 26,
     "largeJsFullRowCount": 848,
     "largeJsFullSourceInputSafety": {
       "rows": 848,
@@ -28295,6 +28342,53 @@
           "actualBytes": 1073744736
         },
         "corpusSeed": "books.xml",
+        "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "safari-webkit-closure-audit.json",
+        "objective": "safari-webkit-closure-audit",
+        "contract": "safari-webkit-same-contract-browser-row-closure-matrix",
+        "evidenceKinds": [
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD"
+        ],
+        "runtimes": [],
+        "parameters": {
+          "searchRoots": null
+        },
+        "availability": null,
+        "outcome": null,
+        "summary": {
+          "status": null,
+          "shellCount": null,
+          "availableShellCount": null,
+          "jitStatusShellCount": null,
+          "binaryReadableShellCount": null,
+          "unchangedRunnableShellCount": null,
+          "commonMissingGlobals": null,
+          "blockedSurfaceCount": null,
+          "canCloseEmittedIrObligation": null,
+          "semanticEquivalentForAsciiFields": null,
+          "allCorpusFilesAscii": null,
+          "corpusFileCount": null,
+          "asciiByteToStringEquivalentToUtf8": null,
+          "semanticMaterializedWorkload": null,
+          "reducesScopeDistance": null,
+          "closesCodegenObligation": null,
+          "closureRequirementsMet": null,
+          "closureRequirementsBlocked": null,
+          "diagnosticThroughputMiBPerSec": null,
+          "diagnosticThroughputClass": null,
+          "throughputCountsAsTargetEvidence": null,
+          "primarySyncByteBatchRequiresTextDecoder": null,
+          "directReadableStreamRequiresReadableStream": null,
+          "stringInputRequiresTextEncoder": null,
+          "alternateDecoderWouldBeUnchangedClosure": null,
+          "conclusionAllowed": false
+        },
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
         "measuredRowCount": 0
       },
       {
