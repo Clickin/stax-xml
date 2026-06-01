@@ -36,7 +36,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.equal(report.summary.commandCount, 9);
   assert.equal(report.summary.scriptsReferenced, 13);
   assert.equal(report.summary.missingScriptCount, 0);
-  assert.equal(report.summary.releaseOutputPathCount, 30);
+  assert.equal(report.summary.releaseOutputPathCount, 36);
   assert.equal(report.summary.nonReleaseOutputPathCount, 0);
   assert.equal(report.summary.rawOutputPathCount, 2);
   assert.equal(report.summary.rawOutputPathPolicyViolationCount, 0);
@@ -87,6 +87,21 @@ test('runtime proof handoff validation pins external runbook command and contrac
       < postSafariAudits.command.indexOf('runtime-limit-proof-obligation-gate.mjs'),
     'post-safari audits must refresh source-consumption-shape-audit before the runtime-limit gate',
   );
+  const postSpiderMonkeyAudits = report.commandChecks.find(check => check.id === 'post-spidermonkey-audits');
+  assert.ok(postSpiderMonkeyAudits);
+  assert.match(postSpiderMonkeyAudits.command, /runtime-proof-coverage-audit\.mjs/);
+  assert.match(postSpiderMonkeyAudits.command, /source-consumption-shape-audit\.mjs/);
+  assert.match(postSpiderMonkeyAudits.command, /runtime-limit-proof-obligation-gate\.mjs/);
+  assert.match(postSpiderMonkeyAudits.command, /runtime-proof-gap-handoff\.mjs/);
+  assert.ok(
+    postSpiderMonkeyAudits.command.indexOf('runtime-proof-coverage-audit.mjs')
+      < postSpiderMonkeyAudits.command.indexOf('source-consumption-shape-audit.mjs')
+      && postSpiderMonkeyAudits.command.indexOf('source-consumption-shape-audit.mjs')
+        < postSpiderMonkeyAudits.command.indexOf('runtime-limit-proof-obligation-gate.mjs')
+      && postSpiderMonkeyAudits.command.indexOf('runtime-limit-proof-obligation-gate.mjs')
+        < postSpiderMonkeyAudits.command.indexOf('runtime-proof-gap-handoff.mjs'),
+    'post-spidermonkey audits must refresh coverage, source audit, gate, and handoff in order',
+  );
   assert.ok(report.findings.some(finding =>
     finding.id === 'handoff-static-validation'
     && finding.classification === 'CONTRACT_FACT'
@@ -102,7 +117,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.match(markdown, /Commands checked: 9/);
   assert.match(markdown, /Scripts referenced: 13/);
   assert.match(markdown, /Missing scripts: 0/);
-  assert.match(markdown, /Release output paths: 30/);
+  assert.match(markdown, /Release output paths: 36/);
   assert.match(markdown, /Raw output path policy violations: 0/);
   assert.match(markdown, /\| `safari-webkit-browser-row-handoff` \| external-run-required \| 4 \| yes \| yes \|/);
   assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| external-run-required \| 5 \| yes \| yes \|/);
