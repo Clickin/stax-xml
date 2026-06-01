@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T17:57:14.903Z
+Generated: 2026-06-01T18:02:43.915Z
 
 ## Scope
 
@@ -102,8 +102,14 @@ These are static disclosure guards. They must stay disclosed while the broad run
 - Same-contract comparison loaded: yes (2026-06-01T17:12:20.521Z)
 - Same-contract comparison counterexamples: 0
 - Runtime counterexample scan loaded: yes (2026-06-01T17:12:49.119Z)
+- Counterexample scan contract: threshold=200.00 MiB/s, minSizeGiB=1.00, parseErrors=0
+- Counterexample scan coverage shape: artifacts=217/217, measuredRows=1253/1253
 - Runtime counterexample scan counterexamples: 0
 - Current release counterexamples: 0
+- [x] counterexample-scan-loaded: runtime-counterexample-scan.json must be loaded by the gate.
+- [x] counterexample-scan-parameters: runtime-counterexample-scan.json must preserve the 200 MiB/s and 0.999 GiB counterexample threshold contract.
+- [x] counterexample-scan-no-parse-errors: runtime-counterexample-scan.json must report zero release artifact parse errors.
+- [x] counterexample-scan-current-coverage-shape: runtime-counterexample-scan.json must scan the same artifact and measured-row counts as the current coverage audit.
 
 ## Handoff Snapshot
 

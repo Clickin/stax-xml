@@ -78,6 +78,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.metadata.targetDistanceLoaded, true);
   assert.equal(report.metadata.textMaterializationBoundaryLoaded, true);
   assert.equal(report.summary.currentCounterexamples, 0);
+  assert.equal(report.summary.satisfiedCounterexampleScanGuards, report.summary.requiredCounterexampleScanGuards);
   assert.equal(report.summary.satisfiedHandoffGuards, report.summary.requiredHandoffGuards);
   assert.equal(report.summary.satisfiedHandoffValidationGuards, report.summary.requiredHandoffValidationGuards);
   assert.equal(report.summary.satisfiedSourceAuditGuards, report.summary.requiredSourceAuditGuards);
@@ -85,6 +86,15 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.counterexampleSnapshot.comparisonCounterexampleCount, 0);
   assert.equal(report.counterexampleSnapshot.scanCounterexampleCount, 0);
   assert.equal(report.counterexampleSnapshot.currentCounterexampleCount, 0);
+  assert.equal(report.counterexampleSnapshot.thresholdMiBPerSec, 200);
+  assert.equal(report.counterexampleSnapshot.minSizeGiB, 0.999);
+  assert.equal(report.counterexampleSnapshot.scanParseErrorCount, 0);
+  assert.equal(report.counterexampleSnapshot.scanScannedArtifactCount, report.counterexampleSnapshot.coverageScannedArtifactCount);
+  assert.equal(report.counterexampleSnapshot.scanMeasuredRowCount, report.counterexampleSnapshot.coverageMeasuredRowCount);
+  assert.ok(report.counterexampleSnapshot.guards.some(item => item.id === 'counterexample-scan-loaded' && item.satisfied));
+  assert.ok(report.counterexampleSnapshot.guards.some(item => item.id === 'counterexample-scan-parameters' && item.satisfied));
+  assert.ok(report.counterexampleSnapshot.guards.some(item => item.id === 'counterexample-scan-no-parse-errors' && item.satisfied));
+  assert.ok(report.counterexampleSnapshot.guards.some(item => item.id === 'counterexample-scan-current-coverage-shape' && item.satisfied));
   assert.ok(report.sourceAuditSnapshot.loaded);
   assert.equal(report.sourceAuditSnapshot.coverageCrosscheckStatus, 'consistent');
   assert.equal(report.sourceAuditSnapshot.coverageSourceModeRows, 474);
@@ -223,6 +233,9 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /spidermonkey-non-stax-diagnostic-rows-visible/);
   assert.match(markdown, /## Counterexample Snapshot/);
   assert.match(markdown, /Same-contract comparison counterexamples: 0/);
+  assert.match(markdown, /Counterexample scan contract: threshold=200\.00 MiB\/s, minSizeGiB=1\.00, parseErrors=0/);
+  assert.match(markdown, /Counterexample scan coverage shape: artifacts=217\/217, measuredRows=1253\/1253/);
+  assert.match(markdown, /counterexample-scan-current-coverage-shape/);
   assert.match(markdown, /Runtime counterexample scan counterexamples: 0/);
   assert.match(markdown, /Current release counterexamples: 0/);
   assert.match(markdown, /## Handoff Snapshot/);
@@ -670,6 +683,62 @@ test('runtime-limit proof-obligation gate fails if current artifacts contain a c
   assert.match(markdown, /Same-contract comparison counterexamples: 1/);
   assert.match(markdown, /Runtime counterexample scan counterexamples: 0/);
   assert.match(markdown, /Current release counterexamples: 1/);
+});
+
+test('runtime-limit proof-obligation gate fails if counterexample scan contract or coverage shape is stale', () => {
+  resetTmp();
+  const scanJson = join(tmpDir, 'runtime-counterexample-scan-stale-shape.json');
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const scan = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-counterexample-scan.json'), 'utf8'));
+  scan.parameters.thresholdMiBPerSec = 250;
+  scan.summary.parseErrorCount = 1;
+  scan.summary.scannedArtifactCount -= 1;
+  scan.summary.measuredRowCount -= 1;
+  writeFileSync(scanJson, `${JSON.stringify(scan, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--counterexample-scan-json',
+    scanJson,
+    '--json-out',
+    counterexampleJsonOut,
+    '--md-out',
+    counterexampleMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(counterexampleJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.equal(report.counterexampleSnapshot.thresholdMiBPerSec, 250);
+  assert.equal(report.counterexampleSnapshot.scanParseErrorCount, 1);
+  assert.notEqual(report.counterexampleSnapshot.scanScannedArtifactCount, report.counterexampleSnapshot.coverageScannedArtifactCount);
+  assert.notEqual(report.counterexampleSnapshot.scanMeasuredRowCount, report.counterexampleSnapshot.coverageMeasuredRowCount);
+  assert.ok(report.counterexampleSnapshot.guards.some(item =>
+    item.id === 'counterexample-scan-parameters'
+    && !item.satisfied
+  ));
+  assert.ok(report.counterexampleSnapshot.guards.some(item =>
+    item.id === 'counterexample-scan-no-parse-errors'
+    && !item.satisfied
+  ));
+  assert.ok(report.counterexampleSnapshot.guards.some(item =>
+    item.id === 'counterexample-scan-current-coverage-shape'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /counterexample-scan-current-coverage-shape/.test(error)));
+
+  const markdown = readFileSync(counterexampleMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /counterexample-scan-parameters/);
+  assert.match(markdown, /counterexample-scan-no-parse-errors/);
+  assert.match(markdown, /counterexample-scan-current-coverage-shape/);
 });
 
 test('runtime-limit proof-obligation gate fails if primary source audit mixes async or direct stream rows', () => {

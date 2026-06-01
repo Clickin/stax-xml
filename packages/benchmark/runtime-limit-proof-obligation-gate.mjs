@@ -363,7 +363,7 @@ function readCoverageAudit(coverageJson) {
 function createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan, handoff, handoffValidation, sourceAudit, memoryFrontier, targetDistance, textMaterializationBoundary }) {
   const claims = parseClaimRows(ledgerMarkdown);
   const coverageSnapshot = createCoverageSnapshot(coverageAudit);
-  const counterexampleSnapshot = createCounterexampleSnapshot(comparison, counterexampleScan);
+  const counterexampleSnapshot = createCounterexampleSnapshot(comparison, counterexampleScan, coverageAudit);
   const handoffSnapshot = createHandoffSnapshot(handoff);
   const handoffValidationSnapshot = createHandoffValidationSnapshot(handoffValidation, handoffSnapshot);
   const sourceAuditSnapshot = createSourceAuditSnapshot(sourceAudit, comparison, coverageAudit);
@@ -411,6 +411,9 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
   }
   if (counterexampleSnapshot.currentCounterexampleCount > 0) {
     errors.push(`Current release artifacts contain ${counterexampleSnapshot.currentCounterexampleCount} bounded full-string JavaScript counterexample(s); the runtime-limit ledger must be updated before the gate can pass.`);
+  }
+  for (const guard of counterexampleSnapshot.guards.filter(item => !item.satisfied)) {
+    errors.push(`Missing counterexample scan guard ${guard.id}: ${guard.description}`);
   }
   for (const guard of handoffSnapshot.guards.filter(item => !item.satisfied)) {
     errors.push(`Missing handoff guard ${guard.id}: ${guard.description}`);
@@ -487,6 +490,8 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
       satisfiedProofRules: proofRules.filter(item => item.satisfied).length,
       requiredProofRules: proofRules.length,
       currentCounterexamples: counterexampleSnapshot.currentCounterexampleCount,
+      satisfiedCounterexampleScanGuards: counterexampleSnapshot.guards.filter(item => item.satisfied).length,
+      requiredCounterexampleScanGuards: counterexampleSnapshot.guards.length,
       satisfiedCoverageGuards: coverageSnapshot.guards.filter(item => item.satisfied).length,
       requiredCoverageGuards: coverageSnapshot.guards.length,
       satisfiedHandoffGuards: handoffSnapshot.guards.filter(item => item.satisfied).length,
@@ -942,19 +947,57 @@ function createHandoffGuards(byId) {
   ];
 }
 
-function createCounterexampleSnapshot(comparison, counterexampleScan) {
+function createCounterexampleSnapshot(comparison, counterexampleScan, coverageAudit = null) {
   const comparisonCount = comparison?.summary?.jsRuntimeCounterexamples200MiB ?? null;
   const scanCount = counterexampleScan?.summary?.counterexampleCount ?? null;
-  return {
+  const snapshot = {
     comparisonLoaded: Boolean(comparison),
     comparisonGeneratedAt: comparison?.generatedAt ?? null,
     comparisonCounterexampleCount: typeof comparisonCount === 'number' ? comparisonCount : null,
     counterexampleScanLoaded: Boolean(counterexampleScan),
     counterexampleScanGeneratedAt: counterexampleScan?.generatedAt ?? null,
+    thresholdMiBPerSec: counterexampleScan?.parameters?.thresholdMiBPerSec ?? null,
+    minSizeGiB: counterexampleScan?.parameters?.minSizeGiB ?? null,
+    scanParseErrorCount: counterexampleScan?.summary?.parseErrorCount ?? null,
+    scanScannedArtifactCount: counterexampleScan?.summary?.scannedArtifactCount ?? null,
+    coverageScannedArtifactCount: coverageAudit?.summary?.scannedArtifactCount ?? null,
+    scanMeasuredRowCount: counterexampleScan?.summary?.measuredRowCount ?? null,
+    coverageMeasuredRowCount: coverageAudit?.summary?.measuredRowCount ?? null,
     scanCounterexampleCount: typeof scanCount === 'number' ? scanCount : null,
     currentCounterexampleCount: (typeof comparisonCount === 'number' ? comparisonCount : 0)
       + (typeof scanCount === 'number' ? scanCount : 0),
   };
+  snapshot.guards = createCounterexampleScanGuards(snapshot);
+  return snapshot;
+}
+
+function createCounterexampleScanGuards(snapshot) {
+  return [
+    {
+      id: 'counterexample-scan-loaded',
+      description: 'runtime-counterexample-scan.json must be loaded by the gate.',
+      satisfied: snapshot.counterexampleScanLoaded === true,
+    },
+    {
+      id: 'counterexample-scan-parameters',
+      description: 'runtime-counterexample-scan.json must preserve the 200 MiB/s and 0.999 GiB counterexample threshold contract.',
+      satisfied: snapshot.thresholdMiBPerSec === 200
+        && snapshot.minSizeGiB === 0.999,
+    },
+    {
+      id: 'counterexample-scan-no-parse-errors',
+      description: 'runtime-counterexample-scan.json must report zero release artifact parse errors.',
+      satisfied: snapshot.scanParseErrorCount === 0,
+    },
+    {
+      id: 'counterexample-scan-current-coverage-shape',
+      description: 'runtime-counterexample-scan.json must scan the same artifact and measured-row counts as the current coverage audit.',
+      satisfied: typeof snapshot.scanScannedArtifactCount === 'number'
+        && snapshot.scanScannedArtifactCount === snapshot.coverageScannedArtifactCount
+        && typeof snapshot.scanMeasuredRowCount === 'number'
+        && snapshot.scanMeasuredRowCount === snapshot.coverageMeasuredRowCount,
+    },
+  ];
 }
 
 function createCoverageSnapshot(audit) {
@@ -1149,9 +1192,14 @@ function renderMarkdown(report) {
     report.counterexampleSnapshot.counterexampleScanLoaded
       ? `- Runtime counterexample scan loaded: yes (${report.counterexampleSnapshot.counterexampleScanGeneratedAt ?? 'unknown generatedAt'})`
       : '- Runtime counterexample scan loaded: no',
+    `- Counterexample scan contract: threshold=${formatNullableRate(report.counterexampleSnapshot.thresholdMiBPerSec)} MiB/s, minSizeGiB=${formatNullableRate(report.counterexampleSnapshot.minSizeGiB)}, parseErrors=${formatNullableCount(report.counterexampleSnapshot.scanParseErrorCount)}`,
+    `- Counterexample scan coverage shape: artifacts=${formatNullableCount(report.counterexampleSnapshot.scanScannedArtifactCount)}/${formatNullableCount(report.counterexampleSnapshot.coverageScannedArtifactCount)}, measuredRows=${formatNullableCount(report.counterexampleSnapshot.scanMeasuredRowCount)}/${formatNullableCount(report.counterexampleSnapshot.coverageMeasuredRowCount)}`,
     `- Runtime counterexample scan counterexamples: ${formatNullableCount(report.counterexampleSnapshot.scanCounterexampleCount)}`,
     `- Current release counterexamples: ${report.counterexampleSnapshot.currentCounterexampleCount}`,
   );
+  for (const item of report.counterexampleSnapshot.guards) {
+    lines.push(`- ${item.satisfied ? '[x]' : '[ ]'} ${item.id}: ${item.description}`);
+  }
 
   lines.push(
     '',
