@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T11:43:48.116Z",
+  "generatedAt": "2026-06-01T11:52:12.859Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -468,8 +468,11 @@
       "generatedAt": "2026-06-01T08:13:27.247Z",
       "status": "classified",
       "fastestFullRateMiBPerSec": 185.5,
+      "fastestWithoutTextFullStringParity": false,
       "fullRowsCrossTarget": 0,
       "noTextRowsCrossTarget": 4,
+      "noTrimRowsCrossTarget": 0,
+      "foldTrimRowsCrossTarget": 0,
       "fastestFullRemainingMiBPerSec": 14.5,
       "conclusionAllowed": false
     },
@@ -497,6 +500,11 @@
       {
         "id": "text-frontier-no-full-counterexample",
         "description": "text-materialization-boundary-audit.json must show no full-string rows cross 200 MiB/s while no-text rows remain partial headroom.",
+        "satisfied": true
+      },
+      {
+        "id": "text-frontier-trim-variants-below-target",
+        "description": "text-materialization-boundary-audit.json must show no-trim and fold-trim variants do not cross 200 MiB/s, and without-text headroom is not full-string parity.",
         "satisfied": true
       }
     ]
@@ -726,7 +734,7 @@
     "requiredHandoffGuards": 6,
     "satisfiedSourceAuditGuards": 5,
     "requiredSourceAuditGuards": 5,
-    "satisfiedFrontierAuditGuards": 5,
-    "requiredFrontierAuditGuards": 5
+    "satisfiedFrontierAuditGuards": 6,
+    "requiredFrontierAuditGuards": 6
   }
 }

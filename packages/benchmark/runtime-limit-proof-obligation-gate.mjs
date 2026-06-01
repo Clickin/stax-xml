@@ -517,8 +517,11 @@ function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMateria
     generatedAt: textMaterializationBoundary?.generatedAt ?? null,
     status: textMaterializationBoundary?.summary?.status ?? null,
     fastestFullRateMiBPerSec: textMaterializationBoundary?.summary?.fastestFull?.rateMiBPerSec ?? null,
+    fastestWithoutTextFullStringParity: textMaterializationBoundary?.summary?.fastestWithoutText?.fullStringParity ?? null,
     fullRowsCrossTarget: textMaterializationBoundary?.summary?.fullRowsCrossTarget ?? null,
     noTextRowsCrossTarget: textMaterializationBoundary?.summary?.noTextRowsCrossTarget ?? null,
+    noTrimRowsCrossTarget: textMaterializationBoundary?.summary?.noTrimRowsCrossTarget ?? null,
+    foldTrimRowsCrossTarget: textMaterializationBoundary?.summary?.foldTrimRowsCrossTarget ?? null,
     fastestFullRemainingMiBPerSec: textMaterializationBoundary?.summary?.fastestFullRemainingMiBPerSec ?? null,
     conclusionAllowed: textMaterializationBoundary?.summary?.conclusionAllowed ?? null,
   };
@@ -588,6 +591,16 @@ function createFrontierAuditGuards(memory, target, text) {
         && text.fullRowsCrossTarget === 0
         && typeof text.noTextRowsCrossTarget === 'number'
         && text.noTextRowsCrossTarget > 0
+        && text.conclusionAllowed === false,
+    },
+    {
+      id: 'text-frontier-trim-variants-below-target',
+      description: 'text-materialization-boundary-audit.json must show no-trim and fold-trim variants do not cross 200 MiB/s, and without-text headroom is not full-string parity.',
+      satisfied: text.loaded
+        && text.status === 'classified'
+        && text.noTrimRowsCrossTarget === 0
+        && text.foldTrimRowsCrossTarget === 0
+        && text.fastestWithoutTextFullStringParity === false
         && text.conclusionAllowed === false,
     },
   ];
@@ -993,6 +1006,9 @@ function renderMarkdown(report) {
     `- Fastest full-string row: ${formatNullableRate(report.frontierAuditSnapshot.textMaterialization.fastestFullRateMiBPerSec)} MiB/s`,
     `- Full-string rows crossing 200 MiB/s: ${formatNullableCount(report.frontierAuditSnapshot.textMaterialization.fullRowsCrossTarget)}`,
     `- No-text rows crossing 200 MiB/s: ${formatNullableCount(report.frontierAuditSnapshot.textMaterialization.noTextRowsCrossTarget)}`,
+    `- No-trim rows crossing 200 MiB/s: ${formatNullableCount(report.frontierAuditSnapshot.textMaterialization.noTrimRowsCrossTarget)}`,
+    `- Fold-trim rows crossing 200 MiB/s: ${formatNullableCount(report.frontierAuditSnapshot.textMaterialization.foldTrimRowsCrossTarget)}`,
+    `- Without-text full-string parity: ${formatYesNo(report.frontierAuditSnapshot.textMaterialization.fastestWithoutTextFullStringParity)}`,
     '',
     '| ID | Satisfied | Meaning |',
     '| --- | --- | --- |',

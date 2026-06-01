@@ -122,7 +122,7 @@ The current gate report passes with status `incomplete-proof-correctly-blocked`:
 all 10 required claim guards are satisfied, all 38 required artifact mentions
 are present, all 5 required open-obligation disclosures are present, all 18
 proof-rule checks are satisfied, all 5 source-audit guards are satisfied, and
-all 5 frontier-audit guards are satisfied. It also loads
+all 6 frontier-audit guards are satisfied. It also loads
 `runtime-proof-gap-handoff.json` directly and requires the handoff-level closure
 guards to stay present. The important result is
 `conclusionAllowed: false`, not a proof of impossibility.
@@ -149,7 +149,9 @@ file-backed synchronous `Iterable<Uint8Array[]>` row, not direct `ReadableStream
 or full-`ArrayBuffer` parser-input evidence. Finally, it requires the
 text-materialization frontier to stay visible: no-text/CDATA omission can cross
 200 MiB/s as headroom evidence, but it must not be counted as a full-string StAX
-counterexample.
+counterexample. The same frontier guard also requires no-trim and fold-trim
+variants to stay below 200 MiB/s, and requires the fastest without-text row to
+remain explicitly non-full-string parity.
 The memory frontier guard also requires unbounded or unproven-memory full-string
 rows to stay below 200 MiB/s; the current fastest such row is Bun/JSC
 `stringFull` at 99.71 MiB/s with process RSS max 1956.69 MiB, so it is not a

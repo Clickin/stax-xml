@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T11:43:48.116Z
+Generated: 2026-06-01T11:52:12.859Z
 
 ## Scope
 
@@ -151,6 +151,9 @@ These are static disclosure guards. They must stay disclosed while the broad run
 - Fastest full-string row: 185.50 MiB/s
 - Full-string rows crossing 200 MiB/s: 0
 - No-text rows crossing 200 MiB/s: 4
+- No-trim rows crossing 200 MiB/s: 0
+- Fold-trim rows crossing 200 MiB/s: 0
+- Without-text full-string parity: no
 
 | ID | Satisfied | Meaning |
 | --- | --- | --- |
@@ -159,6 +162,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `target-distance-not-met` | yes | target-distance-audit.json must show same-fixture JavaScript remains below both Woodstox and quick-xml 0.9x targets. |
 | `target-distance-js-contract-primary-bounded` | yes | target-distance-audit.json must compare external targets against a bounded file-backed synchronous byte-batch JavaScript row, not direct streams or full ArrayBuffer parser input. |
 | `text-frontier-no-full-counterexample` | yes | text-materialization-boundary-audit.json must show no full-string rows cross 200 MiB/s while no-text rows remain partial headroom. |
+| `text-frontier-trim-variants-below-target` | yes | text-materialization-boundary-audit.json must show no-trim and fold-trim variants do not cross 200 MiB/s, and without-text headroom is not full-string parity. |
 
 ## Proof Rules
 

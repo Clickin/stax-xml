@@ -25,6 +25,9 @@ const badMemoryFrontierGateMdOut = join(tmpDir, 'memory-frontier-runtime-limit-p
 const badTargetDistanceJsonOut = join(tmpDir, 'target-distance-bad-js-contract.json');
 const badTargetDistanceGateJsonOut = join(tmpDir, 'target-distance-runtime-limit-proof-obligation-gate.json');
 const badTargetDistanceGateMdOut = join(tmpDir, 'target-distance-runtime-limit-proof-obligation-gate.md');
+const badTextBoundaryJsonOut = join(tmpDir, 'text-boundary-trim-crosses-target.json');
+const badTextBoundaryGateJsonOut = join(tmpDir, 'text-boundary-runtime-limit-proof-obligation-gate.json');
+const badTextBoundaryGateMdOut = join(tmpDir, 'text-boundary-runtime-limit-proof-obligation-gate.md');
 
 test('runtime-limit proof-obligation gate permits only a conservative non-conclusion ledger', () => {
   resetTmp();
@@ -105,11 +108,15 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.frontierAuditSnapshot.textMaterialization.fastestFullRateMiBPerSec, 185.5);
   assert.equal(report.frontierAuditSnapshot.textMaterialization.fullRowsCrossTarget, 0);
   assert.equal(report.frontierAuditSnapshot.textMaterialization.noTextRowsCrossTarget, 4);
+  assert.equal(report.frontierAuditSnapshot.textMaterialization.noTrimRowsCrossTarget, 0);
+  assert.equal(report.frontierAuditSnapshot.textMaterialization.foldTrimRowsCrossTarget, 0);
+  assert.equal(report.frontierAuditSnapshot.textMaterialization.fastestWithoutTextFullStringParity, false);
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'memory-frontier-classified' && item.satisfied));
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'memory-frontier-no-unbounded-target-row' && item.satisfied));
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'target-distance-not-met' && item.satisfied));
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'target-distance-js-contract-primary-bounded' && item.satisfied));
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'text-frontier-no-full-counterexample' && item.satisfied));
+  assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'text-frontier-trim-variants-below-target' && item.satisfied));
   assert.ok(report.coverageSnapshot.loaded);
   assert.deepEqual(report.coverageSnapshot.activeObligationIds, [
     'safari-jsc-source-and-browser-rows-open',
@@ -195,6 +202,9 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /quick-xml 0\.9x target met: no/);
   assert.match(markdown, /Target JS contract: sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=no, fullArrayBufferParserInput=no, boundedMemory=yes, memoryKind=process-rss, maxRssMiB=61\.77/);
   assert.match(markdown, /Full-string rows crossing 200 MiB\/s: 0/);
+  assert.match(markdown, /No-trim rows crossing 200 MiB\/s: 0/);
+  assert.match(markdown, /Fold-trim rows crossing 200 MiB\/s: 0/);
+  assert.match(markdown, /Without-text full-string parity: no/);
   assert.match(markdown, /## Proof Rules/);
   assert.match(markdown, /target-contract-not-object-shape/);
   assert.match(markdown, /lazy-getters-reopen-burden/);
@@ -421,6 +431,54 @@ test('runtime-limit proof-obligation gate fails if target-distance JS row is not
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /Target JS contract: sourceMode=fetch-readable-stream-pull, directReadableStream=yes, fullArrayBufferParserInput=yes, boundedMemory=no/);
   assert.match(markdown, /target-distance-js-contract-primary-bounded/);
+});
+
+test('runtime-limit proof-obligation gate fails if trim variants cross the text target', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const textBoundary = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'text-materialization-boundary-audit.json'), 'utf8'));
+  textBoundary.summary.noTrimRowsCrossTarget = 1;
+  textBoundary.summary.foldTrimRowsCrossTarget = 1;
+  textBoundary.summary.fastestWithoutText.fullStringParity = true;
+  writeFileSync(badTextBoundaryJsonOut, `${JSON.stringify(textBoundary, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--text-materialization-boundary-json',
+    badTextBoundaryJsonOut,
+    '--json-out',
+    badTextBoundaryGateJsonOut,
+    '--md-out',
+    badTextBoundaryGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(badTextBoundaryGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.equal(report.frontierAuditSnapshot.textMaterialization.noTrimRowsCrossTarget, 1);
+  assert.equal(report.frontierAuditSnapshot.textMaterialization.foldTrimRowsCrossTarget, 1);
+  assert.equal(report.frontierAuditSnapshot.textMaterialization.fastestWithoutTextFullStringParity, true);
+  assert.ok(report.frontierAuditSnapshot.guards.some(item =>
+    item.id === 'text-frontier-trim-variants-below-target'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error =>
+    /Missing frontier audit guard text-frontier-trim-variants-below-target/.test(error)
+  ));
+
+  const markdown = readFileSync(badTextBoundaryGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /No-trim rows crossing 200 MiB\/s: 1/);
+  assert.match(markdown, /Fold-trim rows crossing 200 MiB\/s: 1/);
+  assert.match(markdown, /Without-text full-string parity: yes/);
+  assert.match(markdown, /text-frontier-trim-variants-below-target/);
 });
 
 test('runtime-limit proof-obligation gate fails if the broad claim is upgraded too early', () => {
