@@ -972,6 +972,13 @@ function createHandoffGuards(byId) {
       ),
     },
     {
+      id: 'spidermonkey-disallowed-evidence-class-counts',
+      description: 'SpiderMonkey closure audit must preserve which diagnostic scope-guard evidence classes are disallowed as closure evidence.',
+      satisfied: spiderBlockers.some(item =>
+        /disallowedEvidenceClassCounts .*current-debug-codegen-scope-guard=\d+/.test(item)
+      ),
+    },
+    {
       id: 'spidermonkey-closure-frontier-blockers',
       description: 'SpiderMonkey handoff must preserve closest blocked candidates and common missing requirements from the closure audit frontier.',
       satisfied: spiderBlockers.some(item =>

@@ -236,6 +236,10 @@ function buildReport(options, artifacts) {
       selectedRowIdentityStatusCounts: countStringValues(candidates.map(candidate => candidate.selectedRowIdentityStatus)),
       selectedRowMetadataMissingFieldCounts: countStringValues(candidates.flatMap(candidate => candidate.selectedRowMetadataMissingFields)),
       closingMetadataMissingFieldCounts: countStringValues(candidates.flatMap(candidate => candidate.closingMetadataMissingFields)),
+      evidenceClassCounts: countStringValues(candidates.map(candidate => candidate.evidenceClass ?? 'unknown')),
+      disallowedEvidenceClassCounts: countStringValues(candidates
+        .filter(candidate => !candidate.requirements.evidenceClassAllowed.met)
+        .map(candidate => candidate.evidenceClass ?? 'unknown')),
       blockedCandidateCount: blocked.length,
       minimumBlockedRequirementCount: closestBlockedCandidates[0]?.unmetRequirementCount ?? 0,
       closestBlockedCandidateCount: closestBlockedCandidates.length,
@@ -483,6 +487,8 @@ function renderMarkdown(report) {
     `- Selected row identity statuses: ${formatCountMap(report.summary.selectedRowIdentityStatusCounts)}`,
     `- Selected row metadata missing fields: ${formatCountMap(report.summary.selectedRowMetadataMissingFieldCounts)}`,
     `- Closing metadata missing fields: ${formatCountMap(report.summary.closingMetadataMissingFieldCounts)}`,
+    `- Evidence classes: ${formatCountMap(report.summary.evidenceClassCounts)}`,
+    `- Disallowed evidence classes: ${formatCountMap(report.summary.disallowedEvidenceClassCounts)}`,
     `- Minimum blocked requirement count: ${report.summary.minimumBlockedRequirementCount}`,
     `- Closest blocked candidate count: ${report.summary.closestBlockedCandidateCount}`,
     `- Conclusion allowed: ${report.summary.conclusionAllowed ? 'yes' : 'no'}`,

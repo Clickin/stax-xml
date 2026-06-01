@@ -210,6 +210,7 @@ function validateHandoff(handoff) {
           /spidermonkey-codegen-rerun-stability-audit\.json/,
           /selectedRowMetadataMissingFieldCounts selectedChecksum=\d+, selectedEventCount=\d+, selectedRowId=\d+/,
           /closingMetadataMissingFieldCounts diagnosticFlags=\d+, emittedDumpMetadata=\d+, runtimeBuildIdentity=\d+/,
+          /disallowedEvidenceClassCounts .*current-debug-codegen-scope-guard=\d+/,
           /selectedRowIdentityStatusCounts not-claimed-non-stax-diagnostic=\d+/,
           /qualifiedClosureCount=0/,
           /contradictedClosureClaimCount=0/,

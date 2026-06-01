@@ -46,6 +46,15 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
     selectedRowId: 2,
   });
   assert.deepEqual(report.summary.closingMetadataMissingFieldCounts, {});
+  assert.deepEqual(report.summary.evidenceClassCounts, {
+    'current-debug-codegen-scope-guard': 1,
+    'current-debug-materialized-codegen-scope-guard': 1,
+    unknown: 1,
+  });
+  assert.deepEqual(report.summary.disallowedEvidenceClassCounts, {
+    'current-debug-codegen-scope-guard': 1,
+    'current-debug-materialized-codegen-scope-guard': 1,
+  });
   assert.equal(report.summary.minimumBlockedRequirementCount, 4);
   assert.equal(report.summary.closestBlockedCandidateCount, 2);
   assert.equal(report.summary.conclusionAllowed, false);
@@ -103,6 +112,8 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.match(markdown, /Selected row identity statuses: not-claimed-non-stax-diagnostic=2, same-contract-stax-row=1/);
   assert.match(markdown, /Selected row metadata missing fields: selectedChecksum=2, selectedEventCount=2, selectedRowId=2/);
   assert.match(markdown, /Closing metadata missing fields: none/);
+  assert.match(markdown, /Evidence classes: current-debug-codegen-scope-guard=1, current-debug-materialized-codegen-scope-guard=1, unknown=1/);
+  assert.match(markdown, /Disallowed evidence classes: current-debug-codegen-scope-guard=1, current-debug-materialized-codegen-scope-guard=1/);
   assert.match(markdown, /Closest blocked candidate count: 2/);
   assert.match(markdown, /sameContractStaxRow: 2/);
   assert.match(markdown, /spidermonkey-contradicted-closure\.json/);

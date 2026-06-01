@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T21:21:53.773Z",
+  "generatedAt": "2026-06-01T21:27:14.856Z",
   "objective": "spidermonkey-codegen-closure-audit",
   "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
   "note": "Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.",
@@ -1220,6 +1220,25 @@
       "diagnosticFlags": 9,
       "emittedDumpMetadata": 9,
       "runtimeBuildIdentity": 10
+    },
+    "evidenceClassCounts": {
+      "archival-codegen-scope-guard": 1,
+      "availability-only": 3,
+      "current-debug-codegen-scope-guard": 2,
+      "current-debug-materialized-codegen-scope-guard": 2,
+      "current-debug-xml-codegen-scope-guard": 1,
+      "negative-diagnostic-surface": 1,
+      "source-pin-only": 1,
+      "unknown": 4
+    },
+    "disallowedEvidenceClassCounts": {
+      "archival-codegen-scope-guard": 1,
+      "availability-only": 3,
+      "current-debug-codegen-scope-guard": 2,
+      "current-debug-materialized-codegen-scope-guard": 2,
+      "current-debug-xml-codegen-scope-guard": 1,
+      "negative-diagnostic-surface": 1,
+      "source-pin-only": 1
     },
     "blockedCandidateCount": 15,
     "minimumBlockedRequirementCount": 4,
