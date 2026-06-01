@@ -433,6 +433,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
     'spidermonkey-ascii-scope-distance-audit.json',
     'spidermonkey-materialized-scope-distance-audit.json',
     'spidermonkey-codegen-closure-audit.json',
+    'spidermonkey-codegen-rerun-stability-audit.json',
     'spidermonkey-archival-debug-jsshell-codegen-audit.json',
     'firefox-spidermonkey-buildconfig-source-pin-audit.json',
   ]);
@@ -457,6 +458,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /current Taskcluster debug js-shell emits JitSpew codegen output while materializing JS strings and public event-shaped objects \(taskId=bzK0wWZvQoOguMjTIbRJ_g, buildId=20260531212007\), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /rerun of the current Taskcluster debug js-shell codegen probe reproduces JitSpew output \(taskId=bzK0wWZvQoOguMjTIbRJ_g, codegenMarkers=54756\), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and closesEmittedIrObligation=false/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /rerun of the current Taskcluster debug js-shell materialized string\/object probe reproduces JitSpew output \(taskId=bzK0wWZvQoOguMjTIbRJ_g, codegenMarkers=234522, throughputMiBPerSec=/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /SpiderMonkey codegen rerun stability audit compares 2 original\/rerun pairs, reproduces 2 pairs on the same Taskcluster build and codegen marker counts, but qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false, and conclusionAllowed=false/.test(item)));
   assert.deepEqual(spiderMonkey.localClosure.diagnosticIdentityStatusCounts, {
     'not-claimed': 4,
     'not-claimed-non-stax-diagnostic': 7,
@@ -465,6 +467,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /ASCII scope-distance audit pins corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, and reducesScopeDistance=true while closesCodegenObligation=false/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=2 and closureRequirementsBlocked=4; primarySyncByteBatchMissingGlobals=TextDecoder; asciiTextDecoderEquivalent=true; diagnosticThroughputMiBPerSec=0\.4909373604499916; throughputCountsAsTargetEvidence=false; closesCodegenObligation=false/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /SpiderMonkey codegen closure audit checks 15 diagnostic\/codegen candidates, finds emittedCodegenSurfaceCount=6, sameContractStaxRowCount=0, unchangedRunnableCount=0, selectedRowMetadataCount=0, qualifiedClosureCount=0, and conclusionAllowed=false/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /SpiderMonkey codegen rerun stability audit compares 2 original\/rerun pairs/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /about:buildconfig records --enable-js-shell/.test(item)));
   assert.match(spiderMonkey.localClosure.scopeGuard, /Taskcluster debug-shell diagnostic facts/);
   assert.match(safari.sourceConsumptionContract.primaryParserInput, /StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/);
@@ -533,18 +536,24 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
     command.id === 'spidermonkey-codegen-closure-audit'
     && /spidermonkey-codegen-closure-audit\.mjs/.test(command.command)
   ));
+  assert.ok(spiderMonkey.commands.some(command =>
+    command.id === 'spidermonkey-codegen-rerun-stability-audit'
+    && /spidermonkey-codegen-rerun-stability-audit\.mjs/.test(command.command)
+  ));
   assert.ok(spiderMonkey.expectedEvidence.some(item => /JIT IR/.test(item)));
   assert.ok(spiderMonkey.closureChecks.some(item => /emittedIrEvidenceCount must be greater than 0/.test(item)));
   assert.ok(spiderMonkey.closureChecks.some(item => /missingIrSurfaceCount must be 0/.test(item)));
   assert.ok(spiderMonkey.closureChecks.some(item => /closureRequirementsBlocked must be 0/.test(item)));
   assert.ok(spiderMonkey.closureChecks.some(item => /closesCodegenObligation must be true/.test(item)));
   assert.ok(spiderMonkey.closureChecks.some(item => /qualifiedClosureCount must be greater than 0/.test(item)));
+  assert.ok(spiderMonkey.closureChecks.some(item => /spidermonkey-codegen-rerun-stability-audit\.json summary\.qualifiedClosureCount must remain 0/.test(item)));
   assert.ok(spiderMonkey.closureChecks.some(item => /sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true/.test(item)));
   assert.ok(spiderMonkey.closureChecks.some(item => /selected row id must match a current same-contract full-string JavaScript row/.test(item)));
   assert.ok(spiderMonkey.closureChecks.some(item => /jit-status-only/.test(item)));
   assert.ok(spiderMonkey.closureChecks.some(item => /emitted IR or optimized-code dump metadata/.test(item)));
   assert.ok(spiderMonkey.scopeGuards.some(item => /no-dump diagnostic audit is a negative result for the installed browser build only/.test(item)));
   assert.ok(spiderMonkey.scopeGuards.some(item => /JS shell and official jsshell availability are environment evidence only/.test(item)));
+  assert.ok(spiderMonkey.scopeGuards.some(item => /Codegen rerun stability is reproducibility evidence only/.test(item)));
   assert.match(report.note, /not benchmark evidence/);
   assert.match(report.note, /not a runtime-limit conclusion/);
 
@@ -639,6 +648,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /sameSemanticChecksumFields=true, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0/);
   assert.match(markdown, /spidermonkey-jsshell-materialized-headroom/);
   assert.match(markdown, /SpiderMonkey codegen closure audit checks 15 diagnostic\/codegen candidates/);
+  assert.match(markdown, /SpiderMonkey codegen rerun stability audit compares 2 original\/rerun pairs/);
   assert.match(markdown, /spidermonkey-codegen-closure-audit/);
   assert.match(markdown, /Diagnostic identity status counts: not-claimed=4, not-claimed-non-stax-diagnostic=7/);
   assert.match(markdown, /selectedRowIdentityStatusCounts not-claimed=4, not-claimed-non-stax-diagnostic=7/);

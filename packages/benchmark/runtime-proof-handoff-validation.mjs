@@ -151,6 +151,7 @@ function validateHandoff(handoff) {
           /spidermonkey-jsshell-tokenizer-headroom\.mjs/,
           /spidermonkey-jsshell-materialized-headroom\.mjs/,
           /spidermonkey-codegen-closure-audit\.mjs/,
+          /spidermonkey-codegen-rerun-stability-audit\.mjs/,
         ]
       : [];
   const requiredContracts = isSafari
@@ -204,8 +205,10 @@ function validateHandoff(handoff) {
           /memoryProofRows=0/,
           /counterexamples200MiB=0/,
           /spidermonkey-codegen-closure-audit\.json/,
+          /spidermonkey-codegen-rerun-stability-audit\.json/,
           /qualifiedClosureCount=0/,
           /summary\.qualifiedClosureCount must be greater than 0/,
+          /summary\.qualifiedClosureCount must remain 0/,
           /closesCodegenObligation=false/,
           /jit-status-only/,
           /environment evidence only/,

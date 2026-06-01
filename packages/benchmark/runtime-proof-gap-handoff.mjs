@@ -561,6 +561,10 @@ function createLocalClosure(activeObligations, audit, options = {}) {
     const codegenClosureAudit = artifactByName.get('spidermonkey-codegen-closure-audit.json') ?? null;
     const codegenClosureAuditRaw = readOptionalJson(resolve(releaseDir, 'spidermonkey-codegen-closure-audit.json'))
       ?? readOptionalJson(resolve(dirname(defaultAuditJson), 'spidermonkey-codegen-closure-audit.json'));
+    const codegenRerunStability = artifactByName.get('spidermonkey-codegen-rerun-stability-audit.json') ?? null;
+    const codegenRerunStabilityRaw = readOptionalJson(resolve(releaseDir, 'spidermonkey-codegen-rerun-stability-audit.json'))
+      ?? readOptionalJson(resolve(dirname(defaultAuditJson), 'spidermonkey-codegen-rerun-stability-audit.json'));
+    const codegenRerunStabilitySummary = codegenRerunStability?.summary ?? codegenRerunStabilityRaw?.summary ?? {};
     const archivalDebugJsShell = artifactByName.get('spidermonkey-archival-debug-jsshell-codegen-audit.json') ?? null;
     const buildconfig = artifactByName.get('firefox-spidermonkey-buildconfig-source-pin-audit.json') ?? null;
     const spiderMonkeyDiagnosticById = new Map((audit.coverage?.spiderMonkeyDiagnostics?.rows ?? [])
@@ -627,6 +631,15 @@ function createLocalClosure(activeObligations, audit, options = {}) {
       && codegenClosureAuditRaw?.summary?.emittedCodegenSurfaceCount > 0
       && codegenClosureAuditRaw?.summary?.qualifiedClosureCount === 0
       && codegenClosureAuditRaw?.summary?.conclusionAllowed === false;
+    const codegenRerunStabilityContract = codegenRerunStability?.contract ?? codegenRerunStabilityRaw?.contract ?? null;
+    const codegenRerunStabilityPinned = codegenRerunStabilityContract === 'spidermonkey-debug-jsshell-codegen-rerun-reproducibility-not-closure'
+      && codegenRerunStabilitySummary.pairCount === 2
+      && codegenRerunStabilitySummary.reproduciblePairs === 2
+      && codegenRerunStabilitySummary.sameTaskclusterBuildPairs === 2
+      && codegenRerunStabilitySummary.sameCodegenMarkerPairs === 2
+      && codegenRerunStabilitySummary.throughputCountsAsTargetEvidence === false
+      && codegenRerunStabilitySummary.qualifiedClosureCount === 0
+      && codegenRerunStabilitySummary.conclusionAllowed === false;
     const asciiScopeDistancePinned = asciiScopeDistance?.summary?.allCorpusFilesAscii === true
       && asciiScopeDistance?.summary?.asciiByteToStringEquivalentToUtf8 === true
       && asciiScopeDistance?.summary?.semanticMaterializedWorkload === true
@@ -644,7 +657,7 @@ function createLocalClosure(activeObligations, audit, options = {}) {
       obligationId: 'codegen-traces-open',
       localStatus: blocked ? 'external-run-required' : 'partial-local-status',
       localRunnable: blocked ? false : null,
-      evidenceArtifacts: [diagnostic, jsShell, releaseJsShell, nightlyJsShell, jsShellApiGap, staxHostApiBoundary, jsShellTokenizerHeadroom, jsShellMaterializedHeadroom, jsShellDiagnosticFlagSweep, taskclusterDebugJsShell, taskclusterDebugJsShellXml, taskclusterDebugJsShellMaterialized, taskclusterDebugJsShellRerun, taskclusterDebugJsShellMaterializedRerun, asciiScopeDistance, materializedScopeDistance, codegenClosureAudit, archivalDebugJsShell, buildconfig]
+      evidenceArtifacts: [diagnostic, jsShell, releaseJsShell, nightlyJsShell, jsShellApiGap, staxHostApiBoundary, jsShellTokenizerHeadroom, jsShellMaterializedHeadroom, jsShellDiagnosticFlagSweep, taskclusterDebugJsShell, taskclusterDebugJsShellXml, taskclusterDebugJsShellMaterialized, taskclusterDebugJsShellRerun, taskclusterDebugJsShellMaterializedRerun, asciiScopeDistance, materializedScopeDistance, codegenClosureAudit, codegenRerunStability, archivalDebugJsShell, buildconfig]
         .filter(Boolean)
         .map(artifact => artifact.sourceArtifact),
       blockers: [
@@ -705,6 +718,9 @@ function createLocalClosure(activeObligations, audit, options = {}) {
         codegenClosureAuditPinned
           ? `The SpiderMonkey codegen closure audit checks ${codegenClosureAuditRaw.summary.candidateCount} diagnostic/codegen candidates, finds emittedCodegenSurfaceCount=${codegenClosureAuditRaw.summary.emittedCodegenSurfaceCount}, sameContractStaxRowCount=${codegenClosureAuditRaw.summary.sameContractStaxRowCount}, unchangedRunnableCount=${codegenClosureAuditRaw.summary.unchangedRunnableCount}, selectedRowMetadataCount=${codegenClosureAuditRaw.summary.selectedRowMetadataCount}, qualifiedClosureCount=0, and conclusionAllowed=false.`
           : 'No SpiderMonkey codegen closure audit pins the same-contract closure matrix for current diagnostic/codegen artifacts.',
+        codegenRerunStabilityPinned
+          ? `The SpiderMonkey codegen rerun stability audit compares ${codegenRerunStabilitySummary.pairCount} original/rerun pairs, reproduces ${codegenRerunStabilitySummary.reproduciblePairs} pairs on the same Taskcluster build and codegen marker counts, but qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false, and conclusionAllowed=false.`
+          : 'No SpiderMonkey codegen rerun stability audit pins original/rerun reproducibility as non-closure evidence.',
         buildconfigNoJitSpew
           ? 'Installed Firefox about:buildconfig records --enable-js-shell / MOZ_PACKAGE_JSSHELL but does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW.'
           : 'Installed Firefox buildconfig JitSpew boundary is not pinned as a no-JitSpew release build.',
@@ -862,9 +878,14 @@ function createHandoffs(activeObligations, localClosure) {
           command: 'node packages/benchmark/spidermonkey-codegen-closure-audit.mjs --json-out packages/benchmark/results/release/spidermonkey-codegen-closure-audit.json --md-out packages/benchmark/results/release/spidermonkey-codegen-closure-audit.md',
         },
         {
+          id: 'spidermonkey-codegen-rerun-stability-audit',
+          purpose: 'Recompute original/rerun SpiderMonkey debug js-shell codegen stability as diagnostic non-closure evidence.',
+          command: 'node packages/benchmark/spidermonkey-codegen-rerun-stability-audit.mjs --json-out packages/benchmark/results/release/spidermonkey-codegen-rerun-stability-audit.json --md-out packages/benchmark/results/release/spidermonkey-codegen-rerun-stability-audit.md',
+        },
+        {
           id: 'post-spidermonkey-audits',
           purpose: 'Reclassify the codegen obligation after diagnostic artifacts are generated.',
-          command: 'node packages/benchmark/stax-public-reader-host-api-boundary-audit.mjs --json-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.json --md-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.md && node packages/benchmark/spidermonkey-jsshell-tokenizer-headroom.mjs --json-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.json --md-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.md && node packages/benchmark/spidermonkey-jsshell-materialized-headroom.mjs --json-out packages/benchmark/results/release/spidermonkey-jsshell-materialized-headroom.json --md-out packages/benchmark/results/release/spidermonkey-jsshell-materialized-headroom.md && node packages/benchmark/spidermonkey-codegen-closure-audit.mjs --json-out packages/benchmark/results/release/spidermonkey-codegen-closure-audit.json --md-out packages/benchmark/results/release/spidermonkey-codegen-closure-audit.md && node packages/benchmark/runtime-counterexample-scan.mjs --json-out packages/benchmark/results/release/runtime-counterexample-scan.json --md-out packages/benchmark/results/release/runtime-counterexample-scan.md && node packages/benchmark/runtime-proof-coverage-audit.mjs --json-out packages/benchmark/results/release/runtime-proof-coverage-audit.json --md-out packages/benchmark/results/release/runtime-proof-coverage-audit.md && node packages/benchmark/source-consumption-shape-audit.mjs --json-out packages/benchmark/results/release/source-consumption-shape-audit.json --md-out packages/benchmark/results/release/source-consumption-shape-audit.md && node packages/benchmark/memory-frontier-audit.mjs --json-out packages/benchmark/results/release/memory-frontier-audit.json --md-out packages/benchmark/results/release/memory-frontier-audit.md && node packages/benchmark/target-distance-audit.mjs --json-out packages/benchmark/results/release/target-distance-audit.json --md-out packages/benchmark/results/release/target-distance-audit.md && node packages/benchmark/text-materialization-boundary-audit.mjs --json-out packages/benchmark/results/release/text-materialization-boundary-audit.json --md-out packages/benchmark/results/release/text-materialization-boundary-audit.md && node packages/benchmark/runtime-limit-proof-obligation-gate.mjs --json-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.json --md-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.md && node packages/benchmark/runtime-proof-gap-handoff.mjs --json-out packages/benchmark/results/release/runtime-proof-gap-handoff.json --md-out packages/benchmark/results/release/runtime-proof-gap-handoff.md',
+          command: 'node packages/benchmark/stax-public-reader-host-api-boundary-audit.mjs --json-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.json --md-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.md && node packages/benchmark/spidermonkey-jsshell-tokenizer-headroom.mjs --json-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.json --md-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.md && node packages/benchmark/spidermonkey-jsshell-materialized-headroom.mjs --json-out packages/benchmark/results/release/spidermonkey-jsshell-materialized-headroom.json --md-out packages/benchmark/results/release/spidermonkey-jsshell-materialized-headroom.md && node packages/benchmark/spidermonkey-codegen-closure-audit.mjs --json-out packages/benchmark/results/release/spidermonkey-codegen-closure-audit.json --md-out packages/benchmark/results/release/spidermonkey-codegen-closure-audit.md && node packages/benchmark/spidermonkey-codegen-rerun-stability-audit.mjs --json-out packages/benchmark/results/release/spidermonkey-codegen-rerun-stability-audit.json --md-out packages/benchmark/results/release/spidermonkey-codegen-rerun-stability-audit.md && node packages/benchmark/runtime-counterexample-scan.mjs --json-out packages/benchmark/results/release/runtime-counterexample-scan.json --md-out packages/benchmark/results/release/runtime-counterexample-scan.md && node packages/benchmark/runtime-proof-coverage-audit.mjs --json-out packages/benchmark/results/release/runtime-proof-coverage-audit.json --md-out packages/benchmark/results/release/runtime-proof-coverage-audit.md && node packages/benchmark/source-consumption-shape-audit.mjs --json-out packages/benchmark/results/release/source-consumption-shape-audit.json --md-out packages/benchmark/results/release/source-consumption-shape-audit.md && node packages/benchmark/memory-frontier-audit.mjs --json-out packages/benchmark/results/release/memory-frontier-audit.json --md-out packages/benchmark/results/release/memory-frontier-audit.md && node packages/benchmark/target-distance-audit.mjs --json-out packages/benchmark/results/release/target-distance-audit.json --md-out packages/benchmark/results/release/target-distance-audit.md && node packages/benchmark/text-materialization-boundary-audit.mjs --json-out packages/benchmark/results/release/text-materialization-boundary-audit.json --md-out packages/benchmark/results/release/text-materialization-boundary-audit.md && node packages/benchmark/runtime-limit-proof-obligation-gate.mjs --json-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.json --md-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.md && node packages/benchmark/runtime-proof-gap-handoff.mjs --json-out packages/benchmark/results/release/runtime-proof-gap-handoff.json --md-out packages/benchmark/results/release/runtime-proof-gap-handoff.md',
         },
       ],
       expectedEvidence: [
@@ -878,6 +899,7 @@ function createHandoffs(activeObligations, localClosure) {
         'spidermonkey-materialized-scope-distance-audit.json summary.closureRequirementsBlocked must be 0 before any materialized js-shell codegen artifact can be cited as same-contract StAX closure evidence.',
         'spidermonkey-materialized-scope-distance-audit.json summary.closesCodegenObligation must be true before materialized string/object codegen can close codegen-traces-open.',
         'spidermonkey-codegen-closure-audit.json summary.qualifiedClosureCount must be greater than 0 before codegen-traces-open can be closed.',
+        'spidermonkey-codegen-rerun-stability-audit.json summary.qualifiedClosureCount must remain 0 unless the compared rerun artifacts are same-contract StAX closure evidence.',
         'Any SpiderMonkey closing artifact must report sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true, or explicitly explain why the browser-row artifact rather than js-shell artifact supplies unchanged StAX closure.',
         'The closing artifact selected row id must match a current same-contract full-string JavaScript row in same-contract-runtime-comparison.json, with event count and checksum parity recorded.',
         'The closing artifact must not have evidenceClass jit-status-only, source-pin-only, negative-diagnostic-surface, or missing-availability-audit.',
@@ -887,6 +909,7 @@ function createHandoffs(activeObligations, localClosure) {
         'The existing no-dump diagnostic audit is a negative result for the installed browser build only.',
         'The installed buildconfig audit explains the local diagnostic surface but is still not emitted JIT IR.',
         'JS shell and official jsshell availability are environment evidence only until a dump or IR artifact is captured.',
+        'Codegen rerun stability is reproducibility evidence only; it does not turn diagnostic js-shell workloads into unchanged StAX rows.',
       ],
     });
   }
