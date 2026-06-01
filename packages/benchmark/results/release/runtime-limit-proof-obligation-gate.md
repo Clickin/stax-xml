@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T15:32:47.669Z
+Generated: 2026-06-01T15:40:57.570Z
 
 ## Scope
 
@@ -70,6 +70,7 @@ This is a static gate over the proof ledger for the broad `CLAIM-JS-RUNTIME-LIMI
 | `segment-tokenizer-headroom.md` | yes |
 | `segment-tokenizer-string-frontier.md` | yes |
 | `runtime-proof-gap-handoff.md` | yes |
+| `runtime-proof-handoff-validation.md` | yes |
 
 ## Open Obligations
 
@@ -123,6 +124,23 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `spidermonkey-same-contract-comparison-required` | yes | SpiderMonkey closing artifacts must require the selected row id to match same-contract-runtime-comparison.json with event count and checksum parity. |
 | `spidermonkey-closing-metadata-required` | yes | SpiderMonkey closing artifacts must require runtime/build identity, diagnostic flags, row identity, checksum parity, and emitted IR or optimized-code dump metadata. |
 | `spidermonkey-diagnostic-row-identity-blocker` | yes | SpiderMonkey diagnostic rows must remain blocked with selectedRowIdentityStatus=not-claimed-non-stax-diagnostic until they are same-contract StAX closure evidence. |
+
+## Handoff Validation Snapshot
+
+- Handoff validation loaded: yes (2026-06-01T15:33:37.891Z)
+- Handoff validation pass: yes
+- Required handoffs present: yes
+- Required contracts present: yes
+- Unhandled obligations in validated handoff: 0
+- Validated handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
+
+| ID | Satisfied | Meaning |
+| --- | --- | --- |
+| `handoff-validation-loaded` | yes | runtime-proof-handoff-validation.json must be loaded by the gate. |
+| `handoff-validation-pass` | yes | runtime-proof-handoff-validation.json summary.pass must be true before the gate can pass. |
+| `handoff-validation-contracts-present` | yes | runtime-proof-handoff-validation.json must report all required contracts present. |
+| `handoff-validation-required-handoffs-present` | yes | runtime-proof-handoff-validation.json must report required Safari and SpiderMonkey handoffs present. |
+| `handoff-validation-no-unhandled-obligations` | yes | runtime-proof-handoff-validation.json must validate a handoff with zero unhandled obligations. |
 
 ## Source Audit Snapshot
 

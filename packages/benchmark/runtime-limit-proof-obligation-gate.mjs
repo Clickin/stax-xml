@@ -9,6 +9,7 @@ const defaultCoverageJson = resolve(__dirname, 'results', 'release', 'runtime-pr
 const defaultComparisonJson = resolve(__dirname, 'results', 'release', 'same-contract-runtime-comparison.json');
 const defaultCounterexampleScanJson = resolve(__dirname, 'results', 'release', 'runtime-counterexample-scan.json');
 const defaultHandoffJson = resolve(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json');
+const defaultHandoffValidationJson = resolve(__dirname, 'results', 'release', 'runtime-proof-handoff-validation.json');
 const defaultSourceAuditJson = resolve(__dirname, 'results', 'release', 'source-consumption-shape-audit.json');
 const defaultMemoryFrontierJson = resolve(__dirname, 'results', 'release', 'memory-frontier-audit.json');
 const defaultTargetDistanceJson = resolve(__dirname, 'results', 'release', 'target-distance-audit.json');
@@ -120,6 +121,7 @@ const requiredArtifactMentions = [
   'segment-tokenizer-headroom.md',
   'segment-tokenizer-string-frontier.md',
   'runtime-proof-gap-handoff.md',
+  'runtime-proof-handoff-validation.md',
 ];
 
 const openObligationDisclosures = [
@@ -250,6 +252,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     comparisonJson: defaultComparisonJson,
     counterexampleScanJson: defaultCounterexampleScanJson,
     handoffJson: defaultHandoffJson,
+    handoffValidationJson: defaultHandoffValidationJson,
     sourceAuditJson: defaultSourceAuditJson,
     memoryFrontierJson: defaultMemoryFrontierJson,
     targetDistanceJson: defaultTargetDistanceJson,
@@ -285,6 +288,9 @@ function parseArgs(argv = process.argv.slice(2)) {
         break;
       case '--handoff-json':
         options.handoffJson = resolve(process.cwd(), readValue());
+        break;
+      case '--handoff-validation-json':
+        options.handoffValidationJson = resolve(process.cwd(), readValue());
         break;
       case '--source-audit-json':
         options.sourceAuditJson = resolve(process.cwd(), readValue());
@@ -322,11 +328,12 @@ function main() {
   const comparison = readOptionalJson(options.comparisonJson, 'same-contract-runtime-comparison');
   const counterexampleScan = readOptionalJson(options.counterexampleScanJson, 'runtime-counterexample-scan');
   const handoff = readOptionalJson(options.handoffJson, 'runtime-proof-gap-handoff');
+  const handoffValidation = readOptionalJson(options.handoffValidationJson, 'runtime-proof-handoff-validation');
   const sourceAudit = readOptionalJson(options.sourceAuditJson, 'source-consumption-shape-audit');
   const memoryFrontier = readOptionalJson(options.memoryFrontierJson, 'memory-frontier-audit');
   const targetDistance = readOptionalJson(options.targetDistanceJson, 'target-distance-audit');
   const textMaterializationBoundary = readOptionalJson(options.textMaterializationBoundaryJson, 'text-materialization-boundary-audit');
-  const report = createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan, handoff, sourceAudit, memoryFrontier, targetDistance, textMaterializationBoundary });
+  const report = createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan, handoff, handoffValidation, sourceAudit, memoryFrontier, targetDistance, textMaterializationBoundary });
   writeOutput(options.jsonOut, `${JSON.stringify(report, null, 2)}\n`);
   writeOutput(options.mdOut, renderMarkdown(report));
   printSummary(report);
@@ -353,11 +360,12 @@ function readCoverageAudit(coverageJson) {
   return audit;
 }
 
-function createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan, handoff, sourceAudit, memoryFrontier, targetDistance, textMaterializationBoundary }) {
+function createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan, handoff, handoffValidation, sourceAudit, memoryFrontier, targetDistance, textMaterializationBoundary }) {
   const claims = parseClaimRows(ledgerMarkdown);
   const coverageSnapshot = createCoverageSnapshot(coverageAudit);
   const counterexampleSnapshot = createCounterexampleSnapshot(comparison, counterexampleScan);
   const handoffSnapshot = createHandoffSnapshot(handoff);
+  const handoffValidationSnapshot = createHandoffValidationSnapshot(handoffValidation);
   const sourceAuditSnapshot = createSourceAuditSnapshot(sourceAudit);
   const frontierAuditSnapshot = createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMaterializationBoundary);
   const claimGuards = requiredClaimGuards.map(requirement => evaluateClaimGuard(requirement, claims));
@@ -407,6 +415,9 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
   for (const guard of handoffSnapshot.guards.filter(item => !item.satisfied)) {
     errors.push(`Missing handoff guard ${guard.id}: ${guard.description}`);
   }
+  for (const guard of handoffValidationSnapshot.guards.filter(item => !item.satisfied)) {
+    errors.push(`Missing handoff validation guard ${guard.id}: ${guard.description}`);
+  }
   for (const guard of coverageSnapshot.guards.filter(item => !item.satisfied)) {
     errors.push(`Missing coverage guard ${guard.id}: ${guard.description}`);
   }
@@ -429,6 +440,7 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
       comparisonJson: options.comparisonJson,
       counterexampleScanJson: options.counterexampleScanJson,
       handoffJson: options.handoffJson,
+      handoffValidationJson: options.handoffValidationJson,
       sourceAuditJson: options.sourceAuditJson,
       memoryFrontierJson: options.memoryFrontierJson,
       targetDistanceJson: options.targetDistanceJson,
@@ -437,6 +449,7 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
       comparisonLoaded: counterexampleSnapshot.comparisonLoaded,
       counterexampleScanLoaded: counterexampleSnapshot.counterexampleScanLoaded,
       handoffLoaded: handoffSnapshot.loaded,
+      handoffValidationLoaded: handoffValidationSnapshot.loaded,
       sourceAuditLoaded: sourceAuditSnapshot.loaded,
       memoryFrontierLoaded: frontierAuditSnapshot.memory.loaded,
       targetDistanceLoaded: frontierAuditSnapshot.targetDistance.loaded,
@@ -458,6 +471,7 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
     artifactMentions,
     counterexampleSnapshot,
     handoffSnapshot,
+    handoffValidationSnapshot,
     sourceAuditSnapshot,
     frontierAuditSnapshot,
     coverageSnapshot,
@@ -477,6 +491,8 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
       requiredCoverageGuards: coverageSnapshot.guards.length,
       satisfiedHandoffGuards: handoffSnapshot.guards.filter(item => item.satisfied).length,
       requiredHandoffGuards: handoffSnapshot.guards.length,
+      satisfiedHandoffValidationGuards: handoffValidationSnapshot.guards.filter(item => item.satisfied).length,
+      requiredHandoffValidationGuards: handoffValidationSnapshot.guards.length,
       satisfiedSourceAuditGuards: sourceAuditSnapshot.guards.filter(item => item.satisfied).length,
       requiredSourceAuditGuards: sourceAuditSnapshot.guards.length,
       satisfiedFrontierAuditGuards: frontierAuditSnapshot.guards.filter(item => item.satisfied).length,
@@ -741,6 +757,65 @@ function createHandoffSnapshot(handoff) {
     handoffIds: handoffs.map(item => item.id),
     guards: createHandoffGuards(byId),
   };
+}
+
+function createHandoffValidationSnapshot(validation) {
+  if (!validation) {
+    return {
+      loaded: false,
+      generatedAt: null,
+      pass: null,
+      allContractsPresent: null,
+      requiredHandoffsPresent: null,
+      unhandledObligationCount: null,
+      handoffIds: [],
+      guards: createHandoffValidationGuards(null),
+    };
+  }
+
+  const handoffChecks = Array.isArray(validation.handoffChecks) ? validation.handoffChecks : [];
+  const snapshot = {
+    loaded: true,
+    generatedAt: validation.generatedAt ?? null,
+    pass: validation.summary?.pass ?? null,
+    allContractsPresent: validation.summary?.allContractsPresent ?? null,
+    requiredHandoffsPresent: validation.summary?.requiredHandoffsPresent ?? null,
+    unhandledObligationCount: validation.summary?.unhandledObligationCount ?? null,
+    handoffIds: handoffChecks.map(check => check.id).filter(Boolean),
+    guards: [],
+  };
+  snapshot.guards = createHandoffValidationGuards(snapshot);
+  return snapshot;
+}
+
+function createHandoffValidationGuards(snapshot) {
+  return [
+    {
+      id: 'handoff-validation-loaded',
+      description: 'runtime-proof-handoff-validation.json must be loaded by the gate.',
+      satisfied: snapshot?.loaded === true,
+    },
+    {
+      id: 'handoff-validation-pass',
+      description: 'runtime-proof-handoff-validation.json summary.pass must be true before the gate can pass.',
+      satisfied: snapshot?.pass === true,
+    },
+    {
+      id: 'handoff-validation-contracts-present',
+      description: 'runtime-proof-handoff-validation.json must report all required contracts present.',
+      satisfied: snapshot?.allContractsPresent === true,
+    },
+    {
+      id: 'handoff-validation-required-handoffs-present',
+      description: 'runtime-proof-handoff-validation.json must report required Safari and SpiderMonkey handoffs present.',
+      satisfied: snapshot?.requiredHandoffsPresent === true,
+    },
+    {
+      id: 'handoff-validation-no-unhandled-obligations',
+      description: 'runtime-proof-handoff-validation.json must validate a handoff with zero unhandled obligations.',
+      satisfied: snapshot?.unhandledObligationCount === 0,
+    },
+  ];
 }
 
 function createHandoffGuards(byId) {
@@ -1049,6 +1124,26 @@ function renderMarkdown(report) {
     '| --- | --- | --- |',
   );
   for (const item of report.handoffSnapshot.guards) {
+    lines.push(`| \`${item.id}\` | ${item.satisfied ? 'yes' : 'no'} | ${item.description} |`);
+  }
+
+  lines.push(
+    '',
+    '## Handoff Validation Snapshot',
+    '',
+    report.handoffValidationSnapshot.loaded
+      ? `- Handoff validation loaded: yes (${report.handoffValidationSnapshot.generatedAt ?? 'unknown generatedAt'})`
+      : '- Handoff validation loaded: no',
+    `- Handoff validation pass: ${formatYesNo(report.handoffValidationSnapshot.pass)}`,
+    `- Required handoffs present: ${formatYesNo(report.handoffValidationSnapshot.requiredHandoffsPresent)}`,
+    `- Required contracts present: ${formatYesNo(report.handoffValidationSnapshot.allContractsPresent)}`,
+    `- Unhandled obligations in validated handoff: ${formatNullableCount(report.handoffValidationSnapshot.unhandledObligationCount)}`,
+    `- Validated handoff IDs: ${report.handoffValidationSnapshot.handoffIds?.join(', ') || 'none'}`,
+    '',
+    '| ID | Satisfied | Meaning |',
+    '| --- | --- | --- |',
+  );
+  for (const item of report.handoffValidationSnapshot.guards) {
     lines.push(`| \`${item.id}\` | ${item.satisfied ? 'yes' : 'no'} | ${item.description} |`);
   }
 

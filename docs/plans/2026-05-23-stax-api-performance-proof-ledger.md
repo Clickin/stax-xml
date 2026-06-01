@@ -119,12 +119,14 @@ this ledger's claim table, checks required guard claims and artifact mentions,
 and records whether the broad runtime-limit conclusion is currently allowed.
 
 The current gate report passes with status `incomplete-proof-correctly-blocked`:
-all 10 required claim guards are satisfied, all 38 required artifact mentions
+all 10 required claim guards are satisfied, all 39 required artifact mentions
 are present, all 5 required open-obligation disclosures are present, all 18
-proof-rule checks are satisfied, all 5 source-audit guards are satisfied, and
-all 6 frontier-audit guards are satisfied. It also loads
-`runtime-proof-gap-handoff.json` directly and requires the handoff-level closure
-guards to stay present. The important result is
+proof-rule checks are satisfied, all 11 handoff guards are satisfied, all 5
+handoff-validation guards are satisfied, all 6 source-audit guards are
+satisfied, and all 6 frontier-audit guards are satisfied. It also loads
+`runtime-proof-gap-handoff.json` and `runtime-proof-handoff-validation.json`
+directly and requires the handoff-level closure guards and runbook validation
+contracts to stay present. The important result is
 `conclusionAllowed: false`, not a proof of impossibility.
 The runtime-limit claim remains `HYPOTHESIS`, while the gate confirms that
 Woodstox/quick-xml object-shape parity claims are rejected, lazy getters remain

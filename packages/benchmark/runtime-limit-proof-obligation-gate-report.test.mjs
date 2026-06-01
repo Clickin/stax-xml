@@ -34,6 +34,9 @@ const badTextBoundaryGateMdOut = join(tmpDir, 'text-boundary-runtime-limit-proof
 const badHandoffJsonOut = join(tmpDir, 'handoff-missing-safari-comparison-check.json');
 const badHandoffGateJsonOut = join(tmpDir, 'handoff-runtime-limit-proof-obligation-gate.json');
 const badHandoffGateMdOut = join(tmpDir, 'handoff-runtime-limit-proof-obligation-gate.md');
+const badHandoffValidationJsonOut = join(tmpDir, 'handoff-validation-failed.json');
+const badHandoffValidationGateJsonOut = join(tmpDir, 'handoff-validation-runtime-limit-proof-obligation-gate.json');
+const badHandoffValidationGateMdOut = join(tmpDir, 'handoff-validation-runtime-limit-proof-obligation-gate.md');
 const badCoverageJsonOut = join(tmpDir, 'coverage-missing-spidermonkey-identity-counts.json');
 const badCoverageGateJsonOut = join(tmpDir, 'coverage-runtime-limit-proof-obligation-gate.json');
 const badCoverageGateMdOut = join(tmpDir, 'coverage-runtime-limit-proof-obligation-gate.md');
@@ -69,12 +72,14 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.metadata.comparisonLoaded, true);
   assert.equal(report.metadata.counterexampleScanLoaded, true);
   assert.equal(report.metadata.handoffLoaded, true);
+  assert.equal(report.metadata.handoffValidationLoaded, true);
   assert.equal(report.metadata.sourceAuditLoaded, true);
   assert.equal(report.metadata.memoryFrontierLoaded, true);
   assert.equal(report.metadata.targetDistanceLoaded, true);
   assert.equal(report.metadata.textMaterializationBoundaryLoaded, true);
   assert.equal(report.summary.currentCounterexamples, 0);
   assert.equal(report.summary.satisfiedHandoffGuards, report.summary.requiredHandoffGuards);
+  assert.equal(report.summary.satisfiedHandoffValidationGuards, report.summary.requiredHandoffValidationGuards);
   assert.equal(report.summary.satisfiedSourceAuditGuards, report.summary.requiredSourceAuditGuards);
   assert.equal(report.summary.satisfiedFrontierAuditGuards, report.summary.requiredFrontierAuditGuards);
   assert.equal(report.counterexampleSnapshot.comparisonCounterexampleCount, 0);
@@ -193,6 +198,13 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-same-contract-comparison-required' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-closing-metadata-required' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-diagnostic-row-identity-blocker' && item.satisfied));
+  assert.ok(report.handoffValidationSnapshot.loaded);
+  assert.equal(report.handoffValidationSnapshot.pass, true);
+  assert.equal(report.handoffValidationSnapshot.allContractsPresent, true);
+  assert.equal(report.handoffValidationSnapshot.unhandledObligationCount, 0);
+  assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-loaded' && item.satisfied));
+  assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-pass' && item.satisfied));
+  assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-contracts-present' && item.satisfied));
 
   const markdown = readFileSync(goodMdOut, 'utf8');
   assert.match(markdown, /# Runtime-Limit Proof Obligation Gate/);
@@ -220,6 +232,10 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /spidermonkey-same-contract-comparison-required/);
   assert.match(markdown, /spidermonkey-closing-metadata-required/);
   assert.match(markdown, /spidermonkey-diagnostic-row-identity-blocker/);
+  assert.match(markdown, /## Handoff Validation Snapshot/);
+  assert.match(markdown, /Handoff validation loaded: yes/);
+  assert.match(markdown, /Handoff validation pass: yes/);
+  assert.match(markdown, /handoff-validation-contracts-present/);
   assert.match(markdown, /## Source Audit Snapshot/);
   assert.match(markdown, /Primary parser input: synchronous Iterable<Uint8Array\[\]>/);
   assert.match(markdown, /Primary sync byte-batch rows: 231/);
@@ -495,6 +511,55 @@ test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff omits cl
   const markdown = readFileSync(badHandoffGateMdOut, 'utf8');
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /diagnostic flags/);
+});
+
+test('runtime-limit proof-obligation gate fails if handoff validation does not pass', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const validation = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-handoff-validation.json'), 'utf8'));
+  validation.summary.pass = false;
+  validation.summary.allContractsPresent = false;
+  validation.handoffChecks = validation.handoffChecks.map(check =>
+    check.id === 'spidermonkey-codegen-handoff'
+      ? { ...check, contractsPresent: false }
+      : check
+  );
+  writeFileSync(badHandoffValidationJsonOut, `${JSON.stringify(validation, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--handoff-validation-json',
+    badHandoffValidationJsonOut,
+    '--json-out',
+    badHandoffValidationGateJsonOut,
+    '--md-out',
+    badHandoffValidationGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badHandoffValidationGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.ok(report.handoffValidationSnapshot.guards.some(item =>
+    item.id === 'handoff-validation-pass'
+    && !item.satisfied
+  ));
+  assert.ok(report.handoffValidationSnapshot.guards.some(item =>
+    item.id === 'handoff-validation-contracts-present'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /runtime-proof-handoff-validation\.json summary\.pass/.test(error)));
+  assert.ok(report.gate.errors.some(error => /all required contracts/.test(error)));
+
+  const markdown = readFileSync(badHandoffValidationGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /Handoff validation pass: no/);
+  assert.match(markdown, /handoff-validation-contracts-present/);
 });
 
 test('runtime-limit proof-obligation gate fails if current artifacts contain a counterexample', () => {
@@ -871,7 +936,7 @@ function createLedgerFixture(runtimeStatus) {
     '| `CLAIM-BUN-TEXTDECODER-DISPATCH-SOURCE-BOUNDARY` | Bun dispatch source boundary. | `SOURCE_FACT` + `COUNTEREXAMPLE` | bun-textdecoder-dispatch-source-pin-audit.md | Not throughput. |',
     '| `CLAIM-FIREFOX-SPIDERMONKEY-TEXTDECODER-SOURCE-BOUNDARY` | Firefox/Gecko source boundary. | `SOURCE_FACT` | firefox-spidermonkey-textdecoder-source-pin-audit.md | Not heap/allocation, not generated-code evidence. |',
     '',
-    'Artifacts: same-contract-runtime-comparison.md, runtime-counterexample-scan.md, runtime-proof-coverage-audit.md, quick-xml-allocation-count.md, quick-xml-allocation-count-stability.md, woodstox-hotspot-trace.md, woodstox-jfr-allocation.md, woodstox-measured-jfr-allocation.md, woodstox-measured-jfr-allocation-rerun.md, candidate-headroom-large.md, bun-candidate-headroom-large.md, browser-candidate-headroom-large.md, firefox-bidi-candidate-headroom.md, text-cdata-cost-decomposition.md, text-materialization-frontier.md, text-trim-guard-candidate.md, text-ascii-pretrim-candidate.md, all-ascii-span-materialization-candidate.md, sync-byte-batch-shape-batch1.md, sync-byte-batch-shape-batch16.md, bun-textdecoder-span-variants.md, browser-textdecoder-span-variants.md, bun-jsc-partial-codegen-trace.md, bun-jsc-textdecoder-codegen-trace.md, stream-source-consumption-shapes.md, stream-source-consumption-backpressure-counters.md, event-reader-byte-batch-cross-process-corpus.md, segment-scan-headroom.md, segment-tokenizer-headroom.md, segment-tokenizer-string-frontier.md, runtime-proof-gap-handoff.md.',
+    'Artifacts: same-contract-runtime-comparison.md, runtime-counterexample-scan.md, runtime-proof-coverage-audit.md, quick-xml-allocation-count.md, quick-xml-allocation-count-stability.md, woodstox-hotspot-trace.md, woodstox-jfr-allocation.md, woodstox-measured-jfr-allocation.md, woodstox-measured-jfr-allocation-rerun.md, candidate-headroom-large.md, bun-candidate-headroom-large.md, browser-candidate-headroom-large.md, firefox-bidi-candidate-headroom.md, text-cdata-cost-decomposition.md, text-materialization-frontier.md, text-trim-guard-candidate.md, text-ascii-pretrim-candidate.md, all-ascii-span-materialization-candidate.md, sync-byte-batch-shape-batch1.md, sync-byte-batch-shape-batch16.md, bun-textdecoder-span-variants.md, browser-textdecoder-span-variants.md, bun-jsc-partial-codegen-trace.md, bun-jsc-textdecoder-codegen-trace.md, stream-source-consumption-shapes.md, stream-source-consumption-backpressure-counters.md, event-reader-byte-batch-cross-process-corpus.md, segment-scan-headroom.md, segment-tokenizer-headroom.md, segment-tokenizer-string-frontier.md, runtime-proof-gap-handoff.md, runtime-proof-handoff-validation.md.',
     '',
     'Source-shape rules: direct ReadableStream overhead evidence stays',
     'distinct from synchronous byte-batch rows. The current large matrix does not prebuild one repeated 1 GiB ArrayBuffer parser input. The byte-batch rows preserve backpressure by pulling at most the next batch on demand.',
