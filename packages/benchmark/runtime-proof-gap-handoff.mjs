@@ -901,6 +901,9 @@ function createHandoffs(activeObligations, localClosure) {
       expectedEvidence: [
         'A release artifact whose objective records emitted Firefox/SpiderMonkey JIT IR, optimized-code, or codegen dump evidence.',
         'The artifact must include the runtime/build identity, diagnostic flags, selected row id, event count, and checksum parity.',
+        'The artifact must declare closesEmittedIrObligation=true only when sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true.',
+        'The artifact must report selectedRowMatchesCurrentComparison=true against same-contract-runtime-comparison.json with event count and checksum parity.',
+        'The artifact must report evidenceClassAllowed=true; diagnostic scope-guard, availability, source-pin, and negative-diagnostic classes cannot close the obligation.',
         'The coverage audit must classify the artifact as SpiderMonkey codegen evidence, not merely profiler/source/availability evidence.',
       ],
       closureChecks: [

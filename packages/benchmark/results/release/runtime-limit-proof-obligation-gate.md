@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-01T21:29:25.167Z
+Generated: 2026-06-01T21:37:06.235Z
 
 ## Scope
 
@@ -120,7 +120,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-01T21:29:03.622Z)
+- Handoff loaded: yes (2026-06-01T21:36:45.108Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -132,6 +132,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `safari-closure-checks-same-contract-comparison` | yes | Safari closure checks must require bounded primary rows to match same-contract-runtime-comparison.json by row id, event count, and checksum via primaryRowsInSameContractComparison. |
 | `safari-closure-checks-1gib-primary` | yes | Safari closure checks must require largeBoundedPrimarySyncByteBatchRowsRecorded and largePrimaryRowsInSameContractComparison for 1 GiB+ bounded primary row id, event count, and checksum parity. |
 | `safari-local-availability-blocker` | yes | Safari handoff must preserve the local Safari availability blocker and zero-candidate closure audit summary. |
+| `spidermonkey-closing-artifact-schema-evidence` | yes | SpiderMonkey expected evidence must require explicit closure declarations, same-contract row status, comparison match, and allowed evidence class. |
 | `spidermonkey-emitted-ir-required` | yes | SpiderMonkey closure checks must require emitted IR/codegen evidence and no missing IR surface. |
 | `spidermonkey-materialized-scope-not-enough` | yes | SpiderMonkey materialized js-shell codegen must require closureRequirementsBlocked=0 and closesCodegenObligation=true before closing. |
 | `spidermonkey-unchanged-stax-required` | yes | SpiderMonkey closing artifacts must require sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true unless a browser-row artifact supplies closure. |
@@ -147,8 +148,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-01T21:29:13.678Z)
-- Handoff validation target handoff generatedAt: 2026-06-01T21:29:03.622Z (current 2026-06-01T21:29:03.622Z)
+- Handoff validation loaded: yes (2026-06-01T21:36:56.607Z)
+- Handoff validation target handoff generatedAt: 2026-06-01T21:36:45.108Z (current 2026-06-01T21:36:45.108Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes
 - Required contracts present: yes

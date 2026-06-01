@@ -1,6 +1,6 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-01T21:29:03.622Z
+Generated: 2026-06-01T21:36:45.108Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -277,6 +277,9 @@ Commands:
 Expected evidence:
 - A release artifact whose objective records emitted Firefox/SpiderMonkey JIT IR, optimized-code, or codegen dump evidence.
 - The artifact must include the runtime/build identity, diagnostic flags, selected row id, event count, and checksum parity.
+- The artifact must declare closesEmittedIrObligation=true only when sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true.
+- The artifact must report selectedRowMatchesCurrentComparison=true against same-contract-runtime-comparison.json with event count and checksum parity.
+- The artifact must report evidenceClassAllowed=true; diagnostic scope-guard, availability, source-pin, and negative-diagnostic classes cannot close the obligation.
 - The coverage audit must classify the artifact as SpiderMonkey codegen evidence, not merely profiler/source/availability evidence.
 
 Closure checks:

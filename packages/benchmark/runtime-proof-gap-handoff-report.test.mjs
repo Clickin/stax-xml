@@ -542,6 +542,11 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
     && /spidermonkey-codegen-rerun-stability-audit\.mjs/.test(command.command)
   ));
   assert.ok(spiderMonkey.expectedEvidence.some(item => /JIT IR/.test(item)));
+  assert.ok(spiderMonkey.expectedEvidence.some(item => /closesEmittedIrObligation=true/.test(item)));
+  assert.ok(spiderMonkey.expectedEvidence.some(item => /sameContractStaxRow=true/.test(item)));
+  assert.ok(spiderMonkey.expectedEvidence.some(item => /canRunCurrentStaxFullStringBenchmark=true/.test(item)));
+  assert.ok(spiderMonkey.expectedEvidence.some(item => /selectedRowMatchesCurrentComparison=true/.test(item)));
+  assert.ok(spiderMonkey.expectedEvidence.some(item => /evidenceClassAllowed=true/.test(item)));
   assert.ok(spiderMonkey.closureChecks.some(item => /emittedIrEvidenceCount must be greater than 0/.test(item)));
   assert.ok(spiderMonkey.closureChecks.some(item => /missingIrSurfaceCount must be 0/.test(item)));
   assert.ok(spiderMonkey.closureChecks.some(item => /closureRequirementsBlocked must be 0/.test(item)));

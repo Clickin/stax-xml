@@ -218,6 +218,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-closure-checks-same-contract-comparison' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-closure-checks-1gib-primary' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-local-availability-blocker' && item.satisfied));
+  assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-closing-artifact-schema-evidence' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-emitted-ir-required' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-materialized-scope-not-enough' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-unchanged-stax-required' && item.satisfied));
@@ -772,6 +773,46 @@ test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff omits cl
   const markdown = readFileSync(badHandoffGateMdOut, 'utf8');
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /diagnostic flags/);
+});
+
+test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff omits expected closure artifact schema', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
+  const spiderMonkey = handoff.handoffs.find(item => item.id === 'spidermonkey-codegen-handoff');
+  spiderMonkey.expectedEvidence = spiderMonkey.expectedEvidence.filter(item =>
+    !/closesEmittedIrObligation=true|selectedRowMatchesCurrentComparison=true|evidenceClassAllowed=true/.test(item)
+  );
+  writeFileSync(badHandoffJsonOut, `${JSON.stringify(handoff, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--handoff-json',
+    badHandoffJsonOut,
+    '--json-out',
+    badHandoffGateJsonOut,
+    '--md-out',
+    badHandoffGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badHandoffGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.ok(report.handoffSnapshot.guards.some(item =>
+    item.id === 'spidermonkey-closing-artifact-schema-evidence'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /explicit closure declarations/.test(error)));
+
+  const markdown = readFileSync(badHandoffGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /spidermonkey-closing-artifact-schema-evidence/);
 });
 
 test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff omits closure frontier blockers', () => {

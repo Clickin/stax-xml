@@ -872,6 +872,7 @@ function createHandoffGuards(byId) {
   const spiderMonkey = byId?.get('spidermonkey-codegen-handoff') ?? null;
   const safariChecks = safari?.closureChecks ?? [];
   const safariBlockers = safari?.localClosure?.blockers ?? [];
+  const spiderExpected = spiderMonkey?.expectedEvidence ?? [];
   const spiderChecks = spiderMonkey?.closureChecks ?? [];
   const spiderBlockers = spiderMonkey?.localClosure?.blockers ?? [];
   return [
@@ -913,6 +914,15 @@ function createHandoffGuards(byId) {
       description: 'Safari handoff must preserve the local Safari availability blocker and zero-candidate closure audit summary.',
       satisfied: safariBlockers.some(item => /Current host cannot run Safari\/WebKit browser rows/.test(item))
         && safariBlockers.some(item => /Safari\/WebKit closure audit checks candidateRows=0/.test(item)),
+    },
+    {
+      id: 'spidermonkey-closing-artifact-schema-evidence',
+      description: 'SpiderMonkey expected evidence must require explicit closure declarations, same-contract row status, comparison match, and allowed evidence class.',
+      satisfied: spiderExpected.some(item => /closesEmittedIrObligation=true/.test(item))
+        && spiderExpected.some(item => /sameContractStaxRow=true/.test(item))
+        && spiderExpected.some(item => /canRunCurrentStaxFullStringBenchmark=true/.test(item))
+        && spiderExpected.some(item => /selectedRowMatchesCurrentComparison=true/.test(item))
+        && spiderExpected.some(item => /evidenceClassAllowed=true/.test(item)),
     },
     {
       id: 'spidermonkey-emitted-ir-required',
