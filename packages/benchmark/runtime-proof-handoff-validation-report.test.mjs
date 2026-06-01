@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,6 +10,9 @@ const repoRoot = resolve(__dirname, '..', '..');
 const tmpDir = join(__dirname, 'results', 'tmp', 'runtime-proof-handoff-validation-report-test');
 const jsonOut = join(tmpDir, 'runtime-proof-handoff-validation.json');
 const mdOut = join(tmpDir, 'runtime-proof-handoff-validation.md');
+const badHandoffJson = join(tmpDir, 'runtime-proof-gap-handoff-missing-safari-comparison.json');
+const badJsonOut = join(tmpDir, 'runtime-proof-handoff-validation-bad.json');
+const badMdOut = join(tmpDir, 'runtime-proof-handoff-validation-bad.md');
 
 test('runtime proof handoff validation pins external runbook command and contract shape', () => {
   resetTmp();
@@ -58,6 +61,8 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.ok(safari.requiredFlagPatterns.some(pattern => pattern.includes('--harness safari-webdriver')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('directReadableStreamFullStringRowsRecorded')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('must not substitute for primarySyncByteBatchRowsRecorded')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('primaryRowsInSameContractComparison')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('same-contract-runtime-comparison')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('backpressure is respected')));
   assert.ok(spiderMonkey.requiredFlagPatterns.some(pattern => pattern.includes('FIREFOX_PATH')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('checksum parity')));
@@ -149,10 +154,45 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.match(markdown, /No external benchmark command is executed by this audit/);
 });
 
+test('runtime proof handoff validation fails if Safari closure omits same-contract comparison check', () => {
+  resetTmp();
+  const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
+  const safari = handoff.handoffs.find(row => row.id === 'safari-webkit-browser-row-handoff');
+  safari.closureChecks = safari.closureChecks.filter(item => !/primaryRowsInSameContractComparison/.test(item));
+  writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-handoff-validation.mjs'),
+    '--handoff-json',
+    badHandoffJson,
+    '--json-out',
+    badJsonOut,
+    '--md-out',
+    badMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(badJsonOut, 'utf8'));
+  assert.equal(report.summary.pass, false);
+  assert.equal(report.summary.allContractsPresent, false);
+  const safariCheck = report.handoffChecks.find(row => row.id === 'safari-webkit-browser-row-handoff');
+  assert.equal(safariCheck.contractsPresent, false);
+  assert.ok(safariCheck.requiredContractPatterns.some(pattern => /primaryRowsInSameContractComparison/.test(pattern)));
+
+  const markdown = readFileSync(badMdOut, 'utf8');
+  assert.match(markdown, /Pass: no/);
+  assert.match(markdown, /safari-webkit-browser-row-handoff/);
+});
+
 function resetTmp() {
   rmSync(tmpDir, { recursive: true, force: true });
   mkdirSync(tmpDir, { recursive: true });
-  for (const filePath of [jsonOut, mdOut]) {
+  for (const filePath of [jsonOut, mdOut, badHandoffJson, badJsonOut, badMdOut]) {
     if (existsSync(filePath)) rmSync(filePath);
   }
 }
