@@ -87,6 +87,35 @@ test('Taskcluster SpiderMonkey debug js-shell XML codegen audit stays scoped awa
   assert.match(markdown, /Missing globals: TextDecoder, TextEncoder, ReadableStream, fetch/);
 });
 
+test('Taskcluster SpiderMonkey debug js-shell XML codegen audit derives artifact URL from task and artifact name', () => {
+  resetTmp();
+  const taskId = 'task-for-custom-xml-artifact';
+  const artifactName = 'public/build/custom-xml.jsshell.zip';
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.mjs'),
+    '--self-test',
+    '--task-id',
+    taskId,
+    '--artifact-name',
+    artifactName,
+    '--json-out',
+    jsonOut,
+    '--md-out',
+    mdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
+  assert.equal(report.parameters.taskId, taskId);
+  assert.equal(report.parameters.artifactName, artifactName);
+  assert.equal(report.parameters.artifactUrl, `https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${taskId}/artifacts/${artifactName}`);
+  assert.equal(report.shell.provenance.artifactUrl, report.parameters.artifactUrl);
+});
+
 function resetTmp() {
   rmSync(tmpDir, { recursive: true, force: true });
   mkdirSync(tmpDir, { recursive: true });

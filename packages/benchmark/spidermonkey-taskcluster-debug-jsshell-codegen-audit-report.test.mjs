@@ -82,6 +82,63 @@ test('Taskcluster SpiderMonkey debug js-shell codegen audit stays scoped away fr
   assert.match(markdown, /Missing globals: TextDecoder, TextEncoder, ReadableStream, fetch/);
 });
 
+test('Taskcluster SpiderMonkey debug js-shell codegen audit derives artifact URL from task and artifact name', () => {
+  resetTmp();
+  const taskId = 'task-for-custom-codegen-artifact';
+  const artifactName = 'public/build/custom.jsshell.zip';
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'spidermonkey-taskcluster-debug-jsshell-codegen-audit.mjs'),
+    '--self-test',
+    '--task-id',
+    taskId,
+    '--artifact-name',
+    artifactName,
+    '--json-out',
+    jsonOut,
+    '--md-out',
+    mdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
+  assert.equal(report.parameters.taskId, taskId);
+  assert.equal(report.parameters.artifactName, artifactName);
+  assert.equal(report.parameters.artifactUrl, `https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${taskId}/artifacts/${artifactName}`);
+  assert.equal(report.shell.provenance.artifactUrl, report.parameters.artifactUrl);
+});
+
+test('Taskcluster SpiderMonkey debug js-shell codegen audit preserves explicit artifact URL', () => {
+  resetTmp();
+  const explicitArtifactUrl = 'https://example.invalid/custom-js-shell.zip';
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'spidermonkey-taskcluster-debug-jsshell-codegen-audit.mjs'),
+    '--self-test',
+    '--artifact-url',
+    explicitArtifactUrl,
+    '--task-id',
+    'task-that-must-not-rewrite-url',
+    '--artifact-name',
+    'public/build/ignored.jsshell.zip',
+    '--json-out',
+    jsonOut,
+    '--md-out',
+    mdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
+  assert.equal(report.parameters.artifactUrl, explicitArtifactUrl);
+  assert.equal(report.shell.provenance.artifactUrl, explicitArtifactUrl);
+});
+
 function resetTmp() {
   rmSync(tmpDir, { recursive: true, force: true });
   mkdirSync(tmpDir, { recursive: true });

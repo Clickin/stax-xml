@@ -32,6 +32,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     selfTest: false,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
+    artifactUrlExplicit: false,
   };
   for (let index = 0; index < argv.length; index++) {
     const arg = argv[index];
@@ -50,21 +51,18 @@ function parseArgs(argv = process.argv.slice(2)) {
         break;
       case '--task-id':
         options.taskId = readValue();
-        if (options.artifactUrl === defaultArtifactUrl) {
-          options.artifactUrl = `https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${options.taskId}/artifacts/${options.artifactName}`;
-        }
+        updateArtifactUrl(options);
         break;
       case '--route':
         options.route = readValue();
         break;
       case '--artifact-name':
         options.artifactName = readValue();
-        if (options.artifactUrl === defaultArtifactUrl) {
-          options.artifactUrl = `https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${options.taskId}/artifacts/${options.artifactName}`;
-        }
+        updateArtifactUrl(options);
         break;
       case '--artifact-url':
         options.artifactUrl = readValue();
+        options.artifactUrlExplicit = true;
         break;
       case '--zip-path':
         options.zipPath = resolve(process.cwd(), readValue());
@@ -104,6 +102,12 @@ function parseArgs(argv = process.argv.slice(2)) {
     }
   }
   return options;
+}
+
+function updateArtifactUrl(options) {
+  if (!options.artifactUrlExplicit) {
+    options.artifactUrl = `https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${options.taskId}/artifacts/${options.artifactName}`;
+  }
 }
 
 async function main() {
