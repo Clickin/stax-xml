@@ -401,6 +401,42 @@ test('runtime proof handoff validation fails if SpiderMonkey omits Taskcluster s
   assert.match(markdown, /spidermonkey-codegen-handoff/);
 });
 
+test('runtime proof handoff validation fails if SpiderMonkey omits Taskcluster artifact URL identity', () => {
+  resetTmp();
+  const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
+  const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
+    .map(item => item.replace(/, artifactName=public\/build\/target\.jsshell\.zip, artifactUrl=https:\/\/firefox-ci-tc\.services\.mozilla\.com\/api\/queue\/v1\/task\/[A-Za-z0-9_-]+\/artifacts\/public\/build\/target\.jsshell\.zip/g, ''));
+  writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-handoff-validation.mjs'),
+    '--handoff-json',
+    badHandoffJson,
+    '--json-out',
+    badJsonOut,
+    '--md-out',
+    badMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(badJsonOut, 'utf8'));
+  assert.equal(report.summary.pass, false);
+  assert.equal(report.summary.allContractsPresent, false);
+  const spiderMonkeyCheck = report.handoffChecks.find(row => row.id === 'spidermonkey-codegen-handoff');
+  assert.equal(spiderMonkeyCheck.contractsPresent, false);
+  assert.ok(spiderMonkeyCheck.requiredContractPatterns.some(pattern => /artifactUrl/.test(pattern)));
+
+  const markdown = readFileSync(badMdOut, 'utf8');
+  assert.match(markdown, /Pass: no/);
+  assert.match(markdown, /spidermonkey-codegen-handoff/);
+});
+
 test('runtime proof handoff validation fails if SpiderMonkey omits diagnostic identity status counts', () => {
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));

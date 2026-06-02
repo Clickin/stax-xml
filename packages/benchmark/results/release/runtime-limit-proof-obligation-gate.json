@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T20:51:53.268Z",
+  "generatedAt": "2026-06-02T21:04:10.517Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -426,7 +426,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T20:51:38.335Z",
+    "generatedAt": "2026-06-02T21:03:51.444Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -514,7 +514,7 @@
       },
       {
         "id": "spidermonkey-taskcluster-source-revision-visible",
-        "description": "SpiderMonkey Taskcluster debug-shell handoff blockers must preserve sourceRevision for current diagnostic codegen evidence.",
+        "description": "SpiderMonkey Taskcluster debug-shell handoff blockers must preserve sourceRevision and artifact URL identity for current diagnostic codegen evidence.",
         "satisfied": true
       },
       {
@@ -571,9 +571,9 @@
   },
   "handoffValidationSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T20:51:45.769Z",
-    "validatedHandoffGeneratedAt": "2026-06-02T20:51:38.335Z",
-    "currentHandoffGeneratedAt": "2026-06-02T20:51:38.335Z",
+    "generatedAt": "2026-06-02T21:04:00.617Z",
+    "validatedHandoffGeneratedAt": "2026-06-02T21:03:51.444Z",
+    "currentHandoffGeneratedAt": "2026-06-02T21:03:51.444Z",
     "pass": true,
     "missingScriptCount": 0,
     "nonReleaseOutputPathCount": 0,

@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-02T20:51:45.769Z",
+  "generatedAt": "2026-06-02T21:04:00.617Z",
   "objective": "runtime-proof-handoff-validation",
   "contract": "external-run-handoff-command-and-contract-static-validation",
   "note": "Static validation for runtime-proof-gap-handoff external runbooks. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
   "inputs": {
     "handoffJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-gap-handoff.json",
-    "handoffGeneratedAt": "2026-06-02T20:51:38.335Z",
+    "handoffGeneratedAt": "2026-06-02T21:03:51.444Z",
     "handoffObjective": "runtime-proof-gap-handoff",
     "handoffContract": "external-proof-gap-runbook-linked-to-coverage-audit"
   },
@@ -120,6 +120,8 @@
         "checksum parity",
         "emitted IR or optimized-code dump metadata",
         "sourceRevision=[0-9a-f]{40}",
+        "artifactName=public\\/build\\/target\\.jsshell\\.zip",
+        "artifactUrl=https:\\/\\/firefox-ci-tc\\.services\\.mozilla\\.com\\/api\\/queue\\/v1\\/task\\/[A-Za-z0-9_-]+\\/artifacts\\/public\\/build\\/target\\.jsshell\\.zip",
         "selectedRowIdentityStatus=",
         "selectedRowIdentityStatusCounts",
         "spidermonkey-ascii-scope-distance-audit\\.json",

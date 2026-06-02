@@ -1093,9 +1093,11 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
     },
     {
       id: 'spidermonkey-taskcluster-source-revision-visible',
-      description: 'SpiderMonkey Taskcluster debug-shell handoff blockers must preserve sourceRevision for current diagnostic codegen evidence.',
+      description: 'SpiderMonkey Taskcluster debug-shell handoff blockers must preserve sourceRevision and artifact URL identity for current diagnostic codegen evidence.',
       satisfied: spiderBlockers.some(item =>
         /current Taskcluster debug js-shell emits JitSpew codegen output/.test(item)
+        && /artifactName=public\/build\/target\.jsshell\.zip/.test(item)
+        && /artifactUrl=https:\/\/firefox-ci-tc\.services\.mozilla\.com\/api\/queue\/v1\/task\/[A-Za-z0-9_-]+\/artifacts\/public\/build\/target\.jsshell\.zip/.test(item)
         && /sourceRevision=[0-9a-f]{40}/.test(item)
       ),
     },

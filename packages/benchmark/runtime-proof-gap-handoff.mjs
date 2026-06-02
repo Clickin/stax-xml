@@ -1290,12 +1290,17 @@ function formatNumber(value) {
 function formatTaskclusterIdentity(artifact) {
   const provenance = artifact?.shell?.provenance ?? {};
   const taskId = provenance.taskId ?? 'unknown';
+  const artifactName = provenance.artifactName ?? 'unknown';
+  const artifactUrl = provenance.artifactUrl
+    ?? (taskId !== 'unknown' && artifactName !== 'unknown'
+      ? `https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/${taskId}/artifacts/${artifactName}`
+      : 'unknown');
   const buildId = provenance.buildId ?? provenance.targetTxt?.buildId ?? provenance.buildhub?.buildId ?? 'unknown';
   const sourceRevision = provenance.sourceRevision
     ?? provenance.targetTxt?.sourceRevision
     ?? provenance.buildhub?.sourceRevision
     ?? 'unknown';
-  return `taskId=${taskId}, buildId=${buildId}, sourceRevision=${sourceRevision}`;
+  return `taskId=${taskId}, artifactName=${artifactName}, artifactUrl=${artifactUrl}, buildId=${buildId}, sourceRevision=${sourceRevision}`;
 }
 
 function formatCountMap(counts) {

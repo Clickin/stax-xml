@@ -211,6 +211,8 @@ function validateHandoff(handoff) {
           /checksum parity/,
           /emitted IR or optimized-code dump metadata/,
           /sourceRevision=[0-9a-f]{40}/,
+          /artifactName=public\/build\/target\.jsshell\.zip/,
+          /artifactUrl=https:\/\/firefox-ci-tc\.services\.mozilla\.com\/api\/queue\/v1\/task\/[A-Za-z0-9_-]+\/artifacts\/public\/build\/target\.jsshell\.zip/,
           /selectedRowIdentityStatus=/,
           /selectedRowIdentityStatusCounts/,
           /spidermonkey-ascii-scope-distance-audit\.json/,

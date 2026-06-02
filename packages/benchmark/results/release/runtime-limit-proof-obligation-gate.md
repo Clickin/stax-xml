@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T20:51:53.268Z
+Generated: 2026-06-02T21:04:10.517Z
 
 ## Scope
 
@@ -137,7 +137,7 @@ Disclosure-only guards: 3
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-02T20:51:38.335Z)
+- Handoff loaded: yes (2026-06-02T21:03:51.444Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -157,7 +157,7 @@ Disclosure-only guards: 3
 | `spidermonkey-same-contract-comparison-required` | yes | SpiderMonkey closing artifacts must require the selected row id to match same-contract-runtime-comparison.json with event count and checksum parity. |
 | `spidermonkey-closing-metadata-required` | yes | SpiderMonkey closing artifacts must require runtime/build identity, diagnostic flags, row identity, checksum parity, and emitted IR or optimized-code dump metadata. |
 | `spidermonkey-diagnostic-row-identity-blocker` | yes | SpiderMonkey diagnostic rows must remain blocked with selectedRowIdentityStatus=not-claimed-non-stax-diagnostic until they are same-contract StAX closure evidence. |
-| `spidermonkey-taskcluster-source-revision-visible` | yes | SpiderMonkey Taskcluster debug-shell handoff blockers must preserve sourceRevision for current diagnostic codegen evidence. |
+| `spidermonkey-taskcluster-source-revision-visible` | yes | SpiderMonkey Taskcluster debug-shell handoff blockers must preserve sourceRevision and artifact URL identity for current diagnostic codegen evidence. |
 | `spidermonkey-closure-audit-identity-statuses` | yes | SpiderMonkey closure audit must preserve non-StAX diagnostic identity status counts for closure-matrix candidates. |
 | `spidermonkey-selected-row-metadata-missing-fields` | yes | SpiderMonkey closure audit must preserve which selected-row metadata fields are missing from closure-matrix candidates. |
 | `spidermonkey-selected-row-comparison-match-counts` | yes | SpiderMonkey closure audit must preserve selected-row comparison match counts against same-contract-runtime-comparison.json. |
@@ -171,8 +171,8 @@ Disclosure-only guards: 3
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T20:51:45.769Z)
-- Handoff validation target handoff generatedAt: 2026-06-02T20:51:38.335Z (current 2026-06-02T20:51:38.335Z)
+- Handoff validation loaded: yes (2026-06-02T21:04:00.617Z)
+- Handoff validation target handoff generatedAt: 2026-06-02T21:03:51.444Z (current 2026-06-02T21:03:51.444Z)
 - Handoff validation pass: yes
 - Commands checked: 15
 - Scripts referenced: 23
