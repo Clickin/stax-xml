@@ -872,6 +872,50 @@ test('runtime-limit proof-obligation gate fails if Safari handoff omits local av
   assert.match(markdown, /safari-local-availability-blocker/);
 });
 
+test('runtime-limit proof-obligation gate fails if Safari handoff omits closure comparison identity', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
+  const safari = handoff.handoffs.find(item => item.id === 'safari-webkit-browser-row-handoff');
+  safari.localClosure.blockers = safari.localClosure.blockers.map(item =>
+    /Safari\/WebKit closure audit checks candidateRows=0/.test(item)
+      ? item
+          .replace(/, comparisonGeneratedAt=[^,]+/, '')
+          .replace(/, comparisonRowCount=\d+/, '')
+      : item
+  );
+  writeFileSync(badHandoffJsonOut, `${JSON.stringify(handoff, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--handoff-json',
+    badHandoffJsonOut,
+    '--json-out',
+    badHandoffGateJsonOut,
+    '--md-out',
+    badHandoffGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badHandoffGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.ok(report.handoffSnapshot.guards.some(item =>
+    item.id === 'safari-local-availability-blocker'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /same-contract comparison identity/.test(error)));
+
+  const markdown = readFileSync(badHandoffGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /safari-local-availability-blocker/);
+});
+
 test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff omits same-contract comparison closure check', () => {
   resetTmp();
   writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));

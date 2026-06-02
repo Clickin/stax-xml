@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T15:10:07.617Z
+Generated: 2026-06-02T15:16:21.377Z
 
 ## Scope
 
@@ -133,7 +133,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-02T15:09:16.036Z)
+- Handoff loaded: yes (2026-06-02T15:16:03.177Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -144,7 +144,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `safari-closure-checks-primary-bounded` | yes | Safari closure checks must require primary and bounded sync byte-batch rows plus closesSafariObligation=true. |
 | `safari-closure-checks-same-contract-comparison` | yes | Safari closure checks must require bounded primary rows to match same-contract-runtime-comparison.json by row id, event count, and checksum via primaryRowsInSameContractComparison. |
 | `safari-closure-checks-1gib-primary` | yes | Safari closure checks must require largeBoundedPrimarySyncByteBatchRowsRecorded and largePrimaryRowsInSameContractComparison for 1 GiB+ bounded primary row id, event count, and checksum parity. |
-| `safari-local-availability-blocker` | yes | Safari handoff must preserve the local Safari availability blocker and zero-candidate closure audit summary. |
+| `safari-local-availability-blocker` | yes | Safari handoff must preserve the local Safari availability blocker and zero-candidate closure audit summary tied to the current same-contract comparison identity. |
 | `spidermonkey-closing-artifact-schema-evidence` | yes | SpiderMonkey expected evidence must require explicit closure declarations, same-contract row status, comparison match, and allowed evidence class. |
 | `spidermonkey-emitted-ir-required` | yes | SpiderMonkey closure checks must require emitted IR/codegen evidence and no missing IR surface. |
 | `spidermonkey-materialized-scope-not-enough` | yes | SpiderMonkey materialized js-shell codegen must require closureRequirementsBlocked=0 and closesCodegenObligation=true before closing. |
@@ -163,8 +163,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T15:09:29.177Z)
-- Handoff validation target handoff generatedAt: 2026-06-02T15:09:16.036Z (current 2026-06-02T15:09:16.036Z)
+- Handoff validation loaded: yes (2026-06-02T15:16:07.274Z)
+- Handoff validation target handoff generatedAt: 2026-06-02T15:16:03.177Z (current 2026-06-02T15:16:03.177Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes
 - Required contracts present: yes

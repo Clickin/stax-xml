@@ -1,6 +1,6 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-02T15:09:16.036Z
+Generated: 2026-06-02T15:16:03.177Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -149,7 +149,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
   - No Safari/WebKit benchmark row is recorded by the availability audit.
   - No exact Safari/WebKit source-boundary pin is recorded by the availability audit.
   - Safari closure matrix reports closureRequirementsMet=2, closureRequirementsBlocked=9, closesSafariObligation=false.
-  - The Safari/WebKit closure audit checks candidateRows=0, largeBoundedPrimaryRows=0, rowsInSameContractComparison=0, measuredExactBuildIdentityRows=0, sourceBoundaryPinned=false, qualifiedClosureCount=0, and conclusionAllowed=false.
+  - The Safari/WebKit closure audit checks candidateRows=0, comparisonGeneratedAt=2026-06-02T14:53:00.937Z, comparisonRowCount=289, largeBoundedPrimaryRows=0, rowsInSameContractComparison=0, measuredExactBuildIdentityRows=0, sourceBoundaryPinned=false, qualifiedClosureCount=0, and conclusionAllowed=false.
 - Local evidence artifacts: safari-webkit-availability-audit.json, safari-webkit-closure-audit.json
 
 Prerequisites:
