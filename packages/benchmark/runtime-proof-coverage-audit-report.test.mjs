@@ -2631,6 +2631,7 @@ test('runtime proof coverage audit requires Deno codegen before closing runtime 
       nativeDumpComplete: true,
       hasCodegenDumpOutput: true,
       closesEmittedIrObligation: true,
+      evidenceClass: 'same-contract-spidermonkey-codegen',
       sameContractStaxRow: true,
       canRunCurrentStaxFullStringBenchmark: true,
       selectedRowId: 'currentFullStringRow',
@@ -2715,6 +2716,7 @@ test('runtime proof coverage audit rejects SpiderMonkey emitted IR without selec
       nativeDumpComplete: true,
       hasCodegenDumpOutput: true,
       closesEmittedIrObligation: true,
+      evidenceClass: 'same-contract-spidermonkey-codegen',
       sameContractStaxRow: true,
       canRunCurrentStaxFullStringBenchmark: true,
       selectedRowId: 'currentFullStringRow',
@@ -2858,6 +2860,7 @@ test('runtime proof coverage audit rejects SpiderMonkey emitted IR with empty du
       nativeDumpComplete: true,
       hasCodegenDumpOutput: true,
       closesEmittedIrObligation: true,
+      evidenceClass: 'same-contract-spidermonkey-codegen',
       sameContractStaxRow: true,
       canRunCurrentStaxFullStringBenchmark: true,
       selectedRowId: 'currentFullStringRow',
@@ -3188,6 +3191,7 @@ test('runtime proof coverage audit matches SpiderMonkey emitted IR despite share
       nativeDumpComplete: true,
       hasCodegenDumpOutput: true,
       closesEmittedIrObligation: true,
+      evidenceClass: 'same-contract-spidermonkey-codegen',
       sameContractStaxRow: true,
       canRunCurrentStaxFullStringBenchmark: true,
       selectedRowId: 'rawFrameNameId',
@@ -3234,6 +3238,86 @@ test('runtime proof coverage audit matches SpiderMonkey emitted IR despite share
     && row.selectedRowIdentityStatus === 'closing-row-identity-verified'
     && row.emittedIrClosureQualified === true
     && row.evidenceClass === 'emitted-ir'
+  ));
+});
+
+test('runtime proof coverage audit rejects SpiderMonkey emitted IR with disallowed evidence class', () => {
+  const syntheticDir = join(tmpDir, 'spidermonkey-emitted-ir-disallowed-evidence-class');
+  const syntheticJsonOut = join(tmpDir, 'spidermonkey-emitted-ir-disallowed-evidence-class.json');
+  const syntheticMdOut = join(tmpDir, 'spidermonkey-emitted-ir-disallowed-evidence-class.md');
+  resetTmp();
+  mkdirSync(syntheticDir, { recursive: true });
+  writeFileSync(join(syntheticDir, 'same-contract-runtime-comparison.json'), `${JSON.stringify({
+    objective: 'same-contract-runtime-comparison',
+    comparisonRows: [
+      {
+        id: 'rawFrameNameId',
+        runtimeId: 'spidermonkey-jsshell',
+        jsRuntime: true,
+        fullStringParity: true,
+        eventCount: 2000,
+        checksum: 456,
+      },
+    ],
+  }, null, 2)}\n`);
+  writeFileSync(join(syntheticDir, 'spidermonkey-taskcluster-debug-jsshell-codegen-audit.json'), `${JSON.stringify({
+    objective: 'firefox-spidermonkey-emitted-ir',
+    runtime: { id: 'spidermonkey-jsshell' },
+    outcome: {
+      status: 'emitted-ir-captured',
+      hasJitExecutionStatus: true,
+      hasIrDumpSurface: true,
+      nativeDumpComplete: true,
+      hasCodegenDumpOutput: true,
+      closesEmittedIrObligation: true,
+      evidenceClass: 'current-debug-codegen-scope-guard',
+      sameContractStaxRow: true,
+      canRunCurrentStaxFullStringBenchmark: true,
+      selectedRowId: 'rawFrameNameId',
+      selectedEventCount: 2000,
+      selectedChecksum: 456,
+    },
+    shell: {
+      provenance: {
+        taskId: 'task-current',
+        route: 'gecko.v2.mozilla-central.latest.firefox.win64-debug',
+        buildId: '20260601000000',
+        sourceRevision: 'abcdef1234567890',
+      },
+      codegenProbe: {
+        status: 'codegen-output-emitted',
+        flags: 'codegen',
+        outputBytes: 1024,
+        codegenMarkerCount: 4,
+      },
+    },
+  }, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-coverage-audit.mjs'),
+    '--release-dir',
+    syntheticDir,
+    '--json-out',
+    syntheticJsonOut,
+    '--md-out',
+    syntheticMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(syntheticJsonOut, 'utf8'));
+  assert.equal(report.coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount, 0);
+  assert.equal(report.coverage.spiderMonkeyDiagnostics.emittedIrClaimCount, 1);
+  assert.ok(report.coverage.spiderMonkeyDiagnostics.rows.some(row =>
+    row.id === 'taskcluster-debug-jsshell-codegen'
+    && row.selectedRowMatchesCurrentComparison === true
+    && row.declaredEvidenceClass === 'current-debug-codegen-scope-guard'
+    && row.evidenceClassAllowed === false
+    && row.emittedIrClosureQualified === false
+    && row.evidenceClass === 'emitted-ir-scope-guard'
   ));
 });
 

@@ -832,6 +832,14 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact, sameContractComparisonRow
   if (!artifact) return null;
   const outcome = artifact.outcome ?? {};
   const summary = artifact.summary ?? {};
+  const declaredEvidenceClass = typeof outcome.evidenceClass === 'string'
+    ? outcome.evidenceClass
+    : typeof summary.evidenceClass === 'string'
+      ? summary.evidenceClass
+      : null;
+  const evidenceClassAllowed = declaredEvidenceClass === null
+    ? null
+    : declaredEvidenceClass === 'same-contract-spidermonkey-codegen';
   const hasJitExecutionStatus = typeof outcome.hasJitExecutionStatus === 'boolean'
     ? outcome.hasJitExecutionStatus
     : typeof summary.jitStatusShellCount === 'number' && typeof summary.shellCount === 'number'
@@ -890,7 +898,8 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact, sameContractComparisonRow
     && canRunCurrentStaxFullStringBenchmark === true
     && selectedRowMetadataComplete === true
     && selectedRowMatchesCurrentComparison === true
-    && closingMetadataComplete;
+    && closingMetadataComplete
+    && evidenceClassAllowed;
   const irDumpSurface = typeof outcome.hasIrDumpSurface === 'boolean'
     ? outcome.hasIrDumpSurface
     : null;
@@ -947,6 +956,8 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact, sameContractComparisonRow
     sameContractStaxRow,
     closesEmittedIrObligation,
     emittedIrClosureQualified,
+    declaredEvidenceClass,
+    evidenceClassAllowed,
     evidenceClass: classifySpiderMonkeyDiagnosticEvidence({
       id,
       hasJitExecutionStatus,
@@ -956,6 +967,7 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact, sameContractComparisonRow
       nativeDumpComplete,
       bytecodeDumpOutput,
       selectedRowMatchesCurrentComparison,
+      evidenceClassAllowed,
       outcome,
       summary,
     }),
@@ -1076,9 +1088,9 @@ function extractSameContractComparisonRows(root) {
     );
 }
 
-function classifySpiderMonkeyDiagnosticEvidence({ id, hasJitExecutionStatus, closesEmittedIrObligation, emittedIrClosureQualified, irDumpSurface, nativeDumpComplete, bytecodeDumpOutput, selectedRowMatchesCurrentComparison, outcome, summary }) {
+function classifySpiderMonkeyDiagnosticEvidence({ id, hasJitExecutionStatus, closesEmittedIrObligation, emittedIrClosureQualified, irDumpSurface, nativeDumpComplete, bytecodeDumpOutput, selectedRowMatchesCurrentComparison, evidenceClassAllowed, outcome, summary }) {
   if (emittedIrClosureQualified) return 'emitted-ir';
-  if (closesEmittedIrObligation || selectedRowMatchesCurrentComparison === false) return 'emitted-ir-scope-guard';
+  if (closesEmittedIrObligation || selectedRowMatchesCurrentComparison === false || evidenceClassAllowed === false) return 'emitted-ir-scope-guard';
   if (outcome?.hasMaterializedStringObjectCodegenOutput === true && outcome?.scopeComparableToCurrentFirefox === true && outcome?.sameContractStaxRow === false) return 'current-debug-materialized-codegen-scope-guard';
   if (outcome?.hasXmlWorkloadCodegenOutput === true && outcome?.scopeComparableToCurrentFirefox === true && outcome?.sameContractStaxRow === false) return 'current-debug-xml-codegen-scope-guard';
   if (outcome?.hasCodegenDumpOutput === true && outcome?.scopeComparableToCurrentFirefox === true && outcome?.sameContractStaxRow === false) return 'current-debug-codegen-scope-guard';
@@ -1721,6 +1733,7 @@ function summarizeOutcome(outcome = {}) {
   if (!outcome || typeof outcome !== 'object') return null;
   const summary = {
     status: outcome.status ?? null,
+    evidenceClass: typeof outcome.evidenceClass === 'string' ? outcome.evidenceClass : null,
     completed: typeof outcome.completed === 'boolean' ? outcome.completed : null,
     emittedDump: typeof outcome.emittedDump === 'boolean' ? outcome.emittedDump : null,
     dumpFileCount: typeof outcome.dumpFileCount === 'number' ? outcome.dumpFileCount : null,

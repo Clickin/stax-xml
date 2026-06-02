@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T20:28:02.070Z",
+  "generatedAt": "2026-06-02T20:50:48.506Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -2837,6 +2837,7 @@
       "availability": null,
       "outcome": {
         "status": "timeout",
+        "evidenceClass": null,
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
@@ -2930,6 +2931,7 @@
       "availability": null,
       "outcome": {
         "status": "no-dump-emitted",
+        "evidenceClass": null,
         "completed": true,
         "emittedDump": false,
         "dumpFileCount": 0,
@@ -3003,6 +3005,7 @@
       "availability": null,
       "outcome": {
         "status": "available",
+        "evidenceClass": null,
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
@@ -3146,6 +3149,7 @@
       "availability": null,
       "outcome": {
         "status": "available",
+        "evidenceClass": null,
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
@@ -3230,6 +3234,7 @@
       "availability": null,
       "outcome": {
         "status": "available",
+        "evidenceClass": null,
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
@@ -4875,6 +4880,7 @@
       "availability": null,
       "outcome": {
         "status": "available",
+        "evidenceClass": null,
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
@@ -5148,6 +5154,7 @@
       "availability": null,
       "outcome": {
         "status": "available",
+        "evidenceClass": null,
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
@@ -5364,6 +5371,7 @@
       "availability": null,
       "outcome": {
         "status": "available",
+        "evidenceClass": null,
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
@@ -5434,6 +5442,7 @@
       "availability": null,
       "outcome": {
         "status": "available",
+        "evidenceClass": null,
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
@@ -5504,6 +5513,7 @@
       "availability": null,
       "outcome": {
         "status": "available",
+        "evidenceClass": null,
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
@@ -5581,6 +5591,7 @@
       "availability": null,
       "outcome": {
         "status": "available",
+        "evidenceClass": null,
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
@@ -5746,6 +5757,7 @@
       "availability": null,
       "outcome": {
         "status": "available",
+        "evidenceClass": null,
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
@@ -25883,6 +25895,8 @@
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
+          "declaredEvidenceClass": null,
+          "evidenceClassAllowed": null,
           "evidenceClass": "negative-diagnostic-surface"
         },
         {
@@ -25924,6 +25938,8 @@
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
+          "declaredEvidenceClass": null,
+          "evidenceClassAllowed": null,
           "evidenceClass": "availability-only"
         },
         {
@@ -25965,6 +25981,8 @@
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
+          "declaredEvidenceClass": null,
+          "evidenceClassAllowed": null,
           "evidenceClass": "bytecode-diagnostic-only"
         },
         {
@@ -26006,6 +26024,8 @@
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
+          "declaredEvidenceClass": null,
+          "evidenceClassAllowed": null,
           "evidenceClass": "bytecode-diagnostic-only"
         },
         {
@@ -26052,6 +26072,8 @@
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
+          "declaredEvidenceClass": null,
+          "evidenceClassAllowed": null,
           "evidenceClass": "host-api-surface-gap"
         },
         {
@@ -26093,6 +26115,8 @@
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
+          "declaredEvidenceClass": null,
+          "evidenceClassAllowed": null,
           "evidenceClass": "diagnostic-flag-sweep-negative"
         },
         {
@@ -26134,6 +26158,8 @@
           "sameContractStaxRow": false,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
+          "declaredEvidenceClass": null,
+          "evidenceClassAllowed": null,
           "evidenceClass": "current-debug-codegen-scope-guard"
         },
         {
@@ -26175,6 +26201,8 @@
           "sameContractStaxRow": false,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
+          "declaredEvidenceClass": null,
+          "evidenceClassAllowed": null,
           "evidenceClass": "current-debug-xml-codegen-scope-guard"
         },
         {
@@ -26216,6 +26244,8 @@
           "sameContractStaxRow": false,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
+          "declaredEvidenceClass": null,
+          "evidenceClassAllowed": null,
           "evidenceClass": "current-debug-materialized-codegen-scope-guard"
         },
         {
@@ -26257,6 +26287,8 @@
           "sameContractStaxRow": false,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
+          "declaredEvidenceClass": null,
+          "evidenceClassAllowed": null,
           "evidenceClass": "archival-codegen-scope-guard"
         },
         {
@@ -26298,6 +26330,8 @@
           "sameContractStaxRow": null,
           "closesEmittedIrObligation": false,
           "emittedIrClosureQualified": false,
+          "declaredEvidenceClass": null,
+          "evidenceClassAllowed": null,
           "evidenceClass": "source-pin-only"
         }
       ],
@@ -26623,6 +26657,7 @@
         "availability": null,
         "outcome": {
           "status": "available",
+          "evidenceClass": null,
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
@@ -26834,6 +26869,7 @@
         "availability": null,
         "outcome": {
           "status": "available",
+          "evidenceClass": null,
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
@@ -26904,6 +26940,7 @@
         "availability": null,
         "outcome": {
           "status": "available",
+          "evidenceClass": null,
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
@@ -26974,6 +27011,7 @@
         "availability": null,
         "outcome": {
           "status": "available",
+          "evidenceClass": null,
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
@@ -27051,6 +27089,7 @@
         "availability": null,
         "outcome": {
           "status": "available",
+          "evidenceClass": null,
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
@@ -27129,6 +27168,7 @@
         "availability": null,
         "outcome": {
           "status": "available",
+          "evidenceClass": null,
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
@@ -28679,6 +28719,7 @@
         "availability": null,
         "outcome": {
           "status": "available",
+          "evidenceClass": null,
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
@@ -28732,6 +28773,7 @@
         "availability": null,
         "outcome": {
           "status": "available",
+          "evidenceClass": null,
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
@@ -28787,6 +28829,7 @@
         "availability": null,
         "outcome": {
           "status": "available",
+          "evidenceClass": null,
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
@@ -29223,6 +29266,7 @@
         "availability": null,
         "outcome": {
           "status": "timeout",
+          "evidenceClass": null,
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
@@ -29295,6 +29339,7 @@
         "availability": null,
         "outcome": {
           "status": "no-dump-emitted",
+          "evidenceClass": null,
           "completed": true,
           "emittedDump": false,
           "dumpFileCount": 0,
@@ -29415,6 +29460,7 @@
         "availability": null,
         "outcome": {
           "status": "available",
+          "evidenceClass": null,
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
@@ -29470,6 +29516,7 @@
         "availability": null,
         "outcome": {
           "status": "available",
+          "evidenceClass": null,
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
@@ -29955,6 +30002,7 @@
         "availability": null,
         "outcome": {
           "status": "available",
+          "evidenceClass": null,
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
@@ -30115,6 +30163,7 @@
         "availability": null,
         "outcome": {
           "status": "available",
+          "evidenceClass": null,
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
@@ -30185,6 +30234,7 @@
         "availability": null,
         "outcome": {
           "status": "available",
+          "evidenceClass": null,
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
@@ -30255,6 +30305,7 @@
         "availability": null,
         "outcome": {
           "status": "available",
+          "evidenceClass": null,
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
@@ -30332,6 +30383,7 @@
         "availability": null,
         "outcome": {
           "status": "available",
+          "evidenceClass": null,
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
@@ -30410,6 +30462,7 @@
         "availability": null,
         "outcome": {
           "status": "available",
+          "evidenceClass": null,
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
