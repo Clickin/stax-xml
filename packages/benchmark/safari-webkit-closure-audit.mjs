@@ -186,19 +186,51 @@ function createSelfTestReport(options) {
               ],
             },
           },
+          {
+            id: 'safari-partial-comparison-only',
+            runtimeId: 'safari-jsc-browser',
+            sizeGiB: 1,
+            mibPerSec: 126,
+            fullStringParity: true,
+            sourceMode: 'sync-iterable-byte-batches',
+            directReadableStream: false,
+            fullArrayBufferParserInput: false,
+            demandDrivenSource: true,
+            boundedMemory: true,
+            memory: { primaryKind: 'browser-js-heap', peakBytes: 64 * MIB },
+            eventCount: 12,
+            checksum: 34,
+            environment: {
+              browserName: 'Safari',
+              browserVersion: '18.0',
+              webKitBuildVersion: '619.1.1',
+              userAgent: 'Version/18.0 Safari/605.1.15',
+            },
+            sourceBoundary: {
+              sourceRevision: '0123456789abcdef0123456789abcdef01234567',
+              stringBoundaryPinned: true,
+              textDecoderBoundaryPinned: true,
+              sourcePinArtifacts: [
+                'safari-webkit-string-source-pin-audit.json',
+                'safari-webkit-textdecoder-source-pin-audit.json',
+              ],
+            },
+          },
         ],
       },
     },
   ];
   const comparisonRows = [
-    { id: 'safari-valid', runtimeId: 'safari-jsc-browser', eventCount: 12, checksum: 34 },
-    { id: 'safari-generic-source-pin', runtimeId: 'safari-jsc-browser', eventCount: 56, checksum: 78 },
+    { id: 'safari-valid', runtimeId: 'safari-jsc-browser', fullStringParity: true, eventCount: 12, checksum: 34 },
+    { id: 'safari-generic-source-pin', runtimeId: 'safari-jsc-browser', fullStringParity: true, eventCount: 56, checksum: 78 },
+    { id: 'safari-partial-comparison-only', runtimeId: 'safari-jsc-browser', fullStringParity: false, eventCount: 12, checksum: 34 },
   ];
   const comparison = {
     generatedAt: 'self-test',
     summary: { rowCount: comparisonRows.length },
+    comparisonRows,
   };
-  return buildReport(options, roots, comparisonRows, comparison, 'self-test-same-contract-runtime-comparison.json');
+  return buildReport(options, roots, extractComparisonRows(comparison), comparison, 'self-test-same-contract-runtime-comparison.json');
 }
 
 function buildReport(options, artifacts, comparisonRows, comparison = {}, comparisonSourceArtifact = null) {
@@ -420,7 +452,13 @@ function extractComparisonRows(root = {}) {
     const id = firstString(node.id, node.caseId, node.rowId);
     const eventCount = firstFiniteNumber(node.eventCount);
     const checksum = firstFiniteNumber(node.checksum);
-    if (runtimeId === 'safari-jsc-browser' && id && Number.isFinite(eventCount) && Number.isFinite(checksum)) {
+    if (
+      runtimeId === 'safari-jsc-browser'
+      && node.fullStringParity === true
+      && id
+      && Number.isFinite(eventCount)
+      && Number.isFinite(checksum)
+    ) {
       rows.push({ id, runtimeId, eventCount, checksum });
     }
   });

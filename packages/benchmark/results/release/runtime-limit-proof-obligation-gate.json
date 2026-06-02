@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T20:24:44.672Z",
+  "generatedAt": "2026-06-02T20:29:01.792Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -417,7 +417,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T20:23:42.976Z",
+    "generatedAt": "2026-06-02T20:28:13.177Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -562,9 +562,9 @@
   },
   "handoffValidationSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T20:23:50.804Z",
-    "validatedHandoffGeneratedAt": "2026-06-02T20:23:42.976Z",
-    "currentHandoffGeneratedAt": "2026-06-02T20:23:42.976Z",
+    "generatedAt": "2026-06-02T20:28:23.496Z",
+    "validatedHandoffGeneratedAt": "2026-06-02T20:28:13.177Z",
+    "currentHandoffGeneratedAt": "2026-06-02T20:28:13.177Z",
     "pass": true,
     "missingScriptCount": 0,
     "nonReleaseOutputPathCount": 0,
@@ -629,11 +629,11 @@
   },
   "sourceAuditSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T20:24:07.071Z",
+    "generatedAt": "2026-06-02T20:28:15.450Z",
     "inputComparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
     "currentComparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
-    "inputCoverageGeneratedAt": "2026-06-02T20:23:33.758Z",
-    "currentCoverageGeneratedAt": "2026-06-02T20:23:33.758Z",
+    "inputCoverageGeneratedAt": "2026-06-02T20:28:02.070Z",
+    "currentCoverageGeneratedAt": "2026-06-02T20:28:02.070Z",
     "status": "classified",
     "primarySourceContract": "primary-sync-iterable-byte-batches",
     "primaryParserInput": "synchronous Iterable<Uint8Array[]>",
@@ -803,7 +803,7 @@
   },
   "coverageSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T20:23:33.758Z",
+    "generatedAt": "2026-06-02T20:28:02.070Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"

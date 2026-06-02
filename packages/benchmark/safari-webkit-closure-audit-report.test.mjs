@@ -31,12 +31,12 @@ test('Safari/WebKit closure audit separates primary rows from direct stream rows
   assert.equal(report.objective, 'safari-webkit-closure-audit');
   assert.equal(report.contract, 'safari-webkit-same-contract-browser-row-closure-matrix');
   assert.equal(report.inputs.comparisonGeneratedAt, 'self-test');
-  assert.equal(report.inputs.comparisonRowCount, 2);
-  assert.equal(report.summary.candidateCount, 3);
-  assert.equal(report.summary.primarySyncByteBatchRows, 2);
-  assert.equal(report.summary.largeBoundedPrimaryRows, 2);
+  assert.equal(report.inputs.comparisonRowCount, 3);
+  assert.equal(report.summary.candidateCount, 4);
+  assert.equal(report.summary.primarySyncByteBatchRows, 3);
+  assert.equal(report.summary.largeBoundedPrimaryRows, 3);
   assert.equal(report.summary.rowsInSameContractComparison, 2);
-  assert.equal(report.summary.rowLevelSourceBoundaryPinnedRows, 2);
+  assert.equal(report.summary.rowLevelSourceBoundaryPinnedRows, 3);
   assert.equal(report.summary.qualifiedClosureCount, 1);
   assert.equal(report.summary.conclusionAllowed, true);
 
@@ -58,12 +58,19 @@ test('Safari/WebKit closure audit separates primary rows from direct stream rows
   assert.ok(genericSourcePin.requirements.measuredExactBuildIdentity.met);
   assert.ok(genericSourcePin.unmetRequirements.includes('rowLevelSourceBoundaryPinned'));
 
+  const partialComparisonOnly = report.candidates.find(candidate => candidate.id === 'safari-partial-comparison-only');
+  assert.ok(partialComparisonOnly);
+  assert.equal(partialComparisonOnly.qualifiedClosure, false);
+  assert.ok(partialComparisonOnly.requirements.primarySyncByteBatch.met);
+  assert.ok(partialComparisonOnly.requirements.rowLevelSourceBoundaryPinned.met);
+  assert.ok(partialComparisonOnly.unmetRequirements.includes('sameContractComparison'));
+
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Safari\/WebKit Closure Audit/);
   assert.match(markdown, /Comparison generatedAt: self-test/);
-  assert.match(markdown, /Comparison row count: 2/);
+  assert.match(markdown, /Comparison row count: 3/);
   assert.match(markdown, /Qualified closures: 1/);
-  assert.match(markdown, /Rows with row-level Safari\/WebKit source pins: 2/);
+  assert.match(markdown, /Rows with row-level Safari\/WebKit source pins: 3/);
   assert.match(markdown, /Primary sync byte-batch/);
 });
 
