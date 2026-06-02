@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-02T18:14:54.032Z",
+  "generatedAt": "2026-06-02T19:03:48.044Z",
   "objective": "memory-frontier-audit",
   "contract": "same-contract-1gib-plus-js-full-string-memory-frontier",
   "note": "Audits memory classification from the same-contract aggregate. This is not a benchmark run, does not normalize memory models across runtimes, and does not prove a JavaScript runtime ceiling.",
   "inputs": {
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
-    "comparisonGeneratedAt": "2026-06-02T18:14:24.864Z",
+    "comparisonGeneratedAt": "2026-06-02T19:01:12.839Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape"
   },

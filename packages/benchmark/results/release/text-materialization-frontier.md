@@ -1,6 +1,6 @@
 # Text Materialization Frontier
 
-Generated: 2026-06-02T18:52:52.715Z
+Generated: 2026-06-02T19:00:58.513Z
 
 Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.
 
@@ -49,6 +49,9 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
 | long-ascii-text-fast-path | 172.85 | 71.21 | 0.41x | yes | no | yes |
 | medium-ascii-text-fast-path | 164.31 | 170.16 | 1.04x | yes | no | yes |
 | unrolled-medium-ascii-text-fast-path | 164.13 | 170.59 | 1.04x | yes | no | yes |
+| medium-ascii-attr-value-fast-path | 165.38 | 167.49 | 1.01x | yes | no | yes |
+| attribute-value-cache | 161.24 | 158.96 | 0.99x | yes | no | yes |
+| full-span-string-cache | 161.24 | 120.41 | 0.75x | yes | no | yes |
 | node-no-counter-medium-ascii-text-fresh-process | 92.63 | 94.43 | 1.02x | yes | no | yes |
 | node-no-counter-unrolled-medium-ascii-text-fresh-process | 92.63 | 93.35 | 1.01x | yes | no | yes |
 | bun-no-counter-medium-ascii-text-fresh-process | 96.82 | 93.40 | 0.96x | yes | no | yes |
@@ -100,6 +103,9 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
   - long-ascii-text-fast-path: candidate/control=0.41x, candidate=71.21 MiB/s
   - medium-ascii-text-fast-path: candidate/control=1.04x, candidate=170.16 MiB/s
   - unrolled-medium-ascii-text-fast-path: candidate/control=1.04x, candidate=170.59 MiB/s
+  - medium-ascii-attr-value-fast-path: candidate/control=1.01x, candidate=167.49 MiB/s
+  - attribute-value-cache: candidate/control=0.99x, candidate=158.96 MiB/s
+  - full-span-string-cache: candidate/control=0.75x, candidate=120.41 MiB/s
   - node-no-counter-medium-ascii-text-fresh-process: candidate/control=1.02x, candidate=94.43 MiB/s
   - node-no-counter-unrolled-medium-ascii-text-fresh-process: candidate/control=1.01x, candidate=93.35 MiB/s
   - bun-no-counter-medium-ascii-text-fresh-process: candidate/control=0.96x, candidate=93.40 MiB/s

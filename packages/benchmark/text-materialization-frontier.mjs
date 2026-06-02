@@ -53,6 +53,24 @@ const negativeArtifacts = [
     family: 'unrolled-medium-ascii-text-fast-path',
   },
   {
+    file: 'medium-ascii-attr-value-materialization-candidate.json',
+    controlId: 'rawFrameNameId',
+    candidateId: 'rawFrameNameIdMediumAsciiAttrValue',
+    family: 'medium-ascii-attr-value-fast-path',
+  },
+  {
+    file: 'attr-value-cache-materialization-candidate.json',
+    controlId: 'rawFrameNameId',
+    candidateId: 'rawFrameNameIdAttrValueCache',
+    family: 'attribute-value-cache',
+  },
+  {
+    file: 'attr-value-cache-materialization-candidate.json',
+    controlId: 'rawFrameNameId',
+    candidateId: 'rawFrameStringCache',
+    family: 'full-span-string-cache',
+  },
+  {
     file: 'no-counter-medium-ascii-text-cross-process-books-corpus-warmup.json',
     runtime: 'node',
     controlId: 'rawFrameNameIdNoCounters',
@@ -480,6 +498,8 @@ function pickCounters(counters = {}) {
     mediumAsciiTextFallbacks: counters.mediumAsciiTextFallbacks ?? null,
     unrolledMediumAsciiTextHits: counters.unrolledMediumAsciiTextHits ?? null,
     unrolledMediumAsciiTextFallbacks: counters.unrolledMediumAsciiTextFallbacks ?? null,
+    mediumAsciiAttrValueHits: counters.mediumAsciiAttrValueHits ?? null,
+    mediumAsciiAttrValueFallbacks: counters.mediumAsciiAttrValueFallbacks ?? null,
     textTrimGuardSkips: counters.textTrimGuardSkips ?? null,
     textTrimGuardFallbacks: counters.textTrimGuardFallbacks ?? null,
     textChecksumBypassReads: counters.textChecksumBypassReads ?? null,

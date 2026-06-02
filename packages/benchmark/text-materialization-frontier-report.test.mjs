@@ -51,8 +51,8 @@ test('text materialization frontier separates headroom rows from full-string cou
   assert.equal(report.summary.projectedFullWithMaximumNoTrimSpeedupCrossesTarget, false);
   assert.equal(report.summary.maximumNoTrimSpeedupRemainingMiBPerSec, 10.79);
   assert.equal(report.summary.maximumFoldTrimSpeedup, 0.8);
-  assert.equal(report.summary.negativeCandidateCount, 32);
-  assert.equal(report.summary.fullParityNegativeCandidateCount, 28);
+  assert.equal(report.summary.negativeCandidateCount, 35);
+  assert.equal(report.summary.fullParityNegativeCandidateCount, 31);
   assert.equal(report.summary.fullParityNegativeCandidatesCrossTarget, 0);
   assert.deepEqual(report.summary.fastestFullParityNegativeCandidate, {
     family: 'unrolled-medium-ascii-text-fast-path',
@@ -132,6 +132,36 @@ test('text materialization frontier separates headroom rows from full-string cou
     && row.candidate.mibPerSec === 170.59
     && row.candidate.counters.unrolledMediumAsciiTextHits === 2831232
     && row.candidate.counters.unrolledMediumAsciiTextFallbacks === 3539040
+    && row.candidatePreservesFullStringParity === true
+    && row.rejectedForFullTarget === true
+  ));
+  assert.ok(report.negativeRows.some(row =>
+    row.family === 'medium-ascii-attr-value-fast-path'
+    && row.sourceArtifact === 'medium-ascii-attr-value-materialization-candidate.json'
+    && row.candidate.id === 'rawFrameNameIdMediumAsciiAttrValue'
+    && row.candidate.mibPerSec === 167.49
+    && row.candidate.counters.mediumAsciiAttrValueHits === 0
+    && row.candidate.counters.mediumAsciiAttrValueFallbacks === 0
+    && row.candidatePreservesFullStringParity === true
+    && row.rejectedForFullTarget === true
+  ));
+  assert.ok(report.negativeRows.some(row =>
+    row.family === 'attribute-value-cache'
+    && row.sourceArtifact === 'attr-value-cache-materialization-candidate.json'
+    && row.candidate.id === 'rawFrameNameIdAttrValueCache'
+    && row.candidate.mibPerSec === 158.96
+    && row.candidate.counters.rawValueCacheHits === 2831220
+    && row.candidate.counters.rawValueCacheMisses === 12
+    && row.candidatePreservesFullStringParity === true
+    && row.rejectedForFullTarget === true
+  ));
+  assert.ok(report.negativeRows.some(row =>
+    row.family === 'full-span-string-cache'
+    && row.sourceArtifact === 'attr-value-cache-materialization-candidate.json'
+    && row.candidate.id === 'rawFrameStringCache'
+    && row.candidate.mibPerSec === 120.41
+    && row.candidate.counters.rawValueCacheHits === 19818557
+    && row.candidate.counters.rawValueCacheMisses === 67
     && row.candidatePreservesFullStringParity === true
     && row.rejectedForFullTarget === true
   ));

@@ -1,13 +1,13 @@
 # SpiderMonkey Codegen Closure Audit
 
-Generated: 2026-06-02T18:24:31.994Z
+Generated: 2026-06-02T19:02:30.075Z
 
 Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.
 
 ## Inputs
 
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
-- Comparison generated: 2026-06-02T18:14:24.864Z
+- Comparison generated: 2026-06-02T19:01:12.839Z
 - Comparison rows checked: 289
 
 ## Summary
