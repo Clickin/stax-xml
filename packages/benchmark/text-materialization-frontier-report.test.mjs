@@ -52,6 +52,19 @@ test('text materialization frontier separates headroom rows from full-string cou
   assert.equal(report.summary.maximumNoTrimSpeedupRemainingMiBPerSec, 10.79);
   assert.equal(report.summary.maximumFoldTrimSpeedup, 0.8);
   assert.equal(report.summary.negativeCandidateCount, 32);
+  assert.equal(report.summary.fullParityNegativeCandidateCount, 28);
+  assert.equal(report.summary.fullParityNegativeCandidatesCrossTarget, 0);
+  assert.deepEqual(report.summary.fastestFullParityNegativeCandidate, {
+    family: 'unrolled-medium-ascii-text-fast-path',
+    sourceArtifact: 'unrolled-medium-ascii-text-materialization-candidate.json',
+    id: 'rawFrameNameIdUnrolledMediumAsciiText',
+    runtimeLabel: null,
+    mibPerSec: 170.59,
+    fullStringParity: true,
+    boundedMemory: true,
+  });
+  assert.equal(report.summary.fastestFullParityNegativeCandidateRemainingMiBPerSec, 29.41);
+  assert.equal(report.summary.fastestFullParityNegativeCandidateToFastestFullRatio, 0.92);
   assert.deepEqual(report.summary.fastestInstrumentationDisabledFullRow, {
     family: 'single-process-no-counter-name-fold-cache',
     sourceArtifact: 'no-counter-name-fold-cache-candidate.json',
@@ -317,6 +330,12 @@ test('text materialization frontier separates headroom rows from full-string cou
     && finding.evidence.some(item => item.includes('remaining=10.79 MiB/s'))
   ));
   assert.ok(report.findings.some(finding =>
+    finding.id === 'parity-preserving-negative-candidates-below-target'
+    && finding.classification === 'NEGATIVE_RESULT'
+    && finding.evidence.some(item => item.includes('fastestFullParityNegativeCandidate=rawFrameNameIdUnrolledMediumAsciiText 170.59 MiB/s'))
+    && finding.evidence.some(item => item.includes('fullParityNegativeCandidatesCrossTarget=0'))
+  ));
+  assert.ok(report.findings.some(finding =>
     finding.id === 'text-folding-only-still-below-target'
     && finding.classification === 'NEGATIVE_RESULT'
     && finding.evidence.some(item => item.includes('text-checksum-folding-omitted'))
@@ -334,6 +353,8 @@ test('text materialization frontier separates headroom rows from full-string cou
   assert.match(markdown, /Projected full-string with maximum no-trim speedup: 189\.21 MiB\/s/);
   assert.match(markdown, /Maximum no-trim speedup still below target by 10\.79 MiB\/s/);
   assert.match(markdown, /Fastest without-text row: withoutTextStrings from text-trim-cost-decomposition-4gib\.json at 252\.36 MiB\/s/);
+  assert.match(markdown, /Fastest full-parity negative candidate: rawFrameNameIdUnrolledMediumAsciiText from unrolled-medium-ascii-text-materialization-candidate\.json at 170\.59 MiB\/s/);
+  assert.match(markdown, /Full-parity negative candidates crossing 200 MiB\/s: 0/);
   assert.match(markdown, /## Source Consumption/);
   assert.match(markdown, /synchronous Iterable<Uint8Array\[\]>/);
   assert.match(markdown, /not a pure ReadableStream and not one full 1 GiB ArrayBuffer parser input/);

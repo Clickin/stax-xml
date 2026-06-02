@@ -1,6 +1,6 @@
 # Text Materialization Frontier
 
-Generated: 2026-06-02T18:47:20.323Z
+Generated: 2026-06-02T18:52:52.715Z
 
 Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.
 
@@ -15,6 +15,8 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
 - Projected full-string with maximum no-trim speedup: 189.21 MiB/s
 - Maximum no-trim speedup still below target by 10.79 MiB/s
 - Maximum fold-trim speedup: 0.80x
+- Fastest full-parity negative candidate: rawFrameNameIdUnrolledMediumAsciiText from unrolled-medium-ascii-text-materialization-candidate.json at 170.59 MiB/s
+- Full-parity negative candidates crossing 200 MiB/s: 0
 - Fastest instrumentation-disabled full-string row: rawFrameNameIdNoCountersNameFoldCache from no-counter-name-fold-cache-candidate.json at 170.17 MiB/s
 - Instrumentation-disabled full-string rows crossing 200 MiB/s: 0
 - Full rows crossing 200 MiB/s: 0
@@ -124,6 +126,12 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
   - text-checksum-folding-omitted: candidate/control=1.08x, candidate=162.70 MiB/s
   - text-length-only-checksum: candidate/control=1.04x, candidate=155.89 MiB/s
   - same-run-text-omission-control: candidate/control=1.06x, candidate=160.29 MiB/s
+- parity-preserving-negative-candidates-below-target (NEGATIVE_RESULT): The fastest bounded full-string-parity negative candidate remains below both the current full frontier and the 200 MiB/s target.
+  - fastestFullParityNegativeCandidate=rawFrameNameIdUnrolledMediumAsciiText 170.59 MiB/s
+  - sourceArtifact=unrolled-medium-ascii-text-materialization-candidate.json
+  - candidateToFastestFull=0.92x
+  - remaining=29.41 MiB/s
+  - fullParityNegativeCandidatesCrossTarget=0
 - text-folding-only-still-below-target (NEGATIVE_RESULT): Reducing text checksum folding while still materializing text strings stayed below the 200 MiB/s target in the same 1 GiB books corpus run.
   - text-checksum-folding-omitted: control=150.60 MiB/s, candidate=162.70 MiB/s, candidate/control=1.08x, textReads=16,987,392
   - text-length-only-checksum: control=150.60 MiB/s, candidate=155.89 MiB/s, candidate/control=1.04x, textReads=16,987,392

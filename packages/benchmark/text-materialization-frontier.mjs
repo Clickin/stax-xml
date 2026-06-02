@@ -308,6 +308,9 @@ function createReport(options) {
     .map(row => ({ ...row.candidate, family: row.family }))
     .filter(row => row.fullStringParity === true && row.id.includes('NoCounters'));
   const fastestInstrumentationDisabledFull = maxBy(instrumentationDisabledFullRows, row => row.mibPerSec);
+  const fullParityNegativeCandidates = negativeRows
+    .filter(row => row.candidatePreservesFullStringParity === true && row.candidate.boundedMemory === true);
+  const fastestFullParityNegativeCandidate = maxBy(fullParityNegativeCandidates, row => row.candidate.mibPerSec);
   const maximumNoTrimSpeedup = round(Math.max(...sameScalePairs.map(pair => pair.noTrimSpeedup).filter(isFiniteNumber)));
   const projectedFullWithMaximumNoTrimSpeedupMiBPerSec = round(fastestFull.mibPerSec * maximumNoTrimSpeedup);
   const summary = {
@@ -336,6 +339,13 @@ function createReport(options) {
     projectedFullWithMaximumNoTrimSpeedupCrossesTarget: projectedFullWithMaximumNoTrimSpeedupMiBPerSec >= targetMiBPerSec,
     maximumNoTrimSpeedupRemainingMiBPerSec: round(targetMiBPerSec - projectedFullWithMaximumNoTrimSpeedupMiBPerSec),
     maximumFoldTrimSpeedup: round(Math.max(...sameScalePairs.map(pair => pair.foldTrimSpeedup).filter(isFiniteNumber))),
+    fullParityNegativeCandidateCount: fullParityNegativeCandidates.length,
+    fastestFullParityNegativeCandidate: summarizeNegativeCandidateRow(fastestFullParityNegativeCandidate),
+    fastestFullParityNegativeCandidateRemainingMiBPerSec: round(targetMiBPerSec - fastestFullParityNegativeCandidate.candidate.mibPerSec),
+    fastestFullParityNegativeCandidateToFastestFullRatio: ratio(fastestFullParityNegativeCandidate.candidate.mibPerSec, fastestFull?.mibPerSec),
+    fullParityNegativeCandidatesCrossTarget: fullParityNegativeCandidates
+      .filter(row => row.candidate.mibPerSec >= targetMiBPerSec)
+      .length,
     fastestInstrumentationDisabledFullRow: summarizeInstrumentationDisabledRow(fastestInstrumentationDisabledFull),
     instrumentationDisabledRowsCrossTarget: instrumentationDisabledFullRows
       .filter(row => row.boundedMemory === true && row.mibPerSec >= targetMiBPerSec)
@@ -517,6 +527,18 @@ function createFindings(summary, sameScalePairs, negativeRows) {
       evidence: negativeRows.map(row => `${row.family}: candidate/control=${formatNumber(row.candidateToControlRatio)}x, candidate=${formatNumber(row.candidate.mibPerSec)} MiB/s`),
     },
     {
+      id: 'parity-preserving-negative-candidates-below-target',
+      classification: 'NEGATIVE_RESULT',
+      summary: 'The fastest bounded full-string-parity negative candidate remains below both the current full frontier and the 200 MiB/s target.',
+      evidence: [
+        `fastestFullParityNegativeCandidate=${summary.fastestFullParityNegativeCandidate.id} ${formatNumber(summary.fastestFullParityNegativeCandidate.mibPerSec)} MiB/s`,
+        `sourceArtifact=${summary.fastestFullParityNegativeCandidate.sourceArtifact}`,
+        `candidateToFastestFull=${formatNumber(summary.fastestFullParityNegativeCandidateToFastestFullRatio)}x`,
+        `remaining=${formatNumber(summary.fastestFullParityNegativeCandidateRemainingMiBPerSec)} MiB/s`,
+        `fullParityNegativeCandidatesCrossTarget=${summary.fullParityNegativeCandidatesCrossTarget}`,
+      ],
+    },
+    {
       id: 'text-folding-only-still-below-target',
       classification: 'NEGATIVE_RESULT',
       summary: 'Reducing text checksum folding while still materializing text strings stayed below the 200 MiB/s target in the same 1 GiB books corpus run.',
@@ -566,6 +588,8 @@ function renderMarkdown(report) {
     `- Projected full-string with maximum no-trim speedup: ${formatNumber(report.summary.projectedFullWithMaximumNoTrimSpeedupMiBPerSec)} MiB/s`,
     `- Maximum no-trim speedup still below target by ${formatNumber(report.summary.maximumNoTrimSpeedupRemainingMiBPerSec)} MiB/s`,
     `- Maximum fold-trim speedup: ${formatNumber(report.summary.maximumFoldTrimSpeedup)}x`,
+    `- Fastest full-parity negative candidate: ${formatSummaryRow(report.summary.fastestFullParityNegativeCandidate)}`,
+    `- Full-parity negative candidates crossing 200 MiB/s: ${report.summary.fullParityNegativeCandidatesCrossTarget}`,
     `- Fastest instrumentation-disabled full-string row: ${formatSummaryRow(report.summary.fastestInstrumentationDisabledFullRow)}`,
     `- Instrumentation-disabled full-string rows crossing 200 MiB/s: ${report.summary.instrumentationDisabledRowsCrossTarget}`,
     `- Full rows crossing 200 MiB/s: ${report.summary.fullRowsCrossTarget}`,
@@ -650,6 +674,19 @@ function summarizeInstrumentationDisabledRow(row) {
     mibPerSec: row.mibPerSec,
     fullStringParity: row.fullStringParity,
     boundedMemory: row.boundedMemory,
+  };
+}
+
+function summarizeNegativeCandidateRow(row) {
+  if (!row) return null;
+  return {
+    family: row.family,
+    sourceArtifact: row.sourceArtifact,
+    id: row.candidate.id,
+    runtimeLabel: row.candidate.runtimeLabel ?? null,
+    mibPerSec: row.candidate.mibPerSec,
+    fullStringParity: row.candidate.fullStringParity === true,
+    boundedMemory: row.candidate.boundedMemory === true,
   };
 }
 

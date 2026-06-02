@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T18:47:20.323Z",
+  "generatedAt": "2026-06-02T18:52:52.715Z",
   "objective": "text-materialization-frontier",
   "contract": "same-corpus-text-materialization-headroom-synthesis",
   "note": "Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.",
@@ -210,6 +210,19 @@
     "projectedFullWithMaximumNoTrimSpeedupCrossesTarget": false,
     "maximumNoTrimSpeedupRemainingMiBPerSec": 10.79,
     "maximumFoldTrimSpeedup": 0.8,
+    "fullParityNegativeCandidateCount": 28,
+    "fastestFullParityNegativeCandidate": {
+      "family": "unrolled-medium-ascii-text-fast-path",
+      "sourceArtifact": "unrolled-medium-ascii-text-materialization-candidate.json",
+      "id": "rawFrameNameIdUnrolledMediumAsciiText",
+      "runtimeLabel": null,
+      "mibPerSec": 170.59,
+      "fullStringParity": true,
+      "boundedMemory": true
+    },
+    "fastestFullParityNegativeCandidateRemainingMiBPerSec": 29.41,
+    "fastestFullParityNegativeCandidateToFastestFullRatio": 0.92,
+    "fullParityNegativeCandidatesCrossTarget": 0,
     "fastestInstrumentationDisabledFullRow": {
       "family": "single-process-no-counter-name-fold-cache",
       "sourceArtifact": "no-counter-name-fold-cache-candidate.json",
@@ -3414,6 +3427,18 @@
         "text-checksum-folding-omitted: candidate/control=1.08x, candidate=162.70 MiB/s",
         "text-length-only-checksum: candidate/control=1.04x, candidate=155.89 MiB/s",
         "same-run-text-omission-control: candidate/control=1.06x, candidate=160.29 MiB/s"
+      ]
+    },
+    {
+      "id": "parity-preserving-negative-candidates-below-target",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "The fastest bounded full-string-parity negative candidate remains below both the current full frontier and the 200 MiB/s target.",
+      "evidence": [
+        "fastestFullParityNegativeCandidate=rawFrameNameIdUnrolledMediumAsciiText 170.59 MiB/s",
+        "sourceArtifact=unrolled-medium-ascii-text-materialization-candidate.json",
+        "candidateToFastestFull=0.92x",
+        "remaining=29.41 MiB/s",
+        "fullParityNegativeCandidatesCrossTarget=0"
       ]
     },
     {

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T18:47:40.871Z",
+  "generatedAt": "2026-06-02T18:53:15.380Z",
   "objective": "target-distance-audit",
   "contract": "woodstox-and-quickxml-0.9x-target-distance",
   "note": "Audits the distance from current same-contract JavaScript rows to Woodstox and quick-xml targets. This is not a benchmark run, not object-shape equivalence, and not a JavaScript runtime ceiling proof.",
@@ -9,7 +9,7 @@
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
     "textFrontierJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\text-materialization-frontier.json",
-    "textFrontierGeneratedAt": "2026-06-02T18:47:20.323Z",
+    "textFrontierGeneratedAt": "2026-06-02T18:52:52.715Z",
     "textFrontierObjective": "text-materialization-frontier"
   },
   "summary": {
