@@ -1189,6 +1189,7 @@ function createCoverageSnapshot(audit, counterexampleSnapshot = null) {
         closestBlockedCandidateCount: null,
         closestBlockedCandidateSourceArtifacts: [],
       },
+      safariWebKitStatus: createNullSafariWebKitStatus(),
       guards: createCoverageGuards(null, counterexampleSnapshot),
     };
   }
@@ -1245,6 +1246,7 @@ function createCoverageSnapshot(audit, counterexampleSnapshot = null) {
         ? closureAudit.closestBlockedCandidateSourceArtifacts
         : [],
     },
+    safariWebKitStatus: createSafariWebKitStatusSnapshot(audit.coverage?.safariWebKitStatus),
     guards: [],
   };
   const byId = Object.fromEntries(obligations.map(obligation => [obligation.id, {
@@ -1258,16 +1260,84 @@ function createCoverageSnapshot(audit, counterexampleSnapshot = null) {
   return snapshot;
 }
 
+function createNullSafariWebKitStatus() {
+  return {
+    evidenceClass: null,
+    hostIsMacOS: null,
+    safariExecutableFound: null,
+    safaridriverFound: null,
+    harnessSupportsSafari: null,
+    canRunSafariBrowserRows: null,
+    benchmarkRowsRecorded: null,
+    fullStringRowsRecorded: null,
+    directReadableStreamFullStringRowsRecorded: null,
+    primarySyncByteBatchRowsRecorded: null,
+    boundedPrimarySyncByteBatchRowsRecorded: null,
+    largeBoundedPrimarySyncByteBatchRowsRecorded: null,
+    directReadableStreamRowsAreSeparateEvidence: null,
+    exactBuildIdentityRecorded: null,
+    sourceBoundaryPinned: null,
+    primaryRowsInSameContractComparison: null,
+    largePrimaryRowsInSameContractComparison: null,
+    availabilityClosureRequirementsMet: null,
+    availabilityClosureRequirementsBlocked: null,
+    closesSafariObligation: null,
+  };
+}
+
+function createSafariWebKitStatusSnapshot(status = {}) {
+  return {
+    ...createNullSafariWebKitStatus(),
+    evidenceClass: status.evidenceClass ?? null,
+    hostIsMacOS: status.hostIsMacOS ?? null,
+    safariExecutableFound: status.safariExecutableFound ?? null,
+    safaridriverFound: status.safaridriverFound ?? null,
+    harnessSupportsSafari: status.harnessSupportsSafari ?? null,
+    canRunSafariBrowserRows: status.canRunSafariBrowserRows ?? null,
+    benchmarkRowsRecorded: status.benchmarkRowsRecorded ?? null,
+    fullStringRowsRecorded: status.fullStringRowsRecorded ?? null,
+    directReadableStreamFullStringRowsRecorded: status.directReadableStreamFullStringRowsRecorded ?? null,
+    primarySyncByteBatchRowsRecorded: status.primarySyncByteBatchRowsRecorded ?? null,
+    boundedPrimarySyncByteBatchRowsRecorded: status.boundedPrimarySyncByteBatchRowsRecorded ?? null,
+    largeBoundedPrimarySyncByteBatchRowsRecorded: status.largeBoundedPrimarySyncByteBatchRowsRecorded ?? null,
+    directReadableStreamRowsAreSeparateEvidence: status.directReadableStreamRowsAreSeparateEvidence ?? null,
+    exactBuildIdentityRecorded: status.exactBuildIdentityRecorded ?? null,
+    sourceBoundaryPinned: status.sourceBoundaryPinned ?? null,
+    primaryRowsInSameContractComparison: status.primaryRowsInSameContractComparison ?? null,
+    largePrimaryRowsInSameContractComparison: status.largePrimaryRowsInSameContractComparison ?? null,
+    availabilityClosureRequirementsMet: status.availabilityClosureRequirementsMet ?? null,
+    availabilityClosureRequirementsBlocked: status.availabilityClosureRequirementsBlocked ?? null,
+    closesSafariObligation: status.closesSafariObligation ?? null,
+  };
+}
+
 function createCoverageGuards(snapshot, counterexampleSnapshot = null) {
   const counts = snapshot?.spiderMonkeyDiagnostics?.selectedRowIdentityStatusCounts ?? {};
   const spiderMonkeyDiagnostics = snapshot?.spiderMonkeyDiagnostics ?? {};
   const routeFreshness = snapshot?.spiderMonkeyTaskclusterRouteFreshness ?? {};
   const closureAudit = snapshot?.spiderMonkeyClosureAudit ?? {};
+  const safari = snapshot?.safariWebKitStatus ?? {};
   return [
     {
       id: 'coverage-loaded',
       description: 'runtime-proof-coverage-audit.json must be loaded by the gate.',
       satisfied: snapshot?.loaded === true,
+    },
+    {
+      id: 'safari-webkit-local-unavailable-status-visible',
+      description: 'Safari/WebKit local unavailable status must stay visible in coverage: current host has no Safari/safaridriver row, zero Safari browser rows are recorded, and the Safari obligation remains open.',
+      satisfied: safari.evidenceClass === 'environment-availability-only'
+        && safari.hostIsMacOS === false
+        && safari.canRunSafariBrowserRows === false
+        && safari.benchmarkRowsRecorded === 0
+        && safari.fullStringRowsRecorded === 0
+        && safari.primarySyncByteBatchRowsRecorded === 0
+        && safari.boundedPrimarySyncByteBatchRowsRecorded === 0
+        && safari.largeBoundedPrimarySyncByteBatchRowsRecorded === 0
+        && safari.directReadableStreamRowsAreSeparateEvidence === true
+        && safari.exactBuildIdentityRecorded === false
+        && safari.sourceBoundaryPinned === false
+        && safari.closesSafariObligation === false,
     },
     {
       id: 'spidermonkey-identity-status-counts-present',
@@ -1449,6 +1519,7 @@ function renderMarkdown(report) {
   `- SpiderMonkey coverage diagnostics outside closure candidates: ${formatStringList(report.coverageSnapshot.spiderMonkeyDiagnostics.diagnosticSourcesOutsideClosureAudit)}`,
   `- SpiderMonkey selected row identity statuses: ${formatCountMap(report.coverageSnapshot.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts)}`,
   `- SpiderMonkey Taskcluster route freshness: ${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.routeFresh === true ? 'fresh' : 'stale'} (artifactIdentityMatchesRoute=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.artifactIdentityMatchesRoute === true ? 'yes' : 'no'}, checkedArtifacts=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.checkedArtifactCount ?? 'unknown'}, mismatchedArtifacts=${formatStringList(report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.mismatchedArtifacts ?? [])})`,
+  `- Safari/WebKit status: evidenceClass=${report.coverageSnapshot.safariWebKitStatus?.evidenceClass ?? 'unknown'}, canRunSafariBrowserRows=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.canRunSafariBrowserRows)}, browserRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.benchmarkRowsRecorded)}, primarySyncRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.primarySyncByteBatchRowsRecorded)}, boundedPrimaryRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.boundedPrimarySyncByteBatchRowsRecorded)}, largeBoundedPrimaryRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.largeBoundedPrimarySyncByteBatchRowsRecorded)}, exactBuildIdentity=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.exactBuildIdentityRecorded)}, sourceBoundaryPinned=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.sourceBoundaryPinned)}, closesSafariObligation=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.closesSafariObligation)}`,
     '',
     '| ID | Satisfied | Meaning |',
     '| --- | --- | --- |',

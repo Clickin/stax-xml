@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T14:32:12.740Z
+Generated: 2026-06-02T14:39:05.388Z
 
 ## Scope
 
@@ -95,10 +95,12 @@ These are static disclosure guards. They must stay disclosed while the broad run
 - SpiderMonkey coverage diagnostics outside closure candidates: none
 - SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7
 - SpiderMonkey Taskcluster route freshness: fresh (artifactIdentityMatchesRoute=yes, checkedArtifacts=5, mismatchedArtifacts=none)
+- Safari/WebKit status: evidenceClass=environment-availability-only, canRunSafariBrowserRows=no, browserRows=0, primarySyncRows=0, boundedPrimaryRows=0, largeBoundedPrimaryRows=0, exactBuildIdentity=no, sourceBoundaryPinned=no, closesSafariObligation=no
 
 | ID | Satisfied | Meaning |
 | --- | --- | --- |
 | `coverage-loaded` | yes | runtime-proof-coverage-audit.json must be loaded by the gate. |
+| `safari-webkit-local-unavailable-status-visible` | yes | Safari/WebKit local unavailable status must stay visible in coverage: current host has no Safari/safaridriver row, zero Safari browser rows are recorded, and the Safari obligation remains open. |
 | `spidermonkey-identity-status-counts-present` | yes | Coverage audit must expose coverage.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts for gate-level review. |
 | `spidermonkey-non-stax-diagnostic-rows-visible` | yes | Coverage audit must keep non-StAX SpiderMonkey diagnostic rows visible via selectedRowIdentityStatusCounts.not-claimed-non-stax-diagnostic. |
 | `spidermonkey-closure-audit-surface-visible` | yes | Coverage audit must expose SpiderMonkey diagnostic row count, closure-audit candidate count, their gap, and qualifiedClosureCount so gate review sees the curated coverage surface is not the full closure matrix. |
