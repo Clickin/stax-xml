@@ -571,6 +571,11 @@ function createLocalClosure(activeObligations, audit, options = {}) {
     const buildconfig = artifactByName.get('firefox-spidermonkey-buildconfig-source-pin-audit.json') ?? null;
     const spiderMonkeyDiagnosticById = new Map((audit.coverage?.spiderMonkeyDiagnostics?.rows ?? [])
       .map(row => [row.id, row]));
+    const taskclusterDebugCodegenIdentity = formatTaskclusterIdentity(taskclusterDebugJsShell);
+    const taskclusterDebugXmlCodegenIdentity = formatTaskclusterIdentity(taskclusterDebugJsShellXml);
+    const taskclusterDebugMaterializedCodegenIdentity = formatTaskclusterIdentity(taskclusterDebugJsShellMaterialized);
+    const taskclusterDebugCodegenRerunIdentity = formatTaskclusterIdentity(taskclusterDebugJsShellRerun);
+    const taskclusterDebugMaterializedCodegenRerunIdentity = formatTaskclusterIdentity(taskclusterDebugJsShellMaterializedRerun);
     const diagnosticIdentityStatusCounts = audit.coverage?.spiderMonkeyDiagnostics?.selectedRowIdentityStatusCounts ?? {};
     const diagnosticNoDump = diagnostic?.outcome?.status === 'no-dump-emitted'
       && diagnostic?.outcome?.emittedDump === false;
@@ -709,19 +714,19 @@ function createLocalClosure(activeObligations, audit, options = {}) {
           ? 'An archived Firefox 36 era debug js-shell emits JitSpew codegen output, proving the expected diagnostic surface shape, but it is not comparable to the current Firefox/SpiderMonkey benchmark rows.'
           : 'No scoped archival debug js-shell codegen surface proof is recorded.',
         taskclusterDebugCodegenScopeGuard
-          ? `A current Taskcluster debug js-shell emits JitSpew codegen output (taskId=${taskclusterDebugJsShell.shell?.provenance?.taskId ?? 'unknown'}, buildId=${taskclusterDebugJsShell.shell?.provenance?.buildId ?? 'unknown'}), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=${taskclusterDebugJsShell.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, and selectedRowIdentityStatus=${spiderMonkeyDiagnosticById.get('taskcluster-debug-jsshell-codegen')?.selectedRowIdentityStatus ?? 'unknown'}.`
+          ? `A current Taskcluster debug js-shell emits JitSpew codegen output (${taskclusterDebugCodegenIdentity}), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=${taskclusterDebugJsShell.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, and selectedRowIdentityStatus=${spiderMonkeyDiagnosticById.get('taskcluster-debug-jsshell-codegen')?.selectedRowIdentityStatus ?? 'unknown'}.`
           : 'No current Taskcluster debug js-shell codegen scope guard is recorded.',
         taskclusterDebugXmlCodegenScopeGuard
-          ? `A current Taskcluster debug js-shell emits JitSpew codegen output while running the XML byte-tokenizer workload (taskId=${taskclusterDebugJsShellXml.shell?.provenance?.taskId ?? 'unknown'}, buildId=${taskclusterDebugJsShellXml.shell?.provenance?.buildId ?? 'unknown'}), but fullStringParity=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=${taskclusterDebugJsShellXml.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, and selectedRowIdentityStatus=${spiderMonkeyDiagnosticById.get('taskcluster-debug-jsshell-xml-codegen')?.selectedRowIdentityStatus ?? 'unknown'}.`
+          ? `A current Taskcluster debug js-shell emits JitSpew codegen output while running the XML byte-tokenizer workload (${taskclusterDebugXmlCodegenIdentity}), but fullStringParity=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=${taskclusterDebugJsShellXml.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, and selectedRowIdentityStatus=${spiderMonkeyDiagnosticById.get('taskcluster-debug-jsshell-xml-codegen')?.selectedRowIdentityStatus ?? 'unknown'}.`
           : 'No current Taskcluster debug js-shell XML workload codegen scope guard is recorded.',
         taskclusterDebugMaterializedCodegenScopeGuard
-          ? `A current Taskcluster debug js-shell emits JitSpew codegen output while materializing JS strings and public event-shaped objects (taskId=${taskclusterDebugJsShellMaterialized.shell?.provenance?.taskId ?? 'unknown'}, buildId=${taskclusterDebugJsShellMaterialized.shell?.provenance?.buildId ?? 'unknown'}), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=${taskclusterDebugJsShellMaterialized.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, and selectedRowIdentityStatus=${spiderMonkeyDiagnosticById.get('taskcluster-debug-jsshell-materialized-codegen')?.selectedRowIdentityStatus ?? 'unknown'}.`
+          ? `A current Taskcluster debug js-shell emits JitSpew codegen output while materializing JS strings and public event-shaped objects (${taskclusterDebugMaterializedCodegenIdentity}), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=${taskclusterDebugJsShellMaterialized.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, and selectedRowIdentityStatus=${spiderMonkeyDiagnosticById.get('taskcluster-debug-jsshell-materialized-codegen')?.selectedRowIdentityStatus ?? 'unknown'}.`
           : 'No current Taskcluster debug js-shell materialized string/object codegen scope guard is recorded.',
         taskclusterDebugCodegenRerunScopeGuard
-          ? `A rerun of the current Taskcluster debug js-shell codegen probe reproduces JitSpew output (taskId=${taskclusterDebugJsShellRerun.shell?.provenance?.taskId ?? 'unknown'}, codegenMarkers=${taskclusterDebugJsShellRerun.shell?.codegenProbe?.codegenMarkerCount ?? 'unknown'}), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=${taskclusterDebugJsShellRerun.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, and closesEmittedIrObligation=false.`
+          ? `A rerun of the current Taskcluster debug js-shell codegen probe reproduces JitSpew output (${taskclusterDebugCodegenRerunIdentity}, codegenMarkers=${taskclusterDebugJsShellRerun.shell?.codegenProbe?.codegenMarkerCount ?? 'unknown'}), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=${taskclusterDebugJsShellRerun.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, and closesEmittedIrObligation=false.`
           : 'No rerun Taskcluster debug js-shell codegen scope guard is recorded.',
         taskclusterDebugMaterializedCodegenRerunScopeGuard
-          ? `A rerun of the current Taskcluster debug js-shell materialized string/object probe reproduces JitSpew output (taskId=${taskclusterDebugJsShellMaterializedRerun.shell?.provenance?.taskId ?? 'unknown'}, codegenMarkers=${taskclusterDebugJsShellMaterializedRerun.shell?.materializedCodegenProbe?.codegenMarkerCount ?? 'unknown'}, throughputMiBPerSec=${formatNumber(taskclusterDebugJsShellMaterializedRerunRaw?.materializedWorkload?.throughputMiBPerSec)}), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=${taskclusterDebugJsShellMaterializedRerun.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, and closesEmittedIrObligation=false.`
+          ? `A rerun of the current Taskcluster debug js-shell materialized string/object probe reproduces JitSpew output (${taskclusterDebugMaterializedCodegenRerunIdentity}, codegenMarkers=${taskclusterDebugJsShellMaterializedRerun.shell?.materializedCodegenProbe?.codegenMarkerCount ?? 'unknown'}, throughputMiBPerSec=${formatNumber(taskclusterDebugJsShellMaterializedRerunRaw?.materializedWorkload?.throughputMiBPerSec)}), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=${taskclusterDebugJsShellMaterializedRerun.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, and closesEmittedIrObligation=false.`
           : 'No rerun Taskcluster debug js-shell materialized string/object codegen scope guard is recorded.',
         `Coverage diagnostic identity status counts: selectedRowIdentityStatusCounts ${formatCountMap(diagnosticIdentityStatusCounts)}.`,
         asciiScopeDistancePinned
@@ -1260,6 +1265,17 @@ function formatNullableBoolean(value) {
 
 function formatNumber(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value.toFixed(2) : 'n/a';
+}
+
+function formatTaskclusterIdentity(artifact) {
+  const provenance = artifact?.shell?.provenance ?? {};
+  const taskId = provenance.taskId ?? 'unknown';
+  const buildId = provenance.buildId ?? provenance.targetTxt?.buildId ?? provenance.buildhub?.buildId ?? 'unknown';
+  const sourceRevision = provenance.sourceRevision
+    ?? provenance.targetTxt?.sourceRevision
+    ?? provenance.buildhub?.sourceRevision
+    ?? 'unknown';
+  return `taskId=${taskId}, buildId=${buildId}, sourceRevision=${sourceRevision}`;
 }
 
 function formatCountMap(counts) {

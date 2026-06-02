@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T15:16:21.377Z",
+  "generatedAt": "2026-06-02T15:28:53.796Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -417,7 +417,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T15:16:03.177Z",
+    "generatedAt": "2026-06-02T15:28:33.411Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -499,6 +499,11 @@
         "satisfied": true
       },
       {
+        "id": "spidermonkey-taskcluster-source-revision-visible",
+        "description": "SpiderMonkey Taskcluster debug-shell handoff blockers must preserve sourceRevision for current diagnostic codegen evidence.",
+        "satisfied": true
+      },
+      {
         "id": "spidermonkey-closure-audit-identity-statuses",
         "description": "SpiderMonkey closure audit must preserve non-StAX diagnostic identity status counts for closure-matrix candidates.",
         "satisfied": true
@@ -542,9 +547,9 @@
   },
   "handoffValidationSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T15:16:07.274Z",
-    "validatedHandoffGeneratedAt": "2026-06-02T15:16:03.177Z",
-    "currentHandoffGeneratedAt": "2026-06-02T15:16:03.177Z",
+    "generatedAt": "2026-06-02T15:28:52.744Z",
+    "validatedHandoffGeneratedAt": "2026-06-02T15:28:33.411Z",
+    "currentHandoffGeneratedAt": "2026-06-02T15:28:33.411Z",
     "pass": true,
     "allContractsPresent": true,
     "requiredHandoffsPresent": true,
@@ -1118,8 +1123,8 @@
     "requiredCounterexampleScanGuards": 8,
     "satisfiedCoverageGuards": 10,
     "requiredCoverageGuards": 10,
-    "satisfiedHandoffGuards": 21,
-    "requiredHandoffGuards": 21,
+    "satisfiedHandoffGuards": 22,
+    "requiredHandoffGuards": 22,
     "satisfiedHandoffValidationGuards": 6,
     "requiredHandoffValidationGuards": 6,
     "satisfiedSourceAuditGuards": 7,

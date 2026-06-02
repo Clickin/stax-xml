@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T15:16:21.377Z
+Generated: 2026-06-02T15:28:53.796Z
 
 ## Scope
 
@@ -133,7 +133,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-02T15:16:03.177Z)
+- Handoff loaded: yes (2026-06-02T15:28:33.411Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -152,6 +152,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `spidermonkey-same-contract-comparison-required` | yes | SpiderMonkey closing artifacts must require the selected row id to match same-contract-runtime-comparison.json with event count and checksum parity. |
 | `spidermonkey-closing-metadata-required` | yes | SpiderMonkey closing artifacts must require runtime/build identity, diagnostic flags, row identity, checksum parity, and emitted IR or optimized-code dump metadata. |
 | `spidermonkey-diagnostic-row-identity-blocker` | yes | SpiderMonkey diagnostic rows must remain blocked with selectedRowIdentityStatus=not-claimed-non-stax-diagnostic until they are same-contract StAX closure evidence. |
+| `spidermonkey-taskcluster-source-revision-visible` | yes | SpiderMonkey Taskcluster debug-shell handoff blockers must preserve sourceRevision for current diagnostic codegen evidence. |
 | `spidermonkey-closure-audit-identity-statuses` | yes | SpiderMonkey closure audit must preserve non-StAX diagnostic identity status counts for closure-matrix candidates. |
 | `spidermonkey-selected-row-metadata-missing-fields` | yes | SpiderMonkey closure audit must preserve which selected-row metadata fields are missing from closure-matrix candidates. |
 | `spidermonkey-selected-row-comparison-match-counts` | yes | SpiderMonkey closure audit must preserve selected-row comparison match counts against same-contract-runtime-comparison.json. |
@@ -163,8 +164,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T15:16:07.274Z)
-- Handoff validation target handoff generatedAt: 2026-06-02T15:16:03.177Z (current 2026-06-02T15:16:03.177Z)
+- Handoff validation loaded: yes (2026-06-02T15:28:52.744Z)
+- Handoff validation target handoff generatedAt: 2026-06-02T15:28:33.411Z (current 2026-06-02T15:28:33.411Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes
 - Required contracts present: yes

@@ -195,6 +195,7 @@ function validateHandoff(handoff) {
           /event count/,
           /checksum parity/,
           /emitted IR or optimized-code dump metadata/,
+          /sourceRevision=[0-9a-f]{40}/,
           /selectedRowIdentityStatus=/,
           /selectedRowIdentityStatusCounts/,
           /spidermonkey-ascii-scope-distance-audit\.json/,

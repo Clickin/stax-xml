@@ -993,6 +993,14 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
       satisfied: spiderBlockers.some(item => /selectedRowIdentityStatus=not-claimed-non-stax-diagnostic/.test(item)),
     },
     {
+      id: 'spidermonkey-taskcluster-source-revision-visible',
+      description: 'SpiderMonkey Taskcluster debug-shell handoff blockers must preserve sourceRevision for current diagnostic codegen evidence.',
+      satisfied: spiderBlockers.some(item =>
+        /current Taskcluster debug js-shell emits JitSpew codegen output/.test(item)
+        && /sourceRevision=[0-9a-f]{40}/.test(item)
+      ),
+    },
+    {
       id: 'spidermonkey-closure-audit-identity-statuses',
       description: 'SpiderMonkey closure audit must preserve non-StAX diagnostic identity status counts for closure-matrix candidates.',
       satisfied: spiderBlockers.some(item => /selectedRowIdentityStatusCounts not-claimed-non-stax-diagnostic=\d+/.test(item)),
