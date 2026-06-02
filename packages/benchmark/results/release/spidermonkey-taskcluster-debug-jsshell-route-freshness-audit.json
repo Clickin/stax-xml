@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T15:52:51.043Z",
+  "generatedAt": "2026-06-02T18:37:02.641Z",
   "objective": "spidermonkey-taskcluster-debug-jsshell-route-freshness-audit",
   "contract": "taskcluster-latest-route-current-debug-jsshell-identity-freshness",
   "note": "Resolves the Taskcluster latest win64-debug route and checks whether the current SpiderMonkey debug js-shell evidence still names that route task. This is route freshness evidence only; it is not benchmark, codegen, or same-contract StAX closure evidence.",
@@ -7,7 +7,7 @@
     "status": "available",
     "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
     "taskId": "aJLr1DFjQ7urQTpRiIsfRQ",
-    "fetchedAt": "2026-06-02T15:52:51.041Z",
+    "fetchedAt": "2026-06-02T18:37:02.640Z",
     "indexUrl": "https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.mozilla-central.latest.firefox.win64-debug",
     "error": null
   },
