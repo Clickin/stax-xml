@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T15:28:33.411Z",
+  "generatedAt": "2026-06-02T15:36:49.285Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
@@ -542,7 +542,7 @@
         "safari-webkit-closure-audit.json"
       ],
       "blockers": [
-        "Current host cannot run Safari/WebKit browser rows through the normal Safari/safaridriver path.",
+        "Current host cannot run Safari/WebKit browser rows through the normal Safari/safaridriver path (hostPlatform=win32-x64, safariExecutableFound=false, safaridriverFound=false, currentHarnessSupportsSafari=true, canRunSafariBrowserRows=false).",
         "No Safari/WebKit benchmark row is recorded by the availability audit.",
         "No exact Safari/WebKit source-boundary pin is recorded by the availability audit.",
         "Safari closure matrix reports closureRequirementsMet=2, closureRequirementsBlocked=9, closesSafariObligation=false.",
@@ -623,7 +623,7 @@
           "safari-webkit-closure-audit.json"
         ],
         "blockers": [
-          "Current host cannot run Safari/WebKit browser rows through the normal Safari/safaridriver path.",
+          "Current host cannot run Safari/WebKit browser rows through the normal Safari/safaridriver path (hostPlatform=win32-x64, safariExecutableFound=false, safaridriverFound=false, currentHarnessSupportsSafari=true, canRunSafariBrowserRows=false).",
           "No Safari/WebKit benchmark row is recorded by the availability audit.",
           "No exact Safari/WebKit source-boundary pin is recorded by the availability audit.",
           "Safari closure matrix reports closureRequirementsMet=2, closureRequirementsBlocked=9, closesSafariObligation=false.",

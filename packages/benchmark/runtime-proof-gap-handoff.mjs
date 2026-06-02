@@ -505,12 +505,21 @@ function createLocalClosure(activeObligations, audit, options = {}) {
   if (activeById.has('safari-jsc-source-and-browser-rows-open')) {
     const obligation = activeById.get('safari-jsc-source-and-browser-rows-open');
     const availability = artifactByName.get('safari-webkit-availability-audit.json') ?? null;
+    const availabilityRaw = readOptionalJson(resolve(releaseDir, 'safari-webkit-availability-audit.json'))
+      ?? readOptionalJson(resolve(dirname(defaultAuditJson), 'safari-webkit-availability-audit.json'));
     const safariClosureAudit = artifactByName.get('safari-webkit-closure-audit.json') ?? null;
     const safariClosureAuditRaw = readOptionalJson(resolve(releaseDir, 'safari-webkit-closure-audit.json'))
       ?? readOptionalJson(resolve(dirname(defaultAuditJson), 'safari-webkit-closure-audit.json'));
     const localHostCannotRun = /current host cannot run Safari rows/i.test(obligation.evidence ?? '');
     const safariRowsRecorded = availability?.availability?.safariBenchmarkRowsRecorded === true;
     const sourceBoundaryPinned = availability?.availability?.safariSourceBoundaryPinned === true;
+    const safariHostPlatform = availabilityRaw?.environment?.hostPlatform
+      ?? availability?.environment?.hostPlatform
+      ?? 'unknown';
+    const safariExecutableFound = availability?.availability?.safariExecutableFound ?? 'unknown';
+    const safaridriverFound = availability?.availability?.safaridriverFound ?? 'unknown';
+    const harnessSupportsSafari = availability?.availability?.currentHarnessSupportsSafari ?? 'unknown';
+    const canRunSafariBrowserRows = availability?.availability?.canRunSafariBrowserRows ?? 'unknown';
     const closureRequirementsMet = availability?.availability?.closureRequirementsMet ?? 'unknown';
     const closureRequirementsBlocked = availability?.availability?.closureRequirementsBlocked ?? 'unknown';
     const closesSafariObligation = availability?.availability?.closesSafariObligation === true;
@@ -524,7 +533,7 @@ function createLocalClosure(activeObligations, audit, options = {}) {
       evidenceArtifacts: [availability, safariClosureAudit].filter(Boolean).map(artifact => artifact.sourceArtifact),
       blockers: localHostCannotRun
         ? [
-            'Current host cannot run Safari/WebKit browser rows through the normal Safari/safaridriver path.',
+            `Current host cannot run Safari/WebKit browser rows through the normal Safari/safaridriver path (hostPlatform=${safariHostPlatform}, safariExecutableFound=${safariExecutableFound}, safaridriverFound=${safaridriverFound}, currentHarnessSupportsSafari=${harnessSupportsSafari}, canRunSafariBrowserRows=${canRunSafariBrowserRows}).`,
             safariRowsRecorded ? 'Safari/WebKit benchmark rows are recorded.' : 'No Safari/WebKit benchmark row is recorded by the availability audit.',
             sourceBoundaryPinned ? 'Safari/WebKit source boundary is pinned.' : 'No exact Safari/WebKit source-boundary pin is recorded by the availability audit.',
             `Safari closure matrix reports closureRequirementsMet=${closureRequirementsMet}, closureRequirementsBlocked=${closureRequirementsBlocked}, closesSafariObligation=${closesSafariObligation}.`,

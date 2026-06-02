@@ -409,7 +409,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
     'safari-webkit-availability-audit.json',
     'safari-webkit-closure-audit.json',
   ]);
-  assert.ok(safari.localClosure.blockers.some(item => /Current host cannot run Safari\/WebKit browser rows/.test(item)));
+  assert.ok(safari.localClosure.blockers.some(item => /Current host cannot run Safari\/WebKit browser rows.*hostPlatform=win32-x64, safariExecutableFound=false, safaridriverFound=false, currentHarnessSupportsSafari=true, canRunSafariBrowserRows=false/.test(item)));
   assert.ok(safari.localClosure.blockers.some(item => /No Safari\/WebKit benchmark row is recorded/.test(item)));
   assert.ok(safari.localClosure.blockers.some(item => /No exact Safari\/WebKit source-boundary pin is recorded/.test(item)));
   assert.ok(safari.localClosure.blockers.some(item => /Safari closure matrix reports closureRequirementsMet=2, closureRequirementsBlocked=9, closesSafariObligation=false/.test(item)));

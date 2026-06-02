@@ -939,8 +939,12 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
     },
     {
       id: 'safari-local-availability-blocker',
-      description: 'Safari handoff must preserve the local Safari availability blocker and zero-candidate closure audit summary tied to the current same-contract comparison identity.',
-      satisfied: safariBlockers.some(item => /Current host cannot run Safari\/WebKit browser rows/.test(item))
+      description: 'Safari handoff must preserve the local Safari availability blocker with host/harness runability details and zero-candidate closure audit summary tied to the current same-contract comparison identity.',
+      satisfied: safariBlockers.some(item => /Current host cannot run Safari\/WebKit browser rows/.test(item)
+        && /hostPlatform=[^,\)]+/.test(item)
+        && /safaridriverFound=false/.test(item)
+        && /currentHarnessSupportsSafari=true/.test(item)
+        && /canRunSafariBrowserRows=false/.test(item))
         && safariBlockers.some(item => /Safari\/WebKit closure audit checks candidateRows=0/.test(item)
           && /comparisonGeneratedAt=/.test(item)
           && /comparisonRowCount=\d+/.test(item)),

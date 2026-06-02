@@ -1,6 +1,6 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-02T15:28:33.411Z
+Generated: 2026-06-02T15:36:49.285Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -145,7 +145,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Locally runnable now: no
 - Local closure scope: This is environment availability evidence only; it is not a Safari/WebKit benchmark row or runtime limitation.
 - Local blockers:
-  - Current host cannot run Safari/WebKit browser rows through the normal Safari/safaridriver path.
+  - Current host cannot run Safari/WebKit browser rows through the normal Safari/safaridriver path (hostPlatform=win32-x64, safariExecutableFound=false, safaridriverFound=false, currentHarnessSupportsSafari=true, canRunSafariBrowserRows=false).
   - No Safari/WebKit benchmark row is recorded by the availability audit.
   - No exact Safari/WebKit source-boundary pin is recorded by the availability audit.
   - Safari closure matrix reports closureRequirementsMet=2, closureRequirementsBlocked=9, closesSafariObligation=false.
