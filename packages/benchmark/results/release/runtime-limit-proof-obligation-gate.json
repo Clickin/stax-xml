@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T21:22:17.114Z",
+  "generatedAt": "2026-06-02T21:25:50.322Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -751,6 +751,11 @@
         "satisfied": true
       },
       {
+        "id": "safari-target-distance-recomputed-after-rows",
+        "description": "Safari handoff must require target-distance-audit regeneration after Safari/WebKit rows so Woodstox and quick-xml 0.9x targets use the updated JavaScript comparison set.",
+        "satisfied": true
+      },
+      {
         "id": "safari-local-availability-blocker",
         "description": "Safari handoff must preserve the local Safari availability blocker with host/harness runability details and zero-candidate closure audit summary tied to the current same-contract comparison identity.",
         "satisfied": true
@@ -1484,8 +1489,8 @@
     "requiredCounterexampleScanGuards": 10,
     "satisfiedCoverageGuards": 10,
     "requiredCoverageGuards": 10,
-    "satisfiedHandoffGuards": 27,
-    "requiredHandoffGuards": 27,
+    "satisfiedHandoffGuards": 28,
+    "requiredHandoffGuards": 28,
     "satisfiedHandoffValidationGuards": 8,
     "requiredHandoffValidationGuards": 8,
     "satisfiedSourceAuditGuards": 7,

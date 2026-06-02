@@ -984,6 +984,7 @@ function extractSpiderMonkeyCodegenComparisonFreshness(blockers = []) {
 function createHandoffGuards(byId, counterexampleSnapshot = null) {
   const safari = byId?.get('safari-webkit-browser-row-handoff') ?? null;
   const spiderMonkey = byId?.get('spidermonkey-codegen-handoff') ?? null;
+  const safariCommands = safari?.commands ?? [];
   const safariChecks = safari?.closureChecks ?? [];
   const safariBlockers = safari?.localClosure?.blockers ?? [];
   const spiderExpected = spiderMonkey?.expectedEvidence ?? [];
@@ -1039,6 +1040,20 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
         && /Safari\/WebKit TextDecoder\/UTF-8 decode source lines/.test(safari?.sourceBoundaryContract?.textDecoderBoundary ?? '')
         && /Bun\/JSC and Bun-patched WebKit source pins are not Safari browser JSC source pins/.test(safari?.sourceBoundaryContract?.bunWebKitScopeGuard ?? '')
         && /tested Safari\/WebKit build identity matches/.test(safari?.sourceBoundaryContract?.bunWebKitScopeGuard ?? ''),
+    },
+    {
+      id: 'safari-target-distance-recomputed-after-rows',
+      description: 'Safari handoff must require target-distance-audit regeneration after Safari/WebKit rows so Woodstox and quick-xml 0.9x targets use the updated JavaScript comparison set.',
+      satisfied: safariChecks.some(item =>
+        /target-distance-audit\.json must be regenerated after Safari\/WebKit rows/.test(item)
+        && /Woodstox and quick-xml 0\.9x target distances/.test(item)
+        && /same updated JavaScript comparison set/.test(item)
+      )
+        && safariCommands.some(command =>
+          command.id === 'post-safari-audits'
+          && /same-contract-runtime-comparison\.mjs/.test(command.command ?? '')
+          && /target-distance-audit\.mjs/.test(command.command ?? '')
+        ),
     },
     {
       id: 'safari-local-availability-blocker',
