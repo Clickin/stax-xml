@@ -241,6 +241,39 @@ function createSelfTestReport(options) {
       },
     },
     {
+      sourceArtifact: 'spidermonkey-jsshell-same-contract-closure.json',
+      root: {
+        objective: 'spidermonkey-jsshell-same-contract-closure',
+        outcome: {
+          status: 'codegen-output-emitted',
+          hasCodegenDumpOutput: true,
+          sameContractStaxRow: true,
+          unchangedStaxBenchmark: true,
+          canRunCurrentStaxFullStringBenchmark: true,
+          closesEmittedIrObligation: true,
+          evidenceClass: 'same-contract-spidermonkey-codegen',
+          selectedRowId: 'jsshell-row',
+          selectedEventCount: 56,
+          selectedChecksum: 78,
+          selectedRowIdentityStatus: 'same-contract-stax-row',
+        },
+        shell: {
+          provenance: {
+            taskId: 'jsshell-closure-task',
+            buildId: '20260602000006',
+            sourceRevision: 'stu901',
+          },
+          codegenProbe: {
+            status: 'codegen-output-emitted',
+            flags: 'codegen',
+            outputBytes: 8192,
+            codegenMarkerCount: 99,
+            nativeDumpComplete: true,
+          },
+        },
+      },
+    },
+    {
       sourceArtifact: 'spidermonkey-unknown-closure-class.json',
       root: {
         objective: 'spidermonkey-unknown-closure-class',
@@ -404,7 +437,7 @@ function createSelfTestReport(options) {
     },
   ], {
     generatedAt: 'self-test-comparison-generated-at',
-    rowCount: 1,
+    rowCount: 2,
     rows: [
       {
         id: 'firefox-row',
@@ -413,6 +446,14 @@ function createSelfTestReport(options) {
         fullStringParity: true,
         eventCount: 12,
         checksum: 34,
+      },
+      {
+        id: 'jsshell-row',
+        runtimeId: 'spidermonkey-jsshell',
+        jsRuntime: true,
+        fullStringParity: true,
+        eventCount: 56,
+        checksum: 78,
       },
     ],
   });
@@ -535,7 +576,7 @@ function createCandidate(artifact, comparisonRows = []) {
     ? matchDiagnosticWorkloadComparison({
       diagnosticWorkloadMetadata,
       comparisonRows,
-      expectedRuntimeIds: ['firefox-spidermonkey-browser'],
+      expectedRuntimeIds: ['firefox-spidermonkey-browser', 'spidermonkey-jsshell'],
     })
     : null;
   const diagnosticWorkloadMetadataComparable = diagnosticWorkloadMetadata
@@ -549,7 +590,7 @@ function createCandidate(artifact, comparisonRows = []) {
       selectedEventCount,
       selectedChecksum,
       comparisonRows,
-      expectedRuntimeIds: ['firefox-spidermonkey-browser'],
+      expectedRuntimeIds: ['firefox-spidermonkey-browser', 'spidermonkey-jsshell'],
     })
     : null;
   const runtimeBuildIdentityRecorded = hasSpiderMonkeyRuntimeBuildIdentity(root);
