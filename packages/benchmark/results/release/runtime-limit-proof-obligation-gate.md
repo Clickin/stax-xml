@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T18:05:12.465Z
+Generated: 2026-06-02T18:14:54.534Z
 
 ## Scope
 
@@ -89,7 +89,7 @@ Disclosure-only guards: 3
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-02T17:56:49.328Z)
+- Coverage audit loaded: yes (2026-06-02T18:14:54.279Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey diagnostics rows vs closure candidates: 11/16 (gap=5, closureQualified=0)
@@ -97,7 +97,7 @@ Disclosure-only guards: 3
 - SpiderMonkey coverage diagnostics outside closure candidates: none
 - SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7
 - SpiderMonkey Taskcluster route freshness: fresh (artifactIdentityMatchesRoute=yes, expectedIdentitySource=inferred-from-artifacts, checkedArtifacts=5, mismatchedArtifacts=none)
-- Safari/WebKit closure comparison: generatedAt=2026-06-02T14:53:00.937Z, rows=289, candidates=0, qualified=0
+- Safari/WebKit closure comparison: generatedAt=2026-06-02T18:14:24.864Z, rows=289, candidates=0, qualified=0
 - Safari/WebKit status: evidenceClass=environment-availability-only, canRunSafariBrowserRows=no, browserRows=0, primarySyncRows=0, boundedPrimaryRows=0, largeBoundedPrimaryRows=0, exactBuildIdentity=no, sourceBoundaryPinned=no, closesSafariObligation=no
 
 | ID | Satisfied | Meaning |
@@ -115,11 +115,11 @@ Disclosure-only guards: 3
 
 ## Counterexample Snapshot
 
-- Same-contract comparison loaded: yes (2026-06-02T14:53:00.937Z)
+- Same-contract comparison loaded: yes (2026-06-02T18:14:24.864Z)
 - Same-contract comparison contract: same-full-string-checksum-contract-not-same-object-shape; publicEventCase=eventObjectFull; objectShapeEquivalence=false; memoryEquivalence=false
 - Same-contract comparison rows: 289/289; largeFullJsRows=239
 - Same-contract comparison counterexamples: 0
-- Runtime counterexample scan loaded: yes (2026-06-02T15:42:14.093Z)
+- Runtime counterexample scan loaded: yes (2026-06-02T18:14:25.042Z)
 - Counterexample scan contract: threshold=200.00 MiB/s, minSizeGiB=1.00, parseErrors=0
 - Counterexample scan coverage shape: artifacts=225/225, measuredRows=1255/1255
 - Runtime counterexample scan counterexamples: 0
@@ -135,7 +135,7 @@ Disclosure-only guards: 3
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-02T18:00:54.397Z)
+- Handoff loaded: yes (2026-06-02T18:14:54.406Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -168,8 +168,8 @@ Disclosure-only guards: 3
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T18:05:12.391Z)
-- Handoff validation target handoff generatedAt: 2026-06-02T18:00:54.397Z (current 2026-06-02T18:00:54.397Z)
+- Handoff validation loaded: yes (2026-06-02T18:14:54.460Z)
+- Handoff validation target handoff generatedAt: 2026-06-02T18:14:54.406Z (current 2026-06-02T18:14:54.406Z)
 - Handoff validation pass: yes
 - Commands checked: 15
 - Scripts referenced: 22
@@ -200,8 +200,8 @@ Disclosure-only guards: 3
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-02T17:56:49.389Z)
-- Source audit inputs: comparison=2026-06-02T14:53:00.937Z (current 2026-06-02T14:53:00.937Z), coverage=2026-06-02T17:56:49.328Z (current 2026-06-02T17:56:49.328Z)
+- Source audit loaded: yes (2026-06-02T18:14:54.339Z)
+- Source audit inputs: comparison=2026-06-02T18:14:24.864Z (current 2026-06-02T18:14:24.864Z), coverage=2026-06-02T18:14:54.279Z (current 2026-06-02T18:14:54.279Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary sync byte-batch rows: 231
@@ -227,20 +227,20 @@ Disclosure-only guards: 3
 
 ## Frontier Audit Snapshot
 
-- Memory frontier loaded: yes (2026-06-02T16:00:57.085Z)
-- Frontier audit comparison inputs: memory=2026-06-02T14:53:00.937Z, target=2026-06-02T14:53:00.937Z, text=2026-06-02T14:53:00.937Z (current 2026-06-02T14:53:00.937Z)
+- Memory frontier loaded: yes (2026-06-02T18:14:54.032Z)
+- Frontier audit comparison inputs: memory=2026-06-02T18:14:24.864Z, target=2026-06-02T18:14:24.864Z, text=2026-06-02T18:14:24.864Z (current 2026-06-02T18:14:24.864Z)
 - Fastest bounded JS row: 185.50 MiB/s at 60.45 MiB
 - Unbounded or unproven memory rows: 17
 - Bounded rows without numeric memory proof: 0
 - Unbounded rows at or above 200 MiB/s: 0
-- Target distance loaded: yes (2026-06-02T16:01:02.000Z)
+- Target distance loaded: yes (2026-06-02T18:14:54.084Z)
 - Woodstox 0.9x target met: no
 - Woodstox 0.9x remaining: 164.29 MiB/s
 - quick-xml 0.9x target met: no
 - quick-xml 0.9x remaining: 95.06 MiB/s
 - Shared JS target row: yes
 - Target JS contract: sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=no, fullArrayBufferParserInput=no, boundedMemory=yes, memoryKind=process-rss, maxRssMiB=61.77
-- Text materialization boundary loaded: yes (2026-06-02T16:00:56.129Z)
+- Text materialization boundary loaded: yes (2026-06-02T18:14:54.137Z)
 - Fastest full-string row: 185.50 MiB/s
 - Full-string rows crossing 200 MiB/s: 0
 - No-text rows crossing 200 MiB/s: 4

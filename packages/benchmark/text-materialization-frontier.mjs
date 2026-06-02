@@ -123,6 +123,36 @@ const negativeArtifacts = [
     family: 'deno-no-counter-string-fold-cache-fresh-process',
   },
   {
+    file: 'no-counter-name-fold-cache-candidate.json',
+    controlId: 'rawFrameNameIdNoCounters',
+    candidateId: 'rawFrameNameIdNoCountersNameFoldCache',
+    family: 'single-process-no-counter-name-fold-cache',
+  },
+  {
+    file: 'no-counter-string-fold-cache-candidate.json',
+    controlId: 'rawFrameNameIdNoCounters',
+    candidateId: 'rawFrameNameIdNoCountersStringFoldCache',
+    family: 'single-process-no-counter-string-fold-cache',
+  },
+  {
+    file: 'no-counter-fold-trim-candidate.json',
+    controlId: 'rawFrameNameIdNoCounters',
+    candidateId: 'rawFrameNameIdNoCountersFoldTrim',
+    family: 'single-process-no-counter-fold-trim',
+  },
+  {
+    file: 'no-counter-name-fold-cache-fold-trim-candidate.json',
+    controlId: 'rawFrameNameIdNoCountersNameFoldCache',
+    candidateId: 'rawFrameNameIdNoCountersNameFoldCacheFoldTrim',
+    family: 'single-process-no-counter-name-fold-cache-fold-trim',
+  },
+  {
+    file: 'no-counter-value-cache-candidate.json',
+    controlId: 'rawFrameNameIdNoCounters',
+    candidateId: 'rawFrameNameIdNoCountersValueCache',
+    family: 'single-process-no-counter-value-cache',
+  },
+  {
     file: 'medium-ascii-text-treebank-corpus.json',
     controlId: 'rawFrameNameId',
     candidateId: 'rawFrameNameIdMediumAsciiText',
@@ -274,6 +304,10 @@ function createReport(options) {
       fullTextStringReads: full.counters?.textStringReads ?? null,
     };
   });
+  const instrumentationDisabledFullRows = negativeRows
+    .map(row => ({ ...row.candidate, family: row.family }))
+    .filter(row => row.fullStringParity === true && row.id.includes('NoCounters'));
+  const fastestInstrumentationDisabledFull = maxBy(instrumentationDisabledFullRows, row => row.mibPerSec);
   const summary = {
     targetMiBPerSec,
     scaledArtifactCount: scaledArtifacts.length,
@@ -297,6 +331,10 @@ function createReport(options) {
     maximumTextOmissionSpeedup: round(Math.max(...sameScalePairs.map(pair => pair.withoutTextSpeedup).filter(isFiniteNumber))),
     maximumNoTrimSpeedup: round(Math.max(...sameScalePairs.map(pair => pair.noTrimSpeedup).filter(isFiniteNumber))),
     maximumFoldTrimSpeedup: round(Math.max(...sameScalePairs.map(pair => pair.foldTrimSpeedup).filter(isFiniteNumber))),
+    fastestInstrumentationDisabledFullRow: summarizeInstrumentationDisabledRow(fastestInstrumentationDisabledFull),
+    instrumentationDisabledRowsCrossTarget: instrumentationDisabledFullRows
+      .filter(row => row.boundedMemory === true && row.mibPerSec >= targetMiBPerSec)
+      .length,
     conclusionAllowed: false,
     sourceConsumption: summarizeSourceConsumption([
       ...scaledReports.map(entry => entry.report),
@@ -480,6 +518,16 @@ function createFindings(summary, sameScalePairs, negativeRows) {
         .map(row => `${row.family}: control=${formatNumber(row.control.mibPerSec)} MiB/s, candidate=${formatNumber(row.candidate.mibPerSec)} MiB/s, candidate/control=${formatNumber(row.candidateToControlRatio)}x, textReads=${formatInteger(row.candidate.textStringReads)}`),
     },
     {
+      id: 'instrumentation-disabled-full-rows-still-below-target',
+      classification: 'NEGATIVE_RESULT',
+      summary: 'Removing materialization counters and caching checksum transforms did not produce a bounded full-string row at the 200 MiB/s counterexample threshold.',
+      evidence: [
+        `fastest=${summary.fastestInstrumentationDisabledFullRow.id}=${formatNumber(summary.fastestInstrumentationDisabledFullRow.mibPerSec)} MiB/s`,
+        `sourceArtifact=${summary.fastestInstrumentationDisabledFullRow.sourceArtifact}`,
+        `instrumentationDisabledRowsCrossTarget=${summary.instrumentationDisabledRowsCrossTarget}`,
+      ],
+    },
+    {
       id: 'not-a-counterexample',
       classification: 'SCOPE_GUARD',
       summary: 'Rows that omit text/CDATA strings identify headroom but are not full-string StAX counterexamples.',
@@ -509,6 +557,8 @@ function renderMarkdown(report) {
     `- Maximum same-scale without-text speedup: ${formatNumber(report.summary.maximumTextOmissionSpeedup)}x`,
     `- Maximum no-trim speedup: ${formatNumber(report.summary.maximumNoTrimSpeedup)}x`,
     `- Maximum fold-trim speedup: ${formatNumber(report.summary.maximumFoldTrimSpeedup)}x`,
+    `- Fastest instrumentation-disabled full-string row: ${formatSummaryRow(report.summary.fastestInstrumentationDisabledFullRow)}`,
+    `- Instrumentation-disabled full-string rows crossing 200 MiB/s: ${report.summary.instrumentationDisabledRowsCrossTarget}`,
     `- Full rows crossing 200 MiB/s: ${report.summary.fullRowsCrossTarget}`,
     `- Without-text rows crossing 200 MiB/s: ${report.summary.noTextRowsCrossTarget}`,
     `- Conclusion allowed: ${report.summary.conclusionAllowed ? 'yes' : 'no'}`,
@@ -578,6 +628,19 @@ function summarizeRow(row) {
     textStringReads: row.counters?.textStringReads ?? null,
     stringFieldReads: row.counters?.stringFieldReads ?? null,
     counters: row.counters ?? null,
+  };
+}
+
+function summarizeInstrumentationDisabledRow(row) {
+  if (!row) return null;
+  return {
+    family: row.family,
+    sourceArtifact: row.sourceArtifact,
+    id: row.id,
+    runtimeLabel: row.runtimeLabel ?? null,
+    mibPerSec: row.mibPerSec,
+    fullStringParity: row.fullStringParity,
+    boundedMemory: row.boundedMemory,
   };
 }
 

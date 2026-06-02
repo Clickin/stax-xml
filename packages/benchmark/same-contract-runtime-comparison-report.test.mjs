@@ -201,7 +201,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.summary.textMaterializationFrontier.fastestWithoutTextToFullRatio, 1.36);
   assert.equal(report.summary.textMaterializationFrontier.noTextRowsCrossTarget, 4);
   assert.equal(report.summary.textMaterializationFrontier.fullRowsCrossTarget, 0);
-  assert.equal(report.summary.textMaterializationFrontier.negativeCandidateCount, 27);
+  assert.equal(report.summary.textMaterializationFrontier.negativeCandidateCount, 32);
   assert.equal(report.summary.textMaterializationFrontier.conclusionAllowed, false);
   assert.ok(report.metadata.sourceArtifacts.includes('text-materialization-frontier.json'));
   assert.ok(report.findings.some(finding =>
@@ -1206,7 +1206,7 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /Same-fixture 1024 MiB JS row vs quick-xml target: stax-raw-frame-name-id-batch-8 at 0\.55x quick-xml, 95\.06 MiB\/s below 0\.9x target/);
   assert.match(markdown, /Same-fixture 1024 MiB process RSS snapshot: JS 61\.77 MiB, Woodstox 312\.71 MiB, quick-xml 4\.78 MiB/);
   assert.match(markdown, /1 GiB\+ JS full-string memory frontier: 222\/239 bounded rows; fastest bounded row Node\/V8 rawFrameNameId at 185\.50 MiB\/s \(process RSS max 60\.45 MiB\)/);
-  assert.match(markdown, /Text materialization frontier: fastest full row rawFrameNameId at 185\.50 MiB\/s, 14\.50 MiB\/s below 200 MiB\/s; without-text rows crossing target: 4; negative candidates: 27/);
+  assert.match(markdown, /Text materialization frontier: fastest full row rawFrameNameId at 185\.50 MiB\/s, 14\.50 MiB\/s below 200 MiB\/s; without-text rows crossing target: 4; negative candidates: 32/);
   assert.match(markdown, /Source consumption frontier: sync byte batches sync-iterable-byte-batches-batch-8 at 71\.96 MiB\/s; direct ReadableStream web-readable-stream-raw-frame-ascii-batch-8 at 76\.53 MiB\/s \(1\.06x sync\); backpressure rows 6\/6/);
   assert.match(markdown, /## Comparison Contract/);
   assert.match(markdown, /Semantic basis: Rows are comparable only through the same full-string event count and checksum contract/);

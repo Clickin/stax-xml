@@ -1,6 +1,6 @@
 # Text Materialization Frontier
 
-Generated: 2026-06-01T08:06:04.990Z
+Generated: 2026-06-02T18:14:24.772Z
 
 Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.
 
@@ -13,6 +13,8 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
 - Maximum same-scale without-text speedup: 1.41x
 - Maximum no-trim speedup: 1.02x
 - Maximum fold-trim speedup: 0.80x
+- Fastest instrumentation-disabled full-string row: rawFrameNameIdNoCountersNameFoldCache from no-counter-name-fold-cache-candidate.json at 170.17 MiB/s
+- Instrumentation-disabled full-string rows crossing 200 MiB/s: 0
 - Full rows crossing 200 MiB/s: 0
 - Without-text rows crossing 200 MiB/s: 4
 - Conclusion allowed: no
@@ -53,6 +55,11 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
 | bun-no-counter-string-fold-cache-fresh-process | 121.23 | 97.54 | 0.80x | yes | no | yes |
 | deno-no-counter-name-fold-cache-fresh-process | 109.47 | 84.23 | 0.77x | yes | no | yes |
 | deno-no-counter-string-fold-cache-fresh-process | 109.47 | 85.01 | 0.78x | yes | no | yes |
+| single-process-no-counter-name-fold-cache | 166.22 | 170.17 | 1.02x | yes | no | yes |
+| single-process-no-counter-string-fold-cache | 162.00 | 160.92 | 0.99x | yes | no | yes |
+| single-process-no-counter-fold-trim | 169.55 | 165.06 | 0.97x | yes | no | yes |
+| single-process-no-counter-name-fold-cache-fold-trim | 132.59 | 143.96 | 1.09x | yes | no | yes |
+| single-process-no-counter-value-cache | 155.87 | 105.67 | 0.68x | yes | no | yes |
 | treebank-medium-ascii-text-fast-path | 68.84 | 61.38 | 0.89x | yes | no | yes |
 | treebank-unrolled-medium-ascii-text-fast-path | 68.84 | 74.77 | 1.09x | yes | no | yes |
 | unrolled-medium-ascii-text-trim-guard | 136.23 | 164.14 | 1.20x | yes | no | yes |
@@ -97,6 +104,11 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
   - bun-no-counter-string-fold-cache-fresh-process: candidate/control=0.80x, candidate=97.54 MiB/s
   - deno-no-counter-name-fold-cache-fresh-process: candidate/control=0.77x, candidate=84.23 MiB/s
   - deno-no-counter-string-fold-cache-fresh-process: candidate/control=0.78x, candidate=85.01 MiB/s
+  - single-process-no-counter-name-fold-cache: candidate/control=1.02x, candidate=170.17 MiB/s
+  - single-process-no-counter-string-fold-cache: candidate/control=0.99x, candidate=160.92 MiB/s
+  - single-process-no-counter-fold-trim: candidate/control=0.97x, candidate=165.06 MiB/s
+  - single-process-no-counter-name-fold-cache-fold-trim: candidate/control=1.09x, candidate=143.96 MiB/s
+  - single-process-no-counter-value-cache: candidate/control=0.68x, candidate=105.67 MiB/s
   - treebank-medium-ascii-text-fast-path: candidate/control=0.89x, candidate=61.38 MiB/s
   - treebank-unrolled-medium-ascii-text-fast-path: candidate/control=1.09x, candidate=74.77 MiB/s
   - unrolled-medium-ascii-text-trim-guard: candidate/control=1.20x, candidate=164.14 MiB/s
@@ -112,6 +124,10 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
   - text-checksum-folding-omitted: control=150.60 MiB/s, candidate=162.70 MiB/s, candidate/control=1.08x, textReads=16,987,392
   - text-length-only-checksum: control=150.60 MiB/s, candidate=155.89 MiB/s, candidate/control=1.04x, textReads=16,987,392
   - same-run-text-omission-control: control=150.60 MiB/s, candidate=160.29 MiB/s, candidate/control=1.06x, textReads=0
+- instrumentation-disabled-full-rows-still-below-target (NEGATIVE_RESULT): Removing materialization counters and caching checksum transforms did not produce a bounded full-string row at the 200 MiB/s counterexample threshold.
+  - fastest=rawFrameNameIdNoCountersNameFoldCache=170.17 MiB/s
+  - sourceArtifact=no-counter-name-fold-cache-candidate.json
+  - instrumentationDisabledRowsCrossTarget=0
 - not-a-counterexample (SCOPE_GUARD): Rows that omit text/CDATA strings identify headroom but are not full-string StAX counterexamples.
   - fullRowsCrossTarget=0
   - withoutTextRowsCrossTarget=4
