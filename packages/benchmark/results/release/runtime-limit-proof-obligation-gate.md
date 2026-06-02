@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T18:27:00.522Z
+Generated: 2026-06-02T18:32:57.736Z
 
 ## Scope
 
@@ -135,7 +135,7 @@ Disclosure-only guards: 3
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-02T18:26:42.786Z)
+- Handoff loaded: yes (2026-06-02T18:32:41.434Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -159,6 +159,7 @@ Disclosure-only guards: 3
 | `spidermonkey-closure-audit-identity-statuses` | yes | SpiderMonkey closure audit must preserve non-StAX diagnostic identity status counts for closure-matrix candidates. |
 | `spidermonkey-selected-row-metadata-missing-fields` | yes | SpiderMonkey closure audit must preserve which selected-row metadata fields are missing from closure-matrix candidates. |
 | `spidermonkey-selected-row-comparison-match-counts` | yes | SpiderMonkey closure audit must preserve selected-row comparison match counts against same-contract-runtime-comparison.json. |
+| `spidermonkey-diagnostic-workload-metadata-not-row-identity` | yes | SpiderMonkey closure audit must preserve diagnostic workload metadata counts separately from same-contract selected-row identity. |
 | `spidermonkey-profiled-parity-not-same-contract-row` | yes | SpiderMonkey closure audit must keep profiler full-string parity separate from explicit sameContractStaxRow closure evidence. |
 | `spidermonkey-codegen-comparison-freshness` | yes | SpiderMonkey closure audit must preserve the current same-contract comparison generatedAt and row count used for selected-row matching. |
 | `spidermonkey-closing-metadata-missing-fields` | yes | SpiderMonkey closure audit must preserve which closing metadata subfields are missing from closure-matrix candidates. |
@@ -168,8 +169,8 @@ Disclosure-only guards: 3
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T18:26:50.864Z)
-- Handoff validation target handoff generatedAt: 2026-06-02T18:26:42.786Z (current 2026-06-02T18:26:42.786Z)
+- Handoff validation loaded: yes (2026-06-02T18:32:50.050Z)
+- Handoff validation target handoff generatedAt: 2026-06-02T18:32:41.434Z (current 2026-06-02T18:32:41.434Z)
 - Handoff validation pass: yes
 - Commands checked: 15
 - Scripts referenced: 22

@@ -229,6 +229,7 @@ function validateHandoff(handoff) {
           /spidermonkey-codegen-rerun-stability-audit\.json/,
           /against same-contract comparison generatedAt=[^,]+, comparisonRowCount=\d+/,
           /profiledFullStringParityCount=\d+/,
+          /diagnosticWorkloadMetadataCount=\d+, nonComparableDiagnosticWorkloadMetadataCount=\d+/,
           /selectedRowMetadataMissingFieldCounts selectedChecksum=\d+, selectedEventCount=\d+, selectedRowId=\d+/,
           /selectedRowComparisonMatchCount=\d+, selectedRowComparisonMismatchCount=\d+, selectedRowComparisonMissingCount=\d+/,
           /closingMetadataMissingFieldCounts diagnosticFlags=\d+, emittedDumpMetadata=\d+, runtimeBuildIdentity=\d+/,

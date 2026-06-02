@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T18:27:00.522Z",
+  "generatedAt": "2026-06-02T18:32:57.736Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -417,7 +417,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T18:26:42.786Z",
+    "generatedAt": "2026-06-02T18:32:41.434Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -524,6 +524,11 @@
         "satisfied": true
       },
       {
+        "id": "spidermonkey-diagnostic-workload-metadata-not-row-identity",
+        "description": "SpiderMonkey closure audit must preserve diagnostic workload metadata counts separately from same-contract selected-row identity.",
+        "satisfied": true
+      },
+      {
         "id": "spidermonkey-profiled-parity-not-same-contract-row",
         "description": "SpiderMonkey closure audit must keep profiler full-string parity separate from explicit sameContractStaxRow closure evidence.",
         "satisfied": true
@@ -557,9 +562,9 @@
   },
   "handoffValidationSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T18:26:50.864Z",
-    "validatedHandoffGeneratedAt": "2026-06-02T18:26:42.786Z",
-    "currentHandoffGeneratedAt": "2026-06-02T18:26:42.786Z",
+    "generatedAt": "2026-06-02T18:32:50.050Z",
+    "validatedHandoffGeneratedAt": "2026-06-02T18:32:41.434Z",
+    "currentHandoffGeneratedAt": "2026-06-02T18:32:41.434Z",
     "pass": true,
     "missingScriptCount": 0,
     "nonReleaseOutputPathCount": 0,
@@ -1168,8 +1173,8 @@
     "requiredCounterexampleScanGuards": 8,
     "satisfiedCoverageGuards": 10,
     "requiredCoverageGuards": 10,
-    "satisfiedHandoffGuards": 24,
-    "requiredHandoffGuards": 24,
+    "satisfiedHandoffGuards": 25,
+    "requiredHandoffGuards": 25,
     "satisfiedHandoffValidationGuards": 8,
     "requiredHandoffValidationGuards": 8,
     "satisfiedSourceAuditGuards": 7,

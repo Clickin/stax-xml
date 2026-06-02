@@ -1082,6 +1082,13 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
       ),
     },
     {
+      id: 'spidermonkey-diagnostic-workload-metadata-not-row-identity',
+      description: 'SpiderMonkey closure audit must preserve diagnostic workload metadata counts separately from same-contract selected-row identity.',
+      satisfied: spiderBlockers.some(item =>
+        /diagnosticWorkloadMetadataCount=\d+, nonComparableDiagnosticWorkloadMetadataCount=\d+/.test(item)
+      ),
+    },
+    {
       id: 'spidermonkey-profiled-parity-not-same-contract-row',
       description: 'SpiderMonkey closure audit must keep profiler full-string parity separate from explicit sameContractStaxRow closure evidence.',
       satisfied: spiderBlockers.some(item =>
