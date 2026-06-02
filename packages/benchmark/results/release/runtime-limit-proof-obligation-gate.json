@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T20:29:01.792Z",
+  "generatedAt": "2026-06-02T20:35:07.850Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -370,6 +370,10 @@
     "coverageScannedArtifactCount": 226,
     "scanMeasuredRowCount": 1266,
     "coverageMeasuredRowCount": 1266,
+    "scanAggregateRowCount": 182,
+    "scanLargeJsFullAggregateRowCount": 142,
+    "scanMeasuredCounterexampleCount": 0,
+    "scanAggregateCounterexampleCount": 0,
     "scanCounterexampleCount": 0,
     "currentCounterexampleCount": 0,
     "guards": [
@@ -411,6 +415,11 @@
       {
         "id": "counterexample-scan-current-coverage-shape",
         "description": "runtime-counterexample-scan.json must scan the same artifact and measured-row counts as the current coverage audit.",
+        "satisfied": true
+      },
+      {
+        "id": "counterexample-scan-aggregate-surface",
+        "description": "runtime-counterexample-scan.json must preserve aggregate-row counterexample counts as a separate surface from measured rows.",
         "satisfied": true
       }
     ]
@@ -1188,8 +1197,8 @@
     "satisfiedProofRules": 18,
     "requiredProofRules": 18,
     "currentCounterexamples": 0,
-    "satisfiedCounterexampleScanGuards": 8,
-    "requiredCounterexampleScanGuards": 8,
+    "satisfiedCounterexampleScanGuards": 9,
+    "requiredCounterexampleScanGuards": 9,
     "satisfiedCoverageGuards": 10,
     "requiredCoverageGuards": 10,
     "satisfiedHandoffGuards": 25,

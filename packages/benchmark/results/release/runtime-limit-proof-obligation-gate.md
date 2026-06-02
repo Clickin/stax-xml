@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T20:29:01.792Z
+Generated: 2026-06-02T20:35:07.850Z
 
 ## Scope
 
@@ -122,6 +122,7 @@ Disclosure-only guards: 3
 - Runtime counterexample scan loaded: yes (2026-06-02T19:35:17.800Z)
 - Counterexample scan contract: threshold=200.00 MiB/s, minSizeGiB=1.00, parseErrors=0
 - Counterexample scan coverage shape: artifacts=226/226, measuredRows=1266/1266
+- Counterexample scan aggregate surface: aggregateRows=182, largeFullAggregateRows=142, measuredCounterexamples=0, aggregateCounterexamples=0
 - Runtime counterexample scan counterexamples: 0
 - Current release counterexamples: 0
 - [x] same-contract-comparison-loaded: same-contract-runtime-comparison.json must be loaded by the gate.
@@ -132,6 +133,7 @@ Disclosure-only guards: 3
 - [x] counterexample-scan-parameters: runtime-counterexample-scan.json must preserve the 200 MiB/s and 0.999 GiB counterexample threshold contract.
 - [x] counterexample-scan-no-parse-errors: runtime-counterexample-scan.json must report zero release artifact parse errors.
 - [x] counterexample-scan-current-coverage-shape: runtime-counterexample-scan.json must scan the same artifact and measured-row counts as the current coverage audit.
+- [x] counterexample-scan-aggregate-surface: runtime-counterexample-scan.json must preserve aggregate-row counterexample counts as a separate surface from measured rows.
 
 ## Handoff Snapshot
 

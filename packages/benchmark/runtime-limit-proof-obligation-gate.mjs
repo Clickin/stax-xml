@@ -1211,6 +1211,10 @@ function createCounterexampleSnapshot(comparison, counterexampleScan, coverageAu
     coverageScannedArtifactCount: coverageAudit?.summary?.scannedArtifactCount ?? null,
     scanMeasuredRowCount: counterexampleScan?.summary?.measuredRowCount ?? null,
     coverageMeasuredRowCount: coverageAudit?.summary?.measuredRowCount ?? null,
+    scanAggregateRowCount: counterexampleScan?.summary?.aggregateRowCount ?? null,
+    scanLargeJsFullAggregateRowCount: counterexampleScan?.summary?.largeJsFullAggregateRowCount ?? null,
+    scanMeasuredCounterexampleCount: counterexampleScan?.summary?.measuredCounterexampleCount ?? null,
+    scanAggregateCounterexampleCount: counterexampleScan?.summary?.aggregateCounterexampleCount ?? null,
     scanCounterexampleCount: typeof scanCount === 'number' ? scanCount : null,
     currentCounterexampleCount: (typeof comparisonCount === 'number' ? comparisonCount : 0)
       + (typeof scanCount === 'number' ? scanCount : 0),
@@ -1278,6 +1282,18 @@ function createCounterexampleScanGuards(snapshot) {
         && snapshot.scanScannedArtifactCount === snapshot.coverageScannedArtifactCount
         && typeof snapshot.scanMeasuredRowCount === 'number'
         && snapshot.scanMeasuredRowCount === snapshot.coverageMeasuredRowCount,
+    },
+    {
+      id: 'counterexample-scan-aggregate-surface',
+      description: 'runtime-counterexample-scan.json must preserve aggregate-row counterexample counts as a separate surface from measured rows.',
+      satisfied: typeof snapshot.scanAggregateRowCount === 'number'
+        && snapshot.scanAggregateRowCount > 0
+        && typeof snapshot.scanLargeJsFullAggregateRowCount === 'number'
+        && snapshot.scanLargeJsFullAggregateRowCount > 0
+        && typeof snapshot.scanMeasuredCounterexampleCount === 'number'
+        && typeof snapshot.scanAggregateCounterexampleCount === 'number'
+        && typeof snapshot.scanCounterexampleCount === 'number'
+        && snapshot.scanCounterexampleCount === snapshot.scanMeasuredCounterexampleCount + snapshot.scanAggregateCounterexampleCount,
     },
   ];
 }
@@ -1714,6 +1730,7 @@ function renderMarkdown(report) {
       : '- Runtime counterexample scan loaded: no',
     `- Counterexample scan contract: threshold=${formatNullableRate(report.counterexampleSnapshot.thresholdMiBPerSec)} MiB/s, minSizeGiB=${formatNullableRate(report.counterexampleSnapshot.minSizeGiB)}, parseErrors=${formatNullableCount(report.counterexampleSnapshot.scanParseErrorCount)}`,
     `- Counterexample scan coverage shape: artifacts=${formatNullableCount(report.counterexampleSnapshot.scanScannedArtifactCount)}/${formatNullableCount(report.counterexampleSnapshot.coverageScannedArtifactCount)}, measuredRows=${formatNullableCount(report.counterexampleSnapshot.scanMeasuredRowCount)}/${formatNullableCount(report.counterexampleSnapshot.coverageMeasuredRowCount)}`,
+    `- Counterexample scan aggregate surface: aggregateRows=${formatNullableCount(report.counterexampleSnapshot.scanAggregateRowCount)}, largeFullAggregateRows=${formatNullableCount(report.counterexampleSnapshot.scanLargeJsFullAggregateRowCount)}, measuredCounterexamples=${formatNullableCount(report.counterexampleSnapshot.scanMeasuredCounterexampleCount)}, aggregateCounterexamples=${formatNullableCount(report.counterexampleSnapshot.scanAggregateCounterexampleCount)}`,
     `- Runtime counterexample scan counterexamples: ${formatNullableCount(report.counterexampleSnapshot.scanCounterexampleCount)}`,
     `- Current release counterexamples: ${report.counterexampleSnapshot.currentCounterexampleCount}`,
   );
