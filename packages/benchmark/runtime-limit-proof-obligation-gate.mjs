@@ -371,7 +371,7 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
   const claims = parseClaimRows(ledgerMarkdown);
   const coverageSnapshot = createCoverageSnapshot(coverageAudit);
   const counterexampleSnapshot = createCounterexampleSnapshot(comparison, counterexampleScan, coverageAudit);
-  const handoffSnapshot = createHandoffSnapshot(handoff);
+  const handoffSnapshot = createHandoffSnapshot(handoff, counterexampleSnapshot);
   const handoffValidationSnapshot = createHandoffValidationSnapshot(handoffValidation, handoffSnapshot);
   const sourceAuditSnapshot = createSourceAuditSnapshot(sourceAudit, comparison, coverageAudit);
   const frontierAuditSnapshot = createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMaterializationBoundary, comparison);
@@ -775,13 +775,13 @@ function createSourceAuditGuards(snapshot) {
   ];
 }
 
-function createHandoffSnapshot(handoff) {
+function createHandoffSnapshot(handoff, counterexampleSnapshot = null) {
   if (!handoff) {
     return {
       loaded: false,
       generatedAt: null,
       activeObligationIds: [],
-      guards: createHandoffGuards(null),
+      guards: createHandoffGuards(null, counterexampleSnapshot),
     };
   }
   const handoffs = Array.isArray(handoff.handoffs) ? handoff.handoffs : [];
@@ -800,7 +800,7 @@ function createHandoffSnapshot(handoff) {
       conclusionAllowed: handoff.summary?.conclusionAllowed ?? null,
     },
     handoffIds: handoffs.map(item => item.id),
-    guards: createHandoffGuards(byId),
+    guards: createHandoffGuards(byId, counterexampleSnapshot),
   };
 }
 
@@ -873,7 +873,22 @@ function createHandoffValidationGuards(snapshot) {
   ];
 }
 
-function createHandoffGuards(byId) {
+function extractSpiderMonkeyCodegenComparisonFreshness(blockers = []) {
+  for (const blocker of blockers) {
+    const match = /against same-contract comparison generatedAt=([^,]+), comparisonRowCount=(\d+)/.exec(blocker);
+    if (!match) continue;
+    return {
+      generatedAt: match[1],
+      rowCount: Number.parseInt(match[2], 10),
+    };
+  }
+  return {
+    generatedAt: null,
+    rowCount: null,
+  };
+}
+
+function createHandoffGuards(byId, counterexampleSnapshot = null) {
   const safari = byId?.get('safari-webkit-browser-row-handoff') ?? null;
   const spiderMonkey = byId?.get('spidermonkey-codegen-handoff') ?? null;
   const safariChecks = safari?.closureChecks ?? [];
@@ -881,6 +896,7 @@ function createHandoffGuards(byId) {
   const spiderExpected = spiderMonkey?.expectedEvidence ?? [];
   const spiderChecks = spiderMonkey?.closureChecks ?? [];
   const spiderBlockers = spiderMonkey?.localClosure?.blockers ?? [];
+  const spiderCodegenComparisonFreshness = extractSpiderMonkeyCodegenComparisonFreshness(spiderBlockers);
   return [
     {
       id: 'handoff-loaded',
@@ -989,10 +1005,9 @@ function createHandoffGuards(byId) {
     },
     {
       id: 'spidermonkey-codegen-comparison-freshness',
-      description: 'SpiderMonkey closure audit must preserve the same-contract comparison generatedAt and row count used for selected-row matching.',
-      satisfied: spiderBlockers.some(item =>
-        /against same-contract comparison generatedAt=[^,]+, comparisonRowCount=\d+/.test(item)
-      ),
+      description: 'SpiderMonkey closure audit must preserve the current same-contract comparison generatedAt and row count used for selected-row matching.',
+      satisfied: spiderCodegenComparisonFreshness.generatedAt === counterexampleSnapshot?.comparisonGeneratedAt
+        && spiderCodegenComparisonFreshness.rowCount === counterexampleSnapshot?.comparisonRowCount,
     },
     {
       id: 'spidermonkey-closing-metadata-missing-fields',

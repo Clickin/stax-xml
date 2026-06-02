@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T14:06:50.132Z
+Generated: 2026-06-02T14:13:08.698Z
 
 ## Scope
 
@@ -149,7 +149,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `spidermonkey-closure-audit-identity-statuses` | yes | SpiderMonkey closure audit must preserve non-StAX diagnostic identity status counts for closure-matrix candidates. |
 | `spidermonkey-selected-row-metadata-missing-fields` | yes | SpiderMonkey closure audit must preserve which selected-row metadata fields are missing from closure-matrix candidates. |
 | `spidermonkey-selected-row-comparison-match-counts` | yes | SpiderMonkey closure audit must preserve selected-row comparison match counts against same-contract-runtime-comparison.json. |
-| `spidermonkey-codegen-comparison-freshness` | yes | SpiderMonkey closure audit must preserve the same-contract comparison generatedAt and row count used for selected-row matching. |
+| `spidermonkey-codegen-comparison-freshness` | yes | SpiderMonkey closure audit must preserve the current same-contract comparison generatedAt and row count used for selected-row matching. |
 | `spidermonkey-closing-metadata-missing-fields` | yes | SpiderMonkey closure audit must preserve which closing metadata subfields are missing from closure-matrix candidates. |
 | `spidermonkey-disallowed-evidence-class-counts` | yes | SpiderMonkey closure audit must preserve which diagnostic scope-guard evidence classes are disallowed as closure evidence. |
 | `spidermonkey-closure-frontier-blockers` | yes | SpiderMonkey handoff must preserve named closest blocked candidates and common missing requirements from the closure audit frontier. |

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T14:06:50.132Z",
+  "generatedAt": "2026-06-02T14:13:08.698Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -515,7 +515,7 @@
       },
       {
         "id": "spidermonkey-codegen-comparison-freshness",
-        "description": "SpiderMonkey closure audit must preserve the same-contract comparison generatedAt and row count used for selected-row matching.",
+        "description": "SpiderMonkey closure audit must preserve the current same-contract comparison generatedAt and row count used for selected-row matching.",
         "satisfied": true
       },
       {

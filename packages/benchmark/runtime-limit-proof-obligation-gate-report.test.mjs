@@ -891,6 +891,48 @@ test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff omits co
   assert.match(markdown, /spidermonkey-codegen-comparison-freshness/);
 });
 
+test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff uses stale codegen comparison freshness', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
+  const spiderMonkey = handoff.handoffs.find(item => item.id === 'spidermonkey-codegen-handoff');
+  spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
+    .map(item => item.replace(
+      /against same-contract comparison generatedAt=[^,]+, comparisonRowCount=\d+/g,
+      'against same-contract comparison generatedAt=2000-01-01T00:00:00.000Z, comparisonRowCount=1',
+    ));
+  writeFileSync(badHandoffJsonOut, `${JSON.stringify(handoff, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--handoff-json',
+    badHandoffJsonOut,
+    '--json-out',
+    badHandoffGateJsonOut,
+    '--md-out',
+    badHandoffGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badHandoffGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.ok(report.handoffSnapshot.guards.some(item =>
+    item.id === 'spidermonkey-codegen-comparison-freshness'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /current same-contract comparison generatedAt and row count/.test(error)));
+
+  const markdown = readFileSync(badHandoffGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /spidermonkey-codegen-comparison-freshness/);
+});
+
 test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff omits closing metadata missing field counts', () => {
   resetTmp();
   writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
