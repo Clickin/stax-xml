@@ -37,9 +37,9 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.equal(report.summary.handoffCount, 2);
   assert.equal(report.summary.requiredHandoffsPresent, true);
   assert.equal(report.summary.commandCount, 15);
-  assert.equal(report.summary.scriptsReferenced, 22);
+  assert.equal(report.summary.scriptsReferenced, 23);
   assert.equal(report.summary.missingScriptCount, 0);
-  assert.equal(report.summary.releaseOutputPathCount, 74);
+  assert.equal(report.summary.releaseOutputPathCount, 78);
   assert.equal(report.summary.nonReleaseOutputPathCount, 0);
   assert.equal(report.summary.rawOutputPathCount, 2);
   assert.equal(report.summary.rawOutputPathPolicyViolationCount, 0);
@@ -71,6 +71,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.equal(spiderMonkey.externalRunRequired, true);
   assert.ok(safari.requiredFlagPatterns.some(pattern => pattern.includes('--harness safari-webdriver')));
   assert.ok(safari.requiredFlagPatterns.some(pattern => pattern.includes('safari-webkit-closure-audit')));
+  assert.ok(safari.requiredFlagPatterns.some(pattern => pattern.includes('text-materialization-frontier-coverage-audit')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('directReadableStreamFullStringRowsRecorded')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('must not substitute for primarySyncByteBatchRowsRecorded')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('primaryRowsInSameContractComparison')));
@@ -93,6 +94,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.ok(spiderMonkey.requiredFlagPatterns.some(pattern => pattern.includes('spidermonkey-jsshell-tokenizer-headroom')));
   assert.ok(spiderMonkey.requiredFlagPatterns.some(pattern => pattern.includes('spidermonkey-jsshell-materialized-headroom')));
   assert.ok(spiderMonkey.requiredFlagPatterns.some(pattern => pattern.includes('spidermonkey-codegen-closure-audit')));
+  assert.ok(spiderMonkey.requiredFlagPatterns.some(pattern => pattern.includes('text-materialization-frontier-coverage-audit')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('diagnostic flags')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('selected row id')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('closesEmittedIrObligation=true')));
@@ -176,6 +178,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.match(postSafariAudits.command, /memory-frontier-audit\.mjs/);
   assert.match(postSafariAudits.command, /target-distance-audit\.mjs/);
   assert.match(postSafariAudits.command, /text-materialization-boundary-audit\.mjs/);
+  assert.match(postSafariAudits.command, /text-materialization-frontier-coverage-audit\.mjs/);
   assert.ok(
     postSafariAudits.command.indexOf('same-contract-runtime-comparison.mjs')
       < postSafariAudits.command.indexOf('safari-webkit-closure-audit.mjs')
@@ -192,6 +195,8 @@ test('runtime proof handoff validation pins external runbook command and contrac
       && postSafariAudits.command.indexOf('target-distance-audit.mjs')
         < postSafariAudits.command.indexOf('text-materialization-boundary-audit.mjs')
       && postSafariAudits.command.indexOf('text-materialization-boundary-audit.mjs')
+        < postSafariAudits.command.indexOf('text-materialization-frontier-coverage-audit.mjs')
+      && postSafariAudits.command.indexOf('text-materialization-frontier-coverage-audit.mjs')
         < postSafariAudits.command.indexOf('runtime-limit-proof-obligation-gate.mjs'),
     'post-safari audits must refresh comparison, Safari closure, counterexample, coverage, source, frontier, gate, and handoff in order',
   );
@@ -208,6 +213,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.match(postSpiderMonkeyAudits.command, /memory-frontier-audit\.mjs/);
   assert.match(postSpiderMonkeyAudits.command, /target-distance-audit\.mjs/);
   assert.match(postSpiderMonkeyAudits.command, /text-materialization-boundary-audit\.mjs/);
+  assert.match(postSpiderMonkeyAudits.command, /text-materialization-frontier-coverage-audit\.mjs/);
   assert.match(postSpiderMonkeyAudits.command, /runtime-limit-proof-obligation-gate\.mjs/);
   assert.match(postSpiderMonkeyAudits.command, /runtime-proof-gap-handoff\.mjs/);
   assert.ok(
@@ -232,6 +238,8 @@ test('runtime proof handoff validation pins external runbook command and contrac
       && postSpiderMonkeyAudits.command.indexOf('target-distance-audit.mjs')
         < postSpiderMonkeyAudits.command.indexOf('text-materialization-boundary-audit.mjs')
       && postSpiderMonkeyAudits.command.indexOf('text-materialization-boundary-audit.mjs')
+        < postSpiderMonkeyAudits.command.indexOf('text-materialization-frontier-coverage-audit.mjs')
+      && postSpiderMonkeyAudits.command.indexOf('text-materialization-frontier-coverage-audit.mjs')
         < postSpiderMonkeyAudits.command.indexOf('runtime-limit-proof-obligation-gate.mjs')
       && postSpiderMonkeyAudits.command.indexOf('runtime-limit-proof-obligation-gate.mjs')
         < postSpiderMonkeyAudits.command.indexOf('runtime-proof-gap-handoff.mjs'),
@@ -250,9 +258,9 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.match(markdown, /# Runtime Proof Handoff Validation/);
   assert.match(markdown, /Pass: yes/);
   assert.match(markdown, /Commands checked: 15/);
-  assert.match(markdown, /Scripts referenced: 22/);
+  assert.match(markdown, /Scripts referenced: 23/);
   assert.match(markdown, /Missing scripts: 0/);
-  assert.match(markdown, /Release output paths: 74/);
+  assert.match(markdown, /Release output paths: 78/);
   assert.match(markdown, /Raw output path policy violations: 0/);
   assert.match(markdown, /External-run status pinned: yes/);
   assert.match(markdown, /External-run required handoffs: 2/);
@@ -277,6 +285,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.match(markdown, /memory-frontier-audit\.mjs/);
   assert.match(markdown, /target-distance-audit\.mjs/);
   assert.match(markdown, /text-materialization-boundary-audit\.mjs/);
+  assert.match(markdown, /text-materialization-frontier-coverage-audit\.mjs/);
   assert.match(markdown, /cannot close Safari\/WebKit browser rows or SpiderMonkey emitted IR obligations/);
   assert.match(markdown, /No external benchmark command is executed by this audit/);
 });

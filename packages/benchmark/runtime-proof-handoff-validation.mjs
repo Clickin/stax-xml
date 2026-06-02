@@ -144,6 +144,7 @@ function validateHandoff(handoff) {
         /--corpus-file packages\/benchmark\/assets\/books\.xml/,
         /--cases stringFull,eventObjectFull,rawFrameNameId/,
         /safari-webkit-closure-audit\.mjs/,
+        /text-materialization-frontier-coverage-audit\.mjs/,
       ]
     : isSpiderMonkey
       ? [
@@ -157,6 +158,7 @@ function validateHandoff(handoff) {
           /spidermonkey-jsshell-materialized-headroom\.mjs/,
           /spidermonkey-codegen-closure-audit\.mjs/,
           /spidermonkey-codegen-rerun-stability-audit\.mjs/,
+          /text-materialization-frontier-coverage-audit\.mjs/,
         ]
       : [];
   const requiredContracts = isSafari

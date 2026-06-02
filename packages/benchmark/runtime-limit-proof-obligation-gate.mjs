@@ -936,8 +936,8 @@ function createHandoffValidationGuards(snapshot) {
         && snapshot.nonReleaseOutputPathCount === 0
         && snapshot.rawOutputPathPolicyViolationCount === 0
         && snapshot.commandCount === 15
-        && snapshot.scriptsReferenced === 22
-        && snapshot.releaseOutputPathCount === 74
+        && snapshot.scriptsReferenced === 23
+        && snapshot.releaseOutputPathCount === 78
         && snapshot.rawOutputPathCount === 2,
     },
     {
