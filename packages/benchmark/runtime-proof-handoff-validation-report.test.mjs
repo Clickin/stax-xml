@@ -45,6 +45,9 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.equal(report.summary.rawOutputPathPolicyViolationCount, 0);
   assert.equal(report.summary.allRequiredFlagsPresent, true);
   assert.equal(report.summary.allContractsPresent, true);
+  assert.equal(report.summary.allExternalRunRequired, true);
+  assert.equal(report.summary.externalRunRequiredCount, 2);
+  assert.equal(report.summary.localRunnableCount, 0);
   assert.equal(report.summary.unhandledObligationCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
 
@@ -55,9 +58,17 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.equal(safari.commandCount, 5);
   assert.equal(safari.requiredFlagsPresent, true);
   assert.equal(safari.contractsPresent, true);
+  assert.equal(safari.classification, 'EXTERNAL_RUN_REQUIRED');
+  assert.equal(safari.localStatus, 'external-run-required');
+  assert.equal(safari.localRunnable, false);
+  assert.equal(safari.externalRunRequired, true);
   assert.equal(spiderMonkey.commandCount, 10);
   assert.equal(spiderMonkey.requiredFlagsPresent, true);
   assert.equal(spiderMonkey.contractsPresent, true);
+  assert.equal(spiderMonkey.classification, 'EXTERNAL_RUN_REQUIRED');
+  assert.equal(spiderMonkey.localStatus, 'external-run-required');
+  assert.equal(spiderMonkey.localRunnable, false);
+  assert.equal(spiderMonkey.externalRunRequired, true);
   assert.ok(safari.requiredFlagPatterns.some(pattern => pattern.includes('--harness safari-webdriver')));
   assert.ok(safari.requiredFlagPatterns.some(pattern => pattern.includes('safari-webkit-closure-audit')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('directReadableStreamFullStringRowsRecorded')));
@@ -240,8 +251,11 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.match(markdown, /Missing scripts: 0/);
   assert.match(markdown, /Release output paths: 74/);
   assert.match(markdown, /Raw output path policy violations: 0/);
-  assert.match(markdown, /\| `safari-webkit-browser-row-handoff` \| external-run-required \| 5 \| yes \| yes \|/);
-  assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| external-run-required \| 10 \| yes \| yes \|/);
+  assert.match(markdown, /External-run status pinned: yes/);
+  assert.match(markdown, /External-run required handoffs: 2/);
+  assert.match(markdown, /Locally runnable handoffs: 0/);
+  assert.match(markdown, /\| `safari-webkit-browser-row-handoff` \| EXTERNAL_RUN_REQUIRED \| external-run-required \| no \| 5 \| yes \| yes \| yes \|/);
+  assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| EXTERNAL_RUN_REQUIRED \| external-run-required \| no \| 10 \| yes \| yes \| yes \|/);
   assert.match(markdown, /\| `safari-webkit-browser-row-handoff` \| `safari-books-corpus-cross-process` \| .*? \| yes \| yes \| yes \|/);
   assert.match(markdown, /\| `safari-webkit-browser-row-handoff` \| `safari-webkit-closure-audit` \| .*? \| yes \| yes \| none \|/);
   assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| `firefox-diagnostic-installed-or-debug-build` \| .*? \| yes \| yes \| yes \|/);
@@ -262,6 +276,45 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.match(markdown, /text-materialization-boundary-audit\.mjs/);
   assert.match(markdown, /cannot close Safari\/WebKit browser rows or SpiderMonkey emitted IR obligations/);
   assert.match(markdown, /No external benchmark command is executed by this audit/);
+});
+
+test('runtime proof handoff validation fails if an active handoff is no longer pinned as external-run-required', () => {
+  resetTmp();
+  const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
+  const safari = handoff.handoffs.find(row => row.id === 'safari-webkit-browser-row-handoff');
+  safari.localClosure.localStatus = 'locally-runnable';
+  safari.localClosure.localRunnable = true;
+  writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-handoff-validation.mjs'),
+    '--handoff-json',
+    badHandoffJson,
+    '--json-out',
+    badJsonOut,
+    '--md-out',
+    badMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(badJsonOut, 'utf8'));
+  assert.equal(report.summary.pass, false);
+  assert.equal(report.summary.allExternalRunRequired, false);
+  assert.equal(report.summary.externalRunRequiredCount, 1);
+  assert.equal(report.summary.localRunnableCount, 1);
+  const safariCheck = report.handoffChecks.find(row => row.id === 'safari-webkit-browser-row-handoff');
+  assert.equal(safariCheck.externalRunRequired, false);
+  assert.equal(safariCheck.localRunnable, true);
+
+  const markdown = readFileSync(badMdOut, 'utf8');
+  assert.match(markdown, /Pass: no/);
+  assert.match(markdown, /External-run status pinned: no/);
+  assert.match(markdown, /\| `safari-webkit-browser-row-handoff` \| EXTERNAL_RUN_REQUIRED \| locally-runnable \| yes \| 5 \| yes \| yes \| no \|/);
 });
 
 test('runtime proof handoff validation fails if SpiderMonkey omits diagnostic row identity blockers', () => {

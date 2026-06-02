@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T17:21:37.925Z",
+  "generatedAt": "2026-06-02T17:29:48.452Z",
   "objective": "runtime-proof-handoff-validation",
   "contract": "external-run-handoff-command-and-contract-static-validation",
   "note": "Static validation for runtime-proof-gap-handoff external runbooks. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
@@ -22,6 +22,9 @@
     "rawOutputPathPolicyViolationCount": 0,
     "allRequiredFlagsPresent": true,
     "allContractsPresent": true,
+    "allExternalRunRequired": true,
+    "externalRunRequiredCount": 2,
+    "localRunnableCount": 0,
     "unhandledObligationCount": 0,
     "conclusionAllowed": false
   },
@@ -34,6 +37,7 @@
       "commandCount": 5,
       "requiredFlagsPresent": true,
       "contractsPresent": true,
+      "externalRunRequired": true,
       "requiredFlagPatterns": [
         "--harness safari-webdriver",
         "--driver-executable \\/usr\\/bin\\/safaridriver",
@@ -86,6 +90,7 @@
       "commandCount": 10,
       "requiredFlagsPresent": true,
       "contractsPresent": true,
+      "externalRunRequired": true,
       "requiredFlagPatterns": [
         "FIREFOX_PATH=\\/path\\/to\\/firefox",
         "SPIDERMONKEY_JS_SHELL=\\/path\\/to\\/js",

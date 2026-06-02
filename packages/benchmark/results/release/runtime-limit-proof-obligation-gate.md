@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T17:25:15.026Z
+Generated: 2026-06-02T17:29:55.541Z
 
 ## Scope
 
@@ -166,7 +166,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T17:21:37.925Z)
+- Handoff validation loaded: yes (2026-06-02T17:29:48.452Z)
 - Handoff validation target handoff generatedAt: 2026-06-02T17:21:29.504Z (current 2026-06-02T17:21:29.504Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes

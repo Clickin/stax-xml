@@ -1,6 +1,6 @@
 # Runtime Proof Handoff Validation
 
-Generated: 2026-06-02T17:21:37.925Z
+Generated: 2026-06-02T17:29:48.452Z
 
 Static validation for runtime-proof-gap-handoff external runbooks. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -18,15 +18,18 @@ Static validation for runtime-proof-gap-handoff external runbooks. This is not b
 - Raw output path policy violations: 0
 - Required flags present: yes
 - Required contracts present: yes
+- External-run status pinned: yes
+- External-run required handoffs: 2
+- Locally runnable handoffs: 0
 - Unhandled obligations in handoff: 0
 - Runtime-limit conclusion allowed: no
 
 ## Handoff Checks
 
-| Handoff | Local status | Commands | Required flags | Required contracts |
-| --- | --- | ---: | --- | --- |
-| `safari-webkit-browser-row-handoff` | external-run-required | 5 | yes | yes |
-| `spidermonkey-codegen-handoff` | external-run-required | 10 | yes | yes |
+| Handoff | Classification | Local status | Locally runnable | Commands | Required flags | Required contracts | External-run pinned |
+| --- | --- | --- | --- | ---: | --- | --- | --- |
+| `safari-webkit-browser-row-handoff` | EXTERNAL_RUN_REQUIRED | external-run-required | no | 5 | yes | yes | yes |
+| `spidermonkey-codegen-handoff` | EXTERNAL_RUN_REQUIRED | external-run-required | no | 10 | yes | yes | yes |
 
 ## Command Checks
 

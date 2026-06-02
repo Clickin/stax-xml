@@ -77,12 +77,14 @@ function createReport(handoff, options) {
   const allRawOutputsSeparated = commandChecks.every(check => check.rawOutputPaths.every(output => output.underRawOrCrossProcess));
   const allRequiredFlagsPresent = handoffChecks.every(check => check.requiredFlagsPresent);
   const allContractsPresent = handoffChecks.every(check => check.contractsPresent);
+  const allExternalRunRequired = handoffChecks.every(check => check.externalRunRequired === true);
   const pass = requiredHandoffsPresent
     && allCommandsReferenceExistingScripts
     && allReleaseOutputsCurated
     && allRawOutputsSeparated
     && allRequiredFlagsPresent
     && allContractsPresent
+    && allExternalRunRequired
     && (handoff.summary?.unhandledObligationCount ?? 1) === 0;
 
   const report = {
@@ -109,6 +111,9 @@ function createReport(handoff, options) {
       rawOutputPathPolicyViolationCount: commandChecks.flatMap(check => check.rawOutputPaths).filter(output => !output.underRawOrCrossProcess).length,
       allRequiredFlagsPresent,
       allContractsPresent,
+      allExternalRunRequired,
+      externalRunRequiredCount: handoffChecks.filter(check => check.externalRunRequired === true).length,
+      localRunnableCount: handoffChecks.filter(check => check.localRunnable === true).length,
       unhandledObligationCount: handoff.summary?.unhandledObligationCount ?? null,
       conclusionAllowed: false,
     },
@@ -261,6 +266,9 @@ function validateHandoff(handoff) {
     commandCount: commands.length,
     requiredFlagsPresent: requiredFlags.every(pattern => pattern.test(commandText)),
     contractsPresent: requiredContracts.every(pattern => pattern.test(contractText)),
+    externalRunRequired: handoff.classification === 'EXTERNAL_RUN_REQUIRED'
+      && handoff.localClosure?.localStatus === 'external-run-required'
+      && handoff.localClosure?.localRunnable === false,
     requiredFlagPatterns: requiredFlags.map(pattern => pattern.source),
     requiredContractPatterns: requiredContracts.map(pattern => pattern.source),
   };
@@ -326,7 +334,7 @@ function createFindings(pass, handoffChecks, commandChecks) {
         ? 'Every current runtime proof handoff has existing local entrypoint scripts, curated release outputs, separated raw outputs, and required closure contracts.'
         : 'At least one runtime proof handoff command or contract failed static validation.',
       evidence: [
-        `handoffs=${handoffChecks.map(check => `${check.id}:${check.requiredFlagsPresent && check.contractsPresent ? 'ok' : 'incomplete'}`).join(', ')}`,
+        `handoffs=${handoffChecks.map(check => `${check.id}:${check.requiredFlagsPresent && check.contractsPresent && check.externalRunRequired ? 'ok' : 'incomplete'}`).join(', ')}`,
         `commands=${commandChecks.length}`,
       ],
     },
@@ -364,16 +372,19 @@ function renderMarkdown(report) {
     `- Raw output path policy violations: ${report.summary.rawOutputPathPolicyViolationCount}`,
     `- Required flags present: ${report.summary.allRequiredFlagsPresent ? 'yes' : 'no'}`,
     `- Required contracts present: ${report.summary.allContractsPresent ? 'yes' : 'no'}`,
+    `- External-run status pinned: ${report.summary.allExternalRunRequired ? 'yes' : 'no'}`,
+    `- External-run required handoffs: ${report.summary.externalRunRequiredCount}`,
+    `- Locally runnable handoffs: ${report.summary.localRunnableCount}`,
     `- Unhandled obligations in handoff: ${report.summary.unhandledObligationCount}`,
     `- Runtime-limit conclusion allowed: ${report.summary.conclusionAllowed ? 'yes' : 'no'}`,
     '',
     '## Handoff Checks',
     '',
-    '| Handoff | Local status | Commands | Required flags | Required contracts |',
-    '| --- | --- | ---: | --- | --- |',
+    '| Handoff | Classification | Local status | Locally runnable | Commands | Required flags | Required contracts | External-run pinned |',
+    '| --- | --- | --- | --- | ---: | --- | --- | --- |',
   ];
   for (const check of report.handoffChecks) {
-    lines.push(`| \`${check.id}\` | ${check.localStatus ?? 'unknown'} | ${check.commandCount} | ${check.requiredFlagsPresent ? 'yes' : 'no'} | ${check.contractsPresent ? 'yes' : 'no'} |`);
+    lines.push(`| \`${check.id}\` | ${check.classification ?? 'unknown'} | ${check.localStatus ?? 'unknown'} | ${check.localRunnable === null ? 'unknown' : check.localRunnable ? 'yes' : 'no'} | ${check.commandCount} | ${check.requiredFlagsPresent ? 'yes' : 'no'} | ${check.contractsPresent ? 'yes' : 'no'} | ${check.externalRunRequired ? 'yes' : 'no'} |`);
   }
   lines.push('', '## Command Checks', '', '| Handoff | Command | Scripts | Scripts existing | Release outputs curated | Raw outputs separated |', '| --- | --- | --- | --- | --- | --- |');
   for (const check of report.commandChecks) {
