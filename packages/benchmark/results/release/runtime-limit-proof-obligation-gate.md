@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T18:37:55.121Z
+Generated: 2026-06-02T18:43:32.217Z
 
 ## Scope
 
@@ -135,7 +135,7 @@ Disclosure-only guards: 3
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-02T18:37:31.745Z)
+- Handoff loaded: yes (2026-06-02T18:43:14.129Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -169,8 +169,8 @@ Disclosure-only guards: 3
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T18:37:44.167Z)
-- Handoff validation target handoff generatedAt: 2026-06-02T18:37:31.745Z (current 2026-06-02T18:37:31.745Z)
+- Handoff validation loaded: yes (2026-06-02T18:43:22.428Z)
+- Handoff validation target handoff generatedAt: 2026-06-02T18:43:14.129Z (current 2026-06-02T18:43:14.129Z)
 - Handoff validation pass: yes
 - Commands checked: 15
 - Scripts referenced: 22
@@ -234,14 +234,14 @@ Disclosure-only guards: 3
 - Unbounded or unproven memory rows: 17
 - Bounded rows without numeric memory proof: 0
 - Unbounded rows at or above 200 MiB/s: 0
-- Target distance loaded: yes (2026-06-02T18:14:54.084Z)
+- Target distance loaded: yes (2026-06-02T18:42:44.046Z)
 - Woodstox 0.9x target met: no
 - Woodstox 0.9x remaining: 164.29 MiB/s
 - quick-xml 0.9x target met: no
 - quick-xml 0.9x remaining: 95.06 MiB/s
 - Shared JS target row: yes
 - Target JS contract: sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=no, fullArrayBufferParserInput=no, boundedMemory=yes, memoryKind=process-rss, maxRssMiB=61.77
-- Text materialization boundary loaded: yes (2026-06-02T18:14:54.137Z)
+- Text materialization boundary loaded: yes (2026-06-02T18:42:54.721Z)
 - Fastest full-string row: 185.50 MiB/s
 - Full-string rows crossing 200 MiB/s: 0
 - No-text rows crossing 200 MiB/s: 4

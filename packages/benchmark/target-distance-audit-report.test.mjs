@@ -40,6 +40,7 @@ test('target distance audit keeps Woodstox and quick-xml 0.9x goals explicit', (
   assert.equal(report.summary.status, 'classified');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.sharedFastestJsTargetRow, true);
+  assert.equal(report.summary.overallJsFrontierSeparatedFromSameFixtureTarget, true);
 
   const woodstox = report.summary.sameFixture1024MiBWoodstoxTarget;
   assert.equal(woodstox.fastestJsCaseId, 'stax-raw-frame-name-id-batch-8');
@@ -76,6 +77,16 @@ test('target distance audit keeps Woodstox and quick-xml 0.9x goals explicit', (
   assert.equal(fastestJsContract.maxExternalMiB, 3.66);
   assert.equal(fastestJsContract.maxArrayBuffersMiB, 1.67);
 
+  const overallFrontier = report.summary.overallJsFrontier;
+  assert.equal(overallFrontier.sourceArtifact, 'text-trim-cost-decomposition.json');
+  assert.equal(overallFrontier.caseId, 'rawFrameNameId');
+  assert.equal(overallFrontier.rateMiBPerSec, 185.5);
+  assert.equal(overallFrontier.boundedMemory, true);
+  assert.equal(overallFrontier.fullStringParity, true);
+  assert.equal(overallFrontier.targetDistanceOnly, true);
+  assert.equal(overallFrontier.sameFixtureExternalBaseline, false);
+  assert.equal(overallFrontier.sameAsSameFixtureTargetRow, false);
+
   const external = report.summary.externalBaseline1024MiBFileSyncBatches;
   assert.equal(external.staxStreamRateMiBPerSec, 124.62);
   assert.equal(external.rawFrameNameIdRateMiBPerSec, 132.54);
@@ -104,6 +115,7 @@ test('target distance audit keeps Woodstox and quick-xml 0.9x goals explicit', (
   assert.ok(report.findings.some(entry => entry.id === 'external-baseline-separate-from-candidate-target'));
   assert.ok(report.findings.some(entry => entry.id === 'same-fixture-targets-share-js-row' && entry.classification === 'SOURCE_FACT'));
   assert.ok(report.findings.some(entry => entry.id === 'same-fixture-fastest-js-contract-classified'));
+  assert.ok(report.findings.some(entry => entry.id === 'overall-js-frontier-separate-from-same-fixture-target'));
   assert.ok(report.findings.some(entry => entry.id === 'target-distance-not-runtime-ceiling'));
 
   const markdown = readFileSync(mdOut, 'utf8');
@@ -111,6 +123,8 @@ test('target distance audit keeps Woodstox and quick-xml 0.9x goals explicit', (
   assert.match(markdown, /Same-fixture JS row: `stax-raw-frame-name-id-batch-8` 152\.11 MiB\/s/);
   assert.match(markdown, /Woodstox and quick-xml target rows share JS baseline: true/);
   assert.match(markdown, /Same-fixture JS source\/memory contract: Node\/V8 `stax-raw-frame-name-id-batch-8` 152\.11 MiB\/s, sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=false, fullArrayBufferParserInput=false, boundedMemory=true, process-rss max 61\.77 MiB/);
+  assert.match(markdown, /Overall JS frontier row: `rawFrameNameId` 185\.50 MiB\/s from `text-trim-cost-decomposition\.json`; same-fixture external baseline: false/);
+  assert.match(markdown, /Overall JS frontier separated from same-fixture target row: true/);
   assert.match(markdown, /Woodstox target: 351\.56 MiB\/s; 0\.9x target 316\.40 MiB\/s; JS ratio 0\.43x; remaining 164\.29 MiB\/s; targetMet=false/);
   assert.match(markdown, /quick-xml target: 274\.63 MiB\/s; 0\.9x target 247\.17 MiB\/s; JS ratio 0\.55x; remaining 95\.06 MiB\/s; targetMet=false/);
   assert.match(markdown, /stax-stream: 124\.62 MiB\/s \(0\.37x Woodstox\)/);
@@ -118,6 +132,7 @@ test('target distance audit keeps Woodstox and quick-xml 0.9x goals explicit', (
   assert.match(markdown, /quick-xml: 270\.26 MiB\/s \(0\.80x Woodstox\)/);
   assert.match(markdown, /\| `file-backed-batch-size-sweep` \| `stax-raw-frame-name-id-batch-8` \| 152\.11 \| `file-backed-short-attr-value-cache-candidate\.json` \| 274\.63 \| 247\.17 \| 95\.06 \| no \| same books 1024 MiB fixture family, but quick-xml reference comes from a separate candidate artifact \|/);
   assert.match(markdown, /same-fixture fastest JavaScript target row is file-backed synchronous Iterable<Uint8Array\[\]> input/);
+  assert.match(markdown, /overall fastest JavaScript full-string row is not used as the Woodstox\/quick-xml same-fixture target baseline/);
   assert.match(markdown, /A target-distance deficit is not proof that JavaScript runtimes have no further headroom/);
 });
 
