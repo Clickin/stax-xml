@@ -300,6 +300,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-closure-checks-primary-bounded' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-closure-checks-same-contract-comparison' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-closure-checks-1gib-primary' && item.satisfied));
+  assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-source-boundary-separates-bun-webkit' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-local-availability-blocker' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-closing-artifact-schema-evidence' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-emitted-ir-required' && item.satisfied));
@@ -386,6 +387,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /safari-primary-byte-batch-contract/);
   assert.match(markdown, /safari-closure-checks-same-contract-comparison/);
   assert.match(markdown, /safari-closure-checks-1gib-primary/);
+  assert.match(markdown, /safari-source-boundary-separates-bun-webkit/);
   assert.match(markdown, /safari-local-availability-blocker/);
   assert.match(markdown, /spidermonkey-materialized-scope-not-enough/);
   assert.match(markdown, /spidermonkey-materialized-textdecoder-host-api-blocker/);
@@ -937,6 +939,44 @@ test('runtime-limit proof-obligation gate fails if Safari handoff omits 1GiB pri
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /largeBoundedPrimarySyncByteBatchRowsRecorded/);
   assert.match(markdown, /largePrimaryRowsInSameContractComparison/);
+});
+
+test('runtime-limit proof-obligation gate fails if Safari handoff omits Bun/WebKit scope guard', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
+  const safari = handoff.handoffs.find(item => item.id === 'safari-webkit-browser-row-handoff');
+  delete safari.sourceBoundaryContract.bunWebKitScopeGuard;
+  writeFileSync(badHandoffJsonOut, `${JSON.stringify(handoff, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--handoff-json',
+    badHandoffJsonOut,
+    '--json-out',
+    badHandoffGateJsonOut,
+    '--md-out',
+    badHandoffGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badHandoffGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.ok(report.handoffSnapshot.guards.some(item =>
+    item.id === 'safari-source-boundary-separates-bun-webkit'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /Bun\/JSC/.test(error)));
+
+  const markdown = readFileSync(badHandoffGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /safari-source-boundary-separates-bun-webkit/);
 });
 
 test('runtime-limit proof-obligation gate fails if Safari handoff omits local availability blocker', () => {

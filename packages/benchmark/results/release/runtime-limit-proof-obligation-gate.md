@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T21:17:42.481Z
+Generated: 2026-06-02T21:22:17.114Z
 
 ## Scope
 
@@ -151,6 +151,7 @@ Disclosure-only guards: 3
 | `safari-closure-checks-same-contract-comparison` | yes | Safari closure checks must require bounded primary rows to match same-contract-runtime-comparison.json by row id, event count, and checksum via primaryRowsInSameContractComparison. |
 | `safari-closure-checks-1gib-primary` | yes | Safari closure checks must require largeBoundedPrimarySyncByteBatchRowsRecorded and largePrimaryRowsInSameContractComparison for 1 GiB+ bounded primary row id, event count, and checksum parity. |
 | `safari-row-level-source-boundary-required` | yes | Safari closure checks must require row-level source revision and source-pin artifact metadata, not only an availability-level sourceBoundaryPinned boolean. |
+| `safari-source-boundary-separates-bun-webkit` | yes | Safari handoff must preserve that Bun/JSC and Bun-patched WebKit source pins are not Safari browser JSC source pins unless the tested build identity matches. |
 | `safari-local-availability-blocker` | yes | Safari handoff must preserve the local Safari availability blocker with host/harness runability details and zero-candidate closure audit summary tied to the current same-contract comparison identity. |
 | `spidermonkey-closing-artifact-schema-evidence` | yes | SpiderMonkey expected evidence must require explicit closure declarations, same-contract row status, comparison match, and allowed evidence class. |
 | `spidermonkey-emitted-ir-required` | yes | SpiderMonkey closure checks must require emitted IR/codegen evidence and no missing IR surface. |

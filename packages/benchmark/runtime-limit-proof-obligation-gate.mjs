@@ -1032,6 +1032,15 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
         && safariChecks.some(item => /row-level source revision and source-pin artifact metadata/.test(item)),
     },
     {
+      id: 'safari-source-boundary-separates-bun-webkit',
+      description: 'Safari handoff must preserve that Bun/JSC and Bun-patched WebKit source pins are not Safari browser JSC source pins unless the tested build identity matches.',
+      satisfied: /exact Safari version/.test(safari?.sourceBoundaryContract?.browserBuildIdentity ?? '')
+        && /Safari\/WebKit string creation and ownership source lines/.test(safari?.sourceBoundaryContract?.stringBoundary ?? '')
+        && /Safari\/WebKit TextDecoder\/UTF-8 decode source lines/.test(safari?.sourceBoundaryContract?.textDecoderBoundary ?? '')
+        && /Bun\/JSC and Bun-patched WebKit source pins are not Safari browser JSC source pins/.test(safari?.sourceBoundaryContract?.bunWebKitScopeGuard ?? '')
+        && /tested Safari\/WebKit build identity matches/.test(safari?.sourceBoundaryContract?.bunWebKitScopeGuard ?? ''),
+    },
+    {
       id: 'safari-local-availability-blocker',
       description: 'Safari handoff must preserve the local Safari availability blocker with host/harness runability details and zero-candidate closure audit summary tied to the current same-contract comparison identity.',
       satisfied: safariBlockers.some(item => /Current host cannot run Safari\/WebKit browser rows/.test(item)
