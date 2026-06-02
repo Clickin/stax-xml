@@ -176,13 +176,13 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
     'not-claimed-non-stax-diagnostic': 7,
   });
   assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.diagnosticRowCount, 11);
-  assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditCandidateCount, 15);
-  assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap, 4);
-  assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.candidateCount, 15);
+  assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditCandidateCount, 16);
+  assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap, 5);
+  assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.candidateCount, 16);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.qualifiedClosureCount, 0);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.selectedRowComparisonMatchCount, 0);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.selectedRowComparisonMismatchCount, 0);
-  assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.selectedRowComparisonMissingCount, 15);
+  assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.selectedRowComparisonMissingCount, 16);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.comparisonGeneratedAt, report.counterexampleSnapshot.comparisonGeneratedAt);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.comparisonRowCount, report.counterexampleSnapshot.comparisonRowCount);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.minimumBlockedRequirementCount, 4);
@@ -195,6 +195,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
     'spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json',
   ]);
   assert.deepEqual(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditCandidateSourcesOutsideDiagnostics, [
+    'firefox-spidermonkey-profiler-trace.json',
     'spidermonkey-jsshell-materialized-headroom.json',
     'spidermonkey-jsshell-tokenizer-headroom.json',
     'spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json',
@@ -313,8 +314,8 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open/);
   assert.match(markdown, /allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open/);
   assert.match(markdown, /SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7/);
-  assert.match(markdown, /SpiderMonkey diagnostics rows vs closure candidates: 11\/15 \(gap=4, closureQualified=0\)/);
-  assert.match(markdown, /SpiderMonkey closure candidates outside coverage diagnostics: `spidermonkey-jsshell-materialized-headroom\.json`, `spidermonkey-jsshell-tokenizer-headroom\.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun\.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun\.json`/);
+  assert.match(markdown, /SpiderMonkey diagnostics rows vs closure candidates: 11\/16 \(gap=5, closureQualified=0\)/);
+  assert.match(markdown, /SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace\.json`, `spidermonkey-jsshell-materialized-headroom\.json`, `spidermonkey-jsshell-tokenizer-headroom\.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun\.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun\.json`/);
   assert.match(markdown, /SpiderMonkey coverage diagnostics outside closure candidates: none/);
   assert.match(markdown, /Safari\/WebKit closure comparison: generatedAt=.*rows=289, candidates=0, qualified=0/);
   assert.match(markdown, /spidermonkey-identity-status-counts-present/);

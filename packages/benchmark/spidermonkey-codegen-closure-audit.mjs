@@ -22,6 +22,7 @@ const disallowedEvidenceClasses = new Set([
   'materialized-headroom-only',
   'negative-diagnostic-surface',
   'source-pin-only',
+  'gecko-profiler-scope-guard',
   'archival-codegen-scope-guard',
   'current-debug-codegen-scope-guard',
   'current-debug-xml-codegen-scope-guard',
@@ -143,6 +144,27 @@ function createSelfTestReport(options) {
             nativeDumpComplete: true,
           },
         },
+      },
+    },
+    {
+      sourceArtifact: 'firefox-spidermonkey-profiler-trace.json',
+      root: {
+        objective: 'firefox-spidermonkey-profiler-trace',
+        contract: 'gecko-profiler-same-contract-browser-reader-shapes',
+        environment: {
+          javascriptEngine: 'SpiderMonkey',
+          browserName: 'Firefox',
+        },
+        profile: {
+          totalSamples: 12,
+          totalJsRelevantFrames: 3,
+        },
+        findings: [
+          {
+            id: 'not-jit-ir-or-runtime-ceiling-proof',
+            classification: 'SCOPE_GUARD',
+          },
+        ],
       },
     },
     {
@@ -294,7 +316,7 @@ function buildReport(options, artifacts, comparison = { generatedAt: null, rowCo
     .filter(candidate => candidate.objective !== 'spidermonkey-codegen-closure-audit')
     .filter(candidate => candidate.objective !== 'spidermonkey-codegen-rerun-stability-audit')
     .filter(candidate => candidate.objective !== 'spidermonkey-taskcluster-debug-jsshell-route-freshness-audit')
-    .filter(candidate => candidate.hasAnyDiagnosticSurface || /codegen|diagnostic|jsshell|js-shell|buildconfig/i.test(candidate.sourceArtifact))
+    .filter(candidate => candidate.hasAnyDiagnosticSurface || /codegen|diagnostic|jsshell|js-shell|buildconfig|profiler-trace/i.test(candidate.sourceArtifact))
     .sort((left, right) => left.sourceArtifact.localeCompare(right.sourceArtifact));
   const qualified = candidates.filter(candidate => candidate.qualifiedClosure);
   const contradicted = candidates.filter(candidate => candidate.declaresClosure && !candidate.qualifiedClosure);
@@ -813,6 +835,7 @@ function inferEvidenceClass(sourceArtifact, outcome) {
   if (/availability-audit/.test(sourceArtifact)) return 'availability-only';
   if (/buildconfig|source-pin/.test(sourceArtifact)) return 'source-pin-only';
   if (/diagnostic-dump/.test(sourceArtifact) && outcome?.status === 'no-dump-emitted') return 'negative-diagnostic-surface';
+  if (/profiler-trace/.test(sourceArtifact)) return 'gecko-profiler-scope-guard';
   if (/stax-api-gap/.test(sourceArtifact)) return 'host-api-surface-gap';
   if (/diagnostic-flag-sweep/.test(sourceArtifact)) return 'diagnostic-flag-sweep-negative';
   if (/tokenizer-headroom/.test(sourceArtifact)) return 'parser-core-headroom-only';

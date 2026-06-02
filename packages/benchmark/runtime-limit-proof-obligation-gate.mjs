@@ -19,6 +19,7 @@ const defaultMdOut = resolve(__dirname, 'results', 'release', 'runtime-limit-pro
 
 const runtimeLimitClaimId = 'CLAIM-JS-RUNTIME-LIMIT-200MIB';
 const expectedSpiderMonkeyClosureGapArtifacts = [
+  'firefox-spidermonkey-profiler-trace.json',
   'spidermonkey-jsshell-materialized-headroom.json',
   'spidermonkey-jsshell-tokenizer-headroom.json',
   'spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json',
@@ -1411,11 +1412,11 @@ function createCoverageGuards(snapshot, counterexampleSnapshot = null) {
     {
       id: 'spidermonkey-closure-audit-comparison-current',
       description: 'SpiderMonkey closure audit comparison freshness must be preserved in coverage: selected-row comparison counts must match the current same-contract comparison generatedAt and row count.',
-      satisfied: closureAudit.candidateCount === 15
+      satisfied: closureAudit.candidateCount === 16
         && closureAudit.qualifiedClosureCount === 0
         && closureAudit.selectedRowComparisonMatchCount === 0
         && closureAudit.selectedRowComparisonMismatchCount === 0
-        && closureAudit.selectedRowComparisonMissingCount === 15
+        && closureAudit.selectedRowComparisonMissingCount === 16
         && closureAudit.comparisonGeneratedAt === counterexampleSnapshot?.comparisonGeneratedAt
         && closureAudit.comparisonRowCount === counterexampleSnapshot?.comparisonRowCount,
     },

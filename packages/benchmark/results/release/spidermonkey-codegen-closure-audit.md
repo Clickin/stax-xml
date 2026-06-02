@@ -1,6 +1,6 @@
 # SpiderMonkey Codegen Closure Audit
 
-Generated: 2026-06-02T15:41:50.304Z
+Generated: 2026-06-02T16:22:00.437Z
 
 Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.
 
@@ -12,7 +12,7 @@ Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requi
 
 ## Summary
 
-- Candidates checked: 15
+- Candidates checked: 16
 - Diagnostic/codegen surface candidates: 6
 - Emitted-codegen surface count: 6
 - Same-contract StAX row count: 0
@@ -21,24 +21,24 @@ Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requi
 - Closing metadata count: 5
 - Qualified closures: 0
 - Contradicted closure claims: 0
-- Selected row identity statuses: not-claimed-non-stax-diagnostic=15
-- Selected row comparison matches: matched=0, mismatched=0, missing=15
-- Selected row metadata missing fields: selectedChecksum=15, selectedEventCount=15, selectedRowId=15
-- Closing metadata missing fields: diagnosticFlags=9, emittedDumpMetadata=9, runtimeBuildIdentity=10
-- Evidence classes: archival-codegen-scope-guard=1, availability-only=3, current-debug-codegen-scope-guard=2, current-debug-materialized-codegen-scope-guard=2, current-debug-xml-codegen-scope-guard=1, diagnostic-flag-sweep-negative=1, host-api-surface-gap=1, materialized-headroom-only=1, negative-diagnostic-surface=1, parser-core-headroom-only=1, source-pin-only=1
-- Disallowed evidence classes: archival-codegen-scope-guard=1, availability-only=3, current-debug-codegen-scope-guard=2, current-debug-materialized-codegen-scope-guard=2, current-debug-xml-codegen-scope-guard=1, diagnostic-flag-sweep-negative=1, host-api-surface-gap=1, materialized-headroom-only=1, negative-diagnostic-surface=1, parser-core-headroom-only=1, source-pin-only=1
+- Selected row identity statuses: not-claimed-non-stax-diagnostic=16
+- Selected row comparison matches: matched=0, mismatched=0, missing=16
+- Selected row metadata missing fields: selectedChecksum=16, selectedEventCount=16, selectedRowId=16
+- Closing metadata missing fields: diagnosticFlags=10, emittedDumpMetadata=10, runtimeBuildIdentity=11
+- Evidence classes: archival-codegen-scope-guard=1, availability-only=3, current-debug-codegen-scope-guard=2, current-debug-materialized-codegen-scope-guard=2, current-debug-xml-codegen-scope-guard=1, diagnostic-flag-sweep-negative=1, gecko-profiler-scope-guard=1, host-api-surface-gap=1, materialized-headroom-only=1, negative-diagnostic-surface=1, parser-core-headroom-only=1, source-pin-only=1
+- Disallowed evidence classes: archival-codegen-scope-guard=1, availability-only=3, current-debug-codegen-scope-guard=2, current-debug-materialized-codegen-scope-guard=2, current-debug-xml-codegen-scope-guard=1, diagnostic-flag-sweep-negative=1, gecko-profiler-scope-guard=1, host-api-surface-gap=1, materialized-headroom-only=1, negative-diagnostic-surface=1, parser-core-headroom-only=1, source-pin-only=1
 - Minimum blocked requirement count: 4
 - Closest blocked candidate count: 5
 - Conclusion allowed: no
 
 ## Missing Requirement Histogram
 
-- closingMetadata: 10
-- emittedCodegenSurface: 9
-- evidenceClassAllowed: 15
-- sameContractStaxRow: 15
-- selectedRowMetadata: 15
-- unchangedRunnable: 15
+- closingMetadata: 11
+- emittedCodegenSurface: 10
+- evidenceClassAllowed: 16
+- sameContractStaxRow: 16
+- selectedRowMetadata: 16
+- unchangedRunnable: 16
 
 ## Closest Blocked Candidates
 
@@ -59,6 +59,7 @@ Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requi
 | `firefox-spidermonkey-js-shell-availability-audit.json` | availability-only | no | no | no | no | n/a | no | no | no | emittedCodegenSurface, sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata, evidenceClassAllowed | |
 | `firefox-spidermonkey-jsshell-stax-api-gap-audit.json` | host-api-surface-gap | no | no | no | no | n/a | no | no | no | emittedCodegenSurface, sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata, evidenceClassAllowed | |
 | `firefox-spidermonkey-nightly-jsshell-availability-audit.json` | availability-only | no | no | no | no | n/a | no | no | no | emittedCodegenSurface, sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata, evidenceClassAllowed | |
+| `firefox-spidermonkey-profiler-trace.json` | gecko-profiler-scope-guard | no | no | no | no | n/a | no | no | no | emittedCodegenSurface, sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata, evidenceClassAllowed | |
 | `firefox-spidermonkey-release-jsshell-availability-audit.json` | availability-only | no | no | no | no | n/a | no | no | no | emittedCodegenSurface, sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata, evidenceClassAllowed | |
 | `spidermonkey-archival-debug-jsshell-codegen-audit.json` | archival-codegen-scope-guard | yes | no | no | no | n/a | no | no | no | sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata, evidenceClassAllowed | |
 | `spidermonkey-jsshell-diagnostic-flag-sweep.json` | diagnostic-flag-sweep-negative | no | no | no | no | n/a | no | no | no | emittedCodegenSurface, sameContractStaxRow, unchangedRunnable, selectedRowMetadata, closingMetadata, evidenceClassAllowed | |
@@ -73,7 +74,7 @@ Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requi
 ## Findings
 
 - spidermonkey-codegen-closure-matrix (SCOPE_GUARD): SpiderMonkey diagnostic/codegen artifacts are classified through the same-contract closure matrix before they can close codegen-traces-open.
-  - candidates=15
+  - candidates=16
   - qualifiedClosures=0
 - spidermonkey-codegen-closure-not-met (NEGATIVE_RESULT): No current SpiderMonkey diagnostic/codegen artifact satisfies emitted-codegen, unchanged StAX, selected-row metadata, and closing-metadata requirements together.
   - emittedCodegenSurface=6

@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T16:12:20.461Z
+Generated: 2026-06-02T16:27:57.900Z
 
 ## Scope
 
@@ -87,11 +87,11 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-02T16:00:15.257Z)
+- Coverage audit loaded: yes (2026-06-02T16:22:16.218Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
-- SpiderMonkey diagnostics rows vs closure candidates: 11/15 (gap=4, closureQualified=0)
-- SpiderMonkey closure candidates outside coverage diagnostics: `spidermonkey-jsshell-materialized-headroom.json`, `spidermonkey-jsshell-tokenizer-headroom.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`
+- SpiderMonkey diagnostics rows vs closure candidates: 11/16 (gap=5, closureQualified=0)
+- SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace.json`, `spidermonkey-jsshell-materialized-headroom.json`, `spidermonkey-jsshell-tokenizer-headroom.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`
 - SpiderMonkey coverage diagnostics outside closure candidates: none
 - SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7
 - SpiderMonkey Taskcluster route freshness: fresh (artifactIdentityMatchesRoute=yes, expectedIdentitySource=inferred-from-artifacts, checkedArtifacts=5, mismatchedArtifacts=none)
@@ -133,7 +133,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-02T16:09:35.204Z)
+- Handoff loaded: yes (2026-06-02T16:27:31.420Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -164,8 +164,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T16:12:01.996Z)
-- Handoff validation target handoff generatedAt: 2026-06-02T16:09:35.204Z (current 2026-06-02T16:09:35.204Z)
+- Handoff validation loaded: yes (2026-06-02T16:27:45.400Z)
+- Handoff validation target handoff generatedAt: 2026-06-02T16:27:31.420Z (current 2026-06-02T16:27:31.420Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes
 - Required contracts present: yes
@@ -183,8 +183,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-02T16:00:34.047Z)
-- Source audit inputs: comparison=2026-06-02T14:53:00.937Z (current 2026-06-02T14:53:00.937Z), coverage=2026-06-02T16:00:15.257Z (current 2026-06-02T16:00:15.257Z)
+- Source audit loaded: yes (2026-06-02T16:23:24.393Z)
+- Source audit inputs: comparison=2026-06-02T14:53:00.937Z (current 2026-06-02T14:53:00.937Z), coverage=2026-06-02T16:22:16.218Z (current 2026-06-02T16:22:16.218Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary sync byte-batch rows: 231

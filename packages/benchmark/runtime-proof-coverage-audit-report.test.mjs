@@ -45,11 +45,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.evidenceKinds.includes('TRACE_FACT')
     && artifact.evidenceKinds.includes('NEGATIVE_RESULT')
     && artifact.evidenceKinds.includes('SCOPE_GUARD')
-    && artifact.summary.candidateCount === 15
+    && artifact.summary.candidateCount === 16
     && artifact.summary.qualifiedClosureCount === 0
     && artifact.summary.selectedRowComparisonMatchCount === 0
     && artifact.summary.selectedRowComparisonMismatchCount === 0
-    && artifact.summary.selectedRowComparisonMissingCount === 15
+    && artifact.summary.selectedRowComparisonMissingCount === 16
     && artifact.summary.comparisonGeneratedAt === comparison.generatedAt
     && artifact.summary.comparisonRowCount === comparison.summary.rowCount
     && artifact.summary.minimumBlockedRequirementCount === 4
@@ -1209,9 +1209,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   });
   assert.equal(report.coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount, 0);
   assert.equal(report.coverage.spiderMonkeyDiagnostics.diagnosticRowCount, 11);
-  assert.equal(report.coverage.spiderMonkeyDiagnostics.closureAuditCandidateCount, 15);
-  assert.equal(report.coverage.spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap, 4);
+  assert.equal(report.coverage.spiderMonkeyDiagnostics.closureAuditCandidateCount, 16);
+  assert.equal(report.coverage.spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap, 5);
   assert.deepEqual(report.coverage.spiderMonkeyDiagnostics.closureAuditCandidateSourcesOutsideDiagnostics, [
+    'firefox-spidermonkey-profiler-trace.json',
     'spidermonkey-jsshell-materialized-headroom.json',
     'spidermonkey-jsshell-tokenizer-headroom.json',
     'spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json',
@@ -1309,8 +1310,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /## SpiderMonkey Diagnostic Surface/);
   assert.match(markdown, /Emitted SpiderMonkey IR\/codegen evidence artifacts: 0/);
   assert.match(markdown, /Raw SpiderMonkey emitted-IR closure claims: 0/);
-  assert.match(markdown, /SpiderMonkey diagnostics rows vs closure candidates: 11\/15 \(gap=4, closureQualified=0\)/);
-  assert.match(markdown, /SpiderMonkey closure candidates outside coverage diagnostics: `spidermonkey-jsshell-materialized-headroom\.json`, `spidermonkey-jsshell-tokenizer-headroom\.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun\.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun\.json`/);
+  assert.match(markdown, /SpiderMonkey diagnostics rows vs closure candidates: 11\/16 \(gap=5, closureQualified=0\)/);
+  assert.match(markdown, /SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace\.json`, `spidermonkey-jsshell-materialized-headroom\.json`, `spidermonkey-jsshell-tokenizer-headroom\.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun\.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun\.json`/);
   assert.match(markdown, /SpiderMonkey coverage diagnostics outside closure candidates: none/);
   assert.match(markdown, /SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7/);
   assert.match(markdown, /Selected row identity/);

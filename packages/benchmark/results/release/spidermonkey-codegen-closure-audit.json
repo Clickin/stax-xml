@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T15:41:50.304Z",
+  "generatedAt": "2026-06-02T16:22:00.437Z",
   "objective": "spidermonkey-codegen-closure-audit",
   "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
   "note": "Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.",
@@ -425,6 +425,91 @@
           "met": false,
           "evidence": [
             "evidenceClass=availability-only"
+          ]
+        }
+      },
+      "unmetRequirements": [
+        "emittedCodegenSurface",
+        "sameContractStaxRow",
+        "unchangedRunnable",
+        "selectedRowMetadata",
+        "closingMetadata",
+        "evidenceClassAllowed"
+      ],
+      "declaresClosure": false,
+      "qualifiedClosure": false
+    },
+    {
+      "sourceArtifact": "firefox-spidermonkey-profiler-trace.json",
+      "objective": "firefox-spidermonkey-profiler-trace",
+      "status": null,
+      "evidenceClass": "gecko-profiler-scope-guard",
+      "hasAnyDiagnosticSurface": false,
+      "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMatchesCurrentComparison": null,
+      "selectedRowMetadataMissingFields": [
+        "selectedRowId",
+        "selectedEventCount",
+        "selectedChecksum"
+      ],
+      "closingMetadataMissingFields": [
+        "runtimeBuildIdentity",
+        "diagnosticFlags",
+        "emittedDumpMetadata"
+      ],
+      "requirements": {
+        "emittedCodegenSurface": {
+          "met": false,
+          "evidence": [
+            "hasCodegenDumpOutput=false",
+            "irDumpSurface=false",
+            "nativeDumpComplete=false",
+            "codegenMarkers=unknown"
+          ]
+        },
+        "sameContractStaxRow": {
+          "met": false,
+          "evidence": [
+            "sameContractStaxRow=unknown"
+          ]
+        },
+        "unchangedRunnable": {
+          "met": false,
+          "evidence": [
+            "canRunCurrentStaxFullStringBenchmark=unknown",
+            "unchangedStaxBenchmark=unknown"
+          ]
+        },
+        "selectedRowMetadata": {
+          "met": false,
+          "evidence": [
+            "selectedRowId=unknown",
+            "selectedEventCount=unknown",
+            "selectedChecksum=unknown"
+          ]
+        },
+        "selectedRowMatchesCurrentComparison": {
+          "met": true,
+          "evidence": [
+            "selectedRowMatchesCurrentComparison=not-applicable",
+            "comparisonRows=245"
+          ]
+        },
+        "closingMetadata": {
+          "met": false,
+          "evidence": [
+            "taskId=unknown",
+            "buildId=unknown",
+            "sourceRevision=unknown",
+            "runtimeBuildIdentityRecorded=false",
+            "diagnosticFlagsRecorded=false",
+            "emittedDumpMetadataRecorded=false"
+          ]
+        },
+        "evidenceClassAllowed": {
+          "met": false,
+          "evidence": [
+            "evidenceClass=gecko-profiler-scope-guard"
           ]
         }
       },
@@ -1258,12 +1343,12 @@
     }
   ],
   "missingRequirementHistogram": {
-    "closingMetadata": 10,
-    "emittedCodegenSurface": 9,
-    "evidenceClassAllowed": 15,
-    "sameContractStaxRow": 15,
-    "selectedRowMetadata": 15,
-    "unchangedRunnable": 15
+    "closingMetadata": 11,
+    "emittedCodegenSurface": 10,
+    "evidenceClassAllowed": 16,
+    "sameContractStaxRow": 16,
+    "selectedRowMetadata": 16,
+    "unchangedRunnable": 16
   },
   "closestBlockedCandidates": [
     {
@@ -1329,13 +1414,14 @@
   ],
   "contradictedClosureClaims": [],
   "summary": {
-    "candidateCount": 15,
+    "candidateCount": 16,
     "candidateSourceArtifacts": [
       "firefox-spidermonkey-buildconfig-source-pin-audit.json",
       "firefox-spidermonkey-diagnostic-dump-audit.json",
       "firefox-spidermonkey-js-shell-availability-audit.json",
       "firefox-spidermonkey-jsshell-stax-api-gap-audit.json",
       "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
+      "firefox-spidermonkey-profiler-trace.json",
       "firefox-spidermonkey-release-jsshell-availability-audit.json",
       "spidermonkey-archival-debug-jsshell-codegen-audit.json",
       "spidermonkey-jsshell-diagnostic-flag-sweep.json",
@@ -1354,22 +1440,22 @@
     "selectedRowMetadataCount": 0,
     "selectedRowComparisonMatchCount": 0,
     "selectedRowComparisonMismatchCount": 0,
-    "selectedRowComparisonMissingCount": 15,
+    "selectedRowComparisonMissingCount": 16,
     "closingMetadataCount": 5,
     "qualifiedClosureCount": 0,
     "contradictedClosureClaimCount": 0,
     "selectedRowIdentityStatusCounts": {
-      "not-claimed-non-stax-diagnostic": 15
+      "not-claimed-non-stax-diagnostic": 16
     },
     "selectedRowMetadataMissingFieldCounts": {
-      "selectedChecksum": 15,
-      "selectedEventCount": 15,
-      "selectedRowId": 15
+      "selectedChecksum": 16,
+      "selectedEventCount": 16,
+      "selectedRowId": 16
     },
     "closingMetadataMissingFieldCounts": {
-      "diagnosticFlags": 9,
-      "emittedDumpMetadata": 9,
-      "runtimeBuildIdentity": 10
+      "diagnosticFlags": 10,
+      "emittedDumpMetadata": 10,
+      "runtimeBuildIdentity": 11
     },
     "evidenceClassCounts": {
       "archival-codegen-scope-guard": 1,
@@ -1378,6 +1464,7 @@
       "current-debug-materialized-codegen-scope-guard": 2,
       "current-debug-xml-codegen-scope-guard": 1,
       "diagnostic-flag-sweep-negative": 1,
+      "gecko-profiler-scope-guard": 1,
       "host-api-surface-gap": 1,
       "materialized-headroom-only": 1,
       "negative-diagnostic-surface": 1,
@@ -1391,13 +1478,14 @@
       "current-debug-materialized-codegen-scope-guard": 2,
       "current-debug-xml-codegen-scope-guard": 1,
       "diagnostic-flag-sweep-negative": 1,
+      "gecko-profiler-scope-guard": 1,
       "host-api-surface-gap": 1,
       "materialized-headroom-only": 1,
       "negative-diagnostic-surface": 1,
       "parser-core-headroom-only": 1,
       "source-pin-only": 1
     },
-    "blockedCandidateCount": 15,
+    "blockedCandidateCount": 16,
     "minimumBlockedRequirementCount": 4,
     "closestBlockedCandidateCount": 5,
     "conclusionAllowed": false
@@ -1408,7 +1496,7 @@
       "classification": "SCOPE_GUARD",
       "summary": "SpiderMonkey diagnostic/codegen artifacts are classified through the same-contract closure matrix before they can close codegen-traces-open.",
       "evidence": [
-        "candidates=15",
+        "candidates=16",
         "qualifiedClosures=0"
       ]
     },

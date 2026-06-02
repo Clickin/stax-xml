@@ -551,6 +551,7 @@ function createLocalClosure(activeObligations, audit, options = {}) {
     const jsShell = artifactByName.get('firefox-spidermonkey-js-shell-availability-audit.json') ?? null;
     const releaseJsShell = artifactByName.get('firefox-spidermonkey-release-jsshell-availability-audit.json') ?? null;
     const nightlyJsShell = artifactByName.get('firefox-spidermonkey-nightly-jsshell-availability-audit.json') ?? null;
+    const profilerTrace = artifactByName.get('firefox-spidermonkey-profiler-trace.json') ?? null;
     const jsShellApiGap = artifactByName.get('firefox-spidermonkey-jsshell-stax-api-gap-audit.json') ?? null;
     const staxHostApiBoundary = artifactByName.get('stax-public-reader-host-api-boundary-audit.json') ?? null;
     const jsShellTokenizerHeadroom = artifactByName.get('spidermonkey-jsshell-tokenizer-headroom.json') ?? null;
@@ -687,7 +688,7 @@ function createLocalClosure(activeObligations, audit, options = {}) {
       obligationId: 'codegen-traces-open',
       localStatus: blocked ? 'external-run-required' : 'partial-local-status',
       localRunnable: blocked ? false : null,
-      evidenceArtifacts: [diagnostic, jsShell, releaseJsShell, nightlyJsShell, jsShellApiGap, staxHostApiBoundary, jsShellTokenizerHeadroom, jsShellMaterializedHeadroom, jsShellDiagnosticFlagSweep, taskclusterDebugJsShell, taskclusterDebugJsShellXml, taskclusterDebugJsShellMaterialized, taskclusterDebugJsShellRerun, taskclusterDebugJsShellMaterializedRerun, asciiScopeDistance, materializedScopeDistance, codegenClosureAudit, codegenRerunStability, archivalDebugJsShell, buildconfig]
+      evidenceArtifacts: [diagnostic, jsShell, releaseJsShell, nightlyJsShell, profilerTrace, jsShellApiGap, staxHostApiBoundary, jsShellTokenizerHeadroom, jsShellMaterializedHeadroom, jsShellDiagnosticFlagSweep, taskclusterDebugJsShell, taskclusterDebugJsShellXml, taskclusterDebugJsShellMaterialized, taskclusterDebugJsShellRerun, taskclusterDebugJsShellMaterializedRerun, asciiScopeDistance, materializedScopeDistance, codegenClosureAudit, codegenRerunStability, archivalDebugJsShell, buildconfig]
         .filter(Boolean)
         .map(artifact => artifact.sourceArtifact),
       blockers: [
