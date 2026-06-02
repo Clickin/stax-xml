@@ -1645,6 +1645,8 @@ function createNullSafariWebKitStatus() {
     largePrimaryRowsInSameContractComparison: null,
     availabilityClosureRequirementsMet: null,
     availabilityClosureRequirementsBlocked: null,
+    availabilityMetClosureRequirementIds: [],
+    availabilityBlockedClosureRequirementIds: [],
     closesSafariObligation: null,
   };
 }
@@ -1674,6 +1676,12 @@ function createSafariWebKitStatusSnapshot(status = {}) {
     largePrimaryRowsInSameContractComparison: status.largePrimaryRowsInSameContractComparison ?? null,
     availabilityClosureRequirementsMet: status.availabilityClosureRequirementsMet ?? null,
     availabilityClosureRequirementsBlocked: status.availabilityClosureRequirementsBlocked ?? null,
+    availabilityMetClosureRequirementIds: Array.isArray(status.availabilityMetClosureRequirementIds)
+      ? status.availabilityMetClosureRequirementIds
+      : [],
+    availabilityBlockedClosureRequirementIds: Array.isArray(status.availabilityBlockedClosureRequirementIds)
+      ? status.availabilityBlockedClosureRequirementIds
+      : [],
     closesSafariObligation: status.closesSafariObligation ?? null,
   };
 }
@@ -1707,6 +1715,23 @@ function createCoverageGuards(snapshot, counterexampleSnapshot = null) {
         && safari.rowLevelSourceBoundaryPinnedRowsRecorded === 0
         && safari.largeBoundedPrimarySyncByteBatchRowsWithRowLevelSourceBoundaryPin === 0
         && safari.sourceBoundaryPinned === false
+        && safari.availabilityClosureRequirementsMet === 2
+        && safari.availabilityClosureRequirementsBlocked === 9
+        && hasSameStringSet(safari.availabilityMetClosureRequirementIds, [
+          'harness-supports-safari',
+          'direct-readable-stream-not-substitute',
+        ])
+        && hasSameStringSet(safari.availabilityBlockedClosureRequirementIds, [
+          'host-is-macos',
+          'safari-executable-found',
+          'safaridriver-found',
+          'can-run-safari-browser-rows',
+          'safari-benchmark-rows-recorded',
+          'primary-sync-byte-batch-rows-recorded',
+          'bounded-primary-sync-byte-batch-rows-recorded',
+          'exact-build-identity-recorded',
+          'source-boundary-pinned',
+        ])
         && safari.closesSafariObligation === false,
     },
     {
@@ -1906,7 +1931,8 @@ function renderMarkdown(report) {
   `- SpiderMonkey Taskcluster route freshness: ${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.routeFresh === true ? 'fresh' : 'stale'} (artifactIdentityMatchesRoute=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.artifactIdentityMatchesRoute === true ? 'yes' : 'no'}, expectedIdentitySource=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.expectedIdentitySource ?? 'unknown'}, checkedArtifacts=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.checkedArtifactCount ?? 'unknown'}, mismatchedArtifacts=${formatStringList(report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.mismatchedArtifacts ?? [])})`,
   `- Safari/WebKit closure comparison: generatedAt=${report.coverageSnapshot.safariWebKitClosureAudit.comparisonGeneratedAt ?? 'unknown'}, rows=${report.coverageSnapshot.safariWebKitClosureAudit.comparisonRowCount ?? 'unknown'}, candidates=${report.coverageSnapshot.safariWebKitClosureAudit.candidateCount ?? 'unknown'}, qualified=${report.coverageSnapshot.safariWebKitClosureAudit.qualifiedClosureCount ?? 'unknown'}`,
   `- Safari/WebKit status: evidenceClass=${report.coverageSnapshot.safariWebKitStatus?.evidenceClass ?? 'unknown'}, canRunSafariBrowserRows=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.canRunSafariBrowserRows)}, browserRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.benchmarkRowsRecorded)}, primarySyncRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.primarySyncByteBatchRowsRecorded)}, boundedPrimaryRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.boundedPrimarySyncByteBatchRowsRecorded)}, largeBoundedPrimaryRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.largeBoundedPrimarySyncByteBatchRowsRecorded)}, exactBuildIdentity=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.exactBuildIdentityRecorded)}, sourceBoundaryPinned=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.sourceBoundaryPinned)}, closesSafariObligation=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.closesSafariObligation)}`,
-    '',
+  `- Safari/WebKit local closure blockers: met=${formatStringList(report.coverageSnapshot.safariWebKitStatus?.availabilityMetClosureRequirementIds)}, blocked=${formatStringList(report.coverageSnapshot.safariWebKitStatus?.availabilityBlockedClosureRequirementIds)}`,
+  '',
     '| ID | Satisfied | Meaning |',
     '| --- | --- | --- |',
   );

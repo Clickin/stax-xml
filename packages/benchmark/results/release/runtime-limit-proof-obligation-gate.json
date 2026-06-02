@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T22:51:44.908Z",
+  "generatedAt": "2026-06-02T23:00:49.449Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -942,11 +942,11 @@
   },
   "sourceAuditSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T22:51:20.385Z",
+    "generatedAt": "2026-06-02T23:00:36.580Z",
     "inputComparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
     "currentComparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
-    "inputCoverageGeneratedAt": "2026-06-02T22:50:32.235Z",
-    "currentCoverageGeneratedAt": "2026-06-02T22:50:32.235Z",
+    "inputCoverageGeneratedAt": "2026-06-02T23:00:25.224Z",
+    "currentCoverageGeneratedAt": "2026-06-02T23:00:25.224Z",
     "status": "classified",
     "primarySourceContract": "primary-sync-iterable-byte-batches",
     "primaryParserInput": "synchronous Iterable<Uint8Array[]>",
@@ -1142,7 +1142,7 @@
   },
   "coverageSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T22:50:32.235Z",
+    "generatedAt": "2026-06-02T23:00:25.224Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -1350,6 +1350,21 @@
       "largePrimaryRowsInSameContractComparison": false,
       "availabilityClosureRequirementsMet": 2,
       "availabilityClosureRequirementsBlocked": 9,
+      "availabilityMetClosureRequirementIds": [
+        "harness-supports-safari",
+        "direct-readable-stream-not-substitute"
+      ],
+      "availabilityBlockedClosureRequirementIds": [
+        "host-is-macos",
+        "safari-executable-found",
+        "safaridriver-found",
+        "can-run-safari-browser-rows",
+        "safari-benchmark-rows-recorded",
+        "primary-sync-byte-batch-rows-recorded",
+        "bounded-primary-sync-byte-batch-rows-recorded",
+        "exact-build-identity-recorded",
+        "source-boundary-pinned"
+      ],
       "closesSafariObligation": false
     },
     "guards": [

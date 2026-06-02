@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T22:51:44.908Z
+Generated: 2026-06-02T23:00:49.449Z
 
 ## Scope
 
@@ -89,7 +89,7 @@ Disclosure-only guards: 3
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-02T22:50:32.235Z)
+- Coverage audit loaded: yes (2026-06-02T23:00:25.224Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey diagnostics rows vs closure candidates: 11/16 (gap=5, closureQualified=0)
@@ -100,6 +100,7 @@ Disclosure-only guards: 3
 - SpiderMonkey Taskcluster route freshness: fresh (artifactIdentityMatchesRoute=yes, expectedIdentitySource=inferred-from-artifacts, checkedArtifacts=5, mismatchedArtifacts=none)
 - Safari/WebKit closure comparison: generatedAt=2026-06-02T20:08:45.362Z, rows=289, candidates=0, qualified=0
 - Safari/WebKit status: evidenceClass=environment-availability-only, canRunSafariBrowserRows=no, browserRows=0, primarySyncRows=0, boundedPrimaryRows=0, largeBoundedPrimaryRows=0, exactBuildIdentity=no, sourceBoundaryPinned=no, closesSafariObligation=no
+- Safari/WebKit local closure blockers: met=`harness-supports-safari`, `direct-readable-stream-not-substitute`, blocked=`host-is-macos`, `safari-executable-found`, `safaridriver-found`, `can-run-safari-browser-rows`, `safari-benchmark-rows-recorded`, `primary-sync-byte-batch-rows-recorded`, `bounded-primary-sync-byte-batch-rows-recorded`, `exact-build-identity-recorded`, `source-boundary-pinned`
 
 | ID | Satisfied | Meaning |
 | --- | --- | --- |
@@ -212,8 +213,8 @@ Disclosure-only guards: 3
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-02T22:51:20.385Z)
-- Source audit inputs: comparison=2026-06-02T20:08:45.362Z (current 2026-06-02T20:08:45.362Z), coverage=2026-06-02T22:50:32.235Z (current 2026-06-02T22:50:32.235Z)
+- Source audit loaded: yes (2026-06-02T23:00:36.580Z)
+- Source audit inputs: comparison=2026-06-02T20:08:45.362Z (current 2026-06-02T20:08:45.362Z), coverage=2026-06-02T23:00:25.224Z (current 2026-06-02T23:00:25.224Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary source boundary: demand-driven StreamReaderSync parser pulls

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T22:50:32.235Z",
+  "generatedAt": "2026-06-02T23:00:25.224Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -4571,7 +4571,22 @@
         "artifactIdentityMatchesRoute": null,
         "checkedArtifactCount": null,
         "mismatchedArtifacts": null,
-        "expectedIdentitySource": null
+        "expectedIdentitySource": null,
+        "metClosureRequirementIds": [
+          "harness-supports-safari",
+          "direct-readable-stream-not-substitute"
+        ],
+        "blockedClosureRequirementIds": [
+          "host-is-macos",
+          "safari-executable-found",
+          "safaridriver-found",
+          "can-run-safari-browser-rows",
+          "safari-benchmark-rows-recorded",
+          "primary-sync-byte-batch-rows-recorded",
+          "bounded-primary-sync-byte-batch-rows-recorded",
+          "exact-build-identity-recorded",
+          "source-boundary-pinned"
+        ]
       },
       "outcome": null,
       "summary": {
@@ -5366,7 +5381,17 @@
         "artifactIdentityMatchesRoute": null,
         "checkedArtifactCount": null,
         "mismatchedArtifacts": null,
-        "expectedIdentitySource": null
+        "expectedIdentitySource": null,
+        "metClosureRequirementIds": [
+          "emitted-codegen-surface",
+          "full-string-semantic-materialization"
+        ],
+        "blockedClosureRequirementIds": [
+          "same-contract-stax-row",
+          "unchanged-stax-benchmark",
+          "host-api-surface",
+          "closure-declared-by-source-artifact"
+        ]
       },
       "outcome": null,
       "summary": {
@@ -25950,6 +25975,21 @@
       "directReadableStreamRowsAreSeparateEvidence": true,
       "availabilityClosureRequirementsMet": 2,
       "availabilityClosureRequirementsBlocked": 9,
+      "availabilityMetClosureRequirementIds": [
+        "harness-supports-safari",
+        "direct-readable-stream-not-substitute"
+      ],
+      "availabilityBlockedClosureRequirementIds": [
+        "host-is-macos",
+        "safari-executable-found",
+        "safaridriver-found",
+        "can-run-safari-browser-rows",
+        "safari-benchmark-rows-recorded",
+        "primary-sync-byte-batch-rows-recorded",
+        "bounded-primary-sync-byte-batch-rows-recorded",
+        "exact-build-identity-recorded",
+        "source-boundary-pinned"
+      ],
       "availabilityClosesSafariObligation": false,
       "openObligationRemains": true,
       "fullStringRowsRecorded": 0,
@@ -28521,7 +28561,17 @@
           "artifactIdentityMatchesRoute": null,
           "checkedArtifactCount": null,
           "mismatchedArtifacts": null,
-          "expectedIdentitySource": null
+          "expectedIdentitySource": null,
+          "metClosureRequirementIds": [
+            "emitted-codegen-surface",
+            "full-string-semantic-materialization"
+          ],
+          "blockedClosureRequirementIds": [
+            "same-contract-stax-row",
+            "unchanged-stax-benchmark",
+            "host-api-surface",
+            "closure-declared-by-source-artifact"
+          ]
         },
         "outcome": null,
         "summary": {
@@ -29091,7 +29141,22 @@
           "artifactIdentityMatchesRoute": null,
           "checkedArtifactCount": null,
           "mismatchedArtifacts": null,
-          "expectedIdentitySource": null
+          "expectedIdentitySource": null,
+          "metClosureRequirementIds": [
+            "harness-supports-safari",
+            "direct-readable-stream-not-substitute"
+          ],
+          "blockedClosureRequirementIds": [
+            "host-is-macos",
+            "safari-executable-found",
+            "safaridriver-found",
+            "can-run-safari-browser-rows",
+            "safari-benchmark-rows-recorded",
+            "primary-sync-byte-batch-rows-recorded",
+            "bounded-primary-sync-byte-batch-rows-recorded",
+            "exact-build-identity-recorded",
+            "source-boundary-pinned"
+          ]
         },
         "outcome": null,
         "summary": {
@@ -30336,7 +30401,17 @@
           "artifactIdentityMatchesRoute": null,
           "checkedArtifactCount": null,
           "mismatchedArtifacts": null,
-          "expectedIdentitySource": null
+          "expectedIdentitySource": null,
+          "metClosureRequirementIds": [
+            "emitted-codegen-surface",
+            "full-string-semantic-materialization"
+          ],
+          "blockedClosureRequirementIds": [
+            "same-contract-stax-row",
+            "unchanged-stax-benchmark",
+            "host-api-surface",
+            "closure-declared-by-source-artifact"
+          ]
         },
         "outcome": null,
         "summary": {

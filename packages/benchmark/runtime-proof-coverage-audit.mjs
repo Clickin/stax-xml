@@ -182,7 +182,7 @@ function createArtifactRecord(sourceArtifact, root, options) {
     environment: summarizeEnvironment(root.environment),
     parameters: summarizeParameters(root.parameters),
     summary: summarizeArtifactSummary(root.summary, root.inputs, root.closestBlockedCandidates),
-    availability: summarizeAvailability(root.summary),
+    availability: summarizeAvailability(root.summary, root.closureMatrix),
     outcome: summarizeOutcome(root.outcome),
     shell: summarizeShell(root.shell),
     hostApiSurface: summarizeHostApiSurface(root.hostApiSurface),
@@ -339,8 +339,9 @@ function summarizeArtifactSummary(summary, inputs = {}, closestBlockedCandidates
   return Object.values(result).some(value => value !== null) ? result : null;
 }
 
-function summarizeAvailability(summary = {}) {
+function summarizeAvailability(summary = {}, closureMatrix = []) {
   if (!summary || typeof summary !== 'object') return null;
+  const closureRows = Array.isArray(closureMatrix) ? closureMatrix : [];
   const availability = {
     hostIsMacOS: typeof summary.hostIsMacOS === 'boolean' ? summary.hostIsMacOS : null,
     safariExecutableFound: typeof summary.safariExecutableFound === 'boolean' ? summary.safariExecutableFound : null,
@@ -364,6 +365,18 @@ function summarizeAvailability(summary = {}) {
     mismatchedArtifacts: Array.isArray(summary.mismatchedArtifacts) ? summary.mismatchedArtifacts : null,
     expectedIdentitySource: typeof summary.expectedIdentitySource === 'string' ? summary.expectedIdentitySource : null,
   };
+  const metClosureRequirementIds = closureRows
+    .filter(row => row?.status === 'met' && typeof row.id === 'string')
+    .map(row => row.id);
+  const blockedClosureRequirementIds = closureRows
+    .filter(row => row?.status === 'blocked' && typeof row.id === 'string')
+    .map(row => row.id);
+  if (metClosureRequirementIds.length > 0) {
+    availability.metClosureRequirementIds = metClosureRequirementIds;
+  }
+  if (blockedClosureRequirementIds.length > 0) {
+    availability.blockedClosureRequirementIds = blockedClosureRequirementIds;
+  }
   return Object.values(availability).some(value => value !== null) ? availability : null;
 }
 
@@ -710,6 +723,12 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows, sameContra
     directReadableStreamRowsAreSeparateEvidence: availability.directReadableStreamRowsAreSeparateEvidence ?? null,
     availabilityClosureRequirementsMet: availability.closureRequirementsMet ?? null,
     availabilityClosureRequirementsBlocked: availability.closureRequirementsBlocked ?? null,
+    availabilityMetClosureRequirementIds: Array.isArray(availability.metClosureRequirementIds)
+      ? availability.metClosureRequirementIds
+      : [],
+    availabilityBlockedClosureRequirementIds: Array.isArray(availability.blockedClosureRequirementIds)
+      ? availability.blockedClosureRequirementIds
+      : [],
     availabilityClosesSafariObligation: availability.closesSafariObligation ?? null,
     openObligationRemains: availability.openObligationRemains ?? null,
     fullStringRowsRecorded: safariFullRows.length,

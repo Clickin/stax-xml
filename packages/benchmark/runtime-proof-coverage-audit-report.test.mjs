@@ -1202,6 +1202,17 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.availability?.directReadableStreamRowsAreSeparateEvidence === true
     && row.availability?.closureRequirementsMet === 2
     && row.availability?.closureRequirementsBlocked === 9
+    && row.availability?.metClosureRequirementIds.includes('harness-supports-safari')
+    && row.availability?.metClosureRequirementIds.includes('direct-readable-stream-not-substitute')
+    && row.availability?.blockedClosureRequirementIds.includes('host-is-macos')
+    && row.availability?.blockedClosureRequirementIds.includes('safari-executable-found')
+    && row.availability?.blockedClosureRequirementIds.includes('safaridriver-found')
+    && row.availability?.blockedClosureRequirementIds.includes('can-run-safari-browser-rows')
+    && row.availability?.blockedClosureRequirementIds.includes('safari-benchmark-rows-recorded')
+    && row.availability?.blockedClosureRequirementIds.includes('primary-sync-byte-batch-rows-recorded')
+    && row.availability?.blockedClosureRequirementIds.includes('bounded-primary-sync-byte-batch-rows-recorded')
+    && row.availability?.blockedClosureRequirementIds.includes('exact-build-identity-recorded')
+    && row.availability?.blockedClosureRequirementIds.includes('source-boundary-pinned')
     && row.availability?.closesSafariObligation === false
     && row.availability?.openObligationRemains === true
   ));
@@ -1227,6 +1238,21 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     directReadableStreamRowsAreSeparateEvidence: true,
     availabilityClosureRequirementsMet: 2,
     availabilityClosureRequirementsBlocked: 9,
+    availabilityMetClosureRequirementIds: [
+      'harness-supports-safari',
+      'direct-readable-stream-not-substitute',
+    ],
+    availabilityBlockedClosureRequirementIds: [
+      'host-is-macos',
+      'safari-executable-found',
+      'safaridriver-found',
+      'can-run-safari-browser-rows',
+      'safari-benchmark-rows-recorded',
+      'primary-sync-byte-batch-rows-recorded',
+      'bounded-primary-sync-byte-batch-rows-recorded',
+      'exact-build-identity-recorded',
+      'source-boundary-pinned',
+    ],
     availabilityClosesSafariObligation: false,
     openObligationRemains: true,
     fullStringRowsRecorded: 0,
