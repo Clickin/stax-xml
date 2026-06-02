@@ -261,6 +261,9 @@ function summarizeArtifactSummary(summary, inputs = {}, closestBlockedCandidates
     qualifiedClosureCount: typeof summary.qualifiedClosureCount === 'number'
       ? summary.qualifiedClosureCount
       : null,
+    profiledFullStringParityCount: typeof summary.profiledFullStringParityCount === 'number'
+      ? summary.profiledFullStringParityCount
+      : null,
     rowLevelSourceBoundaryPinnedRows: typeof summary.rowLevelSourceBoundaryPinnedRows === 'number'
       ? summary.rowLevelSourceBoundaryPinnedRows
       : null,

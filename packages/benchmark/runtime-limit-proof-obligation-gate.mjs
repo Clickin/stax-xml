@@ -1033,6 +1033,14 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
       ),
     },
     {
+      id: 'spidermonkey-profiled-parity-not-same-contract-row',
+      description: 'SpiderMonkey closure audit must keep profiler full-string parity separate from explicit sameContractStaxRow closure evidence.',
+      satisfied: spiderBlockers.some(item =>
+        /sameContractStaxRowCount=0/.test(item)
+          && /profiledFullStringParityCount=1/.test(item)
+      ),
+    },
+    {
       id: 'spidermonkey-codegen-comparison-freshness',
       description: 'SpiderMonkey closure audit must preserve the current same-contract comparison generatedAt and row count used for selected-row matching.',
       satisfied: spiderCodegenComparisonFreshness.generatedAt === counterexampleSnapshot?.comparisonGeneratedAt

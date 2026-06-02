@@ -223,6 +223,7 @@ function validateHandoff(handoff) {
           /spidermonkey-codegen-closure-audit\.json/,
           /spidermonkey-codegen-rerun-stability-audit\.json/,
           /against same-contract comparison generatedAt=[^,]+, comparisonRowCount=\d+/,
+          /profiledFullStringParityCount=\d+/,
           /selectedRowMetadataMissingFieldCounts selectedChecksum=\d+, selectedEventCount=\d+, selectedRowId=\d+/,
           /selectedRowComparisonMatchCount=\d+, selectedRowComparisonMismatchCount=\d+, selectedRowComparisonMissingCount=\d+/,
           /closingMetadataMissingFieldCounts diagnosticFlags=\d+, emittedDumpMetadata=\d+, runtimeBuildIdentity=\d+/,

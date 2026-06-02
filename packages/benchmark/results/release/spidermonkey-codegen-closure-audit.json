@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T16:35:58.494Z",
+  "generatedAt": "2026-06-02T17:11:53.444Z",
   "objective": "spidermonkey-codegen-closure-audit",
   "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
   "note": "Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.",
@@ -20,6 +20,7 @@
       "status": null,
       "evidenceClass": "source-pin-only",
       "hasAnyDiagnosticSurface": false,
+      "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
@@ -106,6 +107,7 @@
       "status": "no-dump-emitted",
       "evidenceClass": "negative-diagnostic-surface",
       "hasAnyDiagnosticSurface": false,
+      "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
@@ -192,6 +194,7 @@
       "status": "available",
       "evidenceClass": "availability-only",
       "hasAnyDiagnosticSurface": false,
+      "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
@@ -278,6 +281,7 @@
       "status": "blocked-by-host-api-surface",
       "evidenceClass": "host-api-surface-gap",
       "hasAnyDiagnosticSurface": false,
+      "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
@@ -364,6 +368,7 @@
       "status": "available",
       "evidenceClass": "availability-only",
       "hasAnyDiagnosticSurface": false,
+      "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
@@ -450,6 +455,7 @@
       "status": null,
       "evidenceClass": "gecko-profiler-scope-guard",
       "hasAnyDiagnosticSurface": false,
+      "profiledFullStringParity": true,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": false,
       "selectedRowMetadataMissingFields": [],
@@ -469,7 +475,7 @@
           ]
         },
         "sameContractStaxRow": {
-          "met": true,
+          "met": false,
           "evidence": [
             "sameContractStaxRow=unknown",
             "profiledFullStringParity=true"
@@ -517,6 +523,7 @@
       },
       "unmetRequirements": [
         "emittedCodegenSurface",
+        "sameContractStaxRow",
         "unchangedRunnable",
         "selectedRowMatchesCurrentComparison",
         "closingMetadata",
@@ -531,6 +538,7 @@
       "status": "available",
       "evidenceClass": "availability-only",
       "hasAnyDiagnosticSurface": false,
+      "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
@@ -617,6 +625,7 @@
       "status": "available",
       "evidenceClass": "archival-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
+      "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
@@ -700,6 +709,7 @@
       "status": "available",
       "evidenceClass": "diagnostic-flag-sweep-negative",
       "hasAnyDiagnosticSurface": false,
+      "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
@@ -786,6 +796,7 @@
       "status": null,
       "evidenceClass": "materialized-headroom-only",
       "hasAnyDiagnosticSurface": false,
+      "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
@@ -872,6 +883,7 @@
       "status": null,
       "evidenceClass": "parser-core-headroom-only",
       "hasAnyDiagnosticSurface": false,
+      "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
@@ -958,6 +970,7 @@
       "status": "available",
       "evidenceClass": "current-debug-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
+      "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
@@ -1038,6 +1051,7 @@
       "status": "available",
       "evidenceClass": "current-debug-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
+      "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
@@ -1118,6 +1132,7 @@
       "status": "available",
       "evidenceClass": "current-debug-materialized-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
+      "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
@@ -1198,6 +1213,7 @@
       "status": "available",
       "evidenceClass": "current-debug-materialized-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
+      "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
@@ -1278,6 +1294,7 @@
       "status": "available",
       "evidenceClass": "current-debug-xml-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
+      "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
@@ -1357,7 +1374,7 @@
     "closingMetadata": 11,
     "emittedCodegenSurface": 10,
     "evidenceClassAllowed": 16,
-    "sameContractStaxRow": 15,
+    "sameContractStaxRow": 16,
     "selectedRowMatchesCurrentComparison": 1,
     "selectedRowMetadata": 15,
     "unchangedRunnable": 16
@@ -1447,7 +1464,8 @@
     ],
     "diagnosticSurfaceCount": 6,
     "emittedCodegenSurfaceCount": 6,
-    "sameContractStaxRowCount": 1,
+    "sameContractStaxRowCount": 0,
+    "profiledFullStringParityCount": 1,
     "unchangedRunnableCount": 0,
     "selectedRowMetadataCount": 1,
     "selectedRowComparisonMatchCount": 0,
@@ -1518,7 +1536,7 @@
       "summary": "No current SpiderMonkey diagnostic/codegen artifact satisfies emitted-codegen, unchanged StAX, selected-row metadata, and closing-metadata requirements together.",
       "evidence": [
         "emittedCodegenSurface=6",
-        "sameContractStaxRows=1",
+        "sameContractStaxRows=0",
         "unchangedRunnable=0"
       ]
     }

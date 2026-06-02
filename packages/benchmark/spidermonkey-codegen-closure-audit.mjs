@@ -357,6 +357,7 @@ function buildReport(options, artifacts, comparison = { generatedAt: null, rowCo
       diagnosticSurfaceCount: candidates.filter(candidate => candidate.hasAnyDiagnosticSurface).length,
       emittedCodegenSurfaceCount: candidates.filter(candidate => candidate.requirements.emittedCodegenSurface.met).length,
       sameContractStaxRowCount: candidates.filter(candidate => candidate.requirements.sameContractStaxRow.met).length,
+      profiledFullStringParityCount: candidates.filter(candidate => candidate.profiledFullStringParity === true).length,
       unchangedRunnableCount: candidates.filter(candidate => candidate.requirements.unchangedRunnable.met).length,
       selectedRowMetadataCount: candidates.filter(candidate => candidate.requirements.selectedRowMetadata.met).length,
       selectedRowComparisonMatchCount: candidates.filter(candidate => candidate.selectedRowMatchesCurrentComparison === true).length,
@@ -449,7 +450,7 @@ function createCandidate(artifact, comparisonRows = []) {
       ],
     },
     sameContractStaxRow: {
-      met: outcome.sameContractStaxRow === true || profiledVariant?.fullStringParity === true,
+      met: outcome.sameContractStaxRow === true,
       evidence: [
         `sameContractStaxRow=${outcome.sameContractStaxRow ?? 'unknown'}`,
         `profiledFullStringParity=${profiledVariant?.fullStringParity ?? 'unknown'}`,
@@ -516,6 +517,7 @@ function createCandidate(artifact, comparisonRows = []) {
     status: outcome.status ?? summary.status ?? null,
     evidenceClass,
     hasAnyDiagnosticSurface: hasCodegenDumpOutput || irDumpSurface || nativeDumpComplete || codegenMarkerCount > 0,
+    profiledFullStringParity: profiledVariant?.fullStringParity === true,
     selectedRowIdentityStatus,
     selectedRowMatchesCurrentComparison,
     selectedRowMetadataMissingFields,
@@ -646,6 +648,7 @@ function renderMarkdown(report) {
     `- Diagnostic/codegen surface candidates: ${report.summary.diagnosticSurfaceCount}`,
     `- Emitted-codegen surface count: ${report.summary.emittedCodegenSurfaceCount}`,
     `- Same-contract StAX row count: ${report.summary.sameContractStaxRowCount}`,
+    `- Profiled full-string parity count: ${report.summary.profiledFullStringParityCount}`,
     `- Unchanged runnable count: ${report.summary.unchangedRunnableCount}`,
     `- Selected row metadata count: ${report.summary.selectedRowMetadataCount}`,
     `- Closing metadata count: ${report.summary.closingMetadataCount}`,

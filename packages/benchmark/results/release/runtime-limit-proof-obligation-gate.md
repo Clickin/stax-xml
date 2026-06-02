@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T17:04:21.633Z
+Generated: 2026-06-02T17:13:13.333Z
 
 ## Scope
 
@@ -87,7 +87,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-02T17:02:41.138Z)
+- Coverage audit loaded: yes (2026-06-02T17:12:08.629Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey diagnostics rows vs closure candidates: 11/16 (gap=5, closureQualified=0)
@@ -133,7 +133,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-02T17:02:55.109Z)
+- Handoff loaded: yes (2026-06-02T17:12:45.564Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -157,6 +157,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `spidermonkey-closure-audit-identity-statuses` | yes | SpiderMonkey closure audit must preserve non-StAX diagnostic identity status counts for closure-matrix candidates. |
 | `spidermonkey-selected-row-metadata-missing-fields` | yes | SpiderMonkey closure audit must preserve which selected-row metadata fields are missing from closure-matrix candidates. |
 | `spidermonkey-selected-row-comparison-match-counts` | yes | SpiderMonkey closure audit must preserve selected-row comparison match counts against same-contract-runtime-comparison.json. |
+| `spidermonkey-profiled-parity-not-same-contract-row` | yes | SpiderMonkey closure audit must keep profiler full-string parity separate from explicit sameContractStaxRow closure evidence. |
 | `spidermonkey-codegen-comparison-freshness` | yes | SpiderMonkey closure audit must preserve the current same-contract comparison generatedAt and row count used for selected-row matching. |
 | `spidermonkey-closing-metadata-missing-fields` | yes | SpiderMonkey closure audit must preserve which closing metadata subfields are missing from closure-matrix candidates. |
 | `spidermonkey-disallowed-evidence-class-counts` | yes | SpiderMonkey closure audit must preserve which diagnostic scope-guard evidence classes are disallowed as closure evidence. |
@@ -165,8 +166,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T17:03:11.905Z)
-- Handoff validation target handoff generatedAt: 2026-06-02T17:02:55.109Z (current 2026-06-02T17:02:55.109Z)
+- Handoff validation loaded: yes (2026-06-02T17:12:58.243Z)
+- Handoff validation target handoff generatedAt: 2026-06-02T17:12:45.564Z (current 2026-06-02T17:12:45.564Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes
 - Required contracts present: yes
@@ -184,8 +185,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-02T17:03:46.008Z)
-- Source audit inputs: comparison=2026-06-02T14:53:00.937Z (current 2026-06-02T14:53:00.937Z), coverage=2026-06-02T17:02:41.138Z (current 2026-06-02T17:02:41.138Z)
+- Source audit loaded: yes (2026-06-02T17:12:28.489Z)
+- Source audit inputs: comparison=2026-06-02T14:53:00.937Z (current 2026-06-02T14:53:00.937Z), coverage=2026-06-02T17:12:08.629Z (current 2026-06-02T17:12:08.629Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary sync byte-batch rows: 231

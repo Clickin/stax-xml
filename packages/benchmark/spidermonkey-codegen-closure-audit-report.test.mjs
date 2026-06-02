@@ -34,7 +34,8 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.equal(report.inputs.comparisonRowCount, 1);
   assert.equal(report.summary.candidateCount, 6);
   assert.equal(report.summary.emittedCodegenSurfaceCount, 5);
-  assert.equal(report.summary.sameContractStaxRowCount, 4);
+  assert.equal(report.summary.sameContractStaxRowCount, 3);
+  assert.equal(report.summary.profiledFullStringParityCount, 1);
   assert.equal(report.summary.unchangedRunnableCount, 3);
   assert.equal(report.summary.selectedRowMetadataCount, 4);
   assert.equal(report.summary.selectedRowComparisonMatchCount, 2);
@@ -78,7 +79,7 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
     emittedCodegenSurface: 1,
     evidenceClassAllowed: 4,
     selectedRowMatchesCurrentComparison: 2,
-    sameContractStaxRow: 2,
+    sameContractStaxRow: 3,
     selectedRowMetadata: 2,
     unchangedRunnable: 3,
   });
@@ -146,6 +147,7 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.deepEqual(profiler.selectedRowMetadataMissingFields, []);
   assert.deepEqual(profiler.unmetRequirements, [
     'emittedCodegenSurface',
+    'sameContractStaxRow',
     'unchangedRunnable',
     'selectedRowMatchesCurrentComparison',
     'closingMetadata',
@@ -183,6 +185,7 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.match(markdown, /Contradicted closure claims: 3/);
   assert.match(markdown, /Selected row identity statuses: closing-row-identity-missing-or-mismatched=2, not-claimed-non-stax-diagnostic=3, same-contract-stax-row=1/);
   assert.match(markdown, /Selected row comparison matches: matched=2, mismatched=2, missing=2/);
+  assert.match(markdown, /Profiled full-string parity count: 1/);
   assert.match(markdown, /Comparison generated: self-test-comparison-generated-at/);
   assert.match(markdown, /Comparison rows checked: 1/);
   assert.match(markdown, /Selected row metadata missing fields: selectedChecksum=2, selectedEventCount=2, selectedRowId=2/);
@@ -191,7 +194,7 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.match(markdown, /Disallowed evidence classes: current-debug-codegen-scope-guard=1, current-debug-materialized-codegen-scope-guard=1, gecko-profiler-scope-guard=1, unknown=1/);
   assert.match(markdown, /Closest blocked candidate count: 2/);
   assert.match(markdown, /selectedRowMatchesCurrentComparison: 2/);
-  assert.match(markdown, /sameContractStaxRow: 2/);
+  assert.match(markdown, /sameContractStaxRow: 3/);
   assert.match(markdown, /firefox-spidermonkey-profiler-trace\.json/);
   assert.match(markdown, /spidermonkey-contradicted-closure\.json/);
   assert.match(markdown, /spidermonkey-unknown-closure-class\.json/);
