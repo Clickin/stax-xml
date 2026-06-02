@@ -1,13 +1,21 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const defaultJsonOut = resolve(__dirname, 'results', 'release', 'spidermonkey-taskcluster-debug-jsshell-route-freshness-audit.json');
 const defaultMdOut = resolve(__dirname, 'results', 'release', 'spidermonkey-taskcluster-debug-jsshell-route-freshness-audit.md');
+const defaultReleaseDir = resolve(__dirname, 'results', 'release');
 const defaultRoute = 'gecko.v2.mozilla-central.latest.firefox.win64-debug';
 const defaultIndexBaseUrl = 'https://firefox-ci-tc.services.mozilla.com/api/index/v1/task';
 const selfTestTaskId = 'aJLr1DFjQ7urQTpRiIsfRQ';
+const taskclusterEvidenceArtifacts = [
+  'spidermonkey-taskcluster-debug-jsshell-codegen-audit.json',
+  'spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json',
+  'spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json',
+  'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json',
+  'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json',
+];
 
 function parseArgs(argv = process.argv.slice(2)) {
   const options = {
@@ -16,6 +24,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     expectedTaskId: null,
     expectedBuildId: null,
     expectedSourceRevision: null,
+    releaseDir: defaultReleaseDir,
     selfTest: false,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
@@ -49,6 +58,9 @@ function parseArgs(argv = process.argv.slice(2)) {
       case '--expected-source-revision':
         options.expectedSourceRevision = readValue();
         break;
+      case '--release-dir':
+        options.releaseDir = resolve(process.cwd(), readValue());
+        break;
       case '--self-test':
         options.selfTest = true;
         break;
@@ -69,7 +81,8 @@ function parseArgs(argv = process.argv.slice(2)) {
 async function main() {
   const options = parseArgs();
   const route = options.selfTest ? createSelfTestRoute(options) : await fetchRoute(options);
-  const report = createReport(options, route);
+  const artifacts = readTaskclusterEvidenceArtifacts(options, route);
+  const report = createReport(options, route, artifacts);
   writeOutput(options.jsonOut, `${JSON.stringify(report, null, 2)}\n`);
   writeOutput(options.mdOut, renderMarkdown(report));
   console.log(`${report.objective}: status=${report.summary.status} routeFresh=${report.summary.routeFresh} taskId=${report.route.taskId ?? 'unknown'}`);
@@ -122,18 +135,71 @@ async function fetchRoute(options) {
   }
 }
 
-function createReport(options, route) {
+function readTaskclusterEvidenceArtifacts(options, route) {
+  return taskclusterEvidenceArtifacts.map(sourceArtifact => {
+    const filePath = join(options.releaseDir, sourceArtifact);
+    if (!existsSync(filePath)) {
+      return {
+        sourceArtifact,
+        status: 'missing',
+        taskId: null,
+        buildId: null,
+        sourceRevision: null,
+        matchesRoute: false,
+        matchesExpectedBuildIdentity: false,
+      };
+    }
+    try {
+      const root = JSON.parse(readFileSync(filePath, 'utf8'));
+      const provenance = root?.shell?.provenance ?? {};
+      const buildId = provenance.buildId ?? provenance.targetTxt?.buildId ?? provenance.buildhub?.buildId ?? null;
+      const sourceRevision = provenance.sourceRevision ?? provenance.targetTxt?.sourceRevision ?? provenance.buildhub?.sourceRevision ?? null;
+      return {
+        sourceArtifact,
+        status: 'loaded',
+        taskId: provenance.taskId ?? null,
+        buildId,
+        sourceRevision,
+        matchesRoute: route.status === 'available' && provenance.taskId === route.taskId,
+        matchesExpectedBuildIdentity: provenance.taskId === options.expectedTaskId
+          && buildId === options.expectedBuildId
+          && sourceRevision === options.expectedSourceRevision,
+      };
+    } catch (error) {
+      return {
+        sourceArtifact,
+        status: 'parse-error',
+        taskId: null,
+        buildId: null,
+        sourceRevision: null,
+        matchesRoute: false,
+        matchesExpectedBuildIdentity: false,
+        error: error?.message ?? String(error),
+      };
+    }
+  });
+}
+
+function createReport(options, route, artifacts) {
   const expected = {
     taskId: options.expectedTaskId,
     buildId: options.expectedBuildId,
     sourceRevision: options.expectedSourceRevision,
   };
   const expectedIdentityMatchesRoute = Boolean(expected.taskId) && route.taskId === expected.taskId;
+  const checkedArtifacts = artifacts.filter(artifact => artifact.status === 'loaded');
+  const mismatchedArtifacts = artifacts
+    .filter(artifact => artifact.status !== 'loaded' || !artifact.matchesRoute || !artifact.matchesExpectedBuildIdentity)
+    .map(artifact => artifact.sourceArtifact);
+  const artifactIdentityMatchesRoute = artifacts.length > 0 && checkedArtifacts.length === artifacts.length && mismatchedArtifacts.length === 0;
   const routeFresh = route.status === 'available' && expectedIdentityMatchesRoute;
   const summary = {
     status: routeFresh ? 'fresh' : route.status === 'available' ? 'stale-or-unmatched' : route.status,
     routeFresh,
     expectedIdentityMatchesRoute,
+    artifactIdentityMatchesRoute,
+    checkedArtifactCount: checkedArtifacts.length,
+    mismatchedArtifacts,
     hasExpectedBuildIdentity: Boolean(expected.buildId && expected.sourceRevision),
     conclusionAllowed: false,
   };
@@ -145,6 +211,7 @@ function createReport(options, route) {
     note: 'Resolves the Taskcluster latest win64-debug route and checks whether the current SpiderMonkey debug js-shell evidence still names that route task. This is route freshness evidence only; it is not benchmark, codegen, or same-contract StAX closure evidence.',
     route,
     expected,
+    artifacts,
     summary,
     findings: [
       {
@@ -156,6 +223,11 @@ function createReport(options, route) {
         id: 'route-freshness-scope-guard',
         classification: 'SCOPE_GUARD',
         summary: 'Route freshness proves only that current Taskcluster evidence points at the latest route task; it cannot close emitted-IR or same-contract StAX obligations.',
+      },
+      {
+        id: 'taskcluster-evidence-artifact-identity',
+        classification: 'SCOPE_GUARD',
+        summary: `Checked ${checkedArtifacts.length} Taskcluster evidence artifacts against the route and expected build identity; mismatches=${mismatchedArtifacts.length}.`,
       },
     ],
   };
@@ -172,6 +244,9 @@ function renderMarkdown(report) {
     `- Status: ${report.summary.status}`,
     `- Route fresh: ${report.summary.routeFresh}`,
     `- Expected identity matches route: ${report.summary.expectedIdentityMatchesRoute}`,
+    `- Artifact identity matches route: ${report.summary.artifactIdentityMatchesRoute}`,
+    `- Checked artifacts: ${report.summary.checkedArtifactCount}`,
+    `- Mismatched artifacts: ${report.summary.mismatchedArtifacts.length ? report.summary.mismatchedArtifacts.join(', ') : 'none'}`,
     `- Has expected build identity: ${report.summary.hasExpectedBuildIdentity}`,
     `- Runtime-limit conclusion allowed: ${report.summary.conclusionAllowed}`,
     '',
@@ -189,6 +264,12 @@ function renderMarkdown(report) {
     `- Task ID: ${report.expected.taskId ?? 'unknown'}`,
     `- Build ID: ${report.expected.buildId ?? 'unknown'}`,
     `- Source revision: ${report.expected.sourceRevision ?? 'unknown'}`,
+    '',
+    '## Evidence Artifacts',
+    '',
+    '| Artifact | Status | Task ID | Build ID | Source revision | Matches route | Matches expected build identity |',
+    '| --- | --- | --- | --- | --- | --- | --- |',
+    ...report.artifacts.map(artifact => `| \`${artifact.sourceArtifact}\` | ${artifact.status} | ${artifact.taskId ?? 'unknown'} | ${artifact.buildId ?? 'unknown'} | ${artifact.sourceRevision ?? 'unknown'} | ${artifact.matchesRoute} | ${artifact.matchesExpectedBuildIdentity} |`),
     '',
     '## Findings',
     '',

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T13:32:38.886Z",
+  "generatedAt": "2026-06-02T13:42:42.097Z",
   "objective": "spidermonkey-taskcluster-debug-jsshell-route-freshness-audit",
   "contract": "taskcluster-latest-route-current-debug-jsshell-identity-freshness",
   "note": "Resolves the Taskcluster latest win64-debug route and checks whether the current SpiderMonkey debug js-shell evidence still names that route task. This is route freshness evidence only; it is not benchmark, codegen, or same-contract StAX closure evidence.",
@@ -7,7 +7,7 @@
     "status": "available",
     "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
     "taskId": "aJLr1DFjQ7urQTpRiIsfRQ",
-    "fetchedAt": "2026-06-02T13:32:38.885Z",
+    "fetchedAt": "2026-06-02T13:42:42.096Z",
     "indexUrl": "https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.mozilla-central.latest.firefox.win64-debug",
     "error": null
   },
@@ -16,10 +16,60 @@
     "buildId": "20260602093330",
     "sourceRevision": "253b8523586577438a3ddf86d67436719feaf6d8"
   },
+  "artifacts": [
+    {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
+      "status": "loaded",
+      "taskId": "aJLr1DFjQ7urQTpRiIsfRQ",
+      "buildId": "20260602093330",
+      "sourceRevision": "253b8523586577438a3ddf86d67436719feaf6d8",
+      "matchesRoute": true,
+      "matchesExpectedBuildIdentity": true
+    },
+    {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
+      "status": "loaded",
+      "taskId": "aJLr1DFjQ7urQTpRiIsfRQ",
+      "buildId": "20260602093330",
+      "sourceRevision": "253b8523586577438a3ddf86d67436719feaf6d8",
+      "matchesRoute": true,
+      "matchesExpectedBuildIdentity": true
+    },
+    {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
+      "status": "loaded",
+      "taskId": "aJLr1DFjQ7urQTpRiIsfRQ",
+      "buildId": "20260602093330",
+      "sourceRevision": "253b8523586577438a3ddf86d67436719feaf6d8",
+      "matchesRoute": true,
+      "matchesExpectedBuildIdentity": true
+    },
+    {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
+      "status": "loaded",
+      "taskId": "aJLr1DFjQ7urQTpRiIsfRQ",
+      "buildId": "20260602093330",
+      "sourceRevision": "253b8523586577438a3ddf86d67436719feaf6d8",
+      "matchesRoute": true,
+      "matchesExpectedBuildIdentity": true
+    },
+    {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
+      "status": "loaded",
+      "taskId": "aJLr1DFjQ7urQTpRiIsfRQ",
+      "buildId": "20260602093330",
+      "sourceRevision": "253b8523586577438a3ddf86d67436719feaf6d8",
+      "matchesRoute": true,
+      "matchesExpectedBuildIdentity": true
+    }
+  ],
   "summary": {
     "status": "fresh",
     "routeFresh": true,
     "expectedIdentityMatchesRoute": true,
+    "artifactIdentityMatchesRoute": true,
+    "checkedArtifactCount": 5,
+    "mismatchedArtifacts": [],
     "hasExpectedBuildIdentity": true,
     "conclusionAllowed": false
   },
@@ -33,6 +83,11 @@
       "id": "route-freshness-scope-guard",
       "classification": "SCOPE_GUARD",
       "summary": "Route freshness proves only that current Taskcluster evidence points at the latest route task; it cannot close emitted-IR or same-contract StAX obligations."
+    },
+    {
+      "id": "taskcluster-evidence-artifact-identity",
+      "classification": "SCOPE_GUARD",
+      "summary": "Checked 5 Taskcluster evidence artifacts against the route and expected build identity; mismatches=0."
     }
   ]
 }

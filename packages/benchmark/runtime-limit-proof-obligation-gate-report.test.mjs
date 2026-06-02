@@ -180,11 +180,17 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   ]);
   assert.deepEqual(report.coverageSnapshot.spiderMonkeyDiagnostics.diagnosticSourcesOutsideClosureAudit, []);
   assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditQualifiedClosureCount, 0);
+  assert.equal(report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness.routeFresh, true);
+  assert.equal(report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness.expectedIdentityMatchesRoute, true);
+  assert.equal(report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness.artifactIdentityMatchesRoute, true);
+  assert.equal(report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness.checkedArtifactCount, 5);
+  assert.deepEqual(report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness.mismatchedArtifacts, []);
   assert.ok(report.coverageSnapshot.guards.some(item => item.id === 'coverage-loaded' && item.satisfied));
   assert.ok(report.coverageSnapshot.guards.some(item => item.id === 'spidermonkey-identity-status-counts-present' && item.satisfied));
   assert.ok(report.coverageSnapshot.guards.some(item => item.id === 'spidermonkey-non-stax-diagnostic-rows-visible' && item.satisfied));
   assert.ok(report.coverageSnapshot.guards.some(item => item.id === 'spidermonkey-closure-audit-surface-visible' && item.satisfied));
   assert.ok(report.coverageSnapshot.guards.some(item => item.id === 'spidermonkey-closure-audit-gap-artifacts-visible' && item.satisfied));
+  assert.ok(report.coverageSnapshot.guards.some(item => item.id === 'spidermonkey-taskcluster-route-freshness' && item.satisfied));
   assert.equal(report.coverageSnapshot.byId['allocation-profiles-open'].status, 'covered');
   assert.equal(report.coverageSnapshot.byId['independent-corpus-suite-open'].status, 'covered');
   assert.equal(report.summary.satisfiedClaimGuards, report.summary.requiredClaimGuards);
@@ -397,6 +403,56 @@ test('runtime-limit proof-obligation gate fails if coverage omits SpiderMonkey i
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /SpiderMonkey selected row identity statuses: none/);
   assert.match(markdown, /spidermonkey-identity-status-counts-present/);
+});
+
+test('runtime-limit proof-obligation gate fails if Taskcluster route freshness no longer matches evidence artifacts', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const coverage = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-coverage-audit.json'), 'utf8'));
+  const routeFreshness = coverage.scannedArtifacts.find(item =>
+    item.sourceArtifact === 'spidermonkey-taskcluster-debug-jsshell-route-freshness-audit.json'
+  );
+  assert.ok(routeFreshness);
+  routeFreshness.availability ??= {};
+  routeFreshness.availability.routeFresh = false;
+  routeFreshness.availability.artifactIdentityMatchesRoute = false;
+  routeFreshness.availability.mismatchedArtifacts = ['spidermonkey-taskcluster-debug-jsshell-codegen-audit.json'];
+  writeFileSync(badCoverageJsonOut, `${JSON.stringify(coverage, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--coverage-json',
+    badCoverageJsonOut,
+    '--json-out',
+    badCoverageGateJsonOut,
+    '--md-out',
+    badCoverageGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badCoverageGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.equal(report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness.routeFresh, false);
+  assert.equal(report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness.artifactIdentityMatchesRoute, false);
+  assert.deepEqual(report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness.mismatchedArtifacts, [
+    'spidermonkey-taskcluster-debug-jsshell-codegen-audit.json',
+  ]);
+  assert.ok(report.coverageSnapshot.guards.some(item =>
+    item.id === 'spidermonkey-taskcluster-route-freshness'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /Taskcluster route freshness/.test(error)));
+
+  const markdown = readFileSync(badCoverageGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /SpiderMonkey Taskcluster route freshness: stale/);
+  assert.match(markdown, /spidermonkey-taskcluster-route-freshness/);
 });
 
 test('runtime-limit proof-obligation gate fails if coverage omits SpiderMonkey closure-audit surface counts', () => {

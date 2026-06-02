@@ -300,6 +300,11 @@ function summarizeAvailability(summary = {}) {
     closureRequirementsBlocked: typeof summary.closureRequirementsBlocked === 'number' ? summary.closureRequirementsBlocked : null,
     closesSafariObligation: typeof summary.closesSafariObligation === 'boolean' ? summary.closesSafariObligation : null,
     openObligationRemains: typeof summary.openObligationRemains === 'boolean' ? summary.openObligationRemains : null,
+    routeFresh: typeof summary.routeFresh === 'boolean' ? summary.routeFresh : null,
+    expectedIdentityMatchesRoute: typeof summary.expectedIdentityMatchesRoute === 'boolean' ? summary.expectedIdentityMatchesRoute : null,
+    artifactIdentityMatchesRoute: typeof summary.artifactIdentityMatchesRoute === 'boolean' ? summary.artifactIdentityMatchesRoute : null,
+    checkedArtifactCount: typeof summary.checkedArtifactCount === 'number' ? summary.checkedArtifactCount : null,
+    mismatchedArtifacts: Array.isArray(summary.mismatchedArtifacts) ? summary.mismatchedArtifacts : null,
   };
   return Object.values(availability).some(value => value !== null) ? availability : null;
 }

@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T13:35:20.939Z
+Generated: 2026-06-02T13:50:49.669Z
 
 ## Scope
 
@@ -87,13 +87,14 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-02T13:34:38.557Z)
+- Coverage audit loaded: yes (2026-06-02T13:49:46.318Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey diagnostics rows vs closure candidates: 11/15 (gap=4, closureQualified=0)
 - SpiderMonkey closure candidates outside coverage diagnostics: `spidermonkey-jsshell-materialized-headroom.json`, `spidermonkey-jsshell-tokenizer-headroom.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`
 - SpiderMonkey coverage diagnostics outside closure candidates: none
 - SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7
+- SpiderMonkey Taskcluster route freshness: fresh (artifactIdentityMatchesRoute=yes, checkedArtifacts=5, mismatchedArtifacts=none)
 
 | ID | Satisfied | Meaning |
 | --- | --- | --- |
@@ -102,6 +103,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `spidermonkey-non-stax-diagnostic-rows-visible` | yes | Coverage audit must keep non-StAX SpiderMonkey diagnostic rows visible via selectedRowIdentityStatusCounts.not-claimed-non-stax-diagnostic. |
 | `spidermonkey-closure-audit-surface-visible` | yes | Coverage audit must expose SpiderMonkey diagnostic row count, closure-audit candidate count, their gap, and qualifiedClosureCount so gate review sees the curated coverage surface is not the full closure matrix. |
 | `spidermonkey-closure-audit-gap-artifacts-visible` | yes | Coverage audit must name the SpiderMonkey closure candidates outside curated diagnostics rows and report no diagnostic rows outside the closure audit. |
+| `spidermonkey-taskcluster-route-freshness` | yes | Taskcluster route freshness must show the current SpiderMonkey debug-shell artifacts match the latest route task and expected build/source identity. |
 
 ## Counterexample Snapshot
 
@@ -109,7 +111,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 - Same-contract comparison contract: same-full-string-checksum-contract-not-same-object-shape; publicEventCase=eventObjectFull; objectShapeEquivalence=false; memoryEquivalence=false
 - Same-contract comparison rows: 289/289; largeFullJsRows=239
 - Same-contract comparison counterexamples: 0
-- Runtime counterexample scan loaded: yes (2026-06-02T13:34:39.247Z)
+- Runtime counterexample scan loaded: yes (2026-06-02T13:50:10.881Z)
 - Counterexample scan contract: threshold=200.00 MiB/s, minSizeGiB=1.00, parseErrors=0
 - Counterexample scan coverage shape: artifacts=225/225, measuredRows=1255/1255
 - Runtime counterexample scan counterexamples: 0
@@ -125,7 +127,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-02T13:35:05.275Z)
+- Handoff loaded: yes (2026-06-02T13:50:34.305Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -153,8 +155,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T13:35:12.982Z)
-- Handoff validation target handoff generatedAt: 2026-06-02T13:35:05.275Z (current 2026-06-02T13:35:05.275Z)
+- Handoff validation loaded: yes (2026-06-02T13:50:41.798Z)
+- Handoff validation target handoff generatedAt: 2026-06-02T13:50:34.305Z (current 2026-06-02T13:50:34.305Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes
 - Required contracts present: yes
@@ -172,8 +174,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-02T13:34:54.700Z)
-- Source audit inputs: comparison=2026-06-01T17:12:20.521Z (current 2026-06-01T17:12:20.521Z), coverage=2026-06-02T13:34:38.557Z (current 2026-06-02T13:34:38.557Z)
+- Source audit loaded: yes (2026-06-02T13:50:26.391Z)
+- Source audit inputs: comparison=2026-06-01T17:12:20.521Z (current 2026-06-01T17:12:20.521Z), coverage=2026-06-02T13:49:46.318Z (current 2026-06-02T13:49:46.318Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary sync byte-batch rows: 231
@@ -199,20 +201,20 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Frontier Audit Snapshot
 
-- Memory frontier loaded: yes (2026-06-02T13:34:55.044Z)
+- Memory frontier loaded: yes (2026-06-02T13:50:24.392Z)
 - Frontier audit comparison inputs: memory=2026-06-01T17:12:20.521Z, target=2026-06-01T17:12:20.521Z, text=2026-06-01T17:12:20.521Z (current 2026-06-01T17:12:20.521Z)
 - Fastest bounded JS row: 185.50 MiB/s at 60.45 MiB
 - Unbounded or unproven memory rows: 17
 - Bounded rows without numeric memory proof: 0
 - Unbounded rows at or above 200 MiB/s: 0
-- Target distance loaded: yes (2026-06-02T13:34:55.822Z)
+- Target distance loaded: yes (2026-06-02T13:50:24.602Z)
 - Woodstox 0.9x target met: no
 - Woodstox 0.9x remaining: 164.29 MiB/s
 - quick-xml 0.9x target met: no
 - quick-xml 0.9x remaining: 95.06 MiB/s
 - Shared JS target row: yes
 - Target JS contract: sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=no, fullArrayBufferParserInput=no, boundedMemory=yes, memoryKind=process-rss, maxRssMiB=61.77
-- Text materialization boundary loaded: yes (2026-06-02T13:34:56.929Z)
+- Text materialization boundary loaded: yes (2026-06-02T13:50:26.733Z)
 - Fastest full-string row: 185.50 MiB/s
 - Full-string rows crossing 200 MiB/s: 0
 - No-text rows crossing 200 MiB/s: 4

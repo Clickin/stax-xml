@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T13:34:38.557Z",
+  "generatedAt": "2026-06-02T13:49:46.318Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -4464,7 +4464,12 @@
         "closureRequirementsMet": 2,
         "closureRequirementsBlocked": 9,
         "closesSafariObligation": false,
-        "openObligationRemains": true
+        "openObligationRemains": true,
+        "routeFresh": null,
+        "expectedIdentityMatchesRoute": null,
+        "artifactIdentityMatchesRoute": null,
+        "checkedArtifactCount": null,
+        "mismatchedArtifacts": null
       },
       "outcome": null,
       "summary": {
@@ -5124,7 +5129,12 @@
         "closureRequirementsMet": 2,
         "closureRequirementsBlocked": 4,
         "closesSafariObligation": null,
-        "openObligationRemains": null
+        "openObligationRemains": null,
+        "routeFresh": null,
+        "expectedIdentityMatchesRoute": null,
+        "artifactIdentityMatchesRoute": null,
+        "checkedArtifactCount": null,
+        "mismatchedArtifacts": null
       },
       "outcome": null,
       "summary": {
@@ -5499,7 +5509,28 @@
       "parameters": {
         "searchRoots": null
       },
-      "availability": null,
+      "availability": {
+        "hostIsMacOS": null,
+        "safariExecutableFound": null,
+        "safaridriverFound": null,
+        "currentHarnessSupportsSafari": null,
+        "canRunSafariBrowserRows": null,
+        "safariBenchmarkRowsRecorded": null,
+        "exactSafariBuildIdentityRecorded": null,
+        "safariSourceBoundaryPinned": null,
+        "primarySyncByteBatchRowsRecorded": null,
+        "boundedPrimarySyncByteBatchRowsRecorded": null,
+        "directReadableStreamRowsAreSeparateEvidence": null,
+        "closureRequirementsMet": null,
+        "closureRequirementsBlocked": null,
+        "closesSafariObligation": null,
+        "openObligationRemains": null,
+        "routeFresh": true,
+        "expectedIdentityMatchesRoute": true,
+        "artifactIdentityMatchesRoute": true,
+        "checkedArtifactCount": 5,
+        "mismatchedArtifacts": []
+      },
       "outcome": null,
       "summary": {
         "status": "fresh",
@@ -27944,7 +27975,12 @@
           "closureRequirementsMet": 2,
           "closureRequirementsBlocked": 4,
           "closesSafariObligation": null,
-          "openObligationRemains": null
+          "openObligationRemains": null,
+          "routeFresh": null,
+          "expectedIdentityMatchesRoute": null,
+          "artifactIdentityMatchesRoute": null,
+          "checkedArtifactCount": null,
+          "mismatchedArtifacts": null
         },
         "outcome": null,
         "summary": {
@@ -28387,7 +28423,12 @@
           "closureRequirementsMet": 2,
           "closureRequirementsBlocked": 9,
           "closesSafariObligation": false,
-          "openObligationRemains": true
+          "openObligationRemains": true,
+          "routeFresh": null,
+          "expectedIdentityMatchesRoute": null,
+          "artifactIdentityMatchesRoute": null,
+          "checkedArtifactCount": null,
+          "mismatchedArtifacts": null
         },
         "outcome": null,
         "summary": {
@@ -28444,7 +28485,28 @@
         "parameters": {
           "searchRoots": null
         },
-        "availability": null,
+        "availability": {
+          "hostIsMacOS": null,
+          "safariExecutableFound": null,
+          "safaridriverFound": null,
+          "currentHarnessSupportsSafari": null,
+          "canRunSafariBrowserRows": null,
+          "safariBenchmarkRowsRecorded": null,
+          "exactSafariBuildIdentityRecorded": null,
+          "safariSourceBoundaryPinned": null,
+          "primarySyncByteBatchRowsRecorded": null,
+          "boundedPrimarySyncByteBatchRowsRecorded": null,
+          "directReadableStreamRowsAreSeparateEvidence": null,
+          "closureRequirementsMet": null,
+          "closureRequirementsBlocked": null,
+          "closesSafariObligation": null,
+          "openObligationRemains": null,
+          "routeFresh": true,
+          "expectedIdentityMatchesRoute": true,
+          "artifactIdentityMatchesRoute": true,
+          "checkedArtifactCount": 5,
+          "mismatchedArtifacts": []
+        },
         "outcome": null,
         "summary": {
           "status": "fresh",
@@ -29424,7 +29486,12 @@
           "closureRequirementsMet": 2,
           "closureRequirementsBlocked": 4,
           "closesSafariObligation": null,
-          "openObligationRemains": null
+          "openObligationRemains": null,
+          "routeFresh": null,
+          "expectedIdentityMatchesRoute": null,
+          "artifactIdentityMatchesRoute": null,
+          "checkedArtifactCount": null,
+          "mismatchedArtifacts": null
         },
         "outcome": null,
         "summary": {

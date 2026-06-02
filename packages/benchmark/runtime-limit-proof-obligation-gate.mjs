@@ -1141,6 +1141,13 @@ function createCoverageSnapshot(audit) {
         diagnosticSourcesOutsideClosureAudit: [],
         closureAuditQualifiedClosureCount: null,
       },
+      spiderMonkeyTaskclusterRouteFreshness: {
+        routeFresh: null,
+        expectedIdentityMatchesRoute: null,
+        artifactIdentityMatchesRoute: null,
+        checkedArtifactCount: null,
+        mismatchedArtifacts: [],
+      },
       guards: createCoverageGuards(null),
     };
   }
@@ -1157,6 +1164,9 @@ function createCoverageSnapshot(audit) {
     diagnosticSourcesOutsideClosureAudit: audit.coverage?.spiderMonkeyDiagnostics?.diagnosticSourcesOutsideClosureAudit ?? [],
     closureAuditQualifiedClosureCount: audit.coverage?.spiderMonkeyDiagnostics?.closureAuditQualifiedClosureCount ?? null,
   };
+  const routeFreshnessArtifact = (Array.isArray(audit.scannedArtifacts) ? audit.scannedArtifacts : [])
+    .find(artifact => artifact.sourceArtifact === 'spidermonkey-taskcluster-debug-jsshell-route-freshness-audit.json');
+  const routeFreshness = routeFreshnessArtifact?.availability ?? {};
   const snapshot = {
     loaded: true,
     generatedAt: audit.generatedAt ?? null,
@@ -1168,6 +1178,15 @@ function createCoverageSnapshot(audit) {
       .map(obligation => obligation.id),
     byId: {},
     spiderMonkeyDiagnostics,
+    spiderMonkeyTaskclusterRouteFreshness: {
+      routeFresh: routeFreshness.routeFresh ?? null,
+      expectedIdentityMatchesRoute: routeFreshness.expectedIdentityMatchesRoute ?? null,
+      artifactIdentityMatchesRoute: routeFreshness.artifactIdentityMatchesRoute ?? null,
+      checkedArtifactCount: routeFreshness.checkedArtifactCount ?? null,
+      mismatchedArtifacts: Array.isArray(routeFreshness.mismatchedArtifacts)
+        ? routeFreshness.mismatchedArtifacts
+        : [],
+    },
     guards: [],
   };
   const byId = Object.fromEntries(obligations.map(obligation => [obligation.id, {
@@ -1184,6 +1203,7 @@ function createCoverageSnapshot(audit) {
 function createCoverageGuards(snapshot) {
   const counts = snapshot?.spiderMonkeyDiagnostics?.selectedRowIdentityStatusCounts ?? {};
   const spiderMonkeyDiagnostics = snapshot?.spiderMonkeyDiagnostics ?? {};
+  const routeFreshness = snapshot?.spiderMonkeyTaskclusterRouteFreshness ?? {};
   return [
     {
       id: 'coverage-loaded',
@@ -1222,6 +1242,16 @@ function createCoverageGuards(snapshot) {
       )
         && Array.isArray(spiderMonkeyDiagnostics.diagnosticSourcesOutsideClosureAudit)
         && spiderMonkeyDiagnostics.diagnosticSourcesOutsideClosureAudit.length === 0,
+    },
+    {
+      id: 'spidermonkey-taskcluster-route-freshness',
+      description: 'Taskcluster route freshness must show the current SpiderMonkey debug-shell artifacts match the latest route task and expected build/source identity.',
+      satisfied: routeFreshness.routeFresh === true
+        && routeFreshness.expectedIdentityMatchesRoute === true
+        && routeFreshness.artifactIdentityMatchesRoute === true
+        && routeFreshness.checkedArtifactCount === 5
+        && Array.isArray(routeFreshness.mismatchedArtifacts)
+        && routeFreshness.mismatchedArtifacts.length === 0,
     },
   ];
 }
@@ -1335,6 +1365,7 @@ function renderMarkdown(report) {
   `- SpiderMonkey closure candidates outside coverage diagnostics: ${formatStringList(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditCandidateSourcesOutsideDiagnostics)}`,
   `- SpiderMonkey coverage diagnostics outside closure candidates: ${formatStringList(report.coverageSnapshot.spiderMonkeyDiagnostics.diagnosticSourcesOutsideClosureAudit)}`,
   `- SpiderMonkey selected row identity statuses: ${formatCountMap(report.coverageSnapshot.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts)}`,
+  `- SpiderMonkey Taskcluster route freshness: ${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.routeFresh === true ? 'fresh' : 'stale'} (artifactIdentityMatchesRoute=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.artifactIdentityMatchesRoute === true ? 'yes' : 'no'}, checkedArtifacts=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.checkedArtifactCount ?? 'unknown'}, mismatchedArtifacts=${formatStringList(report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.mismatchedArtifacts ?? [])})`,
     '',
     '| ID | Satisfied | Meaning |',
     '| --- | --- | --- |',

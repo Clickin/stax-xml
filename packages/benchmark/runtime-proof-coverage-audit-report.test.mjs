@@ -66,6 +66,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.measuredRowCount === 0
     && artifact.evidenceKinds.includes('ENVIRONMENT_FACT')
     && artifact.evidenceKinds.includes('SCOPE_GUARD')
+    && artifact.availability.routeFresh === true
+    && artifact.availability.expectedIdentityMatchesRoute === true
+    && artifact.availability.artifactIdentityMatchesRoute === true
+    && artifact.availability.checkedArtifactCount === 5
+    && Array.isArray(artifact.availability.mismatchedArtifacts)
+    && artifact.availability.mismatchedArtifacts.length === 0
   ));
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json'
