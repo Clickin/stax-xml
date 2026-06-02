@@ -104,6 +104,19 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.counterexampleSnapshot.scanMeasuredRowCount, report.counterexampleSnapshot.coverageMeasuredRowCount);
   assert.equal(report.counterexampleSnapshot.scanAggregateRowCount, 182);
   assert.equal(report.counterexampleSnapshot.scanLargeJsFullAggregateRowCount, 142);
+  assert.equal(report.counterexampleSnapshot.scanSourceModeRowCount, 642);
+  assert.equal(report.counterexampleSnapshot.scanLargeJsFullSourceModeRowCount, 474);
+  assert.ok(report.counterexampleSnapshot.scanLargeJsFullSourceModeBreakdown.some(entry =>
+    entry.sourceMode === 'generated-sync-iterable-byte-batches'
+    && entry.rowCount === 382
+    && entry.fullArrayBufferRows === 0
+    && entry.unknownArrayBufferRows === 0
+  ));
+  assert.ok(report.counterexampleSnapshot.scanLargeJsFullSourceModeBreakdown.some(entry =>
+    entry.sourceMode === 'web-readable-stream-pull'
+    && entry.directReadableStreamRows === 15
+    && entry.fullArrayBufferRows === 0
+  ));
   assert.equal(report.counterexampleSnapshot.scanMeasuredCounterexampleCount, 0);
   assert.equal(report.counterexampleSnapshot.scanAggregateCounterexampleCount, 0);
   assert.ok(report.counterexampleSnapshot.guards.some(item => item.id === 'same-contract-comparison-loaded' && item.satisfied));
@@ -359,8 +372,12 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /Counterexample scan contract: threshold=200\.00 MiB\/s, minSizeGiB=1\.00, parseErrors=0/);
   assert.match(markdown, /Counterexample scan coverage shape: artifacts=226\/226, measuredRows=1266\/1266/);
   assert.match(markdown, /Counterexample scan aggregate surface: aggregateRows=182, largeFullAggregateRows=142, measuredCounterexamples=0, aggregateCounterexamples=0/);
+  assert.match(markdown, /Counterexample scan source-shape surface: sourceModeRows=642, largeFullSourceModeRows=474/);
+  assert.match(markdown, /generated-sync-iterable-byte-batches:382,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0/);
+  assert.match(markdown, /web-readable-stream-pull:15,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=15/);
   assert.match(markdown, /counterexample-scan-current-coverage-shape/);
   assert.match(markdown, /counterexample-scan-aggregate-surface/);
+  assert.match(markdown, /counterexample-scan-source-shape-surface/);
   assert.match(markdown, /Runtime counterexample scan counterexamples: 0/);
   assert.match(markdown, /Current release counterexamples: 0/);
   assert.match(markdown, /## Handoff Snapshot/);
@@ -2113,6 +2130,82 @@ test('runtime-limit proof-obligation gate fails if counterexample scan contract 
   assert.match(markdown, /counterexample-scan-no-parse-errors/);
   assert.match(markdown, /counterexample-scan-current-coverage-shape/);
   assert.match(markdown, /counterexample-scan-aggregate-surface/);
+});
+
+test('runtime-limit proof-obligation gate fails if counterexample scan loses source-shape surface', () => {
+  resetTmp();
+  const scanJson = join(tmpDir, 'runtime-counterexample-scan-missing-source-shape.json');
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const scan = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-counterexample-scan.json'), 'utf8'));
+  delete scan.summary.sourceModeRowCount;
+  scan.summary.largeJsFullSourceModeBreakdown = [];
+  writeFileSync(scanJson, `${JSON.stringify(scan, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--counterexample-scan-json',
+    scanJson,
+    '--json-out',
+    counterexampleJsonOut,
+    '--md-out',
+    counterexampleMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(counterexampleJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.ok(report.counterexampleSnapshot.guards.some(item =>
+    item.id === 'counterexample-scan-source-shape-surface'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /source-mode classification/.test(error)));
+
+  const markdown = readFileSync(counterexampleMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /counterexample-scan-source-shape-surface/);
+});
+
+test('runtime-limit proof-obligation gate fails if counterexample scan hides full ArrayBuffer source shapes', () => {
+  resetTmp();
+  const scanJson = join(tmpDir, 'runtime-counterexample-scan-full-arraybuffer-source-shape.json');
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const scan = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-counterexample-scan.json'), 'utf8'));
+  scan.summary.largeJsFullSourceModeBreakdown[0].fullArrayBufferRows = 1;
+  writeFileSync(scanJson, `${JSON.stringify(scan, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--counterexample-scan-json',
+    scanJson,
+    '--json-out',
+    counterexampleJsonOut,
+    '--md-out',
+    counterexampleMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(counterexampleJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.ok(report.counterexampleSnapshot.guards.some(item =>
+    item.id === 'counterexample-scan-source-shape-surface'
+    && !item.satisfied
+  ));
+
+  const markdown = readFileSync(counterexampleMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /fullArrayBuffer=1/);
 });
 
 test('runtime-limit proof-obligation gate fails if primary source audit mixes async or direct stream rows', () => {

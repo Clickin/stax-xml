@@ -1215,6 +1215,11 @@ function createCounterexampleSnapshot(comparison, counterexampleScan, coverageAu
     coverageMeasuredRowCount: coverageAudit?.summary?.measuredRowCount ?? null,
     scanAggregateRowCount: counterexampleScan?.summary?.aggregateRowCount ?? null,
     scanLargeJsFullAggregateRowCount: counterexampleScan?.summary?.largeJsFullAggregateRowCount ?? null,
+    scanSourceModeRowCount: counterexampleScan?.summary?.sourceModeRowCount ?? null,
+    scanLargeJsFullSourceModeRowCount: counterexampleScan?.summary?.largeJsFullSourceModeRowCount ?? null,
+    scanLargeJsFullSourceModeBreakdown: Array.isArray(counterexampleScan?.summary?.largeJsFullSourceModeBreakdown)
+      ? counterexampleScan.summary.largeJsFullSourceModeBreakdown
+      : [],
     scanMeasuredCounterexampleCount: counterexampleScan?.summary?.measuredCounterexampleCount ?? null,
     scanAggregateCounterexampleCount: counterexampleScan?.summary?.aggregateCounterexampleCount ?? null,
     scanCounterexampleCount: typeof scanCount === 'number' ? scanCount : null,
@@ -1296,6 +1301,20 @@ function createCounterexampleScanGuards(snapshot) {
         && typeof snapshot.scanAggregateCounterexampleCount === 'number'
         && typeof snapshot.scanCounterexampleCount === 'number'
         && snapshot.scanCounterexampleCount === snapshot.scanMeasuredCounterexampleCount + snapshot.scanAggregateCounterexampleCount,
+    },
+    {
+      id: 'counterexample-scan-source-shape-surface',
+      description: 'runtime-counterexample-scan.json must preserve source-mode classification for large full-string JavaScript rows and keep full ArrayBuffer parser inputs visible.',
+      satisfied: typeof snapshot.scanSourceModeRowCount === 'number'
+        && snapshot.scanSourceModeRowCount > 0
+        && typeof snapshot.scanLargeJsFullSourceModeRowCount === 'number'
+        && snapshot.scanLargeJsFullSourceModeRowCount > 0
+        && Array.isArray(snapshot.scanLargeJsFullSourceModeBreakdown)
+        && snapshot.scanLargeJsFullSourceModeBreakdown.length > 0
+        && snapshot.scanLargeJsFullSourceModeBreakdown.some(entry => /sync-iterable-byte-batches$/.test(entry.sourceMode ?? ''))
+        && snapshot.scanLargeJsFullSourceModeBreakdown.some(entry => (entry.directReadableStreamRows ?? 0) > 0)
+        && snapshot.scanLargeJsFullSourceModeBreakdown.every(entry => entry.fullArrayBufferRows === 0 && entry.unknownArrayBufferRows === 0)
+        && snapshot.scanLargeJsFullSourceModeBreakdown.reduce((sum, entry) => sum + (entry.rowCount ?? 0), 0) === snapshot.scanLargeJsFullSourceModeRowCount,
     },
   ];
 }
@@ -1733,6 +1752,7 @@ function renderMarkdown(report) {
     `- Counterexample scan contract: threshold=${formatNullableRate(report.counterexampleSnapshot.thresholdMiBPerSec)} MiB/s, minSizeGiB=${formatNullableRate(report.counterexampleSnapshot.minSizeGiB)}, parseErrors=${formatNullableCount(report.counterexampleSnapshot.scanParseErrorCount)}`,
     `- Counterexample scan coverage shape: artifacts=${formatNullableCount(report.counterexampleSnapshot.scanScannedArtifactCount)}/${formatNullableCount(report.counterexampleSnapshot.coverageScannedArtifactCount)}, measuredRows=${formatNullableCount(report.counterexampleSnapshot.scanMeasuredRowCount)}/${formatNullableCount(report.counterexampleSnapshot.coverageMeasuredRowCount)}`,
     `- Counterexample scan aggregate surface: aggregateRows=${formatNullableCount(report.counterexampleSnapshot.scanAggregateRowCount)}, largeFullAggregateRows=${formatNullableCount(report.counterexampleSnapshot.scanLargeJsFullAggregateRowCount)}, measuredCounterexamples=${formatNullableCount(report.counterexampleSnapshot.scanMeasuredCounterexampleCount)}, aggregateCounterexamples=${formatNullableCount(report.counterexampleSnapshot.scanAggregateCounterexampleCount)}`,
+    `- Counterexample scan source-shape surface: sourceModeRows=${formatNullableCount(report.counterexampleSnapshot.scanSourceModeRowCount)}, largeFullSourceModeRows=${formatNullableCount(report.counterexampleSnapshot.scanLargeJsFullSourceModeRowCount)}, modes=${formatSourceModeBreakdown(report.counterexampleSnapshot.scanLargeJsFullSourceModeBreakdown)}`,
     `- Runtime counterexample scan counterexamples: ${formatNullableCount(report.counterexampleSnapshot.scanCounterexampleCount)}`,
     `- Current release counterexamples: ${report.counterexampleSnapshot.currentCounterexampleCount}`,
   );
@@ -1884,6 +1904,12 @@ function renderMarkdown(report) {
   );
 
   return `${lines.join('\n')}\n`;
+}
+
+function formatSourceModeBreakdown(entries = []) {
+  return Array.isArray(entries) && entries.length > 0
+    ? entries.map(entry => `${entry.sourceMode}:${entry.rowCount},fullArrayBuffer=${entry.fullArrayBufferRows},unknownArrayBuffer=${entry.unknownArrayBufferRows},directReadableStream=${entry.directReadableStreamRows}`).join('; ')
+    : 'none';
 }
 
 function formatNullableCount(value) {
