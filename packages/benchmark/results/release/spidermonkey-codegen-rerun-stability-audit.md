@@ -1,6 +1,6 @@
 # SpiderMonkey Codegen Rerun Stability Audit
 
-Generated: 2026-06-01T22:16:50.580Z
+Generated: 2026-06-02T13:34:18.742Z
 
 Compares original and rerun Taskcluster debug SpiderMonkey js-shell codegen artifacts. This is reproducibility evidence for emitted JitSpew/codegen diagnostics, not same-contract StAX closure evidence.
 
@@ -20,7 +20,7 @@ Compares original and rerun Taskcluster debug SpiderMonkey js-shell codegen arti
 | Pair | Same build | Markers original | Markers rerun | Same markers | Marker ratio | MiB/s original | MiB/s rerun | MiB/s ratio | Reproduced | Same-contract | Closes |
 | --- | --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | --- | --- | --- |
 | `taskcluster-debug-basic-codegen` | yes | 54756.00 | 54756.00 | yes | 1.00 | n/a | n/a | n/a | yes | no | no |
-| `taskcluster-debug-materialized-codegen` | yes | 234522.00 | 234522.00 | yes | 1.00 | 0.25 | 0.25 | 0.99 | yes | no | no |
+| `taskcluster-debug-materialized-codegen` | yes | 234522.00 | 234522.00 | yes | 1.00 | 0.32 | 0.31 | 0.98 | yes | no | no |
 
 ## Findings
 

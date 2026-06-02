@@ -324,9 +324,9 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /zero\s+bytecode-output probes, and `diagnosticPrefSurface=false`/);
   assert.match(markdown, /spidermonkey-taskcluster-debug-jsshell-codegen-audit\.md/);
   assert.match(markdown, /Taskcluster `mozilla-central` win64-debug/);
-  assert.match(markdown, /task `MUZBnP38TzWA6MfuY9BfzQ`/);
-  assert.match(markdown, /build id `20260601210056`/);
-  assert.match(markdown, /source revision `221c997c114ef812c7d1547bf68f703f4473d178`/);
+  assert.match(markdown, /task `aJLr1DFjQ7urQTpRiIsfRQ`/);
+  assert.match(markdown, /build id `20260602093330`/);
+  assert.match(markdown, /source revision `253b8523586577438a3ddf86d67436719feaf6d8`/);
   assert.match(markdown, /54,756\s+`\[Codegen\]` markers, 5 IonScript mentions, and 20,931 assembly mnemonic/);
   assert.match(markdown, /`sameContractStaxRow=false`/);
   assert.match(markdown, /`canRunCurrentStaxFullStringBenchmark=false`/);

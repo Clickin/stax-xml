@@ -1,6 +1,6 @@
 # SpiderMonkey Materialized Scope Distance Audit
 
-Generated: 2026-06-01T22:20:04.795Z
+Generated: 2026-06-02T13:33:10.486Z
 
 Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen artifact against the token-only codegen artifact, the js-shell StAX API gap, and the semantic materialization contract. This audit records exactly what the materialized js-shell workload proves and why it still cannot close the unchanged StAX codegen obligation.
 
@@ -15,7 +15,7 @@ Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen arti
 - Source artifact declares emitted-IR closure: false
 - Closure claim contradicted by scope: false
 - Closes codegen obligation: false
-- Diagnostic throughput MiB/s: 0.25002012796318257
+- Diagnostic throughput MiB/s: 0.32216048877786657
 - Diagnostic throughput class: debug-jitspew-diagnostic-not-frontier
 - Throughput counts as target evidence: false
 - Same-contract StAX row: false
@@ -27,7 +27,7 @@ Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen arti
 ## Workload Comparison
 
 - Token workload: xml-token-boundary-no-string-materialization, fullStringParity=false, checksum=9292058, codegenMarkers=151431
-- Materialized workload: ascii-js-string-and-public-event-object-materialization, fullStringParity=true, diagnosticThroughputMiBPerSec=0.25002012796318257, throughputCountsAsTargetEvidence=false, checksum=-553631888, materializedStringCount=61289, materializedObjectCount=55759, codegenMarkers=234522
+- Materialized workload: ascii-js-string-and-public-event-object-materialization, fullStringParity=true, diagnosticThroughputMiBPerSec=0.32216048877786657, throughputCountsAsTargetEvidence=false, checksum=-553631888, materializedStringCount=61289, materializedObjectCount=55759, codegenMarkers=234522
 
 ## Closure Requirement Matrix
 
@@ -43,9 +43,9 @@ Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen arti
 ## Checks
 
 - same-current-debug-shell-build: pass
-  - materializedTaskId=MUZBnP38TzWA6MfuY9BfzQ
-  - tokenTaskId=MUZBnP38TzWA6MfuY9BfzQ
-  - buildId=20260601210056
+  - materializedTaskId=aJLr1DFjQ7urQTpRiIsfRQ
+  - tokenTaskId=aJLr1DFjQ7urQTpRiIsfRQ
+  - buildId=20260602093330
 - semantic-field-folding-present: pass
   - sameSemanticChecksumFields=true
   - fullStringParity=true
@@ -87,7 +87,7 @@ Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen arti
   - observedClosure=ASCII js-shell materialized workload codegen
   - allChecksPass=true
 - materialized-js-shell-diagnostic-throughput-not-frontier (SCOPE_GUARD): The measured MiB/s from the current debug js-shell JitSpew run is recorded for reproducibility but cannot be cited as target-distance, frontier, or counterexample evidence.
-  - diagnosticThroughputMiBPerSec=0.25002012796318257
+  - diagnosticThroughputMiBPerSec=0.32216048877786657
   - diagnosticThroughputClass=debug-jitspew-diagnostic-not-frontier
   - throughputCountsAsTargetEvidence=false
   - reason=debug shell plus codegen diagnostic output, small ASCII materialized workload, and not the unchanged same-contract StAX row

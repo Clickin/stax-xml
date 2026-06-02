@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T22:20:04.795Z",
+  "generatedAt": "2026-06-02T13:33:10.486Z",
   "objective": "spidermonkey-materialized-scope-distance-audit",
   "contract": "materialized-js-shell-workload-equivalence-and-scope-distance",
   "note": "Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen artifact against the token-only codegen artifact, the js-shell StAX API gap, and the semantic materialization contract. This audit records exactly what the materialized js-shell workload proves and why it still cannot close the unchanged StAX codegen obligation.",
@@ -79,7 +79,7 @@
     "materialized": {
       "contractScope": "ascii-js-string-and-public-event-object-materialization",
       "fullStringParity": true,
-      "diagnosticThroughputMiBPerSec": 0.25002012796318257,
+      "diagnosticThroughputMiBPerSec": 0.32216048877786657,
       "diagnosticThroughputClass": "debug-jitspew-diagnostic-not-frontier",
       "throughputCountsAsTargetEvidence": false,
       "sameSemanticChecksumFields": true,
@@ -173,9 +173,9 @@
       "id": "same-current-debug-shell-build",
       "status": "pass",
       "evidence": [
-        "materializedTaskId=MUZBnP38TzWA6MfuY9BfzQ",
-        "tokenTaskId=MUZBnP38TzWA6MfuY9BfzQ",
-        "buildId=20260601210056"
+        "materializedTaskId=aJLr1DFjQ7urQTpRiIsfRQ",
+        "tokenTaskId=aJLr1DFjQ7urQTpRiIsfRQ",
+        "buildId=20260602093330"
       ]
     },
     {
@@ -234,7 +234,7 @@
     "sourceArtifactDeclaresClosure": false,
     "closureClaimContradictedByScope": false,
     "closesCodegenObligation": false,
-    "diagnosticThroughputMiBPerSec": 0.25002012796318257,
+    "diagnosticThroughputMiBPerSec": 0.32216048877786657,
     "diagnosticThroughputClass": "debug-jitspew-diagnostic-not-frontier",
     "throughputCountsAsTargetEvidence": false,
     "unchangedStaxBenchmark": false,
@@ -288,7 +288,7 @@
       "classification": "SCOPE_GUARD",
       "summary": "The measured MiB/s from the current debug js-shell JitSpew run is recorded for reproducibility but cannot be cited as target-distance, frontier, or counterexample evidence.",
       "evidence": [
-        "diagnosticThroughputMiBPerSec=0.25002012796318257",
+        "diagnosticThroughputMiBPerSec=0.32216048877786657",
         "diagnosticThroughputClass=debug-jitspew-diagnostic-not-frontier",
         "throughputCountsAsTargetEvidence=false",
         "reason=debug shell plus codegen diagnostic output, small ASCII materialized workload, and not the unchanged same-contract StAX row"

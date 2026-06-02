@@ -241,6 +241,7 @@ function buildReport(options, artifacts) {
     .map(createCandidate)
     .filter(candidate => candidate.objective !== 'spidermonkey-codegen-closure-audit')
     .filter(candidate => candidate.objective !== 'spidermonkey-codegen-rerun-stability-audit')
+    .filter(candidate => candidate.objective !== 'spidermonkey-taskcluster-debug-jsshell-route-freshness-audit')
     .filter(candidate => candidate.hasAnyDiagnosticSurface || /codegen|diagnostic|jsshell|js-shell|buildconfig/i.test(candidate.sourceArtifact))
     .sort((left, right) => left.sourceArtifact.localeCompare(right.sourceArtifact));
   const qualified = candidates.filter(candidate => candidate.qualifiedClosure);

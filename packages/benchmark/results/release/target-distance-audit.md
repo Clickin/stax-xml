@@ -1,6 +1,6 @@
 # Target Distance Audit
 
-Generated: 2026-06-01T22:17:37.390Z
+Generated: 2026-06-02T13:34:55.822Z
 
 Audits the distance from current same-contract JavaScript rows to Woodstox and quick-xml targets. This is not a benchmark run, not object-shape equivalence, and not a JavaScript runtime ceiling proof.
 

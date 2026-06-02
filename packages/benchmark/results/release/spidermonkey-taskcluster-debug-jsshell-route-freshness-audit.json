@@ -1,0 +1,38 @@
+{
+  "generatedAt": "2026-06-02T13:32:38.886Z",
+  "objective": "spidermonkey-taskcluster-debug-jsshell-route-freshness-audit",
+  "contract": "taskcluster-latest-route-current-debug-jsshell-identity-freshness",
+  "note": "Resolves the Taskcluster latest win64-debug route and checks whether the current SpiderMonkey debug js-shell evidence still names that route task. This is route freshness evidence only; it is not benchmark, codegen, or same-contract StAX closure evidence.",
+  "route": {
+    "status": "available",
+    "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
+    "taskId": "aJLr1DFjQ7urQTpRiIsfRQ",
+    "fetchedAt": "2026-06-02T13:32:38.885Z",
+    "indexUrl": "https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.mozilla-central.latest.firefox.win64-debug",
+    "error": null
+  },
+  "expected": {
+    "taskId": "aJLr1DFjQ7urQTpRiIsfRQ",
+    "buildId": "20260602093330",
+    "sourceRevision": "253b8523586577438a3ddf86d67436719feaf6d8"
+  },
+  "summary": {
+    "status": "fresh",
+    "routeFresh": true,
+    "expectedIdentityMatchesRoute": true,
+    "hasExpectedBuildIdentity": true,
+    "conclusionAllowed": false
+  },
+  "findings": [
+    {
+      "id": "taskcluster-latest-route-resolved",
+      "classification": "ENVIRONMENT_FACT",
+      "summary": "Route gecko.v2.mozilla-central.latest.firefox.win64-debug resolved with status=available taskId=aJLr1DFjQ7urQTpRiIsfRQ."
+    },
+    {
+      "id": "route-freshness-scope-guard",
+      "classification": "SCOPE_GUARD",
+      "summary": "Route freshness proves only that current Taskcluster evidence points at the latest route task; it cannot close emitted-IR or same-contract StAX obligations."
+    }
+  ]
+}

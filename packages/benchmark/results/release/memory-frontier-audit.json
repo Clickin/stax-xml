@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T22:17:39.271Z",
+  "generatedAt": "2026-06-02T13:34:55.044Z",
   "objective": "memory-frontier-audit",
   "contract": "same-contract-1gib-plus-js-full-string-memory-frontier",
   "note": "Audits memory classification from the same-contract aggregate. This is not a benchmark run, does not normalize memory models across runtimes, and does not prove a JavaScript runtime ceiling.",

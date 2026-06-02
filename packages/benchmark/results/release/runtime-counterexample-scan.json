@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T22:20:43.369Z",
+  "generatedAt": "2026-06-02T13:34:39.247Z",
   "objective": "runtime-counterexample-scan",
   "contract": "release-json-recognized-row-counterexample-search",
   "note": "Scans recognized throughput rows and aggregate rows in primary release JSON artifacts for 1 GiB+ full-string JavaScript rows that meet the 200 MiB/s bounded-memory counterexample rule. This is a guard over existing artifacts, not a new benchmark run or a runtime-limit proof.",
@@ -189,6 +189,7 @@
     "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
     "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
     "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
+    "spidermonkey-taskcluster-debug-jsshell-route-freshness-audit.json",
     "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
     "stax-event-public-object-shape-audit.json",
     "stax-public-reader-host-api-boundary-audit.json",
@@ -245,7 +246,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 224,
+    "scannedArtifactCount": 225,
     "ignoredArtifactCount": 7,
     "parseErrorCount": 0,
     "measuredRowCount": 1255,
@@ -22930,7 +22931,7 @@
       "boundedMemory": null,
       "sizeGiB": 0,
       "sizeMiB": 1,
-      "mibPerSec": 0.71,
+      "mibPerSec": 0.73,
       "eventCount": 55759,
       "checksum": 9292058,
       "contractScope": "xml-token-boundary-no-string-materialization",
