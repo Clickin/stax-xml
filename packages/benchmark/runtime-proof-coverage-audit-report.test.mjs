@@ -51,6 +51,14 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.summary.selectedRowComparisonMissingCount === 15
     && artifact.summary.comparisonGeneratedAt === '2026-06-01T17:12:20.521Z'
     && artifact.summary.comparisonRowCount === 289
+    && artifact.summary.minimumBlockedRequirementCount === 4
+    && artifact.summary.closestBlockedCandidateCount === 5
+    && Array.isArray(artifact.summary.closestBlockedCandidateSourceArtifacts)
+    && artifact.summary.closestBlockedCandidateSourceArtifacts.includes('spidermonkey-taskcluster-debug-jsshell-codegen-audit.json')
+    && artifact.summary.closestBlockedCandidateSourceArtifacts.includes('spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json')
+    && artifact.summary.closestBlockedCandidateSourceArtifacts.includes('spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json')
+    && artifact.summary.closestBlockedCandidateSourceArtifacts.includes('spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json')
+    && artifact.summary.closestBlockedCandidateSourceArtifacts.includes('spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json')
   ));
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'spidermonkey-codegen-rerun-stability-audit.json'

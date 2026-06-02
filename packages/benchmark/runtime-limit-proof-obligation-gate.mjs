@@ -1185,6 +1185,9 @@ function createCoverageSnapshot(audit, counterexampleSnapshot = null) {
         selectedRowComparisonMissingCount: null,
         comparisonGeneratedAt: null,
         comparisonRowCount: null,
+        minimumBlockedRequirementCount: null,
+        closestBlockedCandidateCount: null,
+        closestBlockedCandidateSourceArtifacts: [],
       },
       guards: createCoverageGuards(null, counterexampleSnapshot),
     };
@@ -1236,6 +1239,11 @@ function createCoverageSnapshot(audit, counterexampleSnapshot = null) {
       selectedRowComparisonMissingCount: closureAudit.selectedRowComparisonMissingCount ?? null,
       comparisonGeneratedAt: closureAudit.comparisonGeneratedAt ?? null,
       comparisonRowCount: closureAudit.comparisonRowCount ?? null,
+      minimumBlockedRequirementCount: closureAudit.minimumBlockedRequirementCount ?? null,
+      closestBlockedCandidateCount: closureAudit.closestBlockedCandidateCount ?? null,
+      closestBlockedCandidateSourceArtifacts: Array.isArray(closureAudit.closestBlockedCandidateSourceArtifacts)
+        ? closureAudit.closestBlockedCandidateSourceArtifacts
+        : [],
     },
     guards: [],
   };
@@ -1294,6 +1302,19 @@ function createCoverageGuards(snapshot, counterexampleSnapshot = null) {
         && closureAudit.selectedRowComparisonMissingCount === 15
         && closureAudit.comparisonGeneratedAt === counterexampleSnapshot?.comparisonGeneratedAt
         && closureAudit.comparisonRowCount === counterexampleSnapshot?.comparisonRowCount,
+    },
+    {
+      id: 'spidermonkey-closure-frontier-current',
+      description: 'SpiderMonkey closure frontier must be preserved in coverage: closest blocked candidates must remain the current Taskcluster/debug-shell frontier with the minimum blocked requirement count.',
+      satisfied: closureAudit.minimumBlockedRequirementCount === 4
+        && closureAudit.closestBlockedCandidateCount === 5
+        && hasSameStringSet(closureAudit.closestBlockedCandidateSourceArtifacts, [
+          'spidermonkey-taskcluster-debug-jsshell-codegen-audit.json',
+          'spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json',
+          'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json',
+          'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json',
+          'spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json',
+        ]),
     },
     {
       id: 'spidermonkey-closure-audit-gap-artifacts-visible',

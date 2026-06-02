@@ -181,7 +181,7 @@ function createArtifactRecord(sourceArtifact, root, options) {
     runtimes,
     environment: summarizeEnvironment(root.environment),
     parameters: summarizeParameters(root.parameters),
-    summary: summarizeArtifactSummary(root.summary, root.inputs),
+    summary: summarizeArtifactSummary(root.summary, root.inputs, root.closestBlockedCandidates),
     availability: summarizeAvailability(root.summary),
     outcome: summarizeOutcome(root.outcome),
     shell: summarizeShell(root.shell),
@@ -194,8 +194,13 @@ function createArtifactRecord(sourceArtifact, root, options) {
   };
 }
 
-function summarizeArtifactSummary(summary = {}, inputs = {}) {
+function summarizeArtifactSummary(summary, inputs = {}, closestBlockedCandidates = []) {
   if (!summary || typeof summary !== 'object') return null;
+  const closestBlockedCandidateSourceArtifacts = Array.isArray(closestBlockedCandidates)
+    ? closestBlockedCandidates
+        .map(candidate => candidate?.sourceArtifact)
+        .filter(value => typeof value === 'string')
+    : [];
   const result = {
     status: summary.status ?? null,
     shellCount: typeof summary.shellCount === 'number' ? summary.shellCount : null,
@@ -271,6 +276,12 @@ function summarizeArtifactSummary(summary = {}, inputs = {}) {
     comparisonRowCount: typeof inputs?.comparisonRowCount === 'number'
       ? inputs.comparisonRowCount
       : null,
+    minimumBlockedRequirementCount: typeof summary.minimumBlockedRequirementCount === 'number'
+      ? summary.minimumBlockedRequirementCount
+      : null,
+    closestBlockedCandidateCount: typeof summary.closestBlockedCandidateCount === 'number'
+      ? summary.closestBlockedCandidateCount
+      : null,
     diagnosticThroughputMiBPerSec: typeof summary.diagnosticThroughputMiBPerSec === 'number'
       ? summary.diagnosticThroughputMiBPerSec
       : null,
@@ -294,6 +305,9 @@ function summarizeArtifactSummary(summary = {}, inputs = {}) {
       : null,
     conclusionAllowed: typeof summary.conclusionAllowed === 'boolean' ? summary.conclusionAllowed : null,
   };
+  if (closestBlockedCandidateSourceArtifacts.length > 0) {
+    result.closestBlockedCandidateSourceArtifacts = closestBlockedCandidateSourceArtifacts;
+  }
   return Object.values(result).some(value => value !== null) ? result : null;
 }
 
