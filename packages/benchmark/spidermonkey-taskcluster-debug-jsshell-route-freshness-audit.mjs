@@ -181,17 +181,25 @@ function readTaskclusterEvidenceArtifacts(options, route) {
 }
 
 function createReport(options, route, artifacts) {
-  const expected = {
+  const explicitExpected = {
     taskId: options.expectedTaskId,
     buildId: options.expectedBuildId,
     sourceRevision: options.expectedSourceRevision,
   };
+  const inferredExpected = inferExpectedIdentity(explicitExpected, route, artifacts);
+  const expected = inferredExpected.expected;
+  const normalizedArtifacts = artifacts.map(artifact => ({
+    ...artifact,
+    matchesExpectedBuildIdentity: artifact.taskId === expected.taskId
+      && artifact.buildId === expected.buildId
+      && artifact.sourceRevision === expected.sourceRevision,
+  }));
   const expectedIdentityMatchesRoute = Boolean(expected.taskId) && route.taskId === expected.taskId;
-  const checkedArtifacts = artifacts.filter(artifact => artifact.status === 'loaded');
-  const mismatchedArtifacts = artifacts
+  const checkedArtifacts = normalizedArtifacts.filter(artifact => artifact.status === 'loaded');
+  const mismatchedArtifacts = normalizedArtifacts
     .filter(artifact => artifact.status !== 'loaded' || !artifact.matchesRoute || !artifact.matchesExpectedBuildIdentity)
     .map(artifact => artifact.sourceArtifact);
-  const artifactIdentityMatchesRoute = artifacts.length > 0 && checkedArtifacts.length === artifacts.length && mismatchedArtifacts.length === 0;
+  const artifactIdentityMatchesRoute = normalizedArtifacts.length > 0 && checkedArtifacts.length === normalizedArtifacts.length && mismatchedArtifacts.length === 0;
   const routeFresh = route.status === 'available' && expectedIdentityMatchesRoute;
   const summary = {
     status: routeFresh ? 'fresh' : route.status === 'available' ? 'stale-or-unmatched' : route.status,
@@ -201,6 +209,7 @@ function createReport(options, route, artifacts) {
     checkedArtifactCount: checkedArtifacts.length,
     mismatchedArtifacts,
     hasExpectedBuildIdentity: Boolean(expected.buildId && expected.sourceRevision),
+    expectedIdentitySource: inferredExpected.source,
     conclusionAllowed: false,
   };
 
@@ -211,7 +220,7 @@ function createReport(options, route, artifacts) {
     note: 'Resolves the Taskcluster latest win64-debug route and checks whether the current SpiderMonkey debug js-shell evidence still names that route task. This is route freshness evidence only; it is not benchmark, codegen, or same-contract StAX closure evidence.',
     route,
     expected,
-    artifacts,
+    artifacts: normalizedArtifacts,
     summary,
     findings: [
       {
@@ -233,6 +242,34 @@ function createReport(options, route, artifacts) {
   };
 }
 
+function inferExpectedIdentity(explicitExpected, route, artifacts) {
+  if (explicitExpected.taskId || explicitExpected.buildId || explicitExpected.sourceRevision) {
+    return { expected: explicitExpected, source: 'cli' };
+  }
+
+  const loaded = artifacts.filter(artifact => artifact.status === 'loaded');
+  if (route.status !== 'available' || loaded.length !== artifacts.length || loaded.length === 0) {
+    return { expected: explicitExpected, source: 'missing' };
+  }
+
+  const identities = new Set(loaded.map(artifact =>
+    `${artifact.taskId ?? ''}\n${artifact.buildId ?? ''}\n${artifact.sourceRevision ?? ''}`
+  ));
+  if (identities.size !== 1) {
+    return { expected: explicitExpected, source: 'missing' };
+  }
+
+  const [taskId, buildId, sourceRevision] = [...identities][0].split('\n');
+  if (!taskId || !buildId || !sourceRevision || taskId !== route.taskId) {
+    return { expected: explicitExpected, source: 'missing' };
+  }
+
+  return {
+    expected: { taskId, buildId, sourceRevision },
+    source: 'inferred-from-artifacts',
+  };
+}
+
 function renderMarkdown(report) {
   return [
     '# SpiderMonkey Taskcluster Debug JS Shell Route Freshness Audit',
@@ -248,6 +285,7 @@ function renderMarkdown(report) {
     `- Checked artifacts: ${report.summary.checkedArtifactCount}`,
     `- Mismatched artifacts: ${report.summary.mismatchedArtifacts.length ? report.summary.mismatchedArtifacts.join(', ') : 'none'}`,
     `- Has expected build identity: ${report.summary.hasExpectedBuildIdentity}`,
+    `- Expected identity source: ${report.summary.expectedIdentitySource}`,
     `- Runtime-limit conclusion allowed: ${report.summary.conclusionAllowed}`,
     '',
     '## Route',

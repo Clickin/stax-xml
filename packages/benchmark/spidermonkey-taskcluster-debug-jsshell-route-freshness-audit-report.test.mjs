@@ -46,6 +46,7 @@ test('Taskcluster route freshness audit ties current route to expected debug she
   assert.equal(report.summary.artifactIdentityMatchesRoute, true);
   assert.equal(report.summary.checkedArtifactCount, 5);
   assert.deepEqual(report.summary.mismatchedArtifacts, []);
+  assert.equal(report.summary.expectedIdentitySource, 'cli');
   assert.equal(report.route.route, 'gecko.v2.mozilla-central.latest.firefox.win64-debug');
   assert.equal(report.route.taskId, 'aJLr1DFjQ7urQTpRiIsfRQ');
   assert.equal(report.expected.taskId, 'aJLr1DFjQ7urQTpRiIsfRQ');
@@ -64,9 +65,47 @@ test('Taskcluster route freshness audit ties current route to expected debug she
   assert.match(markdown, /Artifact identity matches route: true/);
   assert.match(markdown, /Checked artifacts: 5/);
   assert.match(markdown, /Mismatched artifacts: none/);
+  assert.match(markdown, /Expected identity source: cli/);
   assert.match(markdown, /Task ID: aJLr1DFjQ7urQTpRiIsfRQ/);
   assert.match(markdown, /Build ID: 20260602093330/);
   assert.match(markdown, /Source revision: 253b8523586577438a3ddf86d67436719feaf6d8/);
+});
+
+test('Taskcluster route freshness audit infers expected identity from loaded artifacts by default', () => {
+  resetTmp();
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'spidermonkey-taskcluster-debug-jsshell-route-freshness-audit.mjs'),
+    '--self-test',
+    '--release-dir',
+    releaseDir,
+    '--json-out',
+    jsonOut,
+    '--md-out',
+    mdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
+  assert.equal(report.summary.status, 'fresh');
+  assert.equal(report.summary.routeFresh, true);
+  assert.equal(report.summary.expectedIdentityMatchesRoute, true);
+  assert.equal(report.summary.artifactIdentityMatchesRoute, true);
+  assert.equal(report.summary.expectedIdentitySource, 'inferred-from-artifacts');
+  assert.deepEqual(report.summary.mismatchedArtifacts, []);
+  assert.equal(report.expected.taskId, 'aJLr1DFjQ7urQTpRiIsfRQ');
+  assert.equal(report.expected.buildId, '20260602093330');
+  assert.equal(report.expected.sourceRevision, '253b8523586577438a3ddf86d67436719feaf6d8');
+  assert.ok(report.artifacts.every(artifact => artifact.matchesExpectedBuildIdentity === true));
+
+  const markdown = readFileSync(mdOut, 'utf8');
+  assert.match(markdown, /Route fresh: true/);
+  assert.match(markdown, /Expected identity source: inferred-from-artifacts/);
+  assert.match(markdown, /Mismatched artifacts: none/);
 });
 
 function resetTmp() {
