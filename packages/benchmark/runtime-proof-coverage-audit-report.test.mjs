@@ -50,7 +50,13 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 225);
+  assert.equal(report.summary.scannedArtifactCount, 226);
+  assert.ok(report.scannedArtifacts.some(artifact =>
+    artifact.sourceArtifact === 'text-materialization-frontier-coverage-audit.json'
+    && artifact.objective === 'text-materialization-frontier-coverage-audit'
+    && artifact.summary.conclusionAllowed === false
+    && artifact.measuredRowCount === 11
+  ));
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'runtime-proof-handoff-validation.json'
     && artifact.objective === 'runtime-proof-handoff-validation'
@@ -484,7 +490,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.runtimes.includes('bun-jsc')
     && artifact.runtimes.includes('deno-v8')
   ));
-  assert.equal(report.summary.measuredRowCount, 1255);
+  assert.equal(report.summary.measuredRowCount, 1266);
   assert.equal(report.summary.largeJsFullRowCount, 848);
   assert.deepEqual(
     {
@@ -571,12 +577,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assertUnknownBoundedMemoryRow(report, 'firefox-spidermonkey-diagnostic-dump-audit.json', 'rawFrameNameId');
   assert.equal(report.summary.corpusSeedCount, 4);
   assert.equal(report.summary.openObligationCount, 2);
-  assert.equal(report.summary.benchmarkArtifactCount, 156);
-  assert.equal(report.summary.sourceArtifactCount, 25);
+  assert.equal(report.summary.benchmarkArtifactCount, 157);
+  assert.equal(report.summary.sourceArtifactCount, 26);
   assert.equal(report.summary.traceArtifactCount, 19);
   assert.equal(report.summary.allocationArtifactCount, 16);
   assert.equal(report.summary.environmentArtifactCount, 5);
-  assert.equal(report.summary.negativeArtifactCount, 29);
+  assert.equal(report.summary.negativeArtifactCount, 30);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'firefox-spidermonkey-js-shell-availability-audit.json'
     && artifact.evidenceKinds.includes('ENVIRONMENT_FACT')
@@ -850,12 +856,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'node-v8'
-    && row.measuredRowCount === 589
+    && row.measuredRowCount === 597
     && row.largeFullStringRowCount === 407
   ));
   assert.ok(report.coverage.runtimes.some(row =>
     row.runtimeId === 'bun-jsc'
-    && row.measuredRowCount === 319
+    && row.measuredRowCount === 322
     && row.largeFullStringRowCount === 209
   ));
   assert.ok(report.coverage.runtimes.some(row =>
@@ -1406,12 +1412,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing/);
   assert.match(markdown, /16 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 5/);
-  assert.match(markdown, /Source artifacts: 25/);
-  assert.match(markdown, /Scanned primary artifacts: 225/);
+  assert.match(markdown, /Source artifacts: 26/);
+  assert.match(markdown, /Scanned primary artifacts: 226/);
   assert.equal(report.summary.traceArtifactCount, 19);
-  assert.match(markdown, /Negative-result artifacts: 29/);
-  assert.match(markdown, /\| Node\/V8 \| 111 \| 589 \| 407 \|/);
-  assert.match(markdown, /\| Bun\/JSC \| 41 \| 319 \| 209 \|/);
+  assert.match(markdown, /Negative-result artifacts: 30/);
+  assert.match(markdown, /\| Node\/V8 \| 112 \| 597 \| 407 \|/);
+  assert.match(markdown, /\| Bun\/JSC \| 42 \| 322 \| 209 \|/);
   assert.match(markdown, /\| Deno\/V8 \| 17 \| 128 \| 104 \|/);
   assert.match(markdown, /\| Firefox\/SpiderMonkey browser \| 23 \| 82 \| 70 \|/);
   assert.match(markdown, /\| Java\/Woodstox \| 12 \| 13 \| 5 \|/);

@@ -355,7 +355,7 @@ function summarizeParameters(parameters = {}) {
 function classifyEvidenceKinds(sourceArtifact, root, measuredRows) {
   const kinds = new Set();
   if (measuredRows.length > 0) kinds.add('BENCH_FACT');
-  if (/source-pin-audit|shape-audit|materialization-contract-audit|scope-distance-audit|host-api-boundary-audit|memory-frontier-audit|target-distance-audit|text-materialization-boundary-audit/.test(sourceArtifact)) kinds.add('SOURCE_FACT');
+  if (/source-pin-audit|shape-audit|materialization-contract-audit|scope-distance-audit|host-api-boundary-audit|memory-frontier-audit|target-distance-audit|text-materialization-boundary-audit|text-materialization-frontier-coverage-audit/.test(sourceArtifact)) kinds.add('SOURCE_FACT');
   if (/availability-audit|route-freshness-audit/.test(sourceArtifact)) kinds.add('ENVIRONMENT_FACT');
   if (/trace|profiler-trace|cpu-profile|hotspot|machine-code|codegen/.test(sourceArtifact)) kinds.add('TRACE_FACT');
   if (/allocation|jfr/.test(sourceArtifact)) kinds.add('ALLOCATION_FACT');
@@ -1508,6 +1508,8 @@ function classifyRuntime(sourceArtifact, node, context) {
   const browserName = String(environment.browserName ?? '').toLowerCase();
   const engine = String(environment.javascriptEngine ?? '').toLowerCase();
 
+  if (runtimeOrder.includes(node.runtimeId) && node.runtimeId !== 'unknown') return node.runtimeId;
+  if (runtimeOrder.includes(runtime.id) && runtime.id !== 'unknown') return runtime.id;
   if (runtimeName === 'bun' || sourceArtifact.startsWith('bun-')) return 'bun-jsc';
   if (runtimeName === 'deno') return 'deno-v8';
   if (

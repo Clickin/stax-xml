@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T19:13:08.749Z
+Generated: 2026-06-02T19:37:56.684Z
 
 ## Scope
 
@@ -89,7 +89,7 @@ Disclosure-only guards: 3
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-02T19:11:28.564Z)
+- Coverage audit loaded: yes (2026-06-02T19:33:11.333Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey diagnostics rows vs closure candidates: 11/16 (gap=5, closureQualified=0)
@@ -119,9 +119,9 @@ Disclosure-only guards: 3
 - Same-contract comparison contract: same-full-string-checksum-contract-not-same-object-shape; publicEventCase=eventObjectFull; objectShapeEquivalence=false; memoryEquivalence=false
 - Same-contract comparison rows: 289/289; largeFullJsRows=239
 - Same-contract comparison counterexamples: 0
-- Runtime counterexample scan loaded: yes (2026-06-02T18:14:25.042Z)
+- Runtime counterexample scan loaded: yes (2026-06-02T19:35:17.800Z)
 - Counterexample scan contract: threshold=200.00 MiB/s, minSizeGiB=1.00, parseErrors=0
-- Counterexample scan coverage shape: artifacts=225/225, measuredRows=1255/1255
+- Counterexample scan coverage shape: artifacts=226/226, measuredRows=1266/1266
 - Runtime counterexample scan counterexamples: 0
 - Current release counterexamples: 0
 - [x] same-contract-comparison-loaded: same-contract-runtime-comparison.json must be loaded by the gate.
@@ -135,7 +135,7 @@ Disclosure-only guards: 3
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-02T19:11:44.333Z)
+- Handoff loaded: yes (2026-06-02T19:34:52.415Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -169,8 +169,8 @@ Disclosure-only guards: 3
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T19:12:18.790Z)
-- Handoff validation target handoff generatedAt: 2026-06-02T19:11:44.333Z (current 2026-06-02T19:11:44.333Z)
+- Handoff validation loaded: yes (2026-06-02T19:35:03.594Z)
+- Handoff validation target handoff generatedAt: 2026-06-02T19:34:52.415Z (current 2026-06-02T19:34:52.415Z)
 - Handoff validation pass: yes
 - Commands checked: 15
 - Scripts referenced: 22
@@ -201,8 +201,8 @@ Disclosure-only guards: 3
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-02T19:11:44.796Z)
-- Source audit inputs: comparison=2026-06-02T19:10:54.806Z (current 2026-06-02T19:10:54.806Z), coverage=2026-06-02T19:11:28.564Z (current 2026-06-02T19:11:28.564Z)
+- Source audit loaded: yes (2026-06-02T19:34:40.774Z)
+- Source audit inputs: comparison=2026-06-02T19:10:54.806Z (current 2026-06-02T19:10:54.806Z), coverage=2026-06-02T19:33:11.333Z (current 2026-06-02T19:33:11.333Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary sync byte-batch rows: 231
@@ -250,6 +250,10 @@ Disclosure-only guards: 3
 - No-trim/fold-trim bounded memory: no-trim=yes, fold-trim=yes
 - No-trim/fold-trim string reads: no-trim text=135898776, no-trim fields=502070478, fold-trim text=33974712, fold-trim fields=125517686
 - Without-text full-string parity: no
+- Text materialization frontier coverage loaded: yes (2026-06-02T19:32:28.114Z)
+- Required materialization negative candidates covered: 11/11
+- Missing materialization negative candidates: 0
+- Covered materialization negative candidates crossing 200 MiB/s: 0
 
 | ID | Satisfied | Meaning |
 | --- | --- | --- |
@@ -260,6 +264,7 @@ Disclosure-only guards: 3
 | `target-distance-js-contract-primary-bounded` | yes | target-distance-audit.json must compare external targets against a bounded file-backed synchronous byte-batch JavaScript row, not direct streams or full ArrayBuffer parser input. |
 | `text-frontier-no-full-counterexample` | yes | text-materialization-boundary-audit.json must show no full-string rows cross 200 MiB/s while no-text rows remain partial headroom. |
 | `text-frontier-trim-variants-below-target` | yes | text-materialization-boundary-audit.json must show no-trim and fold-trim variants do not cross 200 MiB/s, and without-text headroom is not full-string parity. |
+| `text-frontier-negative-candidate-coverage` | yes | text-materialization-frontier-coverage-audit.json must show required materialization negative/cache candidate groups are represented in the frontier synthesis. |
 
 ## Proof Rules
 

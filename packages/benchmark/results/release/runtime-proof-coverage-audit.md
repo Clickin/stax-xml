@@ -1,14 +1,14 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-06-02T19:11:28.564Z
+Generated: 2026-06-02T19:33:11.333Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 225
+- Scanned primary artifacts: 226
 - Ignored derived artifacts: 7
-- Measured rows recognized: 1255
+- Measured rows recognized: 1266
 - Rows with unknown full-string parity: 0
 - Rows with unknown bounded-memory flag: 25
   - Unknown bounded-memory JS rows: 9
@@ -19,12 +19,12 @@ This audit scans current release artifacts to show which proof obligations are c
   - Unknown bounded-memory non-JS allocator-counter rows: 10
   - Unknown bounded-memory non-JS rows without peak-memory counters: 6
   - Unknown bounded-memory rows with memory counters: 10
-- Benchmark artifacts: 156
-- Source artifacts: 25
+- Benchmark artifacts: 157
+- Source artifacts: 26
 - Trace/profile artifacts: 19
 - Allocation artifacts: 16
 - Environment artifacts: 5
-- Negative-result artifacts: 29
+- Negative-result artifacts: 30
 - 1 GiB+ JS full-string rows: 848
 - 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 474/474
 - 1 GiB+ JS full-string separate direct ReadableStream source-overhead rows: 17
@@ -82,8 +82,8 @@ This classifies the parser input shape for 1 GiB+ JavaScript full-string rows th
 
 | Runtime | Artifacts | Measured Rows | 1 GiB+ Full Rows | Fastest 1 GiB+ Full Row | Source Pins | Trace/Profile | Allocation |
 | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
-| Node/V8 | 111 | 589 | 407 | rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json | 2 | 2 | 5 |
-| Bun/JSC | 41 | 319 | 209 | rawFrameNameId 178.52 MiB/s from bun-candidate-headroom-books-corpus-stability.json | 3 | 4 | 2 |
+| Node/V8 | 112 | 597 | 407 | rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json | 2 | 2 | 5 |
+| Bun/JSC | 42 | 322 | 209 | rawFrameNameId 178.52 MiB/s from bun-candidate-headroom-books-corpus-stability.json | 3 | 4 | 2 |
 | Deno/V8 | 17 | 128 | 104 | rawFrameNameId 110.54 MiB/s from text-trim-cost-cross-process-books-corpus.json | 1 | 2 | 2 |
 | SpiderMonkey js-shell | 10 | 5 | 0 | none | 0 | 6 | 0 |
 | Chrome/V8 browser | 15 | 100 | 58 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |

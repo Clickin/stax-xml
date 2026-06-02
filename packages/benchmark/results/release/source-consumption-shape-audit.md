@@ -1,6 +1,6 @@
 # Source Consumption Shape Audit
 
-Generated: 2026-06-02T19:11:44.796Z
+Generated: 2026-06-02T19:34:40.774Z
 
 Audits source-consumption metadata from the same-contract aggregate. This is not a benchmark run and not a runtime-limit conclusion.
 

@@ -1,0 +1,304 @@
+{
+  "generatedAt": "2026-06-02T19:32:28.114Z",
+  "objective": "text-materialization-frontier-coverage-audit",
+  "contract": "same-contract-materialization-negative-coverage",
+  "note": "Checks that selected same-contract materialization negative/cache candidate groups from the runtime comparison are represented in text-materialization-frontier negativeRows.",
+  "inputs": {
+    "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
+    "comparisonGeneratedAt": "2026-06-02T19:10:54.806Z",
+    "frontierJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\text-materialization-frontier.json",
+    "frontierGeneratedAt": "2026-06-02T19:10:30.528Z"
+  },
+  "summary": {
+    "status": "classified",
+    "targetMiBPerSec": 200,
+    "comparisonGeneratedAt": "2026-06-02T19:10:54.806Z",
+    "frontierGeneratedAt": "2026-06-02T19:10:30.528Z",
+    "requiredGroupCount": 8,
+    "requiredCandidateCount": 11,
+    "coveredCandidateCount": 11,
+    "missingCandidateCount": 0,
+    "coveredCandidatesCrossTarget": 0,
+    "frontierNegativeCandidateCount": 38,
+    "frontierFullParityNegativeCandidateCount": 34,
+    "conclusionAllowed": false
+  },
+  "requiredGroups": [
+    {
+      "group": "text-cache-negative-stability",
+      "sourceArtifacts": [
+        "text-cache-materialization-candidate-stability.json"
+      ],
+      "comparisonRowCount": 2,
+      "requiredCaseIds": [
+        "rawFrameNameIdTextCache"
+      ],
+      "candidates": [
+        {
+          "group": "text-cache-negative-stability",
+          "sourceArtifact": "text-cache-materialization-candidate-stability.json",
+          "caseId": "rawFrameNameIdTextCache",
+          "runtime": {
+            "id": "node-v8"
+          },
+          "rowPresentInComparison": true,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "mibPerSec": 129.31,
+          "coveredByFrontier": true,
+          "belowTarget": true
+        }
+      ]
+    },
+    {
+      "group": "offset-text-cache-negative",
+      "sourceArtifacts": [
+        "offset-text-cache-materialization-candidate.json"
+      ],
+      "comparisonRowCount": 4,
+      "requiredCaseIds": [
+        "rawFrameNameIdOffsetTextCache"
+      ],
+      "candidates": [
+        {
+          "group": "offset-text-cache-negative",
+          "sourceArtifact": "offset-text-cache-materialization-candidate.json",
+          "caseId": "rawFrameNameIdOffsetTextCache",
+          "runtime": {
+            "id": "node-v8"
+          },
+          "rowPresentInComparison": true,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "mibPerSec": 105.41,
+          "coveredByFrontier": true,
+          "belowTarget": true
+        }
+      ]
+    },
+    {
+      "group": "long-ascii-text-negative-stability",
+      "sourceArtifacts": [
+        "long-ascii-text-materialization-candidate-stability.json"
+      ],
+      "comparisonRowCount": 3,
+      "requiredCaseIds": [
+        "rawFrameNameIdLongAsciiText"
+      ],
+      "candidates": [
+        {
+          "group": "long-ascii-text-negative-stability",
+          "sourceArtifact": "long-ascii-text-materialization-candidate-stability.json",
+          "caseId": "rawFrameNameIdLongAsciiText",
+          "runtime": {
+            "id": "node-v8"
+          },
+          "rowPresentInComparison": true,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "mibPerSec": 71.21,
+          "coveredByFrontier": true,
+          "belowTarget": true
+        }
+      ]
+    },
+    {
+      "group": "medium-ascii-text-negative",
+      "sourceArtifacts": [
+        "medium-ascii-text-materialization-candidate.json"
+      ],
+      "comparisonRowCount": 3,
+      "requiredCaseIds": [
+        "rawFrameNameIdMediumAsciiText"
+      ],
+      "candidates": [
+        {
+          "group": "medium-ascii-text-negative",
+          "sourceArtifact": "medium-ascii-text-materialization-candidate.json",
+          "caseId": "rawFrameNameIdMediumAsciiText",
+          "runtime": {
+            "id": "node-v8"
+          },
+          "rowPresentInComparison": true,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "mibPerSec": 170.16,
+          "coveredByFrontier": true,
+          "belowTarget": true
+        }
+      ]
+    },
+    {
+      "group": "unrolled-medium-ascii-text-negative",
+      "sourceArtifacts": [
+        "unrolled-medium-ascii-text-materialization-candidate.json"
+      ],
+      "comparisonRowCount": 4,
+      "requiredCaseIds": [
+        "rawFrameNameIdUnrolledMediumAsciiText"
+      ],
+      "candidates": [
+        {
+          "group": "unrolled-medium-ascii-text-negative",
+          "sourceArtifact": "unrolled-medium-ascii-text-materialization-candidate.json",
+          "caseId": "rawFrameNameIdUnrolledMediumAsciiText",
+          "runtime": {
+            "id": "node-v8"
+          },
+          "rowPresentInComparison": true,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "mibPerSec": 170.59,
+          "coveredByFrontier": true,
+          "belowTarget": true
+        }
+      ]
+    },
+    {
+      "group": "medium-ascii-attr-value-negative",
+      "sourceArtifacts": [
+        "medium-ascii-attr-value-materialization-candidate.json"
+      ],
+      "comparisonRowCount": 4,
+      "requiredCaseIds": [
+        "rawFrameNameIdMediumAsciiAttrValue"
+      ],
+      "candidates": [
+        {
+          "group": "medium-ascii-attr-value-negative",
+          "sourceArtifact": "medium-ascii-attr-value-materialization-candidate.json",
+          "caseId": "rawFrameNameIdMediumAsciiAttrValue",
+          "runtime": {
+            "id": "node-v8"
+          },
+          "rowPresentInComparison": true,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "mibPerSec": 167.49,
+          "coveredByFrontier": true,
+          "belowTarget": true
+        }
+      ]
+    },
+    {
+      "group": "attr-value-cache-negative",
+      "sourceArtifacts": [
+        "attr-value-cache-materialization-candidate.json"
+      ],
+      "comparisonRowCount": 4,
+      "requiredCaseIds": [
+        "rawFrameNameIdAttrValueCache",
+        "rawFrameStringCache"
+      ],
+      "candidates": [
+        {
+          "group": "attr-value-cache-negative",
+          "sourceArtifact": "attr-value-cache-materialization-candidate.json",
+          "caseId": "rawFrameNameIdAttrValueCache",
+          "runtime": {
+            "id": "node-v8"
+          },
+          "rowPresentInComparison": true,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "mibPerSec": 158.96,
+          "coveredByFrontier": true,
+          "belowTarget": true
+        },
+        {
+          "group": "attr-value-cache-negative",
+          "sourceArtifact": "attr-value-cache-materialization-candidate.json",
+          "caseId": "rawFrameStringCache",
+          "runtime": {
+            "id": "node-v8"
+          },
+          "rowPresentInComparison": true,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "mibPerSec": 120.41,
+          "coveredByFrontier": true,
+          "belowTarget": true
+        }
+      ]
+    },
+    {
+      "group": "bun-cache-candidates-books-corpus",
+      "sourceArtifacts": [
+        "bun-cache-candidates-books-corpus.json"
+      ],
+      "comparisonRowCount": 5,
+      "requiredCaseIds": [
+        "rawFrameNameIdAttrValueCache",
+        "rawFrameNameIdOffsetTextCache",
+        "rawFrameNameIdUnrolledMediumAsciiText"
+      ],
+      "candidates": [
+        {
+          "group": "bun-cache-candidates-books-corpus",
+          "sourceArtifact": "bun-cache-candidates-books-corpus.json",
+          "caseId": "rawFrameNameIdAttrValueCache",
+          "runtime": {
+            "id": "bun-jsc"
+          },
+          "rowPresentInComparison": true,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "mibPerSec": 158.09,
+          "coveredByFrontier": true,
+          "belowTarget": true
+        },
+        {
+          "group": "bun-cache-candidates-books-corpus",
+          "sourceArtifact": "bun-cache-candidates-books-corpus.json",
+          "caseId": "rawFrameNameIdOffsetTextCache",
+          "runtime": {
+            "id": "bun-jsc"
+          },
+          "rowPresentInComparison": true,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "mibPerSec": 99.92,
+          "coveredByFrontier": true,
+          "belowTarget": true
+        },
+        {
+          "group": "bun-cache-candidates-books-corpus",
+          "sourceArtifact": "bun-cache-candidates-books-corpus.json",
+          "caseId": "rawFrameNameIdUnrolledMediumAsciiText",
+          "runtime": {
+            "id": "bun-jsc"
+          },
+          "rowPresentInComparison": true,
+          "fullStringParity": true,
+          "boundedMemory": true,
+          "mibPerSec": 150.27,
+          "coveredByFrontier": true,
+          "belowTarget": true
+        }
+      ]
+    }
+  ],
+  "missingCandidates": [],
+  "findings": [
+    {
+      "id": "required-materialization-candidates-covered",
+      "classification": "SOURCE_FACT",
+      "summary": "11/11 required materialization negative candidates are represented in the text frontier.",
+      "evidence": [
+        "text-cache-negative-stability: 1/1",
+        "offset-text-cache-negative: 1/1",
+        "long-ascii-text-negative-stability: 1/1",
+        "medium-ascii-text-negative: 1/1",
+        "unrolled-medium-ascii-text-negative: 1/1",
+        "medium-ascii-attr-value-negative: 1/1",
+        "attr-value-cache-negative: 2/2",
+        "bun-cache-candidates-books-corpus: 3/3"
+      ]
+    },
+    {
+      "id": "covered-candidates-remain-below-target",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "0 covered required candidates cross 200 MiB/s."
+    }
+  ]
+}

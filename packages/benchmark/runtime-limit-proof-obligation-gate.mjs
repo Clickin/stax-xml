@@ -14,6 +14,7 @@ const defaultSourceAuditJson = resolve(__dirname, 'results', 'release', 'source-
 const defaultMemoryFrontierJson = resolve(__dirname, 'results', 'release', 'memory-frontier-audit.json');
 const defaultTargetDistanceJson = resolve(__dirname, 'results', 'release', 'target-distance-audit.json');
 const defaultTextMaterializationBoundaryJson = resolve(__dirname, 'results', 'release', 'text-materialization-boundary-audit.json');
+const defaultTextMaterializationFrontierCoverageJson = resolve(__dirname, 'results', 'release', 'text-materialization-frontier-coverage-audit.json');
 const defaultJsonOut = resolve(__dirname, 'results', 'release', 'runtime-limit-proof-obligation-gate.json');
 const defaultMdOut = resolve(__dirname, 'results', 'release', 'runtime-limit-proof-obligation-gate.md');
 
@@ -265,6 +266,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     memoryFrontierJson: defaultMemoryFrontierJson,
     targetDistanceJson: defaultTargetDistanceJson,
     textMaterializationBoundaryJson: defaultTextMaterializationBoundaryJson,
+    textMaterializationFrontierCoverageJson: defaultTextMaterializationFrontierCoverageJson,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
   };
@@ -312,6 +314,9 @@ function parseArgs(argv = process.argv.slice(2)) {
       case '--text-materialization-boundary-json':
         options.textMaterializationBoundaryJson = resolve(process.cwd(), readValue());
         break;
+      case '--text-materialization-frontier-coverage-json':
+        options.textMaterializationFrontierCoverageJson = resolve(process.cwd(), readValue());
+        break;
       case '--json-out':
         options.jsonOut = resolve(process.cwd(), readValue());
         break;
@@ -341,7 +346,8 @@ function main() {
   const memoryFrontier = readOptionalJson(options.memoryFrontierJson, 'memory-frontier-audit');
   const targetDistance = readOptionalJson(options.targetDistanceJson, 'target-distance-audit');
   const textMaterializationBoundary = readOptionalJson(options.textMaterializationBoundaryJson, 'text-materialization-boundary-audit');
-  const report = createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan, handoff, handoffValidation, sourceAudit, memoryFrontier, targetDistance, textMaterializationBoundary });
+  const textMaterializationFrontierCoverage = readOptionalJson(options.textMaterializationFrontierCoverageJson, 'text-materialization-frontier-coverage-audit');
+  const report = createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan, handoff, handoffValidation, sourceAudit, memoryFrontier, targetDistance, textMaterializationBoundary, textMaterializationFrontierCoverage });
   writeOutput(options.jsonOut, `${JSON.stringify(report, null, 2)}\n`);
   writeOutput(options.mdOut, renderMarkdown(report));
   printSummary(report);
@@ -368,14 +374,14 @@ function readCoverageAudit(coverageJson) {
   return audit;
 }
 
-function createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan, handoff, handoffValidation, sourceAudit, memoryFrontier, targetDistance, textMaterializationBoundary }) {
+function createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan, handoff, handoffValidation, sourceAudit, memoryFrontier, targetDistance, textMaterializationBoundary, textMaterializationFrontierCoverage }) {
   const claims = parseClaimRows(ledgerMarkdown);
   const counterexampleSnapshot = createCounterexampleSnapshot(comparison, counterexampleScan, coverageAudit);
   const coverageSnapshot = createCoverageSnapshot(coverageAudit, counterexampleSnapshot);
   const handoffSnapshot = createHandoffSnapshot(handoff, counterexampleSnapshot);
   const handoffValidationSnapshot = createHandoffValidationSnapshot(handoffValidation, handoffSnapshot);
   const sourceAuditSnapshot = createSourceAuditSnapshot(sourceAudit, comparison, coverageAudit);
-  const frontierAuditSnapshot = createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMaterializationBoundary, comparison);
+  const frontierAuditSnapshot = createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMaterializationBoundary, textMaterializationFrontierCoverage, comparison);
   const claimGuards = requiredClaimGuards.map(requirement => evaluateClaimGuard(requirement, claims));
   const artifactMentions = requiredArtifactMentions.map(file => ({
     id: file,
@@ -525,7 +531,7 @@ function classifyOpenObligationGateRole(coverageStatus) {
   return 'coverage-status-missing';
 }
 
-function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMaterializationBoundary, comparison = null) {
+function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMaterializationBoundary, textMaterializationFrontierCoverage, comparison = null) {
   const memory = {
     loaded: Boolean(memoryFrontier),
     generatedAt: memoryFrontier?.generatedAt ?? null,
@@ -584,15 +590,30 @@ function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMateria
     fastestFullRemainingMiBPerSec: textMaterializationBoundary?.summary?.fastestFullRemainingMiBPerSec ?? null,
     conclusionAllowed: textMaterializationBoundary?.summary?.conclusionAllowed ?? null,
   };
+  const textCoverage = {
+    loaded: Boolean(textMaterializationFrontierCoverage),
+    generatedAt: textMaterializationFrontierCoverage?.generatedAt ?? null,
+    inputComparisonGeneratedAt: textMaterializationFrontierCoverage?.inputs?.comparisonGeneratedAt ?? null,
+    currentComparisonGeneratedAt: comparison?.generatedAt ?? null,
+    status: textMaterializationFrontierCoverage?.summary?.status ?? null,
+    requiredGroupCount: textMaterializationFrontierCoverage?.summary?.requiredGroupCount ?? null,
+    requiredCandidateCount: textMaterializationFrontierCoverage?.summary?.requiredCandidateCount ?? null,
+    coveredCandidateCount: textMaterializationFrontierCoverage?.summary?.coveredCandidateCount ?? null,
+    missingCandidateCount: textMaterializationFrontierCoverage?.summary?.missingCandidateCount ?? null,
+    coveredCandidatesCrossTarget: textMaterializationFrontierCoverage?.summary?.coveredCandidatesCrossTarget ?? null,
+    frontierNegativeCandidateCount: textMaterializationFrontierCoverage?.summary?.frontierNegativeCandidateCount ?? null,
+    conclusionAllowed: textMaterializationFrontierCoverage?.summary?.conclusionAllowed ?? null,
+  };
   return {
     memory,
     targetDistance: target,
     textMaterialization: text,
-    guards: createFrontierAuditGuards(memory, target, text),
+    textMaterializationCoverage: textCoverage,
+    guards: createFrontierAuditGuards(memory, target, text, textCoverage),
   };
 }
 
-function createFrontierAuditGuards(memory, target, text) {
+function createFrontierAuditGuards(memory, target, text, textCoverage) {
   return [
     {
       id: 'frontier-audits-current-comparison',
@@ -600,10 +621,12 @@ function createFrontierAuditGuards(memory, target, text) {
       satisfied: memory.loaded
         && target.loaded
         && text.loaded
+        && textCoverage.loaded
         && typeof memory.inputComparisonGeneratedAt === 'string'
         && memory.inputComparisonGeneratedAt === memory.currentComparisonGeneratedAt
         && target.inputComparisonGeneratedAt === target.currentComparisonGeneratedAt
-        && text.inputComparisonGeneratedAt === text.currentComparisonGeneratedAt,
+        && text.inputComparisonGeneratedAt === text.currentComparisonGeneratedAt
+        && textCoverage.inputComparisonGeneratedAt === textCoverage.currentComparisonGeneratedAt,
     },
     {
       id: 'memory-frontier-classified',
@@ -674,6 +697,20 @@ function createFrontierAuditGuards(memory, target, text) {
         && text.foldTrimRowsCrossTarget === 0
         && text.fastestWithoutTextFullStringParity === false
         && text.conclusionAllowed === false,
+    },
+    {
+      id: 'text-frontier-negative-candidate-coverage',
+      description: 'text-materialization-frontier-coverage-audit.json must show required materialization negative/cache candidate groups are represented in the frontier synthesis.',
+      satisfied: textCoverage.loaded
+        && textCoverage.status === 'classified'
+        && typeof textCoverage.requiredGroupCount === 'number'
+        && textCoverage.requiredGroupCount > 0
+        && typeof textCoverage.requiredCandidateCount === 'number'
+        && textCoverage.requiredCandidateCount > 0
+        && textCoverage.coveredCandidateCount === textCoverage.requiredCandidateCount
+        && textCoverage.missingCandidateCount === 0
+        && textCoverage.coveredCandidatesCrossTarget === 0
+        && textCoverage.conclusionAllowed === false,
     },
   ];
 }
@@ -1793,6 +1830,12 @@ function renderMarkdown(report) {
     `- No-trim/fold-trim bounded memory: no-trim=${formatYesNo(report.frontierAuditSnapshot.textMaterialization.fastestNoTrimBoundedMemory)}, fold-trim=${formatYesNo(report.frontierAuditSnapshot.textMaterialization.fastestFoldTrimBoundedMemory)}`,
     `- No-trim/fold-trim string reads: no-trim text=${formatNullableCount(report.frontierAuditSnapshot.textMaterialization.fastestNoTrimTextStringReads)}, no-trim fields=${formatNullableCount(report.frontierAuditSnapshot.textMaterialization.fastestNoTrimStringFieldReads)}, fold-trim text=${formatNullableCount(report.frontierAuditSnapshot.textMaterialization.fastestFoldTrimTextStringReads)}, fold-trim fields=${formatNullableCount(report.frontierAuditSnapshot.textMaterialization.fastestFoldTrimStringFieldReads)}`,
     `- Without-text full-string parity: ${formatYesNo(report.frontierAuditSnapshot.textMaterialization.fastestWithoutTextFullStringParity)}`,
+    report.frontierAuditSnapshot.textMaterializationCoverage.loaded
+      ? `- Text materialization frontier coverage loaded: yes (${report.frontierAuditSnapshot.textMaterializationCoverage.generatedAt ?? 'unknown generatedAt'})`
+      : '- Text materialization frontier coverage loaded: no',
+    `- Required materialization negative candidates covered: ${formatNullableCount(report.frontierAuditSnapshot.textMaterializationCoverage.coveredCandidateCount)}/${formatNullableCount(report.frontierAuditSnapshot.textMaterializationCoverage.requiredCandidateCount)}`,
+    `- Missing materialization negative candidates: ${formatNullableCount(report.frontierAuditSnapshot.textMaterializationCoverage.missingCandidateCount)}`,
+    `- Covered materialization negative candidates crossing 200 MiB/s: ${formatNullableCount(report.frontierAuditSnapshot.textMaterializationCoverage.coveredCandidatesCrossTarget)}`,
     '',
     '| ID | Satisfied | Meaning |',
     '| --- | --- | --- |',

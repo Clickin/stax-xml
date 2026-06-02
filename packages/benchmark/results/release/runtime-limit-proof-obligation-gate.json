@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T19:13:08.749Z",
+  "generatedAt": "2026-06-02T19:37:56.684Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -362,14 +362,14 @@
     "comparisonJsLargeFullRowCount": 239,
     "comparisonCounterexampleCount": 0,
     "counterexampleScanLoaded": true,
-    "counterexampleScanGeneratedAt": "2026-06-02T18:14:25.042Z",
+    "counterexampleScanGeneratedAt": "2026-06-02T19:35:17.800Z",
     "thresholdMiBPerSec": 200,
     "minSizeGiB": 0.999,
     "scanParseErrorCount": 0,
-    "scanScannedArtifactCount": 225,
-    "coverageScannedArtifactCount": 225,
-    "scanMeasuredRowCount": 1255,
-    "coverageMeasuredRowCount": 1255,
+    "scanScannedArtifactCount": 226,
+    "coverageScannedArtifactCount": 226,
+    "scanMeasuredRowCount": 1266,
+    "coverageMeasuredRowCount": 1266,
     "scanCounterexampleCount": 0,
     "currentCounterexampleCount": 0,
     "guards": [
@@ -417,7 +417,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T19:11:44.333Z",
+    "generatedAt": "2026-06-02T19:34:52.415Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -562,9 +562,9 @@
   },
   "handoffValidationSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T19:12:18.790Z",
-    "validatedHandoffGeneratedAt": "2026-06-02T19:11:44.333Z",
-    "currentHandoffGeneratedAt": "2026-06-02T19:11:44.333Z",
+    "generatedAt": "2026-06-02T19:35:03.594Z",
+    "validatedHandoffGeneratedAt": "2026-06-02T19:34:52.415Z",
+    "currentHandoffGeneratedAt": "2026-06-02T19:34:52.415Z",
     "pass": true,
     "missingScriptCount": 0,
     "nonReleaseOutputPathCount": 0,
@@ -629,11 +629,11 @@
   },
   "sourceAuditSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T19:11:44.796Z",
+    "generatedAt": "2026-06-02T19:34:40.774Z",
     "inputComparisonGeneratedAt": "2026-06-02T19:10:54.806Z",
     "currentComparisonGeneratedAt": "2026-06-02T19:10:54.806Z",
-    "inputCoverageGeneratedAt": "2026-06-02T19:11:28.564Z",
-    "currentCoverageGeneratedAt": "2026-06-02T19:11:28.564Z",
+    "inputCoverageGeneratedAt": "2026-06-02T19:33:11.333Z",
+    "currentCoverageGeneratedAt": "2026-06-02T19:33:11.333Z",
     "status": "classified",
     "primarySourceContract": "primary-sync-iterable-byte-batches",
     "primaryParserInput": "synchronous Iterable<Uint8Array[]>",
@@ -744,6 +744,20 @@
       "fastestFullRemainingMiBPerSec": 14.5,
       "conclusionAllowed": false
     },
+    "textMaterializationCoverage": {
+      "loaded": true,
+      "generatedAt": "2026-06-02T19:32:28.114Z",
+      "inputComparisonGeneratedAt": "2026-06-02T19:10:54.806Z",
+      "currentComparisonGeneratedAt": "2026-06-02T19:10:54.806Z",
+      "status": "classified",
+      "requiredGroupCount": 8,
+      "requiredCandidateCount": 11,
+      "coveredCandidateCount": 11,
+      "missingCandidateCount": 0,
+      "coveredCandidatesCrossTarget": 0,
+      "frontierNegativeCandidateCount": 38,
+      "conclusionAllowed": false
+    },
     "guards": [
       {
         "id": "frontier-audits-current-comparison",
@@ -779,12 +793,17 @@
         "id": "text-frontier-trim-variants-below-target",
         "description": "text-materialization-boundary-audit.json must show no-trim and fold-trim variants do not cross 200 MiB/s, and without-text headroom is not full-string parity.",
         "satisfied": true
+      },
+      {
+        "id": "text-frontier-negative-candidate-coverage",
+        "description": "text-materialization-frontier-coverage-audit.json must show required materialization negative/cache candidate groups are represented in the frontier synthesis.",
+        "satisfied": true
       }
     ]
   },
   "coverageSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T19:11:28.564Z",
+    "generatedAt": "2026-06-02T19:33:11.333Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -1179,7 +1198,7 @@
     "requiredHandoffValidationGuards": 8,
     "satisfiedSourceAuditGuards": 7,
     "requiredSourceAuditGuards": 7,
-    "satisfiedFrontierAuditGuards": 7,
-    "requiredFrontierAuditGuards": 7
+    "satisfiedFrontierAuditGuards": 8,
+    "requiredFrontierAuditGuards": 8
   }
 }

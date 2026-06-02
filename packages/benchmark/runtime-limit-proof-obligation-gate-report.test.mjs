@@ -352,7 +352,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /same-contract-comparison-contract/);
   assert.match(markdown, /same-contract-comparison-row-count/);
   assert.match(markdown, /Counterexample scan contract: threshold=200\.00 MiB\/s, minSizeGiB=1\.00, parseErrors=0/);
-  assert.match(markdown, /Counterexample scan coverage shape: artifacts=225\/225, measuredRows=1255\/1255/);
+  assert.match(markdown, /Counterexample scan coverage shape: artifacts=226\/226, measuredRows=1266\/1266/);
   assert.match(markdown, /counterexample-scan-current-coverage-shape/);
   assert.match(markdown, /Runtime counterexample scan counterexamples: 0/);
   assert.match(markdown, /Current release counterexamples: 0/);
@@ -410,7 +410,9 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.frontierAuditSnapshot.memory.inputComparisonGeneratedAt, report.counterexampleSnapshot.comparisonGeneratedAt);
   assert.equal(report.frontierAuditSnapshot.targetDistance.inputComparisonGeneratedAt, report.counterexampleSnapshot.comparisonGeneratedAt);
   assert.equal(report.frontierAuditSnapshot.textMaterialization.inputComparisonGeneratedAt, report.counterexampleSnapshot.comparisonGeneratedAt);
+  assert.equal(report.frontierAuditSnapshot.textMaterializationCoverage.inputComparisonGeneratedAt, report.counterexampleSnapshot.comparisonGeneratedAt);
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'frontier-audits-current-comparison' && item.satisfied));
+  assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'text-frontier-negative-candidate-coverage' && item.satisfied));
   assert.match(markdown, /Frontier audit comparison inputs:/);
   assert.match(markdown, /Fastest bounded JS row: 185\.50 MiB\/s at 60\.45 MiB/);
   assert.match(markdown, /Unbounded rows at or above 200 MiB\/s: 0/);
@@ -425,6 +427,9 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /No-trim\/fold-trim bounded memory: no-trim=yes, fold-trim=yes/);
   assert.match(markdown, /No-trim\/fold-trim string reads: no-trim text=135898776, no-trim fields=502070478, fold-trim text=33974712, fold-trim fields=125517686/);
   assert.match(markdown, /Without-text full-string parity: no/);
+  assert.match(markdown, /Required materialization negative candidates covered: 11\/11/);
+  assert.match(markdown, /Missing materialization negative candidates: 0/);
+  assert.match(markdown, /Covered materialization negative candidates crossing 200 MiB\/s: 0/);
   assert.match(markdown, /## Proof Rules/);
   assert.match(markdown, /target-contract-not-object-shape/);
   assert.match(markdown, /lazy-getters-reopen-burden/);
