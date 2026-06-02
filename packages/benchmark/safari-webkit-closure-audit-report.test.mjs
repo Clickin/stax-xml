@@ -31,11 +31,11 @@ test('Safari/WebKit closure audit separates primary rows from direct stream rows
   assert.equal(report.objective, 'safari-webkit-closure-audit');
   assert.equal(report.contract, 'safari-webkit-same-contract-browser-row-closure-matrix');
   assert.equal(report.inputs.comparisonGeneratedAt, 'self-test');
-  assert.equal(report.inputs.comparisonRowCount, 1);
-  assert.equal(report.summary.candidateCount, 2);
-  assert.equal(report.summary.primarySyncByteBatchRows, 1);
-  assert.equal(report.summary.largeBoundedPrimaryRows, 1);
-  assert.equal(report.summary.rowsInSameContractComparison, 1);
+  assert.equal(report.inputs.comparisonRowCount, 2);
+  assert.equal(report.summary.candidateCount, 3);
+  assert.equal(report.summary.primarySyncByteBatchRows, 2);
+  assert.equal(report.summary.largeBoundedPrimaryRows, 2);
+  assert.equal(report.summary.rowsInSameContractComparison, 2);
   assert.equal(report.summary.rowLevelSourceBoundaryPinnedRows, 2);
   assert.equal(report.summary.qualifiedClosureCount, 1);
   assert.equal(report.summary.conclusionAllowed, true);
@@ -51,10 +51,17 @@ test('Safari/WebKit closure audit separates primary rows from direct stream rows
   assert.equal(valid.qualifiedClosure, true);
   assert.deepEqual(valid.unmetRequirements, []);
 
+  const genericSourcePin = report.candidates.find(candidate => candidate.id === 'safari-generic-source-pin');
+  assert.ok(genericSourcePin);
+  assert.equal(genericSourcePin.qualifiedClosure, false);
+  assert.ok(genericSourcePin.requirements.sameContractComparison.met);
+  assert.ok(genericSourcePin.requirements.measuredExactBuildIdentity.met);
+  assert.ok(genericSourcePin.unmetRequirements.includes('rowLevelSourceBoundaryPinned'));
+
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Safari\/WebKit Closure Audit/);
   assert.match(markdown, /Comparison generatedAt: self-test/);
-  assert.match(markdown, /Comparison row count: 1/);
+  assert.match(markdown, /Comparison row count: 2/);
   assert.match(markdown, /Qualified closures: 1/);
   assert.match(markdown, /Rows with row-level Safari\/WebKit source pins: 2/);
   assert.match(markdown, /Primary sync byte-batch/);

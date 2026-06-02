@@ -157,12 +157,42 @@ function createSelfTestReport(options) {
               ],
             },
           },
+          {
+            id: 'safari-generic-source-pin',
+            runtimeId: 'safari-jsc-browser',
+            sizeGiB: 1,
+            mibPerSec: 124,
+            fullStringParity: true,
+            sourceMode: 'sync-iterable-byte-batches',
+            directReadableStream: false,
+            fullArrayBufferParserInput: false,
+            demandDrivenSource: true,
+            boundedMemory: true,
+            memory: { primaryKind: 'browser-js-heap', peakBytes: 64 * MIB },
+            eventCount: 56,
+            checksum: 78,
+            environment: {
+              browserName: 'Safari',
+              browserVersion: '18.0',
+              webKitBuildVersion: '619.1.1',
+              userAgent: 'Version/18.0 Safari/605.1.15',
+            },
+            sourceBoundary: {
+              sourceRevision: '0123456789abcdef0123456789abcdef01234567',
+              stringBoundaryPinned: true,
+              textDecoderBoundaryPinned: true,
+              sourcePinArtifacts: [
+                'safari-webkit-generic-source-pin-audit.json',
+              ],
+            },
+          },
         ],
       },
     },
   ];
   const comparisonRows = [
     { id: 'safari-valid', runtimeId: 'safari-jsc-browser', eventCount: 12, checksum: 34 },
+    { id: 'safari-generic-source-pin', runtimeId: 'safari-jsc-browser', eventCount: 56, checksum: 78 },
   ];
   const comparison = {
     generatedAt: 'self-test',
@@ -417,10 +447,18 @@ function hasMeasuredSafariBuildIdentity(row) {
 
 function hasSafariWebKitSourceBoundaryPin(row) {
   const boundary = row.sourceBoundary ?? {};
+  const artifacts = boundary.sourcePinArtifacts ?? [];
   return hasSafariSourceRevision(boundary.sourceRevision)
     && boundary.stringBoundaryPinned === true
     && boundary.textDecoderBoundaryPinned === true
-    && boundary.sourcePinArtifacts.some(artifact => /safari|webkit/i.test(artifact) && !/bun/i.test(artifact));
+    && artifacts.some(artifact => isSafariWebKitSourcePinArtifact(artifact) && /string/i.test(artifact))
+    && artifacts.some(artifact => isSafariWebKitSourcePinArtifact(artifact) && /text[-_]?decoder|utf[-_]?8|decoder/i.test(artifact));
+}
+
+function isSafariWebKitSourcePinArtifact(artifact) {
+  return typeof artifact === 'string'
+    && /safari|webkit/i.test(artifact)
+    && !/bun/i.test(artifact);
 }
 
 function hasSafariSourceRevision(value) {
