@@ -888,7 +888,8 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact, sameContractComparisonRow
   const emittedIrClosureQualified = closesEmittedIrObligation === true
     && sameContractStaxRow === true
     && canRunCurrentStaxFullStringBenchmark === true
-    && selectedRowMatchesCurrentComparison !== false
+    && selectedRowMetadataComplete === true
+    && selectedRowMatchesCurrentComparison === true
     && closingMetadataComplete;
   const irDumpSurface = typeof outcome.hasIrDumpSurface === 'boolean'
     ? outcome.hasIrDumpSurface
