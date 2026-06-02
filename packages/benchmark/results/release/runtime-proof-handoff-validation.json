@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T21:29:14.826Z",
+  "generatedAt": "2026-06-02T21:36:30.216Z",
   "objective": "runtime-proof-handoff-validation",
   "contract": "external-run-handoff-command-and-contract-static-validation",
   "note": "Static validation for runtime-proof-gap-handoff external runbooks. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
@@ -129,6 +129,9 @@
         "selectedRowIdentityStatusCounts",
         "spidermonkey-ascii-scope-distance-audit\\.json",
         "ASCII scope-distance audit pins",
+        "materialized scope-distance audit pins",
+        "primarySyncByteBatchMissingGlobals=TextDecoder",
+        "asciiTextDecoderEquivalent=true",
         "stax-public-reader-host-api-boundary-audit\\.json",
         "StAX public reader host API boundary audit pins",
         "alternateDecoderWouldBeUnchangedClosure=false",
