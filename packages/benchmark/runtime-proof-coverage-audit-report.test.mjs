@@ -83,6 +83,14 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.summary.closestBlockedCandidateSourceArtifacts.includes('spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json')
     && artifact.summary.closestBlockedCandidateSourceArtifacts.includes('spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json')
     && artifact.summary.closestBlockedCandidateSourceArtifacts.includes('spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json')
+    && Array.isArray(artifact.summary.closestBlockedCandidateRequirementSets)
+    && artifact.summary.closestBlockedCandidateRequirementSets.length === 5
+    && artifact.summary.closestBlockedCandidateRequirementSets.every(candidate =>
+      candidate.unmetRequirements.includes('sameContractStaxRow')
+      && candidate.unmetRequirements.includes('unchangedRunnable')
+      && candidate.unmetRequirements.includes('selectedRowMetadata')
+      && candidate.unmetRequirements.includes('evidenceClassAllowed')
+    )
   ));
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'spidermonkey-codegen-rerun-stability-audit.json'

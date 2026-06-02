@@ -1528,6 +1528,7 @@ function createCoverageSnapshot(audit, counterexampleSnapshot = null) {
         minimumBlockedRequirementCount: null,
         closestBlockedCandidateCount: null,
         closestBlockedCandidateSourceArtifacts: [],
+        closestBlockedCandidateRequirementSets: [],
       },
       safariWebKitClosureAudit: {
         candidateCount: null,
@@ -1594,6 +1595,9 @@ function createCoverageSnapshot(audit, counterexampleSnapshot = null) {
       closestBlockedCandidateCount: closureAudit.closestBlockedCandidateCount ?? null,
       closestBlockedCandidateSourceArtifacts: Array.isArray(closureAudit.closestBlockedCandidateSourceArtifacts)
         ? closureAudit.closestBlockedCandidateSourceArtifacts
+        : [],
+      closestBlockedCandidateRequirementSets: Array.isArray(closureAudit.closestBlockedCandidateRequirementSets)
+        ? closureAudit.closestBlockedCandidateRequirementSets
         : [],
     },
     safariWebKitClosureAudit: {
@@ -1750,7 +1754,7 @@ function createCoverageGuards(snapshot, counterexampleSnapshot = null) {
     },
     {
       id: 'spidermonkey-closure-frontier-current',
-      description: 'SpiderMonkey closure frontier must be preserved in coverage: closest blocked candidates must remain the current Taskcluster/debug-shell frontier with the minimum blocked requirement count.',
+      description: 'SpiderMonkey closure frontier must be preserved in coverage: closest blocked candidates must remain the current Taskcluster/debug-shell frontier with the minimum blocked requirement count and exact remaining blockers.',
       satisfied: closureAudit.minimumBlockedRequirementCount === 4
         && closureAudit.closestBlockedCandidateCount === 5
         && hasSameStringSet(closureAudit.closestBlockedCandidateSourceArtifacts, [
@@ -1759,7 +1763,8 @@ function createCoverageGuards(snapshot, counterexampleSnapshot = null) {
           'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json',
           'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json',
           'spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json',
-        ]),
+        ])
+        && closestBlockedRequirementSetsMatch(closureAudit.closestBlockedCandidateRequirementSets),
     },
     {
       id: 'spidermonkey-closure-audit-gap-artifacts-visible',
@@ -1897,6 +1902,7 @@ function renderMarkdown(report) {
   `- SpiderMonkey closure candidates outside coverage diagnostics: ${formatStringList(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditCandidateSourcesOutsideDiagnostics)}`,
   `- SpiderMonkey coverage diagnostics outside closure candidates: ${formatStringList(report.coverageSnapshot.spiderMonkeyDiagnostics.diagnosticSourcesOutsideClosureAudit)}`,
   `- SpiderMonkey selected row identity statuses: ${formatCountMap(report.coverageSnapshot.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts)}`,
+  `- SpiderMonkey closest codegen blockers: ${formatClosestBlockedRequirementSets(report.coverageSnapshot.spiderMonkeyClosureAudit.closestBlockedCandidateRequirementSets)}`,
   `- SpiderMonkey Taskcluster route freshness: ${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.routeFresh === true ? 'fresh' : 'stale'} (artifactIdentityMatchesRoute=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.artifactIdentityMatchesRoute === true ? 'yes' : 'no'}, expectedIdentitySource=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.expectedIdentitySource ?? 'unknown'}, checkedArtifacts=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.checkedArtifactCount ?? 'unknown'}, mismatchedArtifacts=${formatStringList(report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.mismatchedArtifacts ?? [])})`,
   `- Safari/WebKit closure comparison: generatedAt=${report.coverageSnapshot.safariWebKitClosureAudit.comparisonGeneratedAt ?? 'unknown'}, rows=${report.coverageSnapshot.safariWebKitClosureAudit.comparisonRowCount ?? 'unknown'}, candidates=${report.coverageSnapshot.safariWebKitClosureAudit.candidateCount ?? 'unknown'}, qualified=${report.coverageSnapshot.safariWebKitClosureAudit.qualifiedClosureCount ?? 'unknown'}`,
   `- Safari/WebKit status: evidenceClass=${report.coverageSnapshot.safariWebKitStatus?.evidenceClass ?? 'unknown'}, canRunSafariBrowserRows=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.canRunSafariBrowserRows)}, browserRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.benchmarkRowsRecorded)}, primarySyncRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.primarySyncByteBatchRowsRecorded)}, boundedPrimaryRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.boundedPrimarySyncByteBatchRowsRecorded)}, largeBoundedPrimaryRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.largeBoundedPrimarySyncByteBatchRowsRecorded)}, exactBuildIdentity=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.exactBuildIdentityRecorded)}, sourceBoundaryPinned=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.sourceBoundaryPinned)}, closesSafariObligation=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.closesSafariObligation)}`,
@@ -2117,10 +2123,38 @@ function hasSameStringSet(actual, expected) {
   return actualSet.size === expected.length && expected.every(value => actualSet.has(value));
 }
 
+function closestBlockedRequirementSetsMatch(requirementSets) {
+  if (!Array.isArray(requirementSets) || requirementSets.length !== 5) return false;
+  const expectedRequirements = [
+    'sameContractStaxRow',
+    'unchangedRunnable',
+    'selectedRowMetadata',
+    'evidenceClassAllowed',
+  ];
+  const expectedArtifacts = [
+    'spidermonkey-taskcluster-debug-jsshell-codegen-audit.json',
+    'spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json',
+    'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json',
+    'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json',
+    'spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json',
+  ];
+  return expectedArtifacts.every(sourceArtifact => {
+    const entry = requirementSets.find(candidate => candidate?.sourceArtifact === sourceArtifact);
+    return entry && hasSameStringSet(entry.unmetRequirements, expectedRequirements);
+  });
+}
+
 function formatStringList(values) {
   return Array.isArray(values) && values.length > 0
     ? values.map(value => `\`${value}\``).join(', ')
     : 'none';
+}
+
+function formatClosestBlockedRequirementSets(requirementSets) {
+  if (!Array.isArray(requirementSets) || requirementSets.length === 0) return 'none';
+  return requirementSets
+    .map(candidate => `${candidate.sourceArtifact ?? 'unknown'}=[${Array.isArray(candidate.unmetRequirements) ? candidate.unmetRequirements.join(', ') : 'unknown'}]`)
+    .join('; ');
 }
 
 function createInterpretation(report) {

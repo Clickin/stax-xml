@@ -227,6 +227,13 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
     'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json',
     'spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json',
   ]);
+  assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.closestBlockedCandidateRequirementSets.length, 5);
+  assert.ok(report.coverageSnapshot.spiderMonkeyClosureAudit.closestBlockedCandidateRequirementSets.every(candidate =>
+    candidate.unmetRequirements.includes('sameContractStaxRow')
+    && candidate.unmetRequirements.includes('unchangedRunnable')
+    && candidate.unmetRequirements.includes('selectedRowMetadata')
+    && candidate.unmetRequirements.includes('evidenceClassAllowed')
+  ));
   assert.deepEqual(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditCandidateSourcesOutsideDiagnostics, [
     'firefox-spidermonkey-profiler-trace.json',
     'spidermonkey-jsshell-materialized-headroom.json',
@@ -839,6 +846,53 @@ test('runtime-limit proof-obligation gate fails if coverage loses SpiderMonkey c
 
   const markdown = readFileSync(badCoverageGateMdOut, 'utf8');
   assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /spidermonkey-closure-frontier-current/);
+});
+
+test('runtime-limit proof-obligation gate fails if SpiderMonkey closest blocked requirements drift', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const coverage = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-coverage-audit.json'), 'utf8'));
+  const closureAudit = coverage.scannedArtifacts.find(item =>
+    item.sourceArtifact === 'spidermonkey-codegen-closure-audit.json'
+  );
+  assert.ok(closureAudit);
+  closureAudit.summary.closestBlockedCandidateRequirementSets = [
+    {
+      sourceArtifact: 'spidermonkey-taskcluster-debug-jsshell-codegen-audit.json',
+      unmetRequirements: ['sameContractStaxRow'],
+    },
+  ];
+  writeFileSync(badCoverageJsonOut, `${JSON.stringify(coverage, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--coverage-json',
+    badCoverageJsonOut,
+    '--json-out',
+    badCoverageGateJsonOut,
+    '--md-out',
+    badCoverageGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badCoverageGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.ok(report.coverageSnapshot.guards.some(item =>
+    item.id === 'spidermonkey-closure-frontier-current'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /exact remaining blockers/.test(error)));
+
+  const markdown = readFileSync(badCoverageGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /SpiderMonkey closest codegen blockers: spidermonkey-taskcluster-debug-jsshell-codegen-audit\.json=\[sameContractStaxRow\]/);
   assert.match(markdown, /spidermonkey-closure-frontier-current/);
 });
 

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T22:03:29.768Z",
+  "generatedAt": "2026-06-02T22:50:32.235Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -5105,6 +5105,53 @@
           "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
           "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
           "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
+        ],
+        "closestBlockedCandidateRequirementSets": [
+          {
+            "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
+            "unmetRequirements": [
+              "evidenceClassAllowed",
+              "sameContractStaxRow",
+              "selectedRowMetadata",
+              "unchangedRunnable"
+            ]
+          },
+          {
+            "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
+            "unmetRequirements": [
+              "evidenceClassAllowed",
+              "sameContractStaxRow",
+              "selectedRowMetadata",
+              "unchangedRunnable"
+            ]
+          },
+          {
+            "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
+            "unmetRequirements": [
+              "evidenceClassAllowed",
+              "sameContractStaxRow",
+              "selectedRowMetadata",
+              "unchangedRunnable"
+            ]
+          },
+          {
+            "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
+            "unmetRequirements": [
+              "evidenceClassAllowed",
+              "sameContractStaxRow",
+              "selectedRowMetadata",
+              "unchangedRunnable"
+            ]
+          },
+          {
+            "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
+            "unmetRequirements": [
+              "evidenceClassAllowed",
+              "sameContractStaxRow",
+              "selectedRowMetadata",
+              "unchangedRunnable"
+            ]
+          }
         ]
       },
       "shell": null,
@@ -26846,6 +26893,53 @@
             "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
             "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
             "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
+          ],
+          "closestBlockedCandidateRequirementSets": [
+            {
+              "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
+              "unmetRequirements": [
+                "evidenceClassAllowed",
+                "sameContractStaxRow",
+                "selectedRowMetadata",
+                "unchangedRunnable"
+              ]
+            },
+            {
+              "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
+              "unmetRequirements": [
+                "evidenceClassAllowed",
+                "sameContractStaxRow",
+                "selectedRowMetadata",
+                "unchangedRunnable"
+              ]
+            },
+            {
+              "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
+              "unmetRequirements": [
+                "evidenceClassAllowed",
+                "sameContractStaxRow",
+                "selectedRowMetadata",
+                "unchangedRunnable"
+              ]
+            },
+            {
+              "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
+              "unmetRequirements": [
+                "evidenceClassAllowed",
+                "sameContractStaxRow",
+                "selectedRowMetadata",
+                "unchangedRunnable"
+              ]
+            },
+            {
+              "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
+              "unmetRequirements": [
+                "evidenceClassAllowed",
+                "sameContractStaxRow",
+                "selectedRowMetadata",
+                "unchangedRunnable"
+              ]
+            }
           ]
         },
         "shell": null,
@@ -30037,6 +30131,53 @@
             "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
             "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
             "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
+          ],
+          "closestBlockedCandidateRequirementSets": [
+            {
+              "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
+              "unmetRequirements": [
+                "evidenceClassAllowed",
+                "sameContractStaxRow",
+                "selectedRowMetadata",
+                "unchangedRunnable"
+              ]
+            },
+            {
+              "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
+              "unmetRequirements": [
+                "evidenceClassAllowed",
+                "sameContractStaxRow",
+                "selectedRowMetadata",
+                "unchangedRunnable"
+              ]
+            },
+            {
+              "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
+              "unmetRequirements": [
+                "evidenceClassAllowed",
+                "sameContractStaxRow",
+                "selectedRowMetadata",
+                "unchangedRunnable"
+              ]
+            },
+            {
+              "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
+              "unmetRequirements": [
+                "evidenceClassAllowed",
+                "sameContractStaxRow",
+                "selectedRowMetadata",
+                "unchangedRunnable"
+              ]
+            },
+            {
+              "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
+              "unmetRequirements": [
+                "evidenceClassAllowed",
+                "sameContractStaxRow",
+                "selectedRowMetadata",
+                "unchangedRunnable"
+              ]
+            }
           ]
         },
         "shell": null,

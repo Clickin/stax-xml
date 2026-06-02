@@ -201,6 +201,16 @@ function summarizeArtifactSummary(summary, inputs = {}, closestBlockedCandidates
         .map(candidate => candidate?.sourceArtifact)
         .filter(value => typeof value === 'string')
     : [];
+  const closestBlockedCandidateRequirementSets = Array.isArray(closestBlockedCandidates)
+    ? closestBlockedCandidates
+        .map(candidate => ({
+          sourceArtifact: typeof candidate?.sourceArtifact === 'string' ? candidate.sourceArtifact : null,
+          unmetRequirements: Array.isArray(candidate?.unmetRequirements)
+            ? uniqueStrings(candidate.unmetRequirements)
+            : [],
+        }))
+        .filter(candidate => candidate.sourceArtifact && candidate.unmetRequirements.length > 0)
+    : [];
   const result = {
     status: summary.status ?? null,
     shellCount: typeof summary.shellCount === 'number' ? summary.shellCount : null,
@@ -322,6 +332,9 @@ function summarizeArtifactSummary(summary, inputs = {}, closestBlockedCandidates
   };
   if (closestBlockedCandidateSourceArtifacts.length > 0) {
     result.closestBlockedCandidateSourceArtifacts = closestBlockedCandidateSourceArtifacts;
+  }
+  if (closestBlockedCandidateRequirementSets.length > 0) {
+    result.closestBlockedCandidateRequirementSets = closestBlockedCandidateRequirementSets;
   }
   return Object.values(result).some(value => value !== null) ? result : null;
 }

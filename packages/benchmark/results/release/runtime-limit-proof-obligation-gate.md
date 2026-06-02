@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T22:43:27.603Z
+Generated: 2026-06-02T22:51:44.908Z
 
 ## Scope
 
@@ -89,13 +89,14 @@ Disclosure-only guards: 3
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-02T22:03:29.768Z)
+- Coverage audit loaded: yes (2026-06-02T22:50:32.235Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey diagnostics rows vs closure candidates: 11/16 (gap=5, closureQualified=0)
 - SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace.json`, `spidermonkey-jsshell-materialized-headroom.json`, `spidermonkey-jsshell-tokenizer-headroom.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`
 - SpiderMonkey coverage diagnostics outside closure candidates: none
 - SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7
+- SpiderMonkey closest codegen blockers: spidermonkey-taskcluster-debug-jsshell-codegen-audit.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]; spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]; spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]; spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]; spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]
 - SpiderMonkey Taskcluster route freshness: fresh (artifactIdentityMatchesRoute=yes, expectedIdentitySource=inferred-from-artifacts, checkedArtifacts=5, mismatchedArtifacts=none)
 - Safari/WebKit closure comparison: generatedAt=2026-06-02T20:08:45.362Z, rows=289, candidates=0, qualified=0
 - Safari/WebKit status: evidenceClass=environment-availability-only, canRunSafariBrowserRows=no, browserRows=0, primarySyncRows=0, boundedPrimaryRows=0, largeBoundedPrimaryRows=0, exactBuildIdentity=no, sourceBoundaryPinned=no, closesSafariObligation=no
@@ -109,7 +110,7 @@ Disclosure-only guards: 3
 | `spidermonkey-non-stax-diagnostic-rows-visible` | yes | Coverage audit must keep non-StAX SpiderMonkey diagnostic rows visible via selectedRowIdentityStatusCounts.not-claimed-non-stax-diagnostic. |
 | `spidermonkey-closure-audit-surface-visible` | yes | Coverage audit must expose SpiderMonkey diagnostic row count, closure-audit candidate count, their gap, and qualifiedClosureCount so gate review sees the curated coverage surface is not the full closure matrix. |
 | `spidermonkey-closure-audit-comparison-current` | yes | SpiderMonkey closure audit comparison freshness must be preserved in coverage: selected-row comparison counts must match the current same-contract comparison generatedAt and row count. |
-| `spidermonkey-closure-frontier-current` | yes | SpiderMonkey closure frontier must be preserved in coverage: closest blocked candidates must remain the current Taskcluster/debug-shell frontier with the minimum blocked requirement count. |
+| `spidermonkey-closure-frontier-current` | yes | SpiderMonkey closure frontier must be preserved in coverage: closest blocked candidates must remain the current Taskcluster/debug-shell frontier with the minimum blocked requirement count and exact remaining blockers. |
 | `spidermonkey-closure-audit-gap-artifacts-visible` | yes | Coverage audit must name the SpiderMonkey closure candidates outside curated diagnostics rows and report no diagnostic rows outside the closure audit. |
 | `spidermonkey-taskcluster-route-freshness` | yes | Taskcluster route freshness must show the current SpiderMonkey debug-shell artifacts match the latest route task and expected build/source identity. |
 
@@ -211,8 +212,8 @@ Disclosure-only guards: 3
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-02T22:13:05.730Z)
-- Source audit inputs: comparison=2026-06-02T20:08:45.362Z (current 2026-06-02T20:08:45.362Z), coverage=2026-06-02T22:03:29.768Z (current 2026-06-02T22:03:29.768Z)
+- Source audit loaded: yes (2026-06-02T22:51:20.385Z)
+- Source audit inputs: comparison=2026-06-02T20:08:45.362Z (current 2026-06-02T20:08:45.362Z), coverage=2026-06-02T22:50:32.235Z (current 2026-06-02T22:50:32.235Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary source boundary: demand-driven StreamReaderSync parser pulls
