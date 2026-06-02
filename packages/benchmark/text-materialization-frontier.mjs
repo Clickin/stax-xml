@@ -308,6 +308,8 @@ function createReport(options) {
     .map(row => ({ ...row.candidate, family: row.family }))
     .filter(row => row.fullStringParity === true && row.id.includes('NoCounters'));
   const fastestInstrumentationDisabledFull = maxBy(instrumentationDisabledFullRows, row => row.mibPerSec);
+  const maximumNoTrimSpeedup = round(Math.max(...sameScalePairs.map(pair => pair.noTrimSpeedup).filter(isFiniteNumber)));
+  const projectedFullWithMaximumNoTrimSpeedupMiBPerSec = round(fastestFull.mibPerSec * maximumNoTrimSpeedup);
   const summary = {
     targetMiBPerSec,
     scaledArtifactCount: scaledArtifacts.length,
@@ -329,7 +331,10 @@ function createReport(options) {
     noTrimRowsCrossTarget: noTrimRows.filter(row => row.mibPerSec >= targetMiBPerSec).length,
     foldTrimRowsCrossTarget: foldTrimRows.filter(row => row.mibPerSec >= targetMiBPerSec).length,
     maximumTextOmissionSpeedup: round(Math.max(...sameScalePairs.map(pair => pair.withoutTextSpeedup).filter(isFiniteNumber))),
-    maximumNoTrimSpeedup: round(Math.max(...sameScalePairs.map(pair => pair.noTrimSpeedup).filter(isFiniteNumber))),
+    maximumNoTrimSpeedup,
+    projectedFullWithMaximumNoTrimSpeedupMiBPerSec,
+    projectedFullWithMaximumNoTrimSpeedupCrossesTarget: projectedFullWithMaximumNoTrimSpeedupMiBPerSec >= targetMiBPerSec,
+    maximumNoTrimSpeedupRemainingMiBPerSec: round(targetMiBPerSec - projectedFullWithMaximumNoTrimSpeedupMiBPerSec),
     maximumFoldTrimSpeedup: round(Math.max(...sameScalePairs.map(pair => pair.foldTrimSpeedup).filter(isFiniteNumber))),
     fastestInstrumentationDisabledFullRow: summarizeInstrumentationDisabledRow(fastestInstrumentationDisabledFull),
     instrumentationDisabledRowsCrossTarget: instrumentationDisabledFullRows
@@ -499,6 +504,8 @@ function createFindings(summary, sameScalePairs, negativeRows) {
       evidence: [
         `fastestNoTrim=${formatNumber(summary.fastestNoTrim.mibPerSec)} MiB/s`,
         `maximumNoTrimSpeedup=${formatNumber(summary.maximumNoTrimSpeedup)}x`,
+        `projectedFullWithMaximumNoTrimSpeedup=${formatNumber(summary.projectedFullWithMaximumNoTrimSpeedupMiBPerSec)} MiB/s`,
+        `remaining=${formatNumber(summary.maximumNoTrimSpeedupRemainingMiBPerSec)} MiB/s`,
         `fastestFoldTrim=${formatNumber(summary.fastestFoldTrim.mibPerSec)} MiB/s`,
         `maximumFoldTrimSpeedup=${formatNumber(summary.maximumFoldTrimSpeedup)}x`,
       ],
@@ -556,6 +563,8 @@ function renderMarkdown(report) {
     `- Fastest without-text / fastest full ratio: ${formatNumber(report.summary.fastestWithoutTextToFullRatio)}x`,
     `- Maximum same-scale without-text speedup: ${formatNumber(report.summary.maximumTextOmissionSpeedup)}x`,
     `- Maximum no-trim speedup: ${formatNumber(report.summary.maximumNoTrimSpeedup)}x`,
+    `- Projected full-string with maximum no-trim speedup: ${formatNumber(report.summary.projectedFullWithMaximumNoTrimSpeedupMiBPerSec)} MiB/s`,
+    `- Maximum no-trim speedup still below target by ${formatNumber(report.summary.maximumNoTrimSpeedupRemainingMiBPerSec)} MiB/s`,
     `- Maximum fold-trim speedup: ${formatNumber(report.summary.maximumFoldTrimSpeedup)}x`,
     `- Fastest instrumentation-disabled full-string row: ${formatSummaryRow(report.summary.fastestInstrumentationDisabledFullRow)}`,
     `- Instrumentation-disabled full-string rows crossing 200 MiB/s: ${report.summary.instrumentationDisabledRowsCrossTarget}`,

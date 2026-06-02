@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T18:14:24.772Z",
+  "generatedAt": "2026-06-02T18:47:20.323Z",
   "objective": "text-materialization-frontier",
   "contract": "same-corpus-text-materialization-headroom-synthesis",
   "note": "Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.",
@@ -206,6 +206,9 @@
     "foldTrimRowsCrossTarget": 0,
     "maximumTextOmissionSpeedup": 1.41,
     "maximumNoTrimSpeedup": 1.02,
+    "projectedFullWithMaximumNoTrimSpeedupMiBPerSec": 189.21,
+    "projectedFullWithMaximumNoTrimSpeedupCrossesTarget": false,
+    "maximumNoTrimSpeedupRemainingMiBPerSec": 10.79,
     "maximumFoldTrimSpeedup": 0.8,
     "fastestInstrumentationDisabledFullRow": {
       "family": "single-process-no-counter-name-fold-cache",
@@ -3368,6 +3371,8 @@
       "evidence": [
         "fastestNoTrim=186.97 MiB/s",
         "maximumNoTrimSpeedup=1.02x",
+        "projectedFullWithMaximumNoTrimSpeedup=189.21 MiB/s",
+        "remaining=10.79 MiB/s",
         "fastestFoldTrim=148.58 MiB/s",
         "maximumFoldTrimSpeedup=0.80x"
       ]

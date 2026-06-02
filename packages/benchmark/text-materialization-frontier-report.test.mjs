@@ -47,6 +47,9 @@ test('text materialization frontier separates headroom rows from full-string cou
   assert.equal(report.summary.fastestWithoutText.fullStringParity, false);
   assert.equal(report.summary.maximumTextOmissionSpeedup, 1.41);
   assert.equal(report.summary.maximumNoTrimSpeedup, 1.02);
+  assert.equal(report.summary.projectedFullWithMaximumNoTrimSpeedupMiBPerSec, 189.21);
+  assert.equal(report.summary.projectedFullWithMaximumNoTrimSpeedupCrossesTarget, false);
+  assert.equal(report.summary.maximumNoTrimSpeedupRemainingMiBPerSec, 10.79);
   assert.equal(report.summary.maximumFoldTrimSpeedup, 0.8);
   assert.equal(report.summary.negativeCandidateCount, 32);
   assert.deepEqual(report.summary.fastestInstrumentationDisabledFullRow, {
@@ -310,6 +313,8 @@ test('text materialization frontier separates headroom rows from full-string cou
   assert.ok(report.findings.some(finding =>
     finding.id === 'trim-only-not-enough'
     && finding.classification === 'NEGATIVE_RESULT'
+    && finding.evidence.some(item => item.includes('projectedFullWithMaximumNoTrimSpeedup=189.21 MiB/s'))
+    && finding.evidence.some(item => item.includes('remaining=10.79 MiB/s'))
   ));
   assert.ok(report.findings.some(finding =>
     finding.id === 'text-folding-only-still-below-target'
@@ -326,6 +331,8 @@ test('text materialization frontier separates headroom rows from full-string cou
   assert.match(markdown, /# Text Materialization Frontier/);
   assert.match(markdown, /Fastest full-string row: rawFrameNameId from text-trim-cost-decomposition\.json at 185\.50 MiB\/s/);
   assert.match(markdown, /1\.08x speedup required/);
+  assert.match(markdown, /Projected full-string with maximum no-trim speedup: 189\.21 MiB\/s/);
+  assert.match(markdown, /Maximum no-trim speedup still below target by 10\.79 MiB\/s/);
   assert.match(markdown, /Fastest without-text row: withoutTextStrings from text-trim-cost-decomposition-4gib\.json at 252\.36 MiB\/s/);
   assert.match(markdown, /## Source Consumption/);
   assert.match(markdown, /synchronous Iterable<Uint8Array\[\]>/);

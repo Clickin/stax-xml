@@ -1,6 +1,6 @@
 # Text Materialization Boundary Audit
 
-Generated: 2026-06-02T18:42:54.721Z
+Generated: 2026-06-02T18:47:30.596Z
 
 Audits the current text/CDATA materialization boundary from the same-contract aggregate. This is not a benchmark run and does not prove a JavaScript runtime ceiling.
 

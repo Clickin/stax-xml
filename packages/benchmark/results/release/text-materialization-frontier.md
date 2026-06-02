@@ -1,6 +1,6 @@
 # Text Materialization Frontier
 
-Generated: 2026-06-02T18:14:24.772Z
+Generated: 2026-06-02T18:47:20.323Z
 
 Synthesizes existing text/CDATA materialization experiments. It is not a new benchmark run and not a runtime-limit conclusion.
 
@@ -12,6 +12,8 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
 - Fastest without-text / fastest full ratio: 1.36x
 - Maximum same-scale without-text speedup: 1.41x
 - Maximum no-trim speedup: 1.02x
+- Projected full-string with maximum no-trim speedup: 189.21 MiB/s
+- Maximum no-trim speedup still below target by 10.79 MiB/s
 - Maximum fold-trim speedup: 0.80x
 - Fastest instrumentation-disabled full-string row: rawFrameNameIdNoCountersNameFoldCache from no-counter-name-fold-cache-candidate.json at 170.17 MiB/s
 - Instrumentation-disabled full-string rows crossing 200 MiB/s: 0
@@ -85,6 +87,8 @@ Synthesizes existing text/CDATA materialization experiments. It is not a new ben
 - trim-only-not-enough (NEGATIVE_RESULT): Removing only text trim does not close the 200 MiB/s gap, and the fold-trim checksum variant is slower than the full row.
   - fastestNoTrim=186.97 MiB/s
   - maximumNoTrimSpeedup=1.02x
+  - projectedFullWithMaximumNoTrimSpeedup=189.21 MiB/s
+  - remaining=10.79 MiB/s
   - fastestFoldTrim=148.58 MiB/s
   - maximumFoldTrimSpeedup=0.80x
 - cache-and-ascii-candidates-rejected (NEGATIVE_RESULT): The current repeated text cache, bounded long-text cache, ASCII text fast paths, and fold-trim candidate rows do not reach the full target row.
