@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T17:39:05.877Z
+Generated: 2026-06-02T17:42:09.830Z
 
 ## Scope
 
@@ -76,14 +76,16 @@ This is a static gate over the proof ledger for the broad `CLAIM-JS-RUNTIME-LIMI
 ## Open Obligations
 
 These are static disclosure guards. They must stay disclosed while the broad runtime-limit claim remains below `CONCLUSION`; the coverage snapshot column records whether the current evidence audit still treats each guard as active.
+Active evidence-gap disclosures: 2
+Disclosure-only guards: 3
 
-| ID | Disclosed | Coverage status | Meaning |
-| --- | --- | --- | --- |
-| `safari-jsc-source-and-browser-rows-open` | yes | open | Safari/browser JSC source and benchmark coverage remains separate from Bun/JSC coverage. |
-| `codegen-traces-open` | yes | partial | Runtime codegen/JIT evidence remains required for broad runtime-limit conclusions. |
-| `allocation-profiles-open` | yes | covered | Allocation/heap evidence remains required for runtimes without adequate traces. |
-| `independent-corpus-suite-open` | yes | covered | More independent real/corpus fixtures remain required. |
-| `counterexample-rule-present` | yes | covered | The ledger must preserve the rule that a bounded full-string 200 MiB/s JavaScript row disproves the limit claim. |
+| ID | Disclosed | Coverage status | Gate role | Meaning |
+| --- | --- | --- | --- | --- |
+| `safari-jsc-source-and-browser-rows-open` | yes | open | active-evidence-gap | Safari/browser JSC source and benchmark coverage remains separate from Bun/JSC coverage. |
+| `codegen-traces-open` | yes | partial | active-evidence-gap | Runtime codegen/JIT evidence remains required for broad runtime-limit conclusions. |
+| `allocation-profiles-open` | yes | covered | disclosure-only-guard | Allocation/heap evidence remains required for runtimes without adequate traces. |
+| `independent-corpus-suite-open` | yes | covered | disclosure-only-guard | More independent real/corpus fixtures remain required. |
+| `counterexample-rule-present` | yes | covered | disclosure-only-guard | The ledger must preserve the rule that a bounded full-string 200 MiB/s JavaScript row disproves the limit claim. |
 
 ## Coverage Snapshot
 

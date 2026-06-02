@@ -387,6 +387,9 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
     disclosed: obligation.pattern.test(ledgerMarkdown),
     coverageStatus: coverageSnapshot.byId[obligation.id]?.status ?? null,
     coverageEvidence: coverageSnapshot.byId[obligation.id]?.evidence ?? null,
+  })).map(obligation => ({
+    ...obligation,
+    gateRole: classifyOpenObligationGateRole(obligation.coverageStatus),
   }));
   const proofRules = requiredProofRules.map(rule => ({
     ...rule,
@@ -495,6 +498,8 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
       requiredArtifactMentions: artifactMentions.length,
       disclosedOpenObligations: openObligations.filter(item => item.disclosed).length,
       requiredOpenObligations: openObligations.length,
+      activeCoverageOpenObligations: openObligations.filter(item => item.gateRole === 'active-evidence-gap').length,
+      disclosureOnlyOpenObligations: openObligations.filter(item => item.gateRole === 'disclosure-only-guard').length,
       satisfiedProofRules: proofRules.filter(item => item.satisfied).length,
       requiredProofRules: proofRules.length,
       currentCounterexamples: counterexampleSnapshot.currentCounterexampleCount,
@@ -512,6 +517,12 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
       requiredFrontierAuditGuards: frontierAuditSnapshot.guards.length,
     },
   };
+}
+
+function classifyOpenObligationGateRole(coverageStatus) {
+  if (coverageStatus === 'open' || coverageStatus === 'partial') return 'active-evidence-gap';
+  if (coverageStatus === 'covered') return 'disclosure-only-guard';
+  return 'coverage-status-missing';
 }
 
 function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMaterializationBoundary, comparison = null) {
@@ -1610,12 +1621,14 @@ function renderMarkdown(report) {
     '## Open Obligations',
     '',
     'These are static disclosure guards. They must stay disclosed while the broad runtime-limit claim remains below `CONCLUSION`; the coverage snapshot column records whether the current evidence audit still treats each guard as active.',
+    `Active evidence-gap disclosures: ${report.summary.activeCoverageOpenObligations}`,
+    `Disclosure-only guards: ${report.summary.disclosureOnlyOpenObligations}`,
     '',
-    '| ID | Disclosed | Coverage status | Meaning |',
-    '| --- | --- | --- | --- |',
+    '| ID | Disclosed | Coverage status | Gate role | Meaning |',
+    '| --- | --- | --- | --- | --- |',
   );
   for (const item of report.openObligations) {
-    lines.push(`| \`${item.id}\` | ${item.disclosed ? 'yes' : 'no'} | ${item.coverageStatus ?? 'not in coverage audit'} | ${item.description} |`);
+    lines.push(`| \`${item.id}\` | ${item.disclosed ? 'yes' : 'no'} | ${item.coverageStatus ?? 'not in coverage audit'} | ${item.gateRole} | ${item.description} |`);
   }
 
   lines.push(
