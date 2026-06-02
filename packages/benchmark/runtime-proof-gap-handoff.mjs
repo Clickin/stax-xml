@@ -538,7 +538,7 @@ function createLocalClosure(activeObligations, audit, options = {}) {
             sourceBoundaryPinned ? 'Safari/WebKit source boundary is pinned.' : 'No exact Safari/WebKit source-boundary pin is recorded by the availability audit.',
             `Safari closure matrix reports closureRequirementsMet=${closureRequirementsMet}, closureRequirementsBlocked=${closureRequirementsBlocked}, closesSafariObligation=${closesSafariObligation}.`,
             safariClosureAuditPinned
-              ? `The Safari/WebKit closure audit checks candidateRows=${safariClosureAuditRaw.summary.candidateCount}, comparisonGeneratedAt=${safariClosureAuditRaw.inputs?.comparisonGeneratedAt ?? 'unknown'}, comparisonRowCount=${safariClosureAuditRaw.inputs?.comparisonRowCount ?? 'unknown'}, largeBoundedPrimaryRows=${safariClosureAuditRaw.summary.largeBoundedPrimaryRows}, rowsInSameContractComparison=${safariClosureAuditRaw.summary.rowsInSameContractComparison}, measuredExactBuildIdentityRows=${safariClosureAuditRaw.summary.measuredExactBuildIdentityRows}, sourceBoundaryPinned=${safariClosureAuditRaw.summary.sourceBoundaryPinned}, qualifiedClosureCount=0, and conclusionAllowed=false.`
+              ? `The Safari/WebKit closure audit checks candidateRows=${safariClosureAuditRaw.summary.candidateCount}, comparisonGeneratedAt=${safariClosureAuditRaw.inputs?.comparisonGeneratedAt ?? 'unknown'}, comparisonRowCount=${safariClosureAuditRaw.inputs?.comparisonRowCount ?? 'unknown'}, largeBoundedPrimaryRows=${safariClosureAuditRaw.summary.largeBoundedPrimaryRows}, rowsInSameContractComparison=${safariClosureAuditRaw.summary.rowsInSameContractComparison}, measuredExactBuildIdentityRows=${safariClosureAuditRaw.summary.measuredExactBuildIdentityRows}, rowLevelSourceBoundaryPinnedRows=${safariClosureAuditRaw.summary.rowLevelSourceBoundaryPinnedRows ?? 'unknown'}, sourceBoundaryPinned=${safariClosureAuditRaw.summary.sourceBoundaryPinned}, qualifiedClosureCount=0, and conclusionAllowed=false.`
               : 'No Safari/WebKit closure audit pins the same-contract browser-row closure matrix.',
           ]
         : ['Safari/WebKit local runnable status was not established by the coverage audit.'],
@@ -794,8 +794,8 @@ function createHandoffs(activeObligations, localClosure) {
       },
       sourceBoundaryContract: {
         browserBuildIdentity: 'Record the exact Safari version, WebKit build/source revision when available, platform, and safaridriver version used for the row.',
-        stringBoundary: 'Pin Safari/WebKit string creation and ownership source lines for the exact tested build or explicitly mark the source-boundary obligation as still open.',
-        textDecoderBoundary: 'Pin Safari/WebKit TextDecoder/UTF-8 decode source lines for the exact tested build before citing TextDecoder internals for Safari rows.',
+        stringBoundary: 'Pin Safari/WebKit string creation and ownership source lines for the exact tested build and attach the source revision/artifact metadata to the measured row, or explicitly mark the source-boundary obligation as still open.',
+        textDecoderBoundary: 'Pin Safari/WebKit TextDecoder/UTF-8 decode source lines for the exact tested build and attach the source revision/artifact metadata to the measured row before citing TextDecoder internals for Safari rows.',
         bunWebKitScopeGuard: 'Bun/JSC and Bun-patched WebKit source pins are not Safari browser JSC source pins unless the tested Safari/WebKit build identity matches and is recorded.',
       },
       prerequisites: [
@@ -837,7 +837,7 @@ function createHandoffs(activeObligations, localClosure) {
         'Primary full rows record the synchronous Iterable<Uint8Array[]> source contract; direct ReadableStream rows, if run, remain separately named source-overhead rows.',
         'Any direct ReadableStream row records demand-driven pull/read consumption and backpressure-respecting behavior.',
         'Memory evidence is classified explicitly; missing Safari JS heap counters must not be treated as bounded-memory proof.',
-        'Exact Safari/WebKit build identity and source-boundary status are recorded separately from Bun/JSC WebKit evidence.',
+        'Exact Safari/WebKit build identity and row-level source-boundary metadata are recorded separately from Bun/JSC WebKit evidence.',
       ],
       closureChecks: [
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.evidenceClass must be browser-row-evidence.',
@@ -850,7 +850,9 @@ function createHandoffs(activeObligations, localClosure) {
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsRecorded must be greater than 0 for 1 GiB+ Safari/WebKit primary rows.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.largePrimaryRowsInSameContractComparison must be true, with 1 GiB+ bounded primary row id, event count, and checksum matching same-contract-runtime-comparison.json.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.exactBuildIdentityRecorded must be true.',
-        'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.sourceBoundaryPinned must be true.',
+        'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.rowLevelSourceBoundaryPinnedRowsRecorded must be greater than 0.',
+        'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsWithRowLevelSourceBoundaryPin must be greater than 0.',
+        'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.sourceBoundaryPinned must be true only when the 1 GiB+ bounded primary Safari/WebKit row has row-level source revision and source-pin artifact metadata.',
         'safari-webkit-closure-audit.json summary.qualifiedClosureCount must be greater than 0 before safari-jsc-source-and-browser-rows-open can be closed.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.closesSafariObligation must be true before safari-jsc-source-and-browser-rows-open can be marked covered.',
         'runtime-counterexample-scan.json must include any Safari/WebKit full-string rows and classify any 200 MiB/s+ bounded-memory row as a counterexample.',

@@ -1,13 +1,13 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-02T16:39:15.011Z
+Generated: 2026-06-02T17:02:55.109Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-06-02T16:36:10.377Z
+- Audit generated: 2026-06-02T17:02:41.138Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
 - Comparison generated: 2026-06-02T14:53:00.937Z
 - Active obligations: 2
@@ -149,7 +149,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
   - No Safari/WebKit benchmark row is recorded by the availability audit.
   - No exact Safari/WebKit source-boundary pin is recorded by the availability audit.
   - Safari closure matrix reports closureRequirementsMet=2, closureRequirementsBlocked=9, closesSafariObligation=false.
-  - The Safari/WebKit closure audit checks candidateRows=0, comparisonGeneratedAt=2026-06-02T14:53:00.937Z, comparisonRowCount=289, largeBoundedPrimaryRows=0, rowsInSameContractComparison=0, measuredExactBuildIdentityRows=0, sourceBoundaryPinned=false, qualifiedClosureCount=0, and conclusionAllowed=false.
+  - The Safari/WebKit closure audit checks candidateRows=0, comparisonGeneratedAt=2026-06-02T14:53:00.937Z, comparisonRowCount=289, largeBoundedPrimaryRows=0, rowsInSameContractComparison=0, measuredExactBuildIdentityRows=0, rowLevelSourceBoundaryPinnedRows=0, sourceBoundaryPinned=false, qualifiedClosureCount=0, and conclusionAllowed=false.
 - Local evidence artifacts: safari-webkit-availability-audit.json, safari-webkit-closure-audit.json
 
 Prerequisites:
@@ -166,8 +166,8 @@ Source consumption contract:
 
 Source boundary contract:
 - browserBuildIdentity: Record the exact Safari version, WebKit build/source revision when available, platform, and safaridriver version used for the row.
-- stringBoundary: Pin Safari/WebKit string creation and ownership source lines for the exact tested build or explicitly mark the source-boundary obligation as still open.
-- textDecoderBoundary: Pin Safari/WebKit TextDecoder/UTF-8 decode source lines for the exact tested build before citing TextDecoder internals for Safari rows.
+- stringBoundary: Pin Safari/WebKit string creation and ownership source lines for the exact tested build and attach the source revision/artifact metadata to the measured row, or explicitly mark the source-boundary obligation as still open.
+- textDecoderBoundary: Pin Safari/WebKit TextDecoder/UTF-8 decode source lines for the exact tested build and attach the source revision/artifact metadata to the measured row before citing TextDecoder internals for Safari rows.
 - bunWebKitScopeGuard: Bun/JSC and Bun-patched WebKit source pins are not Safari browser JSC source pins unless the tested Safari/WebKit build identity matches and is recorded.
 
 Commands:
@@ -188,7 +188,7 @@ Expected evidence:
 - Primary full rows record the synchronous Iterable<Uint8Array[]> source contract; direct ReadableStream rows, if run, remain separately named source-overhead rows.
 - Any direct ReadableStream row records demand-driven pull/read consumption and backpressure-respecting behavior.
 - Memory evidence is classified explicitly; missing Safari JS heap counters must not be treated as bounded-memory proof.
-- Exact Safari/WebKit build identity and source-boundary status are recorded separately from Bun/JSC WebKit evidence.
+- Exact Safari/WebKit build identity and row-level source-boundary metadata are recorded separately from Bun/JSC WebKit evidence.
 
 Closure checks:
 - runtime-proof-coverage-audit.json coverage.safariWebKitStatus.evidenceClass must be browser-row-evidence.
@@ -201,7 +201,9 @@ Closure checks:
 - runtime-proof-coverage-audit.json coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsRecorded must be greater than 0 for 1 GiB+ Safari/WebKit primary rows.
 - runtime-proof-coverage-audit.json coverage.safariWebKitStatus.largePrimaryRowsInSameContractComparison must be true, with 1 GiB+ bounded primary row id, event count, and checksum matching same-contract-runtime-comparison.json.
 - runtime-proof-coverage-audit.json coverage.safariWebKitStatus.exactBuildIdentityRecorded must be true.
-- runtime-proof-coverage-audit.json coverage.safariWebKitStatus.sourceBoundaryPinned must be true.
+- runtime-proof-coverage-audit.json coverage.safariWebKitStatus.rowLevelSourceBoundaryPinnedRowsRecorded must be greater than 0.
+- runtime-proof-coverage-audit.json coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsWithRowLevelSourceBoundaryPin must be greater than 0.
+- runtime-proof-coverage-audit.json coverage.safariWebKitStatus.sourceBoundaryPinned must be true only when the 1 GiB+ bounded primary Safari/WebKit row has row-level source revision and source-pin artifact metadata.
 - safari-webkit-closure-audit.json summary.qualifiedClosureCount must be greater than 0 before safari-jsc-source-and-browser-rows-open can be closed.
 - runtime-proof-coverage-audit.json coverage.safariWebKitStatus.closesSafariObligation must be true before safari-jsc-source-and-browser-rows-open can be marked covered.
 - runtime-counterexample-scan.json must include any Safari/WebKit full-string rows and classify any 200 MiB/s+ bounded-memory row as a counterexample.

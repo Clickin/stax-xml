@@ -261,6 +261,9 @@ function summarizeArtifactSummary(summary, inputs = {}, closestBlockedCandidates
     qualifiedClosureCount: typeof summary.qualifiedClosureCount === 'number'
       ? summary.qualifiedClosureCount
       : null,
+    rowLevelSourceBoundaryPinnedRows: typeof summary.rowLevelSourceBoundaryPinnedRows === 'number'
+      ? summary.rowLevelSourceBoundaryPinnedRows
+      : null,
     selectedRowComparisonMatchCount: typeof summary.selectedRowComparisonMatchCount === 'number'
       ? summary.selectedRowComparisonMatchCount
       : null,
@@ -396,6 +399,7 @@ function extractMeasuredRows(sourceArtifact, root) {
       fixtureShape: fixture?.shape ?? null,
       corpusSeed: fixture?.source === 'corpus-file' && fixture.sourceFile ? normalizeCorpusSeed(fixture.sourceFile) : null,
       environment: summarizeEnvironment(context.environment),
+      sourceBoundary: summarizeSafariSourceBoundary(node.sourceBoundary ?? context.sourceBoundary),
       mibPerSec: round(node.mibPerSec),
       fullStringParity: classifyFullStringParity(node, context),
       boundedMemory: classifyBoundedMemory(node, memoryKind),
@@ -508,6 +512,7 @@ function createInitialContext(sourceArtifact, root) {
     objective: root?.objective ?? null,
     contract: root?.contract ?? null,
     sourceContract: root?.sourceContract ?? null,
+    sourceBoundary: root?.sourceBoundary ?? null,
     options: root?.options ?? null,
   });
 }
@@ -521,6 +526,7 @@ function extendContext(node, context) {
     objective: node.objective ?? context.objective,
     contract: node.contract ?? context.contract,
     sourceContract: node.sourceContract ?? context.sourceContract,
+    sourceBoundary: node.sourceBoundary ?? context.sourceBoundary,
     options: node.options ?? context.options,
   };
 }
@@ -647,6 +653,8 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows, sameContra
   );
   const safariRowsWithMeasuredExactBuildIdentity = safariRows.filter(hasMeasuredSafariBuildIdentity);
   const largeBoundedPrimaryRowsWithMeasuredExactBuildIdentity = largeBoundedPrimaryRows.filter(hasMeasuredSafariBuildIdentity);
+  const safariRowsWithRowLevelSourceBoundaryPin = safariRows.filter(hasSafariWebKitSourceBoundaryPin);
+  const largeBoundedPrimaryRowsWithRowLevelSourceBoundaryPin = largeBoundedPrimaryRows.filter(hasSafariWebKitSourceBoundaryPin);
   const primaryRowsInSameContractComparison = boundedPrimaryRows.length > 0
     && boundedPrimaryRowsInSameContractComparison.length === boundedPrimaryRows.length;
   const largePrimaryRowsInSameContractComparison = largeBoundedPrimaryRows.length > 0
@@ -666,8 +674,12 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows, sameContra
     availabilityExactBuildIdentityRecorded: availability.exactSafariBuildIdentityRecorded ?? null,
     measuredExactBuildIdentityRowsRecorded: safariRowsWithMeasuredExactBuildIdentity.length,
     largeBoundedPrimarySyncByteBatchRowsWithMeasuredExactBuildIdentity: largeBoundedPrimaryRowsWithMeasuredExactBuildIdentity.length,
+    rowLevelSourceBoundaryPinnedRowsRecorded: safariRowsWithRowLevelSourceBoundaryPin.length,
+    largeBoundedPrimarySyncByteBatchRowsWithRowLevelSourceBoundaryPin: largeBoundedPrimaryRowsWithRowLevelSourceBoundaryPin.length,
     exactBuildIdentityRecorded,
-    sourceBoundaryPinned: availability.safariSourceBoundaryPinned ?? null,
+    sourceBoundaryPinned: availability.safariSourceBoundaryPinned === true
+      && largeBoundedPrimaryRowsWithRowLevelSourceBoundaryPin.length > 0,
+    availabilitySourceBoundaryPinned: availability.safariSourceBoundaryPinned ?? null,
     availabilityPrimarySyncByteBatchRowsRecorded: availability.primarySyncByteBatchRowsRecorded ?? null,
     availabilityBoundedPrimarySyncByteBatchRowsRecorded: availability.boundedPrimarySyncByteBatchRowsRecorded ?? null,
     directReadableStreamRowsAreSeparateEvidence: availability.directReadableStreamRowsAreSeparateEvidence ?? null,
@@ -694,6 +706,7 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows, sameContra
       && availability.safariSourceBoundaryPinned === true
       && availability.directReadableStreamRowsAreSeparateEvidence === true
       && largeBoundedPrimaryRowsWithMeasuredExactBuildIdentity.length > 0
+      && largeBoundedPrimaryRowsWithRowLevelSourceBoundaryPin.length > 0
       && largePrimaryRowsInSameContractComparison,
   };
 }
@@ -711,9 +724,45 @@ function hasMeasuredSafariBuildIdentity(row) {
   return typeof environment.browserVersion === 'string'
     && environment.browserVersion.length > 0
     && environment.browserVersion !== 'unknown'
+    && (typeof environment.webKitBuildVersion === 'string'
+      || /AppleWebKit\/\d/i.test(environment.userAgent ?? ''))
     && typeof environment.userAgent === 'string'
     && environment.userAgent.length > 0
     && /Safari\//.test(environment.userAgent);
+}
+
+function hasSafariWebKitSourceBoundaryPin(row) {
+  const boundary = row?.sourceBoundary ?? {};
+  return hasSafariSourceRevision(boundary.sourceRevision)
+    && boundary.stringBoundaryPinned === true
+    && boundary.textDecoderBoundaryPinned === true
+    && boundary.sourcePinArtifacts.some(artifact => /safari|webkit/i.test(artifact) && !/bun/i.test(artifact));
+}
+
+function hasSafariSourceRevision(value) {
+  return typeof value === 'string'
+    && value.length > 0
+    && value !== 'unknown'
+    && (/[0-9a-f]{7,40}/i.test(value) || /^r?\d{5,}$/i.test(value));
+}
+
+function summarizeSafariSourceBoundary(sourceBoundary = {}) {
+  if (!sourceBoundary || typeof sourceBoundary !== 'object') return {};
+  return {
+    sourceRevision: firstString(
+      sourceBoundary.sourceRevision,
+      sourceBoundary.webkitSourceRevision,
+      sourceBoundary.webKitSourceRevision,
+      sourceBoundary.revision,
+    ),
+    stringBoundaryPinned: sourceBoundary.stringBoundaryPinned === true,
+    textDecoderBoundaryPinned: sourceBoundary.textDecoderBoundaryPinned === true,
+    sourcePinArtifacts: uniqueStrings([
+      ...(Array.isArray(sourceBoundary.sourcePinArtifacts) ? sourceBoundary.sourcePinArtifacts : []),
+      ...(Array.isArray(sourceBoundary.artifacts) ? sourceBoundary.artifacts : []),
+      sourceBoundary.sourcePinArtifact,
+    ]),
+  };
 }
 
 function summarizeSpiderMonkeyDiagnostics(artifacts, sameContractComparisonRows = []) {
@@ -1895,6 +1944,8 @@ function renderMarkdown(report) {
     `Safari/WebKit direct ReadableStream rows separate: ${formatBoolean(report.coverage.safariWebKitStatus.directReadableStreamRowsAreSeparateEvidence)}`,
     `Safari/WebKit rows with measured exact build identity: ${report.coverage.safariWebKitStatus.measuredExactBuildIdentityRowsRecorded}`,
     `Safari/WebKit 1 GiB+ bounded primary rows with measured exact build identity: ${report.coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsWithMeasuredExactBuildIdentity}`,
+    `Safari/WebKit rows with row-level source pins: ${report.coverage.safariWebKitStatus.rowLevelSourceBoundaryPinnedRowsRecorded}`,
+    `Safari/WebKit 1 GiB+ bounded primary rows with row-level source pins: ${report.coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsWithRowLevelSourceBoundaryPin}`,
     `Safari/WebKit primary rows in same-contract comparison: ${formatBoolean(report.coverage.safariWebKitStatus.primaryRowsInSameContractComparison)}`,
     `Safari/WebKit 1 GiB+ bounded primary rows in same-contract comparison: ${formatBoolean(report.coverage.safariWebKitStatus.largePrimaryRowsInSameContractComparison)}`,
     `Safari/WebKit obligation closed: ${formatBoolean(report.coverage.safariWebKitStatus.closesSafariObligation)}`,
@@ -2099,6 +2150,13 @@ function uniqueStrings(values) {
   return Array.from(new Set((Array.isArray(values) ? values : [])
     .filter(value => typeof value === 'string' && value.length > 0)))
     .sort();
+}
+
+function firstString(...values) {
+  for (const value of values) {
+    if (typeof value === 'string' && value.length > 0) return value;
+  }
+  return null;
 }
 
 function formatCountMap(counts) {

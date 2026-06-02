@@ -36,6 +36,7 @@ test('Safari/WebKit closure audit separates primary rows from direct stream rows
   assert.equal(report.summary.primarySyncByteBatchRows, 1);
   assert.equal(report.summary.largeBoundedPrimaryRows, 1);
   assert.equal(report.summary.rowsInSameContractComparison, 1);
+  assert.equal(report.summary.rowLevelSourceBoundaryPinnedRows, 2);
   assert.equal(report.summary.qualifiedClosureCount, 1);
   assert.equal(report.summary.conclusionAllowed, true);
 
@@ -55,6 +56,7 @@ test('Safari/WebKit closure audit separates primary rows from direct stream rows
   assert.match(markdown, /Comparison generatedAt: self-test/);
   assert.match(markdown, /Comparison row count: 1/);
   assert.match(markdown, /Qualified closures: 1/);
+  assert.match(markdown, /Rows with row-level Safari\/WebKit source pins: 2/);
   assert.match(markdown, /Primary sync byte-batch/);
 });
 

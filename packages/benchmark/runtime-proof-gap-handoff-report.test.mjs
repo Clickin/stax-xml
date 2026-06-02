@@ -413,7 +413,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(safari.localClosure.blockers.some(item => /No Safari\/WebKit benchmark row is recorded/.test(item)));
   assert.ok(safari.localClosure.blockers.some(item => /No exact Safari\/WebKit source-boundary pin is recorded/.test(item)));
   assert.ok(safari.localClosure.blockers.some(item => /Safari closure matrix reports closureRequirementsMet=2, closureRequirementsBlocked=9, closesSafariObligation=false/.test(item)));
-  assert.ok(safari.localClosure.blockers.some(item => new RegExp(`Safari/WebKit closure audit checks candidateRows=0, comparisonGeneratedAt=${comparisonGeneratedAtPattern}, comparisonRowCount=289, largeBoundedPrimaryRows=0, rowsInSameContractComparison=0, measuredExactBuildIdentityRows=0, sourceBoundaryPinned=false, qualifiedClosureCount=0, and conclusionAllowed=false`).test(item)));
+  assert.ok(safari.localClosure.blockers.some(item => new RegExp(`Safari/WebKit closure audit checks candidateRows=0, comparisonGeneratedAt=${comparisonGeneratedAtPattern}, comparisonRowCount=289, largeBoundedPrimaryRows=0, rowsInSameContractComparison=0, measuredExactBuildIdentityRows=0, rowLevelSourceBoundaryPinnedRows=0, sourceBoundaryPinned=false, qualifiedClosureCount=0, and conclusionAllowed=false`).test(item)));
   assert.match(safari.localClosure.scopeGuard, /not a Safari\/WebKit benchmark row/);
   assert.equal(spiderMonkey.localClosure.localStatus, 'external-run-required');
   assert.equal(spiderMonkey.localClosure.localRunnable, false);
@@ -500,7 +500,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(safari.commands.some(command => /runtime-limit-proof-obligation-gate\.mjs/.test(command.command)));
   assert.ok(safari.expectedEvidence.some(item => /fullStringParity/.test(item)));
   assert.ok(safari.expectedEvidence.some(item => /synchronous Iterable<Uint8Array\[\]> source contract/.test(item)));
-  assert.ok(safari.expectedEvidence.some(item => /source-boundary status/.test(item)));
+  assert.ok(safari.expectedEvidence.some(item => /row-level source-boundary metadata/.test(item)));
   assert.ok(safari.closureChecks.some(item => /coverage\.safariWebKitStatus\.evidenceClass/.test(item)));
   assert.ok(safari.closureChecks.some(item => /benchmarkRowsRecorded must be greater than 0/.test(item)));
   assert.ok(safari.closureChecks.some(item => /directReadableStreamFullStringRowsRecorded must be reported separately/.test(item)));

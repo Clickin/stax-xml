@@ -10,6 +10,23 @@ const repoRoot = resolve(__dirname, '..', '..');
 const tmpDir = join(__dirname, 'results', 'tmp', 'runtime-proof-coverage-audit-report-test');
 const jsonOut = join(tmpDir, 'runtime-proof-coverage-audit.json');
 const mdOut = join(tmpDir, 'runtime-proof-coverage-audit.md');
+const safariSyntheticEnvironment = {
+  runtimeName: 'browser',
+  browserName: 'Safari',
+  browserVersion: '18.5',
+  webKitBuildVersion: '619.1.1',
+  javascriptEngine: 'JavaScriptCore',
+  userAgent: 'Mozilla/5.0 AppleWebKit/619.1.1 Version/18.5 Safari/605.1.15',
+};
+const safariSyntheticSourceBoundary = {
+  sourceRevision: '0123456789abcdef0123456789abcdef01234567',
+  stringBoundaryPinned: true,
+  textDecoderBoundaryPinned: true,
+  sourcePinArtifacts: [
+    'safari-webkit-string-source-pin-audit.json',
+    'safari-webkit-textdecoder-source-pin-audit.json',
+  ],
+};
 
 test('runtime proof coverage audit keeps open proof obligations explicit', () => {
   resetTmp();
@@ -1186,8 +1203,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     availabilityExactBuildIdentityRecorded: false,
     measuredExactBuildIdentityRowsRecorded: 0,
     largeBoundedPrimarySyncByteBatchRowsWithMeasuredExactBuildIdentity: 0,
+    rowLevelSourceBoundaryPinnedRowsRecorded: 0,
+    largeBoundedPrimarySyncByteBatchRowsWithRowLevelSourceBoundaryPin: 0,
     exactBuildIdentityRecorded: false,
     sourceBoundaryPinned: false,
+    availabilitySourceBoundaryPinned: false,
     availabilityPrimarySyncByteBatchRowsRecorded: false,
     availabilityBoundedPrimarySyncByteBatchRowsRecorded: false,
     directReadableStreamRowsAreSeparateEvidence: true,
@@ -1427,13 +1447,8 @@ test('runtime proof coverage audit does not close Safari on rows alone', () => {
   writeFileSync(join(syntheticDir, 'safari-synthetic-browser-row.json'), `${JSON.stringify({
     objective: 'safari-synthetic-browser-row',
     contract: 'same-full-string-checksum-contract',
-    environment: {
-      runtimeName: 'browser',
-      browserName: 'Safari',
-      browserVersion: '18.5',
-      javascriptEngine: 'JavaScriptCore',
-      userAgent: 'Mozilla/5.0 Version/18.5 Safari/605.1.15',
-    },
+    sourceBoundary: safariSyntheticSourceBoundary,
+    environment: safariSyntheticEnvironment,
     fixture: {
       source: 'corpus-file',
       sourceFile: 'books.xml',
@@ -1509,13 +1524,8 @@ test('runtime proof coverage audit does not close Safari without primary bounded
   writeFileSync(join(syntheticDir, 'safari-synthetic-browser-row.json'), `${JSON.stringify({
     objective: 'safari-synthetic-browser-row',
     contract: 'same-full-string-checksum-contract',
-    environment: {
-      runtimeName: 'browser',
-      browserName: 'Safari',
-      browserVersion: '18.5',
-      javascriptEngine: 'JavaScriptCore',
-      userAgent: 'Mozilla/5.0 Version/18.5 Safari/605.1.15',
-    },
+    sourceBoundary: safariSyntheticSourceBoundary,
+    environment: safariSyntheticEnvironment,
     fixture: {
       source: 'corpus-file',
       sourceFile: 'books.xml',
@@ -1554,7 +1564,9 @@ test('runtime proof coverage audit does not close Safari without primary bounded
   assert.equal(report.coverage.safariWebKitStatus.evidenceClass, 'browser-row-evidence');
   assert.equal(report.coverage.safariWebKitStatus.benchmarkRowsRecorded, 1);
   assert.equal(report.coverage.safariWebKitStatus.exactBuildIdentityRecorded, true);
-  assert.equal(report.coverage.safariWebKitStatus.sourceBoundaryPinned, true);
+  assert.equal(report.coverage.safariWebKitStatus.availabilitySourceBoundaryPinned, true);
+  assert.equal(report.coverage.safariWebKitStatus.rowLevelSourceBoundaryPinnedRowsRecorded, 1);
+  assert.equal(report.coverage.safariWebKitStatus.sourceBoundaryPinned, false);
   assert.equal(report.coverage.safariWebKitStatus.fullStringRowsRecorded, 1);
   assert.equal(report.coverage.safariWebKitStatus.directReadableStreamFullStringRowsRecorded, 0);
   assert.equal(report.coverage.safariWebKitStatus.primarySyncByteBatchRowsRecorded, 0);
@@ -1562,7 +1574,7 @@ test('runtime proof coverage audit does not close Safari without primary bounded
   assert.equal(report.coverage.safariWebKitStatus.closesSafariObligation, false);
   assertObligation(report, 'safari-jsc-source-and-browser-rows-open', 'partial');
   const obligation = report.obligations.find(item => item.id === 'safari-jsc-source-and-browser-rows-open');
-  assert.match(obligation.evidence, /exactBuildIdentityRecorded=true; sourceBoundaryPinned=true; directReadableStreamRowsAreSeparateEvidence=true; directReadableStreamFullStringRows=0; primarySyncByteBatchRows=0; boundedPrimarySyncByteBatchRows=0; largeBoundedPrimarySyncByteBatchRows=0; primaryRowsInSameContractComparison=false; largePrimaryRowsInSameContractComparison=false; closesSafariObligation=false/);
+  assert.match(obligation.evidence, /exactBuildIdentityRecorded=true; sourceBoundaryPinned=false; directReadableStreamRowsAreSeparateEvidence=true; directReadableStreamFullStringRows=0; primarySyncByteBatchRows=0; boundedPrimarySyncByteBatchRows=0; largeBoundedPrimarySyncByteBatchRows=0; primaryRowsInSameContractComparison=false; largePrimaryRowsInSameContractComparison=false; closesSafariObligation=false/);
 });
 
 test('runtime proof coverage audit does not close Safari for eager or full ArrayBuffer byte-batch rows', () => {
@@ -1589,13 +1601,8 @@ test('runtime proof coverage audit does not close Safari for eager or full Array
   writeFileSync(join(syntheticDir, 'safari-synthetic-browser-row.json'), `${JSON.stringify({
     objective: 'safari-synthetic-browser-row',
     contract: 'same-full-string-checksum-contract',
-    environment: {
-      runtimeName: 'browser',
-      browserName: 'Safari',
-      browserVersion: '18.5',
-      javascriptEngine: 'JavaScriptCore',
-      userAgent: 'Mozilla/5.0 Version/18.5 Safari/605.1.15',
-    },
+    sourceBoundary: safariSyntheticSourceBoundary,
+    environment: safariSyntheticEnvironment,
     fixture: {
       source: 'corpus-file',
       sourceFile: 'books.xml',
@@ -1652,7 +1659,9 @@ test('runtime proof coverage audit does not close Safari for eager or full Array
   assert.equal(report.coverage.safariWebKitStatus.evidenceClass, 'browser-row-evidence');
   assert.equal(report.coverage.safariWebKitStatus.benchmarkRowsRecorded, 2);
   assert.equal(report.coverage.safariWebKitStatus.exactBuildIdentityRecorded, true);
-  assert.equal(report.coverage.safariWebKitStatus.sourceBoundaryPinned, true);
+  assert.equal(report.coverage.safariWebKitStatus.availabilitySourceBoundaryPinned, true);
+  assert.equal(report.coverage.safariWebKitStatus.rowLevelSourceBoundaryPinnedRowsRecorded, 2);
+  assert.equal(report.coverage.safariWebKitStatus.sourceBoundaryPinned, false);
   assert.equal(report.coverage.safariWebKitStatus.fullStringRowsRecorded, 2);
   assert.equal(report.coverage.safariWebKitStatus.directReadableStreamFullStringRowsRecorded, 0);
   assert.equal(report.coverage.safariWebKitStatus.primarySyncByteBatchRowsRecorded, 0);
@@ -1687,17 +1696,12 @@ test('runtime proof coverage audit does not let row flags override Safari full A
   writeFileSync(join(syntheticDir, 'safari-synthetic-browser-row.json'), `${JSON.stringify({
     objective: 'safari-synthetic-browser-row',
     contract: 'same-full-string-checksum-contract',
+    sourceBoundary: safariSyntheticSourceBoundary,
     sourceContract: {
       parserInput: 'complete XML ArrayBuffer parser input',
       arrayBufferConsumption: 'The benchmark passes one full XML ArrayBuffer to the parser.',
     },
-    environment: {
-      runtimeName: 'browser',
-      browserName: 'Safari',
-      browserVersion: '18.5',
-      javascriptEngine: 'JavaScriptCore',
-      userAgent: 'Mozilla/5.0 Version/18.5 Safari/605.1.15',
-    },
+    environment: safariSyntheticEnvironment,
     fixture: {
       source: 'corpus-file',
       sourceFile: 'books.xml',
@@ -1788,13 +1792,8 @@ test('runtime proof coverage audit keeps direct Safari ReadableStream rows separ
   writeFileSync(join(syntheticDir, 'safari-direct-readable-stream-result.json'), `${JSON.stringify({
     objective: 'safari-synthetic-browser-row',
     contract: 'same-full-string-checksum-contract',
-    environment: {
-      runtimeName: 'browser',
-      browserName: 'Safari',
-      browserVersion: '18.5',
-      javascriptEngine: 'JavaScriptCore',
-      userAgent: 'Mozilla/5.0 Version/18.5 Safari/605.1.15',
-    },
+    sourceBoundary: safariSyntheticSourceBoundary,
+    environment: safariSyntheticEnvironment,
     fixture: {
       source: 'corpus-file',
       sourceFile: 'books.xml',
@@ -1837,7 +1836,9 @@ test('runtime proof coverage audit keeps direct Safari ReadableStream rows separ
   assert.equal(report.coverage.safariWebKitStatus.evidenceClass, 'browser-row-evidence');
   assert.equal(report.coverage.safariWebKitStatus.benchmarkRowsRecorded, 1);
   assert.equal(report.coverage.safariWebKitStatus.exactBuildIdentityRecorded, true);
-  assert.equal(report.coverage.safariWebKitStatus.sourceBoundaryPinned, true);
+  assert.equal(report.coverage.safariWebKitStatus.availabilitySourceBoundaryPinned, true);
+  assert.equal(report.coverage.safariWebKitStatus.rowLevelSourceBoundaryPinnedRowsRecorded, 1);
+  assert.equal(report.coverage.safariWebKitStatus.sourceBoundaryPinned, false);
   assert.equal(report.coverage.safariWebKitStatus.fullStringRowsRecorded, 1);
   assert.equal(report.coverage.safariWebKitStatus.directReadableStreamFullStringRowsRecorded, 1);
   assert.equal(report.coverage.safariWebKitStatus.primarySyncByteBatchRowsRecorded, 0);
@@ -1880,13 +1881,8 @@ test('runtime proof coverage audit does not close Safari unless direct stream ro
   writeFileSync(join(syntheticDir, 'safari-synthetic-browser-row.json'), `${JSON.stringify({
     objective: 'safari-synthetic-browser-row',
     contract: 'same-full-string-checksum-contract',
-    environment: {
-      runtimeName: 'browser',
-      browserName: 'Safari',
-      browserVersion: '18.5',
-      javascriptEngine: 'JavaScriptCore',
-      userAgent: 'Mozilla/5.0 Version/18.5 Safari/605.1.15',
-    },
+    sourceBoundary: safariSyntheticSourceBoundary,
+    environment: safariSyntheticEnvironment,
     fixture: {
       source: 'corpus-file',
       sourceFile: 'books.xml',
@@ -1976,13 +1972,8 @@ test('runtime proof coverage audit closes Safari with bounded primary byte-batch
   writeFileSync(join(syntheticDir, 'safari-synthetic-browser-row.json'), `${JSON.stringify({
     objective: 'safari-synthetic-browser-row',
     contract: 'same-full-string-checksum-contract',
-    environment: {
-      runtimeName: 'browser',
-      browserName: 'Safari',
-      browserVersion: '18.5',
-      javascriptEngine: 'JavaScriptCore',
-      userAgent: 'Mozilla/5.0 Version/18.5 Safari/605.1.15',
-    },
+    sourceBoundary: safariSyntheticSourceBoundary,
+    environment: safariSyntheticEnvironment,
     fixture: {
       source: 'corpus-file',
       sourceFile: 'books.xml',
@@ -2075,13 +2066,8 @@ test('runtime proof coverage audit does not close Safari without accepted numeri
   writeFileSync(join(syntheticDir, 'safari-synthetic-browser-row.json'), `${JSON.stringify({
     objective: 'safari-synthetic-browser-row',
     contract: 'same-full-string-checksum-contract',
-    environment: {
-      runtimeName: 'browser',
-      browserName: 'Safari',
-      browserVersion: '18.5',
-      javascriptEngine: 'JavaScriptCore',
-      userAgent: 'Mozilla/5.0 Version/18.5 Safari/605.1.15',
-    },
+    sourceBoundary: safariSyntheticSourceBoundary,
+    environment: safariSyntheticEnvironment,
     fixture: {
       source: 'corpus-file',
       sourceFile: 'books.xml',
@@ -2190,13 +2176,8 @@ test('runtime proof coverage audit does not close Safari on sub-1GiB primary row
   writeFileSync(join(syntheticDir, 'safari-small-browser-row.json'), `${JSON.stringify({
     objective: 'safari-small-browser-row',
     contract: 'same-full-string-checksum-contract',
-    environment: {
-      runtimeName: 'browser',
-      browserName: 'Safari',
-      browserVersion: '18.5',
-      javascriptEngine: 'JavaScriptCore',
-      userAgent: 'Mozilla/5.0 Version/18.5 Safari/605.1.15',
-    },
+    sourceBoundary: safariSyntheticSourceBoundary,
+    environment: safariSyntheticEnvironment,
     fixture: {
       source: 'corpus-file',
       sourceFile: 'books.xml',
@@ -2287,13 +2268,8 @@ test('runtime proof coverage audit keeps Safari partial when primary rows are mi
   writeFileSync(join(syntheticDir, 'safari-synthetic-browser-row.json'), `${JSON.stringify({
     objective: 'safari-synthetic-browser-row',
     contract: 'same-full-string-checksum-contract',
-    environment: {
-      runtimeName: 'browser',
-      browserName: 'Safari',
-      browserVersion: '18.5',
-      javascriptEngine: 'JavaScriptCore',
-      userAgent: 'Mozilla/5.0 Version/18.5 Safari/605.1.15',
-    },
+    sourceBoundary: safariSyntheticSourceBoundary,
+    environment: safariSyntheticEnvironment,
     fixture: {
       source: 'corpus-file',
       sourceFile: 'books.xml',
@@ -2366,6 +2342,7 @@ test('runtime proof coverage audit keeps Safari partial without measured row bui
   writeFileSync(join(syntheticDir, 'external-run-result.json'), `${JSON.stringify({
     objective: 'external-browser-row',
     contract: 'same-full-string-checksum-contract',
+    sourceBoundary: safariSyntheticSourceBoundary,
     environment: {
       runtimeName: 'browser',
       browserName: 'Safari',
@@ -2458,13 +2435,8 @@ test('runtime proof coverage audit recognizes Safari browser rows by environment
   writeFileSync(join(syntheticDir, 'external-run-result.json'), `${JSON.stringify({
     objective: 'external-browser-row',
     contract: 'same-full-string-checksum-contract',
-    environment: {
-      runtimeName: 'browser',
-      browserName: 'Safari',
-      browserVersion: '18.5',
-      javascriptEngine: 'JavaScriptCore',
-      userAgent: 'Mozilla/5.0 Version/18.5 Safari/605.1.15',
-    },
+    sourceBoundary: safariSyntheticSourceBoundary,
+    environment: safariSyntheticEnvironment,
     fixture: {
       source: 'corpus-file',
       sourceFile: 'books.xml',

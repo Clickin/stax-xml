@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T16:40:22.988Z",
+  "generatedAt": "2026-06-02T17:04:21.633Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -417,7 +417,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T16:39:15.011Z",
+    "generatedAt": "2026-06-02T17:02:55.109Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -456,6 +456,11 @@
       {
         "id": "safari-closure-checks-1gib-primary",
         "description": "Safari closure checks must require largeBoundedPrimarySyncByteBatchRowsRecorded and largePrimaryRowsInSameContractComparison for 1 GiB+ bounded primary row id, event count, and checksum parity.",
+        "satisfied": true
+      },
+      {
+        "id": "safari-row-level-source-boundary-required",
+        "description": "Safari closure checks must require row-level source revision and source-pin artifact metadata, not only an availability-level sourceBoundaryPinned boolean.",
         "satisfied": true
       },
       {
@@ -547,9 +552,9 @@
   },
   "handoffValidationSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T16:39:27.576Z",
-    "validatedHandoffGeneratedAt": "2026-06-02T16:39:15.011Z",
-    "currentHandoffGeneratedAt": "2026-06-02T16:39:15.011Z",
+    "generatedAt": "2026-06-02T17:03:11.905Z",
+    "validatedHandoffGeneratedAt": "2026-06-02T17:02:55.109Z",
+    "currentHandoffGeneratedAt": "2026-06-02T17:02:55.109Z",
     "pass": true,
     "allContractsPresent": true,
     "requiredHandoffsPresent": true,
@@ -593,11 +598,11 @@
   },
   "sourceAuditSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T16:36:26.063Z",
+    "generatedAt": "2026-06-02T17:03:46.008Z",
     "inputComparisonGeneratedAt": "2026-06-02T14:53:00.937Z",
     "currentComparisonGeneratedAt": "2026-06-02T14:53:00.937Z",
-    "inputCoverageGeneratedAt": "2026-06-02T16:36:10.377Z",
-    "currentCoverageGeneratedAt": "2026-06-02T16:36:10.377Z",
+    "inputCoverageGeneratedAt": "2026-06-02T17:02:41.138Z",
+    "currentCoverageGeneratedAt": "2026-06-02T17:02:41.138Z",
     "status": "classified",
     "primarySourceContract": "primary-sync-iterable-byte-batches",
     "primaryParserInput": "synchronous Iterable<Uint8Array[]>",
@@ -748,7 +753,7 @@
   },
   "coverageSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T16:36:10.377Z",
+    "generatedAt": "2026-06-02T17:02:41.138Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -882,6 +887,7 @@
     "safariWebKitClosureAudit": {
       "candidateCount": 0,
       "qualifiedClosureCount": 0,
+      "rowLevelSourceBoundaryPinnedRows": 0,
       "comparisonGeneratedAt": "2026-06-02T14:53:00.937Z",
       "comparisonRowCount": 289
     },
@@ -900,7 +906,10 @@
       "largeBoundedPrimarySyncByteBatchRowsRecorded": 0,
       "directReadableStreamRowsAreSeparateEvidence": true,
       "exactBuildIdentityRecorded": false,
+      "rowLevelSourceBoundaryPinnedRowsRecorded": 0,
+      "largeBoundedPrimarySyncByteBatchRowsWithRowLevelSourceBoundaryPin": 0,
       "sourceBoundaryPinned": false,
+      "availabilitySourceBoundaryPinned": false,
       "primaryRowsInSameContractComparison": false,
       "largePrimaryRowsInSameContractComparison": false,
       "availabilityClosureRequirementsMet": 2,
@@ -1126,8 +1135,8 @@
     "requiredCounterexampleScanGuards": 8,
     "satisfiedCoverageGuards": 10,
     "requiredCoverageGuards": 10,
-    "satisfiedHandoffGuards": 22,
-    "requiredHandoffGuards": 22,
+    "satisfiedHandoffGuards": 23,
+    "requiredHandoffGuards": 23,
     "satisfiedHandoffValidationGuards": 6,
     "requiredHandoffValidationGuards": 6,
     "satisfiedSourceAuditGuards": 7,

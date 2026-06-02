@@ -1,6 +1,6 @@
 # Safari/WebKit Closure Audit
 
-Generated: 2026-06-02T15:06:06.749Z
+Generated: 2026-06-02T17:02:13.546Z
 
 Audits Safari/WebKit browser-row artifacts against the exact closure requirements for safari-jsc-source-and-browser-rows-open. This is not a Safari benchmark run; it prevents availability rows, Bun/JSC rows, direct ReadableStream rows, and rows without build/source/memory proof from closing the obligation.
 
@@ -14,6 +14,7 @@ Audits Safari/WebKit browser-row artifacts against the exact closure requirement
 - Large bounded primary rows: 0
 - Rows in same-contract comparison: 0
 - Rows with measured exact build identity: 0
+- Rows with row-level Safari/WebKit source pins: 0
 - Source boundary pinned: no
 - Qualified closures: 0
 - Conclusion allowed: no
@@ -28,9 +29,9 @@ Audits Safari/WebKit browser-row artifacts against the exact closure requirement
 
 ## Closure Matrix
 
-| Artifact | Row | Primary sync | Bounded memory | 1 GiB+ | Same contract | Build identity | Source boundary | Qualified | Missing |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| none | | | | | | | | | |
+| Artifact | Row | Primary sync | Bounded memory | 1 GiB+ | Same contract | Build identity | Row source pin | Availability source boundary | Qualified | Missing |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| none | | | | | | | | | | |
 
 ## Findings
 

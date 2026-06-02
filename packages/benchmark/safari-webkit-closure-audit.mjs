@@ -114,7 +114,17 @@ function createSelfTestReport(options) {
             environment: {
               browserName: 'Safari',
               browserVersion: '18.0',
+              webKitBuildVersion: '619.1.1',
               userAgent: 'Version/18.0 Safari/605.1.15',
+            },
+            sourceBoundary: {
+              sourceRevision: '0123456789abcdef0123456789abcdef01234567',
+              stringBoundaryPinned: true,
+              textDecoderBoundaryPinned: true,
+              sourcePinArtifacts: [
+                'safari-webkit-string-source-pin-audit.json',
+                'safari-webkit-textdecoder-source-pin-audit.json',
+              ],
             },
           },
           {
@@ -134,7 +144,17 @@ function createSelfTestReport(options) {
             environment: {
               browserName: 'Safari',
               browserVersion: '18.0',
+              webKitBuildVersion: '619.1.1',
               userAgent: 'Version/18.0 Safari/605.1.15',
+            },
+            sourceBoundary: {
+              sourceRevision: '0123456789abcdef0123456789abcdef01234567',
+              stringBoundaryPinned: true,
+              textDecoderBoundaryPinned: true,
+              sourcePinArtifacts: [
+                'safari-webkit-string-source-pin-audit.json',
+                'safari-webkit-textdecoder-source-pin-audit.json',
+              ],
             },
           },
         ],
@@ -185,7 +205,9 @@ function buildReport(options, artifacts, comparisonRows, comparison = {}, compar
       largeBoundedPrimaryRows: candidates.filter(candidate => candidate.requirements.largeOneGiB.met && candidate.requirements.boundedMemory.met && candidate.requirements.primarySyncByteBatch.met).length,
       rowsInSameContractComparison: candidates.filter(candidate => candidate.requirements.sameContractComparison.met).length,
       measuredExactBuildIdentityRows: candidates.filter(candidate => candidate.requirements.measuredExactBuildIdentity.met).length,
-      sourceBoundaryPinned: availability.safariSourceBoundaryPinned === true,
+      rowLevelSourceBoundaryPinnedRows: candidates.filter(candidate => candidate.requirements.rowLevelSourceBoundaryPinned.met).length,
+      sourceBoundaryPinned: availability.safariSourceBoundaryPinned === true
+        && candidates.some(candidate => candidate.requirements.rowLevelSourceBoundaryPinned.met),
       qualifiedClosureCount: qualified.length,
       contradictedAvailabilityClosure: availability.closesSafariObligation === true && qualified.length === 0,
       conclusionAllowed: qualified.length > 0,
@@ -253,6 +275,15 @@ function createCandidate(row, availability, comparisonRows, minLargeGiB) {
     sourceBoundaryPinned: {
       met: availability.safariSourceBoundaryPinned === true,
       evidence: [`safariSourceBoundaryPinned=${availability.safariSourceBoundaryPinned ?? 'unknown'}`],
+    },
+    rowLevelSourceBoundaryPinned: {
+      met: hasSafariWebKitSourceBoundaryPin(row),
+      evidence: [
+        `sourceRevision=${row.sourceBoundary?.sourceRevision ?? 'unknown'}`,
+        `stringBoundaryPinned=${row.sourceBoundary?.stringBoundaryPinned ?? 'unknown'}`,
+        `textDecoderBoundaryPinned=${row.sourceBoundary?.textDecoderBoundaryPinned ?? 'unknown'}`,
+        `sourcePinArtifacts=${(row.sourceBoundary?.sourcePinArtifacts ?? []).join(',') || 'none'}`,
+      ],
     },
     directStreamSeparate: {
       met: availability.directReadableStreamRowsAreSeparateEvidence === true,
@@ -335,6 +366,7 @@ function normalizeRow(sourceArtifact, node) {
     eventCount: firstFiniteNumber(node.eventCount, node.events),
     checksum: firstFiniteNumber(node.checksum),
     environment: node.environment && typeof node.environment === 'object' ? node.environment : {},
+    sourceBoundary: normalizeSafariSourceBoundary(node.sourceBoundary),
   };
 }
 
@@ -376,9 +408,45 @@ function hasMeasuredSafariBuildIdentity(row) {
   return typeof row.environment?.browserVersion === 'string'
     && row.environment.browserVersion.length > 0
     && row.environment.browserVersion !== 'unknown'
+    && (typeof row.environment?.webKitBuildVersion === 'string'
+      || /AppleWebKit\/\d/i.test(row.environment?.userAgent ?? ''))
     && typeof row.environment?.userAgent === 'string'
     && row.environment.userAgent.length > 0
     && /Safari\//.test(row.environment.userAgent);
+}
+
+function hasSafariWebKitSourceBoundaryPin(row) {
+  const boundary = row.sourceBoundary ?? {};
+  return hasSafariSourceRevision(boundary.sourceRevision)
+    && boundary.stringBoundaryPinned === true
+    && boundary.textDecoderBoundaryPinned === true
+    && boundary.sourcePinArtifacts.some(artifact => /safari|webkit/i.test(artifact) && !/bun/i.test(artifact));
+}
+
+function hasSafariSourceRevision(value) {
+  return typeof value === 'string'
+    && value.length > 0
+    && value !== 'unknown'
+    && (/[0-9a-f]{7,40}/i.test(value) || /^r?\d{5,}$/i.test(value));
+}
+
+function normalizeSafariSourceBoundary(sourceBoundary = {}) {
+  if (!sourceBoundary || typeof sourceBoundary !== 'object') return {};
+  return {
+    sourceRevision: firstString(
+      sourceBoundary.sourceRevision,
+      sourceBoundary.webkitSourceRevision,
+      sourceBoundary.webKitSourceRevision,
+      sourceBoundary.revision,
+    ),
+    stringBoundaryPinned: sourceBoundary.stringBoundaryPinned === true,
+    textDecoderBoundaryPinned: sourceBoundary.textDecoderBoundaryPinned === true,
+    sourcePinArtifacts: uniqueStrings([
+      ...(Array.isArray(sourceBoundary.sourcePinArtifacts) ? sourceBoundary.sourcePinArtifacts : []),
+      ...(Array.isArray(sourceBoundary.artifacts) ? sourceBoundary.artifacts : []),
+      sourceBoundary.sourcePinArtifact,
+    ]),
+  };
 }
 
 function createFindings(report) {
@@ -426,6 +494,7 @@ function renderMarkdown(report) {
     `- Large bounded primary rows: ${report.summary.largeBoundedPrimaryRows}`,
     `- Rows in same-contract comparison: ${report.summary.rowsInSameContractComparison}`,
     `- Rows with measured exact build identity: ${report.summary.measuredExactBuildIdentityRows}`,
+    `- Rows with row-level Safari/WebKit source pins: ${report.summary.rowLevelSourceBoundaryPinnedRows}`,
     `- Source boundary pinned: ${yesNo(report.summary.sourceBoundaryPinned)}`,
     `- Qualified closures: ${report.summary.qualifiedClosureCount}`,
     `- Conclusion allowed: ${yesNo(report.summary.conclusionAllowed)}`,
@@ -440,11 +509,11 @@ function renderMarkdown(report) {
     '',
     '## Closure Matrix',
     '',
-    '| Artifact | Row | Primary sync | Bounded memory | 1 GiB+ | Same contract | Build identity | Source boundary | Qualified | Missing |',
-    '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
+    '| Artifact | Row | Primary sync | Bounded memory | 1 GiB+ | Same contract | Build identity | Row source pin | Availability source boundary | Qualified | Missing |',
+    '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
   ];
   if (report.candidates.length === 0) {
-    lines.push('| none | | | | | | | | | |');
+    lines.push('| none | | | | | | | | | | |');
   } else {
     for (const candidate of report.candidates) {
       lines.push([
@@ -455,6 +524,7 @@ function renderMarkdown(report) {
         yesNo(candidate.requirements.largeOneGiB.met),
         yesNo(candidate.requirements.sameContractComparison.met),
         yesNo(candidate.requirements.measuredExactBuildIdentity.met),
+        yesNo(candidate.requirements.rowLevelSourceBoundaryPinned.met),
         yesNo(candidate.requirements.sourceBoundaryPinned.met),
         yesNo(candidate.qualifiedClosure),
         candidate.unmetRequirements.length ? candidate.unmetRequirements.join(', ') : 'none',
@@ -492,6 +562,10 @@ function firstString(...values) {
     if (typeof value === 'string' && value.length > 0) return value;
   }
   return null;
+}
+
+function uniqueStrings(values) {
+  return Array.from(new Set(values.filter(value => typeof value === 'string' && value.length > 0))).sort();
 }
 
 function yesNo(value) {

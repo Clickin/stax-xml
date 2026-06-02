@@ -183,6 +183,10 @@ function validateHandoff(handoff) {
         /200 MiB\/s\+ bounded-memory row as a counterexample/,
         /exact Safari version/,
         /TextDecoder\/UTF-8 decode source lines/,
+        /row-level source-boundary metadata/,
+        /rowLevelSourceBoundaryPinnedRowsRecorded/,
+        /largeBoundedPrimarySyncByteBatchRowsWithRowLevelSourceBoundaryPin/,
+        /row-level source revision and source-pin artifact metadata/,
       ]
     : isSpiderMonkey
       ? [

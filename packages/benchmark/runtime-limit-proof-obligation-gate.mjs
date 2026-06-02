@@ -939,6 +939,13 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
         && safariChecks.some(item => /1 GiB\+ bounded primary row id, event count, and checksum/.test(item)),
     },
     {
+      id: 'safari-row-level-source-boundary-required',
+      description: 'Safari closure checks must require row-level source revision and source-pin artifact metadata, not only an availability-level sourceBoundaryPinned boolean.',
+      satisfied: safariChecks.some(item => /rowLevelSourceBoundaryPinnedRowsRecorded must be greater than 0/.test(item))
+        && safariChecks.some(item => /largeBoundedPrimarySyncByteBatchRowsWithRowLevelSourceBoundaryPin must be greater than 0/.test(item))
+        && safariChecks.some(item => /row-level source revision and source-pin artifact metadata/.test(item)),
+    },
+    {
       id: 'safari-local-availability-blocker',
       description: 'Safari handoff must preserve the local Safari availability blocker with host/harness runability details and zero-candidate closure audit summary tied to the current same-contract comparison identity.',
       satisfied: safariBlockers.some(item => /Current host cannot run Safari\/WebKit browser rows/.test(item)
@@ -948,7 +955,8 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
         && /canRunSafariBrowserRows=false/.test(item))
         && safariBlockers.some(item => /Safari\/WebKit closure audit checks candidateRows=0/.test(item)
           && /comparisonGeneratedAt=/.test(item)
-          && /comparisonRowCount=\d+/.test(item)),
+          && /comparisonRowCount=\d+/.test(item)
+          && /rowLevelSourceBoundaryPinnedRows=/.test(item)),
     },
     {
       id: 'spidermonkey-closing-artifact-schema-evidence',
@@ -1281,6 +1289,7 @@ function createCoverageSnapshot(audit, counterexampleSnapshot = null) {
     safariWebKitClosureAudit: {
       candidateCount: safariClosureAudit.candidateCount ?? null,
       qualifiedClosureCount: safariClosureAudit.qualifiedClosureCount ?? null,
+      rowLevelSourceBoundaryPinnedRows: safariClosureAudit.rowLevelSourceBoundaryPinnedRows ?? null,
       comparisonGeneratedAt: safariClosureAudit.comparisonGeneratedAt ?? null,
       comparisonRowCount: safariClosureAudit.comparisonRowCount ?? null,
     },
@@ -1314,7 +1323,10 @@ function createNullSafariWebKitStatus() {
     largeBoundedPrimarySyncByteBatchRowsRecorded: null,
     directReadableStreamRowsAreSeparateEvidence: null,
     exactBuildIdentityRecorded: null,
+    rowLevelSourceBoundaryPinnedRowsRecorded: null,
+    largeBoundedPrimarySyncByteBatchRowsWithRowLevelSourceBoundaryPin: null,
     sourceBoundaryPinned: null,
+    availabilitySourceBoundaryPinned: null,
     primaryRowsInSameContractComparison: null,
     largePrimaryRowsInSameContractComparison: null,
     availabilityClosureRequirementsMet: null,
@@ -1340,7 +1352,10 @@ function createSafariWebKitStatusSnapshot(status = {}) {
     largeBoundedPrimarySyncByteBatchRowsRecorded: status.largeBoundedPrimarySyncByteBatchRowsRecorded ?? null,
     directReadableStreamRowsAreSeparateEvidence: status.directReadableStreamRowsAreSeparateEvidence ?? null,
     exactBuildIdentityRecorded: status.exactBuildIdentityRecorded ?? null,
+    rowLevelSourceBoundaryPinnedRowsRecorded: status.rowLevelSourceBoundaryPinnedRowsRecorded ?? null,
+    largeBoundedPrimarySyncByteBatchRowsWithRowLevelSourceBoundaryPin: status.largeBoundedPrimarySyncByteBatchRowsWithRowLevelSourceBoundaryPin ?? null,
     sourceBoundaryPinned: status.sourceBoundaryPinned ?? null,
+    availabilitySourceBoundaryPinned: status.availabilitySourceBoundaryPinned ?? null,
     primaryRowsInSameContractComparison: status.primaryRowsInSameContractComparison ?? null,
     largePrimaryRowsInSameContractComparison: status.largePrimaryRowsInSameContractComparison ?? null,
     availabilityClosureRequirementsMet: status.availabilityClosureRequirementsMet ?? null,
@@ -1375,6 +1390,8 @@ function createCoverageGuards(snapshot, counterexampleSnapshot = null) {
         && safari.largeBoundedPrimarySyncByteBatchRowsRecorded === 0
         && safari.directReadableStreamRowsAreSeparateEvidence === true
         && safari.exactBuildIdentityRecorded === false
+        && safari.rowLevelSourceBoundaryPinnedRowsRecorded === 0
+        && safari.largeBoundedPrimarySyncByteBatchRowsWithRowLevelSourceBoundaryPin === 0
         && safari.sourceBoundaryPinned === false
         && safari.closesSafariObligation === false,
     },
@@ -1383,6 +1400,7 @@ function createCoverageGuards(snapshot, counterexampleSnapshot = null) {
       description: 'Safari/WebKit closure audit comparison freshness must be preserved in coverage: the closure matrix must reference the current same-contract comparison generatedAt and row count even when no Safari rows are present.',
       satisfied: safariClosureAudit.candidateCount === 0
         && safariClosureAudit.qualifiedClosureCount === 0
+        && safariClosureAudit.rowLevelSourceBoundaryPinnedRows === 0
         && safariClosureAudit.comparisonGeneratedAt === counterexampleSnapshot?.comparisonGeneratedAt
         && safariClosureAudit.comparisonRowCount === counterexampleSnapshot?.comparisonRowCount,
     },

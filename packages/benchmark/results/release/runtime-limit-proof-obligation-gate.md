@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T16:40:22.988Z
+Generated: 2026-06-02T17:04:21.633Z
 
 ## Scope
 
@@ -87,7 +87,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-02T16:36:10.377Z)
+- Coverage audit loaded: yes (2026-06-02T17:02:41.138Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey diagnostics rows vs closure candidates: 11/16 (gap=5, closureQualified=0)
@@ -133,7 +133,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-02T16:39:15.011Z)
+- Handoff loaded: yes (2026-06-02T17:02:55.109Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -144,6 +144,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `safari-closure-checks-primary-bounded` | yes | Safari closure checks must require primary and bounded sync byte-batch rows plus closesSafariObligation=true. |
 | `safari-closure-checks-same-contract-comparison` | yes | Safari closure checks must require bounded primary rows to match same-contract-runtime-comparison.json by row id, event count, and checksum via primaryRowsInSameContractComparison. |
 | `safari-closure-checks-1gib-primary` | yes | Safari closure checks must require largeBoundedPrimarySyncByteBatchRowsRecorded and largePrimaryRowsInSameContractComparison for 1 GiB+ bounded primary row id, event count, and checksum parity. |
+| `safari-row-level-source-boundary-required` | yes | Safari closure checks must require row-level source revision and source-pin artifact metadata, not only an availability-level sourceBoundaryPinned boolean. |
 | `safari-local-availability-blocker` | yes | Safari handoff must preserve the local Safari availability blocker with host/harness runability details and zero-candidate closure audit summary tied to the current same-contract comparison identity. |
 | `spidermonkey-closing-artifact-schema-evidence` | yes | SpiderMonkey expected evidence must require explicit closure declarations, same-contract row status, comparison match, and allowed evidence class. |
 | `spidermonkey-emitted-ir-required` | yes | SpiderMonkey closure checks must require emitted IR/codegen evidence and no missing IR surface. |
@@ -164,8 +165,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T16:39:27.576Z)
-- Handoff validation target handoff generatedAt: 2026-06-02T16:39:15.011Z (current 2026-06-02T16:39:15.011Z)
+- Handoff validation loaded: yes (2026-06-02T17:03:11.905Z)
+- Handoff validation target handoff generatedAt: 2026-06-02T17:02:55.109Z (current 2026-06-02T17:02:55.109Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes
 - Required contracts present: yes
@@ -183,8 +184,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-02T16:36:26.063Z)
-- Source audit inputs: comparison=2026-06-02T14:53:00.937Z (current 2026-06-02T14:53:00.937Z), coverage=2026-06-02T16:36:10.377Z (current 2026-06-02T16:36:10.377Z)
+- Source audit loaded: yes (2026-06-02T17:03:46.008Z)
+- Source audit inputs: comparison=2026-06-02T14:53:00.937Z (current 2026-06-02T14:53:00.937Z), coverage=2026-06-02T17:02:41.138Z (current 2026-06-02T17:02:41.138Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary sync byte-batch rows: 231
