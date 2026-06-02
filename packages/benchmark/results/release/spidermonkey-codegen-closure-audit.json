@@ -1,10 +1,11 @@
 {
-  "generatedAt": "2026-06-02T13:33:38.035Z",
+  "generatedAt": "2026-06-02T14:00:36.529Z",
   "objective": "spidermonkey-codegen-closure-audit",
   "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
   "note": "Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.",
   "parameters": {
     "releaseDir": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release",
+    "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
     "selfTest": false
   },
   "candidates": [
@@ -15,6 +16,7 @@
       "evidenceClass": "source-pin-only",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -54,6 +56,13 @@
             "selectedRowId=unknown",
             "selectedEventCount=unknown",
             "selectedChecksum=unknown"
+          ]
+        },
+        "selectedRowMatchesCurrentComparison": {
+          "met": true,
+          "evidence": [
+            "selectedRowMatchesCurrentComparison=not-applicable",
+            "comparisonRows=245"
           ]
         },
         "closingMetadata": {
@@ -92,6 +101,7 @@
       "evidenceClass": "negative-diagnostic-surface",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -131,6 +141,13 @@
             "selectedRowId=unknown",
             "selectedEventCount=unknown",
             "selectedChecksum=unknown"
+          ]
+        },
+        "selectedRowMatchesCurrentComparison": {
+          "met": true,
+          "evidence": [
+            "selectedRowMatchesCurrentComparison=not-applicable",
+            "comparisonRows=245"
           ]
         },
         "closingMetadata": {
@@ -169,6 +186,7 @@
       "evidenceClass": "availability-only",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -208,6 +226,13 @@
             "selectedRowId=unknown",
             "selectedEventCount=unknown",
             "selectedChecksum=unknown"
+          ]
+        },
+        "selectedRowMatchesCurrentComparison": {
+          "met": true,
+          "evidence": [
+            "selectedRowMatchesCurrentComparison=not-applicable",
+            "comparisonRows=245"
           ]
         },
         "closingMetadata": {
@@ -246,6 +271,7 @@
       "evidenceClass": "host-api-surface-gap",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -287,6 +313,13 @@
             "selectedChecksum=unknown"
           ]
         },
+        "selectedRowMatchesCurrentComparison": {
+          "met": true,
+          "evidence": [
+            "selectedRowMatchesCurrentComparison=not-applicable",
+            "comparisonRows=245"
+          ]
+        },
         "closingMetadata": {
           "met": false,
           "evidence": [
@@ -323,6 +356,7 @@
       "evidenceClass": "availability-only",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -362,6 +396,13 @@
             "selectedRowId=unknown",
             "selectedEventCount=unknown",
             "selectedChecksum=unknown"
+          ]
+        },
+        "selectedRowMatchesCurrentComparison": {
+          "met": true,
+          "evidence": [
+            "selectedRowMatchesCurrentComparison=not-applicable",
+            "comparisonRows=245"
           ]
         },
         "closingMetadata": {
@@ -400,6 +441,7 @@
       "evidenceClass": "availability-only",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -441,6 +483,13 @@
             "selectedChecksum=unknown"
           ]
         },
+        "selectedRowMatchesCurrentComparison": {
+          "met": true,
+          "evidence": [
+            "selectedRowMatchesCurrentComparison=not-applicable",
+            "comparisonRows=245"
+          ]
+        },
         "closingMetadata": {
           "met": false,
           "evidence": [
@@ -477,6 +526,7 @@
       "evidenceClass": "archival-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -516,6 +566,13 @@
             "selectedChecksum=unknown"
           ]
         },
+        "selectedRowMatchesCurrentComparison": {
+          "met": true,
+          "evidence": [
+            "selectedRowMatchesCurrentComparison=not-applicable",
+            "comparisonRows=245"
+          ]
+        },
         "closingMetadata": {
           "met": false,
           "evidence": [
@@ -551,6 +608,7 @@
       "evidenceClass": "diagnostic-flag-sweep-negative",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -590,6 +648,13 @@
             "selectedRowId=unknown",
             "selectedEventCount=unknown",
             "selectedChecksum=unknown"
+          ]
+        },
+        "selectedRowMatchesCurrentComparison": {
+          "met": true,
+          "evidence": [
+            "selectedRowMatchesCurrentComparison=not-applicable",
+            "comparisonRows=245"
           ]
         },
         "closingMetadata": {
@@ -628,6 +693,7 @@
       "evidenceClass": "materialized-headroom-only",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -667,6 +733,13 @@
             "selectedRowId=unknown",
             "selectedEventCount=unknown",
             "selectedChecksum=unknown"
+          ]
+        },
+        "selectedRowMatchesCurrentComparison": {
+          "met": true,
+          "evidence": [
+            "selectedRowMatchesCurrentComparison=not-applicable",
+            "comparisonRows=245"
           ]
         },
         "closingMetadata": {
@@ -705,6 +778,7 @@
       "evidenceClass": "parser-core-headroom-only",
       "hasAnyDiagnosticSurface": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -746,6 +820,13 @@
             "selectedChecksum=unknown"
           ]
         },
+        "selectedRowMatchesCurrentComparison": {
+          "met": true,
+          "evidence": [
+            "selectedRowMatchesCurrentComparison=not-applicable",
+            "comparisonRows=245"
+          ]
+        },
         "closingMetadata": {
           "met": false,
           "evidence": [
@@ -782,6 +863,7 @@
       "evidenceClass": "current-debug-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -817,6 +899,13 @@
             "selectedRowId=unknown",
             "selectedEventCount=unknown",
             "selectedChecksum=unknown"
+          ]
+        },
+        "selectedRowMatchesCurrentComparison": {
+          "met": true,
+          "evidence": [
+            "selectedRowMatchesCurrentComparison=not-applicable",
+            "comparisonRows=245"
           ]
         },
         "closingMetadata": {
@@ -853,6 +942,7 @@
       "evidenceClass": "current-debug-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -890,6 +980,13 @@
             "selectedChecksum=unknown"
           ]
         },
+        "selectedRowMatchesCurrentComparison": {
+          "met": true,
+          "evidence": [
+            "selectedRowMatchesCurrentComparison=not-applicable",
+            "comparisonRows=245"
+          ]
+        },
         "closingMetadata": {
           "met": true,
           "evidence": [
@@ -924,6 +1021,7 @@
       "evidenceClass": "current-debug-materialized-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -959,6 +1057,13 @@
             "selectedRowId=unknown",
             "selectedEventCount=unknown",
             "selectedChecksum=unknown"
+          ]
+        },
+        "selectedRowMatchesCurrentComparison": {
+          "met": true,
+          "evidence": [
+            "selectedRowMatchesCurrentComparison=not-applicable",
+            "comparisonRows=245"
           ]
         },
         "closingMetadata": {
@@ -995,6 +1100,7 @@
       "evidenceClass": "current-debug-materialized-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -1032,6 +1138,13 @@
             "selectedChecksum=unknown"
           ]
         },
+        "selectedRowMatchesCurrentComparison": {
+          "met": true,
+          "evidence": [
+            "selectedRowMatchesCurrentComparison=not-applicable",
+            "comparisonRows=245"
+          ]
+        },
         "closingMetadata": {
           "met": true,
           "evidence": [
@@ -1066,6 +1179,7 @@
       "evidenceClass": "current-debug-xml-codegen-scope-guard",
       "hasAnyDiagnosticSurface": true,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
+      "selectedRowMatchesCurrentComparison": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -1101,6 +1215,13 @@
             "selectedRowId=unknown",
             "selectedEventCount=unknown",
             "selectedChecksum=unknown"
+          ]
+        },
+        "selectedRowMatchesCurrentComparison": {
+          "met": true,
+          "evidence": [
+            "selectedRowMatchesCurrentComparison=not-applicable",
+            "comparisonRows=245"
           ]
         },
         "closingMetadata": {
@@ -1226,6 +1347,9 @@
     "sameContractStaxRowCount": 0,
     "unchangedRunnableCount": 0,
     "selectedRowMetadataCount": 0,
+    "selectedRowComparisonMatchCount": 0,
+    "selectedRowComparisonMismatchCount": 0,
+    "selectedRowComparisonMissingCount": 15,
     "closingMetadataCount": 5,
     "qualifiedClosureCount": 0,
     "contradictedClosureClaimCount": 0,

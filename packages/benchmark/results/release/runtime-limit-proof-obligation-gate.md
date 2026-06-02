@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T13:50:49.669Z
+Generated: 2026-06-02T14:01:05.626Z
 
 ## Scope
 
@@ -127,7 +127,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-02T13:50:34.305Z)
+- Handoff loaded: yes (2026-06-02T14:00:46.087Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -148,6 +148,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `spidermonkey-diagnostic-row-identity-blocker` | yes | SpiderMonkey diagnostic rows must remain blocked with selectedRowIdentityStatus=not-claimed-non-stax-diagnostic until they are same-contract StAX closure evidence. |
 | `spidermonkey-closure-audit-identity-statuses` | yes | SpiderMonkey closure audit must preserve non-StAX diagnostic identity status counts for closure-matrix candidates. |
 | `spidermonkey-selected-row-metadata-missing-fields` | yes | SpiderMonkey closure audit must preserve which selected-row metadata fields are missing from closure-matrix candidates. |
+| `spidermonkey-selected-row-comparison-match-counts` | yes | SpiderMonkey closure audit must preserve selected-row comparison match counts against same-contract-runtime-comparison.json. |
 | `spidermonkey-closing-metadata-missing-fields` | yes | SpiderMonkey closure audit must preserve which closing metadata subfields are missing from closure-matrix candidates. |
 | `spidermonkey-disallowed-evidence-class-counts` | yes | SpiderMonkey closure audit must preserve which diagnostic scope-guard evidence classes are disallowed as closure evidence. |
 | `spidermonkey-closure-frontier-blockers` | yes | SpiderMonkey handoff must preserve named closest blocked candidates and common missing requirements from the closure audit frontier. |
@@ -155,8 +156,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T13:50:41.798Z)
-- Handoff validation target handoff generatedAt: 2026-06-02T13:50:34.305Z (current 2026-06-02T13:50:34.305Z)
+- Handoff validation loaded: yes (2026-06-02T14:00:55.915Z)
+- Handoff validation target handoff generatedAt: 2026-06-02T14:00:46.087Z (current 2026-06-02T14:00:46.087Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes
 - Required contracts present: yes

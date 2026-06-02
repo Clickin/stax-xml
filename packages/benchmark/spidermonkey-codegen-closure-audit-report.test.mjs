@@ -30,15 +30,18 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
   assert.equal(report.objective, 'spidermonkey-codegen-closure-audit');
   assert.equal(report.contract, 'spidermonkey-emitted-codegen-same-contract-closure-matrix');
-  assert.equal(report.summary.candidateCount, 4);
-  assert.equal(report.summary.emittedCodegenSurfaceCount, 4);
-  assert.equal(report.summary.sameContractStaxRowCount, 2);
-  assert.equal(report.summary.unchangedRunnableCount, 2);
-  assert.equal(report.summary.selectedRowMetadataCount, 2);
+  assert.equal(report.summary.candidateCount, 5);
+  assert.equal(report.summary.emittedCodegenSurfaceCount, 5);
+  assert.equal(report.summary.sameContractStaxRowCount, 3);
+  assert.equal(report.summary.unchangedRunnableCount, 3);
+  assert.equal(report.summary.selectedRowMetadataCount, 3);
+  assert.equal(report.summary.selectedRowComparisonMatchCount, 2);
+  assert.equal(report.summary.selectedRowComparisonMismatchCount, 1);
+  assert.equal(report.summary.selectedRowComparisonMissingCount, 2);
   assert.equal(report.summary.qualifiedClosureCount, 1);
-  assert.equal(report.summary.contradictedClosureClaimCount, 2);
+  assert.equal(report.summary.contradictedClosureClaimCount, 3);
   assert.deepEqual(report.summary.selectedRowIdentityStatusCounts, {
-    'closing-row-identity-missing-or-mismatched': 1,
+    'closing-row-identity-missing-or-mismatched': 2,
     'not-claimed-non-stax-diagnostic': 2,
     'same-contract-stax-row': 1,
   });
@@ -51,7 +54,7 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.deepEqual(report.summary.evidenceClassCounts, {
     'current-debug-codegen-scope-guard': 1,
     'current-debug-materialized-codegen-scope-guard': 1,
-    'same-contract-spidermonkey-codegen': 1,
+    'same-contract-spidermonkey-codegen': 2,
     unknown: 1,
   });
   assert.deepEqual(report.summary.disallowedEvidenceClassCounts, {
@@ -60,15 +63,16 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
     unknown: 1,
   });
   assert.equal(report.summary.minimumBlockedRequirementCount, 1);
-  assert.equal(report.summary.closestBlockedCandidateCount, 1);
+  assert.equal(report.summary.closestBlockedCandidateCount, 2);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.deepEqual(report.missingRequirementHistogram, {
     evidenceClassAllowed: 3,
+    selectedRowMatchesCurrentComparison: 1,
     sameContractStaxRow: 2,
     selectedRowMetadata: 2,
     unchangedRunnable: 2,
   });
-  assert.equal(report.contradictedClosureClaims.length, 2);
+  assert.equal(report.contradictedClosureClaims.length, 3);
   const contradicted = report.contradictedClosureClaims.find(candidate =>
     candidate.sourceArtifact === 'spidermonkey-contradicted-closure.json'
   );
@@ -86,9 +90,19 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.deepEqual(unknownClass.unmetRequirements, [
     'evidenceClassAllowed',
   ]);
-  assert.equal(report.closestBlockedCandidates.length, 1);
+  const mismatch = report.contradictedClosureClaims.find(candidate =>
+    candidate.sourceArtifact === 'spidermonkey-mismatched-comparison-row.json'
+  );
+  assert.ok(mismatch);
+  assert.deepEqual(mismatch.unmetRequirements, [
+    'selectedRowMatchesCurrentComparison',
+  ]);
+  assert.equal(report.closestBlockedCandidates.length, 2);
   assert.ok(report.closestBlockedCandidates.some(candidate =>
     candidate.sourceArtifact === 'spidermonkey-unknown-closure-class.json'
+  ));
+  assert.ok(report.closestBlockedCandidates.some(candidate =>
+    candidate.sourceArtifact === 'spidermonkey-mismatched-comparison-row.json'
   ));
   assert.ok(report.closestBlockedCandidates.every(candidate =>
     candidate.unmetRequirementCount === 1
@@ -115,9 +129,18 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.ok(closure);
   assert.equal(closure.qualifiedClosure, true);
   assert.equal(closure.selectedRowIdentityStatus, 'same-contract-stax-row');
+  assert.equal(closure.selectedRowMatchesCurrentComparison, true);
   assert.deepEqual(closure.selectedRowMetadataMissingFields, []);
   assert.deepEqual(closure.closingMetadataMissingFields, []);
   assert.deepEqual(closure.unmetRequirements, []);
+
+  const mismatchedClosure = report.candidates.find(candidate => candidate.sourceArtifact === 'spidermonkey-mismatched-comparison-row.json');
+  assert.ok(mismatchedClosure);
+  assert.equal(mismatchedClosure.qualifiedClosure, false);
+  assert.equal(mismatchedClosure.selectedRowMatchesCurrentComparison, false);
+  assert.deepEqual(mismatchedClosure.unmetRequirements, [
+    'selectedRowMatchesCurrentComparison',
+  ]);
 
   const unknownClosureClass = report.candidates.find(candidate => candidate.sourceArtifact === 'spidermonkey-unknown-closure-class.json');
   assert.ok(unknownClosureClass);
@@ -130,13 +153,15 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# SpiderMonkey Codegen Closure Audit/);
   assert.match(markdown, /Qualified closures: 1/);
-  assert.match(markdown, /Contradicted closure claims: 2/);
-  assert.match(markdown, /Selected row identity statuses: closing-row-identity-missing-or-mismatched=1, not-claimed-non-stax-diagnostic=2, same-contract-stax-row=1/);
+  assert.match(markdown, /Contradicted closure claims: 3/);
+  assert.match(markdown, /Selected row identity statuses: closing-row-identity-missing-or-mismatched=2, not-claimed-non-stax-diagnostic=2, same-contract-stax-row=1/);
+  assert.match(markdown, /Selected row comparison matches: matched=2, mismatched=1, missing=2/);
   assert.match(markdown, /Selected row metadata missing fields: selectedChecksum=2, selectedEventCount=2, selectedRowId=2/);
   assert.match(markdown, /Closing metadata missing fields: none/);
-  assert.match(markdown, /Evidence classes: current-debug-codegen-scope-guard=1, current-debug-materialized-codegen-scope-guard=1, same-contract-spidermonkey-codegen=1, unknown=1/);
+  assert.match(markdown, /Evidence classes: current-debug-codegen-scope-guard=1, current-debug-materialized-codegen-scope-guard=1, same-contract-spidermonkey-codegen=2, unknown=1/);
   assert.match(markdown, /Disallowed evidence classes: current-debug-codegen-scope-guard=1, current-debug-materialized-codegen-scope-guard=1, unknown=1/);
-  assert.match(markdown, /Closest blocked candidate count: 1/);
+  assert.match(markdown, /Closest blocked candidate count: 2/);
+  assert.match(markdown, /selectedRowMatchesCurrentComparison: 1/);
   assert.match(markdown, /sameContractStaxRow: 2/);
   assert.match(markdown, /spidermonkey-contradicted-closure\.json/);
   assert.match(markdown, /spidermonkey-unknown-closure-class\.json/);

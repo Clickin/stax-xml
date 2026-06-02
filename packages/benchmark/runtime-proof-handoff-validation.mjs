@@ -214,6 +214,7 @@ function validateHandoff(handoff) {
           /spidermonkey-codegen-closure-audit\.json/,
           /spidermonkey-codegen-rerun-stability-audit\.json/,
           /selectedRowMetadataMissingFieldCounts selectedChecksum=\d+, selectedEventCount=\d+, selectedRowId=\d+/,
+          /selectedRowComparisonMatchCount=\d+, selectedRowComparisonMismatchCount=\d+, selectedRowComparisonMissingCount=\d+/,
           /closingMetadataMissingFieldCounts diagnosticFlags=\d+, emittedDumpMetadata=\d+, runtimeBuildIdentity=\d+/,
           /disallowedEvidenceClassCounts .*current-debug-codegen-scope-guard=\d+/,
           /selectedRowIdentityStatusCounts not-claimed-non-stax-diagnostic=\d+/,

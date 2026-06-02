@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-02T13:50:41.798Z",
+  "generatedAt": "2026-06-02T14:00:55.915Z",
   "objective": "runtime-proof-handoff-validation",
   "contract": "external-run-handoff-command-and-contract-static-validation",
   "note": "Static validation for runtime-proof-gap-handoff external runbooks. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
   "inputs": {
     "handoffJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-gap-handoff.json",
-    "handoffGeneratedAt": "2026-06-02T13:50:34.305Z",
+    "handoffGeneratedAt": "2026-06-02T14:00:46.087Z",
     "handoffObjective": "runtime-proof-gap-handoff",
     "handoffContract": "external-proof-gap-runbook-linked-to-coverage-audit"
   },
@@ -123,6 +123,7 @@
         "spidermonkey-codegen-closure-audit\\.json",
         "spidermonkey-codegen-rerun-stability-audit\\.json",
         "selectedRowMetadataMissingFieldCounts selectedChecksum=\\d+, selectedEventCount=\\d+, selectedRowId=\\d+",
+        "selectedRowComparisonMatchCount=\\d+, selectedRowComparisonMismatchCount=\\d+, selectedRowComparisonMissingCount=\\d+",
         "closingMetadataMissingFieldCounts diagnosticFlags=\\d+, emittedDumpMetadata=\\d+, runtimeBuildIdentity=\\d+",
         "disallowedEvidenceClassCounts .*current-debug-codegen-scope-guard=\\d+",
         "selectedRowIdentityStatusCounts not-claimed-non-stax-diagnostic=\\d+",

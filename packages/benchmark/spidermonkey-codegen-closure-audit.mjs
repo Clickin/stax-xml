@@ -6,6 +6,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const defaultReleaseDir = resolve(__dirname, 'results', 'release');
 const defaultJsonOut = resolve(defaultReleaseDir, 'spidermonkey-codegen-closure-audit.json');
 const defaultMdOut = resolve(defaultReleaseDir, 'spidermonkey-codegen-closure-audit.md');
+const defaultComparisonJson = resolve(defaultReleaseDir, 'same-contract-runtime-comparison.json');
 
 const allowedEvidenceClasses = new Set([
   'same-contract-spidermonkey-codegen',
@@ -30,6 +31,7 @@ const disallowedEvidenceClasses = new Set([
 function parseArgs(argv = process.argv.slice(2)) {
   const options = {
     releaseDir: defaultReleaseDir,
+    comparisonJson: defaultComparisonJson,
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
     selfTest: false,
@@ -48,6 +50,9 @@ function parseArgs(argv = process.argv.slice(2)) {
     switch (name) {
       case '--release-dir':
         options.releaseDir = resolve(process.cwd(), readValue());
+        break;
+      case '--comparison-json':
+        options.comparisonJson = resolve(process.cwd(), readValue());
         break;
       case '--json-out':
         options.jsonOut = resolve(process.cwd(), readValue());
@@ -84,7 +89,8 @@ function createReport(options) {
     .filter(file => file !== 'spidermonkey-codegen-rerun-stability-audit.json')
     .sort()
     .map(file => readArtifact(options.releaseDir, file));
-  return buildReport(options, artifacts);
+  const comparisonRows = readComparisonRows(options.comparisonJson);
+  return buildReport(options, artifacts, comparisonRows);
 }
 
 function createSelfTestReport(options) {
@@ -204,6 +210,38 @@ function createSelfTestReport(options) {
       },
     },
     {
+      sourceArtifact: 'spidermonkey-mismatched-comparison-row.json',
+      root: {
+        objective: 'spidermonkey-mismatched-comparison-row',
+        outcome: {
+          status: 'codegen-output-emitted',
+          hasCodegenDumpOutput: true,
+          sameContractStaxRow: true,
+          unchangedStaxBenchmark: true,
+          canRunCurrentStaxFullStringBenchmark: true,
+          closesEmittedIrObligation: true,
+          evidenceClass: 'same-contract-spidermonkey-codegen',
+          selectedRowId: 'firefox-row',
+          selectedEventCount: 12,
+          selectedChecksum: 999,
+        },
+        shell: {
+          provenance: {
+            taskId: 'mismatched-comparison-task',
+            buildId: '20260602000003',
+            sourceRevision: 'jkl012',
+          },
+          codegenProbe: {
+            status: 'codegen-output-emitted',
+            flags: 'codegen',
+            outputBytes: 8192,
+            codegenMarkerCount: 99,
+            nativeDumpComplete: true,
+          },
+        },
+      },
+    },
+    {
       sourceArtifact: 'spidermonkey-contradicted-closure.json',
       root: {
         objective: 'spidermonkey-contradicted-closure',
@@ -233,12 +271,21 @@ function createSelfTestReport(options) {
         },
       },
     },
+  ], [
+    {
+      id: 'firefox-row',
+      runtimeId: 'firefox-spidermonkey-browser',
+      jsRuntime: true,
+      fullStringParity: true,
+      eventCount: 12,
+      checksum: 34,
+    },
   ]);
 }
 
-function buildReport(options, artifacts) {
+function buildReport(options, artifacts, comparisonRows = []) {
   const candidates = artifacts
-    .map(createCandidate)
+    .map(artifact => createCandidate(artifact, comparisonRows))
     .filter(candidate => candidate.objective !== 'spidermonkey-codegen-closure-audit')
     .filter(candidate => candidate.objective !== 'spidermonkey-codegen-rerun-stability-audit')
     .filter(candidate => candidate.objective !== 'spidermonkey-taskcluster-debug-jsshell-route-freshness-audit')
@@ -257,6 +304,7 @@ function buildReport(options, artifacts) {
     note: 'Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.',
     parameters: {
       releaseDir: options.releaseDir,
+      comparisonJson: options.comparisonJson,
       selfTest: options.selfTest,
     },
     candidates,
@@ -271,6 +319,9 @@ function buildReport(options, artifacts) {
       sameContractStaxRowCount: candidates.filter(candidate => candidate.requirements.sameContractStaxRow.met).length,
       unchangedRunnableCount: candidates.filter(candidate => candidate.requirements.unchangedRunnable.met).length,
       selectedRowMetadataCount: candidates.filter(candidate => candidate.requirements.selectedRowMetadata.met).length,
+      selectedRowComparisonMatchCount: candidates.filter(candidate => candidate.selectedRowMatchesCurrentComparison === true).length,
+      selectedRowComparisonMismatchCount: candidates.filter(candidate => candidate.selectedRowMatchesCurrentComparison === false).length,
+      selectedRowComparisonMissingCount: candidates.filter(candidate => candidate.selectedRowMatchesCurrentComparison === null).length,
       closingMetadataCount: candidates.filter(candidate => candidate.requirements.closingMetadata.met).length,
       qualifiedClosureCount: qualified.length,
       contradictedClosureClaimCount: contradicted.length,
@@ -291,7 +342,7 @@ function buildReport(options, artifacts) {
   return report;
 }
 
-function createCandidate(artifact) {
+function createCandidate(artifact, comparisonRows = []) {
   const root = artifact.root ?? {};
   const outcome = root.outcome ?? {};
   const summary = root.summary ?? {};
@@ -326,6 +377,18 @@ function createCandidate(artifact) {
     Number.isFinite(selectedEventCount) ? null : 'selectedEventCount',
     Number.isFinite(selectedChecksum) ? null : 'selectedChecksum',
   ].filter(Boolean);
+  const selectedRowMetadataComplete = Boolean(selectedRowId)
+    && Number.isFinite(selectedEventCount)
+    && Number.isFinite(selectedChecksum);
+  const selectedRowMatchesCurrentComparison = selectedRowMetadataComplete
+    ? matchSameContractComparisonRow({
+      selectedRowId,
+      selectedEventCount,
+      selectedChecksum,
+      comparisonRows,
+      expectedRuntimeIds: ['firefox-spidermonkey-browser'],
+    })
+    : null;
   const runtimeBuildIdentityRecorded = hasSpiderMonkeyRuntimeBuildIdentity(root);
   const diagnosticFlagsRecorded = hasSpiderMonkeyDiagnosticFlags(root);
   const emittedDumpMetadataRecorded = hasSpiderMonkeyEmittedDumpMetadata(root, outcome);
@@ -356,11 +419,18 @@ function createCandidate(artifact) {
       ],
     },
     selectedRowMetadata: {
-      met: Boolean(selectedRowId) && Number.isFinite(selectedEventCount) && Number.isFinite(selectedChecksum),
+      met: selectedRowMetadataComplete,
       evidence: [
         `selectedRowId=${selectedRowId ?? 'unknown'}`,
         `selectedEventCount=${selectedEventCount ?? 'unknown'}`,
         `selectedChecksum=${selectedChecksum ?? 'unknown'}`,
+      ],
+    },
+    selectedRowMatchesCurrentComparison: {
+      met: selectedRowMatchesCurrentComparison !== false,
+      evidence: [
+        `selectedRowMatchesCurrentComparison=${selectedRowMatchesCurrentComparison ?? 'not-applicable'}`,
+        `comparisonRows=${comparisonRows.length}`,
       ],
     },
     closingMetadata: {
@@ -385,9 +455,6 @@ function createCandidate(artifact) {
     .filter(([, requirement]) => !requirement.met)
     .map(([id]) => id);
   const declaresClosure = outcome.closesEmittedIrObligation === true || summary.closesCodegenObligation === true;
-  const selectedRowMetadataComplete = Boolean(selectedRowId)
-    && Number.isFinite(selectedEventCount)
-    && Number.isFinite(selectedChecksum);
   const qualifiedClosure = unmetRequirements.length === 0;
   const selectedRowIdentityStatus = firstString(
     outcome.selectedRowIdentityStatus,
@@ -406,6 +473,7 @@ function createCandidate(artifact) {
     evidenceClass,
     hasAnyDiagnosticSurface: hasCodegenDumpOutput || irDumpSurface || nativeDumpComplete || codegenMarkerCount > 0,
     selectedRowIdentityStatus,
+    selectedRowMatchesCurrentComparison,
     selectedRowMetadataMissingFields,
     closingMetadataMissingFields,
     requirements,
@@ -526,6 +594,7 @@ function renderMarkdown(report) {
     `- Qualified closures: ${report.summary.qualifiedClosureCount}`,
     `- Contradicted closure claims: ${report.summary.contradictedClosureClaimCount}`,
     `- Selected row identity statuses: ${formatCountMap(report.summary.selectedRowIdentityStatusCounts)}`,
+    `- Selected row comparison matches: matched=${report.summary.selectedRowComparisonMatchCount}, mismatched=${report.summary.selectedRowComparisonMismatchCount}, missing=${report.summary.selectedRowComparisonMissingCount}`,
     `- Selected row metadata missing fields: ${formatCountMap(report.summary.selectedRowMetadataMissingFieldCounts)}`,
     `- Closing metadata missing fields: ${formatCountMap(report.summary.closingMetadataMissingFieldCounts)}`,
     `- Evidence classes: ${formatCountMap(report.summary.evidenceClassCounts)}`,
@@ -552,8 +621,8 @@ function renderMarkdown(report) {
     '',
     '## Closure Matrix',
     '',
-    '| Artifact | Evidence class | Diagnostic surface | Same StAX row | Unchanged runnable | Row metadata | Closing metadata | Allowed class | Qualified | Missing |',
-    '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
+    '| Artifact | Evidence class | Diagnostic surface | Same StAX row | Unchanged runnable | Row metadata | Row comparison | Closing metadata | Allowed class | Qualified | Missing |',
+    '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
   ];
   for (const candidate of report.candidates) {
     lines.push([
@@ -563,6 +632,7 @@ function renderMarkdown(report) {
       yesNo(candidate.requirements.sameContractStaxRow.met),
       yesNo(candidate.requirements.unchangedRunnable.met),
       yesNo(candidate.requirements.selectedRowMetadata.met),
+      candidate.selectedRowMatchesCurrentComparison === null ? 'n/a' : yesNo(candidate.selectedRowMatchesCurrentComparison),
       yesNo(candidate.requirements.closingMetadata.met),
       yesNo(candidate.requirements.evidenceClassAllowed.met),
       yesNo(candidate.qualifiedClosure),
@@ -583,6 +653,63 @@ function readArtifact(releaseDir, file) {
     sourceArtifact: file,
     root: JSON.parse(readFileSync(join(releaseDir, file), 'utf8')),
   };
+}
+
+function readComparisonRows(filePath) {
+  if (!existsSync(filePath)) return [];
+  const root = JSON.parse(readFileSync(filePath, 'utf8'));
+  const rows = Array.isArray(root?.comparisonRows)
+    ? root.comparisonRows
+    : Array.isArray(root?.rows)
+      ? root.rows
+      : [];
+  return rows
+    .map(row => ({
+      id: row.id ?? row.caseId ?? null,
+      runtimeId: row.runtimeId ?? row.runtime?.id ?? null,
+      jsRuntime: row.jsRuntime === true || isJsRuntime(row.runtimeId ?? row.runtime?.id),
+      fullStringParity: row.fullStringParity === true,
+      eventCount: normalizeEventCount(row),
+      checksum: row.checksum ?? null,
+    }))
+    .filter(row =>
+      typeof row.id === 'string'
+      && row.jsRuntime
+      && row.fullStringParity
+    );
+}
+
+function matchSameContractComparisonRow({
+  selectedRowId,
+  selectedEventCount,
+  selectedChecksum,
+  comparisonRows,
+  expectedRuntimeIds = null,
+}) {
+  if (!Array.isArray(comparisonRows) || comparisonRows.length === 0) return false;
+  if (typeof selectedRowId !== 'string' || selectedRowId.length === 0) return false;
+  return comparisonRows.some(row => {
+    if (row.id !== selectedRowId) return false;
+    if (
+      Array.isArray(expectedRuntimeIds)
+      && expectedRuntimeIds.length > 0
+      && !expectedRuntimeIds.includes(row.runtimeId)
+    ) return false;
+    if (typeof selectedEventCount !== 'number' || row.eventCount !== selectedEventCount) return false;
+    if (selectedChecksum === null || selectedChecksum === undefined || row.checksum !== selectedChecksum) return false;
+    return true;
+  });
+}
+
+function isJsRuntime(runtimeId) {
+  return /node|bun|deno|chrome|firefox|safari|jsc|v8|spidermonkey/i.test(runtimeId ?? '');
+}
+
+function normalizeEventCount(row) {
+  if (Number.isFinite(row.eventCount)) return row.eventCount;
+  if (Number.isFinite(row.events)) return row.events;
+  if (Number.isFinite(row.totalEvents)) return row.totalEvents;
+  return null;
 }
 
 function firstFiniteNumber(...values) {
