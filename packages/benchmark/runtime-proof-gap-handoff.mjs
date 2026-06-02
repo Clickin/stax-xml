@@ -649,19 +649,26 @@ function createLocalClosure(activeObligations, audit, options = {}) {
       && codegenClosureAuditRaw?.summary?.qualifiedClosureCount === 0
       && codegenClosureAuditRaw?.summary?.contradictedClosureClaimCount === 0
       && codegenClosureAuditRaw?.summary?.conclusionAllowed === false;
+    const closestBlockedCandidates = Array.isArray(codegenClosureAuditRaw?.closestBlockedCandidates)
+      ? codegenClosureAuditRaw.closestBlockedCandidates
+      : [];
+    const closestBlockedCandidateSources = closestBlockedCandidates
+        .map(candidate => candidate?.sourceArtifact)
+        .filter(sourceArtifact => typeof sourceArtifact === 'string' && sourceArtifact.length > 0)
+        .sort();
+    const closestBlockedCommonMissingCounts = countClosestBlockedMissingRequirements(closestBlockedCandidates, [
+      'sameContractStaxRow',
+      'selectedRowMetadata',
+      'unchangedRunnable',
+      'evidenceClassAllowed',
+    ]);
     const codegenClosureFrontierPinned = codegenClosureAuditPinned
       && codegenClosureAuditRaw?.summary?.closestBlockedCandidateCount > 0
       && codegenClosureAuditRaw?.summary?.minimumBlockedRequirementCount > 0
-      && codegenClosureAuditRaw?.missingRequirementHistogram?.sameContractStaxRow === codegenClosureAuditRaw?.summary?.candidateCount
-      && codegenClosureAuditRaw?.missingRequirementHistogram?.selectedRowMetadata === codegenClosureAuditRaw?.summary?.candidateCount
-      && codegenClosureAuditRaw?.missingRequirementHistogram?.unchangedRunnable === codegenClosureAuditRaw?.summary?.candidateCount
-      && codegenClosureAuditRaw?.missingRequirementHistogram?.evidenceClassAllowed === codegenClosureAuditRaw?.summary?.candidateCount;
-    const closestBlockedCandidateSources = Array.isArray(codegenClosureAuditRaw?.closestBlockedCandidates)
-      ? codegenClosureAuditRaw.closestBlockedCandidates
-        .map(candidate => candidate?.sourceArtifact)
-        .filter(sourceArtifact => typeof sourceArtifact === 'string' && sourceArtifact.length > 0)
-        .sort()
-      : [];
+      && closestBlockedCommonMissingCounts.sameContractStaxRow === codegenClosureAuditRaw?.summary?.closestBlockedCandidateCount
+      && closestBlockedCommonMissingCounts.selectedRowMetadata === codegenClosureAuditRaw?.summary?.closestBlockedCandidateCount
+      && closestBlockedCommonMissingCounts.unchangedRunnable === codegenClosureAuditRaw?.summary?.closestBlockedCandidateCount
+      && closestBlockedCommonMissingCounts.evidenceClassAllowed === codegenClosureAuditRaw?.summary?.closestBlockedCandidateCount;
     const codegenRerunStabilityContract = codegenRerunStability?.contract ?? codegenRerunStabilityRaw?.contract ?? null;
     const codegenRerunStabilityPinned = codegenRerunStabilityContract === 'spidermonkey-debug-jsshell-codegen-rerun-reproducibility-not-closure'
       && codegenRerunStabilitySummary.pairCount === 2
@@ -750,7 +757,7 @@ function createLocalClosure(activeObligations, audit, options = {}) {
           ? `The SpiderMonkey codegen closure audit checks ${codegenClosureAuditRaw.summary.candidateCount} diagnostic/codegen candidates against same-contract comparison generatedAt=${codegenClosureAuditRaw.inputs?.comparisonGeneratedAt ?? 'unknown'}, comparisonRowCount=${codegenClosureAuditRaw.inputs?.comparisonRowCount ?? 'unknown'}, finds emittedCodegenSurfaceCount=${codegenClosureAuditRaw.summary.emittedCodegenSurfaceCount}, sameContractStaxRowCount=${codegenClosureAuditRaw.summary.sameContractStaxRowCount}, unchangedRunnableCount=${codegenClosureAuditRaw.summary.unchangedRunnableCount}, selectedRowMetadataCount=${codegenClosureAuditRaw.summary.selectedRowMetadataCount}, selectedRowComparisonMatchCount=${codegenClosureAuditRaw.summary.selectedRowComparisonMatchCount}, selectedRowComparisonMismatchCount=${codegenClosureAuditRaw.summary.selectedRowComparisonMismatchCount}, selectedRowComparisonMissingCount=${codegenClosureAuditRaw.summary.selectedRowComparisonMissingCount}, selectedRowMetadataMissingFieldCounts ${formatCountMap(codegenClosureAuditRaw.summary.selectedRowMetadataMissingFieldCounts)}, closingMetadataMissingFieldCounts ${formatCountMap(codegenClosureAuditRaw.summary.closingMetadataMissingFieldCounts)}, disallowedEvidenceClassCounts ${formatCountMap(codegenClosureAuditRaw.summary.disallowedEvidenceClassCounts)}, selectedRowIdentityStatusCounts ${formatCountMap(codegenClosureAuditRaw.summary.selectedRowIdentityStatusCounts)}, qualifiedClosureCount=0, contradictedClosureClaimCount=0, and conclusionAllowed=false.`
           : 'No SpiderMonkey codegen closure audit pins the same-contract closure matrix for current diagnostic/codegen artifacts.',
         codegenClosureFrontierPinned
-          ? `The SpiderMonkey codegen closure frontier has closestBlockedCandidateCount=${codegenClosureAuditRaw.summary.closestBlockedCandidateCount}, minimumBlockedRequirementCount=${codegenClosureAuditRaw.summary.minimumBlockedRequirementCount}, closestBlockedCandidates=${formatStringList(closestBlockedCandidateSources)}, and common missing requirements sameContractStaxRow=${codegenClosureAuditRaw.missingRequirementHistogram.sameContractStaxRow}, selectedRowMetadata=${codegenClosureAuditRaw.missingRequirementHistogram.selectedRowMetadata}, unchangedRunnable=${codegenClosureAuditRaw.missingRequirementHistogram.unchangedRunnable}, evidenceClassAllowed=${codegenClosureAuditRaw.missingRequirementHistogram.evidenceClassAllowed}.`
+          ? `The SpiderMonkey codegen closure frontier has closestBlockedCandidateCount=${codegenClosureAuditRaw.summary.closestBlockedCandidateCount}, minimumBlockedRequirementCount=${codegenClosureAuditRaw.summary.minimumBlockedRequirementCount}, closestBlockedCandidates=${formatStringList(closestBlockedCandidateSources)}, and closest-candidate common missing requirements sameContractStaxRow=${closestBlockedCommonMissingCounts.sameContractStaxRow}, selectedRowMetadata=${closestBlockedCommonMissingCounts.selectedRowMetadata}, unchangedRunnable=${closestBlockedCommonMissingCounts.unchangedRunnable}, evidenceClassAllowed=${closestBlockedCommonMissingCounts.evidenceClassAllowed}.`
           : 'No SpiderMonkey codegen closure frontier summary pins closest blocked candidates and common missing requirements.',
         codegenRerunStabilityPinned
           ? `The SpiderMonkey codegen rerun stability audit compares ${codegenRerunStabilitySummary.pairCount} original/rerun pairs, reproduces ${codegenRerunStabilitySummary.reproduciblePairs} pairs on the same Taskcluster build and codegen marker counts, but qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false, and conclusionAllowed=false.`
@@ -1300,6 +1307,17 @@ function formatStringList(values) {
   return Array.isArray(values) && values.length > 0
     ? values.map(value => `\`${value}\``).join(', ')
     : 'none';
+}
+
+function countClosestBlockedMissingRequirements(candidates, requirements) {
+  const counts = Object.fromEntries(requirements.map(requirement => [requirement, 0]));
+  for (const candidate of candidates) {
+    const unmet = new Set(Array.isArray(candidate?.unmetRequirements) ? candidate.unmetRequirements : []);
+    for (const requirement of requirements) {
+      if (unmet.has(requirement)) counts[requirement]++;
+    }
+  }
+  return counts;
 }
 
 function sourceShapeMarkdownRow(entry) {

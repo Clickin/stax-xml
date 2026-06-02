@@ -1415,8 +1415,8 @@ function createCoverageGuards(snapshot, counterexampleSnapshot = null) {
       satisfied: closureAudit.candidateCount === 16
         && closureAudit.qualifiedClosureCount === 0
         && closureAudit.selectedRowComparisonMatchCount === 0
-        && closureAudit.selectedRowComparisonMismatchCount === 0
-        && closureAudit.selectedRowComparisonMissingCount === 16
+        && closureAudit.selectedRowComparisonMismatchCount === 1
+        && closureAudit.selectedRowComparisonMissingCount === 15
         && closureAudit.comparisonGeneratedAt === counterexampleSnapshot?.comparisonGeneratedAt
         && closureAudit.comparisonRowCount === counterexampleSnapshot?.comparisonRowCount,
     },

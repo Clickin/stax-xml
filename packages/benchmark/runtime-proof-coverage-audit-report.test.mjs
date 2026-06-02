@@ -48,8 +48,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.summary.candidateCount === 16
     && artifact.summary.qualifiedClosureCount === 0
     && artifact.summary.selectedRowComparisonMatchCount === 0
-    && artifact.summary.selectedRowComparisonMismatchCount === 0
-    && artifact.summary.selectedRowComparisonMissingCount === 16
+    && artifact.summary.selectedRowComparisonMismatchCount === 1
+    && artifact.summary.selectedRowComparisonMissingCount === 15
     && artifact.summary.comparisonGeneratedAt === comparison.generatedAt
     && artifact.summary.comparisonRowCount === comparison.summary.rowCount
     && artifact.summary.minimumBlockedRequirementCount === 4

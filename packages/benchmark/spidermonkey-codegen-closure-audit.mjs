@@ -159,6 +159,14 @@ function createSelfTestReport(options) {
           totalSamples: 12,
           totalJsRelevantFrames: 3,
         },
+        variants: [
+          {
+            id: 'eventObjectFull',
+            fullStringParity: true,
+            eventCount: 12,
+            checksum: 34,
+          },
+        ],
         findings: [
           {
             id: 'not-jit-ir-or-runtime-ceiling-proof',
@@ -379,6 +387,7 @@ function createCandidate(artifact, comparisonRows = []) {
   const outcome = root.outcome ?? {};
   const summary = root.summary ?? {};
   const shell = root.shell ?? {};
+  const profiledVariant = selectProfiledVariant(root);
   const provenance = shell.provenance ?? {};
   const codegenMarkerCount = firstFiniteNumber(
     shell.codegenProbe?.codegenMarkerCount,
@@ -401,9 +410,9 @@ function createCandidate(artifact, comparisonRows = []) {
     || shell.xmlCodegenProbe?.nativeDumpComplete === true
     || shell.materializedCodegenProbe?.nativeDumpComplete === true;
   const evidenceClass = outcome.evidenceClass ?? summary.evidenceClass ?? inferEvidenceClass(artifact.sourceArtifact, outcome);
-  const selectedRowId = firstString(outcome.selectedRowId, summary.selectedRowId);
-  const selectedEventCount = firstFiniteNumber(outcome.selectedEventCount, summary.selectedEventCount);
-  const selectedChecksum = firstFiniteNumber(outcome.selectedChecksum, summary.selectedChecksum);
+  const selectedRowId = firstString(outcome.selectedRowId, summary.selectedRowId, profiledVariant?.id);
+  const selectedEventCount = firstFiniteNumber(outcome.selectedEventCount, summary.selectedEventCount, profiledVariant?.eventCount);
+  const selectedChecksum = firstFiniteNumber(outcome.selectedChecksum, summary.selectedChecksum, profiledVariant?.checksum);
   const selectedRowMetadataMissingFields = [
     Boolean(selectedRowId) ? null : 'selectedRowId',
     Number.isFinite(selectedEventCount) ? null : 'selectedEventCount',
@@ -440,8 +449,11 @@ function createCandidate(artifact, comparisonRows = []) {
       ],
     },
     sameContractStaxRow: {
-      met: outcome.sameContractStaxRow === true,
-      evidence: [`sameContractStaxRow=${outcome.sameContractStaxRow ?? 'unknown'}`],
+      met: outcome.sameContractStaxRow === true || profiledVariant?.fullStringParity === true,
+      evidence: [
+        `sameContractStaxRow=${outcome.sameContractStaxRow ?? 'unknown'}`,
+        `profiledFullStringParity=${profiledVariant?.fullStringParity ?? 'unknown'}`,
+      ],
     },
     unchangedRunnable: {
       met: outcome.canRunCurrentStaxFullStringBenchmark === true || outcome.unchangedStaxBenchmark === true,
@@ -513,6 +525,14 @@ function createCandidate(artifact, comparisonRows = []) {
     declaresClosure,
     qualifiedClosure,
   };
+}
+
+function selectProfiledVariant(root) {
+  if (root?.objective !== 'firefox-spidermonkey-profiler-trace') return null;
+  const variants = Array.isArray(root?.variants) ? root.variants : [];
+  return variants.find(variant => variant?.id === 'eventObjectFull' && variant.fullStringParity === true)
+    ?? variants.find(variant => variant?.fullStringParity === true)
+    ?? null;
 }
 
 function createMissingRequirementHistogram(candidates) {

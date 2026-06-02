@@ -181,8 +181,8 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.candidateCount, 16);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.qualifiedClosureCount, 0);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.selectedRowComparisonMatchCount, 0);
-  assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.selectedRowComparisonMismatchCount, 0);
-  assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.selectedRowComparisonMissingCount, 16);
+  assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.selectedRowComparisonMismatchCount, 1);
+  assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.selectedRowComparisonMissingCount, 15);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.comparisonGeneratedAt, report.counterexampleSnapshot.comparisonGeneratedAt);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.comparisonRowCount, report.counterexampleSnapshot.comparisonRowCount);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.minimumBlockedRequirementCount, 4);
