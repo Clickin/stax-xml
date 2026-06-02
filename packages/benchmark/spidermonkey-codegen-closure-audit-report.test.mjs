@@ -30,6 +30,8 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
   assert.equal(report.objective, 'spidermonkey-codegen-closure-audit');
   assert.equal(report.contract, 'spidermonkey-emitted-codegen-same-contract-closure-matrix');
+  assert.equal(report.inputs.comparisonGeneratedAt, 'self-test-comparison-generated-at');
+  assert.equal(report.inputs.comparisonRowCount, 1);
   assert.equal(report.summary.candidateCount, 5);
   assert.equal(report.summary.emittedCodegenSurfaceCount, 5);
   assert.equal(report.summary.sameContractStaxRowCount, 3);
@@ -156,6 +158,8 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.match(markdown, /Contradicted closure claims: 3/);
   assert.match(markdown, /Selected row identity statuses: closing-row-identity-missing-or-mismatched=2, not-claimed-non-stax-diagnostic=2, same-contract-stax-row=1/);
   assert.match(markdown, /Selected row comparison matches: matched=2, mismatched=1, missing=2/);
+  assert.match(markdown, /Comparison generated: self-test-comparison-generated-at/);
+  assert.match(markdown, /Comparison rows checked: 1/);
   assert.match(markdown, /Selected row metadata missing fields: selectedChecksum=2, selectedEventCount=2, selectedRowId=2/);
   assert.match(markdown, /Closing metadata missing fields: none/);
   assert.match(markdown, /Evidence classes: current-debug-codegen-scope-guard=1, current-debug-materialized-codegen-scope-guard=1, same-contract-spidermonkey-codegen=2, unknown=1/);

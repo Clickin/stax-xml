@@ -988,6 +988,13 @@ function createHandoffGuards(byId) {
       ),
     },
     {
+      id: 'spidermonkey-codegen-comparison-freshness',
+      description: 'SpiderMonkey closure audit must preserve the same-contract comparison generatedAt and row count used for selected-row matching.',
+      satisfied: spiderBlockers.some(item =>
+        /against same-contract comparison generatedAt=[^,]+, comparisonRowCount=\d+/.test(item)
+      ),
+    },
+    {
       id: 'spidermonkey-closing-metadata-missing-fields',
       description: 'SpiderMonkey closure audit must preserve which closing metadata subfields are missing from closure-matrix candidates.',
       satisfied: spiderBlockers.some(item =>

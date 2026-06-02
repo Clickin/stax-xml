@@ -89,8 +89,8 @@ function createReport(options) {
     .filter(file => file !== 'spidermonkey-codegen-rerun-stability-audit.json')
     .sort()
     .map(file => readArtifact(options.releaseDir, file));
-  const comparisonRows = readComparisonRows(options.comparisonJson);
-  return buildReport(options, artifacts, comparisonRows);
+  const comparison = readComparison(options.comparisonJson);
+  return buildReport(options, artifacts, comparison);
 }
 
 function createSelfTestReport(options) {
@@ -271,19 +271,24 @@ function createSelfTestReport(options) {
         },
       },
     },
-  ], [
-    {
-      id: 'firefox-row',
-      runtimeId: 'firefox-spidermonkey-browser',
-      jsRuntime: true,
-      fullStringParity: true,
-      eventCount: 12,
-      checksum: 34,
-    },
-  ]);
+  ], {
+    generatedAt: 'self-test-comparison-generated-at',
+    rowCount: 1,
+    rows: [
+      {
+        id: 'firefox-row',
+        runtimeId: 'firefox-spidermonkey-browser',
+        jsRuntime: true,
+        fullStringParity: true,
+        eventCount: 12,
+        checksum: 34,
+      },
+    ],
+  });
 }
 
-function buildReport(options, artifacts, comparisonRows = []) {
+function buildReport(options, artifacts, comparison = { generatedAt: null, rowCount: 0, rows: [] }) {
+  const comparisonRows = comparison.rows ?? [];
   const candidates = artifacts
     .map(artifact => createCandidate(artifact, comparisonRows))
     .filter(candidate => candidate.objective !== 'spidermonkey-codegen-closure-audit')
@@ -306,6 +311,11 @@ function buildReport(options, artifacts, comparisonRows = []) {
       releaseDir: options.releaseDir,
       comparisonJson: options.comparisonJson,
       selfTest: options.selfTest,
+    },
+    inputs: {
+      comparisonJson: options.comparisonJson,
+      comparisonGeneratedAt: comparison.generatedAt ?? null,
+      comparisonRowCount: comparison.rowCount ?? comparisonRows.length,
     },
     candidates,
     missingRequirementHistogram,
@@ -582,6 +592,12 @@ function renderMarkdown(report) {
     '',
     report.note,
     '',
+    '## Inputs',
+    '',
+    `- Comparison JSON: ${report.inputs.comparisonJson}`,
+    `- Comparison generated: ${report.inputs.comparisonGeneratedAt ?? 'unknown'}`,
+    `- Comparison rows checked: ${report.inputs.comparisonRowCount}`,
+    '',
     '## Summary',
     '',
     `- Candidates checked: ${report.summary.candidateCount}`,
@@ -655,28 +671,38 @@ function readArtifact(releaseDir, file) {
   };
 }
 
-function readComparisonRows(filePath) {
-  if (!existsSync(filePath)) return [];
+function readComparison(filePath) {
+  if (!existsSync(filePath)) {
+    return {
+      generatedAt: null,
+      rowCount: 0,
+      rows: [],
+    };
+  }
   const root = JSON.parse(readFileSync(filePath, 'utf8'));
   const rows = Array.isArray(root?.comparisonRows)
     ? root.comparisonRows
     : Array.isArray(root?.rows)
       ? root.rows
       : [];
-  return rows
-    .map(row => ({
-      id: row.id ?? row.caseId ?? null,
-      runtimeId: row.runtimeId ?? row.runtime?.id ?? null,
-      jsRuntime: row.jsRuntime === true || isJsRuntime(row.runtimeId ?? row.runtime?.id),
-      fullStringParity: row.fullStringParity === true,
-      eventCount: normalizeEventCount(row),
-      checksum: row.checksum ?? null,
-    }))
-    .filter(row =>
-      typeof row.id === 'string'
-      && row.jsRuntime
-      && row.fullStringParity
-    );
+  return {
+    generatedAt: root?.generatedAt ?? null,
+    rowCount: rows.length,
+    rows: rows
+      .map(row => ({
+        id: row.id ?? row.caseId ?? null,
+        runtimeId: row.runtimeId ?? row.runtime?.id ?? null,
+        jsRuntime: row.jsRuntime === true || isJsRuntime(row.runtimeId ?? row.runtime?.id),
+        fullStringParity: row.fullStringParity === true,
+        eventCount: normalizeEventCount(row),
+        checksum: row.checksum ?? null,
+      }))
+      .filter(row =>
+        typeof row.id === 'string'
+        && row.jsRuntime
+        && row.fullStringParity
+      ),
+  };
 }
 
 function matchSameContractComparisonRow({
