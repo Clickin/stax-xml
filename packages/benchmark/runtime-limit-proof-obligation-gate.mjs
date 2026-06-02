@@ -1057,6 +1057,7 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
         && /sameContractStaxRow=\d+/.test(item)
         && /selectedRowMetadata=\d+/.test(item)
         && /unchangedRunnable=\d+/.test(item)
+        && /evidenceClassAllowed=\d+/.test(item)
       ),
     },
     {
