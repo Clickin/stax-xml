@@ -819,7 +819,15 @@ function createHandoffValidationSnapshot(validation, handoffSnapshot = null) {
       validatedHandoffGeneratedAt: null,
       currentHandoffGeneratedAt: handoffSnapshot?.generatedAt ?? null,
       pass: null,
+      missingScriptCount: null,
+      nonReleaseOutputPathCount: null,
+      rawOutputPathPolicyViolationCount: null,
+      allRequiredFlagsPresent: null,
       allContractsPresent: null,
+      commandCount: null,
+      scriptsReferenced: null,
+      releaseOutputPathCount: null,
+      rawOutputPathCount: null,
       requiredHandoffsPresent: null,
       unhandledObligationCount: null,
       handoffIds: [],
@@ -834,10 +842,18 @@ function createHandoffValidationSnapshot(validation, handoffSnapshot = null) {
     validatedHandoffGeneratedAt: validation.inputs?.handoffGeneratedAt ?? null,
     currentHandoffGeneratedAt: handoffSnapshot?.generatedAt ?? null,
     pass: validation.summary?.pass ?? null,
+    missingScriptCount: validation.summary?.missingScriptCount ?? null,
+    nonReleaseOutputPathCount: validation.summary?.nonReleaseOutputPathCount ?? null,
+    rawOutputPathPolicyViolationCount: validation.summary?.rawOutputPathPolicyViolationCount ?? null,
+    allRequiredFlagsPresent: validation.summary?.allRequiredFlagsPresent ?? null,
     allContractsPresent: validation.summary?.allContractsPresent ?? null,
     allExternalRunRequired: validation.summary?.allExternalRunRequired ?? null,
     externalRunRequiredCount: validation.summary?.externalRunRequiredCount ?? null,
     localRunnableCount: validation.summary?.localRunnableCount ?? null,
+    commandCount: validation.summary?.commandCount ?? null,
+    scriptsReferenced: validation.summary?.scriptsReferenced ?? null,
+    releaseOutputPathCount: validation.summary?.releaseOutputPathCount ?? null,
+    rawOutputPathCount: validation.summary?.rawOutputPathCount ?? null,
     requiredHandoffsPresent: validation.summary?.requiredHandoffsPresent ?? null,
     unhandledObligationCount: validation.summary?.unhandledObligationCount ?? null,
     handoffIds: handoffChecks.map(check => check.id).filter(Boolean),
@@ -863,6 +879,18 @@ function createHandoffValidationGuards(snapshot) {
       id: 'handoff-validation-contracts-present',
       description: 'runtime-proof-handoff-validation.json must report all required contracts present.',
       satisfied: snapshot?.allContractsPresent === true,
+    },
+    {
+      id: 'handoff-validation-command-and-path-safety',
+      description: 'runtime-proof-handoff-validation.json must report required flags present, existing scripts, curated release outputs, and separated raw outputs.',
+      satisfied: snapshot?.allRequiredFlagsPresent === true
+        && snapshot.missingScriptCount === 0
+        && snapshot.nonReleaseOutputPathCount === 0
+        && snapshot.rawOutputPathPolicyViolationCount === 0
+        && snapshot.commandCount === 15
+        && snapshot.scriptsReferenced === 22
+        && snapshot.releaseOutputPathCount === 74
+        && snapshot.rawOutputPathCount === 2,
     },
     {
       id: 'handoff-validation-external-run-status-pinned',
@@ -1662,6 +1690,14 @@ function renderMarkdown(report) {
       : '- Handoff validation loaded: no',
     `- Handoff validation target handoff generatedAt: ${report.handoffValidationSnapshot.validatedHandoffGeneratedAt ?? 'unknown'} (current ${report.handoffValidationSnapshot.currentHandoffGeneratedAt ?? 'unknown'})`,
     `- Handoff validation pass: ${formatYesNo(report.handoffValidationSnapshot.pass)}`,
+    `- Commands checked: ${formatNullableCount(report.handoffValidationSnapshot.commandCount)}`,
+    `- Scripts referenced: ${formatNullableCount(report.handoffValidationSnapshot.scriptsReferenced)}`,
+    `- Missing scripts: ${formatNullableCount(report.handoffValidationSnapshot.missingScriptCount)}`,
+    `- Release output paths: ${formatNullableCount(report.handoffValidationSnapshot.releaseOutputPathCount)}`,
+    `- Non-release output paths: ${formatNullableCount(report.handoffValidationSnapshot.nonReleaseOutputPathCount)}`,
+    `- Raw output paths: ${formatNullableCount(report.handoffValidationSnapshot.rawOutputPathCount)}`,
+    `- Raw output path policy violations: ${formatNullableCount(report.handoffValidationSnapshot.rawOutputPathPolicyViolationCount)}`,
+    `- Required flags present: ${formatYesNo(report.handoffValidationSnapshot.allRequiredFlagsPresent)}`,
     `- Required handoffs present: ${formatYesNo(report.handoffValidationSnapshot.requiredHandoffsPresent)}`,
     `- Required contracts present: ${formatYesNo(report.handoffValidationSnapshot.allContractsPresent)}`,
     `- External-run status pinned: ${formatYesNo(report.handoffValidationSnapshot.allExternalRunRequired)}`,

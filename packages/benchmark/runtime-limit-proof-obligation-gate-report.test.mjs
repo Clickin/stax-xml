@@ -295,6 +295,14 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-contradicted-closure-claims-clear' && item.satisfied));
   assert.ok(report.handoffValidationSnapshot.loaded);
   assert.equal(report.handoffValidationSnapshot.pass, true);
+  assert.equal(report.handoffValidationSnapshot.commandCount, 15);
+  assert.equal(report.handoffValidationSnapshot.scriptsReferenced, 22);
+  assert.equal(report.handoffValidationSnapshot.missingScriptCount, 0);
+  assert.equal(report.handoffValidationSnapshot.releaseOutputPathCount, 74);
+  assert.equal(report.handoffValidationSnapshot.nonReleaseOutputPathCount, 0);
+  assert.equal(report.handoffValidationSnapshot.rawOutputPathCount, 2);
+  assert.equal(report.handoffValidationSnapshot.rawOutputPathPolicyViolationCount, 0);
+  assert.equal(report.handoffValidationSnapshot.allRequiredFlagsPresent, true);
   assert.equal(report.handoffValidationSnapshot.allContractsPresent, true);
   assert.equal(report.handoffValidationSnapshot.allExternalRunRequired, true);
   assert.equal(report.handoffValidationSnapshot.externalRunRequiredCount, 2);
@@ -305,6 +313,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-loaded' && item.satisfied));
   assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-pass' && item.satisfied));
   assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-contracts-present' && item.satisfied));
+  assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-command-and-path-safety' && item.satisfied));
   assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-external-run-status-pinned' && item.satisfied));
   assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-current-handoff' && item.satisfied));
 
@@ -360,10 +369,19 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /Handoff validation loaded: yes/);
   assert.match(markdown, /Handoff validation target handoff generatedAt:/);
   assert.match(markdown, /Handoff validation pass: yes/);
+  assert.match(markdown, /Commands checked: 15/);
+  assert.match(markdown, /Scripts referenced: 22/);
+  assert.match(markdown, /Missing scripts: 0/);
+  assert.match(markdown, /Release output paths: 74/);
+  assert.match(markdown, /Non-release output paths: 0/);
+  assert.match(markdown, /Raw output paths: 2/);
+  assert.match(markdown, /Raw output path policy violations: 0/);
+  assert.match(markdown, /Required flags present: yes/);
   assert.match(markdown, /External-run status pinned: yes/);
   assert.match(markdown, /External-run required handoffs: 2/);
   assert.match(markdown, /Locally runnable handoffs: 0/);
   assert.match(markdown, /handoff-validation-contracts-present/);
+  assert.match(markdown, /handoff-validation-command-and-path-safety/);
   assert.match(markdown, /handoff-validation-external-run-status-pinned/);
   assert.match(markdown, /handoff-validation-current-handoff/);
   assert.match(markdown, /## Source Audit Snapshot/);
@@ -1680,6 +1698,59 @@ test('runtime-limit proof-obligation gate fails if handoff validation does not p
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /Handoff validation pass: no/);
   assert.match(markdown, /handoff-validation-contracts-present/);
+});
+
+test('runtime-limit proof-obligation gate fails if handoff validation loses command or path safety', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const validation = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-handoff-validation.json'), 'utf8'));
+  validation.summary.allRequiredFlagsPresent = false;
+  validation.summary.missingScriptCount = 1;
+  validation.summary.nonReleaseOutputPathCount = 1;
+  validation.summary.rawOutputPathPolicyViolationCount = 1;
+  validation.handoffChecks = validation.handoffChecks.map(check =>
+    check.id === 'safari-webkit-browser-row-handoff'
+      ? { ...check, requiredFlagsPresent: false }
+      : check
+  );
+  writeFileSync(badHandoffValidationJsonOut, `${JSON.stringify(validation, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--handoff-validation-json',
+    badHandoffValidationJsonOut,
+    '--json-out',
+    badHandoffValidationGateJsonOut,
+    '--md-out',
+    badHandoffValidationGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badHandoffValidationGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.equal(report.handoffValidationSnapshot.allRequiredFlagsPresent, false);
+  assert.equal(report.handoffValidationSnapshot.missingScriptCount, 1);
+  assert.equal(report.handoffValidationSnapshot.nonReleaseOutputPathCount, 1);
+  assert.equal(report.handoffValidationSnapshot.rawOutputPathPolicyViolationCount, 1);
+  assert.ok(report.handoffValidationSnapshot.guards.some(item =>
+    item.id === 'handoff-validation-command-and-path-safety'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /curated release outputs, and separated raw outputs/.test(error)));
+
+  const markdown = readFileSync(badHandoffValidationGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /Required flags present: no/);
+  assert.match(markdown, /Missing scripts: 1/);
+  assert.match(markdown, /Non-release output paths: 1/);
+  assert.match(markdown, /Raw output path policy violations: 1/);
+  assert.match(markdown, /handoff-validation-command-and-path-safety/);
 });
 
 test('runtime-limit proof-obligation gate fails if handoff validation no longer pins external-run status', () => {

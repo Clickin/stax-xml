@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T17:35:01.997Z",
+  "generatedAt": "2026-06-02T17:39:05.877Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -557,14 +557,22 @@
   },
   "handoffValidationSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T17:34:17.892Z",
+    "generatedAt": "2026-06-02T17:38:58.131Z",
     "validatedHandoffGeneratedAt": "2026-06-02T17:21:29.504Z",
     "currentHandoffGeneratedAt": "2026-06-02T17:21:29.504Z",
     "pass": true,
+    "missingScriptCount": 0,
+    "nonReleaseOutputPathCount": 0,
+    "rawOutputPathPolicyViolationCount": 0,
+    "allRequiredFlagsPresent": true,
     "allContractsPresent": true,
     "allExternalRunRequired": true,
     "externalRunRequiredCount": 2,
     "localRunnableCount": 0,
+    "commandCount": 15,
+    "scriptsReferenced": 22,
+    "releaseOutputPathCount": 74,
+    "rawOutputPathCount": 2,
     "requiredHandoffsPresent": true,
     "unhandledObligationCount": 0,
     "handoffIds": [
@@ -585,6 +593,11 @@
       {
         "id": "handoff-validation-contracts-present",
         "description": "runtime-proof-handoff-validation.json must report all required contracts present.",
+        "satisfied": true
+      },
+      {
+        "id": "handoff-validation-command-and-path-safety",
+        "description": "runtime-proof-handoff-validation.json must report required flags present, existing scripts, curated release outputs, and separated raw outputs.",
         "satisfied": true
       },
       {
@@ -1150,8 +1163,8 @@
     "requiredCoverageGuards": 10,
     "satisfiedHandoffGuards": 24,
     "requiredHandoffGuards": 24,
-    "satisfiedHandoffValidationGuards": 7,
-    "requiredHandoffValidationGuards": 7,
+    "satisfiedHandoffValidationGuards": 8,
+    "requiredHandoffValidationGuards": 8,
     "satisfiedSourceAuditGuards": 7,
     "requiredSourceAuditGuards": 7,
     "satisfiedFrontierAuditGuards": 7,

@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T17:35:01.997Z
+Generated: 2026-06-02T17:39:05.877Z
 
 ## Scope
 
@@ -166,9 +166,17 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T17:34:17.892Z)
+- Handoff validation loaded: yes (2026-06-02T17:38:58.131Z)
 - Handoff validation target handoff generatedAt: 2026-06-02T17:21:29.504Z (current 2026-06-02T17:21:29.504Z)
 - Handoff validation pass: yes
+- Commands checked: 15
+- Scripts referenced: 22
+- Missing scripts: 0
+- Release output paths: 74
+- Non-release output paths: 0
+- Raw output paths: 2
+- Raw output path policy violations: 0
+- Required flags present: yes
 - Required handoffs present: yes
 - Required contracts present: yes
 - External-run status pinned: yes
@@ -182,6 +190,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `handoff-validation-loaded` | yes | runtime-proof-handoff-validation.json must be loaded by the gate. |
 | `handoff-validation-pass` | yes | runtime-proof-handoff-validation.json summary.pass must be true before the gate can pass. |
 | `handoff-validation-contracts-present` | yes | runtime-proof-handoff-validation.json must report all required contracts present. |
+| `handoff-validation-command-and-path-safety` | yes | runtime-proof-handoff-validation.json must report required flags present, existing scripts, curated release outputs, and separated raw outputs. |
 | `handoff-validation-external-run-status-pinned` | yes | runtime-proof-handoff-validation.json must report all current handoffs as external-run-required with zero locally runnable closures. |
 | `handoff-validation-required-handoffs-present` | yes | runtime-proof-handoff-validation.json must report required Safari and SpiderMonkey handoffs present. |
 | `handoff-validation-current-handoff` | yes | runtime-proof-handoff-validation.json must validate the currently loaded runtime-proof-gap-handoff.json generatedAt. |

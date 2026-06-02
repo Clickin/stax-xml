@@ -121,7 +121,7 @@ and records whether the broad runtime-limit conclusion is currently allowed.
 The current gate report passes with status `incomplete-proof-correctly-blocked`:
 all 10 required claim guards are satisfied, all 40 required artifact mentions
 are present, all 5 required open-obligation disclosures are present, all 18
-proof-rule checks are satisfied, all 24 handoff guards are satisfied, all 7
+proof-rule checks are satisfied, all 24 handoff guards are satisfied, all 8
 handoff-validation guards are satisfied, all 7 source-audit guards are
 satisfied, and all 7 frontier-audit guards are satisfied. It also loads
 `runtime-proof-gap-handoff.json` and `runtime-proof-handoff-validation.json`
