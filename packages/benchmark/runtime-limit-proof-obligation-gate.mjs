@@ -369,8 +369,8 @@ function readCoverageAudit(coverageJson) {
 
 function createReport({ options, ledgerMarkdown, coverageAudit, comparison, counterexampleScan, handoff, handoffValidation, sourceAudit, memoryFrontier, targetDistance, textMaterializationBoundary }) {
   const claims = parseClaimRows(ledgerMarkdown);
-  const coverageSnapshot = createCoverageSnapshot(coverageAudit);
   const counterexampleSnapshot = createCounterexampleSnapshot(comparison, counterexampleScan, coverageAudit);
+  const coverageSnapshot = createCoverageSnapshot(coverageAudit, counterexampleSnapshot);
   const handoffSnapshot = createHandoffSnapshot(handoff, counterexampleSnapshot);
   const handoffValidationSnapshot = createHandoffValidationSnapshot(handoffValidation, handoffSnapshot);
   const sourceAuditSnapshot = createSourceAuditSnapshot(sourceAudit, comparison, coverageAudit);
@@ -1151,7 +1151,7 @@ function createCounterexampleScanGuards(snapshot) {
   ];
 }
 
-function createCoverageSnapshot(audit) {
+function createCoverageSnapshot(audit, counterexampleSnapshot = null) {
   if (!audit) {
     return {
       loaded: false,
@@ -1177,7 +1177,16 @@ function createCoverageSnapshot(audit) {
         checkedArtifactCount: null,
         mismatchedArtifacts: [],
       },
-      guards: createCoverageGuards(null),
+      spiderMonkeyClosureAudit: {
+        candidateCount: null,
+        qualifiedClosureCount: null,
+        selectedRowComparisonMatchCount: null,
+        selectedRowComparisonMismatchCount: null,
+        selectedRowComparisonMissingCount: null,
+        comparisonGeneratedAt: null,
+        comparisonRowCount: null,
+      },
+      guards: createCoverageGuards(null, counterexampleSnapshot),
     };
   }
 
@@ -1196,6 +1205,9 @@ function createCoverageSnapshot(audit) {
   const routeFreshnessArtifact = (Array.isArray(audit.scannedArtifacts) ? audit.scannedArtifacts : [])
     .find(artifact => artifact.sourceArtifact === 'spidermonkey-taskcluster-debug-jsshell-route-freshness-audit.json');
   const routeFreshness = routeFreshnessArtifact?.availability ?? {};
+  const closureAuditArtifact = (Array.isArray(audit.scannedArtifacts) ? audit.scannedArtifacts : [])
+    .find(artifact => artifact.sourceArtifact === 'spidermonkey-codegen-closure-audit.json');
+  const closureAudit = closureAuditArtifact?.summary ?? {};
   const snapshot = {
     loaded: true,
     generatedAt: audit.generatedAt ?? null,
@@ -1216,6 +1228,15 @@ function createCoverageSnapshot(audit) {
         ? routeFreshness.mismatchedArtifacts
         : [],
     },
+    spiderMonkeyClosureAudit: {
+      candidateCount: closureAudit.candidateCount ?? null,
+      qualifiedClosureCount: closureAudit.qualifiedClosureCount ?? null,
+      selectedRowComparisonMatchCount: closureAudit.selectedRowComparisonMatchCount ?? null,
+      selectedRowComparisonMismatchCount: closureAudit.selectedRowComparisonMismatchCount ?? null,
+      selectedRowComparisonMissingCount: closureAudit.selectedRowComparisonMissingCount ?? null,
+      comparisonGeneratedAt: closureAudit.comparisonGeneratedAt ?? null,
+      comparisonRowCount: closureAudit.comparisonRowCount ?? null,
+    },
     guards: [],
   };
   const byId = Object.fromEntries(obligations.map(obligation => [obligation.id, {
@@ -1225,14 +1246,15 @@ function createCoverageSnapshot(audit) {
     nextExperiment: obligation.nextExperiment ?? null,
   }]));
   snapshot.byId = byId;
-  snapshot.guards = createCoverageGuards(snapshot);
+  snapshot.guards = createCoverageGuards(snapshot, counterexampleSnapshot);
   return snapshot;
 }
 
-function createCoverageGuards(snapshot) {
+function createCoverageGuards(snapshot, counterexampleSnapshot = null) {
   const counts = snapshot?.spiderMonkeyDiagnostics?.selectedRowIdentityStatusCounts ?? {};
   const spiderMonkeyDiagnostics = snapshot?.spiderMonkeyDiagnostics ?? {};
   const routeFreshness = snapshot?.spiderMonkeyTaskclusterRouteFreshness ?? {};
+  const closureAudit = snapshot?.spiderMonkeyClosureAudit ?? {};
   return [
     {
       id: 'coverage-loaded',
@@ -1261,6 +1283,17 @@ function createCoverageGuards(snapshot) {
         && spiderMonkeyDiagnostics.closureAuditCandidateCount >= spiderMonkeyDiagnostics.diagnosticRowCount
         && spiderMonkeyDiagnostics.closureAuditCandidateCount - spiderMonkeyDiagnostics.diagnosticRowCount === spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap
         && typeof spiderMonkeyDiagnostics.closureAuditQualifiedClosureCount === 'number',
+    },
+    {
+      id: 'spidermonkey-closure-audit-comparison-current',
+      description: 'SpiderMonkey closure audit comparison freshness must be preserved in coverage: selected-row comparison counts must match the current same-contract comparison generatedAt and row count.',
+      satisfied: closureAudit.candidateCount === 15
+        && closureAudit.qualifiedClosureCount === 0
+        && closureAudit.selectedRowComparisonMatchCount === 0
+        && closureAudit.selectedRowComparisonMismatchCount === 0
+        && closureAudit.selectedRowComparisonMissingCount === 15
+        && closureAudit.comparisonGeneratedAt === counterexampleSnapshot?.comparisonGeneratedAt
+        && closureAudit.comparisonRowCount === counterexampleSnapshot?.comparisonRowCount,
     },
     {
       id: 'spidermonkey-closure-audit-gap-artifacts-visible',

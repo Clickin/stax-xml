@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T14:13:08.698Z",
+  "generatedAt": "2026-06-02T14:22:00.439Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -362,7 +362,7 @@
     "comparisonJsLargeFullRowCount": 239,
     "comparisonCounterexampleCount": 0,
     "counterexampleScanLoaded": true,
-    "counterexampleScanGeneratedAt": "2026-06-02T13:50:10.881Z",
+    "counterexampleScanGeneratedAt": "2026-06-02T14:21:15.716Z",
     "thresholdMiBPerSec": 200,
     "minSizeGiB": 0.999,
     "scanParseErrorCount": 0,
@@ -417,7 +417,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T14:06:26.098Z",
+    "generatedAt": "2026-06-02T14:21:42.788Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -542,9 +542,9 @@
   },
   "handoffValidationSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T14:06:37.229Z",
-    "validatedHandoffGeneratedAt": "2026-06-02T14:06:26.098Z",
-    "currentHandoffGeneratedAt": "2026-06-02T14:06:26.098Z",
+    "generatedAt": "2026-06-02T14:21:51.952Z",
+    "validatedHandoffGeneratedAt": "2026-06-02T14:21:42.788Z",
+    "currentHandoffGeneratedAt": "2026-06-02T14:21:42.788Z",
     "pass": true,
     "allContractsPresent": true,
     "requiredHandoffsPresent": true,
@@ -588,11 +588,11 @@
   },
   "sourceAuditSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T13:50:26.391Z",
+    "generatedAt": "2026-06-02T14:21:32.319Z",
     "inputComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
     "currentComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
-    "inputCoverageGeneratedAt": "2026-06-02T13:49:46.318Z",
-    "currentCoverageGeneratedAt": "2026-06-02T13:49:46.318Z",
+    "inputCoverageGeneratedAt": "2026-06-02T14:21:03.892Z",
+    "currentCoverageGeneratedAt": "2026-06-02T14:21:03.892Z",
     "status": "classified",
     "primarySourceContract": "primary-sync-iterable-byte-batches",
     "primaryParserInput": "synchronous Iterable<Uint8Array[]>",
@@ -650,7 +650,7 @@
   "frontierAuditSnapshot": {
     "memory": {
       "loaded": true,
-      "generatedAt": "2026-06-02T13:50:24.392Z",
+      "generatedAt": "2026-06-02T14:21:32.448Z",
       "inputComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
       "currentComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
       "status": "classified",
@@ -663,7 +663,7 @@
     },
     "targetDistance": {
       "loaded": true,
-      "generatedAt": "2026-06-02T13:50:24.602Z",
+      "generatedAt": "2026-06-02T14:21:32.249Z",
       "inputComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
       "currentComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
       "status": "classified",
@@ -684,7 +684,7 @@
     },
     "textMaterialization": {
       "loaded": true,
-      "generatedAt": "2026-06-02T13:50:26.733Z",
+      "generatedAt": "2026-06-02T14:21:33.031Z",
       "inputComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
       "currentComparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
       "status": "classified",
@@ -737,7 +737,7 @@
   },
   "coverageSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T13:49:46.318Z",
+    "generatedAt": "2026-06-02T14:21:03.892Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -847,6 +847,15 @@
       "checkedArtifactCount": 5,
       "mismatchedArtifacts": []
     },
+    "spiderMonkeyClosureAudit": {
+      "candidateCount": 15,
+      "qualifiedClosureCount": 0,
+      "selectedRowComparisonMatchCount": 0,
+      "selectedRowComparisonMismatchCount": 0,
+      "selectedRowComparisonMissingCount": 15,
+      "comparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
+      "comparisonRowCount": 289
+    },
     "guards": [
       {
         "id": "coverage-loaded",
@@ -866,6 +875,11 @@
       {
         "id": "spidermonkey-closure-audit-surface-visible",
         "description": "Coverage audit must expose SpiderMonkey diagnostic row count, closure-audit candidate count, their gap, and qualifiedClosureCount so gate review sees the curated coverage surface is not the full closure matrix.",
+        "satisfied": true
+      },
+      {
+        "id": "spidermonkey-closure-audit-comparison-current",
+        "description": "SpiderMonkey closure audit comparison freshness must be preserved in coverage: selected-row comparison counts must match the current same-contract comparison generatedAt and row count.",
         "satisfied": true
       },
       {
@@ -1044,8 +1058,8 @@
     "currentCounterexamples": 0,
     "satisfiedCounterexampleScanGuards": 8,
     "requiredCounterexampleScanGuards": 8,
-    "satisfiedCoverageGuards": 6,
-    "requiredCoverageGuards": 6,
+    "satisfiedCoverageGuards": 7,
+    "requiredCoverageGuards": 7,
     "satisfiedHandoffGuards": 21,
     "requiredHandoffGuards": 21,
     "satisfiedHandoffValidationGuards": 6,

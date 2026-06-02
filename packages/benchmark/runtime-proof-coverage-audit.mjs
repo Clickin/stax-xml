@@ -181,7 +181,7 @@ function createArtifactRecord(sourceArtifact, root, options) {
     runtimes,
     environment: summarizeEnvironment(root.environment),
     parameters: summarizeParameters(root.parameters),
-    summary: summarizeArtifactSummary(root.summary),
+    summary: summarizeArtifactSummary(root.summary, root.inputs),
     availability: summarizeAvailability(root.summary),
     outcome: summarizeOutcome(root.outcome),
     shell: summarizeShell(root.shell),
@@ -194,7 +194,7 @@ function createArtifactRecord(sourceArtifact, root, options) {
   };
 }
 
-function summarizeArtifactSummary(summary = {}) {
+function summarizeArtifactSummary(summary = {}, inputs = {}) {
   if (!summary || typeof summary !== 'object') return null;
   const result = {
     status: summary.status ?? null,
@@ -255,6 +255,21 @@ function summarizeArtifactSummary(summary = {}) {
       : null,
     qualifiedClosureCount: typeof summary.qualifiedClosureCount === 'number'
       ? summary.qualifiedClosureCount
+      : null,
+    selectedRowComparisonMatchCount: typeof summary.selectedRowComparisonMatchCount === 'number'
+      ? summary.selectedRowComparisonMatchCount
+      : null,
+    selectedRowComparisonMismatchCount: typeof summary.selectedRowComparisonMismatchCount === 'number'
+      ? summary.selectedRowComparisonMismatchCount
+      : null,
+    selectedRowComparisonMissingCount: typeof summary.selectedRowComparisonMissingCount === 'number'
+      ? summary.selectedRowComparisonMissingCount
+      : null,
+    comparisonGeneratedAt: typeof inputs?.comparisonGeneratedAt === 'string'
+      ? inputs.comparisonGeneratedAt
+      : null,
+    comparisonRowCount: typeof inputs?.comparisonRowCount === 'number'
+      ? inputs.comparisonRowCount
       : null,
     diagnosticThroughputMiBPerSec: typeof summary.diagnosticThroughputMiBPerSec === 'number'
       ? summary.diagnosticThroughputMiBPerSec

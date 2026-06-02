@@ -44,6 +44,13 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.evidenceKinds.includes('TRACE_FACT')
     && artifact.evidenceKinds.includes('NEGATIVE_RESULT')
     && artifact.evidenceKinds.includes('SCOPE_GUARD')
+    && artifact.summary.candidateCount === 15
+    && artifact.summary.qualifiedClosureCount === 0
+    && artifact.summary.selectedRowComparisonMatchCount === 0
+    && artifact.summary.selectedRowComparisonMismatchCount === 0
+    && artifact.summary.selectedRowComparisonMissingCount === 15
+    && artifact.summary.comparisonGeneratedAt === '2026-06-01T17:12:20.521Z'
+    && artifact.summary.comparisonRowCount === 289
   ));
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'spidermonkey-codegen-rerun-stability-audit.json'
