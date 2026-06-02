@@ -119,11 +119,11 @@ this ledger's claim table, checks required guard claims and artifact mentions,
 and records whether the broad runtime-limit conclusion is currently allowed.
 
 The current gate report passes with status `incomplete-proof-correctly-blocked`:
-all 10 required claim guards are satisfied, all 39 required artifact mentions
+all 10 required claim guards are satisfied, all 40 required artifact mentions
 are present, all 5 required open-obligation disclosures are present, all 18
-proof-rule checks are satisfied, all 11 handoff guards are satisfied, all 5
-handoff-validation guards are satisfied, all 6 source-audit guards are
-satisfied, and all 6 frontier-audit guards are satisfied. It also loads
+proof-rule checks are satisfied, all 24 handoff guards are satisfied, all 6
+handoff-validation guards are satisfied, all 7 source-audit guards are
+satisfied, and all 7 frontier-audit guards are satisfied. It also loads
 `runtime-proof-gap-handoff.json` and `runtime-proof-handoff-validation.json`
 directly and requires the handoff-level closure guards and runbook validation
 contracts to stay present. The important result is
@@ -881,8 +881,8 @@ scripts, write curated JSON/Markdown summaries under
 output under separated results directories, and retain required closure
 contracts.
 
-The validation currently passes over two handoffs and nine commands: 12
-referenced scripts exist, 28 release output paths are under the curated release
+The validation currently passes over two handoffs and 15 commands: 22
+referenced scripts exist, 74 release output paths are under the curated release
 directory, the two raw output directories are separated under
 `results/cross-process` or the Firefox diagnostic dump directory, and there are
 zero missing scripts or output-path policy violations. It also pins that the
@@ -894,7 +894,8 @@ primary parser input, direct `ReadableStream` rows are separate
 source-overhead evidence, and backpressure must be recorded. The SpiderMonkey
 handoff still requires a `FIREFOX_PATH` diagnostic build or shell path, release
 and nightly js-shell surface probes, emitted IR/optimized-code metadata, event
-count, and checksum parity.
+count, checksum parity, and `selectedRowMatchesCurrentComparison=true` against
+the current same-contract comparison artifact.
 
 This is runbook-quality evidence only. It does not execute Safari/WebKit
 benchmarks, does not emit SpiderMonkey IR or optimized code, and cannot close
