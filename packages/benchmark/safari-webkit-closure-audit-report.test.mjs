@@ -30,6 +30,8 @@ test('Safari/WebKit closure audit separates primary rows from direct stream rows
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
   assert.equal(report.objective, 'safari-webkit-closure-audit');
   assert.equal(report.contract, 'safari-webkit-same-contract-browser-row-closure-matrix');
+  assert.equal(report.inputs.comparisonGeneratedAt, 'self-test');
+  assert.equal(report.inputs.comparisonRowCount, 1);
   assert.equal(report.summary.candidateCount, 2);
   assert.equal(report.summary.primarySyncByteBatchRows, 1);
   assert.equal(report.summary.largeBoundedPrimaryRows, 1);
@@ -50,6 +52,8 @@ test('Safari/WebKit closure audit separates primary rows from direct stream rows
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Safari\/WebKit Closure Audit/);
+  assert.match(markdown, /Comparison generatedAt: self-test/);
+  assert.match(markdown, /Comparison row count: 1/);
   assert.match(markdown, /Qualified closures: 1/);
   assert.match(markdown, /Primary sync byte-batch/);
 });

@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T15:00:32.875Z
+Generated: 2026-06-02T15:10:07.617Z
 
 ## Scope
 
@@ -87,7 +87,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-02T14:54:38.567Z)
+- Coverage audit loaded: yes (2026-06-02T15:09:10.515Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey diagnostics rows vs closure candidates: 11/15 (gap=4, closureQualified=0)
@@ -95,12 +95,14 @@ These are static disclosure guards. They must stay disclosed while the broad run
 - SpiderMonkey coverage diagnostics outside closure candidates: none
 - SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7
 - SpiderMonkey Taskcluster route freshness: fresh (artifactIdentityMatchesRoute=yes, checkedArtifacts=5, mismatchedArtifacts=none)
+- Safari/WebKit closure comparison: generatedAt=2026-06-02T14:53:00.937Z, rows=289, candidates=0, qualified=0
 - Safari/WebKit status: evidenceClass=environment-availability-only, canRunSafariBrowserRows=no, browserRows=0, primarySyncRows=0, boundedPrimaryRows=0, largeBoundedPrimaryRows=0, exactBuildIdentity=no, sourceBoundaryPinned=no, closesSafariObligation=no
 
 | ID | Satisfied | Meaning |
 | --- | --- | --- |
 | `coverage-loaded` | yes | runtime-proof-coverage-audit.json must be loaded by the gate. |
 | `safari-webkit-local-unavailable-status-visible` | yes | Safari/WebKit local unavailable status must stay visible in coverage: current host has no Safari/safaridriver row, zero Safari browser rows are recorded, and the Safari obligation remains open. |
+| `safari-webkit-closure-audit-comparison-current` | yes | Safari/WebKit closure audit comparison freshness must be preserved in coverage: the closure matrix must reference the current same-contract comparison generatedAt and row count even when no Safari rows are present. |
 | `spidermonkey-identity-status-counts-present` | yes | Coverage audit must expose coverage.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts for gate-level review. |
 | `spidermonkey-non-stax-diagnostic-rows-visible` | yes | Coverage audit must keep non-StAX SpiderMonkey diagnostic rows visible via selectedRowIdentityStatusCounts.not-claimed-non-stax-diagnostic. |
 | `spidermonkey-closure-audit-surface-visible` | yes | Coverage audit must expose SpiderMonkey diagnostic row count, closure-audit candidate count, their gap, and qualifiedClosureCount so gate review sees the curated coverage surface is not the full closure matrix. |
@@ -115,7 +117,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 - Same-contract comparison contract: same-full-string-checksum-contract-not-same-object-shape; publicEventCase=eventObjectFull; objectShapeEquivalence=false; memoryEquivalence=false
 - Same-contract comparison rows: 289/289; largeFullJsRows=239
 - Same-contract comparison counterexamples: 0
-- Runtime counterexample scan loaded: yes (2026-06-02T14:54:57.295Z)
+- Runtime counterexample scan loaded: yes (2026-06-02T15:09:35.765Z)
 - Counterexample scan contract: threshold=200.00 MiB/s, minSizeGiB=1.00, parseErrors=0
 - Counterexample scan coverage shape: artifacts=225/225, measuredRows=1255/1255
 - Runtime counterexample scan counterexamples: 0
@@ -131,7 +133,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-02T14:54:44.739Z)
+- Handoff loaded: yes (2026-06-02T15:09:16.036Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -161,8 +163,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T14:54:57.667Z)
-- Handoff validation target handoff generatedAt: 2026-06-02T14:54:44.739Z (current 2026-06-02T14:54:44.739Z)
+- Handoff validation loaded: yes (2026-06-02T15:09:29.177Z)
+- Handoff validation target handoff generatedAt: 2026-06-02T15:09:16.036Z (current 2026-06-02T15:09:16.036Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes
 - Required contracts present: yes
@@ -180,8 +182,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-02T14:55:16.870Z)
-- Source audit inputs: comparison=2026-06-02T14:53:00.937Z (current 2026-06-02T14:53:00.937Z), coverage=2026-06-02T14:54:38.567Z (current 2026-06-02T14:54:38.567Z)
+- Source audit loaded: yes (2026-06-02T15:09:56.297Z)
+- Source audit inputs: comparison=2026-06-02T14:53:00.937Z (current 2026-06-02T14:53:00.937Z), coverage=2026-06-02T15:09:10.515Z (current 2026-06-02T15:09:10.515Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary sync byte-batch rows: 231

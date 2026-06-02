@@ -1195,6 +1195,12 @@ function createCoverageSnapshot(audit, counterexampleSnapshot = null) {
         closestBlockedCandidateCount: null,
         closestBlockedCandidateSourceArtifacts: [],
       },
+      safariWebKitClosureAudit: {
+        candidateCount: null,
+        qualifiedClosureCount: null,
+        comparisonGeneratedAt: null,
+        comparisonRowCount: null,
+      },
       safariWebKitStatus: createNullSafariWebKitStatus(),
       guards: createCoverageGuards(null, counterexampleSnapshot),
     };
@@ -1218,6 +1224,9 @@ function createCoverageSnapshot(audit, counterexampleSnapshot = null) {
   const closureAuditArtifact = (Array.isArray(audit.scannedArtifacts) ? audit.scannedArtifacts : [])
     .find(artifact => artifact.sourceArtifact === 'spidermonkey-codegen-closure-audit.json');
   const closureAudit = closureAuditArtifact?.summary ?? {};
+  const safariClosureAuditArtifact = (Array.isArray(audit.scannedArtifacts) ? audit.scannedArtifacts : [])
+    .find(artifact => artifact.sourceArtifact === 'safari-webkit-closure-audit.json');
+  const safariClosureAudit = safariClosureAuditArtifact?.summary ?? {};
   const snapshot = {
     loaded: true,
     generatedAt: audit.generatedAt ?? null,
@@ -1251,6 +1260,12 @@ function createCoverageSnapshot(audit, counterexampleSnapshot = null) {
       closestBlockedCandidateSourceArtifacts: Array.isArray(closureAudit.closestBlockedCandidateSourceArtifacts)
         ? closureAudit.closestBlockedCandidateSourceArtifacts
         : [],
+    },
+    safariWebKitClosureAudit: {
+      candidateCount: safariClosureAudit.candidateCount ?? null,
+      qualifiedClosureCount: safariClosureAudit.qualifiedClosureCount ?? null,
+      comparisonGeneratedAt: safariClosureAudit.comparisonGeneratedAt ?? null,
+      comparisonRowCount: safariClosureAudit.comparisonRowCount ?? null,
     },
     safariWebKitStatus: createSafariWebKitStatusSnapshot(audit.coverage?.safariWebKitStatus),
     guards: [],
@@ -1322,6 +1337,7 @@ function createCoverageGuards(snapshot, counterexampleSnapshot = null) {
   const spiderMonkeyDiagnostics = snapshot?.spiderMonkeyDiagnostics ?? {};
   const routeFreshness = snapshot?.spiderMonkeyTaskclusterRouteFreshness ?? {};
   const closureAudit = snapshot?.spiderMonkeyClosureAudit ?? {};
+  const safariClosureAudit = snapshot?.safariWebKitClosureAudit ?? {};
   const safari = snapshot?.safariWebKitStatus ?? {};
   return [
     {
@@ -1344,6 +1360,14 @@ function createCoverageGuards(snapshot, counterexampleSnapshot = null) {
         && safari.exactBuildIdentityRecorded === false
         && safari.sourceBoundaryPinned === false
         && safari.closesSafariObligation === false,
+    },
+    {
+      id: 'safari-webkit-closure-audit-comparison-current',
+      description: 'Safari/WebKit closure audit comparison freshness must be preserved in coverage: the closure matrix must reference the current same-contract comparison generatedAt and row count even when no Safari rows are present.',
+      satisfied: safariClosureAudit.candidateCount === 0
+        && safariClosureAudit.qualifiedClosureCount === 0
+        && safariClosureAudit.comparisonGeneratedAt === counterexampleSnapshot?.comparisonGeneratedAt
+        && safariClosureAudit.comparisonRowCount === counterexampleSnapshot?.comparisonRowCount,
     },
     {
       id: 'spidermonkey-identity-status-counts-present',
@@ -1525,6 +1549,7 @@ function renderMarkdown(report) {
   `- SpiderMonkey coverage diagnostics outside closure candidates: ${formatStringList(report.coverageSnapshot.spiderMonkeyDiagnostics.diagnosticSourcesOutsideClosureAudit)}`,
   `- SpiderMonkey selected row identity statuses: ${formatCountMap(report.coverageSnapshot.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts)}`,
   `- SpiderMonkey Taskcluster route freshness: ${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.routeFresh === true ? 'fresh' : 'stale'} (artifactIdentityMatchesRoute=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.artifactIdentityMatchesRoute === true ? 'yes' : 'no'}, checkedArtifacts=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.checkedArtifactCount ?? 'unknown'}, mismatchedArtifacts=${formatStringList(report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.mismatchedArtifacts ?? [])})`,
+  `- Safari/WebKit closure comparison: generatedAt=${report.coverageSnapshot.safariWebKitClosureAudit.comparisonGeneratedAt ?? 'unknown'}, rows=${report.coverageSnapshot.safariWebKitClosureAudit.comparisonRowCount ?? 'unknown'}, candidates=${report.coverageSnapshot.safariWebKitClosureAudit.candidateCount ?? 'unknown'}, qualified=${report.coverageSnapshot.safariWebKitClosureAudit.qualifiedClosureCount ?? 'unknown'}`,
   `- Safari/WebKit status: evidenceClass=${report.coverageSnapshot.safariWebKitStatus?.evidenceClass ?? 'unknown'}, canRunSafariBrowserRows=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.canRunSafariBrowserRows)}, browserRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.benchmarkRowsRecorded)}, primarySyncRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.primarySyncByteBatchRowsRecorded)}, boundedPrimaryRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.boundedPrimarySyncByteBatchRowsRecorded)}, largeBoundedPrimaryRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.largeBoundedPrimarySyncByteBatchRowsRecorded)}, exactBuildIdentity=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.exactBuildIdentityRecorded)}, sourceBoundaryPinned=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.sourceBoundaryPinned)}, closesSafariObligation=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.closesSafariObligation)}`,
     '',
     '| ID | Satisfied | Meaning |',

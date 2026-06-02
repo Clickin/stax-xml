@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T15:00:32.875Z",
+  "generatedAt": "2026-06-02T15:10:07.617Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -362,7 +362,7 @@
     "comparisonJsLargeFullRowCount": 239,
     "comparisonCounterexampleCount": 0,
     "counterexampleScanLoaded": true,
-    "counterexampleScanGeneratedAt": "2026-06-02T14:54:57.295Z",
+    "counterexampleScanGeneratedAt": "2026-06-02T15:09:35.765Z",
     "thresholdMiBPerSec": 200,
     "minSizeGiB": 0.999,
     "scanParseErrorCount": 0,
@@ -417,7 +417,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T14:54:44.739Z",
+    "generatedAt": "2026-06-02T15:09:16.036Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -542,9 +542,9 @@
   },
   "handoffValidationSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T14:54:57.667Z",
-    "validatedHandoffGeneratedAt": "2026-06-02T14:54:44.739Z",
-    "currentHandoffGeneratedAt": "2026-06-02T14:54:44.739Z",
+    "generatedAt": "2026-06-02T15:09:29.177Z",
+    "validatedHandoffGeneratedAt": "2026-06-02T15:09:16.036Z",
+    "currentHandoffGeneratedAt": "2026-06-02T15:09:16.036Z",
     "pass": true,
     "allContractsPresent": true,
     "requiredHandoffsPresent": true,
@@ -588,11 +588,11 @@
   },
   "sourceAuditSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T14:55:16.870Z",
+    "generatedAt": "2026-06-02T15:09:56.297Z",
     "inputComparisonGeneratedAt": "2026-06-02T14:53:00.937Z",
     "currentComparisonGeneratedAt": "2026-06-02T14:53:00.937Z",
-    "inputCoverageGeneratedAt": "2026-06-02T14:54:38.567Z",
-    "currentCoverageGeneratedAt": "2026-06-02T14:54:38.567Z",
+    "inputCoverageGeneratedAt": "2026-06-02T15:09:10.515Z",
+    "currentCoverageGeneratedAt": "2026-06-02T15:09:10.515Z",
     "status": "classified",
     "primarySourceContract": "primary-sync-iterable-byte-batches",
     "primaryParserInput": "synchronous Iterable<Uint8Array[]>",
@@ -743,7 +743,7 @@
   },
   "coverageSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T14:54:38.567Z",
+    "generatedAt": "2026-06-02T15:09:10.515Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -871,6 +871,12 @@
         "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
       ]
     },
+    "safariWebKitClosureAudit": {
+      "candidateCount": 0,
+      "qualifiedClosureCount": 0,
+      "comparisonGeneratedAt": "2026-06-02T14:53:00.937Z",
+      "comparisonRowCount": 289
+    },
     "safariWebKitStatus": {
       "evidenceClass": "environment-availability-only",
       "hostIsMacOS": false,
@@ -902,6 +908,11 @@
       {
         "id": "safari-webkit-local-unavailable-status-visible",
         "description": "Safari/WebKit local unavailable status must stay visible in coverage: current host has no Safari/safaridriver row, zero Safari browser rows are recorded, and the Safari obligation remains open.",
+        "satisfied": true
+      },
+      {
+        "id": "safari-webkit-closure-audit-comparison-current",
+        "description": "Safari/WebKit closure audit comparison freshness must be preserved in coverage: the closure matrix must reference the current same-contract comparison generatedAt and row count even when no Safari rows are present.",
         "satisfied": true
       },
       {
@@ -1105,8 +1116,8 @@
     "currentCounterexamples": 0,
     "satisfiedCounterexampleScanGuards": 8,
     "requiredCounterexampleScanGuards": 8,
-    "satisfiedCoverageGuards": 9,
-    "requiredCoverageGuards": 9,
+    "satisfiedCoverageGuards": 10,
+    "requiredCoverageGuards": 10,
     "satisfiedHandoffGuards": 21,
     "requiredHandoffGuards": 21,
     "satisfiedHandoffValidationGuards": 6,

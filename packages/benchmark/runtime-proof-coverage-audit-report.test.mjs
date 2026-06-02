@@ -112,6 +112,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.measuredRowCount === 0
     && artifact.evidenceKinds.includes('NEGATIVE_RESULT')
     && artifact.evidenceKinds.includes('SCOPE_GUARD')
+    && artifact.summary.comparisonGeneratedAt === comparison.generatedAt
+    && artifact.summary.comparisonRowCount === comparison.summary.rowCount
+    && artifact.summary.candidateCount === 0
+    && artifact.summary.qualifiedClosureCount === 0
     && artifact.summary.conclusionAllowed === false
   ));
   assert.ok(report.scannedArtifacts.some(artifact =>

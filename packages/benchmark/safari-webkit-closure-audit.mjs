@@ -69,8 +69,9 @@ function createReport(options) {
     .filter(file => file.endsWith('.json'))
     .sort()
     .map(file => ({ sourceArtifact: file, root: JSON.parse(readFileSync(join(options.releaseDir, file), 'utf8')) }));
-  const comparison = roots.find(artifact => artifact.sourceArtifact === 'same-contract-runtime-comparison.json')?.root ?? {};
-  return buildReport(options, roots, extractComparisonRows(comparison));
+  const comparisonArtifact = roots.find(artifact => artifact.sourceArtifact === 'same-contract-runtime-comparison.json') ?? null;
+  const comparison = comparisonArtifact?.root ?? {};
+  return buildReport(options, roots, extractComparisonRows(comparison), comparison, comparisonArtifact?.sourceArtifact ?? null);
 }
 
 function createSelfTestReport(options) {
@@ -143,10 +144,14 @@ function createSelfTestReport(options) {
   const comparisonRows = [
     { id: 'safari-valid', runtimeId: 'safari-jsc-browser', eventCount: 12, checksum: 34 },
   ];
-  return buildReport(options, roots, comparisonRows);
+  const comparison = {
+    generatedAt: 'self-test',
+    summary: { rowCount: comparisonRows.length },
+  };
+  return buildReport(options, roots, comparisonRows, comparison, 'self-test-same-contract-runtime-comparison.json');
 }
 
-function buildReport(options, artifacts, comparisonRows) {
+function buildReport(options, artifacts, comparisonRows, comparison = {}, comparisonSourceArtifact = null) {
   const availability = summarizeAvailability(artifacts.find(artifact =>
     artifact.sourceArtifact === 'safari-webkit-availability-audit.json'
   )?.root);
@@ -162,6 +167,13 @@ function buildReport(options, artifacts, comparisonRows) {
       releaseDir: options.releaseDir,
       minLargeGiB: options.minLargeGiB,
       selfTest: options.selfTest,
+    },
+    inputs: {
+      comparisonArtifact: comparisonSourceArtifact,
+      comparisonGeneratedAt: comparison.generatedAt ?? null,
+      comparisonRowCount: typeof comparison.summary?.rowCount === 'number'
+        ? comparison.summary.rowCount
+        : comparisonRows.length,
     },
     availability,
     candidates,
@@ -407,6 +419,8 @@ function renderMarkdown(report) {
     '## Summary',
     '',
     `- Candidate Safari/WebKit rows: ${report.summary.candidateCount}`,
+    `- Comparison generatedAt: ${report.inputs.comparisonGeneratedAt ?? 'unknown'}`,
+    `- Comparison row count: ${report.inputs.comparisonRowCount ?? 'unknown'}`,
     `- Full-string rows: ${report.summary.fullStringRows}`,
     `- Primary sync byte-batch rows: ${report.summary.primarySyncByteBatchRows}`,
     `- Large bounded primary rows: ${report.summary.largeBoundedPrimaryRows}`,
