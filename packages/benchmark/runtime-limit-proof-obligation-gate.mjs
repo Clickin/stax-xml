@@ -884,6 +884,10 @@ function createHandoffValidationSnapshot(validation, handoffSnapshot = null) {
   }
 
   const handoffChecks = Array.isArray(validation.handoffChecks) ? validation.handoffChecks : [];
+  const spiderMonkeyCheck = handoffChecks.find(check => check.id === 'spidermonkey-codegen-handoff');
+  const spiderMonkeyRequiredContracts = Array.isArray(spiderMonkeyCheck?.requiredContractPatterns)
+    ? spiderMonkeyCheck.requiredContractPatterns.join('\n')
+    : '';
   const snapshot = {
     loaded: true,
     generatedAt: validation.generatedAt ?? null,
@@ -905,6 +909,9 @@ function createHandoffValidationSnapshot(validation, handoffSnapshot = null) {
     requiredHandoffsPresent: validation.summary?.requiredHandoffsPresent ?? null,
     unhandledObligationCount: validation.summary?.unhandledObligationCount ?? null,
     handoffIds: handoffChecks.map(check => check.id).filter(Boolean),
+    spiderMonkeyTextDecoderHostApiValidationPinned: /materialized scope-distance audit pins/.test(spiderMonkeyRequiredContracts)
+      && /primarySyncByteBatchMissingGlobals=TextDecoder/.test(spiderMonkeyRequiredContracts)
+      && /asciiTextDecoderEquivalent=true/.test(spiderMonkeyRequiredContracts),
     guards: [],
   };
   snapshot.guards = createHandoffValidationGuards(snapshot);
@@ -962,6 +969,11 @@ function createHandoffValidationGuards(snapshot) {
       id: 'handoff-validation-no-unhandled-obligations',
       description: 'runtime-proof-handoff-validation.json must validate a handoff with zero unhandled obligations.',
       satisfied: snapshot?.unhandledObligationCount === 0,
+    },
+    {
+      id: 'handoff-validation-spidermonkey-textdecoder-host-api-blocker',
+      description: 'runtime-proof-handoff-validation.json must require the SpiderMonkey materialized TextDecoder host API blocker contract patterns.',
+      satisfied: snapshot?.spiderMonkeyTextDecoderHostApiValidationPinned === true,
     },
   ];
 }

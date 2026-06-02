@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T21:36:38.618Z",
+  "generatedAt": "2026-06-02T21:40:07.195Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -881,6 +881,7 @@
       "safari-webkit-browser-row-handoff",
       "spidermonkey-codegen-handoff"
     ],
+    "spiderMonkeyTextDecoderHostApiValidationPinned": true,
     "guards": [
       {
         "id": "handoff-validation-loaded",
@@ -920,6 +921,11 @@
       {
         "id": "handoff-validation-no-unhandled-obligations",
         "description": "runtime-proof-handoff-validation.json must validate a handoff with zero unhandled obligations.",
+        "satisfied": true
+      },
+      {
+        "id": "handoff-validation-spidermonkey-textdecoder-host-api-blocker",
+        "description": "runtime-proof-handoff-validation.json must require the SpiderMonkey materialized TextDecoder host API blocker contract patterns.",
         "satisfied": true
       }
     ]
@@ -1491,8 +1497,8 @@
     "requiredCoverageGuards": 10,
     "satisfiedHandoffGuards": 28,
     "requiredHandoffGuards": 28,
-    "satisfiedHandoffValidationGuards": 8,
-    "requiredHandoffValidationGuards": 8,
+    "satisfiedHandoffValidationGuards": 9,
+    "requiredHandoffValidationGuards": 9,
     "satisfiedSourceAuditGuards": 7,
     "requiredSourceAuditGuards": 7,
     "satisfiedFrontierAuditGuards": 8,

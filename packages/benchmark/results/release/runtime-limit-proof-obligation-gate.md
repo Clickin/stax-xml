@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T21:36:38.618Z
+Generated: 2026-06-02T21:40:07.195Z
 
 ## Scope
 
@@ -205,6 +205,7 @@ Disclosure-only guards: 3
 | `handoff-validation-required-handoffs-present` | yes | runtime-proof-handoff-validation.json must report required Safari and SpiderMonkey handoffs present. |
 | `handoff-validation-current-handoff` | yes | runtime-proof-handoff-validation.json must validate the currently loaded runtime-proof-gap-handoff.json generatedAt. |
 | `handoff-validation-no-unhandled-obligations` | yes | runtime-proof-handoff-validation.json must validate a handoff with zero unhandled obligations. |
+| `handoff-validation-spidermonkey-textdecoder-host-api-blocker` | yes | runtime-proof-handoff-validation.json must require the SpiderMonkey materialized TextDecoder host API blocker contract patterns. |
 
 ## Source Audit Snapshot
 

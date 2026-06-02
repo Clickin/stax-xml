@@ -332,6 +332,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.handoffValidationSnapshot.externalRunRequiredCount, 2);
   assert.equal(report.handoffValidationSnapshot.localRunnableCount, 0);
   assert.equal(report.handoffValidationSnapshot.unhandledObligationCount, 0);
+  assert.equal(report.handoffValidationSnapshot.spiderMonkeyTextDecoderHostApiValidationPinned, true);
   assert.equal(report.handoffValidationSnapshot.validatedHandoffGeneratedAt, report.handoffSnapshot.generatedAt);
   assert.equal(report.handoffValidationSnapshot.currentHandoffGeneratedAt, report.handoffSnapshot.generatedAt);
   assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-loaded' && item.satisfied));
@@ -340,6 +341,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-command-and-path-safety' && item.satisfied));
   assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-external-run-status-pinned' && item.satisfied));
   assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-current-handoff' && item.satisfied));
+  assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-spidermonkey-textdecoder-host-api-blocker' && item.satisfied));
 
   const markdown = readFileSync(goodMdOut, 'utf8');
   assert.match(markdown, /# Runtime-Limit Proof Obligation Gate/);
@@ -1939,6 +1941,56 @@ test('runtime-limit proof-obligation gate fails if handoff validation does not p
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /Handoff validation pass: no/);
   assert.match(markdown, /handoff-validation-contracts-present/);
+});
+
+test('runtime-limit proof-obligation gate fails if handoff validation omits SpiderMonkey TextDecoder host API blocker patterns', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const validation = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-handoff-validation.json'), 'utf8'));
+  validation.handoffChecks = validation.handoffChecks.map(check => {
+    if (check.id !== 'spidermonkey-codegen-handoff') {
+      return check;
+    }
+    return {
+      ...check,
+      requiredContractPatterns: check.requiredContractPatterns.filter(pattern =>
+        !/materialized scope-distance audit pins/.test(pattern)
+        && !/primarySyncByteBatchMissingGlobals=TextDecoder/.test(pattern)
+        && !/asciiTextDecoderEquivalent=true/.test(pattern)
+      ),
+    };
+  });
+  writeFileSync(badHandoffValidationJsonOut, `${JSON.stringify(validation, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--handoff-validation-json',
+    badHandoffValidationJsonOut,
+    '--json-out',
+    badHandoffValidationGateJsonOut,
+    '--md-out',
+    badHandoffValidationGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badHandoffValidationGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.equal(report.handoffValidationSnapshot.spiderMonkeyTextDecoderHostApiValidationPinned, false);
+  assert.ok(report.handoffValidationSnapshot.guards.some(item =>
+    item.id === 'handoff-validation-spidermonkey-textdecoder-host-api-blocker'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /SpiderMonkey materialized TextDecoder host API blocker/.test(error)));
+
+  const markdown = readFileSync(badHandoffValidationGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /handoff-validation-spidermonkey-textdecoder-host-api-blocker/);
 });
 
 test('runtime-limit proof-obligation gate fails if handoff validation loses command or path safety', () => {
