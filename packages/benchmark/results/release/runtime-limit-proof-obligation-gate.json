@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T22:23:11.368Z",
+  "generatedAt": "2026-06-02T22:28:07.240Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -756,6 +756,11 @@
         "satisfied": true
       },
       {
+        "id": "safari-structured-evidence-intake-contract",
+        "description": "Safari handoff must expose structured required artifacts, row fields, audit fields, and rejection rules for external row intake.",
+        "satisfied": true
+      },
+      {
         "id": "safari-local-availability-blocker",
         "description": "Safari handoff must preserve the local Safari availability blocker with host/harness runability details and zero-candidate closure audit summary tied to the current same-contract comparison identity.",
         "satisfied": true
@@ -763,6 +768,11 @@
       {
         "id": "spidermonkey-closing-artifact-schema-evidence",
         "description": "SpiderMonkey expected evidence must require explicit closure declarations, same-contract row status, comparison match, and allowed evidence class.",
+        "satisfied": true
+      },
+      {
+        "id": "spidermonkey-structured-evidence-intake-contract",
+        "description": "SpiderMonkey handoff must expose structured required artifacts, row fields, audit fields, and rejection rules for emitted-codegen intake.",
         "satisfied": true
       },
       {
@@ -1507,8 +1517,8 @@
     "requiredCounterexampleScanGuards": 10,
     "satisfiedCoverageGuards": 10,
     "requiredCoverageGuards": 10,
-    "satisfiedHandoffGuards": 28,
-    "requiredHandoffGuards": 28,
+    "satisfiedHandoffGuards": 30,
+    "requiredHandoffGuards": 30,
     "satisfiedHandoffValidationGuards": 9,
     "requiredHandoffValidationGuards": 9,
     "satisfiedSourceAuditGuards": 7,

@@ -1028,15 +1028,22 @@ function extractSpiderMonkeyCodegenComparisonFreshness(blockers = []) {
   };
 }
 
+function intakeHas(contract, key, patterns) {
+  const values = Array.isArray(contract?.[key]) ? contract[key] : [];
+  return patterns.every(pattern => values.some(value => pattern.test(String(value))));
+}
+
 function createHandoffGuards(byId, counterexampleSnapshot = null) {
   const safari = byId?.get('safari-webkit-browser-row-handoff') ?? null;
   const spiderMonkey = byId?.get('spidermonkey-codegen-handoff') ?? null;
   const safariCommands = safari?.commands ?? [];
   const safariChecks = safari?.closureChecks ?? [];
   const safariBlockers = safari?.localClosure?.blockers ?? [];
+  const safariIntake = safari?.evidenceIntakeContract ?? {};
   const spiderExpected = spiderMonkey?.expectedEvidence ?? [];
   const spiderChecks = spiderMonkey?.closureChecks ?? [];
   const spiderBlockers = spiderMonkey?.localClosure?.blockers ?? [];
+  const spiderIntake = spiderMonkey?.evidenceIntakeContract ?? {};
   const spiderCodegenComparisonFreshness = extractSpiderMonkeyCodegenComparisonFreshness(spiderBlockers);
   return [
     {
@@ -1103,6 +1110,32 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
         ),
     },
     {
+      id: 'safari-structured-evidence-intake-contract',
+      description: 'Safari handoff must expose structured required artifacts, row fields, audit fields, and rejection rules for external row intake.',
+      satisfied: intakeHas(safariIntake, 'requiredArtifacts', [
+        /safari-webdriver-candidate-headroom-cross-process-books-corpus\.json/,
+        /same-contract-runtime-comparison\.json/,
+        /runtime-counterexample-scan\.json/,
+        /target-distance-audit\.json/,
+      ])
+        && intakeHas(safariIntake, 'requiredRowFields', [
+          /runtimeId=safari-jsc-browser/,
+          /parserInput=synchronous Iterable<Uint8Array\[\]>/,
+          /sizeGiB>=1/,
+          /fullStringParity=true/,
+          /rowLevelSourceBoundaryPin/,
+        ])
+        && intakeHas(safariIntake, 'requiredAuditFields', [
+          /coverage\.safariWebKitStatus\.closesSafariObligation=true/,
+          /safari-webkit-closure-audit\.summary\.qualifiedClosureCount>0/,
+        ])
+        && intakeHas(safariIntake, 'rejectionRules', [
+          /full XML ArrayBuffer/,
+          /direct ReadableStream rows as primary Safari closure evidence/,
+          /runtime-counterexample-scan classifies it/,
+        ]),
+    },
+    {
       id: 'safari-local-availability-blocker',
       description: 'Safari handoff must preserve the local Safari availability blocker with host/harness runability details and zero-candidate closure audit summary tied to the current same-contract comparison identity.',
       satisfied: safariBlockers.some(item => /Current host cannot run Safari\/WebKit browser rows/.test(item)
@@ -1123,6 +1156,33 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
         && spiderExpected.some(item => /canRunCurrentStaxFullStringBenchmark=true/.test(item))
         && spiderExpected.some(item => /selectedRowMatchesCurrentComparison=true/.test(item))
         && spiderExpected.some(item => /evidenceClassAllowed=true/.test(item)),
+    },
+    {
+      id: 'spidermonkey-structured-evidence-intake-contract',
+      description: 'SpiderMonkey handoff must expose structured required artifacts, row fields, audit fields, and rejection rules for emitted-codegen intake.',
+      satisfied: intakeHas(spiderIntake, 'requiredArtifacts', [
+        /spidermonkey-emitted-codegen-or-optimized-code artifact/,
+        /same-contract-runtime-comparison\.json/,
+        /spidermonkey-codegen-closure-audit\.json/,
+        /runtime-counterexample-scan\.json/,
+      ])
+        && intakeHas(spiderIntake, 'requiredRowFields', [
+          /runtimeId=firefox-spidermonkey\|spidermonkey-js-shell/,
+          /selectedRowId/,
+          /sameContractStaxRow=true/,
+          /canRunCurrentStaxFullStringBenchmark=true/,
+          /emittedDumpMetadata/,
+          /evidenceClassAllowed=true/,
+        ])
+        && intakeHas(spiderIntake, 'requiredAuditFields', [
+          /coverage\.spiderMonkeyDiagnostics\.emittedIrEvidenceCount>0/,
+          /spidermonkey-codegen-closure-audit\.summary\.qualifiedClosureCount>0/,
+        ])
+        && intakeHas(spiderIntake, 'rejectionRules', [
+          /jit-status-only and bytecode-diagnostic-only/,
+          /materialized js-shell evidence/,
+          /rerun-stability evidence/,
+        ]),
     },
     {
       id: 'spidermonkey-emitted-ir-required',

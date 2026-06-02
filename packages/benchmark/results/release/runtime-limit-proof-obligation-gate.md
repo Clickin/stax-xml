@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T22:23:11.368Z
+Generated: 2026-06-02T22:28:07.240Z
 
 ## Scope
 
@@ -153,8 +153,10 @@ Disclosure-only guards: 3
 | `safari-row-level-source-boundary-required` | yes | Safari closure checks must require row-level source revision and source-pin artifact metadata, not only an availability-level sourceBoundaryPinned boolean. |
 | `safari-source-boundary-separates-bun-webkit` | yes | Safari handoff must preserve that Bun/JSC and Bun-patched WebKit source pins are not Safari browser JSC source pins unless the tested build identity matches. |
 | `safari-target-distance-recomputed-after-rows` | yes | Safari handoff must require target-distance-audit regeneration after Safari/WebKit rows so Woodstox and quick-xml 0.9x targets use the updated JavaScript comparison set. |
+| `safari-structured-evidence-intake-contract` | yes | Safari handoff must expose structured required artifacts, row fields, audit fields, and rejection rules for external row intake. |
 | `safari-local-availability-blocker` | yes | Safari handoff must preserve the local Safari availability blocker with host/harness runability details and zero-candidate closure audit summary tied to the current same-contract comparison identity. |
 | `spidermonkey-closing-artifact-schema-evidence` | yes | SpiderMonkey expected evidence must require explicit closure declarations, same-contract row status, comparison match, and allowed evidence class. |
+| `spidermonkey-structured-evidence-intake-contract` | yes | SpiderMonkey handoff must expose structured required artifacts, row fields, audit fields, and rejection rules for emitted-codegen intake. |
 | `spidermonkey-emitted-ir-required` | yes | SpiderMonkey closure checks must require emitted IR/codegen evidence and no missing IR surface. |
 | `spidermonkey-materialized-scope-not-enough` | yes | SpiderMonkey materialized js-shell codegen must require closureRequirementsBlocked=0 and closesCodegenObligation=true before closing. |
 | `spidermonkey-materialized-textdecoder-host-api-blocker` | yes | SpiderMonkey materialized js-shell codegen must preserve the TextDecoder host API blocker before treating ASCII materialized codegen as unchanged StAX closure. |
