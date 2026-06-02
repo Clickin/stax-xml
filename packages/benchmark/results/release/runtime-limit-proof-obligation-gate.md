@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T17:29:55.541Z
+Generated: 2026-06-02T17:35:01.997Z
 
 ## Scope
 
@@ -166,11 +166,14 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T17:29:48.452Z)
+- Handoff validation loaded: yes (2026-06-02T17:34:17.892Z)
 - Handoff validation target handoff generatedAt: 2026-06-02T17:21:29.504Z (current 2026-06-02T17:21:29.504Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes
 - Required contracts present: yes
+- External-run status pinned: yes
+- External-run required handoffs: 2
+- Locally runnable handoffs: 0
 - Unhandled obligations in validated handoff: 0
 - Validated handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -179,6 +182,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 | `handoff-validation-loaded` | yes | runtime-proof-handoff-validation.json must be loaded by the gate. |
 | `handoff-validation-pass` | yes | runtime-proof-handoff-validation.json summary.pass must be true before the gate can pass. |
 | `handoff-validation-contracts-present` | yes | runtime-proof-handoff-validation.json must report all required contracts present. |
+| `handoff-validation-external-run-status-pinned` | yes | runtime-proof-handoff-validation.json must report all current handoffs as external-run-required with zero locally runnable closures. |
 | `handoff-validation-required-handoffs-present` | yes | runtime-proof-handoff-validation.json must report required Safari and SpiderMonkey handoffs present. |
 | `handoff-validation-current-handoff` | yes | runtime-proof-handoff-validation.json must validate the currently loaded runtime-proof-gap-handoff.json generatedAt. |
 | `handoff-validation-no-unhandled-obligations` | yes | runtime-proof-handoff-validation.json must validate a handoff with zero unhandled obligations. |

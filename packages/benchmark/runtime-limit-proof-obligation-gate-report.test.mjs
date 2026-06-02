@@ -296,12 +296,16 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.handoffValidationSnapshot.loaded);
   assert.equal(report.handoffValidationSnapshot.pass, true);
   assert.equal(report.handoffValidationSnapshot.allContractsPresent, true);
+  assert.equal(report.handoffValidationSnapshot.allExternalRunRequired, true);
+  assert.equal(report.handoffValidationSnapshot.externalRunRequiredCount, 2);
+  assert.equal(report.handoffValidationSnapshot.localRunnableCount, 0);
   assert.equal(report.handoffValidationSnapshot.unhandledObligationCount, 0);
   assert.equal(report.handoffValidationSnapshot.validatedHandoffGeneratedAt, report.handoffSnapshot.generatedAt);
   assert.equal(report.handoffValidationSnapshot.currentHandoffGeneratedAt, report.handoffSnapshot.generatedAt);
   assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-loaded' && item.satisfied));
   assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-pass' && item.satisfied));
   assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-contracts-present' && item.satisfied));
+  assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-external-run-status-pinned' && item.satisfied));
   assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-current-handoff' && item.satisfied));
 
   const markdown = readFileSync(goodMdOut, 'utf8');
@@ -356,7 +360,11 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /Handoff validation loaded: yes/);
   assert.match(markdown, /Handoff validation target handoff generatedAt:/);
   assert.match(markdown, /Handoff validation pass: yes/);
+  assert.match(markdown, /External-run status pinned: yes/);
+  assert.match(markdown, /External-run required handoffs: 2/);
+  assert.match(markdown, /Locally runnable handoffs: 0/);
   assert.match(markdown, /handoff-validation-contracts-present/);
+  assert.match(markdown, /handoff-validation-external-run-status-pinned/);
   assert.match(markdown, /handoff-validation-current-handoff/);
   assert.match(markdown, /## Source Audit Snapshot/);
   assert.equal(report.sourceAuditSnapshot.inputComparisonGeneratedAt, report.counterexampleSnapshot.comparisonGeneratedAt);
@@ -1672,6 +1680,55 @@ test('runtime-limit proof-obligation gate fails if handoff validation does not p
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /Handoff validation pass: no/);
   assert.match(markdown, /handoff-validation-contracts-present/);
+});
+
+test('runtime-limit proof-obligation gate fails if handoff validation no longer pins external-run status', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const validation = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-handoff-validation.json'), 'utf8'));
+  validation.summary.allExternalRunRequired = false;
+  validation.summary.externalRunRequiredCount = 1;
+  validation.summary.localRunnableCount = 1;
+  validation.handoffChecks = validation.handoffChecks.map(check =>
+    check.id === 'safari-webkit-browser-row-handoff'
+      ? { ...check, localStatus: 'locally-runnable', localRunnable: true, externalRunRequired: false }
+      : check
+  );
+  writeFileSync(badHandoffValidationJsonOut, `${JSON.stringify(validation, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--handoff-validation-json',
+    badHandoffValidationJsonOut,
+    '--json-out',
+    badHandoffValidationGateJsonOut,
+    '--md-out',
+    badHandoffValidationGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badHandoffValidationGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.equal(report.handoffValidationSnapshot.allExternalRunRequired, false);
+  assert.equal(report.handoffValidationSnapshot.externalRunRequiredCount, 1);
+  assert.equal(report.handoffValidationSnapshot.localRunnableCount, 1);
+  assert.ok(report.handoffValidationSnapshot.guards.some(item =>
+    item.id === 'handoff-validation-external-run-status-pinned'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /external-run-required with zero locally runnable closures/.test(error)));
+
+  const markdown = readFileSync(badHandoffValidationGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /External-run status pinned: no/);
+  assert.match(markdown, /Locally runnable handoffs: 1/);
+  assert.match(markdown, /handoff-validation-external-run-status-pinned/);
 });
 
 test('runtime-limit proof-obligation gate fails if handoff validation targets stale handoff', () => {

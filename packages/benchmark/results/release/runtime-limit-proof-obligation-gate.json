@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T17:29:55.541Z",
+  "generatedAt": "2026-06-02T17:35:01.997Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -557,11 +557,14 @@
   },
   "handoffValidationSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-02T17:29:48.452Z",
+    "generatedAt": "2026-06-02T17:34:17.892Z",
     "validatedHandoffGeneratedAt": "2026-06-02T17:21:29.504Z",
     "currentHandoffGeneratedAt": "2026-06-02T17:21:29.504Z",
     "pass": true,
     "allContractsPresent": true,
+    "allExternalRunRequired": true,
+    "externalRunRequiredCount": 2,
+    "localRunnableCount": 0,
     "requiredHandoffsPresent": true,
     "unhandledObligationCount": 0,
     "handoffIds": [
@@ -582,6 +585,11 @@
       {
         "id": "handoff-validation-contracts-present",
         "description": "runtime-proof-handoff-validation.json must report all required contracts present.",
+        "satisfied": true
+      },
+      {
+        "id": "handoff-validation-external-run-status-pinned",
+        "description": "runtime-proof-handoff-validation.json must report all current handoffs as external-run-required with zero locally runnable closures.",
         "satisfied": true
       },
       {
@@ -1142,8 +1150,8 @@
     "requiredCoverageGuards": 10,
     "satisfiedHandoffGuards": 24,
     "requiredHandoffGuards": 24,
-    "satisfiedHandoffValidationGuards": 6,
-    "requiredHandoffValidationGuards": 6,
+    "satisfiedHandoffValidationGuards": 7,
+    "requiredHandoffValidationGuards": 7,
     "satisfiedSourceAuditGuards": 7,
     "requiredSourceAuditGuards": 7,
     "satisfiedFrontierAuditGuards": 7,

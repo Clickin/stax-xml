@@ -835,6 +835,9 @@ function createHandoffValidationSnapshot(validation, handoffSnapshot = null) {
     currentHandoffGeneratedAt: handoffSnapshot?.generatedAt ?? null,
     pass: validation.summary?.pass ?? null,
     allContractsPresent: validation.summary?.allContractsPresent ?? null,
+    allExternalRunRequired: validation.summary?.allExternalRunRequired ?? null,
+    externalRunRequiredCount: validation.summary?.externalRunRequiredCount ?? null,
+    localRunnableCount: validation.summary?.localRunnableCount ?? null,
     requiredHandoffsPresent: validation.summary?.requiredHandoffsPresent ?? null,
     unhandledObligationCount: validation.summary?.unhandledObligationCount ?? null,
     handoffIds: handoffChecks.map(check => check.id).filter(Boolean),
@@ -860,6 +863,13 @@ function createHandoffValidationGuards(snapshot) {
       id: 'handoff-validation-contracts-present',
       description: 'runtime-proof-handoff-validation.json must report all required contracts present.',
       satisfied: snapshot?.allContractsPresent === true,
+    },
+    {
+      id: 'handoff-validation-external-run-status-pinned',
+      description: 'runtime-proof-handoff-validation.json must report all current handoffs as external-run-required with zero locally runnable closures.',
+      satisfied: snapshot?.allExternalRunRequired === true
+        && snapshot.externalRunRequiredCount === 2
+        && snapshot.localRunnableCount === 0,
     },
     {
       id: 'handoff-validation-required-handoffs-present',
@@ -1654,6 +1664,9 @@ function renderMarkdown(report) {
     `- Handoff validation pass: ${formatYesNo(report.handoffValidationSnapshot.pass)}`,
     `- Required handoffs present: ${formatYesNo(report.handoffValidationSnapshot.requiredHandoffsPresent)}`,
     `- Required contracts present: ${formatYesNo(report.handoffValidationSnapshot.allContractsPresent)}`,
+    `- External-run status pinned: ${formatYesNo(report.handoffValidationSnapshot.allExternalRunRequired)}`,
+    `- External-run required handoffs: ${formatNullableCount(report.handoffValidationSnapshot.externalRunRequiredCount)}`,
+    `- Locally runnable handoffs: ${formatNullableCount(report.handoffValidationSnapshot.localRunnableCount)}`,
     `- Unhandled obligations in validated handoff: ${formatNullableCount(report.handoffValidationSnapshot.unhandledObligationCount)}`,
     `- Validated handoff IDs: ${report.handoffValidationSnapshot.handoffIds?.join(', ') || 'none'}`,
     '',
