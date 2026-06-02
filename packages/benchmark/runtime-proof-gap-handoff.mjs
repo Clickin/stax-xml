@@ -948,7 +948,7 @@ function createHandoffs(activeObligations, localClosure) {
         'spidermonkey-codegen-rerun-stability-audit.json summary.qualifiedClosureCount must remain 0 unless the compared rerun artifacts are same-contract StAX closure evidence.',
         'Any SpiderMonkey closing artifact must report sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true, or explicitly explain why the browser-row artifact rather than js-shell artifact supplies unchanged StAX closure.',
         'The closing artifact selected row id must match a current same-contract full-string JavaScript row in same-contract-runtime-comparison.json, with event count and checksum parity recorded.',
-        'The closing artifact must not have evidenceClass jit-status-only, source-pin-only, negative-diagnostic-surface, or missing-availability-audit.',
+        'The closing artifact must not have evidenceClass jit-status-only, bytecode-diagnostic-only, source-pin-only, negative-diagnostic-surface, or missing-availability-audit.',
         'The closing artifact must include runtime/build identity, diagnostic flags, selected row id, event count, checksum parity, and emitted IR or optimized-code dump metadata.',
       ],
       scopeGuards: [

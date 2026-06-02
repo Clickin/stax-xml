@@ -15,6 +15,7 @@ const allowedEvidenceClasses = new Set([
 const disallowedEvidenceClasses = new Set([
   'unknown',
   'availability-only',
+  'bytecode-diagnostic-only',
   'jit-status-only',
   'host-api-surface-gap',
   'diagnostic-flag-sweep-negative',
@@ -142,6 +143,30 @@ function createSelfTestReport(options) {
             outputBytes: 4096,
             codegenMarkerCount: 42,
             nativeDumpComplete: true,
+          },
+        },
+      },
+    },
+    {
+      sourceArtifact: 'firefox-spidermonkey-release-jsshell-availability-audit.json',
+      root: {
+        objective: 'firefox-spidermonkey-release-jsshell-availability-audit',
+        outcome: {
+          status: 'available',
+          hasJitExecutionStatus: true,
+          hasBytecodeDumpOutput: true,
+          hasIrDumpSurface: false,
+          hasNativeDisassemblySurface: false,
+          nativeDumpComplete: false,
+          canRunCurrentStaxFullStringBenchmark: false,
+          closesEmittedIrObligation: false,
+        },
+        shell: {
+          bytecodeDumpProbe: {
+            status: 'bytecode-output-emitted',
+            flags: '--ion-eager --baseline-eager --ion-offthread-compile=off --dump-bytecode',
+            outputBytes: 160,
+            bytecodeMarkerCount: 3,
           },
         },
       },
@@ -855,6 +880,7 @@ function hasPositiveSpiderMonkeyCodegenProbe(probe) {
 }
 
 function inferEvidenceClass(sourceArtifact, outcome) {
+  if (/availability-audit/.test(sourceArtifact) && outcome?.hasBytecodeDumpOutput === true) return 'bytecode-diagnostic-only';
   if (/availability-audit/.test(sourceArtifact)) return 'availability-only';
   if (/buildconfig|source-pin/.test(sourceArtifact)) return 'source-pin-only';
   if (/diagnostic-dump/.test(sourceArtifact) && outcome?.status === 'no-dump-emitted') return 'negative-diagnostic-surface';

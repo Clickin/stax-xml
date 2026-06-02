@@ -1,6 +1,6 @@
 # Firefox SpiderMonkey Release JS Shell Availability Audit
 
-Generated: 2026-06-01T02:48:05.241Z
+Generated: 2026-06-02T17:52:18.393Z
 
 Checks an official Firefox release SpiderMonkey JavaScript shell package for local JIT execution status and diagnostic surface. This is not emitted JIT IR, optimized-code, throughput, or browser evidence.
 
@@ -10,7 +10,7 @@ Checks an official Firefox release SpiderMonkey JavaScript shell package for loc
 - Package verified: true
 - JIT execution status observed: true
 - IR dump surface present: false
-- Bytecode dump output emitted: false
+- Bytecode dump output emitted: true
 - IONFLAGS/JIT_SPEW output emitted: false
 - Native disassembly surface present: false
 - Native dump complete: false
@@ -19,6 +19,8 @@ Checks an official Firefox release SpiderMonkey JavaScript shell package for loc
 - Closes emitted IR obligation: false
 - Package URL: https://archive.mozilla.org/pub/firefox/releases/143.0.1/jsshell/jsshell-win64.zip
 - Sums URL: https://archive.mozilla.org/pub/firefox/releases/143.0.1/SHA512SUMS
+- Build id: not-recorded
+- Source revision: not-recorded
 
 ## Package Verification
 
@@ -26,6 +28,15 @@ Checks an official Firefox release SpiderMonkey JavaScript shell package for loc
 - SHA512 match: true
 - SHA512: 3fdfe9046c42a5d0bfa5a21db456171636a140866a54264589e10cb55ed29469659753bcbf3823bbafbc30a42535b459f62437e4700728657df5db67a220126a
 - Expected line: 3fdfe9046c42a5d0bfa5a21db456171636a140866a54264589e10cb55ed29469659753bcbf3823bbafbc30a42535b459f62437e4700728657df5db67a220126a  jsshell/jsshell-win64.zip
+
+## Build Info
+
+- Status: not-configured
+- URL: not-recorded
+- File: not-recorded
+- Build id: not-recorded
+- Source revision: not-recorded
+- Source URL: not-recorded
 
 ## Shell Surface
 
@@ -56,12 +67,12 @@ Checks an official Firefox release SpiderMonkey JavaScript shell package for loc
 
 ## Bytecode Dump Probe
 
-- Status: no-bytecode-output
+- Status: bytecode-output-emitted
 - Exit code: 0
-- Checksum: 210
-- Output bytes: 15
-- Bytecode marker count: 0
-- Stdout lines: 1
+- Checksum: 12502500
+- Output bytes: 1063
+- Bytecode marker count: 18
+- Stdout lines: 24
 - Stderr lines: 0
 
 ## IONFLAGS/JIT_SPEW Probe
@@ -80,7 +91,7 @@ Checks an official Firefox release SpiderMonkey JavaScript shell package for loc
 
 - File created: true
 - File bytes: 93
-- File SHA256: 6e6f5377861645946a62f67d6aca7739fd39c3db7fc9094e8ac4a1bd1ff65c42
+- File SHA256: 9f17b0c664f31c1b23f5873ba27c36532be39207bdab46eea5dc73ede5781326
 - hasDisassembler: false
 - disnative write error: Error: Did not write all function bytes to the file.
 
@@ -107,12 +118,13 @@ Checks an official Firefox release SpiderMonkey JavaScript shell package for loc
   - hasIonEager=true
   - hasIonOffthreadCompile=true
   - hasDumpBytecode=true
+  - hasBytecodeDumpOutput=true
   - hasJitSpewFlag=false
   - hasDisnativeBuiltin=true
   - hasDisblicBuiltin=true
   - hasDisassembler=false
-  - bytecodeDumpStatus=no-bytecode-output
-  - bytecodeDumpMarkers=0
+  - bytecodeDumpStatus=bytecode-output-emitted
+  - bytecodeDumpMarkers=18
   - envJitSpewStatus=no-jitspew-output
   - envJitSpewMarkers=0
   - envJitSpewStderrLines=0

@@ -312,14 +312,15 @@ function runBytecodeDumpProbe(jsShell) {
     writeFileSync(scriptPath, [
       'function f(x) { return ((x + 1) | 0); }',
       'let checksum = 0;',
-      'for (let i = 0; i < 20; i++) checksum = (checksum + f(i)) | 0;',
+      'for (let i = 0; i < 5000; i++) checksum = (checksum + f(i)) | 0;',
       "print('checksum=' + checksum);",
     ].join('\n'));
-    const result = run(jsShell, ['--dump-bytecode', scriptPath]);
+    const flags = ['--ion-eager', '--baseline-eager', '--ion-offthread-compile=off', '--dump-bytecode'];
+    const result = run(jsShell, [...flags, scriptPath]);
     const combined = `${result.stdout}\n${result.stderr}`;
     const bytecodeMarkerCount = countMatches(
       combined,
-      /\b(?:Bytecode|loc\s+op|main:\s+script|function f|JSOp|JOF_|ICEntry|JumpTarget)\b/g,
+      /\b(?:Bytecode|IonScript|BB\s+#\d+|loc\s+op|main:\s+script|function f|JSOp|JOF_|ICEntry|JumpTarget)\b/g,
     );
     const checksum = Number(firstMatch(combined, /checksum=(-?\d+)/)?.[1] ?? NaN);
     const outputBytes = Buffer.byteLength(combined, 'utf8');
@@ -329,6 +330,7 @@ function runBytecodeDumpProbe(jsShell) {
         : 'failed',
       exitCode: result.exitCode,
       error: result.error,
+      flags: flags.join(' '),
       scriptPathBasename: 'bytecode-probe.js',
       outputBytes,
       bytecodeMarkerCount,
@@ -535,17 +537,18 @@ function createSelfTestReport(options) {
         stderr: '',
       },
       bytecodeDumpProbe: {
-        status: 'no-bytecode-output',
+        status: 'bytecode-output-emitted',
         exitCode: 0,
         error: null,
+        flags: '--ion-eager --baseline-eager --ion-offthread-compile=off --dump-bytecode',
         scriptPathBasename: 'bytecode-probe.js',
-        outputBytes: 13,
-        bytecodeMarkerCount: 0,
-        checksum: 210,
+        outputBytes: 160,
+        bytecodeMarkerCount: 3,
+        checksum: 12502500,
         stdoutLineCount: 1,
-        stderrLineCount: 0,
-        stdout: 'checksum=210\n',
-        stderr: '',
+        stderrLineCount: 8,
+        stdout: 'checksum=12502500\n',
+        stderr: 'IonScript [1 blocks]:\nBB #0 [00000,1,15] :: 3534 hits\n',
       },
       envJitSpewProbe: {
         status: 'no-jitspew-output',
@@ -720,6 +723,7 @@ function createFindings(report) {
         `hasIonEager=${report.shell.help?.hasIonEager ?? 'unknown'}`,
         `hasIonOffthreadCompile=${report.shell.help?.hasIonOffthreadCompile ?? 'unknown'}`,
         `hasDumpBytecode=${report.shell.help?.hasDumpBytecode ?? 'unknown'}`,
+        `hasBytecodeDumpOutput=${report.outcome.hasBytecodeDumpOutput}`,
         `hasJitSpewFlag=${report.shell.help?.hasJitSpewFlag ?? 'unknown'}`,
         `hasDisnativeBuiltin=${report.shell.builtinProbe?.hasDisnativeBuiltin ?? 'unknown'}`,
         `hasDisblicBuiltin=${report.shell.builtinProbe?.hasDisblicBuiltin ?? 'unknown'}`,

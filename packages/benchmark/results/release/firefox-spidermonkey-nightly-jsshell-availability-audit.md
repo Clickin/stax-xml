@@ -1,6 +1,6 @@
 # Firefox SpiderMonkey Nightly JS Shell Availability Audit
 
-Generated: 2026-06-01T03:19:26.498Z
+Generated: 2026-06-02T17:52:18.477Z
 
 Checks an official Firefox nightly SpiderMonkey JavaScript shell package for local JIT execution status and diagnostic surface. This is not emitted JIT IR, optimized-code, throughput, or browser evidence.
 
@@ -10,7 +10,7 @@ Checks an official Firefox nightly SpiderMonkey JavaScript shell package for loc
 - Package verified: false
 - JIT execution status observed: true
 - IR dump surface present: false
-- Bytecode dump output emitted: false
+- Bytecode dump output emitted: true
 - IONFLAGS/JIT_SPEW output emitted: false
 - Native disassembly surface present: false
 - Native dump complete: false
@@ -67,12 +67,12 @@ Checks an official Firefox nightly SpiderMonkey JavaScript shell package for loc
 
 ## Bytecode Dump Probe
 
-- Status: no-bytecode-output
+- Status: bytecode-output-emitted
 - Exit code: 0
-- Checksum: 210
-- Output bytes: 15
-- Bytecode marker count: 0
-- Stdout lines: 1
+- Checksum: 12502500
+- Output bytes: 1063
+- Bytecode marker count: 18
+- Stdout lines: 24
 - Stderr lines: 0
 
 ## IONFLAGS/JIT_SPEW Probe
@@ -91,7 +91,7 @@ Checks an official Firefox nightly SpiderMonkey JavaScript shell package for loc
 
 - File created: true
 - File bytes: 83
-- File SHA256: 9ead8303f5e4c342b7178e1ee085601ac628258bf5cd555334762f7f7c454a98
+- File SHA256: dbbc992c055cb8a385c3167be0cf2688d026306bf291312a22b85b5e57f6d974
 - hasDisassembler: false
 - disnative write error: Error: Did not write all function bytes to the file.
 
@@ -118,12 +118,13 @@ Checks an official Firefox nightly SpiderMonkey JavaScript shell package for loc
   - hasIonEager=true
   - hasIonOffthreadCompile=true
   - hasDumpBytecode=true
+  - hasBytecodeDumpOutput=true
   - hasJitSpewFlag=false
   - hasDisnativeBuiltin=true
   - hasDisblicBuiltin=true
   - hasDisassembler=false
-  - bytecodeDumpStatus=no-bytecode-output
-  - bytecodeDumpMarkers=0
+  - bytecodeDumpStatus=bytecode-output-emitted
+  - bytecodeDumpMarkers=18
   - envJitSpewStatus=no-jitspew-output
   - envJitSpewMarkers=0
   - envJitSpewStderrLines=0

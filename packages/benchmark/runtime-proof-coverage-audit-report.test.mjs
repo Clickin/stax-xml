@@ -1241,7 +1241,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.deepEqual(report.coverage.spiderMonkeyDiagnostics.diagnosticSourcesOutsideClosureAudit, []);
   assert.equal(report.coverage.spiderMonkeyDiagnostics.closureAuditQualifiedClosureCount, 0);
   assert.equal(report.coverage.spiderMonkeyDiagnostics.closureAuditConclusionAllowed, false);
-  assert.equal(report.coverage.spiderMonkeyDiagnostics.jitStatusOnlyCount, 2);
+  assert.equal(report.coverage.spiderMonkeyDiagnostics.jitStatusOnlyCount, 0);
   assert.equal(report.coverage.spiderMonkeyDiagnostics.missingIrSurfaceCount, 2);
   assert.deepEqual(report.coverage.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts, {
     'not-claimed': 4,
@@ -1253,14 +1253,14 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.packageVerified === true
     && row.hasJitExecutionStatus === true
     && row.irDumpSurface === false
-    && row.bytecodeDumpOutput === false
-    && row.bytecodeDumpStatus === 'no-bytecode-output'
-    && row.bytecodeDumpMarkers === 0
+    && row.bytecodeDumpOutput === true
+    && row.bytecodeDumpStatus === 'bytecode-output-emitted'
+    && row.bytecodeDumpMarkers === 18
     && row.nativeDumpComplete === false
     && row.canReadBinaryInput === true
     && row.canRunCurrentStaxFullStringBenchmark === false
     && row.closesEmittedIrObligation === false
-    && row.evidenceClass === 'jit-status-only'
+    && row.evidenceClass === 'bytecode-diagnostic-only'
   ));
   assert.ok(report.coverage.spiderMonkeyDiagnostics.rows.some(row =>
     row.id === 'official-nightly-jsshell'
@@ -1268,14 +1268,14 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.packageVerified === false
     && row.hasJitExecutionStatus === true
     && row.irDumpSurface === false
-    && row.bytecodeDumpOutput === false
-    && row.bytecodeDumpStatus === 'no-bytecode-output'
-    && row.bytecodeDumpMarkers === 0
+    && row.bytecodeDumpOutput === true
+    && row.bytecodeDumpStatus === 'bytecode-output-emitted'
+    && row.bytecodeDumpMarkers === 18
     && row.nativeDumpComplete === false
     && row.canReadBinaryInput === true
     && row.canRunCurrentStaxFullStringBenchmark === false
     && row.closesEmittedIrObligation === false
-    && row.evidenceClass === 'jit-status-only'
+    && row.evidenceClass === 'bytecode-diagnostic-only'
   ));
   assert.ok(report.coverage.spiderMonkeyDiagnostics.rows.some(row =>
     row.id === 'installed-browser-diagnostic-dump'
@@ -1338,9 +1338,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Selected row metadata/);
   assert.match(markdown, /Comparison match/);
   assert.match(markdown, /Closure qualified/);
-  assert.match(markdown, /JIT-status-only SpiderMonkey shell artifacts: 2/);
-  assert.match(markdown, /\| `official-release-jsshell` \| `firefox-spidermonkey-release-jsshell-availability-audit\.json` \| available \| jit-status-only \| yes \| no \| no \(no-bytecode-output, markers=0\) \| no \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
-  assert.match(markdown, /\| `official-nightly-jsshell` \| `firefox-spidermonkey-nightly-jsshell-availability-audit\.json` \| available \| jit-status-only \| yes \| no \| no \(no-bytecode-output, markers=0\) \| no \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
+  assert.match(markdown, /JIT-status-only SpiderMonkey shell artifacts: 0/);
+  assert.match(markdown, /\| `official-release-jsshell` \| `firefox-spidermonkey-release-jsshell-availability-audit\.json` \| available \| bytecode-diagnostic-only \| yes \| no \| yes \(bytecode-output-emitted, markers=18\) \| no \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
+  assert.match(markdown, /\| `official-nightly-jsshell` \| `firefox-spidermonkey-nightly-jsshell-availability-audit\.json` \| available \| bytecode-diagnostic-only \| yes \| no \| yes \(bytecode-output-emitted, markers=18\) \| no \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
   assert.match(markdown, /\| `official-jsshell-diagnostic-flag-sweep` \| `spidermonkey-jsshell-diagnostic-flag-sweep\.json` \| available \| diagnostic-flag-sweep-negative \| unknown \| unknown \| no \(unknown, markers=unknown\) \| unknown \| unknown \| not-claimed \| no \| unknown \| no \|/);
   assert.match(markdown, /\| `taskcluster-debug-jsshell-codegen` \| `spidermonkey-taskcluster-debug-jsshell-codegen-audit\.json` \| available \| current-debug-codegen-scope-guard \| unknown \| yes \| unknown \| yes \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
   assert.match(markdown, /\| `taskcluster-debug-jsshell-xml-codegen` \| `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit\.json` \| available \| current-debug-xml-codegen-scope-guard \| unknown \| yes \| unknown \| yes \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
@@ -1391,8 +1391,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey installed buildconfig source pin present \(buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true\)/);
   assert.match(markdown, /Firefox\/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build \(status=no-dump-emitted, dumpFiles=0\)/);
   assert.match(markdown, /Firefox\/SpiderMonkey local js-shell availability audit present \(status=available, found=2, searchRoots=2\); no emitted JIT IR is recorded by that audit/);
-  assert.match(markdown, /Firefox\/SpiderMonkey official release js-shell audit present \(status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is JIT-status evidence only, not emitted JIT IR/);
-  assert.match(markdown, /Firefox\/SpiderMonkey official nightly js-shell audit present \(status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=false, bytecodeDumpStatus=no-bytecode-output, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is JIT-status evidence only, not emitted JIT IR/);
+  assert.match(markdown, /Firefox\/SpiderMonkey official release js-shell audit present \(status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is bytecode\/JIT-status diagnostic evidence only, not emitted JIT IR/);
+  assert.match(markdown, /Firefox\/SpiderMonkey official nightly js-shell audit present \(status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is bytecode\/JIT-status diagnostic evidence only, not emitted JIT IR/);
   assert.match(markdown, /Current StAX public reader host API boundary audit present \(primarySyncByteBatchRequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, alternateDecoderWouldBeUnchangedClosure=false\); it pins why a js-shell alternate decoder or polyfill is not unchanged StAX public-reader closure evidence/);
   assert.match(markdown, /\| `official-jsshell-stax-api-gap` \| `firefox-spidermonkey-jsshell-stax-api-gap-audit\.json` \| blocked-by-host-api-surface \| host-api-surface-gap \| yes \| unknown \| unknown \| unknown \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
   assert.match(markdown, /Firefox\/SpiderMonkey js-shell StAX API gap audit present \(status=blocked-by-host-api-surface, unchangedRunnableShells=0\/2, blockedSurfaces=5, commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch\); it is host API surface evidence only, not emitted JIT IR/);

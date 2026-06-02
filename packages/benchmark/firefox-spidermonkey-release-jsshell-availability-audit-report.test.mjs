@@ -36,7 +36,7 @@ test('Firefox SpiderMonkey release jsshell audit records JIT status without clos
   assert.equal(report.outcome.packageVerified, true);
   assert.equal(report.outcome.hasJitExecutionStatus, true);
   assert.equal(report.outcome.hasIrDumpSurface, false);
-  assert.equal(report.outcome.hasBytecodeDumpOutput, false);
+  assert.equal(report.outcome.hasBytecodeDumpOutput, true);
   assert.equal(report.outcome.hasEnvJitSpewOutput, false);
   assert.equal(report.outcome.hasNativeDisassemblySurface, false);
   assert.equal(report.outcome.nativeDumpComplete, false);
@@ -51,9 +51,10 @@ test('Firefox SpiderMonkey release jsshell audit records JIT status without clos
   assert.equal(report.shell.nativeDumpProbe.fileCreated, true);
   assert.equal(report.shell.nativeDumpProbe.fileBytes, 93);
   assert.match(report.shell.nativeDumpProbe.disnativeWriteError, /Did not write all function bytes/);
-  assert.equal(report.shell.bytecodeDumpProbe.status, 'no-bytecode-output');
-  assert.equal(report.shell.bytecodeDumpProbe.bytecodeMarkerCount, 0);
-  assert.equal(report.shell.bytecodeDumpProbe.checksum, 210);
+  assert.equal(report.shell.bytecodeDumpProbe.status, 'bytecode-output-emitted');
+  assert.equal(report.shell.bytecodeDumpProbe.flags, '--ion-eager --baseline-eager --ion-offthread-compile=off --dump-bytecode');
+  assert.ok(report.shell.bytecodeDumpProbe.bytecodeMarkerCount > 0);
+  assert.equal(report.shell.bytecodeDumpProbe.checksum, 12502500);
   assert.equal(report.shell.envJitSpewProbe.status, 'no-jitspew-output');
   assert.equal(report.shell.envJitSpewProbe.flags, 'logs,codegen,mir,lir,aborts,scripts');
   assert.equal(report.shell.envJitSpewProbe.ionHits, 4988);
@@ -80,7 +81,7 @@ test('Firefox SpiderMonkey release jsshell audit records JIT status without clos
   assert.match(markdown, /Firefox SpiderMonkey Release JS Shell Availability Audit/);
   assert.match(markdown, /JIT execution status observed: true/);
   assert.match(markdown, /IR dump surface present: false/);
-  assert.match(markdown, /Bytecode dump output emitted: false/);
+  assert.match(markdown, /Bytecode dump output emitted: true/);
   assert.match(markdown, /IONFLAGS\/JIT_SPEW output emitted: false/);
   assert.match(markdown, /Native disassembly surface present: false/);
   assert.match(markdown, /Native dump complete: false/);
@@ -91,8 +92,8 @@ test('Firefox SpiderMonkey release jsshell audit records JIT status without clos
   assert.match(markdown, /has disnative builtin: true/);
   assert.match(markdown, /hasDisassembler\(\): false/);
   assert.match(markdown, /Bytecode Dump Probe/);
-  assert.match(markdown, /Status: no-bytecode-output/);
-  assert.match(markdown, /Bytecode marker count: 0/);
+  assert.match(markdown, /Status: bytecode-output-emitted/);
+  assert.match(markdown, /Bytecode marker count: [1-9]\d*/);
   assert.match(markdown, /IONFLAGS\/JIT_SPEW Probe/);
   assert.match(markdown, /Status: no-jitspew-output/);
   assert.match(markdown, /Diagnostic marker count: 0/);
