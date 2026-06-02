@@ -1,13 +1,13 @@
 # Safari/WebKit Closure Audit
 
-Generated: 2026-06-02T19:50:28.767Z
+Generated: 2026-06-02T20:11:56.773Z
 
 Audits Safari/WebKit browser-row artifacts against the exact closure requirements for safari-jsc-source-and-browser-rows-open. This is not a Safari benchmark run; it prevents availability rows, Bun/JSC rows, direct ReadableStream rows, and rows without build/source/memory proof from closing the obligation.
 
 ## Summary
 
 - Candidate Safari/WebKit rows: 0
-- Comparison generatedAt: 2026-06-02T19:10:54.806Z
+- Comparison generatedAt: 2026-06-02T20:08:45.362Z
 - Comparison row count: 289
 - Full-string rows: 0
 - Primary sync byte-batch rows: 0

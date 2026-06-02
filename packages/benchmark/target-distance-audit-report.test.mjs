@@ -13,6 +13,9 @@ const mdOut = join(tmpDir, 'target-distance-audit-report-test.md');
 const driftComparisonOut = join(tmpDir, 'target-distance-drift-comparison.json');
 const driftJsonOut = join(tmpDir, 'target-distance-drift.json');
 const driftMdOut = join(tmpDir, 'target-distance-drift.md');
+const semanticDriftComparisonOut = join(tmpDir, 'target-distance-semantic-drift-comparison.json');
+const semanticDriftJsonOut = join(tmpDir, 'target-distance-semantic-drift.json');
+const semanticDriftMdOut = join(tmpDir, 'target-distance-semantic-drift.md');
 
 test('target distance audit keeps Woodstox and quick-xml 0.9x goals explicit', () => {
   mkdirSync(tmpDir, { recursive: true });
@@ -67,6 +70,15 @@ test('target distance audit keeps Woodstox and quick-xml 0.9x goals explicit', (
   assert.equal(fastestJsContract.sourceArtifact, 'file-backed-batch-size-sweep.json');
   assert.equal(fastestJsContract.caseId, 'stax-raw-frame-name-id-batch-8');
   assert.equal(fastestJsContract.rateMiBPerSec, 152.11);
+  assert.equal(fastestJsContract.fullStringParity, true);
+  assert.equal(fastestJsContract.eventCount, 61236571);
+  assert.equal(fastestJsContract.checksum, -716099804);
+  assert.equal(fastestJsContract.sameSemanticContractAsWoodstox, true);
+  assert.equal(fastestJsContract.sameSemanticContractAsQuickXml, true);
+  assert.equal(fastestJsContract.woodstoxEventCount, 61236571);
+  assert.equal(fastestJsContract.woodstoxChecksum, -716099804);
+  assert.equal(fastestJsContract.quickXmlEventCount, 61236571);
+  assert.equal(fastestJsContract.quickXmlChecksum, -716099804);
   assert.equal(fastestJsContract.sourceMode, 'file-backed-sync-iterable-byte-batches');
   assert.equal(fastestJsContract.directReadableStream, false);
   assert.equal(fastestJsContract.fullArrayBufferParserInput, false);
@@ -122,7 +134,7 @@ test('target distance audit keeps Woodstox and quick-xml 0.9x goals explicit', (
   assert.match(markdown, /# Target Distance Audit/);
   assert.match(markdown, /Same-fixture JS row: `stax-raw-frame-name-id-batch-8` 152\.11 MiB\/s/);
   assert.match(markdown, /Woodstox and quick-xml target rows share JS baseline: true/);
-  assert.match(markdown, /Same-fixture JS source\/memory contract: Node\/V8 `stax-raw-frame-name-id-batch-8` 152\.11 MiB\/s, sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=false, fullArrayBufferParserInput=false, boundedMemory=true, process-rss max 61\.77 MiB/);
+  assert.match(markdown, /Same-fixture JS source\/memory contract: Node\/V8 `stax-raw-frame-name-id-batch-8` 152\.11 MiB\/s, fullStringParity=true, eventCount=61236571, checksum=-716099804, sameAsWoodstox=true, sameAsQuickXml=true, sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=false, fullArrayBufferParserInput=false, boundedMemory=true, process-rss max 61\.77 MiB/);
   assert.match(markdown, /Overall JS frontier row: `rawFrameNameId` 185\.50 MiB\/s from `text-trim-cost-decomposition\.json`; same-fixture external baseline: false/);
   assert.match(markdown, /Overall JS frontier separated from same-fixture target row: true/);
   assert.match(markdown, /Woodstox target: 351\.56 MiB\/s; 0\.9x target 316\.40 MiB\/s; JS ratio 0\.43x; remaining 164\.29 MiB\/s; targetMet=false/);
@@ -131,9 +143,51 @@ test('target distance audit keeps Woodstox and quick-xml 0.9x goals explicit', (
   assert.match(markdown, /rawFrameNameId: 132\.54 MiB\/s \(0\.39x Woodstox\)/);
   assert.match(markdown, /quick-xml: 270\.26 MiB\/s \(0\.80x Woodstox\)/);
   assert.match(markdown, /\| `file-backed-batch-size-sweep` \| `stax-raw-frame-name-id-batch-8` \| 152\.11 \| `file-backed-short-attr-value-cache-candidate\.json` \| 274\.63 \| 247\.17 \| 95\.06 \| no \| same books 1024 MiB fixture family, but quick-xml reference comes from a separate candidate artifact \|/);
-  assert.match(markdown, /same-fixture fastest JavaScript target row is file-backed synchronous Iterable<Uint8Array\[\]> input/);
+  assert.match(markdown, /same-fixture fastest JavaScript target row preserves the full-string event\/checksum contract against Woodstox and quick-xml/);
   assert.match(markdown, /overall fastest JavaScript full-string row is not used as the Woodstox\/quick-xml same-fixture target baseline/);
   assert.match(markdown, /A target-distance deficit is not proof that JavaScript runtimes have no further headroom/);
+});
+
+test('target distance audit downgrades if same JS target row loses full-string semantic identity', () => {
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [semanticDriftComparisonOut, semanticDriftJsonOut, semanticDriftMdOut]) {
+    if (existsSync(filePath)) rmSync(filePath);
+  }
+
+  const comparison = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'same-contract-runtime-comparison.json'), 'utf8'));
+  comparison.summary.sameFixture1024MiBTargetRows[0].fastestJs.fullStringParity = false;
+  writeFileSync(semanticDriftComparisonOut, `${JSON.stringify(comparison, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'target-distance-audit.mjs'),
+    '--comparison-json',
+    semanticDriftComparisonOut,
+    '--json-out',
+    semanticDriftJsonOut,
+    '--md-out',
+    semanticDriftMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(semanticDriftJsonOut, 'utf8'));
+  assert.equal(report.summary.status, 'partial');
+  assert.equal(report.summary.sameFixtureFastestJsContract.fullStringParity, false);
+  assert.equal(report.summary.sameFixtureFastestJsContract.sameSemanticContractAsWoodstox, false);
+  assert.equal(report.summary.sameFixtureFastestJsContract.sameSemanticContractAsQuickXml, false);
+  assert.ok(report.findings.some(entry =>
+    entry.id === 'same-fixture-fastest-js-contract-classified'
+    && entry.classification === 'HYPOTHESIS'
+  ));
+
+  const markdown = readFileSync(semanticDriftMdOut, 'utf8');
+  assert.match(markdown, /Status: partial/);
+  assert.match(markdown, /fullStringParity=false/);
+  assert.match(markdown, /sameAsWoodstox=false/);
 });
 
 test('target distance audit downgrades if Woodstox and quick-xml use different JS target rows', () => {

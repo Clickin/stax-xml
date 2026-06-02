@@ -378,6 +378,9 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
       runtimeLabel: 'Node/V8',
       caseId: 'rawFrameNameId',
       mibPerSec: 185.5,
+      fullStringParity: true,
+      eventCount: 57096514,
+      checksum: -540013997,
       boundedMemory: true,
       memory: {
         primaryKind: 'process-rss',

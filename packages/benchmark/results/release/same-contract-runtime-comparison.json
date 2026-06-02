@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T19:10:54.806Z",
+  "generatedAt": "2026-06-02T20:08:45.362Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -115,6 +115,9 @@
       "runtimeLabel": "Node/V8",
       "caseId": "rawFrameNameId",
       "mibPerSec": 185.5,
+      "fullStringParity": true,
+      "eventCount": 57096514,
+      "checksum": -540013997,
       "boundedMemory": true,
       "memory": {
         "primaryKind": "process-rss",
@@ -141,6 +144,9 @@
       "runtimeLabel": "Node/V8",
       "caseId": "rawFrameNameId",
       "mibPerSec": 185.5,
+      "fullStringParity": true,
+      "eventCount": 57096514,
+      "checksum": -540013997,
       "boundedMemory": true,
       "memory": {
         "primaryKind": "process-rss",
@@ -208,6 +214,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "stax-raw-frame-name-id-batch-8",
           "mibPerSec": 152.11,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -234,6 +243,9 @@
           "runtimeLabel": "Java/Woodstox",
           "caseId": "woodstox",
           "mibPerSec": 351.56,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -268,6 +280,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "stax-raw-frame-name-id-chunk-32kib",
           "mibPerSec": 151.7,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -294,6 +309,9 @@
           "runtimeLabel": "Java/Woodstox",
           "caseId": "woodstox",
           "mibPerSec": 351.56,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -328,6 +346,9 @@
           "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
           "caseId": "stax-raw-frame-name-id",
           "mibPerSec": 147.05,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -354,6 +375,9 @@
           "runtimeLabel": "Java/Woodstox",
           "caseId": "woodstox",
           "mibPerSec": 338.14,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -388,6 +412,9 @@
           "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
           "caseId": "stax-raw-frame-name-id",
           "mibPerSec": 143.35,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -414,6 +441,9 @@
           "runtimeLabel": "Java/Woodstox",
           "caseId": "woodstox",
           "mibPerSec": 351.56,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -448,6 +478,9 @@
           "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
           "caseId": "stax-raw-frame-name-id",
           "mibPerSec": 141.29,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -474,6 +507,9 @@
           "runtimeLabel": "Java/Woodstox",
           "caseId": "woodstox",
           "mibPerSec": 308.06,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -508,6 +544,9 @@
           "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
           "caseId": "stax-raw-frame-name-id",
           "mibPerSec": 132.54,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -534,6 +573,9 @@
           "runtimeLabel": "Java/Woodstox",
           "caseId": "woodstox",
           "mibPerSec": 337.97,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -582,6 +624,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "stax-raw-frame-name-id-batch-8",
           "mibPerSec": 152.11,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -608,6 +653,9 @@
           "runtimeLabel": "Rust/quick-xml",
           "caseId": "quick-xml",
           "mibPerSec": 274.63,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -642,6 +690,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "stax-raw-frame-name-id-chunk-32kib",
           "mibPerSec": 151.7,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -668,6 +719,9 @@
           "runtimeLabel": "Rust/quick-xml",
           "caseId": "quick-xml",
           "mibPerSec": 274.63,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -702,6 +756,9 @@
           "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
           "caseId": "stax-raw-frame-name-id",
           "mibPerSec": 147.05,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -728,6 +785,9 @@
           "runtimeLabel": "Rust/quick-xml",
           "caseId": "quick-xml",
           "mibPerSec": 274.63,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -762,6 +822,9 @@
           "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
           "caseId": "stax-raw-frame-name-id",
           "mibPerSec": 143.35,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -788,6 +851,9 @@
           "runtimeLabel": "Rust/quick-xml",
           "caseId": "quick-xml",
           "mibPerSec": 273.74,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -822,6 +888,9 @@
           "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
           "caseId": "stax-raw-frame-name-id",
           "mibPerSec": 141.29,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -848,6 +917,9 @@
           "runtimeLabel": "Rust/quick-xml",
           "caseId": "quick-xml",
           "mibPerSec": 272.33,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -882,6 +954,9 @@
           "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
           "caseId": "stax-raw-frame-name-id",
           "mibPerSec": 132.54,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -908,6 +983,9 @@
           "runtimeLabel": "Rust/quick-xml",
           "caseId": "quick-xml",
           "mibPerSec": 270.26,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -974,6 +1052,9 @@
       "runtimeLabel": "Node/V8",
       "caseId": "eventObjectFull",
       "mibPerSec": 141.62,
+      "fullStringParity": true,
+      "eventCount": 57096514,
+      "checksum": -540013997,
       "boundedMemory": true,
       "memory": {
         "primaryKind": "process-rss",
@@ -1000,6 +1081,9 @@
       "runtimeLabel": "Node/V8",
       "caseId": "eventObjectFull",
       "mibPerSec": 141.62,
+      "fullStringParity": true,
+      "eventCount": 57096514,
+      "checksum": -540013997,
       "boundedMemory": true,
       "memory": {
         "primaryKind": "process-rss",
@@ -1029,6 +1113,9 @@
           "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
           "caseId": "stax-raw-frame-name-id",
           "mibPerSec": 132.54,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1058,6 +1145,9 @@
           "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
           "caseId": "stax-raw-frame-name-id",
           "mibPerSec": 68.22,
+          "fullStringParity": true,
+          "eventCount": 75206128,
+          "checksum": -1234990902,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1087,6 +1177,9 @@
           "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
           "caseId": "stax-raw-frame-name-id",
           "mibPerSec": 147.05,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1116,6 +1209,9 @@
           "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
           "caseId": "stax-raw-frame-name-id",
           "mibPerSec": 143.35,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1145,6 +1241,9 @@
           "runtimeLabel": "Node/V8 stax-raw-frame-name-id",
           "caseId": "stax-raw-frame-name-id",
           "mibPerSec": 141.29,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1174,6 +1273,9 @@
           "runtimeLabel": "Chrome/V8 browser",
           "caseId": "rawFrameNameId",
           "mibPerSec": 69.9,
+          "fullStringParity": true,
+          "eventCount": 45189256,
+          "checksum": 1421012805,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "browser-js-heap",
@@ -1207,6 +1309,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameId",
           "mibPerSec": 77,
+          "fullStringParity": true,
+          "eventCount": 75206126,
+          "checksum": -925527041,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1236,6 +1341,9 @@
           "runtimeLabel": "Chrome/V8 browser",
           "caseId": "eventObjectFull",
           "mibPerSec": 64.56,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "browser-js-heap",
@@ -1269,6 +1377,9 @@
           "runtimeLabel": "Bun/JSC",
           "caseId": "rawFrameNameId",
           "mibPerSec": 84.68,
+          "fullStringParity": true,
+          "eventCount": 60416563,
+          "checksum": 1441552024,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1298,6 +1409,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "shortAsciiSubarraySharedDecoder",
           "mibPerSec": 51.6,
+          "fullStringParity": true,
+          "eventCount": 45189256,
+          "checksum": 1421012805,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1327,6 +1441,9 @@
           "runtimeLabel": "Bun/JSC",
           "caseId": "rawFrameNameId",
           "mibPerSec": 178.52,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1356,6 +1473,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameId",
           "mibPerSec": 175.02,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1385,6 +1505,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameId",
           "mibPerSec": 160.72,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1414,6 +1537,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameIdMediumAsciiText",
           "mibPerSec": 170.16,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1443,6 +1569,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameIdUnrolledMediumAsciiText",
           "mibPerSec": 170.59,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1472,6 +1601,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameId",
           "mibPerSec": 109.66,
+          "fullStringParity": true,
+          "eventCount": 45189256,
+          "checksum": 1421012805,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1501,6 +1633,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameIdUnrolledMediumAsciiText",
           "mibPerSec": 166.33,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1530,6 +1665,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameIdMediumAsciiAttrValue",
           "mibPerSec": 167.49,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1559,6 +1697,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameId",
           "mibPerSec": 161.24,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1588,6 +1729,9 @@
           "runtimeLabel": "Bun/JSC",
           "caseId": "rawFrameNameId",
           "mibPerSec": 169.07,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1617,6 +1761,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameId",
           "mibPerSec": 172.85,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1646,6 +1793,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameId",
           "mibPerSec": 122.32,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1675,6 +1825,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameId",
           "mibPerSec": 96.99,
+          "fullStringParity": true,
+          "eventCount": 45189256,
+          "checksum": 1421012805,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1704,6 +1857,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameIdNoCountersStringFoldCache",
           "mibPerSec": 100.43,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1733,6 +1889,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameIdNoCountersNameFoldCache",
           "mibPerSec": 94.71,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1762,6 +1921,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameId",
           "mibPerSec": 185.5,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1791,6 +1953,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameId",
           "mibPerSec": 184.92,
+          "fullStringParity": true,
+          "eventCount": 114192784,
+          "checksum": 1903859545,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1820,6 +1985,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameId",
           "mibPerSec": 178.86,
+          "fullStringParity": true,
+          "eventCount": 228385566,
+          "checksum": -1067702969,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1849,6 +2017,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameId",
           "mibPerSec": 184.03,
+          "fullStringParity": true,
+          "eventCount": 456770888,
+          "checksum": 734413569,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1878,6 +2049,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameId",
           "mibPerSec": 91.2,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1907,6 +2081,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameId",
           "mibPerSec": 96.88,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1936,6 +2113,9 @@
           "runtimeLabel": "Bun/JSC",
           "caseId": "cursorAccessor",
           "mibPerSec": 114.05,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1963,6 +2143,9 @@
           "runtimeLabel": "Bun/JSC",
           "caseId": "rawFrameNameId",
           "mibPerSec": 118.58,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -1990,6 +2173,9 @@
           "runtimeLabel": "Bun/JSC",
           "caseId": "stringFull",
           "mibPerSec": 120.18,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -2017,6 +2203,9 @@
           "runtimeLabel": "Deno/V8",
           "caseId": "stringFull",
           "mibPerSec": 81.48,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -2044,6 +2233,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameIdNoCounters",
           "mibPerSec": 141.64,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -2071,6 +2263,9 @@
           "runtimeLabel": "Bun/JSC",
           "caseId": "rawFrameNameId",
           "mibPerSec": 121.23,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -2098,6 +2293,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameIdNoCounters",
           "mibPerSec": 93.96,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -2125,6 +2323,9 @@
           "runtimeLabel": "Bun/JSC",
           "caseId": "rawFrameNameIdMediumAsciiText",
           "mibPerSec": 91.98,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -2152,6 +2353,9 @@
           "runtimeLabel": "Bun/JSC",
           "caseId": "rawFrameNameIdNoCounters",
           "mibPerSec": 96.82,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -2179,6 +2383,9 @@
           "runtimeLabel": "Bun/JSC",
           "caseId": "rawFrameNameId",
           "mibPerSec": 119.21,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -2206,6 +2413,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameId",
           "mibPerSec": 57.31,
+          "fullStringParity": true,
+          "eventCount": 45189256,
+          "checksum": 1421012805,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -2233,6 +2443,9 @@
           "runtimeLabel": "Bun/JSC",
           "caseId": "stringFull",
           "mibPerSec": 123.45,
+          "fullStringParity": true,
+          "eventCount": 57096514,
+          "checksum": -540013997,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -2260,6 +2473,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "rawFrameNameId",
           "mibPerSec": 146.11,
+          "fullStringParity": true,
+          "eventCount": 83635224,
+          "checksum": -2136498212,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -2287,6 +2503,9 @@
           "runtimeLabel": "Bun/JSC",
           "caseId": "stringFull",
           "mibPerSec": 91.17,
+          "fullStringParity": true,
+          "eventCount": 78059522,
+          "checksum": -34487917,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -2314,6 +2533,9 @@
           "runtimeLabel": "Deno/V8",
           "caseId": "stringFull",
           "mibPerSec": 85.42,
+          "fullStringParity": true,
+          "eventCount": 78059522,
+          "checksum": -34487917,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -2341,6 +2563,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "stax-raw-frame-name-id-batch-8",
           "mibPerSec": 152.11,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -2370,6 +2595,9 @@
           "runtimeLabel": "Node/V8",
           "caseId": "stax-raw-frame-name-id-chunk-32kib",
           "mibPerSec": 151.7,
+          "fullStringParity": true,
+          "eventCount": 61236571,
+          "checksum": -716099804,
           "boundedMemory": true,
           "memory": {
             "primaryKind": "process-rss",
@@ -2435,6 +2663,9 @@
             "runtimeLabel": "Chrome/V8 browser",
             "caseId": "rawFrameNameId",
             "mibPerSec": 69.9,
+            "fullStringParity": true,
+            "eventCount": 45189256,
+            "checksum": 1421012805,
             "boundedMemory": true,
             "memory": {
               "primaryKind": "browser-js-heap",
@@ -2465,6 +2696,9 @@
             "runtimeLabel": "Chrome/V8 browser",
             "caseId": "rawFrameNameId",
             "mibPerSec": 69.9,
+            "fullStringParity": true,
+            "eventCount": 45189256,
+            "checksum": 1421012805,
             "boundedMemory": true,
             "memory": {
               "primaryKind": "browser-js-heap",
@@ -2502,6 +2736,9 @@
             "runtimeLabel": "Firefox/SpiderMonkey browser",
             "caseId": "rawFrameNameId",
             "mibPerSec": 64.24,
+            "fullStringParity": true,
+            "eventCount": 60416563,
+            "checksum": 1441552024,
             "boundedMemory": false,
             "memory": {
               "primaryKind": "browser-js-heap-unavailable",
@@ -2540,6 +2777,9 @@
             "runtimeLabel": "Node/V8",
             "caseId": "rawFrameNameId",
             "mibPerSec": 185.5,
+            "fullStringParity": true,
+            "eventCount": 57096514,
+            "checksum": -540013997,
             "boundedMemory": true,
             "memory": {
               "primaryKind": "process-rss",
@@ -2566,6 +2806,9 @@
             "runtimeLabel": "Node/V8",
             "caseId": "rawFrameNameId",
             "mibPerSec": 185.5,
+            "fullStringParity": true,
+            "eventCount": 57096514,
+            "checksum": -540013997,
             "boundedMemory": true,
             "memory": {
               "primaryKind": "process-rss",
@@ -2594,6 +2837,9 @@
         "runtimeLabel": "Node/V8",
         "caseId": "rawFrameNameId",
         "mibPerSec": 185.5,
+        "fullStringParity": true,
+        "eventCount": 57096514,
+        "checksum": -540013997,
         "boundedMemory": true,
         "memory": {
           "primaryKind": "process-rss",
@@ -2620,6 +2866,9 @@
         "runtimeLabel": "Node/V8",
         "caseId": "rawFrameNameId",
         "mibPerSec": 185.5,
+        "fullStringParity": true,
+        "eventCount": 57096514,
+        "checksum": -540013997,
         "boundedMemory": true,
         "memory": {
           "primaryKind": "process-rss",
@@ -2646,6 +2895,9 @@
         "runtimeLabel": "Chrome/V8 browser",
         "caseId": "rawFrameNameId",
         "mibPerSec": 69.9,
+        "fullStringParity": true,
+        "eventCount": 45189256,
+        "checksum": 1421012805,
         "boundedMemory": true,
         "memory": {
           "primaryKind": "browser-js-heap",
@@ -2694,6 +2946,9 @@
         "runtimeLabel": "Node/V8",
         "caseId": "rawFrameNameId",
         "mibPerSec": 185.5,
+        "fullStringParity": true,
+        "eventCount": 57096514,
+        "checksum": -540013997,
         "boundedMemory": true,
         "memory": {
           "primaryKind": "process-rss",

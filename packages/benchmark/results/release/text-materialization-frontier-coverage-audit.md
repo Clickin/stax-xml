@@ -1,6 +1,6 @@
 # Text Materialization Frontier Coverage Audit
 
-Generated: 2026-06-02T19:32:28.114Z
+Generated: 2026-06-02T20:13:21.685Z
 
 Checks that selected same-contract materialization negative/cache candidate groups from the runtime comparison are represented in text-materialization-frontier negativeRows.
 

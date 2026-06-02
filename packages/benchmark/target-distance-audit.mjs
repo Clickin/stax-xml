@@ -76,7 +76,11 @@ function createReport(comparison, options, textFrontier = null) {
   const quickXmlTarget = summary.sameFixture1024MiBQuickXmlTarget;
   const externalBaseline = summary.externalBaseline1024MiBFileSyncBatches;
   const processRss = summary.sameFixture1024MiBProcessRssSnapshot;
-  const fastestComparableJsRow = findFastestComparableJsTargetRow(summary.sameFixture1024MiBTargetRows, woodstoxTarget);
+  const fastestComparableJsRow = findFastestComparableJsTargetRow(
+    summary.sameFixture1024MiBTargetRows,
+    woodstoxTarget,
+    summary.sameFixture1024MiBQuickXmlTargetRows,
+  );
   const sharedFastestJsTargetRow = targetsShareFastestJsRow(woodstoxTarget, quickXmlTarget);
   if (!woodstoxTarget || !quickXmlTarget || !externalBaseline) {
     throw new Error('same-contract comparison JSON does not contain required target-distance summaries');
@@ -89,6 +93,11 @@ function createReport(comparison, options, textFrontier = null) {
       && overallJsFrontier.targetDistanceOnly === true
     : null;
   const fastestComparableJsContractOk = fastestComparableJsContract
+    && fastestComparableJsContract.fullStringParity === true
+    && typeof fastestComparableJsContract.eventCount === 'number'
+    && isChecksumValue(fastestComparableJsContract.checksum)
+    && fastestComparableJsContract.sameSemanticContractAsWoodstox === true
+    && fastestComparableJsContract.sameSemanticContractAsQuickXml === true
     && fastestComparableJsContract.sourceMode === 'file-backed-sync-iterable-byte-batches'
     && fastestComparableJsContract.directReadableStream === false
     && fastestComparableJsContract.fullArrayBufferParserInput === false
@@ -154,13 +163,26 @@ function targetsShareFastestJsRow(woodstoxTarget, quickXmlTarget) {
     && woodstoxTarget.fastestJsMiBPerSec === quickXmlTarget.fastestJsMiBPerSec;
 }
 
-function findFastestComparableJsTargetRow(targetRows, target) {
+function findFastestComparableJsTargetRow(targetRows, target, quickXmlTargetRows = []) {
   if (!Array.isArray(targetRows) || !target) return null;
-  return targetRows.find(row =>
+  const woodstoxRow = targetRows.find(row =>
     row.group === target.group
     && row.fastestJs?.caseId === target.fastestJsCaseId
     && row.fastestJs?.sourceArtifact === target.sourceArtifact
-  )?.fastestJs ?? null;
+  );
+  if (!woodstoxRow?.fastestJs) return null;
+  const quickXmlRow = Array.isArray(quickXmlTargetRows)
+    ? quickXmlTargetRows.find(row =>
+      row.group === target.group
+      && row.fastestJs?.caseId === target.fastestJsCaseId
+      && row.fastestJs?.sourceArtifact === target.sourceArtifact
+    )
+    : null;
+  return {
+    ...woodstoxRow.fastestJs,
+    woodstoxReference: woodstoxRow.woodstoxReference ?? null,
+    quickXmlReference: quickXmlRow?.quickXmlReference ?? null,
+  };
 }
 
 function summarizeWoodstoxTarget(target) {
@@ -195,12 +217,23 @@ function summarizeQuickXmlTarget(target) {
 
 function summarizeComparableJsTargetRow(row) {
   if (!row) return null;
+  const woodstoxReference = row.woodstoxReference ?? null;
+  const quickXmlReference = row.quickXmlReference ?? null;
   return {
     group: row.group,
     sourceArtifact: row.sourceArtifact,
     runtimeLabel: row.runtimeLabel,
     caseId: row.caseId,
     rateMiBPerSec: row.mibPerSec,
+    fullStringParity: row.fullStringParity === true,
+    eventCount: row.eventCount ?? null,
+    checksum: row.checksum ?? null,
+    sameSemanticContractAsWoodstox: sameSemanticContract(row, woodstoxReference),
+    sameSemanticContractAsQuickXml: sameSemanticContract(row, quickXmlReference),
+    woodstoxEventCount: woodstoxReference?.eventCount ?? null,
+    woodstoxChecksum: woodstoxReference?.checksum ?? null,
+    quickXmlEventCount: quickXmlReference?.eventCount ?? null,
+    quickXmlChecksum: quickXmlReference?.checksum ?? null,
     sourceMode: row.sourceMode ?? null,
     directReadableStream: row.directReadableStream ?? null,
     fullArrayBufferParserInput: row.fullArrayBufferParserInput ?? null,
@@ -211,6 +244,19 @@ function summarizeComparableJsTargetRow(row) {
     maxExternalMiB: row.memory?.maxExternalMiB ?? null,
     maxArrayBuffersMiB: row.memory?.maxArrayBuffersMiB ?? null,
   };
+}
+
+function sameSemanticContract(row, reference) {
+  return Boolean(row && reference)
+    && row.fullStringParity === true
+    && typeof row.eventCount === 'number'
+    && isChecksumValue(row.checksum)
+    && row.eventCount === reference.eventCount
+    && row.checksum === reference.checksum;
+}
+
+function isChecksumValue(value) {
+  return typeof value === 'number' || typeof value === 'string';
 }
 
 function summarizeOverallJsFrontier(row, sameFixtureTargetRow) {
@@ -316,8 +362,8 @@ function createFindings(
       id: 'same-fixture-fastest-js-contract-classified',
       classification: fastestComparableJsContractOk ? 'SOURCE_FACT' : 'HYPOTHESIS',
       summary: fastestComparableJsContractOk
-        ? 'The same-fixture fastest JavaScript target row is file-backed synchronous Iterable<Uint8Array[]> input, not direct ReadableStream, not full ArrayBuffer parser input, and bounded under process RSS.'
-        : 'The same-fixture fastest JavaScript target row is missing or does not satisfy the expected source/memory contract.',
+        ? 'The same-fixture fastest JavaScript target row preserves the full-string event/checksum contract against Woodstox and quick-xml, is file-backed synchronous Iterable<Uint8Array[]> input, not direct ReadableStream, not full ArrayBuffer parser input, and bounded under process RSS.'
+        : 'The same-fixture fastest JavaScript target row is missing or does not satisfy the expected semantic/source/memory contract.',
     },
     {
       id: 'overall-js-frontier-separate-from-same-fixture-target',
@@ -411,7 +457,7 @@ function formatRssRow(row) {
 
 function formatComparableJsTargetRow(row) {
   if (!row) return 'none';
-  return `${row.runtimeLabel} \`${row.caseId}\` ${formatNumber(row.rateMiBPerSec)} MiB/s, sourceMode=${row.sourceMode}, directReadableStream=${formatBoolean(row.directReadableStream)}, fullArrayBufferParserInput=${formatBoolean(row.fullArrayBufferParserInput)}, boundedMemory=${formatBoolean(row.boundedMemory)}, ${row.memoryKind} max ${formatNumber(row.maxRssMiB)} MiB`;
+  return `${row.runtimeLabel} \`${row.caseId}\` ${formatNumber(row.rateMiBPerSec)} MiB/s, fullStringParity=${formatBoolean(row.fullStringParity)}, eventCount=${row.eventCount ?? 'n/a'}, checksum=${row.checksum ?? 'n/a'}, sameAsWoodstox=${formatBoolean(row.sameSemanticContractAsWoodstox)}, sameAsQuickXml=${formatBoolean(row.sameSemanticContractAsQuickXml)}, sourceMode=${row.sourceMode}, directReadableStream=${formatBoolean(row.directReadableStream)}, fullArrayBufferParserInput=${formatBoolean(row.fullArrayBufferParserInput)}, boundedMemory=${formatBoolean(row.boundedMemory)}, ${row.memoryKind} max ${formatNumber(row.maxRssMiB)} MiB`;
 }
 
 function formatOverallJsFrontier(row) {

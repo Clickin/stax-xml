@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-02T19:11:17.753Z",
+  "generatedAt": "2026-06-02T20:10:53.513Z",
   "objective": "target-distance-audit",
   "contract": "woodstox-and-quickxml-0.9x-target-distance",
   "note": "Audits the distance from current same-contract JavaScript rows to Woodstox and quick-xml targets. This is not a benchmark run, not object-shape equivalence, and not a JavaScript runtime ceiling proof.",
   "inputs": {
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
-    "comparisonGeneratedAt": "2026-06-02T19:10:54.806Z",
+    "comparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
     "textFrontierJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\text-materialization-frontier.json",
@@ -45,6 +45,15 @@
       "runtimeLabel": "Node/V8",
       "caseId": "stax-raw-frame-name-id-batch-8",
       "rateMiBPerSec": 152.11,
+      "fullStringParity": true,
+      "eventCount": 61236571,
+      "checksum": -716099804,
+      "sameSemanticContractAsWoodstox": true,
+      "sameSemanticContractAsQuickXml": true,
+      "woodstoxEventCount": 61236571,
+      "woodstoxChecksum": -716099804,
+      "quickXmlEventCount": 61236571,
+      "quickXmlChecksum": -716099804,
       "sourceMode": "file-backed-sync-iterable-byte-batches",
       "directReadableStream": false,
       "fullArrayBufferParserInput": false,
@@ -203,7 +212,7 @@
     {
       "id": "same-fixture-fastest-js-contract-classified",
       "classification": "SOURCE_FACT",
-      "summary": "The same-fixture fastest JavaScript target row is file-backed synchronous Iterable<Uint8Array[]> input, not direct ReadableStream, not full ArrayBuffer parser input, and bounded under process RSS."
+      "summary": "The same-fixture fastest JavaScript target row preserves the full-string event/checksum contract against Woodstox and quick-xml, is file-backed synchronous Iterable<Uint8Array[]> input, not direct ReadableStream, not full ArrayBuffer parser input, and bounded under process RSS."
     },
     {
       "id": "overall-js-frontier-separate-from-same-fixture-target",
