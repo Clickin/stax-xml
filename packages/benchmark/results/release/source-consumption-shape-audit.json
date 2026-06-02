@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T22:03:58.722Z",
+  "generatedAt": "2026-06-02T22:13:05.730Z",
   "objective": "source-consumption-shape-audit",
   "contract": "large-js-full-string-rows-are-not-full-arraybuffer-parser-input",
   "note": "Audits source-consumption metadata from the same-contract aggregate. This is not a benchmark run and not a runtime-limit conclusion.",

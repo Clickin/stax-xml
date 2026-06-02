@@ -1,6 +1,6 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-02T22:03:38.764Z
+Generated: 2026-06-02T22:10:58.999Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -190,6 +190,33 @@ Expected evidence:
 - Memory evidence is classified explicitly; missing Safari JS heap counters must not be treated as bounded-memory proof.
 - Exact Safari/WebKit build identity and row-level source-boundary metadata are recorded separately from Bun/JSC WebKit evidence.
 
+Evidence intake contract:
+- requiredArtifact: safari-webdriver-candidate-headroom-cross-process-books-corpus.json
+- requiredArtifact: same-contract-runtime-comparison.json
+- requiredArtifact: safari-webkit-closure-audit.json
+- requiredArtifact: runtime-counterexample-scan.json
+- requiredArtifact: runtime-proof-coverage-audit.json
+- requiredArtifact: target-distance-audit.json
+- requiredRowField: runtimeId=safari-jsc-browser
+- requiredRowField: caseId=stringFull|eventObjectFull|rawFrameNameId
+- requiredRowField: sourceMode=file-backed-sync-iterable-byte-batches|sync-iterable-byte-batches
+- requiredRowField: parserInput=synchronous Iterable<Uint8Array[]>
+- requiredRowField: sizeGiB>=1
+- requiredRowField: fullStringParity=true
+- requiredRowField: eventCount
+- requiredRowField: checksum
+- requiredRowField: maxRssMiB or explicit Safari JS heap unavailability
+- requiredRowField: browserBuildIdentity
+- requiredRowField: rowLevelSourceBoundaryPin
+- requiredAuditField: coverage.safariWebKitStatus.primaryRowsInSameContractComparison=true
+- requiredAuditField: coverage.safariWebKitStatus.largePrimaryRowsInSameContractComparison=true
+- requiredAuditField: coverage.safariWebKitStatus.closesSafariObligation=true
+- requiredAuditField: safari-webkit-closure-audit.summary.qualifiedClosureCount>0
+- rejectionRule: Reject rows whose parser input is a full XML ArrayBuffer or full XML string.
+- rejectionRule: Reject direct ReadableStream rows as primary Safari closure evidence; keep them source-overhead only.
+- rejectionRule: Reject Bun/JSC or Bun-patched WebKit source pins unless the exact Safari/WebKit build identity matches.
+- rejectionRule: Reject any 200 MiB/s+ bounded-memory Safari full-string row as closure evidence until runtime-counterexample-scan classifies it.
+
 Closure checks:
 - runtime-proof-coverage-audit.json coverage.safariWebKitStatus.evidenceClass must be browser-row-evidence.
 - runtime-proof-coverage-audit.json coverage.safariWebKitStatus.benchmarkRowsRecorded must be greater than 0.
@@ -283,6 +310,33 @@ Expected evidence:
 - The artifact must report selectedRowMatchesCurrentComparison=true against same-contract-runtime-comparison.json with event count and checksum parity.
 - The artifact must report evidenceClassAllowed=true; diagnostic scope-guard, availability, source-pin, and negative-diagnostic classes cannot close the obligation.
 - The coverage audit must classify the artifact as SpiderMonkey codegen evidence, not merely profiler/source/availability evidence.
+
+Evidence intake contract:
+- requiredArtifact: spidermonkey-emitted-codegen-or-optimized-code artifact
+- requiredArtifact: same-contract-runtime-comparison.json
+- requiredArtifact: spidermonkey-codegen-closure-audit.json
+- requiredArtifact: spidermonkey-codegen-rerun-stability-audit.json
+- requiredArtifact: runtime-proof-coverage-audit.json
+- requiredArtifact: runtime-counterexample-scan.json
+- requiredRowField: runtimeId=firefox-spidermonkey|spidermonkey-js-shell
+- requiredRowField: selectedRowId
+- requiredRowField: selectedEventCount
+- requiredRowField: selectedChecksum
+- requiredRowField: sameContractStaxRow=true
+- requiredRowField: canRunCurrentStaxFullStringBenchmark=true
+- requiredRowField: selectedRowMatchesCurrentComparison=true
+- requiredRowField: runtimeBuildIdentity
+- requiredRowField: diagnosticFlags
+- requiredRowField: emittedDumpMetadata
+- requiredRowField: evidenceClassAllowed=true
+- requiredAuditField: coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount>0
+- requiredAuditField: coverage.spiderMonkeyDiagnostics.missingIrSurfaceCount=0 for claimed closure rows
+- requiredAuditField: spidermonkey-codegen-closure-audit.summary.qualifiedClosureCount>0
+- requiredAuditField: spidermonkey-codegen-closure-audit.summary.conclusionAllowed=true only after same-contract row parity
+- rejectionRule: Reject jit-status-only and bytecode-diagnostic-only evidence classes.
+- rejectionRule: Reject source-pin, availability-only, profiler-only, and negative-diagnostic artifacts as closure evidence.
+- rejectionRule: Reject materialized js-shell evidence while TextDecoder/ReadableStream/TextEncoder public-reader closure requirements remain blocked.
+- rejectionRule: Reject rerun-stability evidence unless each compared artifact is itself same-contract StAX closure evidence.
 
 Closure checks:
 - runtime-proof-coverage-audit.json coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount must be greater than 0.

@@ -92,6 +92,12 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('200 MiB')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('target-distance-audit')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('Woodstox and quick-xml')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('evidenceIntakeContract')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('safari-webdriver-candidate-headroom-cross-process-books-corpus')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('runtimeId=safari-jsc-browser')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('parserInput=synchronous Iterable')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('coverage\\.safariWebKitStatus\\.closesSafariObligation')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('Reject rows whose parser input is a full XML ArrayBuffer')));
   assert.ok(spiderMonkey.requiredFlagPatterns.some(pattern => pattern.includes('FIREFOX_PATH')));
   assert.ok(spiderMonkey.requiredFlagPatterns.some(pattern => pattern.includes('stax-public-reader-host-api-boundary-audit')));
   assert.ok(spiderMonkey.requiredFlagPatterns.some(pattern => pattern.includes('spidermonkey-jsshell-tokenizer-headroom')));
@@ -136,6 +142,13 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('checksum parity')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('emitted IR or optimized-code dump metadata')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('bytecode-diagnostic-only')));
+  assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('evidenceIntakeContract')));
+  assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('spidermonkey-emitted-codegen-or-optimized-code artifact')));
+  assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('runtimeId=firefox-spidermonkey')));
+  assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('selectedRowId')));
+  assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('coverage\\.spiderMonkeyDiagnostics\\.emittedIrEvidenceCount')));
+  assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('spidermonkey-codegen-closure-audit\\.summary\\.qualifiedClosureCount')));
+  assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('Reject jit-status-only and bytecode-diagnostic-only evidence classes')));
 
   assert.ok(report.commandChecks.every(check =>
     check.scriptPaths.every(script => script.exists)

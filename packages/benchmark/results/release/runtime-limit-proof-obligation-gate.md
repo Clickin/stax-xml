@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T22:04:09.146Z
+Generated: 2026-06-02T22:13:17.237Z
 
 ## Scope
 
@@ -139,7 +139,7 @@ Disclosure-only guards: 3
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-02T22:03:38.764Z)
+- Handoff loaded: yes (2026-06-02T22:10:58.999Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -176,8 +176,8 @@ Disclosure-only guards: 3
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T22:03:49.718Z)
-- Handoff validation target handoff generatedAt: 2026-06-02T22:03:38.764Z (current 2026-06-02T22:03:38.764Z)
+- Handoff validation loaded: yes (2026-06-02T22:12:55.422Z)
+- Handoff validation target handoff generatedAt: 2026-06-02T22:10:58.999Z (current 2026-06-02T22:10:58.999Z)
 - Handoff validation pass: yes
 - Commands checked: 15
 - Scripts referenced: 23
@@ -209,7 +209,7 @@ Disclosure-only guards: 3
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-02T22:03:58.722Z)
+- Source audit loaded: yes (2026-06-02T22:13:05.730Z)
 - Source audit inputs: comparison=2026-06-02T20:08:45.362Z (current 2026-06-02T20:08:45.362Z), coverage=2026-06-02T22:03:29.768Z (current 2026-06-02T22:03:29.768Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>

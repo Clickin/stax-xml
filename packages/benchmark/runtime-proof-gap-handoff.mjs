@@ -843,6 +843,41 @@ function createHandoffs(activeObligations, localClosure) {
         'Memory evidence is classified explicitly; missing Safari JS heap counters must not be treated as bounded-memory proof.',
         'Exact Safari/WebKit build identity and row-level source-boundary metadata are recorded separately from Bun/JSC WebKit evidence.',
       ],
+      evidenceIntakeContract: {
+        requiredArtifacts: [
+          'safari-webdriver-candidate-headroom-cross-process-books-corpus.json',
+          'same-contract-runtime-comparison.json',
+          'safari-webkit-closure-audit.json',
+          'runtime-counterexample-scan.json',
+          'runtime-proof-coverage-audit.json',
+          'target-distance-audit.json',
+        ],
+        requiredRowFields: [
+          'runtimeId=safari-jsc-browser',
+          'caseId=stringFull|eventObjectFull|rawFrameNameId',
+          'sourceMode=file-backed-sync-iterable-byte-batches|sync-iterable-byte-batches',
+          'parserInput=synchronous Iterable<Uint8Array[]>',
+          'sizeGiB>=1',
+          'fullStringParity=true',
+          'eventCount',
+          'checksum',
+          'maxRssMiB or explicit Safari JS heap unavailability',
+          'browserBuildIdentity',
+          'rowLevelSourceBoundaryPin',
+        ],
+        requiredAuditFields: [
+          'coverage.safariWebKitStatus.primaryRowsInSameContractComparison=true',
+          'coverage.safariWebKitStatus.largePrimaryRowsInSameContractComparison=true',
+          'coverage.safariWebKitStatus.closesSafariObligation=true',
+          'safari-webkit-closure-audit.summary.qualifiedClosureCount>0',
+        ],
+        rejectionRules: [
+          'Reject rows whose parser input is a full XML ArrayBuffer or full XML string.',
+          'Reject direct ReadableStream rows as primary Safari closure evidence; keep them source-overhead only.',
+          'Reject Bun/JSC or Bun-patched WebKit source pins unless the exact Safari/WebKit build identity matches.',
+          'Reject any 200 MiB/s+ bounded-memory Safari full-string row as closure evidence until runtime-counterexample-scan classifies it.',
+        ],
+      },
       closureChecks: [
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.evidenceClass must be browser-row-evidence.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.benchmarkRowsRecorded must be greater than 0.',
@@ -943,6 +978,41 @@ function createHandoffs(activeObligations, localClosure) {
         'The artifact must report evidenceClassAllowed=true; diagnostic scope-guard, availability, source-pin, and negative-diagnostic classes cannot close the obligation.',
         'The coverage audit must classify the artifact as SpiderMonkey codegen evidence, not merely profiler/source/availability evidence.',
       ],
+      evidenceIntakeContract: {
+        requiredArtifacts: [
+          'spidermonkey-emitted-codegen-or-optimized-code artifact',
+          'same-contract-runtime-comparison.json',
+          'spidermonkey-codegen-closure-audit.json',
+          'spidermonkey-codegen-rerun-stability-audit.json',
+          'runtime-proof-coverage-audit.json',
+          'runtime-counterexample-scan.json',
+        ],
+        requiredRowFields: [
+          'runtimeId=firefox-spidermonkey|spidermonkey-js-shell',
+          'selectedRowId',
+          'selectedEventCount',
+          'selectedChecksum',
+          'sameContractStaxRow=true',
+          'canRunCurrentStaxFullStringBenchmark=true',
+          'selectedRowMatchesCurrentComparison=true',
+          'runtimeBuildIdentity',
+          'diagnosticFlags',
+          'emittedDumpMetadata',
+          'evidenceClassAllowed=true',
+        ],
+        requiredAuditFields: [
+          'coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount>0',
+          'coverage.spiderMonkeyDiagnostics.missingIrSurfaceCount=0 for claimed closure rows',
+          'spidermonkey-codegen-closure-audit.summary.qualifiedClosureCount>0',
+          'spidermonkey-codegen-closure-audit.summary.conclusionAllowed=true only after same-contract row parity',
+        ],
+        rejectionRules: [
+          'Reject jit-status-only and bytecode-diagnostic-only evidence classes.',
+          'Reject source-pin, availability-only, profiler-only, and negative-diagnostic artifacts as closure evidence.',
+          'Reject materialized js-shell evidence while TextDecoder/ReadableStream/TextEncoder public-reader closure requirements remain blocked.',
+          'Reject rerun-stability evidence unless each compared artifact is itself same-contract StAX closure evidence.',
+        ],
+      },
       closureChecks: [
         'runtime-proof-coverage-audit.json coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount must be greater than 0.',
         'runtime-proof-coverage-audit.json coverage.spiderMonkeyDiagnostics.missingIrSurfaceCount must be 0 for the SpiderMonkey diagnostic rows that are claimed as codegen closure evidence.',
@@ -1241,6 +1311,22 @@ function renderMarkdown(report) {
     lines.push('Expected evidence:');
     for (const item of handoff.expectedEvidence) {
       lines.push(`- ${item}`);
+    }
+    if (handoff.evidenceIntakeContract) {
+      lines.push('');
+      lines.push('Evidence intake contract:');
+      for (const artifact of handoff.evidenceIntakeContract.requiredArtifacts ?? []) {
+        lines.push(`- requiredArtifact: ${artifact}`);
+      }
+      for (const field of handoff.evidenceIntakeContract.requiredRowFields ?? []) {
+        lines.push(`- requiredRowField: ${field}`);
+      }
+      for (const field of handoff.evidenceIntakeContract.requiredAuditFields ?? []) {
+        lines.push(`- requiredAuditField: ${field}`);
+      }
+      for (const rule of handoff.evidenceIntakeContract.rejectionRules ?? []) {
+        lines.push(`- rejectionRule: ${rule}`);
+      }
     }
     if (handoff.closureChecks?.length > 0) {
       lines.push('');

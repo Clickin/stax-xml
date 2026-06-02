@@ -131,6 +131,7 @@ function validateHandoff(handoff) {
   const sourceBoundary = handoff.sourceBoundaryContract ?? {};
   const closureChecks = handoff.closureChecks ?? [];
   const expectedEvidence = handoff.expectedEvidence ?? [];
+  const evidenceIntakeContract = handoff.evidenceIntakeContract ?? {};
   const scopeGuards = handoff.scopeGuards ?? [];
   const isSafari = handoff.id === 'safari-webkit-browser-row-handoff';
   const isSpiderMonkey = handoff.id === 'spidermonkey-codegen-handoff';
@@ -197,6 +198,17 @@ function validateHandoff(handoff) {
         /rowLevelSourceBoundaryPinnedRowsRecorded/,
         /largeBoundedPrimarySyncByteBatchRowsWithRowLevelSourceBoundaryPin/,
         /row-level source revision and source-pin artifact metadata/,
+        /evidenceIntakeContract/,
+        /requiredArtifacts/,
+        /safari-webdriver-candidate-headroom-cross-process-books-corpus\.json/,
+        /requiredRowFields/,
+        /runtimeId=safari-jsc-browser/,
+        /parserInput=synchronous Iterable<Uint8Array\[\]>/,
+        /sizeGiB>=1/,
+        /requiredAuditFields/,
+        /coverage\.safariWebKitStatus\.closesSafariObligation=true/,
+        /rejectionRules/,
+        /Reject rows whose parser input is a full XML ArrayBuffer/,
       ]
     : isSpiderMonkey
       ? [
@@ -258,6 +270,17 @@ function validateHandoff(handoff) {
           /jit-status-only/,
           /bytecode-diagnostic-only/,
           /environment evidence only/,
+          /evidenceIntakeContract/,
+          /spidermonkey-emitted-codegen-or-optimized-code artifact/,
+          /runtimeId=firefox-spidermonkey\|spidermonkey-js-shell/,
+          /selectedRowId/,
+          /selectedEventCount/,
+          /selectedChecksum/,
+          /runtimeBuildIdentity/,
+          /emittedDumpMetadata/,
+          /coverage\.spiderMonkeyDiagnostics\.emittedIrEvidenceCount>0/,
+          /spidermonkey-codegen-closure-audit\.summary\.qualifiedClosureCount>0/,
+          /Reject jit-status-only and bytecode-diagnostic-only evidence classes/,
         ]
       : [];
   const contractText = [
@@ -269,8 +292,42 @@ function validateHandoff(handoff) {
     handoff.localClosure?.scopeGuard ?? '',
     ...closureChecks,
     ...expectedEvidence,
+    `evidenceIntakeContract=${JSON.stringify(evidenceIntakeContract)}`,
     ...scopeGuards,
   ].join('\n');
+  const nonIntakeContractText = [
+    ...Object.values(sourceConsumption),
+    ...Object.values(sourceBoundary),
+    ...(handoff.localClosure?.evidenceArtifacts ?? []),
+    ...(handoff.localClosure?.blockers ?? []),
+    JSON.stringify(handoff.localClosure?.diagnosticIdentityStatusCounts ?? {}),
+    handoff.localClosure?.scopeGuard ?? '',
+    ...closureChecks,
+    ...expectedEvidence,
+    ...scopeGuards,
+  ].join('\n');
+  const closureAndBlockerText = [
+    ...(handoff.localClosure?.blockers ?? []),
+    ...closureChecks,
+  ].join('\n');
+  const requiredNonIntakeContracts = isSafari
+    ? [
+        /primaryRowsInSameContractComparison/,
+      ]
+    : isSpiderMonkey
+      ? [
+          /selectedRowMatchesCurrentComparison=true/,
+          /selected row id must match a current same-contract full-string JavaScript row/,
+        ]
+      : [];
+  const requiredClosureAndBlockerContracts = isSpiderMonkey
+    ? [
+        /bytecode-diagnostic-only/,
+      ]
+    : [];
+  const contractsPresent = requiredContracts.every(pattern => pattern.test(contractText))
+    && requiredNonIntakeContracts.every(pattern => pattern.test(nonIntakeContractText))
+    && requiredClosureAndBlockerContracts.every(pattern => pattern.test(closureAndBlockerText));
   return {
     id: handoff.id,
     classification: handoff.classification,
@@ -278,12 +335,16 @@ function validateHandoff(handoff) {
     localStatus: handoff.localClosure?.localStatus ?? null,
     commandCount: commands.length,
     requiredFlagsPresent: requiredFlags.every(pattern => pattern.test(commandText)),
-    contractsPresent: requiredContracts.every(pattern => pattern.test(contractText)),
+    contractsPresent,
     externalRunRequired: handoff.classification === 'EXTERNAL_RUN_REQUIRED'
       && handoff.localClosure?.localStatus === 'external-run-required'
       && handoff.localClosure?.localRunnable === false,
     requiredFlagPatterns: requiredFlags.map(pattern => pattern.source),
-    requiredContractPatterns: requiredContracts.map(pattern => pattern.source),
+    requiredContractPatterns: [
+      ...requiredContracts,
+      ...requiredNonIntakeContracts,
+      ...requiredClosureAndBlockerContracts,
+    ].map(pattern => pattern.source),
   };
 }
 
