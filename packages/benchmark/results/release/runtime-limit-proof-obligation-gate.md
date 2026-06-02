@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T22:13:17.237Z
+Generated: 2026-06-02T22:19:13.545Z
 
 ## Scope
 
@@ -248,6 +248,7 @@ Disclosure-only guards: 3
 - quick-xml 0.9x target met: no
 - quick-xml 0.9x remaining: 95.06 MiB/s
 - Shared JS target row: yes
+- Overall JS frontier separated from same-fixture target row: yes
 - Target JS contract: sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=no, fullArrayBufferParserInput=no, boundedMemory=yes, memoryKind=process-rss, maxRssMiB=61.77
 - Text materialization boundary loaded: yes (2026-06-02T20:12:57.397Z)
 - Fastest full-string row: 185.50 MiB/s
@@ -270,6 +271,7 @@ Disclosure-only guards: 3
 | `memory-frontier-no-unbounded-target-row` | yes | memory-frontier-audit.json must show unbounded or unproven-memory full-string rows do not reach the 200 MiB/s target. |
 | `target-distance-not-met` | yes | target-distance-audit.json must show same-fixture JavaScript remains below both Woodstox and quick-xml 0.9x targets. |
 | `target-distance-js-contract-primary-bounded` | yes | target-distance-audit.json must compare external targets against a bounded file-backed synchronous byte-batch JavaScript row, not direct streams or full ArrayBuffer parser input. |
+| `target-distance-same-fixture-frontier-separated` | yes | target-distance-audit.json must keep the overall fastest JavaScript frontier separate from the same-fixture Woodstox/quick-xml 0.9x target baseline. |
 | `text-frontier-no-full-counterexample` | yes | text-materialization-boundary-audit.json must show no full-string rows cross 200 MiB/s while no-text rows remain partial headroom. |
 | `text-frontier-trim-variants-below-target` | yes | text-materialization-boundary-audit.json must show no-trim and fold-trim variants do not cross 200 MiB/s, and without-text headroom is not full-string parity. |
 | `text-frontier-negative-candidate-coverage` | yes | text-materialization-frontier-coverage-audit.json must show required materialization negative/cache candidate groups are represented in the frontier synthesis. |

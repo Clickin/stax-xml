@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T22:13:17.237Z",
+  "generatedAt": "2026-06-02T22:19:13.545Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -1014,6 +1014,7 @@
       "woodstoxTargetMet": false,
       "quickXmlTargetMet": false,
       "sharedFastestJsTargetRow": true,
+      "overallJsFrontierSeparatedFromSameFixtureTarget": true,
       "woodstoxRemainingMiBPerSec": 164.29,
       "quickXmlRemainingMiBPerSec": 95.06,
       "fastestJsCaseId": "stax-raw-frame-name-id-batch-8",
@@ -1085,6 +1086,11 @@
       {
         "id": "target-distance-js-contract-primary-bounded",
         "description": "target-distance-audit.json must compare external targets against a bounded file-backed synchronous byte-batch JavaScript row, not direct streams or full ArrayBuffer parser input.",
+        "satisfied": true
+      },
+      {
+        "id": "target-distance-same-fixture-frontier-separated",
+        "description": "target-distance-audit.json must keep the overall fastest JavaScript frontier separate from the same-fixture Woodstox/quick-xml 0.9x target baseline.",
         "satisfied": true
       },
       {
@@ -1501,7 +1507,7 @@
     "requiredHandoffValidationGuards": 9,
     "satisfiedSourceAuditGuards": 7,
     "requiredSourceAuditGuards": 7,
-    "satisfiedFrontierAuditGuards": 8,
-    "requiredFrontierAuditGuards": 8
+    "satisfiedFrontierAuditGuards": 9,
+    "requiredFrontierAuditGuards": 9
   }
 }

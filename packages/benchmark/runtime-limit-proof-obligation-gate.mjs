@@ -557,6 +557,7 @@ function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMateria
     woodstoxTargetMet: woodstox.targetMet ?? null,
     quickXmlTargetMet: quickXml.targetMet ?? null,
     sharedFastestJsTargetRow: targetDistance?.summary?.sharedFastestJsTargetRow ?? null,
+    overallJsFrontierSeparatedFromSameFixtureTarget: targetDistance?.summary?.overallJsFrontierSeparatedFromSameFixtureTarget ?? null,
     woodstoxRemainingMiBPerSec: woodstox.remainingTo90PercentMiBPerSec ?? null,
     quickXmlRemainingMiBPerSec: quickXml.remainingTo90PercentMiBPerSec ?? null,
     fastestJsCaseId: woodstox.fastestJsCaseId ?? null,
@@ -674,6 +675,15 @@ function createFrontierAuditGuards(memory, target, text, textCoverage) {
         && target.fastestJsMemoryKind === 'process-rss'
         && typeof target.fastestJsMaxRssMiB === 'number'
         && target.fastestJsMaxRssMiB < 128
+        && target.conclusionAllowed === false,
+    },
+    {
+      id: 'target-distance-same-fixture-frontier-separated',
+      description: 'target-distance-audit.json must keep the overall fastest JavaScript frontier separate from the same-fixture Woodstox/quick-xml 0.9x target baseline.',
+      satisfied: target.loaded
+        && target.status === 'classified'
+        && target.sharedFastestJsTargetRow === true
+        && target.overallJsFrontierSeparatedFromSameFixtureTarget === true
         && target.conclusionAllowed === false,
     },
     {
@@ -1903,6 +1913,7 @@ function renderMarkdown(report) {
     `- quick-xml 0.9x target met: ${formatYesNo(report.frontierAuditSnapshot.targetDistance.quickXmlTargetMet)}`,
     `- quick-xml 0.9x remaining: ${formatNullableRate(report.frontierAuditSnapshot.targetDistance.quickXmlRemainingMiBPerSec)} MiB/s`,
     `- Shared JS target row: ${formatYesNo(report.frontierAuditSnapshot.targetDistance.sharedFastestJsTargetRow)}`,
+    `- Overall JS frontier separated from same-fixture target row: ${formatYesNo(report.frontierAuditSnapshot.targetDistance.overallJsFrontierSeparatedFromSameFixtureTarget)}`,
     `- Target JS contract: sourceMode=${report.frontierAuditSnapshot.targetDistance.fastestJsSourceMode ?? 'unknown'}, directReadableStream=${formatYesNo(report.frontierAuditSnapshot.targetDistance.fastestJsDirectReadableStream)}, fullArrayBufferParserInput=${formatYesNo(report.frontierAuditSnapshot.targetDistance.fastestJsFullArrayBufferParserInput)}, boundedMemory=${formatYesNo(report.frontierAuditSnapshot.targetDistance.fastestJsBoundedMemory)}, memoryKind=${report.frontierAuditSnapshot.targetDistance.fastestJsMemoryKind ?? 'unknown'}, maxRssMiB=${formatNullableRate(report.frontierAuditSnapshot.targetDistance.fastestJsMaxRssMiB)}`,
     report.frontierAuditSnapshot.textMaterialization.loaded
       ? `- Text materialization boundary loaded: yes (${report.frontierAuditSnapshot.textMaterialization.generatedAt ?? 'unknown generatedAt'})`
