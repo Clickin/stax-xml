@@ -381,7 +381,7 @@ function createReport({ options, ledgerMarkdown, coverageAudit, comparison, coun
   const handoffSnapshot = createHandoffSnapshot(handoff, counterexampleSnapshot);
   const handoffValidationSnapshot = createHandoffValidationSnapshot(handoffValidation, handoffSnapshot);
   const sourceAuditSnapshot = createSourceAuditSnapshot(sourceAudit, comparison, coverageAudit);
-  const frontierAuditSnapshot = createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMaterializationBoundary, textMaterializationFrontierCoverage, comparison);
+  const frontierAuditSnapshot = createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMaterializationBoundary, textMaterializationFrontierCoverage, comparison, counterexampleSnapshot);
   const claimGuards = requiredClaimGuards.map(requirement => evaluateClaimGuard(requirement, claims));
   const artifactMentions = requiredArtifactMentions.map(file => ({
     id: file,
@@ -531,7 +531,7 @@ function classifyOpenObligationGateRole(coverageStatus) {
   return 'coverage-status-missing';
 }
 
-function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMaterializationBoundary, textMaterializationFrontierCoverage, comparison = null) {
+function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMaterializationBoundary, textMaterializationFrontierCoverage, comparison = null, counterexampleSnapshot = null) {
   const memory = {
     loaded: Boolean(memoryFrontier),
     generatedAt: memoryFrontier?.generatedAt ?? null,
@@ -568,6 +568,11 @@ function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMateria
     fastestJsBoundedMemory: fastestJsContract.boundedMemory ?? null,
     fastestJsMemoryKind: fastestJsContract.memoryKind ?? null,
     fastestJsMaxRssMiB: fastestJsContract.maxRssMiB ?? null,
+    fastestJsVisibleInCounterexampleScan: targetRowVisibleInCounterexampleScan({
+      caseId: woodstox.fastestJsCaseId ?? null,
+      rateMiBPerSec: woodstox.fastestJsRateMiBPerSec ?? null,
+      sourceMode: fastestJsContract.sourceMode ?? null,
+    }, counterexampleSnapshot?.scanLargeJsFullSourceModeBreakdown ?? []),
     conclusionAllowed: targetDistance?.summary?.conclusionAllowed ?? null,
   };
   const text = {
@@ -612,6 +617,18 @@ function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMateria
     textMaterializationCoverage: textCoverage,
     guards: createFrontierAuditGuards(memory, target, text, textCoverage),
   };
+}
+
+function targetRowVisibleInCounterexampleScan(target, sourceModeBreakdown) {
+  if (!target?.caseId || typeof target.rateMiBPerSec !== 'number' || !target.sourceMode) return false;
+  return Array.isArray(sourceModeBreakdown) && sourceModeBreakdown.some(entry =>
+    entry?.sourceMode === target.sourceMode
+    && entry?.fastestRow?.id === target.caseId
+    && entry?.fastestRow?.mibPerSec === target.rateMiBPerSec
+    && entry?.fastestRow?.fullStringParity === true
+    && entry?.fastestRow?.boundedMemory === true
+    && entry?.fastestRow?.fullArrayBufferParserInput === false
+  );
 }
 
 function createFrontierAuditGuards(memory, target, text, textCoverage) {
@@ -684,6 +701,14 @@ function createFrontierAuditGuards(memory, target, text, textCoverage) {
         && target.status === 'classified'
         && target.sharedFastestJsTargetRow === true
         && target.overallJsFrontierSeparatedFromSameFixtureTarget === true
+        && target.conclusionAllowed === false,
+    },
+    {
+      id: 'target-distance-row-visible-in-counterexample-scan',
+      description: 'The same-fixture JavaScript row used for Woodstox/quick-xml 0.9x target distance must also be visible in runtime-counterexample-scan source-mode rows.',
+      satisfied: target.loaded
+        && target.status === 'classified'
+        && target.fastestJsVisibleInCounterexampleScan === true
         && target.conclusionAllowed === false,
     },
     {
@@ -1914,6 +1939,7 @@ function renderMarkdown(report) {
     `- quick-xml 0.9x remaining: ${formatNullableRate(report.frontierAuditSnapshot.targetDistance.quickXmlRemainingMiBPerSec)} MiB/s`,
     `- Shared JS target row: ${formatYesNo(report.frontierAuditSnapshot.targetDistance.sharedFastestJsTargetRow)}`,
     `- Overall JS frontier separated from same-fixture target row: ${formatYesNo(report.frontierAuditSnapshot.targetDistance.overallJsFrontierSeparatedFromSameFixtureTarget)}`,
+    `- Target JS row visible in counterexample scan: ${formatYesNo(report.frontierAuditSnapshot.targetDistance.fastestJsVisibleInCounterexampleScan)}`,
     `- Target JS contract: sourceMode=${report.frontierAuditSnapshot.targetDistance.fastestJsSourceMode ?? 'unknown'}, directReadableStream=${formatYesNo(report.frontierAuditSnapshot.targetDistance.fastestJsDirectReadableStream)}, fullArrayBufferParserInput=${formatYesNo(report.frontierAuditSnapshot.targetDistance.fastestJsFullArrayBufferParserInput)}, boundedMemory=${formatYesNo(report.frontierAuditSnapshot.targetDistance.fastestJsBoundedMemory)}, memoryKind=${report.frontierAuditSnapshot.targetDistance.fastestJsMemoryKind ?? 'unknown'}, maxRssMiB=${formatNullableRate(report.frontierAuditSnapshot.targetDistance.fastestJsMaxRssMiB)}`,
     report.frontierAuditSnapshot.textMaterialization.loaded
       ? `- Text materialization boundary loaded: yes (${report.frontierAuditSnapshot.textMaterialization.generatedAt ?? 'unknown generatedAt'})`

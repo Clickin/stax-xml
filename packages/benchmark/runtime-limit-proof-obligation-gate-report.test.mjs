@@ -158,6 +158,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.frontierAuditSnapshot.targetDistance.quickXmlTargetMet, false);
   assert.equal(report.frontierAuditSnapshot.targetDistance.sharedFastestJsTargetRow, true);
   assert.equal(report.frontierAuditSnapshot.targetDistance.overallJsFrontierSeparatedFromSameFixtureTarget, true);
+  assert.equal(report.frontierAuditSnapshot.targetDistance.fastestJsVisibleInCounterexampleScan, true);
   assert.equal(report.frontierAuditSnapshot.targetDistance.woodstoxRemainingMiBPerSec, 164.29);
   assert.equal(report.frontierAuditSnapshot.targetDistance.quickXmlRemainingMiBPerSec, 95.06);
   assert.equal(report.frontierAuditSnapshot.targetDistance.fastestJsSourceMode, 'file-backed-sync-iterable-byte-batches');
@@ -184,6 +185,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'target-distance-not-met' && item.satisfied));
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'target-distance-js-contract-primary-bounded' && item.satisfied));
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'target-distance-same-fixture-frontier-separated' && item.satisfied));
+  assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'target-distance-row-visible-in-counterexample-scan' && item.satisfied));
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'text-frontier-no-full-counterexample' && item.satisfied));
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'text-frontier-trim-variants-below-target' && item.satisfied));
   assert.ok(report.coverageSnapshot.loaded);
@@ -2710,6 +2712,49 @@ test('runtime-limit proof-obligation gate fails if target-distance mixes overall
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /Overall JS frontier separated from same-fixture target row: no/);
   assert.match(markdown, /target-distance-same-fixture-frontier-separated/);
+});
+
+test('runtime-limit proof-obligation gate fails if target-distance baseline row is absent from counterexample scan surface', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const targetDistance = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'target-distance-audit.json'), 'utf8'));
+  targetDistance.summary.sameFixture1024MiBWoodstoxTarget.fastestJsCaseId = 'not-in-counterexample-scan';
+  writeFileSync(badTargetDistanceJsonOut, `${JSON.stringify(targetDistance, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--target-distance-json',
+    badTargetDistanceJsonOut,
+    '--json-out',
+    badTargetDistanceGateJsonOut,
+    '--md-out',
+    badTargetDistanceGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(badTargetDistanceGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.equal(report.frontierAuditSnapshot.targetDistance.fastestJsCaseId, 'not-in-counterexample-scan');
+  assert.equal(report.frontierAuditSnapshot.targetDistance.fastestJsVisibleInCounterexampleScan, false);
+  assert.ok(report.frontierAuditSnapshot.guards.some(item =>
+    item.id === 'target-distance-row-visible-in-counterexample-scan'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error =>
+    /Missing frontier audit guard target-distance-row-visible-in-counterexample-scan/.test(error)
+  ));
+
+  const markdown = readFileSync(badTargetDistanceGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /Target JS row visible in counterexample scan: no/);
+  assert.match(markdown, /target-distance-row-visible-in-counterexample-scan/);
 });
 
 test('runtime-limit proof-obligation gate fails if trim variants cross the text target', () => {
