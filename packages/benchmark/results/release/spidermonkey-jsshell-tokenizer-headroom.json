@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T02:26:48.705Z",
+  "generatedAt": "2026-06-02T15:41:22.069Z",
   "objective": "spidermonkey-jsshell-tokenizer-headroom",
   "contract": "spidermonkey-jsshell-corpus-token-boundary-headroom-not-stax",
   "note": "Runs a SpiderMonkey js-shell XML token-boundary byte scanner over corpus-seed replay. This is JavaScript runtime parser-core headroom evidence only: it does not use TextDecoder, does not materialize names/text strings, does not expose public StAX event objects, and is not a full-string StAX counterexample.",
@@ -58,15 +58,15 @@
       "corpusSeedToTargetRatio": 0.00027126073837280273,
       "sampleCount": 3,
       "samplesMs": [
-        132.47802734375,
-        130.505859375,
-        129.68701171875
+        131.324951171875,
+        132.870849609375,
+        130.97509765625
       ],
-      "avgMs": 130.89029947916666,
-      "minMs": 129.68701171875,
-      "maxMs": 132.47802734375,
-      "sampleSpreadRatio": 0.021323319116129273,
-      "mibPerSec": 122.23976920876908,
+      "avgMs": 131.7236328125,
+      "minMs": 130.97509765625,
+      "maxMs": 132.870849609375,
+      "sampleSpreadRatio": 0.01439188938725581,
+      "mibPerSec": 121.46643437001892,
       "eventCount": 892131,
       "startElementCount": 313353,
       "endElementCount": 313350,
@@ -90,7 +90,7 @@
       "runtime": {
         "id": "spidermonkey-jsshell",
         "name": "SpiderMonkey js-shell",
-        "version": "JavaScript-C143.0a1",
+        "version": "JavaScript-C153.0a1",
         "packageKind": "nightly",
         "packageVerified": false
       },
@@ -115,15 +115,15 @@
       "corpusSeedToTargetRatio": 0.00027126073837280273,
       "sampleCount": 3,
       "samplesMs": [
-        135.445068359375,
-        138.97607421875,
-        147.323974609375
+        108.489990234375,
+        111.2099609375,
+        111.30908203125
       ],
-      "avgMs": 140.58170572916666,
-      "minMs": 135.445068359375,
-      "maxMs": 147.323974609375,
-      "sampleSpreadRatio": 0.0844982367256586,
-      "mibPerSec": 113.81281737201502,
+      "avgMs": 110.33634440104167,
+      "minMs": 108.489990234375,
+      "maxMs": 111.30908203125,
+      "sampleSpreadRatio": 0.025549983662938768,
+      "mibPerSec": 145.01114829257426,
       "eventCount": 892131,
       "startElementCount": 313353,
       "endElementCount": 313350,
@@ -145,8 +145,8 @@
   "summary": {
     "rowCount": 2,
     "fastest": {
-      "id": "release-spidermonkey-token-boundary",
-      "mibPerSec": 122.23976920876908,
+      "id": "nightly-spidermonkey-token-boundary",
+      "mibPerSec": 145.01114829257426,
       "fullStringParity": false,
       "boundedMemory": null
     },
@@ -158,10 +158,10 @@
     {
       "id": "spidermonkey-jsshell-tokenizer-headroom",
       "classification": "BENCH_FACT",
-      "summary": "Fastest SpiderMonkey js-shell token-boundary row was release-spidermonkey-token-boundary at 122.24 MiB/s.",
+      "summary": "Fastest SpiderMonkey js-shell token-boundary row was nightly-spidermonkey-token-boundary at 145.01 MiB/s.",
       "evidence": [
-        "release-spidermonkey-token-boundary: 122.24 MiB/s, jitStatus=true, binaryInput=true",
-        "nightly-spidermonkey-token-boundary: 113.81 MiB/s, jitStatus=true, binaryInput=true"
+        "release-spidermonkey-token-boundary: 121.47 MiB/s, jitStatus=true, binaryInput=true",
+        "nightly-spidermonkey-token-boundary: 145.01 MiB/s, jitStatus=true, binaryInput=true"
       ]
     },
     {

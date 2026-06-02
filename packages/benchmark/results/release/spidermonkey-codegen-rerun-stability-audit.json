@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T13:34:18.742Z",
+  "generatedAt": "2026-06-02T15:41:59.042Z",
   "objective": "spidermonkey-codegen-rerun-stability-audit",
   "contract": "spidermonkey-debug-jsshell-codegen-rerun-reproducibility-not-closure",
   "note": "Compares original and rerun Taskcluster debug SpiderMonkey js-shell codegen artifacts. This is reproducibility evidence for emitted JitSpew/codegen diagnostics, not same-contract StAX closure evidence.",

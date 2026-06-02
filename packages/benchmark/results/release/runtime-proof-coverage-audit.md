@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-06-02T15:09:10.515Z
+Generated: 2026-06-02T15:42:25.128Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -53,10 +53,10 @@ These rows have enough throughput/parity metadata to be recognized, but no row-l
 | `quick-xml-allocation-count.json` | Rust/quick-xml | `benchmark` | 0.00 | allocator-counters | yes | 205.15 |
 | `quick-xml-shape-audit.json` | Rust/quick-xml | `quick-xml` | 0.02 | not-recorded | yes | 309.82 |
 | `quick-xml-shape-audit.json` | Java/Woodstox | `woodstox` | 0.02 | not-recorded | yes | 333.43 |
-| `spidermonkey-jsshell-materialized-headroom.json` | SpiderMonkey js-shell | `release-spidermonkey-materialized-string-object` | 0.02 | not-recorded | no | 33.24 |
-| `spidermonkey-jsshell-materialized-headroom.json` | SpiderMonkey js-shell | `nightly-spidermonkey-materialized-string-object` | 0.02 | not-recorded | no | 37.80 |
-| `spidermonkey-jsshell-tokenizer-headroom.json` | SpiderMonkey js-shell | `release-spidermonkey-token-boundary` | 0.02 | not-recorded | no | 122.24 |
-| `spidermonkey-jsshell-tokenizer-headroom.json` | SpiderMonkey js-shell | `nightly-spidermonkey-token-boundary` | 0.02 | not-recorded | no | 113.81 |
+| `spidermonkey-jsshell-materialized-headroom.json` | SpiderMonkey js-shell | `release-spidermonkey-materialized-string-object` | 0.02 | not-recorded | no | 33.97 |
+| `spidermonkey-jsshell-materialized-headroom.json` | SpiderMonkey js-shell | `nightly-spidermonkey-materialized-string-object` | 0.02 | not-recorded | no | 37.61 |
+| `spidermonkey-jsshell-tokenizer-headroom.json` | SpiderMonkey js-shell | `release-spidermonkey-token-boundary` | 0.02 | not-recorded | no | 121.47 |
+| `spidermonkey-jsshell-tokenizer-headroom.json` | SpiderMonkey js-shell | `nightly-spidermonkey-token-boundary` | 0.02 | not-recorded | no | 145.01 |
 | `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json` | SpiderMonkey js-shell | `taskcluster-debug-spidermonkey-xml-token-boundary-codegen` | 0.00 | not-recorded | no | 0.73 |
 | `woodstox-hotspot-trace.json` | Java/Woodstox | `benchmark` | 0.02 | not-recorded | yes | 322.29 |
 | `woodstox-jfr-allocation.json` | Java/Woodstox | `benchmark` | 0.02 | not-recorded | yes | 311.86 |

@@ -1,6 +1,6 @@
 # StAX Public Reader Host API Boundary Audit
 
-Generated: 2026-06-01T18:20:32.057Z
+Generated: 2026-06-02T15:41:02.747Z
 
 Static source-boundary audit for the current StAX public reader host API surface. It pins the TextDecoder/ReadableStream/TextEncoder boundary used by same-contract full-string rows; it is not benchmark evidence, codegen evidence, or a runtime-limit conclusion.
 

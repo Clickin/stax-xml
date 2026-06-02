@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T14:53:15.741Z",
+  "generatedAt": "2026-06-02T15:43:10.943Z",
   "objective": "text-materialization-boundary-audit",
   "contract": "text-cdata-materialization-headroom-is-not-full-string-counterexample",
   "note": "Audits the current text/CDATA materialization boundary from the same-contract aggregate. This is not a benchmark run and does not prove a JavaScript runtime ceiling.",

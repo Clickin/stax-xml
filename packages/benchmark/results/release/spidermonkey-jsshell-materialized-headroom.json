@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T18:55:26.382Z",
+  "generatedAt": "2026-06-02T15:41:32.371Z",
   "objective": "spidermonkey-jsshell-materialized-headroom",
   "contract": "spidermonkey-jsshell-ascii-materialized-string-object-headroom-not-stax",
   "note": "Runs a SpiderMonkey js-shell ASCII XML workload that materializes JS string primitives and event-shaped objects. This is closer to the public StAX object surface than token-boundary scanning, but it still does not use TextDecoder, ReadableStream, or the unchanged public StAX reader, and it has no row-level memory proof.",
@@ -59,15 +59,15 @@
       "corpusSeedToTargetRatio": 0.00027126073837280273,
       "sampleCount": 3,
       "samplesMs": [
-        535.942138671875,
-        448.35693359375,
-        459.9150390625
+        482.18505859375,
+        464.810791015625,
+        466.141845703125
       ],
-      "avgMs": 481.4047037760417,
-      "minMs": 448.35693359375,
-      "maxMs": 535.942138671875,
-      "sampleSpreadRatio": 0.18193674550980551,
-      "mibPerSec": 33.23606910048701,
+      "avgMs": 471.0458984375,
+      "minMs": 464.810791015625,
+      "maxMs": 482.18505859375,
+      "sampleSpreadRatio": 0.03688444721789734,
+      "mibPerSec": 33.96696596461913,
       "eventCount": 892131,
       "startElementCount": 313353,
       "endElementCount": 313350,
@@ -120,15 +120,15 @@
       "corpusSeedToTargetRatio": 0.00027126073837280273,
       "sampleCount": 3,
       "samplesMs": [
-        425.724853515625,
-        416.458984375,
-        427.589111328125
+        419.343017578125,
+        432.10107421875,
+        424.796875
       ],
-      "avgMs": 423.2576497395833,
-      "minMs": 416.458984375,
-      "maxMs": 427.589111328125,
-      "sampleSpreadRatio": 0.026296339735319623,
-      "mibPerSec": 37.802033843556714,
+      "avgMs": 425.4136555989583,
+      "minMs": 419.343017578125,
+      "maxMs": 432.10107421875,
+      "sampleSpreadRatio": 0.029989767542046526,
+      "mibPerSec": 37.61045229606677,
       "eventCount": 892131,
       "startElementCount": 313353,
       "endElementCount": 313350,
@@ -154,7 +154,7 @@
     "rowCount": 2,
     "fastest": {
       "id": "nightly-spidermonkey-materialized-string-object",
-      "mibPerSec": 37.802033843556714,
+      "mibPerSec": 37.61045229606677,
       "fullStringParity": false,
       "sameSemanticChecksumFields": true,
       "boundedMemory": null,
@@ -170,7 +170,7 @@
     {
       "id": "spidermonkey-materialized-headroom",
       "classification": "LIMITED_EVIDENCE_PRESENT",
-      "summary": "Fastest SpiderMonkey js-shell materialized string/object row is 37.80 MiB/s.",
+      "summary": "Fastest SpiderMonkey js-shell materialized string/object row is 37.61 MiB/s.",
       "evidence": [
         "row=nightly-spidermonkey-materialized-string-object",
         "sameSemanticChecksumFields=true",
