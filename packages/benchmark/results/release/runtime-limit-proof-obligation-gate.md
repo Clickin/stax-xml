@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T22:28:07.240Z
+Generated: 2026-06-02T22:36:41.060Z
 
 ## Scope
 
@@ -244,6 +244,7 @@ Disclosure-only guards: 3
 - Unbounded or unproven memory rows: 17
 - Bounded rows without numeric memory proof: 0
 - Unbounded rows at or above 200 MiB/s: 0
+- Same-fixture process RSS: JS=61.77 MiB, Woodstox=312.71 MiB, quick-xml=4.78 MiB
 - Target distance loaded: yes (2026-06-02T20:10:53.513Z)
 - Woodstox 0.9x target met: no
 - Woodstox 0.9x remaining: 164.29 MiB/s
@@ -272,6 +273,7 @@ Disclosure-only guards: 3
 | `frontier-audits-current-comparison` | yes | Frontier audits must reference the currently loaded same-contract-runtime-comparison.json generatedAt. |
 | `memory-frontier-classified` | yes | memory-frontier-audit.json must classify 1 GiB+ JavaScript full-string memory rows and keep unbounded rows visible. |
 | `memory-frontier-no-unbounded-target-row` | yes | memory-frontier-audit.json must show unbounded or unproven-memory full-string rows do not reach the 200 MiB/s target. |
+| `memory-frontier-same-fixture-external-rss-visible` | yes | memory-frontier-audit.json must keep same-fixture 1024 MiB process RSS snapshots visible for JavaScript, Woodstox, and quick-xml. |
 | `target-distance-not-met` | yes | target-distance-audit.json must show same-fixture JavaScript remains below both Woodstox and quick-xml 0.9x targets. |
 | `target-distance-js-contract-primary-bounded` | yes | target-distance-audit.json must compare external targets against a bounded file-backed synchronous byte-batch JavaScript row, not direct streams or full ArrayBuffer parser input. |
 | `target-distance-same-fixture-frontier-separated` | yes | target-distance-audit.json must keep the overall fastest JavaScript frontier separate from the same-fixture Woodstox/quick-xml 0.9x target baseline. |

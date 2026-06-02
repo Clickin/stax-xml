@@ -153,6 +153,10 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.frontierAuditSnapshot.memory.unboundedRows, 17);
   assert.equal(report.frontierAuditSnapshot.memory.boundedRowsWithoutNumericMemoryProof, 0);
   assert.equal(report.frontierAuditSnapshot.memory.unboundedRowsAtOrAbove200MiBPerSec, 0);
+  assert.equal(report.frontierAuditSnapshot.memory.sameFixtureFastestJsMaxRssMiB, 61.77);
+  assert.equal(report.frontierAuditSnapshot.memory.sameFixtureWoodstoxMaxRssMiB, 312.71);
+  assert.equal(report.frontierAuditSnapshot.memory.sameFixtureQuickXmlMaxRssMiB, 4.78);
+  assert.match(report.frontierAuditSnapshot.memory.sameFixtureProcessRssCaveat, /not allocation-model equivalence/);
   assert.ok(report.frontierAuditSnapshot.targetDistance.loaded);
   assert.equal(report.frontierAuditSnapshot.targetDistance.woodstoxTargetMet, false);
   assert.equal(report.frontierAuditSnapshot.targetDistance.quickXmlTargetMet, false);
@@ -182,6 +186,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.frontierAuditSnapshot.textMaterialization.fastestFoldTrimStringFieldReads, 125517686);
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'memory-frontier-classified' && item.satisfied));
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'memory-frontier-no-unbounded-target-row' && item.satisfied));
+  assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'memory-frontier-same-fixture-external-rss-visible' && item.satisfied));
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'target-distance-not-met' && item.satisfied));
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'target-distance-js-contract-primary-bounded' && item.satisfied));
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'target-distance-same-fixture-frontier-separated' && item.satisfied));
@@ -2656,6 +2661,49 @@ test('runtime-limit proof-obligation gate fails if unbounded memory rows cross t
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /Unbounded rows at or above 200 MiB\/s: 1/);
   assert.match(markdown, /memory-frontier-no-unbounded-target-row/);
+});
+
+test('runtime-limit proof-obligation gate fails if same-fixture external RSS snapshot is missing', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const memoryFrontier = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'memory-frontier-audit.json'), 'utf8'));
+  delete memoryFrontier.summary.sameFixture1024MiBProcessRssSnapshot.quickXml.maxRssMiB;
+  memoryFrontier.summary.sameFixture1024MiBProcessRssSnapshot.caveat = 'process RSS unavailable';
+  writeFileSync(badMemoryFrontierJsonOut, `${JSON.stringify(memoryFrontier, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--memory-frontier-json',
+    badMemoryFrontierJsonOut,
+    '--json-out',
+    badMemoryFrontierGateJsonOut,
+    '--md-out',
+    badMemoryFrontierGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(badMemoryFrontierGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.equal(report.frontierAuditSnapshot.memory.sameFixtureQuickXmlMaxRssMiB, null);
+  assert.ok(report.frontierAuditSnapshot.guards.some(item =>
+    item.id === 'memory-frontier-same-fixture-external-rss-visible'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error =>
+    /Missing frontier audit guard memory-frontier-same-fixture-external-rss-visible/.test(error)
+  ));
+
+  const markdown = readFileSync(badMemoryFrontierGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /Same-fixture process RSS: JS=61\.77 MiB, Woodstox=312\.71 MiB, quick-xml=unknown MiB/);
+  assert.match(markdown, /memory-frontier-same-fixture-external-rss-visible/);
 });
 
 test('runtime-limit proof-obligation gate fails if frontier audits target stale comparison', () => {

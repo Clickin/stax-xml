@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T22:28:07.240Z",
+  "generatedAt": "2026-06-02T22:36:41.060Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -1013,6 +1013,10 @@
       "unboundedRows": 17,
       "boundedRowsWithoutNumericMemoryProof": 0,
       "unboundedRowsAtOrAbove200MiBPerSec": 0,
+      "sameFixtureFastestJsMaxRssMiB": 61.77,
+      "sameFixtureWoodstoxMaxRssMiB": 312.71,
+      "sameFixtureQuickXmlMaxRssMiB": 4.78,
+      "sameFixtureProcessRssCaveat": "Process RSS values are same-fixture endpoint evidence, not allocation-model equivalence across Java, Rust, and JavaScript runtimes.",
       "conclusionAllowed": false
     },
     "targetDistance": {
@@ -1087,6 +1091,11 @@
       {
         "id": "memory-frontier-no-unbounded-target-row",
         "description": "memory-frontier-audit.json must show unbounded or unproven-memory full-string rows do not reach the 200 MiB/s target.",
+        "satisfied": true
+      },
+      {
+        "id": "memory-frontier-same-fixture-external-rss-visible",
+        "description": "memory-frontier-audit.json must keep same-fixture 1024 MiB process RSS snapshots visible for JavaScript, Woodstox, and quick-xml.",
         "satisfied": true
       },
       {
@@ -1523,7 +1532,7 @@
     "requiredHandoffValidationGuards": 9,
     "satisfiedSourceAuditGuards": 7,
     "requiredSourceAuditGuards": 7,
-    "satisfiedFrontierAuditGuards": 10,
-    "requiredFrontierAuditGuards": 10
+    "satisfiedFrontierAuditGuards": 11,
+    "requiredFrontierAuditGuards": 11
   }
 }

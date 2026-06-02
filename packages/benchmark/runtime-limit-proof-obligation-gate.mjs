@@ -543,6 +543,10 @@ function createFrontierAuditSnapshot(memoryFrontier, targetDistance, textMateria
     unboundedRows: memoryFrontier?.summary?.unboundedRows ?? null,
     boundedRowsWithoutNumericMemoryProof: memoryFrontier?.summary?.boundedRowsWithoutNumericMemoryProof ?? null,
     unboundedRowsAtOrAbove200MiBPerSec: memoryFrontier?.summary?.unboundedRowsAtOrAbove200MiBPerSec ?? null,
+    sameFixtureFastestJsMaxRssMiB: memoryFrontier?.summary?.sameFixture1024MiBProcessRssSnapshot?.fastestJs?.maxRssMiB ?? null,
+    sameFixtureWoodstoxMaxRssMiB: memoryFrontier?.summary?.sameFixture1024MiBProcessRssSnapshot?.woodstox?.maxRssMiB ?? null,
+    sameFixtureQuickXmlMaxRssMiB: memoryFrontier?.summary?.sameFixture1024MiBProcessRssSnapshot?.quickXml?.maxRssMiB ?? null,
+    sameFixtureProcessRssCaveat: memoryFrontier?.summary?.sameFixture1024MiBProcessRssSnapshot?.caveat ?? null,
     conclusionAllowed: memoryFrontier?.summary?.conclusionAllowed ?? null,
   };
   const woodstox = targetDistance?.summary?.sameFixture1024MiBWoodstoxTarget ?? {};
@@ -664,6 +668,20 @@ function createFrontierAuditGuards(memory, target, text, textCoverage) {
       satisfied: memory.loaded
         && memory.status === 'classified'
         && memory.unboundedRowsAtOrAbove200MiBPerSec === 0
+        && memory.conclusionAllowed === false,
+    },
+    {
+      id: 'memory-frontier-same-fixture-external-rss-visible',
+      description: 'memory-frontier-audit.json must keep same-fixture 1024 MiB process RSS snapshots visible for JavaScript, Woodstox, and quick-xml.',
+      satisfied: memory.loaded
+        && memory.status === 'classified'
+        && typeof memory.sameFixtureFastestJsMaxRssMiB === 'number'
+        && memory.sameFixtureFastestJsMaxRssMiB > 0
+        && typeof memory.sameFixtureWoodstoxMaxRssMiB === 'number'
+        && memory.sameFixtureWoodstoxMaxRssMiB > 0
+        && typeof memory.sameFixtureQuickXmlMaxRssMiB === 'number'
+        && memory.sameFixtureQuickXmlMaxRssMiB > 0
+        && /not allocation-model equivalence/.test(memory.sameFixtureProcessRssCaveat ?? '')
         && memory.conclusionAllowed === false,
     },
     {
@@ -1990,6 +2008,7 @@ function renderMarkdown(report) {
     `- Unbounded or unproven memory rows: ${formatNullableCount(report.frontierAuditSnapshot.memory.unboundedRows)}`,
     `- Bounded rows without numeric memory proof: ${formatNullableCount(report.frontierAuditSnapshot.memory.boundedRowsWithoutNumericMemoryProof)}`,
     `- Unbounded rows at or above 200 MiB/s: ${formatNullableCount(report.frontierAuditSnapshot.memory.unboundedRowsAtOrAbove200MiBPerSec)}`,
+    `- Same-fixture process RSS: JS=${formatNullableRate(report.frontierAuditSnapshot.memory.sameFixtureFastestJsMaxRssMiB)} MiB, Woodstox=${formatNullableRate(report.frontierAuditSnapshot.memory.sameFixtureWoodstoxMaxRssMiB)} MiB, quick-xml=${formatNullableRate(report.frontierAuditSnapshot.memory.sameFixtureQuickXmlMaxRssMiB)} MiB`,
     report.frontierAuditSnapshot.targetDistance.loaded
       ? `- Target distance loaded: yes (${report.frontierAuditSnapshot.targetDistance.generatedAt ?? 'unknown generatedAt'})`
       : '- Target distance loaded: no',
