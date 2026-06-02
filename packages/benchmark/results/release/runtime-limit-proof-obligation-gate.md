@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T22:36:41.060Z
+Generated: 2026-06-02T22:43:27.603Z
 
 ## Scope
 
@@ -215,6 +215,9 @@ Disclosure-only guards: 3
 - Source audit inputs: comparison=2026-06-02T20:08:45.362Z (current 2026-06-02T20:08:45.362Z), coverage=2026-06-02T22:03:29.768Z (current 2026-06-02T22:03:29.768Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
+- Primary source boundary: demand-driven StreamReaderSync parser pulls
+- Primary source modes: file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches
+- Primary backpressure contract: Primary sync rows yield one grouped Uint8Array[] batch per parser pull; async and direct ReadableStream rows must stay separate and record backpressure counters.
 - Primary sync byte-batch rows: 231
 - Primary direct ReadableStream rows: 0
 - Primary async source rows: 0

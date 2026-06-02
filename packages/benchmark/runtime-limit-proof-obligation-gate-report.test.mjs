@@ -135,6 +135,12 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.sourceAuditSnapshot.coverageFullArrayBufferRows, 0);
   assert.equal(report.sourceAuditSnapshot.coverageDirectReadableStreamRows, 17);
   assert.equal(report.sourceAuditSnapshot.primaryParserInput, 'synchronous Iterable<Uint8Array[]>');
+  assert.equal(report.sourceAuditSnapshot.primarySourceBoundary, 'demand-driven StreamReaderSync parser pulls');
+  assert.deepEqual(report.sourceAuditSnapshot.primarySourceModes, [
+    'file-backed-sync-iterable-byte-batches',
+    'sync-iterable-byte-batches',
+  ]);
+  assert.match(report.sourceAuditSnapshot.primaryBackpressureContract, /one grouped Uint8Array\[\] batch per parser pull/);
   assert.equal(report.sourceAuditSnapshot.primarySyncByteBatchRows, 231);
   assert.equal(report.sourceAuditSnapshot.primaryDirectReadableStreamRows, 0);
   assert.equal(report.sourceAuditSnapshot.primaryAsyncSourceRows, 0);
@@ -2523,6 +2529,51 @@ test('runtime-limit proof-obligation gate fails if primary source audit mixes as
   const markdown = readFileSync(badSourceAuditGateMdOut, 'utf8');
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /Primary parser input: Web ReadableStream<Uint8Array>/);
+  assert.match(markdown, /primary-source-sync-byte-batches-only/);
+});
+
+test('runtime-limit proof-obligation gate fails if primary source audit loses sync iterable pull contract', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const sourceAudit = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'source-consumption-shape-audit.json'), 'utf8'));
+  sourceAudit.summary.primarySourceBoundary = 'preloaded full ArrayBuffer parser input';
+  sourceAudit.summary.primaryBackpressureContract = 'source is preconsumed before parser pulls';
+  sourceAudit.summary.primarySourceModes = ['web-readable-stream-pull'];
+  writeFileSync(badSourceAuditJsonOut, `${JSON.stringify(sourceAudit, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--source-audit-json',
+    badSourceAuditJsonOut,
+    '--json-out',
+    badSourceAuditGateJsonOut,
+    '--md-out',
+    badSourceAuditGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(badSourceAuditGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.equal(report.sourceAuditSnapshot.primaryParserInput, 'synchronous Iterable<Uint8Array[]>');
+  assert.equal(report.sourceAuditSnapshot.primarySourceBoundary, 'preloaded full ArrayBuffer parser input');
+  assert.deepEqual(report.sourceAuditSnapshot.primarySourceModes, ['web-readable-stream-pull']);
+  assert.ok(report.sourceAuditSnapshot.guards.some(item =>
+    item.id === 'primary-source-sync-byte-batches-only'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error =>
+    /Missing source audit guard primary-source-sync-byte-batches-only/.test(error)
+  ));
+
+  const markdown = readFileSync(badSourceAuditGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /primary-source-sync-byte-batches-only/);
 });
 

@@ -782,6 +782,9 @@ function createSourceAuditSnapshot(sourceAudit, comparison = null, coverageAudit
   const primaryAsyncSourceRows = summary?.primaryAsyncSourceRows ?? null;
   const primaryFullArrayBufferRows = summary?.primaryFullArrayBufferRows ?? null;
   const primaryUnknownSourceModeRows = summary?.primaryUnknownSourceModeRows ?? null;
+  const primarySourceModes = Array.isArray(summary?.primarySourceModes) ? summary.primarySourceModes : [];
+  const primarySourceBoundary = summary?.primarySourceBoundary ?? null;
+  const primaryBackpressureContract = summary?.primaryBackpressureContract ?? null;
   const representativeStreamRowsRespectBackpressure = summary?.representativeStreamRowsRespectBackpressure ?? null;
   return {
     loaded: Boolean(sourceAudit),
@@ -793,7 +796,9 @@ function createSourceAuditSnapshot(sourceAudit, comparison = null, coverageAudit
     status: summary?.status ?? null,
     primarySourceContract: summary?.primarySourceContract ?? null,
     primaryParserInput,
-    primarySourceBoundary: summary?.primarySourceBoundary ?? null,
+    primarySourceBoundary,
+    primarySourceModes,
+    primaryBackpressureContract,
     primarySyncByteBatchRows,
     primaryDirectReadableStreamRows,
     primaryAsyncSourceRows,
@@ -824,6 +829,9 @@ function createSourceAuditSnapshot(sourceAudit, comparison = null, coverageAudit
       primaryAsyncSourceRows,
       primaryFullArrayBufferRows,
       primaryUnknownSourceModeRows,
+      primarySourceBoundary,
+      primarySourceModes,
+      primaryBackpressureContract,
       representativeStreamRowsRespectBackpressure,
     }),
   };
@@ -868,6 +876,11 @@ function createSourceAuditGuards(snapshot) {
       id: 'primary-source-sync-byte-batches-only',
       description: 'Primary source audit rows must stay synchronous Iterable<Uint8Array[]> byte batches with async and direct ReadableStream rows excluded.',
       satisfied: snapshot.primaryParserInput === 'synchronous Iterable<Uint8Array[]>'
+        && snapshot.primarySourceBoundary === 'demand-driven StreamReaderSync parser pulls'
+        && Array.isArray(snapshot.primarySourceModes)
+        && snapshot.primarySourceModes.length > 0
+        && snapshot.primarySourceModes.every(mode => mode === 'file-backed-sync-iterable-byte-batches' || mode === 'sync-iterable-byte-batches')
+        && /one grouped Uint8Array\[\] batch per parser pull/.test(snapshot.primaryBackpressureContract ?? '')
         && typeof snapshot.primarySyncByteBatchRows === 'number'
         && snapshot.primarySyncByteBatchRows > 0
         && snapshot.primaryDirectReadableStreamRows === 0
@@ -1978,6 +1991,9 @@ function renderMarkdown(report) {
     `- Source audit inputs: comparison=${report.sourceAuditSnapshot.inputComparisonGeneratedAt ?? 'unknown'} (current ${report.sourceAuditSnapshot.currentComparisonGeneratedAt ?? 'unknown'}), coverage=${report.sourceAuditSnapshot.inputCoverageGeneratedAt ?? 'unknown'} (current ${report.sourceAuditSnapshot.currentCoverageGeneratedAt ?? 'unknown'})`,
     `- Source audit status: ${report.sourceAuditSnapshot.status ?? 'unknown'}`,
     `- Primary parser input: ${report.sourceAuditSnapshot.primaryParserInput ?? 'unknown'}`,
+    `- Primary source boundary: ${report.sourceAuditSnapshot.primarySourceBoundary ?? 'unknown'}`,
+    `- Primary source modes: ${report.sourceAuditSnapshot.primarySourceModes?.join(', ') || 'unknown'}`,
+    `- Primary backpressure contract: ${report.sourceAuditSnapshot.primaryBackpressureContract ?? 'unknown'}`,
     `- Primary sync byte-batch rows: ${formatNullableCount(report.sourceAuditSnapshot.primarySyncByteBatchRows)}`,
     `- Primary direct ReadableStream rows: ${formatNullableCount(report.sourceAuditSnapshot.primaryDirectReadableStreamRows)}`,
     `- Primary async source rows: ${formatNullableCount(report.sourceAuditSnapshot.primaryAsyncSourceRows)}`,
