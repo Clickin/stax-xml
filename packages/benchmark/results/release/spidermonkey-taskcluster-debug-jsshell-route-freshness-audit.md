@@ -20,7 +20,7 @@ Resolves the Taskcluster latest win64-debug route and checks whether the current
 - Index URL: https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.mozilla-central.latest.firefox.win64-debug
 - Task ID: aJLr1DFjQ7urQTpRiIsfRQ
 - Fetch status: available
-- Fetched at: 2026-06-02T18:37:02.640Z
+- Fetched at: 2026-06-02T21:44:49.609Z
 
 ## Expected Evidence Identity
 
