@@ -1066,6 +1066,16 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
         && spiderChecks.some(item => /closesCodegenObligation must be true/.test(item)),
     },
     {
+      id: 'spidermonkey-materialized-textdecoder-host-api-blocker',
+      description: 'SpiderMonkey materialized js-shell codegen must preserve the TextDecoder host API blocker before treating ASCII materialized codegen as unchanged StAX closure.',
+      satisfied: spiderBlockers.some(item =>
+        /materialized scope-distance audit pins/.test(item)
+        && /primarySyncByteBatchMissingGlobals=TextDecoder/.test(item)
+        && /asciiTextDecoderEquivalent=true/.test(item)
+        && /closesCodegenObligation=false/.test(item)
+      ),
+    },
+    {
       id: 'spidermonkey-unchanged-stax-required',
       description: 'SpiderMonkey closing artifacts must require sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true unless a browser-row artifact supplies closure.',
       satisfied: spiderChecks.some(item => /sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true/.test(item)),
