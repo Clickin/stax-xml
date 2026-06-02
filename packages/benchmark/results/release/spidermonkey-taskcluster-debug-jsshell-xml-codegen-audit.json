@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T13:32:04.077Z",
+  "generatedAt": "2026-06-02T23:09:49.513Z",
   "objective": "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit",
   "contract": "current-taskcluster-debug-spidermonkey-xml-workload-codegen-surface-not-same-contract-stax",
   "note": "Runs a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell with JitSpew codegen enabled on the repository XML byte-tokenizer workload. This ties current codegen diagnostics to XML byte scanning, but it is not a same-contract StAX full-string row because it avoids TextDecoder, string materialization, and public event objects.",
@@ -15,15 +15,15 @@
     "sizeGiB": 0.0009765625
   },
   "parameters": {
-    "jsShell": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell-current-2\\extract\\js.exe",
-    "taskId": "aJLr1DFjQ7urQTpRiIsfRQ",
+    "jsShell": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell-azB5UO80Q3KJPPyXD0C8tA\\extract\\js.exe",
+    "taskId": "azB5UO80Q3KJPPyXD0C8tA",
     "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
     "artifactName": "public/build/target.jsshell.zip",
-    "artifactUrl": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/aJLr1DFjQ7urQTpRiIsfRQ/artifacts/public/build/target.jsshell.zip",
-    "zipPath": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell-current-2\\target.jsshell.zip",
-    "targetTxt": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell-current-2\\target.txt",
-    "buildhubJson": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell-current-2\\buildhub.json",
-    "mozinfoJson": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell-current-2\\target.mozinfo.json",
+    "artifactUrl": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/azB5UO80Q3KJPPyXD0C8tA/artifacts/public/build/target.jsshell.zip",
+    "zipPath": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell-azB5UO80Q3KJPPyXD0C8tA\\target.jsshell.zip",
+    "targetTxt": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell-azB5UO80Q3KJPPyXD0C8tA\\target.txt",
+    "buildhubJson": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell-azB5UO80Q3KJPPyXD0C8tA\\buildhub.json",
+    "mozinfoJson": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-jsshell-azB5UO80Q3KJPPyXD0C8tA\\target.mozinfo.json",
     "corpusFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
     "targetMiB": 1,
     "runs": 1,
@@ -38,22 +38,22 @@
   "shell": {
     "status": "available",
     "provenance": {
-      "taskId": "aJLr1DFjQ7urQTpRiIsfRQ",
+      "taskId": "azB5UO80Q3KJPPyXD0C8tA",
       "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
       "artifactName": "public/build/target.jsshell.zip",
-      "artifactUrl": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/aJLr1DFjQ7urQTpRiIsfRQ/artifacts/public/build/target.jsshell.zip",
-      "artifactBytes": 24832668,
+      "artifactUrl": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/azB5UO80Q3KJPPyXD0C8tA/artifacts/public/build/target.jsshell.zip",
+      "artifactBytes": 24838016,
       "targetTxt": {
-        "raw": "20260602093330\nhttps://hg.mozilla.org/mozilla-central/rev/253b8523586577438a3ddf86d67436719feaf6d8",
-        "buildId": "20260602093330",
-        "sourceUrl": "https://hg.mozilla.org/mozilla-central/rev/253b8523586577438a3ddf86d67436719feaf6d8",
-        "sourceRevision": "253b8523586577438a3ddf86d67436719feaf6d8"
+        "raw": "20260602214419\nhttps://hg.mozilla.org/mozilla-central/rev/e4f9cbec72268c8efc0137a1d593e24af3df0712",
+        "buildId": "20260602214419",
+        "sourceUrl": "https://hg.mozilla.org/mozilla-central/rev/e4f9cbec72268c8efc0137a1d593e24af3df0712",
+        "sourceRevision": "e4f9cbec72268c8efc0137a1d593e24af3df0712"
       },
       "buildhub": {
-        "buildId": "20260602093330",
-        "buildDate": "2026-06-02T09:33:30Z",
+        "buildId": "20260602214419",
+        "buildDate": "2026-06-02T21:44:19Z",
         "sourceRepository": "https://hg.mozilla.org/mozilla-central",
-        "sourceRevision": "253b8523586577438a3ddf86d67436719feaf6d8",
+        "sourceRevision": "e4f9cbec72268c8efc0137a1d593e24af3df0712",
         "targetVersion": "153.0a1",
         "targetPlatform": "win64",
         "targetOs": "win"
@@ -79,19 +79,19 @@
       "flags": "codegen",
       "exitCode": 0,
       "error": null,
-      "outputBytes": 6559144,
+      "outputBytes": 6559189,
       "stdoutLineCount": 1,
-      "stderrLineCount": 151432,
-      "codegenMarkerCount": 151431,
+      "stderrLineCount": 151481,
+      "codegenMarkerCount": 151480,
       "ionScriptMarkerCount": 49,
       "assemblyMnemonicCount": 55578,
       "payload": {
         "seedBytes": 4551,
         "targetBytes": 1048576,
         "samplesMs": [
-          1376.6630859375
+          554.0009765625
         ],
-        "avgMs": 1376.6630859375,
+        "avgMs": 554.0009765625,
         "result": {
           "eventCount": 55759,
           "startElementCount": 19586,
@@ -100,10 +100,10 @@
           "attributeCount": 2765,
           "checksum": 9292058
         },
-        "throughputMiBPerSec": 0.7263941411772551
+        "throughputMiBPerSec": 1.8050509697742099
       },
       "excerpt": [
-        "xmlPayload={\"seedBytes\":4551,\"targetBytes\":1048576,\"samplesMs\":[1376.6630859375],\"avgMs\":1376.6630859375,\"mibPerSec\":0.7263941411772551,\"result\":{\"eventCount\":55759,\"startElementCount\":19586,\"endElementCount\":19583,\"textEventCount\":16590,\"attributeCount\":2765,\"checksum\":9292058}}",
+        "xmlPayload={\"seedBytes\":4551,\"targetBytes\":1048576,\"samplesMs\":[554.0009765625],\"avgMs\":554.0009765625,\"mibPerSec\":1.8050509697742099,\"result\":{\"eventCount\":55759,\"startElementCount\":19586,\"endElementCount\":19583,\"textEventCount\":16590,\"attributeCount\":2765,\"checksum\":9292058}}",
         "found tag: codegen",
         "[Codegen] # Emitting bailout tail stub",
         "[Codegen] # BEGIN creators: JitRuntime::generateBailoutTailStub",
@@ -136,7 +136,7 @@
         "[Codegen] 000044  movq       %rsp, %rax",
         "[Codegen] 000047  andq       $0xfffffffffffffff0, %rsp",
         "[Codegen] 00004b  push       %rax",
-        "[Codegen] 00004c  movabsq    $0x7ff7238d026c, %rax",
+        "[Codegen] 00004c  movabsq    $0x7ff7e276299c, %rax",
         "[Codegen] 000056  subq       $40, %rsp",
         "[Codegen] 00005a  movq       %rax, %rcx",
         "[Codegen] 00005d  testb      $0xf, %spl",
@@ -186,8 +186,8 @@
       "id": "spidermonkey-jsshell",
       "name": "SpiderMonkey js-shell",
       "version": "JavaScript-C153.0a1",
-      "taskId": "aJLr1DFjQ7urQTpRiIsfRQ",
-      "buildId": "20260602093330"
+      "taskId": "azB5UO80Q3KJPPyXD0C8tA",
+      "buildId": "20260602214419"
     },
     "implementation": "SpiderMonkey debug js-shell XML token-boundary byte scanner under IONFLAGS/JIT_SPEW=codegen",
     "family": "partial-spidermonkey-tokenizer-codegen",
@@ -210,17 +210,17 @@
     "corpusSeedToTargetRatio": 0.004340171813964844,
     "sampleCount": 1,
     "samplesMs": [
-      1376.6630859375
+      554.0009765625
     ],
-    "avgMs": 1376.6630859375,
-    "mibPerSec": 0.7263941411772551,
+    "avgMs": 554.0009765625,
+    "mibPerSec": 1.8050509697742099,
     "eventCount": 55759,
     "startElementCount": 19586,
     "endElementCount": 19583,
     "textEventCount": 16590,
     "attributeCount": 2765,
     "checksum": 9292058,
-    "codegenMarkers": 151431,
+    "codegenMarkers": 151480,
     "options": {
       "runs": 1,
       "warmups": 0
@@ -248,11 +248,11 @@
       "summary": "The current Taskcluster debug SpiderMonkey shell emits JitSpew codegen diagnostics while executing the XML byte-tokenizer workload.",
       "evidence": [
         "version=JavaScript-C153.0a1",
-        "taskId=aJLr1DFjQ7urQTpRiIsfRQ",
-        "buildId=20260602093330",
-        "sourceRevision=253b8523586577438a3ddf86d67436719feaf6d8",
+        "taskId=azB5UO80Q3KJPPyXD0C8tA",
+        "buildId=20260602214419",
+        "sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712",
         "status=xml-workload-codegen-output-emitted",
-        "codegenMarkers=151431",
+        "codegenMarkers=151480",
         "ionScriptMarkers=49",
         "assemblyMnemonics=55578",
         "eventCount=55759",

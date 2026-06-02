@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T14:26:51.303Z",
+  "generatedAt": "2026-06-02T23:12:43.302Z",
   "objective": "spidermonkey-ascii-scope-distance-audit",
   "contract": "spidermonkey-js-shell-ascii-materializer-utf8-equivalence-scope",
   "note": "Audits the ASCII-only scope in the SpiderMonkey debug js-shell materialized-codegen artifact. For corpus seeds whose bytes are all <= 0x7f, String.fromCharCode over bytes produces the same JavaScript string code units as non-streaming UTF-8 TextDecoder for those spans. This reduces the materialized js-shell scope distance for ASCII corpus seeds, but it still does not make the artifact the unchanged StAX benchmark or close the emitted-code obligation.",
@@ -21,9 +21,9 @@
       "source": "ascii-corpus-seed-replay",
       "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
       "corpusSeedBytes": 4551,
-      "targetBytes": 4194304,
-      "sizeMiB": 4,
-      "sizeGiB": 0.00390625
+      "targetBytes": 1048576,
+      "sizeMiB": 1,
+      "sizeGiB": 0.0009765625
     },
     "outcome": {
       "status": "available",
@@ -44,10 +44,10 @@
     },
     "workload": {
       "fullStringParity": true,
-      "eventCount": 223041,
-      "checksum": 167904020,
-      "materializedStringCount": 245161,
-      "materializedObjectCount": 223041
+      "eventCount": 55759,
+      "checksum": -553631888,
+      "materializedStringCount": 61289,
+      "materializedObjectCount": 55759
     }
   },
   "materializedSourceChecks": {
@@ -102,8 +102,8 @@
       "evidence": [
         "sameSemanticChecksumFields=true",
         "fullStringParity=true",
-        "materializedStringCount=245161",
-        "materializedObjectCount=223041"
+        "materializedStringCount=61289",
+        "materializedObjectCount=55759"
       ]
     },
     {

@@ -7,6 +7,7 @@ import test from 'node:test';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..', '..');
+const releaseDir = join(__dirname, 'results', 'release');
 const tmpDir = join(__dirname, 'results', 'tmp');
 const auditJsonOut = join(tmpDir, 'runtime-proof-gap-handoff-audit-test.json');
 const auditMdOut = join(tmpDir, 'runtime-proof-gap-handoff-audit-test.md');
@@ -55,8 +56,21 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
 
   const audit = JSON.parse(readFileSync(auditJsonOut, 'utf8'));
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
-  const comparison = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'same-contract-runtime-comparison.json'), 'utf8'));
+  const comparison = readReleaseJson('same-contract-runtime-comparison.json');
+  const taskclusterCodegen = readReleaseJson('spidermonkey-taskcluster-debug-jsshell-codegen-audit.json');
+  const taskclusterCodegenRerun = readReleaseJson('spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json');
+  const taskclusterMaterializedRerun = readReleaseJson('spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json');
+  const materializedScopeDistance = readReleaseJson('spidermonkey-materialized-scope-distance-audit.json');
   const comparisonGeneratedAtPattern = escapeRegExp(comparison.generatedAt);
+  const taskclusterIdentityPattern = taskclusterIdentityRegex(taskclusterCodegen);
+  const codegenRerunMarkers = taskclusterCodegenRerun.shell.codegenProbe.codegenMarkerCount;
+  const materializedRerunMarkers = taskclusterMaterializedRerun.shell.materializedCodegenProbe.codegenMarkerCount;
+  const materializedRerunThroughputPattern = escapeRegExp(
+    taskclusterMaterializedRerun.shell.materializedCodegenProbe.payload.throughputMiBPerSec.toFixed(2),
+  );
+  const materializedScopeThroughputPattern = escapeRegExp(
+    String(materializedScopeDistance.summary.diagnosticThroughputMiBPerSec),
+  );
   const activeObligations = audit.obligations.filter(obligation => obligation.status !== 'covered');
   assert.equal(report.inputs.auditGeneratedAt, audit.generatedAt);
   assert.equal(report.inputs.auditObjective, audit.objective);
@@ -457,12 +471,11 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /sameSemanticChecksumFields=true, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /diagnostic flag sweep tried 4 bytecode flag combinations and found 0 bytecode-output probes/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /archived Firefox 36 era debug js-shell emits JitSpew codegen output/.test(item)));
-  const taskclusterIdentityPattern = 'taskId=aJLr1DFjQ7urQTpRiIsfRQ, artifactName=public/build/target\\.jsshell\\.zip, artifactUrl=https://firefox-ci-tc\\.services\\.mozilla\\.com/api/queue/v1/task/aJLr1DFjQ7urQTpRiIsfRQ/artifacts/public/build/target\\.jsshell\\.zip, buildId=20260602093330, sourceRevision=[0-9a-f]{40}';
   assert.ok(spiderMonkey.localClosure.blockers.some(item => new RegExp(`current Taskcluster debug js-shell emits JitSpew codegen output \\(${taskclusterIdentityPattern}\\), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic`).test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => new RegExp(`current Taskcluster debug js-shell emits JitSpew codegen output while running the XML byte-tokenizer workload \\(${taskclusterIdentityPattern}\\), but fullStringParity=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic`).test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => new RegExp(`current Taskcluster debug js-shell emits JitSpew codegen output while materializing JS strings and public event-shaped objects \\(${taskclusterIdentityPattern}\\), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic`).test(item)));
-  assert.ok(spiderMonkey.localClosure.blockers.some(item => new RegExp(`rerun of the current Taskcluster debug js-shell codegen probe reproduces JitSpew output \\(${taskclusterIdentityPattern}, codegenMarkers=54756\\), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and closesEmittedIrObligation=false`).test(item)));
-  assert.ok(spiderMonkey.localClosure.blockers.some(item => new RegExp(`rerun of the current Taskcluster debug js-shell materialized string/object probe reproduces JitSpew output \\(${taskclusterIdentityPattern}, codegenMarkers=234522, throughputMiBPerSec=0\\.31\\)`).test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => new RegExp(`rerun of the current Taskcluster debug js-shell codegen probe reproduces JitSpew output \\(${taskclusterIdentityPattern}, codegenMarkers=${codegenRerunMarkers}\\), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and closesEmittedIrObligation=false`).test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => new RegExp(`rerun of the current Taskcluster debug js-shell materialized string/object probe reproduces JitSpew output \\(${taskclusterIdentityPattern}, codegenMarkers=${materializedRerunMarkers}, throughputMiBPerSec=${materializedRerunThroughputPattern}\\)`).test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /SpiderMonkey codegen rerun stability audit compares 2 original\/rerun pairs, reproduces 2 pairs on the same Taskcluster build and codegen marker counts, but qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false, and conclusionAllowed=false/.test(item)));
   assert.deepEqual(spiderMonkey.localClosure.diagnosticIdentityStatusCounts, {
     'not-claimed': 4,
@@ -470,7 +483,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   });
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /selectedRowIdentityStatusCounts not-claimed=4, not-claimed-non-stax-diagnostic=7/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /ASCII scope-distance audit pins corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, and reducesScopeDistance=true while closesCodegenObligation=false/.test(item)));
-  assert.ok(spiderMonkey.localClosure.blockers.some(item => /materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=2 and closureRequirementsBlocked=4; primarySyncByteBatchMissingGlobals=TextDecoder; asciiTextDecoderEquivalent=true; diagnosticThroughputMiBPerSec=0\.32216048877786657; throughputCountsAsTargetEvidence=false; closesCodegenObligation=false/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => new RegExp(`materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=2 and closureRequirementsBlocked=4; primarySyncByteBatchMissingGlobals=TextDecoder; asciiTextDecoderEquivalent=true; diagnosticThroughputMiBPerSec=${materializedScopeThroughputPattern}; throughputCountsAsTargetEvidence=false; closesCodegenObligation=false`).test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => new RegExp(`SpiderMonkey codegen closure audit checks 16 diagnostic/codegen candidates against same-contract comparison generatedAt=${comparisonGeneratedAtPattern}, comparisonRowCount=289, finds emittedCodegenSurfaceCount=6, sameContractStaxRowCount=0, profiledFullStringParityCount=1, unchangedRunnableCount=0, selectedRowMetadataCount=1, diagnosticWorkloadMetadataCount=3, nonComparableDiagnosticWorkloadMetadataCount=3, selectedRowComparisonMatchCount=0, selectedRowComparisonMismatchCount=1, selectedRowComparisonMissingCount=15, selectedRowMetadataMissingFieldCounts selectedChecksum=15, selectedEventCount=15, selectedRowId=15, closingMetadataMissingFieldCounts diagnosticFlags=10, emittedDumpMetadata=10, runtimeBuildIdentity=11, disallowedEvidenceClassCounts archival-codegen-scope-guard=1, availability-only=1, bytecode-diagnostic-only=2, current-debug-codegen-scope-guard=2, current-debug-materialized-codegen-scope-guard=2, current-debug-xml-codegen-scope-guard=1, diagnostic-flag-sweep-negative=1, gecko-profiler-scope-guard=1, host-api-surface-gap=1, materialized-headroom-only=1, negative-diagnostic-surface=1, parser-core-headroom-only=1, source-pin-only=1, selectedRowIdentityStatusCounts not-claimed-non-stax-diagnostic=16, qualifiedClosureCount=0, contradictedClosureClaimCount=0, and conclusionAllowed=false`).test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /SpiderMonkey codegen closure frontier has closestBlockedCandidateCount=5, minimumBlockedRequirementCount=4, closestBlockedCandidates=`spidermonkey-taskcluster-debug-jsshell-codegen-audit\.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun\.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit\.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun\.json`, `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit\.json`, and closest-candidate common missing requirements sameContractStaxRow=5, selectedRowMetadata=5, unchangedRunnable=5, evidenceClassAllowed=5/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /SpiderMonkey codegen rerun stability audit compares 2 original\/rerun pairs/.test(item)));
@@ -840,4 +853,21 @@ test('runtime proof gap handoff treats bounded flags without numeric memory proo
 
 function escapeRegExp(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function readReleaseJson(name) {
+  return JSON.parse(readFileSync(join(releaseDir, name), 'utf8'));
+}
+
+function taskclusterIdentityRegex(report) {
+  const provenance = report.shell?.provenance ?? {};
+  const buildId = provenance.buildId ?? provenance.targetTxt?.buildId ?? provenance.buildhub?.buildId ?? null;
+  const sourceRevision = provenance.sourceRevision ?? provenance.targetTxt?.sourceRevision ?? provenance.buildhub?.sourceRevision ?? null;
+  return [
+    `taskId=${escapeRegExp(provenance.taskId)}`,
+    `artifactName=${escapeRegExp(provenance.artifactName)}`,
+    `artifactUrl=${escapeRegExp(provenance.artifactUrl)}`,
+    `buildId=${escapeRegExp(buildId)}`,
+    `sourceRevision=${escapeRegExp(sourceRevision)}`,
+  ].join(', ');
 }

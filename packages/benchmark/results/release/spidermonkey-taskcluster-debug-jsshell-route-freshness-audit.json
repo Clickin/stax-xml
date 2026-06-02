@@ -1,64 +1,64 @@
 {
-  "generatedAt": "2026-06-02T21:44:49.611Z",
+  "generatedAt": "2026-06-02T23:11:12.261Z",
   "objective": "spidermonkey-taskcluster-debug-jsshell-route-freshness-audit",
   "contract": "taskcluster-latest-route-current-debug-jsshell-identity-freshness",
   "note": "Resolves the Taskcluster latest win64-debug route and checks whether the current SpiderMonkey debug js-shell evidence still names that route task. This is route freshness evidence only; it is not benchmark, codegen, or same-contract StAX closure evidence.",
   "route": {
     "status": "available",
     "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
-    "taskId": "aJLr1DFjQ7urQTpRiIsfRQ",
-    "fetchedAt": "2026-06-02T21:44:49.609Z",
+    "taskId": "azB5UO80Q3KJPPyXD0C8tA",
+    "fetchedAt": "2026-06-02T23:11:12.259Z",
     "indexUrl": "https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.mozilla-central.latest.firefox.win64-debug",
     "error": null
   },
   "expected": {
-    "taskId": "aJLr1DFjQ7urQTpRiIsfRQ",
-    "buildId": "20260602093330",
-    "sourceRevision": "253b8523586577438a3ddf86d67436719feaf6d8"
+    "taskId": "azB5UO80Q3KJPPyXD0C8tA",
+    "buildId": "20260602214419",
+    "sourceRevision": "e4f9cbec72268c8efc0137a1d593e24af3df0712"
   },
   "artifacts": [
     {
       "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
       "status": "loaded",
-      "taskId": "aJLr1DFjQ7urQTpRiIsfRQ",
-      "buildId": "20260602093330",
-      "sourceRevision": "253b8523586577438a3ddf86d67436719feaf6d8",
+      "taskId": "azB5UO80Q3KJPPyXD0C8tA",
+      "buildId": "20260602214419",
+      "sourceRevision": "e4f9cbec72268c8efc0137a1d593e24af3df0712",
       "matchesRoute": true,
       "matchesExpectedBuildIdentity": true
     },
     {
       "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
       "status": "loaded",
-      "taskId": "aJLr1DFjQ7urQTpRiIsfRQ",
-      "buildId": "20260602093330",
-      "sourceRevision": "253b8523586577438a3ddf86d67436719feaf6d8",
+      "taskId": "azB5UO80Q3KJPPyXD0C8tA",
+      "buildId": "20260602214419",
+      "sourceRevision": "e4f9cbec72268c8efc0137a1d593e24af3df0712",
       "matchesRoute": true,
       "matchesExpectedBuildIdentity": true
     },
     {
       "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
       "status": "loaded",
-      "taskId": "aJLr1DFjQ7urQTpRiIsfRQ",
-      "buildId": "20260602093330",
-      "sourceRevision": "253b8523586577438a3ddf86d67436719feaf6d8",
+      "taskId": "azB5UO80Q3KJPPyXD0C8tA",
+      "buildId": "20260602214419",
+      "sourceRevision": "e4f9cbec72268c8efc0137a1d593e24af3df0712",
       "matchesRoute": true,
       "matchesExpectedBuildIdentity": true
     },
     {
       "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
       "status": "loaded",
-      "taskId": "aJLr1DFjQ7urQTpRiIsfRQ",
-      "buildId": "20260602093330",
-      "sourceRevision": "253b8523586577438a3ddf86d67436719feaf6d8",
+      "taskId": "azB5UO80Q3KJPPyXD0C8tA",
+      "buildId": "20260602214419",
+      "sourceRevision": "e4f9cbec72268c8efc0137a1d593e24af3df0712",
       "matchesRoute": true,
       "matchesExpectedBuildIdentity": true
     },
     {
       "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
       "status": "loaded",
-      "taskId": "aJLr1DFjQ7urQTpRiIsfRQ",
-      "buildId": "20260602093330",
-      "sourceRevision": "253b8523586577438a3ddf86d67436719feaf6d8",
+      "taskId": "azB5UO80Q3KJPPyXD0C8tA",
+      "buildId": "20260602214419",
+      "sourceRevision": "e4f9cbec72268c8efc0137a1d593e24af3df0712",
       "matchesRoute": true,
       "matchesExpectedBuildIdentity": true
     }
@@ -78,7 +78,7 @@
     {
       "id": "taskcluster-latest-route-resolved",
       "classification": "ENVIRONMENT_FACT",
-      "summary": "Route gecko.v2.mozilla-central.latest.firefox.win64-debug resolved with status=available taskId=aJLr1DFjQ7urQTpRiIsfRQ."
+      "summary": "Route gecko.v2.mozilla-central.latest.firefox.win64-debug resolved with status=available taskId=azB5UO80Q3KJPPyXD0C8tA."
     },
     {
       "id": "route-freshness-scope-guard",

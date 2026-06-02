@@ -1,6 +1,6 @@
 # SpiderMonkey Taskcluster Debug JS Shell XML Codegen Audit
 
-Generated: 2026-06-02T13:32:04.077Z
+Generated: 2026-06-02T23:09:49.513Z
 
 Runs a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell with JitSpew codegen enabled on the repository XML byte-tokenizer workload. This ties current codegen diagnostics to XML byte scanning, but it is not a same-contract StAX full-string row because it avoids TextDecoder, string materialization, and public event objects.
 
@@ -8,12 +8,12 @@ Runs a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell wit
 
 - Status: available
 - Version: JavaScript-C153.0a1
-- Task ID: aJLr1DFjQ7urQTpRiIsfRQ
+- Task ID: azB5UO80Q3KJPPyXD0C8tA
 - Route: gecko.v2.mozilla-central.latest.firefox.win64-debug
 - Artifact: public/build/target.jsshell.zip
-- Artifact bytes: 24832668
-- Build ID: 20260602093330
-- Source revision: 253b8523586577438a3ddf86d67436719feaf6d8
+- Artifact bytes: 24838016
+- Build ID: 20260602214419
+- Source revision: e4f9cbec72268c8efc0137a1d593e24af3df0712
 - Target version: 153.0a1
 - Debug build: true
 - XML workload codegen output emitted: true
@@ -28,10 +28,10 @@ Runs a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell wit
 - Status: xml-workload-codegen-output-emitted
 - Flags: codegen
 - Exit code: 0
-- Output bytes: 6559144
+- Output bytes: 6559189
 - Stdout lines: 1
-- Stderr lines: 151432
-- Codegen marker count: 151431
+- Stderr lines: 151481
+- Codegen marker count: 151480
 - IonScript marker count: 49
 - Assembly mnemonic count: 55578
 - Target MiB: 1
@@ -47,7 +47,7 @@ Runs a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell wit
 ## Excerpt
 
 ```text
-xmlPayload={"seedBytes":4551,"targetBytes":1048576,"samplesMs":[1376.6630859375],"avgMs":1376.6630859375,"mibPerSec":0.7263941411772551,"result":{"eventCount":55759,"startElementCount":19586,"endElementCount":19583,"textEventCount":16590,"attributeCount":2765,"checksum":9292058}}
+xmlPayload={"seedBytes":4551,"targetBytes":1048576,"samplesMs":[554.0009765625],"avgMs":554.0009765625,"mibPerSec":1.8050509697742099,"result":{"eventCount":55759,"startElementCount":19586,"endElementCount":19583,"textEventCount":16590,"attributeCount":2765,"checksum":9292058}}
 found tag: codegen
 [Codegen] # Emitting bailout tail stub
 [Codegen] # BEGIN creators: JitRuntime::generateBailoutTailStub
@@ -80,7 +80,7 @@ found tag: codegen
 [Codegen] 000044  movq       %rsp, %rax
 [Codegen] 000047  andq       $0xfffffffffffffff0, %rsp
 [Codegen] 00004b  push       %rax
-[Codegen] 00004c  movabsq    $0x7ff7238d026c, %rax
+[Codegen] 00004c  movabsq    $0x7ff7e276299c, %rax
 [Codegen] 000056  subq       $40, %rsp
 [Codegen] 00005a  movq       %rax, %rcx
 [Codegen] 00005d  testb      $0xf, %spl
@@ -103,11 +103,11 @@ found tag: codegen
 
 - taskcluster-debug-jsshell-xml-codegen-emitted (TRACE_FACT): The current Taskcluster debug SpiderMonkey shell emits JitSpew codegen diagnostics while executing the XML byte-tokenizer workload.
   - version=JavaScript-C153.0a1
-  - taskId=aJLr1DFjQ7urQTpRiIsfRQ
-  - buildId=20260602093330
-  - sourceRevision=253b8523586577438a3ddf86d67436719feaf6d8
+  - taskId=azB5UO80Q3KJPPyXD0C8tA
+  - buildId=20260602214419
+  - sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712
   - status=xml-workload-codegen-output-emitted
-  - codegenMarkers=151431
+  - codegenMarkers=151480
   - ionScriptMarkers=49
   - assemblyMnemonics=55578
   - eventCount=55759

@@ -1,6 +1,6 @@
 # SpiderMonkey Taskcluster Debug JS Shell Codegen Audit
 
-Generated: 2026-06-02T13:32:02.309Z
+Generated: 2026-06-02T23:10:32.014Z
 
 Checks a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell for JitSpew codegen output. This proves a current diagnostic-capable shell surface, but it is not a same-contract StAX full-string row because the js-shell host API surface cannot run the unchanged benchmark.
 
@@ -8,13 +8,13 @@ Checks a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell f
 
 - Status: available
 - Version: JavaScript-C153.0a1
-- Task ID: aJLr1DFjQ7urQTpRiIsfRQ
+- Task ID: azB5UO80Q3KJPPyXD0C8tA
 - Route: gecko.v2.mozilla-central.latest.firefox.win64-debug
 - Artifact: public/build/target.jsshell.zip
-- Artifact bytes: 24832668
-- Build ID: 20260602093330
-- Build date: 2026-06-02T09:33:30Z
-- Source revision: 253b8523586577438a3ddf86d67436719feaf6d8
+- Artifact bytes: 24838016
+- Build ID: 20260602214419
+- Build date: 2026-06-02T21:44:19Z
+- Source revision: e4f9cbec72268c8efc0137a1d593e24af3df0712
 - Source repository: https://hg.mozilla.org/mozilla-central
 - Target version: 153.0a1
 - Debug build: true
@@ -33,10 +33,10 @@ Checks a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell f
 - Flags: codegen
 - Exit code: 0
 - Checksum: 5050
-- Output bytes: 2339587
+- Output bytes: 2339594
 - Stdout lines: 1
-- Stderr lines: 54757
-- Codegen marker count: 54756
+- Stderr lines: 54762
+- Codegen marker count: 54761
 - IonScript marker count: 5
 - Assembly mnemonic count: 20929
 
@@ -81,7 +81,7 @@ checksum=5050
 [Codegen] 000044  movq       %rsp, %rax
 [Codegen] 000047  andq       $0xfffffffffffffff0, %rsp
 [Codegen] 00004b  push       %rax
-[Codegen] 00004c  movabsq    $0x7ff7238d026c, %rax
+[Codegen] 00004c  movabsq    $0x7ff7e276299c, %rax
 [Codegen] 000056  subq       $40, %rsp
 [Codegen] 00005a  movq       %rax, %rcx
 [Codegen] 00005d  testb      $0xf, %spl
@@ -95,14 +95,14 @@ checksum=5050
 
 - taskcluster-debug-jsshell-codegen-emitted (TRACE_FACT): The current Taskcluster debug SpiderMonkey shell emits JitSpew codegen diagnostics under IONFLAGS/JIT_SPEW.
   - version=JavaScript-C153.0a1
-  - taskId=aJLr1DFjQ7urQTpRiIsfRQ
+  - taskId=azB5UO80Q3KJPPyXD0C8tA
   - route=gecko.v2.mozilla-central.latest.firefox.win64-debug
-  - buildId=20260602093330
-  - sourceRevision=253b8523586577438a3ddf86d67436719feaf6d8
+  - buildId=20260602214419
+  - sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712
   - debug=true
   - official=true
   - status=codegen-output-emitted
-  - codegenMarkers=54756
+  - codegenMarkers=54761
   - ionScriptMarkers=5
   - assemblyMnemonics=20929
   - checksum=5050

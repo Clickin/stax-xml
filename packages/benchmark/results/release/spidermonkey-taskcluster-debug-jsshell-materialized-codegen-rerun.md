@@ -1,6 +1,6 @@
 # SpiderMonkey Taskcluster Debug JS Shell Materialized Codegen Audit
 
-Generated: 2026-06-02T13:32:27.225Z
+Generated: 2026-06-02T23:10:51.319Z
 
 Runs a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell with JitSpew codegen enabled on an ASCII XML workload that materializes JS string primitives and public event-shaped objects before folding the same semantic checksum fields. This is stronger than token-boundary codegen evidence, but it is not the unchanged StAX benchmark because the js-shell host API lacks TextDecoder, ReadableStream, and fetch.
 
@@ -8,11 +8,11 @@ Runs a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell wit
 
 - Status: available
 - Version: JavaScript-C153.0a1
-- Task ID: aJLr1DFjQ7urQTpRiIsfRQ
+- Task ID: azB5UO80Q3KJPPyXD0C8tA
 - Route: gecko.v2.mozilla-central.latest.firefox.win64-debug
-- Artifact bytes: 24832668
-- Build ID: 20260602093330
-- Source revision: 253b8523586577438a3ddf86d67436719feaf6d8
+- Artifact bytes: 24838016
+- Build ID: 20260602214419
+- Source revision: e4f9cbec72268c8efc0137a1d593e24af3df0712
 - Target version: 153.0a1
 - Materialized string/object codegen output emitted: true
 - Same semantic checksum fields: true
@@ -31,12 +31,12 @@ Runs a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell wit
 - Materialized string count: 61289
 - Materialized object count: 55759
 - Materialized attribute object count: 19586
-- Throughput MiB/s: 0.31
+- Throughput MiB/s: 0.76
 
 ## Codegen Probe
 
 - Status: materialized-string-object-codegen-output-emitted
-- Codegen marker count: 234522
+- Codegen marker count: 234582
 - IonScript marker count: 60
 - Assembly mnemonic count: 86188
 
@@ -48,7 +48,7 @@ Runs a current mozilla-central Taskcluster win64-debug SpiderMonkey js-shell wit
 ## Excerpt
 
 ```text
-materializedPayload={"seedBytes":4551,"targetBytes":1048576,"samplesMs":[3182.906005859375],"avgMs":3182.906005859375,"mibPerSec":0.31417830063442387,"result":{"eventCount":55759,"checksum":-553631888,"startElementCount":19586,"endElementCount":19583,"textEventCount":16590,"attributeCount":2765,"materializedStringCount":61289,"materializedObjectCount":55759,"materializedAttributeObjectCount":19586}}
+materializedPayload={"seedBytes":4551,"targetBytes":1048576,"samplesMs":[1321.52001953125],"avgMs":1321.52001953125,"mibPerSec":0.7567043898091723,"result":{"eventCount":55759,"checksum":-553631888,"startElementCount":19586,"endElementCount":19583,"textEventCount":16590,"attributeCount":2765,"materializedStringCount":61289,"materializedObjectCount":55759,"materializedAttributeObjectCount":19586}}
 found tag: codegen
 [Codegen] # Emitting bailout tail stub
 [Codegen] # BEGIN creators: JitRuntime::generateBailoutTailStub
@@ -81,7 +81,7 @@ found tag: codegen
 [Codegen] 000044  movq       %rsp, %rax
 [Codegen] 000047  andq       $0xfffffffffffffff0, %rsp
 [Codegen] 00004b  push       %rax
-[Codegen] 00004c  movabsq    $0x7ff7238d026c, %rax
+[Codegen] 00004c  movabsq    $0x7ff7e276299c, %rax
 [Codegen] 000056  subq       $40, %rsp
 [Codegen] 00005a  movq       %rax, %rcx
 [Codegen] 00005d  testb      $0xf, %spl
@@ -104,11 +104,11 @@ found tag: codegen
 
 - taskcluster-debug-jsshell-materialized-codegen-emitted (TRACE_FACT): The current Taskcluster debug SpiderMonkey shell emits JitSpew codegen diagnostics while executing an XML workload that materializes JS strings and public event-shaped objects.
   - version=JavaScript-C153.0a1
-  - taskId=aJLr1DFjQ7urQTpRiIsfRQ
-  - buildId=20260602093330
-  - sourceRevision=253b8523586577438a3ddf86d67436719feaf6d8
+  - taskId=azB5UO80Q3KJPPyXD0C8tA
+  - buildId=20260602214419
+  - sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712
   - status=materialized-string-object-codegen-output-emitted
-  - codegenMarkers=234522
+  - codegenMarkers=234582
   - ionScriptMarkers=60
   - assemblyMnemonics=86188
   - eventCount=55759

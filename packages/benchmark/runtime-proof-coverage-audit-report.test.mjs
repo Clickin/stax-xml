@@ -7,6 +7,7 @@ import test from 'node:test';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..', '..');
+const releaseDir = join(__dirname, 'results', 'release');
 const tmpDir = join(__dirname, 'results', 'tmp', 'runtime-proof-coverage-audit-report-test');
 const jsonOut = join(tmpDir, 'runtime-proof-coverage-audit.json');
 const mdOut = join(tmpDir, 'runtime-proof-coverage-audit.md');
@@ -28,6 +29,27 @@ const safariSyntheticSourceBoundary = {
   ],
 };
 
+function readReleaseJson(name) {
+  return JSON.parse(readFileSync(join(releaseDir, name), 'utf8'));
+}
+
+function taskclusterBuildIdentity(report) {
+  const provenance = report.shell?.provenance ?? {};
+  return {
+    taskId: provenance.taskId,
+    buildId: provenance.buildId ?? provenance.targetTxt?.buildId ?? provenance.buildhub?.buildId ?? null,
+    sourceRevision: provenance.sourceRevision ?? provenance.targetTxt?.sourceRevision ?? provenance.buildhub?.sourceRevision ?? null,
+  };
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function taskclusterSummaryPattern(identity) {
+  return `taskId=${escapeRegExp(identity.taskId)}, buildId=${escapeRegExp(identity.buildId)}, sourceRevision=${escapeRegExp(identity.sourceRevision)}`;
+}
+
 test('runtime proof coverage audit keeps open proof obligations explicit', () => {
   resetTmp();
   const result = spawnSync(process.execPath, [
@@ -45,7 +67,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(result.status, 0, result.stderr || result.stdout);
 
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
-  const comparison = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'same-contract-runtime-comparison.json'), 'utf8'));
+  const comparison = readReleaseJson('same-contract-runtime-comparison.json');
+  const taskclusterCodegenIdentity = taskclusterBuildIdentity(readReleaseJson('spidermonkey-taskcluster-debug-jsshell-codegen-audit.json'));
+  const taskclusterXmlIdentity = taskclusterBuildIdentity(readReleaseJson('spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json'));
+  const taskclusterMaterializedIdentity = taskclusterBuildIdentity(readReleaseJson('spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json'));
+  const materializedScopeDistance = readReleaseJson('spidermonkey-materialized-scope-distance-audit.json');
+  const materializedScopeThroughputPattern = escapeRegExp(String(materializedScopeDistance.summary.diagnosticThroughputMiBPerSec));
   assert.equal(report.objective, 'runtime-proof-coverage-audit');
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
@@ -205,9 +232,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.outcome.sameContractStaxRow === false
     && artifact.outcome.canRunCurrentStaxFullStringBenchmark === false
     && artifact.outcome.closesEmittedIrObligation === false
-    && artifact.shell.provenance.taskId === 'aJLr1DFjQ7urQTpRiIsfRQ'
-    && artifact.shell.provenance.buildId === '20260602093330'
-    && artifact.shell.provenance.sourceRevision === '253b8523586577438a3ddf86d67436719feaf6d8'
+    && taskclusterBuildIdentity(artifact).taskId === taskclusterCodegenIdentity.taskId
+    && taskclusterBuildIdentity(artifact).buildId === taskclusterCodegenIdentity.buildId
+    && taskclusterBuildIdentity(artifact).sourceRevision === taskclusterCodegenIdentity.sourceRevision
   ));
   assert.ok(report.coverage.spiderMonkeyDiagnostics.rows.some(row =>
     row.id === 'taskcluster-debug-jsshell-codegen'
@@ -230,9 +257,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.outcome.sameContractStaxRow === false
     && artifact.outcome.canRunCurrentStaxFullStringBenchmark === false
     && artifact.outcome.closesEmittedIrObligation === false
-    && artifact.shell.provenance.taskId === 'aJLr1DFjQ7urQTpRiIsfRQ'
-    && artifact.shell.provenance.buildId === '20260602093330'
-    && artifact.shell.provenance.sourceRevision === '253b8523586577438a3ddf86d67436719feaf6d8'
+    && taskclusterBuildIdentity(artifact).taskId === taskclusterXmlIdentity.taskId
+    && taskclusterBuildIdentity(artifact).buildId === taskclusterXmlIdentity.buildId
+    && taskclusterBuildIdentity(artifact).sourceRevision === taskclusterXmlIdentity.sourceRevision
   ));
   assert.ok(report.coverage.spiderMonkeyDiagnostics.rows.some(row =>
     row.id === 'taskcluster-debug-jsshell-xml-codegen'
@@ -255,9 +282,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.outcome.sameContractStaxRow === false
     && artifact.outcome.canRunCurrentStaxFullStringBenchmark === false
     && artifact.outcome.closesEmittedIrObligation === false
-    && artifact.shell.provenance.taskId === 'aJLr1DFjQ7urQTpRiIsfRQ'
-    && artifact.shell.provenance.buildId === '20260602093330'
-    && artifact.shell.provenance.sourceRevision === '253b8523586577438a3ddf86d67436719feaf6d8'
+    && taskclusterBuildIdentity(artifact).taskId === taskclusterMaterializedIdentity.taskId
+    && taskclusterBuildIdentity(artifact).buildId === taskclusterMaterializedIdentity.buildId
+    && taskclusterBuildIdentity(artifact).sourceRevision === taskclusterMaterializedIdentity.sourceRevision
   ));
   assert.ok(report.coverage.spiderMonkeyDiagnostics.rows.some(row =>
     row.id === 'taskcluster-debug-jsshell-materialized-codegen'
@@ -278,7 +305,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.summary.closureRequirementsMet === 2
     && artifact.summary.closureRequirementsBlocked === 4
     && artifact.summary.closesCodegenObligation === false
-    && artifact.summary.diagnosticThroughputMiBPerSec === 0.32216048877786657
+    && artifact.summary.diagnosticThroughputMiBPerSec === materializedScopeDistance.summary.diagnosticThroughputMiBPerSec
     && artifact.summary.diagnosticThroughputClass === 'debug-jitspew-diagnostic-not-frontier'
     && artifact.summary.throughputCountsAsTargetEvidence === false
     && artifact.summary.conclusionAllowed === false
@@ -1398,9 +1425,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(taskclusterDebug.sameContractStaxRow, false);
   assert.equal(taskclusterDebug.canRunCurrentStaxFullStringBenchmark, false);
   assert.equal(taskclusterDebug.closesEmittedIrObligation, false);
-  assert.equal(taskclusterDebug.taskId, 'aJLr1DFjQ7urQTpRiIsfRQ');
-  assert.equal(taskclusterDebug.buildId, '20260602093330');
-  assert.equal(taskclusterDebug.sourceRevision, '253b8523586577438a3ddf86d67436719feaf6d8');
+  assert.equal(taskclusterDebug.taskId, taskclusterCodegenIdentity.taskId);
+  assert.equal(taskclusterDebug.buildId, taskclusterCodegenIdentity.buildId);
+  assert.equal(taskclusterDebug.sourceRevision, taskclusterCodegenIdentity.sourceRevision);
   const taskclusterXmlDebug = report.coverage.spiderMonkeyDiagnostics.rows.find(row => row.id === 'taskcluster-debug-jsshell-xml-codegen');
   assert.equal(taskclusterXmlDebug.evidenceClass, 'current-debug-xml-codegen-scope-guard');
   assert.equal(taskclusterXmlDebug.irDumpSurface, true);
@@ -1408,9 +1435,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(taskclusterXmlDebug.sameContractStaxRow, false);
   assert.equal(taskclusterXmlDebug.canRunCurrentStaxFullStringBenchmark, false);
   assert.equal(taskclusterXmlDebug.closesEmittedIrObligation, false);
-  assert.equal(taskclusterXmlDebug.taskId, 'aJLr1DFjQ7urQTpRiIsfRQ');
-  assert.equal(taskclusterXmlDebug.buildId, '20260602093330');
-  assert.equal(taskclusterXmlDebug.sourceRevision, '253b8523586577438a3ddf86d67436719feaf6d8');
+  assert.equal(taskclusterXmlDebug.taskId, taskclusterXmlIdentity.taskId);
+  assert.equal(taskclusterXmlDebug.buildId, taskclusterXmlIdentity.buildId);
+  assert.equal(taskclusterXmlDebug.sourceRevision, taskclusterXmlIdentity.sourceRevision);
   const taskclusterMaterializedDebug = report.coverage.spiderMonkeyDiagnostics.rows.find(row => row.id === 'taskcluster-debug-jsshell-materialized-codegen');
   assert.equal(taskclusterMaterializedDebug.evidenceClass, 'current-debug-materialized-codegen-scope-guard');
   assert.equal(taskclusterMaterializedDebug.irDumpSurface, true);
@@ -1418,9 +1445,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(taskclusterMaterializedDebug.sameContractStaxRow, false);
   assert.equal(taskclusterMaterializedDebug.canRunCurrentStaxFullStringBenchmark, false);
   assert.equal(taskclusterMaterializedDebug.closesEmittedIrObligation, false);
-  assert.equal(taskclusterMaterializedDebug.taskId, 'aJLr1DFjQ7urQTpRiIsfRQ');
-  assert.equal(taskclusterMaterializedDebug.buildId, '20260602093330');
-  assert.equal(taskclusterMaterializedDebug.sourceRevision, '253b8523586577438a3ddf86d67436719feaf6d8');
+  assert.equal(taskclusterMaterializedDebug.taskId, taskclusterMaterializedIdentity.taskId);
+  assert.equal(taskclusterMaterializedDebug.buildId, taskclusterMaterializedIdentity.buildId);
+  assert.equal(taskclusterMaterializedDebug.sourceRevision, taskclusterMaterializedIdentity.sourceRevision);
   const archival = report.coverage.spiderMonkeyDiagnostics.rows.find(row => row.id === 'archival-debug-jsshell-codegen');
   assert.equal(archival.evidenceClass, 'archival-codegen-scope-guard');
   assert.equal(archival.irDumpSurface, true);
@@ -1437,12 +1464,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /\| `official-jsshell-stax-api-gap` \| `firefox-spidermonkey-jsshell-stax-api-gap-audit\.json` \| blocked-by-host-api-surface \| host-api-surface-gap \| yes \| unknown \| unknown \| unknown \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
   assert.match(markdown, /Firefox\/SpiderMonkey js-shell StAX API gap audit present \(status=blocked-by-host-api-surface, unchangedRunnableShells=0\/2, blockedSurfaces=5, directUnchangedHarnessAttemptsBlocked=10\/10, commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch\); it is host API surface evidence only, not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey public js-shell diagnostic flag sweep present \(bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false\); it rules out easy public-shell bytecode\/dump flag paths but is not emitted JIT IR/);
-  assert.match(markdown, /Firefox\/SpiderMonkey current Taskcluster debug js-shell codegen audit present \(taskId=aJLr1DFjQ7urQTpRiIsfRQ, buildId=20260602093330, sourceRevision=253b8523586577438a3ddf86d67436719feaf6d8, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic\); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row/);
-  assert.match(markdown, /Firefox\/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present \(taskId=aJLr1DFjQ7urQTpRiIsfRQ, buildId=20260602093330, sourceRevision=253b8523586577438a3ddf86d67436719feaf6d8, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic\); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row/);
-  assert.match(markdown, /Firefox\/SpiderMonkey current Taskcluster debug js-shell materialized string\/object codegen audit present \(taskId=aJLr1DFjQ7urQTpRiIsfRQ, buildId=20260602093330, sourceRevision=253b8523586577438a3ddf86d67436719feaf6d8, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic\); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark/);
+  assert.match(markdown, new RegExp(`Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present \\(${taskclusterSummaryPattern(taskclusterCodegenIdentity)}, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic\\); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row`));
+  assert.match(markdown, new RegExp(`Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present \\(${taskclusterSummaryPattern(taskclusterXmlIdentity)}, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic\\); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row`));
+  assert.match(markdown, new RegExp(`Firefox/SpiderMonkey current Taskcluster debug js-shell materialized string/object codegen audit present \\(${taskclusterSummaryPattern(taskclusterMaterializedIdentity)}, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic\\); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark`));
   assert.match(markdown, /Firefox\/SpiderMonkey codegen rerun stability audit present \(pairs=2, reproduciblePairs=2, sameTaskclusterBuildPairs=2, sameCodegenMarkerPairs=2, qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false\); it proves diagnostic rerun reproducibility but still not same-contract StAX closure/);
   assert.match(markdown, /Firefox\/SpiderMonkey ASCII scope-distance audit present \(corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, reducesScopeDistance=true, closesCodegenObligation=false\); it narrows ASCII materialized js-shell scope but is not unchanged StAX closure evidence/);
-  assert.match(markdown, /Firefox\/SpiderMonkey materialized scope-distance audit present \(semanticEquivalentForAsciiFields=true, closureRequirementsMet=2, closureRequirementsBlocked=4, primarySyncByteBatchMissingGlobals=TextDecoder, asciiTextDecoderEquivalent=true, diagnosticThroughputMiBPerSec=0\.32216048877786657, throughputCountsAsTargetEvidence=false, closesCodegenObligation=false\); it records why the materialized js-shell codegen artifact is useful but still not closure evidence/);
+  assert.match(markdown, new RegExp(`Firefox/SpiderMonkey materialized scope-distance audit present \\(semanticEquivalentForAsciiFields=true, closureRequirementsMet=2, closureRequirementsBlocked=4, primarySyncByteBatchMissingGlobals=TextDecoder, asciiTextDecoderEquivalent=true, diagnosticThroughputMiBPerSec=${materializedScopeThroughputPattern}, throughputCountsAsTargetEvidence=false, closesCodegenObligation=false\\); it records why the materialized js-shell codegen artifact is useful but still not closure evidence`));
   assert.match(markdown, /Firefox\/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing/);
   assert.match(markdown, /16 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 5/);
