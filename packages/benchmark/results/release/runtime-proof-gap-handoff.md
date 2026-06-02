@@ -1,15 +1,15 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-02T14:31:50.860Z
+Generated: 2026-06-02T14:54:44.739Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-06-02T14:31:10.595Z
+- Audit generated: 2026-06-02T14:54:38.567Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
-- Comparison generated: 2026-06-01T17:12:20.521Z
+- Comparison generated: 2026-06-02T14:53:00.937Z
 - Active obligations: 2
 
 ## Summary
@@ -117,8 +117,8 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Target: 200.00 MiB/s
 - Fastest full-string row: rawFrameNameId from text-trim-cost-decomposition.json at 185.50 MiB/s (fullStringParity=yes, boundedMemory=yes)
 - Fastest without text/CDATA strings row: withoutTextStrings from text-trim-cost-decomposition-4gib.json at 252.36 MiB/s (fullStringParity=no, boundedMemory=yes)
-- Fastest no-trim row: rawFrameNameIdNoTrim from text-trim-cost-decomposition-8gib.json at 186.97 MiB/s (fullStringParity=no, boundedMemory=unknown)
-- Fastest fold-trim row: rawFrameNameIdFoldTrim from text-trim-cost-decomposition-2gib.json at 148.58 MiB/s (fullStringParity=yes, boundedMemory=unknown)
+- Fastest no-trim row: rawFrameNameIdNoTrim from text-trim-cost-decomposition-8gib.json at 186.97 MiB/s (fullStringParity=no, boundedMemory=yes)
+- Fastest fold-trim row: rawFrameNameIdFoldTrim from text-trim-cost-decomposition-2gib.json at 148.58 MiB/s (fullStringParity=yes, boundedMemory=yes)
 - Fastest full row target distance: 0.93x target, 14.50 MiB/s remaining, 1.08x speedup required
 - Without-text to full ratio: 1.36x
 - No-trim to full ratio: 1.01x
@@ -241,7 +241,7 @@ Scope guards:
   - Coverage diagnostic identity status counts: selectedRowIdentityStatusCounts not-claimed=4, not-claimed-non-stax-diagnostic=7.
   - The ASCII scope-distance audit pins corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, and reducesScopeDistance=true while closesCodegenObligation=false, so ASCII corpus equivalence narrows materialized js-shell scope but does not supply unchanged StAX closure evidence.
   - The materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=2 and closureRequirementsBlocked=4; primarySyncByteBatchMissingGlobals=TextDecoder; asciiTextDecoderEquivalent=true; diagnosticThroughputMiBPerSec=0.32216048877786657; throughputCountsAsTargetEvidence=false; closesCodegenObligation=false, preventing the materialized js-shell artifact from being cited as unchanged StAX closure evidence.
-  - The SpiderMonkey codegen closure audit checks 15 diagnostic/codegen candidates against same-contract comparison generatedAt=2026-06-01T17:12:20.521Z, comparisonRowCount=289, finds emittedCodegenSurfaceCount=6, sameContractStaxRowCount=0, unchangedRunnableCount=0, selectedRowMetadataCount=0, selectedRowComparisonMatchCount=0, selectedRowComparisonMismatchCount=0, selectedRowComparisonMissingCount=15, selectedRowMetadataMissingFieldCounts selectedChecksum=15, selectedEventCount=15, selectedRowId=15, closingMetadataMissingFieldCounts diagnosticFlags=9, emittedDumpMetadata=9, runtimeBuildIdentity=10, disallowedEvidenceClassCounts archival-codegen-scope-guard=1, availability-only=3, current-debug-codegen-scope-guard=2, current-debug-materialized-codegen-scope-guard=2, current-debug-xml-codegen-scope-guard=1, diagnostic-flag-sweep-negative=1, host-api-surface-gap=1, materialized-headroom-only=1, negative-diagnostic-surface=1, parser-core-headroom-only=1, source-pin-only=1, selectedRowIdentityStatusCounts not-claimed-non-stax-diagnostic=15, qualifiedClosureCount=0, contradictedClosureClaimCount=0, and conclusionAllowed=false.
+  - The SpiderMonkey codegen closure audit checks 15 diagnostic/codegen candidates against same-contract comparison generatedAt=2026-06-02T14:53:00.937Z, comparisonRowCount=289, finds emittedCodegenSurfaceCount=6, sameContractStaxRowCount=0, unchangedRunnableCount=0, selectedRowMetadataCount=0, selectedRowComparisonMatchCount=0, selectedRowComparisonMismatchCount=0, selectedRowComparisonMissingCount=15, selectedRowMetadataMissingFieldCounts selectedChecksum=15, selectedEventCount=15, selectedRowId=15, closingMetadataMissingFieldCounts diagnosticFlags=9, emittedDumpMetadata=9, runtimeBuildIdentity=10, disallowedEvidenceClassCounts archival-codegen-scope-guard=1, availability-only=3, current-debug-codegen-scope-guard=2, current-debug-materialized-codegen-scope-guard=2, current-debug-xml-codegen-scope-guard=1, diagnostic-flag-sweep-negative=1, host-api-surface-gap=1, materialized-headroom-only=1, negative-diagnostic-surface=1, parser-core-headroom-only=1, source-pin-only=1, selectedRowIdentityStatusCounts not-claimed-non-stax-diagnostic=15, qualifiedClosureCount=0, contradictedClosureClaimCount=0, and conclusionAllowed=false.
   - The SpiderMonkey codegen closure frontier has closestBlockedCandidateCount=5, minimumBlockedRequirementCount=4, closestBlockedCandidates=`spidermonkey-taskcluster-debug-jsshell-codegen-audit.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json`, and common missing requirements sameContractStaxRow=15, selectedRowMetadata=15, unchangedRunnable=15.
   - The SpiderMonkey codegen rerun stability audit compares 2 original/rerun pairs, reproduces 2 pairs on the same Taskcluster build and codegen marker counts, but qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false, and conclusionAllowed=false.
   - Installed Firefox about:buildconfig records --enable-js-shell / MOZ_PACKAGE_JSSHELL but does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW.

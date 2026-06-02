@@ -1,6 +1,6 @@
 # Text Materialization Boundary Audit
 
-Generated: 2026-06-02T14:31:36.255Z
+Generated: 2026-06-02T14:53:15.741Z
 
 Audits the current text/CDATA materialization boundary from the same-contract aggregate. This is not a benchmark run and does not prove a JavaScript runtime ceiling.
 
@@ -10,10 +10,10 @@ Audits the current text/CDATA materialization boundary from the same-contract ag
 - Source artifact: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
 - Frontier artifact: text-materialization-frontier.json
 - Target: 200.00 MiB/s
-- Fastest full-string row: `rawFrameNameId` 185.50 MiB/s from `text-trim-cost-decomposition.json` (fullStringParity=true, textStringReads=16987392, stringFieldReads=62758976)
-- Fastest without-text row: `withoutTextStrings` 252.36 MiB/s from `text-trim-cost-decomposition-4gib.json` (fullStringParity=false, textStringReads=0, stringFieldReads=183085948)
-- Fastest no-trim row: `rawFrameNameIdNoTrim` 186.97 MiB/s from `text-trim-cost-decomposition-8gib.json` (fullStringParity=false, textStringReads=n/a, stringFieldReads=n/a)
-- Fastest fold-trim row: `rawFrameNameIdFoldTrim` 148.58 MiB/s from `text-trim-cost-decomposition-2gib.json` (fullStringParity=true, textStringReads=n/a, stringFieldReads=n/a)
+- Fastest full-string row: `rawFrameNameId` 185.50 MiB/s from `text-trim-cost-decomposition.json` (boundedMemory=true, fullStringParity=true, textStringReads=16987392, stringFieldReads=62758976)
+- Fastest without-text row: `withoutTextStrings` 252.36 MiB/s from `text-trim-cost-decomposition-4gib.json` (boundedMemory=true, fullStringParity=false, textStringReads=0, stringFieldReads=183085948)
+- Fastest no-trim row: `rawFrameNameIdNoTrim` 186.97 MiB/s from `text-trim-cost-decomposition-8gib.json` (boundedMemory=true, fullStringParity=false, textStringReads=135898776, stringFieldReads=502070478)
+- Fastest fold-trim row: `rawFrameNameIdFoldTrim` 148.58 MiB/s from `text-trim-cost-decomposition-2gib.json` (boundedMemory=true, fullStringParity=true, textStringReads=33974712, stringFieldReads=125517686)
 - Full-string remaining to target: 14.50 MiB/s
 - Required full-string speedup: 1.08x
 - Without-text to full ratio: 1.36x

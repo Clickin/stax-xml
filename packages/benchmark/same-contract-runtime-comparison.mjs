@@ -1231,36 +1231,10 @@ function summarizeTextMaterializationFrontier(report) {
   return {
     sourceArtifact: 'text-materialization-frontier.json',
     targetMiBPerSec: round(summary.targetMiBPerSec),
-    fastestFull: summary.fastestFull ? {
-      id: summary.fastestFull.id,
-      sourceArtifact: summary.fastestFull.sourceArtifact,
-      mibPerSec: round(summary.fastestFull.mibPerSec),
-      boundedMemory: summary.fastestFull.boundedMemory === true,
-      fullStringParity: summary.fastestFull.fullStringParity === true,
-      textStringReads: summary.fastestFull.textStringReads ?? null,
-      stringFieldReads: summary.fastestFull.stringFieldReads ?? null,
-    } : null,
-    fastestWithoutText: summary.fastestWithoutText ? {
-      id: summary.fastestWithoutText.id,
-      sourceArtifact: summary.fastestWithoutText.sourceArtifact,
-      mibPerSec: round(summary.fastestWithoutText.mibPerSec),
-      boundedMemory: summary.fastestWithoutText.boundedMemory === true,
-      fullStringParity: summary.fastestWithoutText.fullStringParity === true,
-      textStringReads: summary.fastestWithoutText.textStringReads ?? null,
-      stringFieldReads: summary.fastestWithoutText.stringFieldReads ?? null,
-    } : null,
-    fastestNoTrim: summary.fastestNoTrim ? {
-      id: summary.fastestNoTrim.id,
-      sourceArtifact: summary.fastestNoTrim.sourceArtifact,
-      mibPerSec: round(summary.fastestNoTrim.mibPerSec),
-      fullStringParity: summary.fastestNoTrim.fullStringParity === true,
-    } : null,
-    fastestFoldTrim: summary.fastestFoldTrim ? {
-      id: summary.fastestFoldTrim.id,
-      sourceArtifact: summary.fastestFoldTrim.sourceArtifact,
-      mibPerSec: round(summary.fastestFoldTrim.mibPerSec),
-      fullStringParity: summary.fastestFoldTrim.fullStringParity === true,
-    } : null,
+    fastestFull: summarizeTextMaterializationRow(summary.fastestFull),
+    fastestWithoutText: summarizeTextMaterializationRow(summary.fastestWithoutText),
+    fastestNoTrim: summarizeTextMaterializationRow(summary.fastestNoTrim),
+    fastestFoldTrim: summarizeTextMaterializationRow(summary.fastestFoldTrim),
     fastestFullToTargetRatio: round(summary.fastestFullToTargetRatio),
     fastestFullRemainingMiBPerSec: round(summary.fastestFullRemainingMiBPerSec),
     requiredSpeedupToTarget: round(summary.requiredSpeedupToTarget),
@@ -1274,6 +1248,19 @@ function summarizeTextMaterializationFrontier(report) {
     negativeCandidateCount: summary.negativeCandidateCount ?? null,
     conclusionAllowed: summary.conclusionAllowed === true,
     interpretation: 'Text/CDATA omission crosses the target as headroom evidence, while trim-only, fold-trim, cache, and ASCII candidates remain negative for the current full-string contract.',
+  };
+}
+
+function summarizeTextMaterializationRow(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    sourceArtifact: row.sourceArtifact,
+    mibPerSec: round(row.mibPerSec),
+    boundedMemory: row.boundedMemory === true,
+    fullStringParity: row.fullStringParity === true,
+    textStringReads: row.textStringReads ?? null,
+    stringFieldReads: row.stringFieldReads ?? null,
   };
 }
 
@@ -1911,8 +1898,8 @@ function renderMarkdown(report) {
       '| --- | --- | ---: | --- | --- | --- | --- |',
       `| Fastest full row | \`${frontier.fastestFull.id}\` | ${formatNumber(frontier.fastestFull.mibPerSec)} | ${frontier.fastestFull.fullStringParity ? 'yes' : 'no'} | ${frontier.fastestFull.boundedMemory ? 'yes' : 'no'} | \`${frontier.fastestFull.sourceArtifact}\` | ${formatNumber(frontier.fastestFullRemainingMiBPerSec)} MiB/s below 200 MiB/s; ${formatNumber(frontier.requiredSpeedupToTarget)}x speedup required |`,
       `| Fastest without text/CDATA strings | \`${frontier.fastestWithoutText.id}\` | ${formatNumber(frontier.fastestWithoutText.mibPerSec)} | ${frontier.fastestWithoutText.fullStringParity ? 'yes' : 'no'} | ${frontier.fastestWithoutText.boundedMemory ? 'yes' : 'no'} | \`${frontier.fastestWithoutText.sourceArtifact}\` | ${formatNumber(frontier.fastestWithoutTextToFullRatio)}x fastest full row; ${frontier.noTextRowsCrossTarget} row(s) cross 200 MiB/s |`,
-      `| Fastest no-trim probe | \`${frontier.fastestNoTrim.id}\` | ${formatNumber(frontier.fastestNoTrim.mibPerSec)} | ${frontier.fastestNoTrim.fullStringParity ? 'yes' : 'no'} | n/a | \`${frontier.fastestNoTrim.sourceArtifact}\` | ${formatNumber(frontier.fastestNoTrimToFullRatio)}x fastest full row; ${frontier.noTrimRowsCrossTarget} row(s) cross 200 MiB/s |`,
-      `| Fastest fold-trim probe | \`${frontier.fastestFoldTrim.id}\` | ${formatNumber(frontier.fastestFoldTrim.mibPerSec)} | ${frontier.fastestFoldTrim.fullStringParity ? 'yes' : 'no'} | n/a | \`${frontier.fastestFoldTrim.sourceArtifact}\` | ${formatNumber(frontier.fastestFoldTrimToFullRatio)}x fastest full row; ${frontier.foldTrimRowsCrossTarget} row(s) cross 200 MiB/s |`,
+      `| Fastest no-trim probe | \`${frontier.fastestNoTrim.id}\` | ${formatNumber(frontier.fastestNoTrim.mibPerSec)} | ${frontier.fastestNoTrim.fullStringParity ? 'yes' : 'no'} | ${frontier.fastestNoTrim.boundedMemory ? 'yes' : 'no'} | \`${frontier.fastestNoTrim.sourceArtifact}\` | ${formatNumber(frontier.fastestNoTrimToFullRatio)}x fastest full row; ${frontier.noTrimRowsCrossTarget} row(s) cross 200 MiB/s |`,
+      `| Fastest fold-trim probe | \`${frontier.fastestFoldTrim.id}\` | ${formatNumber(frontier.fastestFoldTrim.mibPerSec)} | ${frontier.fastestFoldTrim.fullStringParity ? 'yes' : 'no'} | ${frontier.fastestFoldTrim.boundedMemory ? 'yes' : 'no'} | \`${frontier.fastestFoldTrim.sourceArtifact}\` | ${formatNumber(frontier.fastestFoldTrimToFullRatio)}x fastest full row; ${frontier.foldTrimRowsCrossTarget} row(s) cross 200 MiB/s |`,
       '',
       `Interpretation: ${frontier.interpretation}`,
     );

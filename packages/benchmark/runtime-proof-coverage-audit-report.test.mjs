@@ -28,6 +28,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(result.status, 0, result.stderr || result.stdout);
 
   const report = JSON.parse(readFileSync(jsonOut, 'utf8'));
+  const comparison = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'same-contract-runtime-comparison.json'), 'utf8'));
   assert.equal(report.objective, 'runtime-proof-coverage-audit');
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
@@ -49,8 +50,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.summary.selectedRowComparisonMatchCount === 0
     && artifact.summary.selectedRowComparisonMismatchCount === 0
     && artifact.summary.selectedRowComparisonMissingCount === 15
-    && artifact.summary.comparisonGeneratedAt === '2026-06-01T17:12:20.521Z'
-    && artifact.summary.comparisonRowCount === 289
+    && artifact.summary.comparisonGeneratedAt === comparison.generatedAt
+    && artifact.summary.comparisonRowCount === comparison.summary.rowCount
     && artifact.summary.minimumBlockedRequirementCount === 4
     && artifact.summary.closestBlockedCandidateCount === 5
     && Array.isArray(artifact.summary.closestBlockedCandidateSourceArtifacts)

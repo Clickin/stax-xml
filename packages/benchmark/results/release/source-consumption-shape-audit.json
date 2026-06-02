@@ -1,15 +1,15 @@
 {
-  "generatedAt": "2026-06-02T14:31:39.211Z",
+  "generatedAt": "2026-06-02T14:55:16.870Z",
   "objective": "source-consumption-shape-audit",
   "contract": "large-js-full-string-rows-are-not-full-arraybuffer-parser-input",
   "note": "Audits source-consumption metadata from the same-contract aggregate. This is not a benchmark run and not a runtime-limit conclusion.",
   "inputs": {
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
-    "comparisonGeneratedAt": "2026-06-01T17:12:20.521Z",
+    "comparisonGeneratedAt": "2026-06-02T14:53:00.937Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
     "coverageJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-coverage-audit.json",
-    "coverageGeneratedAt": "2026-06-02T14:31:10.595Z",
+    "coverageGeneratedAt": "2026-06-02T14:54:38.567Z",
     "coverageObjective": "runtime-proof-coverage-audit"
   },
   "summary": {

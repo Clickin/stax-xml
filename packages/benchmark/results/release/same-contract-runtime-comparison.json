@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T17:12:20.521Z",
+  "generatedAt": "2026-06-02T14:53:00.937Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -2865,13 +2865,19 @@
         "id": "rawFrameNameIdNoTrim",
         "sourceArtifact": "text-trim-cost-decomposition-8gib.json",
         "mibPerSec": 186.97,
-        "fullStringParity": false
+        "boundedMemory": true,
+        "fullStringParity": false,
+        "textStringReads": 135898776,
+        "stringFieldReads": 502070478
       },
       "fastestFoldTrim": {
         "id": "rawFrameNameIdFoldTrim",
         "sourceArtifact": "text-trim-cost-decomposition-2gib.json",
         "mibPerSec": 148.58,
-        "fullStringParity": true
+        "boundedMemory": true,
+        "fullStringParity": true,
+        "textStringReads": 33974712,
+        "stringFieldReads": 125517686
       },
       "fastestFullToTargetRatio": 0.93,
       "fastestFullRemainingMiBPerSec": 14.5,

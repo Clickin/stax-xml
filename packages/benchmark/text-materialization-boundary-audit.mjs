@@ -69,6 +69,8 @@ function createReport(comparison, options) {
   if (!frontier) {
     throw new Error('same-contract comparison JSON does not contain summary.textMaterializationFrontier');
   }
+  const frontierDetails = readTextMaterializationFrontier(options.comparisonJson, frontier.sourceArtifact);
+  const detailedSummary = frontierDetails?.summary ?? {};
 
   const status = frontier.fastestFull?.fullStringParity === true
     && frontier.fastestWithoutText?.fullStringParity === false
@@ -94,10 +96,10 @@ function createReport(comparison, options) {
     summary: {
       status,
       targetMiBPerSec: frontier.targetMiBPerSec,
-      fastestFull: summarizeFrontierRow(frontier.fastestFull),
-      fastestWithoutText: summarizeFrontierRow(frontier.fastestWithoutText),
-      fastestNoTrim: summarizeFrontierRow(frontier.fastestNoTrim),
-      fastestFoldTrim: summarizeFrontierRow(frontier.fastestFoldTrim),
+      fastestFull: summarizeFrontierRow(frontier.fastestFull, detailedSummary.fastestFull),
+      fastestWithoutText: summarizeFrontierRow(frontier.fastestWithoutText, detailedSummary.fastestWithoutText),
+      fastestNoTrim: summarizeFrontierRow(frontier.fastestNoTrim, detailedSummary.fastestNoTrim),
+      fastestFoldTrim: summarizeFrontierRow(frontier.fastestFoldTrim, detailedSummary.fastestFoldTrim),
       fastestFullToTargetRatio: frontier.fastestFullToTargetRatio,
       fastestFullRemainingMiBPerSec: frontier.fastestFullRemainingMiBPerSec,
       requiredSpeedupToTarget: frontier.requiredSpeedupToTarget,
@@ -116,16 +118,26 @@ function createReport(comparison, options) {
   };
 }
 
-function summarizeFrontierRow(row) {
-  if (!row) return null;
+function readTextMaterializationFrontier(comparisonJson, sourceArtifact) {
+  if (!sourceArtifact) return null;
+  const frontierJson = resolve(dirname(comparisonJson), sourceArtifact);
+  if (!existsSync(frontierJson)) return null;
+  const report = JSON.parse(readFileSync(frontierJson, 'utf8'));
+  return report.objective === 'text-materialization-frontier' ? report : null;
+}
+
+function summarizeFrontierRow(row, detailedRow = null) {
+  if (!row && !detailedRow) return null;
+  const source = detailedRow ?? row;
+  const aggregate = row ?? detailedRow;
   return {
-    id: row.id,
-    sourceArtifact: row.sourceArtifact,
-    rateMiBPerSec: row.mibPerSec,
-    boundedMemory: row.boundedMemory ?? null,
-    fullStringParity: row.fullStringParity,
-    textStringReads: row.textStringReads ?? null,
-    stringFieldReads: row.stringFieldReads ?? null,
+    id: aggregate.id,
+    sourceArtifact: aggregate.sourceArtifact,
+    rateMiBPerSec: aggregate.mibPerSec,
+    boundedMemory: source.boundedMemory ?? aggregate.boundedMemory ?? null,
+    fullStringParity: aggregate.fullStringParity,
+    textStringReads: source.textStringReads ?? aggregate.textStringReads ?? null,
+    stringFieldReads: source.stringFieldReads ?? aggregate.stringFieldReads ?? null,
   };
 }
 
@@ -200,7 +212,7 @@ function formatFrontierRow(row) {
   if (!row) return 'none';
   const textReads = row.textStringReads === null ? 'n/a' : row.textStringReads;
   const fieldReads = row.stringFieldReads === null ? 'n/a' : row.stringFieldReads;
-  return `\`${row.id}\` ${formatNumber(row.rateMiBPerSec)} MiB/s from \`${row.sourceArtifact}\` (fullStringParity=${row.fullStringParity}, textStringReads=${textReads}, stringFieldReads=${fieldReads})`;
+  return `\`${row.id}\` ${formatNumber(row.rateMiBPerSec)} MiB/s from \`${row.sourceArtifact}\` (boundedMemory=${row.boundedMemory}, fullStringParity=${row.fullStringParity}, textStringReads=${textReads}, stringFieldReads=${fieldReads})`;
 }
 
 function formatNumber(value) {

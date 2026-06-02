@@ -59,9 +59,11 @@ test('text materialization boundary audit separates partial headroom from full-s
   });
   assert.equal(report.summary.fastestNoTrim.id, 'rawFrameNameIdNoTrim');
   assert.equal(report.summary.fastestNoTrim.rateMiBPerSec, 186.97);
+  assert.equal(report.summary.fastestNoTrim.boundedMemory, true);
   assert.equal(report.summary.fastestNoTrim.fullStringParity, false);
   assert.equal(report.summary.fastestFoldTrim.id, 'rawFrameNameIdFoldTrim');
   assert.equal(report.summary.fastestFoldTrim.rateMiBPerSec, 148.58);
+  assert.equal(report.summary.fastestFoldTrim.boundedMemory, true);
   assert.equal(report.summary.fastestFoldTrim.fullStringParity, true);
   assert.equal(report.summary.fastestFullToTargetRatio, 0.93);
   assert.equal(report.summary.fastestFullRemainingMiBPerSec, 14.5);
@@ -82,8 +84,10 @@ test('text materialization boundary audit separates partial headroom from full-s
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Text Materialization Boundary Audit/);
   assert.match(markdown, /Target: 200\.00 MiB\/s/);
-  assert.match(markdown, /Fastest full-string row: `rawFrameNameId` 185\.50 MiB\/s from `text-trim-cost-decomposition\.json` \(fullStringParity=true, textStringReads=16987392, stringFieldReads=62758976\)/);
-  assert.match(markdown, /Fastest without-text row: `withoutTextStrings` 252\.36 MiB\/s from `text-trim-cost-decomposition-4gib\.json` \(fullStringParity=false, textStringReads=0, stringFieldReads=183085948\)/);
+  assert.match(markdown, /Fastest full-string row: `rawFrameNameId` 185\.50 MiB\/s from `text-trim-cost-decomposition\.json` \(boundedMemory=true, fullStringParity=true, textStringReads=16987392, stringFieldReads=62758976\)/);
+  assert.match(markdown, /Fastest without-text row: `withoutTextStrings` 252\.36 MiB\/s from `text-trim-cost-decomposition-4gib\.json` \(boundedMemory=true, fullStringParity=false, textStringReads=0, stringFieldReads=183085948\)/);
+  assert.match(markdown, /Fastest no-trim row: `rawFrameNameIdNoTrim` 186\.97 MiB\/s from `text-trim-cost-decomposition-8gib\.json` \(boundedMemory=true, fullStringParity=false, textStringReads=135898776, stringFieldReads=502070478\)/);
+  assert.match(markdown, /Fastest fold-trim row: `rawFrameNameIdFoldTrim` 148\.58 MiB\/s from `text-trim-cost-decomposition-2gib\.json` \(boundedMemory=true, fullStringParity=true, textStringReads=33974712, stringFieldReads=125517686\)/);
   assert.match(markdown, /Full-string remaining to target: 14\.50 MiB\/s/);
   assert.match(markdown, /Required full-string speedup: 1\.08x/);
   assert.match(markdown, /Full-string rows crossing target: 0/);

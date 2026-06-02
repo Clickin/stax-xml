@@ -154,6 +154,12 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.frontierAuditSnapshot.textMaterialization.noTrimRowsCrossTarget, 0);
   assert.equal(report.frontierAuditSnapshot.textMaterialization.foldTrimRowsCrossTarget, 0);
   assert.equal(report.frontierAuditSnapshot.textMaterialization.fastestWithoutTextFullStringParity, false);
+  assert.equal(report.frontierAuditSnapshot.textMaterialization.fastestNoTrimBoundedMemory, true);
+  assert.equal(report.frontierAuditSnapshot.textMaterialization.fastestNoTrimTextStringReads, 135898776);
+  assert.equal(report.frontierAuditSnapshot.textMaterialization.fastestNoTrimStringFieldReads, 502070478);
+  assert.equal(report.frontierAuditSnapshot.textMaterialization.fastestFoldTrimBoundedMemory, true);
+  assert.equal(report.frontierAuditSnapshot.textMaterialization.fastestFoldTrimTextStringReads, 33974712);
+  assert.equal(report.frontierAuditSnapshot.textMaterialization.fastestFoldTrimStringFieldReads, 125517686);
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'memory-frontier-classified' && item.satisfied));
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'memory-frontier-no-unbounded-target-row' && item.satisfied));
   assert.ok(report.frontierAuditSnapshot.guards.some(item => item.id === 'target-distance-not-met' && item.satisfied));
@@ -374,6 +380,8 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /Full-string rows crossing 200 MiB\/s: 0/);
   assert.match(markdown, /No-trim rows crossing 200 MiB\/s: 0/);
   assert.match(markdown, /Fold-trim rows crossing 200 MiB\/s: 0/);
+  assert.match(markdown, /No-trim\/fold-trim bounded memory: no-trim=yes, fold-trim=yes/);
+  assert.match(markdown, /No-trim\/fold-trim string reads: no-trim text=135898776, no-trim fields=502070478, fold-trim text=33974712, fold-trim fields=125517686/);
   assert.match(markdown, /Without-text full-string parity: no/);
   assert.match(markdown, /## Proof Rules/);
   assert.match(markdown, /target-contract-not-object-shape/);

@@ -186,7 +186,18 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.equal(report.summary.textMaterializationFrontier.requiredSpeedupToTarget, 1.08);
   assert.equal(report.summary.textMaterializationFrontier.fastestWithoutText.id, 'withoutTextStrings');
   assert.equal(report.summary.textMaterializationFrontier.fastestWithoutText.mibPerSec, 252.36);
+  assert.equal(report.summary.textMaterializationFrontier.fastestWithoutText.boundedMemory, true);
   assert.equal(report.summary.textMaterializationFrontier.fastestWithoutText.fullStringParity, false);
+  assert.equal(report.summary.textMaterializationFrontier.fastestWithoutText.textStringReads, 0);
+  assert.equal(report.summary.textMaterializationFrontier.fastestWithoutText.stringFieldReads, 183085948);
+  assert.equal(report.summary.textMaterializationFrontier.fastestNoTrim.id, 'rawFrameNameIdNoTrim');
+  assert.equal(report.summary.textMaterializationFrontier.fastestNoTrim.boundedMemory, true);
+  assert.equal(report.summary.textMaterializationFrontier.fastestNoTrim.textStringReads, 135898776);
+  assert.equal(report.summary.textMaterializationFrontier.fastestNoTrim.stringFieldReads, 502070478);
+  assert.equal(report.summary.textMaterializationFrontier.fastestFoldTrim.id, 'rawFrameNameIdFoldTrim');
+  assert.equal(report.summary.textMaterializationFrontier.fastestFoldTrim.boundedMemory, true);
+  assert.equal(report.summary.textMaterializationFrontier.fastestFoldTrim.textStringReads, 33974712);
+  assert.equal(report.summary.textMaterializationFrontier.fastestFoldTrim.stringFieldReads, 125517686);
   assert.equal(report.summary.textMaterializationFrontier.fastestWithoutTextToFullRatio, 1.36);
   assert.equal(report.summary.textMaterializationFrontier.noTextRowsCrossTarget, 4);
   assert.equal(report.summary.textMaterializationFrontier.fullRowsCrossTarget, 0);
@@ -1232,6 +1243,8 @@ test('same-contract runtime comparison aggregates existing rows without normaliz
   assert.match(markdown, /## Text Materialization Frontier/);
   assert.match(markdown, /\| Fastest full row \| `rawFrameNameId` \| 185\.50 \| yes \| yes \| `text-trim-cost-decomposition\.json` \| 14\.50 MiB\/s below 200 MiB\/s; 1\.08x speedup required \|/);
   assert.match(markdown, /\| Fastest without text\/CDATA strings \| `withoutTextStrings` \| 252\.36 \| no \| yes \| `text-trim-cost-decomposition-4gib\.json` \| 1\.36x fastest full row; 4 row\(s\) cross 200 MiB\/s \|/);
+  assert.match(markdown, /\| Fastest no-trim probe \| `rawFrameNameIdNoTrim` \| 186\.97 \| no \| yes \| `text-trim-cost-decomposition-8gib\.json` \| 1\.01x fastest full row; 0 row\(s\) cross 200 MiB\/s \|/);
+  assert.match(markdown, /\| Fastest fold-trim probe \| `rawFrameNameIdFoldTrim` \| 148\.58 \| yes \| yes \| `text-trim-cost-decomposition-2gib\.json` \| 0\.80x fastest full row; 0 row\(s\) cross 200 MiB\/s \|/);
   assert.match(markdown, /Interpretation: Text\/CDATA omission crosses the target as headroom evidence, while trim-only, fold-trim, cache, and ASCII candidates remain negative for the current full-string contract\./);
   assert.match(markdown, /## Source Consumption Frontier/);
   assert.match(markdown, /This separates the current large-file Iterable<Uint8Array\[\]> baseline from direct ReadableStream consumption/);

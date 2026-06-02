@@ -1,6 +1,6 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-06-01T17:12:20.521Z
+Generated: 2026-06-02T14:53:00.937Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
@@ -140,8 +140,8 @@ This summarizes the nearest current full-string headroom evidence. Rows that omi
 | --- | --- | ---: | --- | --- | --- | --- |
 | Fastest full row | `rawFrameNameId` | 185.50 | yes | yes | `text-trim-cost-decomposition.json` | 14.50 MiB/s below 200 MiB/s; 1.08x speedup required |
 | Fastest without text/CDATA strings | `withoutTextStrings` | 252.36 | no | yes | `text-trim-cost-decomposition-4gib.json` | 1.36x fastest full row; 4 row(s) cross 200 MiB/s |
-| Fastest no-trim probe | `rawFrameNameIdNoTrim` | 186.97 | no | n/a | `text-trim-cost-decomposition-8gib.json` | 1.01x fastest full row; 0 row(s) cross 200 MiB/s |
-| Fastest fold-trim probe | `rawFrameNameIdFoldTrim` | 148.58 | yes | n/a | `text-trim-cost-decomposition-2gib.json` | 0.80x fastest full row; 0 row(s) cross 200 MiB/s |
+| Fastest no-trim probe | `rawFrameNameIdNoTrim` | 186.97 | no | yes | `text-trim-cost-decomposition-8gib.json` | 1.01x fastest full row; 0 row(s) cross 200 MiB/s |
+| Fastest fold-trim probe | `rawFrameNameIdFoldTrim` | 148.58 | yes | yes | `text-trim-cost-decomposition-2gib.json` | 0.80x fastest full row; 0 row(s) cross 200 MiB/s |
 
 Interpretation: Text/CDATA omission crosses the target as headroom evidence, while trim-only, fold-trim, cache, and ASCII candidates remain negative for the current full-string contract.
 
