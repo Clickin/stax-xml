@@ -1260,6 +1260,7 @@ function createCoverageSnapshot(audit, counterexampleSnapshot = null) {
       mismatchedArtifacts: Array.isArray(routeFreshness.mismatchedArtifacts)
         ? routeFreshness.mismatchedArtifacts
         : [],
+      expectedIdentitySource: routeFreshness.expectedIdentitySource ?? null,
     },
     spiderMonkeyClosureAudit: {
       candidateCount: closureAudit.candidateCount ?? null,
@@ -1447,6 +1448,8 @@ function createCoverageGuards(snapshot, counterexampleSnapshot = null) {
         && routeFreshness.expectedIdentityMatchesRoute === true
         && routeFreshness.artifactIdentityMatchesRoute === true
         && routeFreshness.checkedArtifactCount === 5
+        && (routeFreshness.expectedIdentitySource === 'cli'
+          || routeFreshness.expectedIdentitySource === 'inferred-from-artifacts')
         && Array.isArray(routeFreshness.mismatchedArtifacts)
         && routeFreshness.mismatchedArtifacts.length === 0,
     },
@@ -1562,7 +1565,7 @@ function renderMarkdown(report) {
   `- SpiderMonkey closure candidates outside coverage diagnostics: ${formatStringList(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditCandidateSourcesOutsideDiagnostics)}`,
   `- SpiderMonkey coverage diagnostics outside closure candidates: ${formatStringList(report.coverageSnapshot.spiderMonkeyDiagnostics.diagnosticSourcesOutsideClosureAudit)}`,
   `- SpiderMonkey selected row identity statuses: ${formatCountMap(report.coverageSnapshot.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts)}`,
-  `- SpiderMonkey Taskcluster route freshness: ${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.routeFresh === true ? 'fresh' : 'stale'} (artifactIdentityMatchesRoute=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.artifactIdentityMatchesRoute === true ? 'yes' : 'no'}, checkedArtifacts=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.checkedArtifactCount ?? 'unknown'}, mismatchedArtifacts=${formatStringList(report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.mismatchedArtifacts ?? [])})`,
+  `- SpiderMonkey Taskcluster route freshness: ${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.routeFresh === true ? 'fresh' : 'stale'} (artifactIdentityMatchesRoute=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.artifactIdentityMatchesRoute === true ? 'yes' : 'no'}, expectedIdentitySource=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.expectedIdentitySource ?? 'unknown'}, checkedArtifacts=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.checkedArtifactCount ?? 'unknown'}, mismatchedArtifacts=${formatStringList(report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.mismatchedArtifacts ?? [])})`,
   `- Safari/WebKit closure comparison: generatedAt=${report.coverageSnapshot.safariWebKitClosureAudit.comparisonGeneratedAt ?? 'unknown'}, rows=${report.coverageSnapshot.safariWebKitClosureAudit.comparisonRowCount ?? 'unknown'}, candidates=${report.coverageSnapshot.safariWebKitClosureAudit.candidateCount ?? 'unknown'}, qualified=${report.coverageSnapshot.safariWebKitClosureAudit.qualifiedClosureCount ?? 'unknown'}`,
   `- Safari/WebKit status: evidenceClass=${report.coverageSnapshot.safariWebKitStatus?.evidenceClass ?? 'unknown'}, canRunSafariBrowserRows=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.canRunSafariBrowserRows)}, browserRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.benchmarkRowsRecorded)}, primarySyncRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.primarySyncByteBatchRowsRecorded)}, boundedPrimaryRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.boundedPrimarySyncByteBatchRowsRecorded)}, largeBoundedPrimaryRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.largeBoundedPrimarySyncByteBatchRowsRecorded)}, exactBuildIdentity=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.exactBuildIdentityRecorded)}, sourceBoundaryPinned=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.sourceBoundaryPinned)}, closesSafariObligation=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.closesSafariObligation)}`,
     '',

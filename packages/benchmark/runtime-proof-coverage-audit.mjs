@@ -334,6 +334,7 @@ function summarizeAvailability(summary = {}) {
     artifactIdentityMatchesRoute: typeof summary.artifactIdentityMatchesRoute === 'boolean' ? summary.artifactIdentityMatchesRoute : null,
     checkedArtifactCount: typeof summary.checkedArtifactCount === 'number' ? summary.checkedArtifactCount : null,
     mismatchedArtifacts: Array.isArray(summary.mismatchedArtifacts) ? summary.mismatchedArtifacts : null,
+    expectedIdentitySource: typeof summary.expectedIdentitySource === 'string' ? summary.expectedIdentitySource : null,
   };
   return Object.values(availability).some(value => value !== null) ? availability : null;
 }

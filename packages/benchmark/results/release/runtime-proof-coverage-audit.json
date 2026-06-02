@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T15:53:08.543Z",
+  "generatedAt": "2026-06-02T16:00:15.257Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -4525,7 +4525,8 @@
         "expectedIdentityMatchesRoute": null,
         "artifactIdentityMatchesRoute": null,
         "checkedArtifactCount": null,
-        "mismatchedArtifacts": null
+        "mismatchedArtifacts": null,
+        "expectedIdentitySource": null
       },
       "outcome": null,
       "summary": {
@@ -5239,7 +5240,8 @@
         "expectedIdentityMatchesRoute": null,
         "artifactIdentityMatchesRoute": null,
         "checkedArtifactCount": null,
-        "mismatchedArtifacts": null
+        "mismatchedArtifacts": null,
+        "expectedIdentitySource": null
       },
       "outcome": null,
       "summary": {
@@ -5641,7 +5643,8 @@
         "expectedIdentityMatchesRoute": true,
         "artifactIdentityMatchesRoute": true,
         "checkedArtifactCount": 5,
-        "mismatchedArtifacts": []
+        "mismatchedArtifacts": [],
+        "expectedIdentitySource": "inferred-from-artifacts"
       },
       "outcome": null,
       "summary": {
@@ -28176,7 +28179,8 @@
           "expectedIdentityMatchesRoute": null,
           "artifactIdentityMatchesRoute": null,
           "checkedArtifactCount": null,
-          "mismatchedArtifacts": null
+          "mismatchedArtifacts": null,
+          "expectedIdentitySource": null
         },
         "outcome": null,
         "summary": {
@@ -28652,7 +28656,8 @@
           "expectedIdentityMatchesRoute": null,
           "artifactIdentityMatchesRoute": null,
           "checkedArtifactCount": null,
-          "mismatchedArtifacts": null
+          "mismatchedArtifacts": null,
+          "expectedIdentitySource": null
         },
         "outcome": null,
         "summary": {
@@ -28736,7 +28741,8 @@
           "expectedIdentityMatchesRoute": true,
           "artifactIdentityMatchesRoute": true,
           "checkedArtifactCount": 5,
-          "mismatchedArtifacts": []
+          "mismatchedArtifacts": [],
+          "expectedIdentitySource": "inferred-from-artifacts"
         },
         "outcome": null,
         "summary": {
@@ -29792,7 +29798,8 @@
           "expectedIdentityMatchesRoute": null,
           "artifactIdentityMatchesRoute": null,
           "checkedArtifactCount": null,
-          "mismatchedArtifacts": null
+          "mismatchedArtifacts": null,
+          "expectedIdentitySource": null
         },
         "outcome": null,
         "summary": {

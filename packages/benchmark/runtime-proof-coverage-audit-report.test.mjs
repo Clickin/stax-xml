@@ -86,6 +86,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.availability.expectedIdentityMatchesRoute === true
     && artifact.availability.artifactIdentityMatchesRoute === true
     && artifact.availability.checkedArtifactCount === 5
+    && artifact.availability.expectedIdentitySource === 'inferred-from-artifacts'
     && Array.isArray(artifact.availability.mismatchedArtifacts)
     && artifact.availability.mismatchedArtifacts.length === 0
   ));

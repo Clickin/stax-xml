@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T15:54:50.006Z
+Generated: 2026-06-02T16:02:05.122Z
 
 ## Scope
 
@@ -87,14 +87,14 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-02T15:53:08.543Z)
+- Coverage audit loaded: yes (2026-06-02T16:00:15.257Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey diagnostics rows vs closure candidates: 11/15 (gap=4, closureQualified=0)
 - SpiderMonkey closure candidates outside coverage diagnostics: `spidermonkey-jsshell-materialized-headroom.json`, `spidermonkey-jsshell-tokenizer-headroom.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`
 - SpiderMonkey coverage diagnostics outside closure candidates: none
 - SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7
-- SpiderMonkey Taskcluster route freshness: fresh (artifactIdentityMatchesRoute=yes, checkedArtifacts=5, mismatchedArtifacts=none)
+- SpiderMonkey Taskcluster route freshness: fresh (artifactIdentityMatchesRoute=yes, expectedIdentitySource=inferred-from-artifacts, checkedArtifacts=5, mismatchedArtifacts=none)
 - Safari/WebKit closure comparison: generatedAt=2026-06-02T14:53:00.937Z, rows=289, candidates=0, qualified=0
 - Safari/WebKit status: evidenceClass=environment-availability-only, canRunSafariBrowserRows=no, browserRows=0, primarySyncRows=0, boundedPrimaryRows=0, largeBoundedPrimaryRows=0, exactBuildIdentity=no, sourceBoundaryPinned=no, closesSafariObligation=no
 
@@ -133,7 +133,7 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-02T15:54:20.100Z)
+- Handoff loaded: yes (2026-06-02T16:01:26.298Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -164,8 +164,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T15:54:36.089Z)
-- Handoff validation target handoff generatedAt: 2026-06-02T15:54:20.100Z (current 2026-06-02T15:54:20.100Z)
+- Handoff validation loaded: yes (2026-06-02T16:01:47.015Z)
+- Handoff validation target handoff generatedAt: 2026-06-02T16:01:26.298Z (current 2026-06-02T16:01:26.298Z)
 - Handoff validation pass: yes
 - Required handoffs present: yes
 - Required contracts present: yes
@@ -183,8 +183,8 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-02T15:53:21.509Z)
-- Source audit inputs: comparison=2026-06-02T14:53:00.937Z (current 2026-06-02T14:53:00.937Z), coverage=2026-06-02T15:53:08.543Z (current 2026-06-02T15:53:08.543Z)
+- Source audit loaded: yes (2026-06-02T16:00:34.047Z)
+- Source audit inputs: comparison=2026-06-02T14:53:00.937Z (current 2026-06-02T14:53:00.937Z), coverage=2026-06-02T16:00:15.257Z (current 2026-06-02T16:00:15.257Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary sync byte-batch rows: 231
@@ -210,20 +210,20 @@ These are static disclosure guards. They must stay disclosed while the broad run
 
 ## Frontier Audit Snapshot
 
-- Memory frontier loaded: yes (2026-06-02T15:53:38.614Z)
+- Memory frontier loaded: yes (2026-06-02T16:00:57.085Z)
 - Frontier audit comparison inputs: memory=2026-06-02T14:53:00.937Z, target=2026-06-02T14:53:00.937Z, text=2026-06-02T14:53:00.937Z (current 2026-06-02T14:53:00.937Z)
 - Fastest bounded JS row: 185.50 MiB/s at 60.45 MiB
 - Unbounded or unproven memory rows: 17
 - Bounded rows without numeric memory proof: 0
 - Unbounded rows at or above 200 MiB/s: 0
-- Target distance loaded: yes (2026-06-02T15:53:48.997Z)
+- Target distance loaded: yes (2026-06-02T16:01:02.000Z)
 - Woodstox 0.9x target met: no
 - Woodstox 0.9x remaining: 164.29 MiB/s
 - quick-xml 0.9x target met: no
 - quick-xml 0.9x remaining: 95.06 MiB/s
 - Shared JS target row: yes
 - Target JS contract: sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=no, fullArrayBufferParserInput=no, boundedMemory=yes, memoryKind=process-rss, maxRssMiB=61.77
-- Text materialization boundary loaded: yes (2026-06-02T15:54:02.596Z)
+- Text materialization boundary loaded: yes (2026-06-02T16:00:56.129Z)
 - Fastest full-string row: 185.50 MiB/s
 - Full-string rows crossing 200 MiB/s: 0
 - No-text rows crossing 200 MiB/s: 4

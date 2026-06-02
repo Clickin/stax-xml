@@ -501,6 +501,49 @@ test('runtime-limit proof-obligation gate fails if Taskcluster route freshness n
   assert.match(markdown, /spidermonkey-taskcluster-route-freshness/);
 });
 
+test('runtime-limit proof-obligation gate fails if Taskcluster route freshness omits expected identity source', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const coverage = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-coverage-audit.json'), 'utf8'));
+  const routeFreshness = coverage.scannedArtifacts.find(item =>
+    item.sourceArtifact === 'spidermonkey-taskcluster-debug-jsshell-route-freshness-audit.json'
+  );
+  assert.ok(routeFreshness);
+  routeFreshness.availability ??= {};
+  delete routeFreshness.availability.expectedIdentitySource;
+  writeFileSync(badCoverageJsonOut, `${JSON.stringify(coverage, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--coverage-json',
+    badCoverageJsonOut,
+    '--json-out',
+    badCoverageGateJsonOut,
+    '--md-out',
+    badCoverageGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badCoverageGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.equal(report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness.expectedIdentitySource, null);
+  assert.ok(report.coverageSnapshot.guards.some(item =>
+    item.id === 'spidermonkey-taskcluster-route-freshness'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /Taskcluster route freshness/.test(error)));
+
+  const markdown = readFileSync(badCoverageGateMdOut, 'utf8');
+  assert.match(markdown, /expectedIdentitySource=unknown/);
+  assert.match(markdown, /spidermonkey-taskcluster-route-freshness/);
+});
+
 test('runtime-limit proof-obligation gate fails if coverage omits SpiderMonkey closure-audit surface counts', () => {
   resetTmp();
   writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
