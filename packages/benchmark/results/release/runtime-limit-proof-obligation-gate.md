@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T18:00:54.526Z
+Generated: 2026-06-02T18:05:12.465Z
 
 ## Scope
 
@@ -168,7 +168,7 @@ Disclosure-only guards: 3
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T18:00:54.454Z)
+- Handoff validation loaded: yes (2026-06-02T18:05:12.391Z)
 - Handoff validation target handoff generatedAt: 2026-06-02T18:00:54.397Z (current 2026-06-02T18:00:54.397Z)
 - Handoff validation pass: yes
 - Commands checked: 15

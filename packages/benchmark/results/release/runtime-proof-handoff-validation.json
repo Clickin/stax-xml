@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T18:00:54.454Z",
+  "generatedAt": "2026-06-02T18:05:12.391Z",
   "objective": "runtime-proof-handoff-validation",
   "contract": "external-run-handoff-command-and-contract-static-validation",
   "note": "Static validation for runtime-proof-gap-handoff external runbooks. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
@@ -153,6 +153,7 @@
         "summary\\.qualifiedClosureCount must remain 0",
         "closesCodegenObligation=false",
         "jit-status-only",
+        "bytecode-diagnostic-only",
         "environment evidence only"
       ]
     }

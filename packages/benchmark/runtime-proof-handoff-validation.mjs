@@ -244,6 +244,7 @@ function validateHandoff(handoff) {
           /summary\.qualifiedClosureCount must remain 0/,
           /closesCodegenObligation=false/,
           /jit-status-only/,
+          /bytecode-diagnostic-only/,
           /environment evidence only/,
         ]
       : [];
