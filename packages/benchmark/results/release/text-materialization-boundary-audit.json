@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-02T19:02:35.090Z",
+  "generatedAt": "2026-06-02T19:11:15.599Z",
   "objective": "text-materialization-boundary-audit",
   "contract": "text-cdata-materialization-headroom-is-not-full-string-counterexample",
   "note": "Audits the current text/CDATA materialization boundary from the same-contract aggregate. This is not a benchmark run and does not prove a JavaScript runtime ceiling.",
   "inputs": {
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
-    "comparisonGeneratedAt": "2026-06-02T19:01:12.839Z",
+    "comparisonGeneratedAt": "2026-06-02T19:10:54.806Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
     "frontierArtifact": "text-materialization-frontier.json"
@@ -59,7 +59,7 @@
     "fullRowsCrossTarget": 0,
     "noTrimRowsCrossTarget": 0,
     "foldTrimRowsCrossTarget": 0,
-    "negativeCandidateCount": 35,
+    "negativeCandidateCount": 38,
     "conclusionAllowed": false
   },
   "interpretation": "Text/CDATA omission crosses the target as headroom evidence, while trim-only, fold-trim, cache, and ASCII candidates remain negative for the current full-string contract.",
@@ -82,7 +82,7 @@
     {
       "id": "negative-candidate-set-recorded",
       "classification": "SOURCE_FACT",
-      "summary": "35 text/materialization candidates are recorded as negative or partial frontier evidence."
+      "summary": "38 text/materialization candidates are recorded as negative or partial frontier evidence."
     }
   ]
 }

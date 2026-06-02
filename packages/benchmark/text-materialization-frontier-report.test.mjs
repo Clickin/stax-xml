@@ -51,8 +51,8 @@ test('text materialization frontier separates headroom rows from full-string cou
   assert.equal(report.summary.projectedFullWithMaximumNoTrimSpeedupCrossesTarget, false);
   assert.equal(report.summary.maximumNoTrimSpeedupRemainingMiBPerSec, 10.79);
   assert.equal(report.summary.maximumFoldTrimSpeedup, 0.8);
-  assert.equal(report.summary.negativeCandidateCount, 35);
-  assert.equal(report.summary.fullParityNegativeCandidateCount, 31);
+  assert.equal(report.summary.negativeCandidateCount, 38);
+  assert.equal(report.summary.fullParityNegativeCandidateCount, 34);
   assert.equal(report.summary.fullParityNegativeCandidatesCrossTarget, 0);
   assert.deepEqual(report.summary.fastestFullParityNegativeCandidate, {
     family: 'unrolled-medium-ascii-text-fast-path',
@@ -162,6 +162,38 @@ test('text materialization frontier separates headroom rows from full-string cou
     && row.candidate.mibPerSec === 120.41
     && row.candidate.counters.rawValueCacheHits === 19818557
     && row.candidate.counters.rawValueCacheMisses === 67
+    && row.candidatePreservesFullStringParity === true
+    && row.rejectedForFullTarget === true
+  ));
+  assert.ok(report.negativeRows.some(row =>
+    row.family === 'bun-attribute-value-cache'
+    && row.sourceArtifact === 'bun-cache-candidates-books-corpus.json'
+    && row.control.id === 'rawFrameNameId'
+    && row.control.mibPerSec === 169.07
+    && row.candidate.id === 'rawFrameNameIdAttrValueCache'
+    && row.candidate.mibPerSec === 158.09
+    && row.candidate.counters.rawValueCacheHits === 2831220
+    && row.candidate.counters.rawValueCacheMisses === 12
+    && row.candidatePreservesFullStringParity === true
+    && row.rejectedForFullTarget === true
+  ));
+  assert.ok(report.negativeRows.some(row =>
+    row.family === 'bun-buffer-offset-text-value-cache'
+    && row.sourceArtifact === 'bun-cache-candidates-books-corpus.json'
+    && row.candidate.id === 'rawFrameNameIdOffsetTextCache'
+    && row.candidate.mibPerSec === 99.92
+    && row.candidate.counters.rawValueCacheHits === 0
+    && row.candidate.counters.rawValueCacheMisses === 16987392
+    && row.candidatePreservesFullStringParity === true
+    && row.rejectedForFullTarget === true
+  ));
+  assert.ok(report.negativeRows.some(row =>
+    row.family === 'bun-unrolled-medium-ascii-text-fast-path'
+    && row.sourceArtifact === 'bun-cache-candidates-books-corpus.json'
+    && row.candidate.id === 'rawFrameNameIdUnrolledMediumAsciiText'
+    && row.candidate.mibPerSec === 150.27
+    && row.candidate.counters.unrolledMediumAsciiTextHits === 2831232
+    && row.candidate.counters.unrolledMediumAsciiTextFallbacks === 3539040
     && row.candidatePreservesFullStringParity === true
     && row.rejectedForFullTarget === true
   ));

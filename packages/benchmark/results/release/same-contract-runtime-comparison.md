@@ -1,6 +1,6 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-06-02T19:01:12.839Z
+Generated: 2026-06-02T19:10:54.806Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
@@ -32,7 +32,7 @@ This report aggregates existing release artifacts. It compares rows only through
 - Recognized JS source modes: fetch-async-iterable-byte-batches, fetch-readable-stream-pull, file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches
 - 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 233/233
 - 1 GiB+ source-mode rows replaying a corpus seed buffer: 150 (max seed 100.26 MiB, max seed/target 0.09)
-- Text materialization frontier: fastest full row rawFrameNameId at 185.50 MiB/s, 14.50 MiB/s below 200 MiB/s; without-text rows crossing target: 4; negative candidates: 35
+- Text materialization frontier: fastest full row rawFrameNameId at 185.50 MiB/s, 14.50 MiB/s below 200 MiB/s; without-text rows crossing target: 4; negative candidates: 38
 - Source consumption frontier: sync byte batches sync-iterable-byte-batches-batch-8 at 71.96 MiB/s; direct ReadableStream web-readable-stream-raw-frame-ascii-batch-8 at 76.53 MiB/s (1.06x sync); backpressure rows 6/6
 - Browser live fetch source frontier: fetch ReadableStream fetchReadableStreamFull at 9.68 MiB/s; fetch async byte batches fetchAsyncByteBatchFull at 9.77 MiB/s; live backpressure rows 2/2
 
@@ -605,7 +605,7 @@ These rows are evidence about allocation shape, not directly comparable peak mem
   - requiredSpeedup=1.08x
   - withoutText=withoutTextStrings@252.36 MiB/s
   - withoutTextRowsCrossTarget=4
-  - negativeCandidates=35
+  - negativeCandidates=38
 - source-consumption-frontier-visible (CLASSIFIED): The aggregate comparison links the sync byte-batch baseline, async byte-batch rows, direct ReadableStream rows, and backpressure counters.
   - sync=sync-iterable-byte-batches-batch-8@71.96 MiB/s
   - async=async-iterable-raw-frame-ascii-batch-8@77.56 MiB/s

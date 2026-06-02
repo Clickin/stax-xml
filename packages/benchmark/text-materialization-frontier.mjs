@@ -71,6 +71,24 @@ const negativeArtifacts = [
     family: 'full-span-string-cache',
   },
   {
+    file: 'bun-cache-candidates-books-corpus.json',
+    controlId: 'rawFrameNameId',
+    candidateId: 'rawFrameNameIdAttrValueCache',
+    family: 'bun-attribute-value-cache',
+  },
+  {
+    file: 'bun-cache-candidates-books-corpus.json',
+    controlId: 'rawFrameNameId',
+    candidateId: 'rawFrameNameIdOffsetTextCache',
+    family: 'bun-buffer-offset-text-value-cache',
+  },
+  {
+    file: 'bun-cache-candidates-books-corpus.json',
+    controlId: 'rawFrameNameId',
+    candidateId: 'rawFrameNameIdUnrolledMediumAsciiText',
+    family: 'bun-unrolled-medium-ascii-text-fast-path',
+  },
+  {
     file: 'no-counter-medium-ascii-text-cross-process-books-corpus-warmup.json',
     runtime: 'node',
     controlId: 'rawFrameNameIdNoCounters',

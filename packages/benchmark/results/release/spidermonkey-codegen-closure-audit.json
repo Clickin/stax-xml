@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T19:02:30.075Z",
+  "generatedAt": "2026-06-02T19:11:15.663Z",
   "objective": "spidermonkey-codegen-closure-audit",
   "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
   "note": "Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.",
@@ -10,7 +10,7 @@
   },
   "inputs": {
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
-    "comparisonGeneratedAt": "2026-06-02T19:01:12.839Z",
+    "comparisonGeneratedAt": "2026-06-02T19:10:54.806Z",
     "comparisonRowCount": 289
   },
   "candidates": [

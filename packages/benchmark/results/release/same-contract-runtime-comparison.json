@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T19:01:12.839Z",
+  "generatedAt": "2026-06-02T19:10:54.806Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -2889,7 +2889,7 @@
       "fullRowsCrossTarget": 0,
       "noTrimRowsCrossTarget": 0,
       "foldTrimRowsCrossTarget": 0,
-      "negativeCandidateCount": 35,
+      "negativeCandidateCount": 38,
       "conclusionAllowed": false,
       "interpretation": "Text/CDATA omission crosses the target as headroom evidence, while trim-only, fold-trim, cache, and ASCII candidates remain negative for the current full-string contract."
     },
@@ -18537,7 +18537,7 @@
         "requiredSpeedup=1.08x",
         "withoutText=withoutTextStrings@252.36 MiB/s",
         "withoutTextRowsCrossTarget=4",
-        "negativeCandidates=35"
+        "negativeCandidates=38"
       ]
     },
     {
