@@ -124,6 +124,10 @@ function createReport(inputs, options) {
     .map(item => item.name)
     .filter(name => missingByShell.every(missing => missing.includes(name)));
   const blockedSurfaces = summarizeBlockedSurfaces(shellRows);
+  const directUnchangedHarnessAttempts = summarizeDirectUnchangedHarnessAttempts(shellRows, blockedSurfaces);
+  const blockedDirectAttemptCount = directUnchangedHarnessAttempts
+    .filter(attempt => attempt.status === 'blocked-before-stax-load')
+    .length;
   const report = {
     generatedAt: new Date().toISOString(),
     objective: 'firefox-spidermonkey-jsshell-stax-api-gap-audit',
@@ -147,11 +151,15 @@ function createReport(inputs, options) {
       commonMissingGlobals,
       commonMissingGlobalCount: commonMissingGlobals.length,
       blockedSurfaceCount: blockedSurfaces.filter(surface => surface.blockedShellCount > 0).length,
+      directUnchangedHarnessAttemptCount: directUnchangedHarnessAttempts.length,
+      blockedDirectUnchangedHarnessAttemptCount: blockedDirectAttemptCount,
+      runnableDirectUnchangedHarnessAttemptCount: directUnchangedHarnessAttempts.length - blockedDirectAttemptCount,
       canCloseEmittedIrObligation: false,
       conclusionAllowed: false,
     },
     shells: shellRows,
     blockedSurfaces,
+    directUnchangedHarnessAttempts,
   };
   report.findings = createFindings(report);
   return report;
@@ -174,6 +182,25 @@ function summarizeBlockedSurfaces(shellRows) {
       shellBlockers,
     };
   });
+}
+
+function summarizeDirectUnchangedHarnessAttempts(shellRows, blockedSurfaces) {
+  return shellRows.flatMap(shell => blockedSurfaces.map(surface => {
+    const missingGlobals = surface.requiredGlobals.filter(name => shell.apiSurface[name] !== 'function');
+    return {
+      packageKind: shell.packageKind,
+      sourceArtifact: shell.sourceArtifact,
+      surfaceId: surface.id,
+      entryPoint: surface.label,
+      contract: surface.contract,
+      requiredGlobals: surface.requiredGlobals,
+      missingGlobals,
+      firstBlockingGlobal: missingGlobals[0] ?? null,
+      status: missingGlobals.length > 0 ? 'blocked-before-stax-load' : 'runnable-prerequisites-present',
+      unchangedHarnessSurface: true,
+      canRunUnchanged: missingGlobals.length === 0,
+    };
+  }));
 }
 
 function summarizeShell(input) {
@@ -207,6 +234,7 @@ function createFindings(report) {
       evidence: [
         `commonMissingGlobals=${report.summary.commonMissingGlobals.join(', ') || 'none'}`,
         `blockedSurfaces=${report.summary.blockedSurfaceCount}/${report.blockedSurfaces.length}`,
+        `directUnchangedHarnessAttemptsBlocked=${report.summary.blockedDirectUnchangedHarnessAttemptCount}/${report.summary.directUnchangedHarnessAttemptCount}`,
         `unchangedRunnableShells=${report.summary.unchangedRunnableShellCount}/${report.summary.shellCount}`,
       ],
     },
@@ -241,6 +269,7 @@ function renderMarkdown(report) {
     `- Unchanged current StAX full-string runnable shells: ${report.summary.unchangedRunnableShellCount}`,
     `- Common missing globals: ${report.summary.commonMissingGlobals.join(', ') || 'none'}`,
     `- Blocked current StAX surfaces: ${report.summary.blockedSurfaceCount}/${report.blockedSurfaces.length}`,
+    `- Direct unchanged harness attempts blocked before StAX load: ${report.summary.blockedDirectUnchangedHarnessAttemptCount}/${report.summary.directUnchangedHarnessAttemptCount}`,
     `- Closes emitted IR obligation: ${report.summary.canCloseEmittedIrObligation ? 'yes' : 'no'}`,
     `- Runtime-limit conclusion allowed: ${report.summary.conclusionAllowed ? 'yes' : 'no'}`,
     '',
@@ -260,6 +289,10 @@ function renderMarkdown(report) {
   for (const surface of report.blockedSurfaces) {
     const missing = Array.from(new Set(surface.shellBlockers.flatMap(shell => shell.missingGlobals)));
     lines.push(`| ${surface.label} | ${surface.contract} | ${surface.requiredGlobals.join(', ')} | ${surface.blockedShellCount}/${report.summary.shellCount} | ${missing.join(', ') || 'none'} |`);
+  }
+  lines.push('', '## Direct Unchanged Harness Attempts', '', '| Shell | Surface | Status | First blocking global | Missing globals |', '| --- | --- | --- | --- | --- |');
+  for (const attempt of report.directUnchangedHarnessAttempts) {
+    lines.push(`| ${attempt.packageKind} | ${attempt.surfaceId} | ${attempt.status} | ${attempt.firstBlockingGlobal ?? 'none'} | ${attempt.missingGlobals.join(', ') || 'none'} |`);
   }
   lines.push('', '## Findings', '');
   for (const finding of report.findings) {

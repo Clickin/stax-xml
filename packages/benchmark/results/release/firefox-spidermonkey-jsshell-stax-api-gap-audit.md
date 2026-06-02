@@ -1,6 +1,6 @@
 # Firefox/SpiderMonkey JS Shell StAX API Gap Audit
 
-Generated: 2026-06-01T03:19:51.531Z
+Generated: 2026-06-02T21:53:47.362Z
 
 Synthesizes the official release/nightly SpiderMonkey js-shell API probes against the unchanged current full-string stax benchmark surface. This is not benchmark evidence, emitted JIT IR, optimized-code evidence, or a runtime-limit conclusion.
 
@@ -14,6 +14,7 @@ Synthesizes the official release/nightly SpiderMonkey js-shell API probes agains
 - Unchanged current StAX full-string runnable shells: 0
 - Common missing globals: TextDecoder, TextEncoder, ReadableStream, fetch
 - Blocked current StAX surfaces: 5/5
+- Direct unchanged harness attempts blocked before StAX load: 10/10
 - Closes emitted IR obligation: no
 - Runtime-limit conclusion allowed: no
 
@@ -44,11 +45,27 @@ Synthesizes the official release/nightly SpiderMonkey js-shell API probes agains
 | EventReader ReadableStream<Uint8Array> full-string rows | Direct Web ReadableStream source-overhead rows. | Uint8Array, TextDecoder, ReadableStream | 2/2 | TextDecoder, ReadableStream |
 | browser fetch live-source rows | Live fetch Response.body rows such as fetchReadableStreamFull and fetchAsyncByteBatchFull. | Uint8Array, TextDecoder, ReadableStream, fetch | 2/2 | TextDecoder, ReadableStream, fetch |
 
+## Direct Unchanged Harness Attempts
+
+| Shell | Surface | Status | First blocking global | Missing globals |
+| --- | --- | --- | --- | --- |
+| release | sync-byte-batch-full-string | blocked-before-stax-load | TextDecoder | TextDecoder, TextEncoder |
+| release | sync-corpus-byte-batch-full-string | blocked-before-stax-load | TextDecoder | TextDecoder |
+| release | async-byte-batch-full-string | blocked-before-stax-load | TextDecoder | TextDecoder |
+| release | readable-stream-full-string | blocked-before-stax-load | TextDecoder | TextDecoder, ReadableStream |
+| release | browser-fetch-live-source | blocked-before-stax-load | TextDecoder | TextDecoder, ReadableStream, fetch |
+| nightly | sync-byte-batch-full-string | blocked-before-stax-load | TextDecoder | TextDecoder, TextEncoder |
+| nightly | sync-corpus-byte-batch-full-string | blocked-before-stax-load | TextDecoder | TextDecoder |
+| nightly | async-byte-batch-full-string | blocked-before-stax-load | TextDecoder | TextDecoder |
+| nightly | readable-stream-full-string | blocked-before-stax-load | TextDecoder | TextDecoder, ReadableStream |
+| nightly | browser-fetch-live-source | blocked-before-stax-load | TextDecoder | TextDecoder, ReadableStream, fetch |
+
 ## Findings
 
 - spidermonkey-jsshell-api-gap (NEGATIVE_RESULT): The official release and nightly SpiderMonkey js-shells are executable and can read binary XML, but both lack required Web-compatible globals for the current full-string stax benchmark unchanged.
   - commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch
   - blockedSurfaces=5/5
+  - directUnchangedHarnessAttemptsBlocked=10/10
   - unchangedRunnableShells=0/2
 - spidermonkey-jsshell-api-gap-scope (SCOPE_GUARD): This gap is a host API surface fact, not a SpiderMonkey throughput limit or emitted-code proof.
   - Adding a polyfill or alternate decoder would create a different harness surface and must not be counted as the unchanged current StAX full-string benchmark.

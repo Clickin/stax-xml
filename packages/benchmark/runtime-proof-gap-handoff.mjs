@@ -686,6 +686,10 @@ function createLocalClosure(activeObligations, audit, options = {}) {
     const jsShellCommonMissing = Array.isArray(jsShellApiGap?.summary?.commonMissingGlobals)
       ? jsShellApiGap.summary.commonMissingGlobals.join(', ')
       : 'unknown';
+    const jsShellDirectAttemptsBlocked = typeof jsShellApiGap?.summary?.blockedDirectUnchangedHarnessAttemptCount === 'number'
+      && typeof jsShellApiGap?.summary?.directUnchangedHarnessAttemptCount === 'number'
+      ? `${jsShellApiGap.summary.blockedDirectUnchangedHarnessAttemptCount}/${jsShellApiGap.summary.directUnchangedHarnessAttemptCount}`
+      : 'unknown';
     const buildconfigNoJitSpew = (audit.coverage?.sourcePins ?? []).some(pin =>
       pin.kind === 'Firefox installed buildconfig JitSpew boundary'
       && /enableJitSpew=false/.test(pin.limitation ?? '')
@@ -714,7 +718,7 @@ function createLocalClosure(activeObligations, audit, options = {}) {
           ? `Official Firefox nightly jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface, bytecode dump status is ${nightlyBytecodeStatus}, and it cannot run the current stax full-string benchmark unchanged.`
           : 'Official Firefox nightly jsshell diagnostic status is not pinned as available-without-IR.',
         jsShellApiGapPinned
-          ? `The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface, with common missing globals: ${jsShellCommonMissing}.`
+          ? `The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface, with common missing globals: ${jsShellCommonMissing}, and direct unchanged harness attempts blocked before StAX load: ${jsShellDirectAttemptsBlocked}.`
           : 'The js-shell StAX API gap audit is missing or does not pin the unchanged-harness host API blocker.',
         staxHostApiBoundaryPinned
           ? 'The StAX public reader host API boundary audit pins the current TextDecoder/ReadableStream/TextEncoder boundary: primarySyncByteBatchRequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, and alternateDecoderWouldBeUnchangedClosure=false.'

@@ -110,6 +110,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('spidermonkey-ascii-scope-distance-audit')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('ASCII scope-distance audit pins')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('materialized scope-distance audit pins')));
+  assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('direct unchanged harness attempts blocked before StAX load')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('primarySyncByteBatchMissingGlobals=TextDecoder')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('asciiTextDecoderEquivalent=true')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('stax-public-reader-host-api-boundary-audit')));

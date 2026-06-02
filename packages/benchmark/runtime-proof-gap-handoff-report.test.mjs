@@ -448,6 +448,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /nightly jsshell.*bytecode dump status is bytecode-output-emitted/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /js-shell StAX API gap audit pins the unchanged-harness blocker/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /TextDecoder, TextEncoder, ReadableStream, fetch/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /direct unchanged harness attempts blocked before StAX load: 10\/10/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /StAX public reader host API boundary audit pins.*primarySyncByteBatchRequiresTextDecoder=true/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /alternateDecoderWouldBeUnchangedClosure=false/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /SpiderMonkey js-shell tokenizer headroom audit records partial parser-core headroom only/.test(item)));
@@ -648,6 +649,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /bytecode dump status is bytecode-output-emitted/);
   assert.match(markdown, /The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface/);
   assert.match(markdown, /common missing globals: TextDecoder, TextEncoder, ReadableStream, fetch/);
+  assert.match(markdown, /direct unchanged harness attempts blocked before StAX load: 10\/10/);
   assert.match(markdown, /StAX public reader host API boundary audit pins.*primarySyncByteBatchRequiresTextDecoder=true/);
   assert.match(markdown, /alternateDecoderWouldBeUnchangedClosure=false/);
   assert.match(markdown, /stax-public-reader-host-api-boundary/);

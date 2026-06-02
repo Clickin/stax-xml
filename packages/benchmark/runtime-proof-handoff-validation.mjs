@@ -221,6 +221,7 @@ function validateHandoff(handoff) {
           /spidermonkey-ascii-scope-distance-audit\.json/,
           /ASCII scope-distance audit pins/,
           /materialized scope-distance audit pins/,
+          /direct unchanged harness attempts blocked before StAX load: \d+\/\d+/,
           /primarySyncByteBatchMissingGlobals=TextDecoder/,
           /asciiTextDecoderEquivalent=true/,
           /stax-public-reader-host-api-boundary-audit\.json/,

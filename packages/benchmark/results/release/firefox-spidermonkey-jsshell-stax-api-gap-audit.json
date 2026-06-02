@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T03:19:51.531Z",
+  "generatedAt": "2026-06-02T21:53:47.362Z",
   "objective": "firefox-spidermonkey-jsshell-stax-api-gap-audit",
   "contract": "spidermonkey-jsshell-current-stax-full-string-api-surface-gap",
   "note": "Synthesizes the official release/nightly SpiderMonkey js-shell API probes against the unchanged current full-string stax benchmark surface. This is not benchmark evidence, emitted JIT IR, optimized-code evidence, or a runtime-limit conclusion.",
@@ -105,6 +105,9 @@
     ],
     "commonMissingGlobalCount": 4,
     "blockedSurfaceCount": 5,
+    "directUnchangedHarnessAttemptCount": 10,
+    "blockedDirectUnchangedHarnessAttemptCount": 10,
+    "runnableDirectUnchangedHarnessAttemptCount": 0,
     "canCloseEmittedIrObligation": false,
     "conclusionAllowed": false
   },
@@ -314,6 +317,204 @@
       ]
     }
   ],
+  "directUnchangedHarnessAttempts": [
+    {
+      "packageKind": "release",
+      "sourceArtifact": "firefox-spidermonkey-release-jsshell-availability-audit.json",
+      "surfaceId": "sync-byte-batch-full-string",
+      "entryPoint": "StreamReaderSync generated-fixture Iterable<Uint8Array[]> full-string rows",
+      "contract": "Generated-fixture same-contract StAX rows over synchronous byte batches.",
+      "requiredGlobals": [
+        "Uint8Array",
+        "TextDecoder",
+        "TextEncoder"
+      ],
+      "missingGlobals": [
+        "TextDecoder",
+        "TextEncoder"
+      ],
+      "firstBlockingGlobal": "TextDecoder",
+      "status": "blocked-before-stax-load",
+      "unchangedHarnessSurface": true,
+      "canRunUnchanged": false
+    },
+    {
+      "packageKind": "release",
+      "sourceArtifact": "firefox-spidermonkey-release-jsshell-availability-audit.json",
+      "surfaceId": "sync-corpus-byte-batch-full-string",
+      "entryPoint": "StreamReaderSync corpus-file Iterable<Uint8Array[]> full-string rows",
+      "contract": "Corpus-file same-contract StAX rows over synchronous byte batches.",
+      "requiredGlobals": [
+        "Uint8Array",
+        "TextDecoder"
+      ],
+      "missingGlobals": [
+        "TextDecoder"
+      ],
+      "firstBlockingGlobal": "TextDecoder",
+      "status": "blocked-before-stax-load",
+      "unchangedHarnessSurface": true,
+      "canRunUnchanged": false
+    },
+    {
+      "packageKind": "release",
+      "sourceArtifact": "firefox-spidermonkey-release-jsshell-availability-audit.json",
+      "surfaceId": "async-byte-batch-full-string",
+      "entryPoint": "createEventReaderFromAsyncByteBatches full-string rows",
+      "contract": "Async byte-batch public event rows without direct ReadableStream consumption.",
+      "requiredGlobals": [
+        "Uint8Array",
+        "TextDecoder"
+      ],
+      "missingGlobals": [
+        "TextDecoder"
+      ],
+      "firstBlockingGlobal": "TextDecoder",
+      "status": "blocked-before-stax-load",
+      "unchangedHarnessSurface": true,
+      "canRunUnchanged": false
+    },
+    {
+      "packageKind": "release",
+      "sourceArtifact": "firefox-spidermonkey-release-jsshell-availability-audit.json",
+      "surfaceId": "readable-stream-full-string",
+      "entryPoint": "EventReader ReadableStream<Uint8Array> full-string rows",
+      "contract": "Direct Web ReadableStream source-overhead rows.",
+      "requiredGlobals": [
+        "Uint8Array",
+        "TextDecoder",
+        "ReadableStream"
+      ],
+      "missingGlobals": [
+        "TextDecoder",
+        "ReadableStream"
+      ],
+      "firstBlockingGlobal": "TextDecoder",
+      "status": "blocked-before-stax-load",
+      "unchangedHarnessSurface": true,
+      "canRunUnchanged": false
+    },
+    {
+      "packageKind": "release",
+      "sourceArtifact": "firefox-spidermonkey-release-jsshell-availability-audit.json",
+      "surfaceId": "browser-fetch-live-source",
+      "entryPoint": "browser fetch live-source rows",
+      "contract": "Live fetch Response.body rows such as fetchReadableStreamFull and fetchAsyncByteBatchFull.",
+      "requiredGlobals": [
+        "Uint8Array",
+        "TextDecoder",
+        "ReadableStream",
+        "fetch"
+      ],
+      "missingGlobals": [
+        "TextDecoder",
+        "ReadableStream",
+        "fetch"
+      ],
+      "firstBlockingGlobal": "TextDecoder",
+      "status": "blocked-before-stax-load",
+      "unchangedHarnessSurface": true,
+      "canRunUnchanged": false
+    },
+    {
+      "packageKind": "nightly",
+      "sourceArtifact": "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
+      "surfaceId": "sync-byte-batch-full-string",
+      "entryPoint": "StreamReaderSync generated-fixture Iterable<Uint8Array[]> full-string rows",
+      "contract": "Generated-fixture same-contract StAX rows over synchronous byte batches.",
+      "requiredGlobals": [
+        "Uint8Array",
+        "TextDecoder",
+        "TextEncoder"
+      ],
+      "missingGlobals": [
+        "TextDecoder",
+        "TextEncoder"
+      ],
+      "firstBlockingGlobal": "TextDecoder",
+      "status": "blocked-before-stax-load",
+      "unchangedHarnessSurface": true,
+      "canRunUnchanged": false
+    },
+    {
+      "packageKind": "nightly",
+      "sourceArtifact": "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
+      "surfaceId": "sync-corpus-byte-batch-full-string",
+      "entryPoint": "StreamReaderSync corpus-file Iterable<Uint8Array[]> full-string rows",
+      "contract": "Corpus-file same-contract StAX rows over synchronous byte batches.",
+      "requiredGlobals": [
+        "Uint8Array",
+        "TextDecoder"
+      ],
+      "missingGlobals": [
+        "TextDecoder"
+      ],
+      "firstBlockingGlobal": "TextDecoder",
+      "status": "blocked-before-stax-load",
+      "unchangedHarnessSurface": true,
+      "canRunUnchanged": false
+    },
+    {
+      "packageKind": "nightly",
+      "sourceArtifact": "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
+      "surfaceId": "async-byte-batch-full-string",
+      "entryPoint": "createEventReaderFromAsyncByteBatches full-string rows",
+      "contract": "Async byte-batch public event rows without direct ReadableStream consumption.",
+      "requiredGlobals": [
+        "Uint8Array",
+        "TextDecoder"
+      ],
+      "missingGlobals": [
+        "TextDecoder"
+      ],
+      "firstBlockingGlobal": "TextDecoder",
+      "status": "blocked-before-stax-load",
+      "unchangedHarnessSurface": true,
+      "canRunUnchanged": false
+    },
+    {
+      "packageKind": "nightly",
+      "sourceArtifact": "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
+      "surfaceId": "readable-stream-full-string",
+      "entryPoint": "EventReader ReadableStream<Uint8Array> full-string rows",
+      "contract": "Direct Web ReadableStream source-overhead rows.",
+      "requiredGlobals": [
+        "Uint8Array",
+        "TextDecoder",
+        "ReadableStream"
+      ],
+      "missingGlobals": [
+        "TextDecoder",
+        "ReadableStream"
+      ],
+      "firstBlockingGlobal": "TextDecoder",
+      "status": "blocked-before-stax-load",
+      "unchangedHarnessSurface": true,
+      "canRunUnchanged": false
+    },
+    {
+      "packageKind": "nightly",
+      "sourceArtifact": "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
+      "surfaceId": "browser-fetch-live-source",
+      "entryPoint": "browser fetch live-source rows",
+      "contract": "Live fetch Response.body rows such as fetchReadableStreamFull and fetchAsyncByteBatchFull.",
+      "requiredGlobals": [
+        "Uint8Array",
+        "TextDecoder",
+        "ReadableStream",
+        "fetch"
+      ],
+      "missingGlobals": [
+        "TextDecoder",
+        "ReadableStream",
+        "fetch"
+      ],
+      "firstBlockingGlobal": "TextDecoder",
+      "status": "blocked-before-stax-load",
+      "unchangedHarnessSurface": true,
+      "canRunUnchanged": false
+    }
+  ],
   "findings": [
     {
       "id": "spidermonkey-jsshell-api-gap",
@@ -322,6 +523,7 @@
       "evidence": [
         "commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch",
         "blockedSurfaces=5/5",
+        "directUnchangedHarnessAttemptsBlocked=10/10",
         "unchangedRunnableShells=0/2"
       ]
     },

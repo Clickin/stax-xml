@@ -1,13 +1,13 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-02T21:45:13.539Z
+Generated: 2026-06-02T21:58:43.490Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-06-02T21:45:01.472Z
+- Audit generated: 2026-06-02T21:58:33.768Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
 - Comparison generated: 2026-06-02T20:08:45.362Z
 - Active obligations: 2
@@ -229,7 +229,7 @@ Scope guards:
   - Local SpiderMonkey JS shell candidates are available (2), but this availability audit records no emitted JIT IR or optimized-code dump.
   - Official Firefox release jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface, bytecode dump status is bytecode-output-emitted, and it cannot run the current stax full-string benchmark unchanged.
   - Official Firefox nightly jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface, bytecode dump status is bytecode-output-emitted, and it cannot run the current stax full-string benchmark unchanged.
-  - The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface, with common missing globals: TextDecoder, TextEncoder, ReadableStream, fetch.
+  - The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface, with common missing globals: TextDecoder, TextEncoder, ReadableStream, fetch, and direct unchanged harness attempts blocked before StAX load: 10/10.
   - The StAX public reader host API boundary audit pins the current TextDecoder/ReadableStream/TextEncoder boundary: primarySyncByteBatchRequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, and alternateDecoderWouldBeUnchangedClosure=false.
   - The SpiderMonkey js-shell tokenizer headroom audit records partial parser-core headroom only: fastest=145.01 MiB/s, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0.
   - The SpiderMonkey js-shell materialized headroom audit records JS string/object materialization headroom only: fastest=37.61 MiB/s, sameSemanticChecksumFields=true, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0.

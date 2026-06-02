@@ -210,6 +210,15 @@ function summarizeArtifactSummary(summary, inputs = {}, closestBlockedCandidates
     unchangedRunnableShellCount: typeof summary.unchangedRunnableShellCount === 'number' ? summary.unchangedRunnableShellCount : null,
     commonMissingGlobals: Array.isArray(summary.commonMissingGlobals) ? summary.commonMissingGlobals : null,
     blockedSurfaceCount: typeof summary.blockedSurfaceCount === 'number' ? summary.blockedSurfaceCount : null,
+    directUnchangedHarnessAttemptCount: typeof summary.directUnchangedHarnessAttemptCount === 'number'
+      ? summary.directUnchangedHarnessAttemptCount
+      : null,
+    blockedDirectUnchangedHarnessAttemptCount: typeof summary.blockedDirectUnchangedHarnessAttemptCount === 'number'
+      ? summary.blockedDirectUnchangedHarnessAttemptCount
+      : null,
+    runnableDirectUnchangedHarnessAttemptCount: typeof summary.runnableDirectUnchangedHarnessAttemptCount === 'number'
+      ? summary.runnableDirectUnchangedHarnessAttemptCount
+      : null,
     canCloseEmittedIrObligation: typeof summary.canCloseEmittedIrObligation === 'boolean'
       ? summary.canCloseEmittedIrObligation
       : null,
