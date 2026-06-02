@@ -144,6 +144,7 @@ function validateHandoff(handoff) {
         /--corpus-file packages\/benchmark\/assets\/books\.xml/,
         /--cases stringFull,eventObjectFull,rawFrameNameId/,
         /safari-webkit-closure-audit\.mjs/,
+        /target-distance-audit\.mjs/,
         /text-materialization-frontier-coverage-audit\.mjs/,
       ]
     : isSpiderMonkey
@@ -188,6 +189,8 @@ function validateHandoff(handoff) {
         /missing Safari JS heap counters must not be treated as bounded-memory proof/,
         /runtime-counterexample-scan\.json/,
         /200 MiB\/s\+ bounded-memory row as a counterexample/,
+        /target-distance-audit\.json must be regenerated after Safari\/WebKit rows/,
+        /Woodstox and quick-xml 0\.9x target distances use the same updated JavaScript comparison set/,
         /exact Safari version/,
         /TextDecoder\/UTF-8 decode source lines/,
         /row-level source-boundary metadata/,

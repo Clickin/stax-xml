@@ -71,6 +71,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.equal(spiderMonkey.externalRunRequired, true);
   assert.ok(safari.requiredFlagPatterns.some(pattern => pattern.includes('--harness safari-webdriver')));
   assert.ok(safari.requiredFlagPatterns.some(pattern => pattern.includes('safari-webkit-closure-audit')));
+  assert.ok(safari.requiredFlagPatterns.some(pattern => pattern.includes('target-distance-audit')));
   assert.ok(safari.requiredFlagPatterns.some(pattern => pattern.includes('text-materialization-frontier-coverage-audit')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('directReadableStreamFullStringRowsRecorded')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('must not substitute for primarySyncByteBatchRowsRecorded')));
@@ -89,6 +90,8 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('missing Safari JS heap counters')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('runtime-counterexample-scan')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('200 MiB')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('target-distance-audit')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('Woodstox and quick-xml')));
   assert.ok(spiderMonkey.requiredFlagPatterns.some(pattern => pattern.includes('FIREFOX_PATH')));
   assert.ok(spiderMonkey.requiredFlagPatterns.some(pattern => pattern.includes('stax-public-reader-host-api-boundary-audit')));
   assert.ok(spiderMonkey.requiredFlagPatterns.some(pattern => pattern.includes('spidermonkey-jsshell-tokenizer-headroom')));
@@ -654,6 +657,48 @@ test('runtime proof handoff validation fails if Safari omits memory and countere
   assert.equal(safariCheck.contractsPresent, false);
   assert.ok(safariCheck.requiredContractPatterns.some(pattern => /Memory evidence is classified explicitly/.test(pattern)));
   assert.ok(safariCheck.requiredContractPatterns.some(pattern => /runtime-counterexample-scan/.test(pattern)));
+
+  const markdown = readFileSync(badMdOut, 'utf8');
+  assert.match(markdown, /Pass: no/);
+  assert.match(markdown, /safari-webkit-browser-row-handoff/);
+});
+
+test('runtime proof handoff validation fails if Safari omits target-distance refresh', () => {
+  resetTmp();
+  const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
+  const safari = handoff.handoffs.find(row => row.id === 'safari-webkit-browser-row-handoff');
+  safari.closureChecks = safari.closureChecks.filter(item => !/target-distance-audit\.json/.test(item));
+  safari.commands = safari.commands.map(command =>
+    command.id === 'post-safari-audits'
+      ? { ...command, command: command.command.replace(/ && node packages\/benchmark\/target-distance-audit\.mjs[^&]+/g, '') }
+      : command
+  );
+  writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-proof-handoff-validation.mjs'),
+    '--handoff-json',
+    badHandoffJson,
+    '--json-out',
+    badJsonOut,
+    '--md-out',
+    badMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badJsonOut, 'utf8'));
+  assert.equal(report.summary.pass, false);
+  assert.equal(report.summary.allRequiredFlagsPresent, false);
+  assert.equal(report.summary.allContractsPresent, false);
+  const safariCheck = report.handoffChecks.find(row => row.id === 'safari-webkit-browser-row-handoff');
+  assert.equal(safariCheck.requiredFlagsPresent, false);
+  assert.equal(safariCheck.contractsPresent, false);
+  assert.ok(safariCheck.requiredFlagPatterns.some(pattern => /target-distance-audit/.test(pattern)));
+  assert.ok(safariCheck.requiredContractPatterns.some(pattern => /target-distance-audit/.test(pattern)));
 
   const markdown = readFileSync(badMdOut, 'utf8');
   assert.match(markdown, /Pass: no/);
