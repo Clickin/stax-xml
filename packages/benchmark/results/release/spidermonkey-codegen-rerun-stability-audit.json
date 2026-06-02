@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T15:41:59.042Z",
+  "generatedAt": "2026-06-02T18:24:59.884Z",
   "objective": "spidermonkey-codegen-rerun-stability-audit",
   "contract": "spidermonkey-debug-jsshell-codegen-rerun-reproducibility-not-closure",
   "note": "Compares original and rerun Taskcluster debug SpiderMonkey js-shell codegen artifacts. This is reproducibility evidence for emitted JitSpew/codegen diagnostics, not same-contract StAX closure evidence.",
@@ -57,7 +57,7 @@
   ],
   "closureAudit": {
     "objective": "spidermonkey-codegen-closure-audit",
-    "candidateCount": 15,
+    "candidateCount": 16,
     "emittedCodegenSurfaceCount": 6,
     "qualifiedClosureCount": 0,
     "conclusionAllowed": false

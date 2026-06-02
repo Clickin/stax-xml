@@ -131,6 +131,12 @@ function createSelfTestReport(options) {
           closesEmittedIrObligation: false,
           selectedRowIdentityStatus: 'not-claimed-non-stax-diagnostic',
         },
+        materializedWorkload: {
+          eventCount: 12,
+          checksum: 34,
+          fullStringParity: true,
+          sameContractStaxRow: false,
+        },
         shell: {
           provenance: {
             taskId: 'self-test-task',
@@ -385,6 +391,10 @@ function buildReport(options, artifacts, comparison = { generatedAt: null, rowCo
       profiledFullStringParityCount: candidates.filter(candidate => candidate.profiledFullStringParity === true).length,
       unchangedRunnableCount: candidates.filter(candidate => candidate.requirements.unchangedRunnable.met).length,
       selectedRowMetadataCount: candidates.filter(candidate => candidate.requirements.selectedRowMetadata.met).length,
+      diagnosticWorkloadMetadataCount: candidates.filter(candidate => candidate.diagnosticWorkloadMetadata !== null).length,
+      nonComparableDiagnosticWorkloadMetadataCount: candidates.filter(candidate =>
+        candidate.diagnosticWorkloadMetadata !== null && candidate.diagnosticWorkloadMetadataComparable === false
+      ).length,
       selectedRowComparisonMatchCount: candidates.filter(candidate => candidate.selectedRowMatchesCurrentComparison === true).length,
       selectedRowComparisonMismatchCount: candidates.filter(candidate => candidate.selectedRowMatchesCurrentComparison === false).length,
       selectedRowComparisonMissingCount: candidates.filter(candidate => candidate.selectedRowMatchesCurrentComparison === null).length,
@@ -447,6 +457,10 @@ function createCandidate(artifact, comparisonRows = []) {
   const selectedRowMetadataComplete = Boolean(selectedRowId)
     && Number.isFinite(selectedEventCount)
     && Number.isFinite(selectedChecksum);
+  const diagnosticWorkloadMetadata = extractDiagnosticWorkloadMetadata(root);
+  const diagnosticWorkloadMetadataComparable = diagnosticWorkloadMetadata
+    ? diagnosticWorkloadMetadata.sameContractStaxRow === true
+    : null;
   const selectedRowMatchesCurrentComparison = selectedRowMetadataComplete
     ? matchSameContractComparisonRow({
       selectedRowId,
@@ -545,6 +559,8 @@ function createCandidate(artifact, comparisonRows = []) {
     profiledFullStringParity: profiledVariant?.fullStringParity === true,
     selectedRowIdentityStatus,
     selectedRowMatchesCurrentComparison,
+    diagnosticWorkloadMetadata,
+    diagnosticWorkloadMetadataComparable,
     selectedRowMetadataMissingFields,
     closingMetadataMissingFields,
     requirements,
@@ -650,6 +666,18 @@ function createFindings(report) {
       ],
     });
   }
+  if (report.summary.nonComparableDiagnosticWorkloadMetadataCount > 0) {
+    findings.push({
+      id: 'spidermonkey-diagnostic-workload-metadata-not-row-identity',
+      classification: 'SCOPE_GUARD',
+      summary: `Diagnostic workload metadata is recorded for ${report.summary.nonComparableDiagnosticWorkloadMetadataCount} non-closure artifact(s), but it is not selected same-contract row identity.`,
+      evidence: [
+        `diagnosticWorkloadMetadata=${report.summary.diagnosticWorkloadMetadataCount}`,
+        `nonComparableDiagnosticWorkloadMetadata=${report.summary.nonComparableDiagnosticWorkloadMetadataCount}`,
+        `selectedRowMetadata=${report.summary.selectedRowMetadataCount}`,
+      ],
+    });
+  }
   return findings;
 }
 
@@ -676,6 +704,8 @@ function renderMarkdown(report) {
     `- Profiled full-string parity count: ${report.summary.profiledFullStringParityCount}`,
     `- Unchanged runnable count: ${report.summary.unchangedRunnableCount}`,
     `- Selected row metadata count: ${report.summary.selectedRowMetadataCount}`,
+    `- Diagnostic workload metadata count: ${report.summary.diagnosticWorkloadMetadataCount}`,
+    `- Non-comparable diagnostic workload metadata count: ${report.summary.nonComparableDiagnosticWorkloadMetadataCount}`,
     `- Closing metadata count: ${report.summary.closingMetadataCount}`,
     `- Qualified closures: ${report.summary.qualifiedClosureCount}`,
     `- Contradicted closure claims: ${report.summary.contradictedClosureClaimCount}`,
@@ -732,6 +762,20 @@ function renderMarkdown(report) {
     for (const evidence of finding.evidence ?? []) lines.push(`  - ${evidence}`);
   }
   return `${lines.join('\n')}\n`;
+}
+
+function extractDiagnosticWorkloadMetadata(root) {
+  const workload = root.materializedWorkload ?? root.row ?? null;
+  if (!workload) return null;
+  const eventCount = firstFiniteNumber(workload.eventCount, workload.selectedEventCount);
+  const checksum = firstFiniteNumber(workload.checksum, workload.selectedChecksum);
+  if (!Number.isFinite(eventCount) || !Number.isFinite(checksum)) return null;
+  return {
+    eventCount,
+    checksum,
+    fullStringParity: workload.fullStringParity === true,
+    sameContractStaxRow: workload.sameContractStaxRow === true,
+  };
 }
 
 function readArtifact(releaseDir, file) {

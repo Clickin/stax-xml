@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T18:14:53.980Z",
+  "generatedAt": "2026-06-02T18:24:31.994Z",
   "objective": "spidermonkey-codegen-closure-audit",
   "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
   "note": "Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.",
@@ -23,6 +23,8 @@
       "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
+      "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -110,6 +112,8 @@
       "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
+      "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -197,6 +201,8 @@
       "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
+      "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -284,6 +290,8 @@
       "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
+      "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -371,6 +379,8 @@
       "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
+      "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -458,6 +468,8 @@
       "profiledFullStringParity": true,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": false,
+      "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [],
       "closingMetadataMissingFields": [
         "runtimeBuildIdentity",
@@ -541,6 +553,8 @@
       "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
+      "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -628,6 +642,8 @@
       "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
+      "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -712,6 +728,8 @@
       "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
+      "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -799,6 +817,8 @@
       "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
+      "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -886,6 +906,8 @@
       "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
+      "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -973,6 +995,8 @@
       "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
+      "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -1054,6 +1078,8 @@
       "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
+      "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -1135,6 +1161,13 @@
       "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
+      "diagnosticWorkloadMetadata": {
+        "eventCount": 55759,
+        "checksum": -553631888,
+        "fullStringParity": true,
+        "sameContractStaxRow": false
+      },
+      "diagnosticWorkloadMetadataComparable": false,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -1216,6 +1249,13 @@
       "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
+      "diagnosticWorkloadMetadata": {
+        "eventCount": 55759,
+        "checksum": -553631888,
+        "fullStringParity": true,
+        "sameContractStaxRow": false
+      },
+      "diagnosticWorkloadMetadataComparable": false,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -1297,6 +1337,13 @@
       "profiledFullStringParity": false,
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
+      "diagnosticWorkloadMetadata": {
+        "eventCount": 55759,
+        "checksum": 9292058,
+        "fullStringParity": false,
+        "sameContractStaxRow": false
+      },
+      "diagnosticWorkloadMetadataComparable": false,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
         "selectedEventCount",
@@ -1468,6 +1515,8 @@
     "profiledFullStringParityCount": 1,
     "unchangedRunnableCount": 0,
     "selectedRowMetadataCount": 1,
+    "diagnosticWorkloadMetadataCount": 3,
+    "nonComparableDiagnosticWorkloadMetadataCount": 3,
     "selectedRowComparisonMatchCount": 0,
     "selectedRowComparisonMismatchCount": 1,
     "selectedRowComparisonMissingCount": 15,
@@ -1540,6 +1589,16 @@
         "emittedCodegenSurface=6",
         "sameContractStaxRows=0",
         "unchangedRunnable=0"
+      ]
+    },
+    {
+      "id": "spidermonkey-diagnostic-workload-metadata-not-row-identity",
+      "classification": "SCOPE_GUARD",
+      "summary": "Diagnostic workload metadata is recorded for 3 non-closure artifact(s), but it is not selected same-contract row identity.",
+      "evidence": [
+        "diagnosticWorkloadMetadata=3",
+        "nonComparableDiagnosticWorkloadMetadata=3",
+        "selectedRowMetadata=1"
       ]
     }
   ]

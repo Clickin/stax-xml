@@ -38,6 +38,8 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.equal(report.summary.profiledFullStringParityCount, 1);
   assert.equal(report.summary.unchangedRunnableCount, 3);
   assert.equal(report.summary.selectedRowMetadataCount, 4);
+  assert.equal(report.summary.diagnosticWorkloadMetadataCount, 1);
+  assert.equal(report.summary.nonComparableDiagnosticWorkloadMetadataCount, 1);
   assert.equal(report.summary.selectedRowComparisonMatchCount, 2);
   assert.equal(report.summary.selectedRowComparisonMismatchCount, 2);
   assert.equal(report.summary.selectedRowComparisonMissingCount, 3);
@@ -133,6 +135,13 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
     'selectedEventCount',
     'selectedChecksum',
   ]);
+  assert.deepEqual(blocked.diagnosticWorkloadMetadata, {
+    eventCount: 12,
+    checksum: 34,
+    fullStringParity: true,
+    sameContractStaxRow: false,
+  });
+  assert.equal(blocked.diagnosticWorkloadMetadataComparable, false);
   assert.ok(blocked.unmetRequirements.includes('sameContractStaxRow'));
   assert.ok(blocked.unmetRequirements.includes('unchangedRunnable'));
   assert.ok(blocked.unmetRequirements.includes('selectedRowMetadata'));
@@ -207,7 +216,10 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.match(markdown, /Comparison generated: self-test-comparison-generated-at/);
   assert.match(markdown, /Comparison rows checked: 1/);
   assert.match(markdown, /Selected row metadata missing fields: selectedChecksum=3, selectedEventCount=3, selectedRowId=3/);
+  assert.match(markdown, /Diagnostic workload metadata count: 1/);
+  assert.match(markdown, /Non-comparable diagnostic workload metadata count: 1/);
   assert.match(markdown, /Closing metadata missing fields: diagnosticFlags=2, emittedDumpMetadata=2, runtimeBuildIdentity=2/);
+  assert.match(markdown, /Diagnostic workload metadata is recorded for 1 non-closure artifact/);
   assert.match(markdown, /Evidence classes: bytecode-diagnostic-only=1, current-debug-codegen-scope-guard=1, current-debug-materialized-codegen-scope-guard=1, gecko-profiler-scope-guard=1, same-contract-spidermonkey-codegen=2, unknown=1/);
   assert.match(markdown, /Disallowed evidence classes: bytecode-diagnostic-only=1, current-debug-codegen-scope-guard=1, current-debug-materialized-codegen-scope-guard=1, gecko-profiler-scope-guard=1, unknown=1/);
   assert.match(markdown, /Closest blocked candidate count: 2/);

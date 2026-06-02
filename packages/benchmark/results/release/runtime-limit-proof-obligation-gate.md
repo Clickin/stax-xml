@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T18:14:54.534Z
+Generated: 2026-06-02T18:27:00.522Z
 
 ## Scope
 
@@ -89,7 +89,7 @@ Disclosure-only guards: 3
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-02T18:14:54.279Z)
+- Coverage audit loaded: yes (2026-06-02T18:25:07.895Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey diagnostics rows vs closure candidates: 11/16 (gap=5, closureQualified=0)
@@ -135,7 +135,7 @@ Disclosure-only guards: 3
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-02T18:14:54.406Z)
+- Handoff loaded: yes (2026-06-02T18:26:42.786Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -168,8 +168,8 @@ Disclosure-only guards: 3
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T18:14:54.460Z)
-- Handoff validation target handoff generatedAt: 2026-06-02T18:14:54.406Z (current 2026-06-02T18:14:54.406Z)
+- Handoff validation loaded: yes (2026-06-02T18:26:50.864Z)
+- Handoff validation target handoff generatedAt: 2026-06-02T18:26:42.786Z (current 2026-06-02T18:26:42.786Z)
 - Handoff validation pass: yes
 - Commands checked: 15
 - Scripts referenced: 22
@@ -200,8 +200,8 @@ Disclosure-only guards: 3
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-02T18:14:54.339Z)
-- Source audit inputs: comparison=2026-06-02T18:14:24.864Z (current 2026-06-02T18:14:24.864Z), coverage=2026-06-02T18:14:54.279Z (current 2026-06-02T18:14:54.279Z)
+- Source audit loaded: yes (2026-06-02T18:26:12.703Z)
+- Source audit inputs: comparison=2026-06-02T18:14:24.864Z (current 2026-06-02T18:14:24.864Z), coverage=2026-06-02T18:25:07.895Z (current 2026-06-02T18:25:07.895Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary sync byte-batch rows: 231
