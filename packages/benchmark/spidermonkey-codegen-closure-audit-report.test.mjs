@@ -32,28 +32,31 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.equal(report.contract, 'spidermonkey-emitted-codegen-same-contract-closure-matrix');
   assert.equal(report.inputs.comparisonGeneratedAt, 'self-test-comparison-generated-at');
   assert.equal(report.inputs.comparisonRowCount, 1);
-  assert.equal(report.summary.candidateCount, 8);
-  assert.equal(report.summary.emittedCodegenSurfaceCount, 6);
+  assert.equal(report.summary.candidateCount, 9);
+  assert.equal(report.summary.emittedCodegenSurfaceCount, 7);
   assert.equal(report.summary.sameContractStaxRowCount, 4);
   assert.equal(report.summary.profiledFullStringParityCount, 1);
   assert.equal(report.summary.unchangedRunnableCount, 4);
   assert.equal(report.summary.selectedRowMetadataCount, 5);
-  assert.equal(report.summary.diagnosticWorkloadMetadataCount, 1);
-  assert.equal(report.summary.nonComparableDiagnosticWorkloadMetadataCount, 1);
+  assert.equal(report.summary.diagnosticWorkloadMetadataCount, 2);
+  assert.equal(report.summary.diagnosticWorkloadComparisonMatchCount, 1);
+  assert.equal(report.summary.diagnosticWorkloadComparisonMismatchCount, 1);
+  assert.equal(report.summary.diagnosticWorkloadComparisonMissingCount, 7);
+  assert.equal(report.summary.nonComparableDiagnosticWorkloadMetadataCount, 2);
   assert.equal(report.summary.selectedRowComparisonMatchCount, 3);
   assert.equal(report.summary.selectedRowComparisonMismatchCount, 2);
-  assert.equal(report.summary.selectedRowComparisonMissingCount, 3);
+  assert.equal(report.summary.selectedRowComparisonMissingCount, 4);
   assert.equal(report.summary.qualifiedClosureCount, 1);
   assert.equal(report.summary.contradictedClosureClaimCount, 4);
   assert.deepEqual(report.summary.selectedRowIdentityStatusCounts, {
     'closing-row-identity-missing-or-mismatched': 2,
-    'not-claimed-non-stax-diagnostic': 4,
+    'not-claimed-non-stax-diagnostic': 5,
     'same-contract-stax-row': 2,
   });
   assert.deepEqual(report.summary.selectedRowMetadataMissingFieldCounts, {
-    selectedChecksum: 3,
-    selectedEventCount: 3,
-    selectedRowId: 3,
+    selectedChecksum: 4,
+    selectedEventCount: 4,
+    selectedRowId: 4,
   });
   assert.deepEqual(report.summary.closingMetadataMissingFieldCounts, {
     diagnosticFlags: 3,
@@ -63,7 +66,7 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.deepEqual(report.summary.evidenceClassCounts, {
     'bytecode-diagnostic-only': 1,
     'current-debug-codegen-scope-guard': 1,
-    'current-debug-materialized-codegen-scope-guard': 1,
+    'current-debug-materialized-codegen-scope-guard': 2,
     'gecko-profiler-scope-guard': 1,
     'same-contract-spidermonkey-codegen': 3,
     unknown: 1,
@@ -71,7 +74,7 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.deepEqual(report.summary.disallowedEvidenceClassCounts, {
     'bytecode-diagnostic-only': 1,
     'current-debug-codegen-scope-guard': 1,
-    'current-debug-materialized-codegen-scope-guard': 1,
+    'current-debug-materialized-codegen-scope-guard': 2,
     'gecko-profiler-scope-guard': 1,
     unknown: 1,
   });
@@ -81,11 +84,11 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.deepEqual(report.missingRequirementHistogram, {
     closingMetadata: 3,
     emittedCodegenSurface: 2,
-    evidenceClassAllowed: 5,
+    evidenceClassAllowed: 6,
+    sameContractStaxRow: 5,
     selectedRowMatchesCurrentComparison: 2,
-    sameContractStaxRow: 4,
-    selectedRowMetadata: 3,
-    unchangedRunnable: 4,
+    selectedRowMetadata: 4,
+    unchangedRunnable: 5,
   });
   assert.equal(report.contradictedClosureClaims.length, 4);
   const contradicted = report.contradictedClosureClaims.find(candidate =>
@@ -157,6 +160,20 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.ok(blocked.unmetRequirements.includes('selectedRowMetadata'));
   assert.ok(blocked.unmetRequirements.includes('evidenceClassAllowed'));
 
+  const workloadMismatch = report.candidates.find(candidate =>
+    candidate.sourceArtifact === 'spidermonkey-diagnostic-workload-mismatch.json'
+  );
+  assert.ok(workloadMismatch);
+  assert.equal(workloadMismatch.qualifiedClosure, false);
+  assert.equal(workloadMismatch.diagnosticWorkloadMatchesCurrentComparison, false);
+  assert.deepEqual(workloadMismatch.diagnosticWorkloadMetadata, {
+    eventCount: 12,
+    checksum: 999,
+    fullStringParity: true,
+    sameContractStaxRow: true,
+  });
+  assert.equal(workloadMismatch.diagnosticWorkloadMetadataComparable, false);
+
   const profiler = report.candidates.find(candidate =>
     candidate.sourceArtifact === 'firefox-spidermonkey-profiler-trace.json'
   );
@@ -220,21 +237,22 @@ test('SpiderMonkey codegen closure audit keeps diagnostic artifacts out of same-
   assert.match(markdown, /# SpiderMonkey Codegen Closure Audit/);
   assert.match(markdown, /Qualified closures: 1/);
   assert.match(markdown, /Contradicted closure claims: 4/);
-  assert.match(markdown, /Selected row identity statuses: closing-row-identity-missing-or-mismatched=2, not-claimed-non-stax-diagnostic=4, same-contract-stax-row=2/);
-  assert.match(markdown, /Selected row comparison matches: matched=3, mismatched=2, missing=3/);
+  assert.match(markdown, /Selected row identity statuses: closing-row-identity-missing-or-mismatched=2, not-claimed-non-stax-diagnostic=5, same-contract-stax-row=2/);
+  assert.match(markdown, /Selected row comparison matches: matched=3, mismatched=2, missing=4/);
   assert.match(markdown, /Profiled full-string parity count: 1/);
   assert.match(markdown, /Comparison generated: self-test-comparison-generated-at/);
   assert.match(markdown, /Comparison rows checked: 1/);
-  assert.match(markdown, /Selected row metadata missing fields: selectedChecksum=3, selectedEventCount=3, selectedRowId=3/);
-  assert.match(markdown, /Diagnostic workload metadata count: 1/);
-  assert.match(markdown, /Non-comparable diagnostic workload metadata count: 1/);
+  assert.match(markdown, /Selected row metadata missing fields: selectedChecksum=4, selectedEventCount=4, selectedRowId=4/);
+  assert.match(markdown, /Diagnostic workload metadata count: 2/);
+  assert.match(markdown, /Diagnostic workload comparison matches: matched=1, mismatched=1, missing=7/);
+  assert.match(markdown, /Non-comparable diagnostic workload metadata count: 2/);
   assert.match(markdown, /Closing metadata missing fields: diagnosticFlags=3, emittedDumpMetadata=2, runtimeBuildIdentity=2/);
-  assert.match(markdown, /Diagnostic workload metadata is recorded for 1 non-closure artifact/);
-  assert.match(markdown, /Evidence classes: bytecode-diagnostic-only=1, current-debug-codegen-scope-guard=1, current-debug-materialized-codegen-scope-guard=1, gecko-profiler-scope-guard=1, same-contract-spidermonkey-codegen=3, unknown=1/);
-  assert.match(markdown, /Disallowed evidence classes: bytecode-diagnostic-only=1, current-debug-codegen-scope-guard=1, current-debug-materialized-codegen-scope-guard=1, gecko-profiler-scope-guard=1, unknown=1/);
+  assert.match(markdown, /Diagnostic workload metadata is recorded for 2 non-closure artifact\(s\)/);
+  assert.match(markdown, /Evidence classes: bytecode-diagnostic-only=1, current-debug-codegen-scope-guard=1, current-debug-materialized-codegen-scope-guard=2, gecko-profiler-scope-guard=1, same-contract-spidermonkey-codegen=3, unknown=1/);
+  assert.match(markdown, /Disallowed evidence classes: bytecode-diagnostic-only=1, current-debug-codegen-scope-guard=1, current-debug-materialized-codegen-scope-guard=2, gecko-profiler-scope-guard=1, unknown=1/);
   assert.match(markdown, /Closest blocked candidate count: 3/);
   assert.match(markdown, /selectedRowMatchesCurrentComparison: 2/);
-  assert.match(markdown, /sameContractStaxRow: 4/);
+  assert.match(markdown, /sameContractStaxRow: 5/);
   assert.match(markdown, /firefox-spidermonkey-profiler-trace\.json/);
   assert.match(markdown, /spidermonkey-contradicted-closure\.json/);
   assert.match(markdown, /spidermonkey-generic-flags-closure\.json/);

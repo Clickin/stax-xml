@@ -1,6 +1,6 @@
 # SpiderMonkey Codegen Closure Audit
 
-Generated: 2026-06-02T20:12:34.987Z
+Generated: 2026-06-02T20:23:26.089Z
 
 Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.
 
@@ -20,6 +20,7 @@ Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requi
 - Unchanged runnable count: 0
 - Selected row metadata count: 1
 - Diagnostic workload metadata count: 3
+- Diagnostic workload comparison matches: matched=0, mismatched=3, missing=13
 - Non-comparable diagnostic workload metadata count: 3
 - Closing metadata count: 5
 - Qualified closures: 0

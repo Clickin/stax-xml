@@ -129,6 +129,7 @@ function createSelfTestReport(options) {
           unchangedStaxBenchmark: false,
           canRunCurrentStaxFullStringBenchmark: false,
           closesEmittedIrObligation: false,
+          evidenceClass: 'current-debug-materialized-codegen-scope-guard',
           selectedRowIdentityStatus: 'not-claimed-non-stax-diagnostic',
         },
         materializedWorkload: {
@@ -304,6 +305,42 @@ function createSelfTestReport(options) {
       },
     },
     {
+      sourceArtifact: 'spidermonkey-diagnostic-workload-mismatch.json',
+      root: {
+        objective: 'spidermonkey-diagnostic-workload-mismatch',
+        outcome: {
+          status: 'materialized-string-object-codegen-output-emitted',
+          hasCodegenDumpOutput: true,
+          sameContractStaxRow: false,
+          unchangedStaxBenchmark: false,
+          canRunCurrentStaxFullStringBenchmark: false,
+          closesEmittedIrObligation: false,
+          evidenceClass: 'current-debug-materialized-codegen-scope-guard',
+          selectedRowIdentityStatus: 'not-claimed-non-stax-diagnostic',
+        },
+        materializedWorkload: {
+          eventCount: 12,
+          checksum: 999,
+          fullStringParity: true,
+          sameContractStaxRow: true,
+        },
+        shell: {
+          provenance: {
+            taskId: 'diagnostic-workload-mismatch-task',
+            buildId: '20260602000005',
+            sourceRevision: 'pqr678',
+          },
+          materializedCodegenProbe: {
+            status: 'materialized-string-object-codegen-output-emitted',
+            flags: 'codegen',
+            outputBytes: 4096,
+            codegenMarkerCount: 45,
+            nativeDumpComplete: true,
+          },
+        },
+      },
+    },
+    {
       sourceArtifact: 'spidermonkey-mismatched-comparison-row.json',
       root: {
         objective: 'spidermonkey-mismatched-comparison-row',
@@ -425,6 +462,9 @@ function buildReport(options, artifacts, comparison = { generatedAt: null, rowCo
       unchangedRunnableCount: candidates.filter(candidate => candidate.requirements.unchangedRunnable.met).length,
       selectedRowMetadataCount: candidates.filter(candidate => candidate.requirements.selectedRowMetadata.met).length,
       diagnosticWorkloadMetadataCount: candidates.filter(candidate => candidate.diagnosticWorkloadMetadata !== null).length,
+      diagnosticWorkloadComparisonMatchCount: candidates.filter(candidate => candidate.diagnosticWorkloadMatchesCurrentComparison === true).length,
+      diagnosticWorkloadComparisonMismatchCount: candidates.filter(candidate => candidate.diagnosticWorkloadMatchesCurrentComparison === false).length,
+      diagnosticWorkloadComparisonMissingCount: candidates.filter(candidate => candidate.diagnosticWorkloadMatchesCurrentComparison === null).length,
       nonComparableDiagnosticWorkloadMetadataCount: candidates.filter(candidate =>
         candidate.diagnosticWorkloadMetadata !== null && candidate.diagnosticWorkloadMetadataComparable === false
       ).length,
@@ -491,8 +531,17 @@ function createCandidate(artifact, comparisonRows = []) {
     && Number.isFinite(selectedEventCount)
     && Number.isFinite(selectedChecksum);
   const diagnosticWorkloadMetadata = extractDiagnosticWorkloadMetadata(root);
+  const diagnosticWorkloadMatchesCurrentComparison = diagnosticWorkloadMetadata
+    ? matchDiagnosticWorkloadComparison({
+      diagnosticWorkloadMetadata,
+      comparisonRows,
+      expectedRuntimeIds: ['firefox-spidermonkey-browser'],
+    })
+    : null;
   const diagnosticWorkloadMetadataComparable = diagnosticWorkloadMetadata
     ? diagnosticWorkloadMetadata.sameContractStaxRow === true
+      && diagnosticWorkloadMetadata.fullStringParity === true
+      && diagnosticWorkloadMatchesCurrentComparison === true
     : null;
   const selectedRowMatchesCurrentComparison = selectedRowMetadataComplete
     ? matchSameContractComparisonRow({
@@ -593,6 +642,7 @@ function createCandidate(artifact, comparisonRows = []) {
     selectedRowIdentityStatus,
     selectedRowMatchesCurrentComparison,
     diagnosticWorkloadMetadata,
+    diagnosticWorkloadMatchesCurrentComparison,
     diagnosticWorkloadMetadataComparable,
     selectedRowMetadataMissingFields,
     closingMetadataMissingFields,
@@ -738,6 +788,7 @@ function renderMarkdown(report) {
     `- Unchanged runnable count: ${report.summary.unchangedRunnableCount}`,
     `- Selected row metadata count: ${report.summary.selectedRowMetadataCount}`,
     `- Diagnostic workload metadata count: ${report.summary.diagnosticWorkloadMetadataCount}`,
+    `- Diagnostic workload comparison matches: matched=${report.summary.diagnosticWorkloadComparisonMatchCount}, mismatched=${report.summary.diagnosticWorkloadComparisonMismatchCount}, missing=${report.summary.diagnosticWorkloadComparisonMissingCount}`,
     `- Non-comparable diagnostic workload metadata count: ${report.summary.nonComparableDiagnosticWorkloadMetadataCount}`,
     `- Closing metadata count: ${report.summary.closingMetadataCount}`,
     `- Qualified closures: ${report.summary.qualifiedClosureCount}`,
@@ -871,6 +922,27 @@ function matchSameContractComparisonRow({
     if (typeof selectedEventCount !== 'number' || row.eventCount !== selectedEventCount) return false;
     if (selectedChecksum === null || selectedChecksum === undefined || row.checksum !== selectedChecksum) return false;
     return true;
+  });
+}
+
+function matchDiagnosticWorkloadComparison({
+  diagnosticWorkloadMetadata,
+  comparisonRows,
+  expectedRuntimeIds = null,
+}) {
+  if (!diagnosticWorkloadMetadata) return null;
+  if (!Array.isArray(comparisonRows) || comparisonRows.length === 0) return false;
+  if (diagnosticWorkloadMetadata.fullStringParity !== true) return false;
+  if (typeof diagnosticWorkloadMetadata.eventCount !== 'number') return false;
+  if (diagnosticWorkloadMetadata.checksum === null || diagnosticWorkloadMetadata.checksum === undefined) return false;
+  return comparisonRows.some(row => {
+    if (
+      Array.isArray(expectedRuntimeIds)
+      && expectedRuntimeIds.length > 0
+      && !expectedRuntimeIds.includes(row.runtimeId)
+    ) return false;
+    return row.eventCount === diagnosticWorkloadMetadata.eventCount
+      && row.checksum === diagnosticWorkloadMetadata.checksum;
   });
 }
 

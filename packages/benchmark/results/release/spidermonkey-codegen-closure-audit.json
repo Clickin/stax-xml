@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T20:12:34.987Z",
+  "generatedAt": "2026-06-02T20:23:26.089Z",
   "objective": "spidermonkey-codegen-closure-audit",
   "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
   "note": "Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.",
@@ -24,6 +24,7 @@
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
@@ -113,6 +114,7 @@
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
@@ -202,6 +204,7 @@
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
@@ -291,6 +294,7 @@
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
@@ -380,6 +384,7 @@
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
@@ -469,6 +474,7 @@
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": false,
       "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [],
       "closingMetadataMissingFields": [
@@ -554,6 +560,7 @@
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
@@ -643,6 +650,7 @@
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
@@ -729,6 +737,7 @@
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
@@ -818,6 +827,7 @@
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
@@ -907,6 +917,7 @@
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
@@ -996,6 +1007,7 @@
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
@@ -1079,6 +1091,7 @@
       "selectedRowIdentityStatus": "not-claimed-non-stax-diagnostic",
       "selectedRowMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMatchesCurrentComparison": null,
       "diagnosticWorkloadMetadataComparable": null,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
@@ -1167,6 +1180,7 @@
         "fullStringParity": true,
         "sameContractStaxRow": false
       },
+      "diagnosticWorkloadMatchesCurrentComparison": false,
       "diagnosticWorkloadMetadataComparable": false,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
@@ -1255,6 +1269,7 @@
         "fullStringParity": true,
         "sameContractStaxRow": false
       },
+      "diagnosticWorkloadMatchesCurrentComparison": false,
       "diagnosticWorkloadMetadataComparable": false,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
@@ -1343,6 +1358,7 @@
         "fullStringParity": false,
         "sameContractStaxRow": false
       },
+      "diagnosticWorkloadMatchesCurrentComparison": false,
       "diagnosticWorkloadMetadataComparable": false,
       "selectedRowMetadataMissingFields": [
         "selectedRowId",
@@ -1516,6 +1532,9 @@
     "unchangedRunnableCount": 0,
     "selectedRowMetadataCount": 1,
     "diagnosticWorkloadMetadataCount": 3,
+    "diagnosticWorkloadComparisonMatchCount": 0,
+    "diagnosticWorkloadComparisonMismatchCount": 3,
+    "diagnosticWorkloadComparisonMissingCount": 13,
     "nonComparableDiagnosticWorkloadMetadataCount": 3,
     "selectedRowComparisonMatchCount": 0,
     "selectedRowComparisonMismatchCount": 1,
