@@ -271,6 +271,39 @@ function createSelfTestReport(options) {
       },
     },
     {
+      sourceArtifact: 'spidermonkey-generic-flags-closure.json',
+      root: {
+        objective: 'spidermonkey-generic-flags-closure',
+        outcome: {
+          status: 'codegen-output-emitted',
+          hasCodegenDumpOutput: true,
+          sameContractStaxRow: true,
+          unchangedStaxBenchmark: true,
+          canRunCurrentStaxFullStringBenchmark: true,
+          closesEmittedIrObligation: true,
+          evidenceClass: 'same-contract-spidermonkey-codegen',
+          selectedRowId: 'firefox-row',
+          selectedEventCount: 12,
+          selectedChecksum: 34,
+          selectedRowIdentityStatus: 'same-contract-stax-row',
+        },
+        shell: {
+          provenance: {
+            taskId: 'generic-flags-task',
+            buildId: '20260602000004',
+            sourceRevision: 'mno345',
+          },
+          codegenProbe: {
+            status: 'codegen-output-emitted',
+            flags: 'plain-shell-run',
+            outputBytes: 8192,
+            codegenMarkerCount: 99,
+            nativeDumpComplete: true,
+          },
+        },
+      },
+    },
+    {
       sourceArtifact: 'spidermonkey-mismatched-comparison-row.json',
       root: {
         objective: 'spidermonkey-mismatched-comparison-row',
@@ -887,9 +920,14 @@ function hasSpiderMonkeyDiagnosticFlags(root) {
   return getSpiderMonkeyCodegenProbes(root).some(probe => {
     const flags = probe?.flags;
     return typeof flags === 'string'
-      ? flags.length > 0
-      : Array.isArray(flags) && flags.length > 0;
+      ? hasSpiderMonkeyDiagnosticFlagMarker(flags)
+      : Array.isArray(flags) && flags.some(hasSpiderMonkeyDiagnosticFlagMarker);
   });
+}
+
+function hasSpiderMonkeyDiagnosticFlagMarker(flag) {
+  return typeof flag === 'string'
+    && /jitspew|ion|baseline|codegen|native|disasm|dump/i.test(flag);
 }
 
 function hasSpiderMonkeyEmittedDumpMetadata(root, outcome) {
