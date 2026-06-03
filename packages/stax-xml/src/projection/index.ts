@@ -152,7 +152,12 @@ interface ActiveRecord {
   captureFields: readonly RuntimeField[] | undefined;
 }
 
-const encoder = new TextEncoder();
+let textEncoder: TextEncoder | undefined;
+
+function encodeUtf8(input: string): Uint8Array {
+  textEncoder ??= new TextEncoder();
+  return textEncoder.encode(input);
+}
 
 /**
  * Capture an attribute value from a matching record element.
@@ -302,7 +307,7 @@ function compileField(outputKey: string, field: ProjectionField<unknown>): Compi
     outputKey,
     kind: field.kind,
     name: field.name,
-    nameBytes: encoder.encode(field.name),
+    nameBytes: encodeUtf8(field.name),
     required: field.required,
   };
 }
@@ -310,8 +315,8 @@ function compileField(outputKey: string, field: ProjectionField<unknown>): Compi
 function compilePredicate(predicate: ProjectionPredicate): CompiledPredicate {
   return {
     kind: predicate.kind,
-    nameBytes: encoder.encode(predicate.name),
-    valueBytes: encoder.encode(predicate.value),
+    nameBytes: encodeUtf8(predicate.name),
+    valueBytes: encodeUtf8(predicate.value),
   };
 }
 
@@ -338,7 +343,7 @@ function compilePath(path: string): readonly Uint8Array[] {
   for (const segment of segments) {
     assertName(segment, 'path segment');
   }
-  return segments.map((segment) => encoder.encode(segment));
+  return segments.map((segment) => encodeUtf8(segment));
 }
 
 function* scanProjectionSync<TRecord extends Record<string, unknown>>(
@@ -848,7 +853,7 @@ function spanEquals(buffer: Uint8Array, start: number, end: number, expected: Ui
 
 function normalizeInput(input: ProjectionInput): Uint8Array | Iterable<StreamReaderSyncByteBatch> {
   if (typeof input === 'string') {
-    return encoder.encode(input);
+    return encodeUtf8(input);
   }
   return input;
 }

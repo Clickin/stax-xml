@@ -29,7 +29,12 @@ import {
   type IterableEventTable,
 } from './IterableEventBackend.js';
 
-const textEncoder = new TextEncoder();
+let textEncoder: TextEncoder | undefined;
+
+function encodeXmlString(input: string): Uint8Array {
+  textEncoder ??= new TextEncoder();
+  return textEncoder.encode(input);
+}
 const DEFAULT_ENTITY_REGEX = /&(lt|gt|quot|apos|amp);/g;
 const DEFAULT_ENTITY_MAP: Record<string, string> = {
   lt: '<',
@@ -115,7 +120,7 @@ export class CompiledRootProcessor {
   parseSync<T>(input: string | ArrayBufferView, options?: ParseOptions | unknown): T {
     const effectiveOptions = normalizeOptions(options) ?? this.options;
     if (typeof input === 'string') {
-      return this.parseSync<T>(textEncoder.encode(input), effectiveOptions);
+      return this.parseSync<T>(encodeXmlString(input), effectiveOptions);
     }
     if (isArrayBufferView(input)) {
       const runtime = this.createRuntime(this.plan, effectiveOptions);
@@ -135,7 +140,7 @@ export class CompiledRootProcessor {
   async parse<T>(input: ParseInput, options?: ParseOptions | unknown): Promise<T> {
     const effectiveOptions = normalizeOptions(options) ?? this.options;
     if (typeof input === 'string') {
-      return this.parse<T>(textEncoder.encode(input), effectiveOptions);
+      return this.parse<T>(encodeXmlString(input), effectiveOptions);
     }
     const runtime = this.createRuntime(this.plan, effectiveOptions);
 

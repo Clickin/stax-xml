@@ -28,6 +28,28 @@ describe('root import host API boundaries', () => {
     }
   });
 
+  it('does not require TextEncoder to import converter and projection subpaths', async () => {
+    const originalTextEncoder = globalThis.TextEncoder;
+    const globals = globalThis as typeof globalThis & { TextEncoder?: typeof TextEncoder };
+
+    Reflect.deleteProperty(globals, 'TextEncoder');
+
+    try {
+      const converter = await import('../src/converter/index.ts?without-textencoder');
+      const projection = await import('../src/projection/index.ts?without-textencoder');
+
+      expect(converter.x).toBeTypeOf('object');
+      expect(projection.attr).toBeTypeOf('function');
+      expect(projection.many).toBeTypeOf('function');
+    } finally {
+      Object.defineProperty(globalThis, 'TextEncoder', {
+        configurable: true,
+        writable: true,
+        value: originalTextEncoder,
+      });
+    }
+  });
+
   it('does not require TextDecoder for ASCII primary byte-batch sync strings', async () => {
     const originalTextDecoder = globalThis.TextDecoder;
     const globals = globalThis as typeof globalThis & { TextDecoder?: typeof TextDecoder };

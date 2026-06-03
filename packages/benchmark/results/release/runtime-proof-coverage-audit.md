@@ -1,12 +1,12 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-06-03T03:26:36.792Z
+Generated: 2026-06-03T04:11:02.887Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 228
+- Scanned primary artifacts: 229
 - Ignored derived artifacts: 7
 - Measured rows recognized: 1266
 - Rows with unknown full-string parity: 0
@@ -21,7 +21,7 @@ This audit scans current release artifacts to show which proof obligations are c
   - Unknown bounded-memory rows with memory counters: 10
 - Benchmark artifacts: 157
 - Source artifacts: 26
-- Trace/profile artifacts: 19
+- Trace/profile artifacts: 20
 - Allocation artifacts: 16
 - Environment artifacts: 5
 - Negative-result artifacts: 32
@@ -85,7 +85,7 @@ This classifies the parser input shape for 1 GiB+ JavaScript full-string rows th
 | Node/V8 | 112 | 597 | 407 | rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json | 2 | 2 | 5 |
 | Bun/JSC | 42 | 322 | 209 | rawFrameNameId 178.52 MiB/s from bun-candidate-headroom-books-corpus-stability.json | 3 | 4 | 2 |
 | Deno/V8 | 17 | 128 | 104 | rawFrameNameId 110.54 MiB/s from text-trim-cost-cross-process-books-corpus.json | 1 | 2 | 2 |
-| SpiderMonkey js-shell | 10 | 5 | 0 | none | 0 | 6 | 0 |
+| SpiderMonkey js-shell | 11 | 5 | 0 | none | 0 | 7 | 0 |
 | Chrome/V8 browser | 15 | 100 | 58 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |
 | Firefox/SpiderMonkey browser | 25 | 82 | 70 | rawFrameNameId 76.90 MiB/s from firefox-bidi-candidate-headroom-cross-process-books-corpus.json | 5 | 1 | 1 |
 | Safari/WebKit browser | 1 | 0 | 0 | none | 0 | 0 | 0 |
@@ -113,11 +113,11 @@ Safari/WebKit obligation closed: no
 
 Emitted SpiderMonkey IR/codegen evidence artifacts: 0
 Raw SpiderMonkey emitted-IR closure claims: 0
-SpiderMonkey diagnostics rows vs closure candidates: 11/16 (gap=5, closureQualified=0)
+SpiderMonkey diagnostics rows vs closure candidates: 12/18 (gap=6, closureQualified=0)
 SpiderMonkey debug browser preflight: blocked-by-dll-blocklist-interceptor from firefox-spidermonkey-taskcluster-debug-browser-launch-preflight-audit.json
-SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace.json`, `spidermonkey-jsshell-materialized-headroom.json`, `spidermonkey-jsshell-tokenizer-headroom.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`
+SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace.json`, `firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json`, `spidermonkey-jsshell-materialized-headroom.json`, `spidermonkey-jsshell-tokenizer-headroom.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`
 SpiderMonkey coverage diagnostics outside closure candidates: none
-SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7
+SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=8
 JIT-status-only SpiderMonkey shell artifacts: 0
 
 | Diagnostic | Artifact | Status | Evidence class | JIT status | IR surface | Bytecode dump | Native dump complete | Current stax benchmark | Selected row identity | Selected row metadata | Comparison match | Closes emitted IR obligation | Closure qualified |
@@ -130,6 +130,7 @@ JIT-status-only SpiderMonkey shell artifacts: 0
 | `official-jsshell-diagnostic-flag-sweep` | `spidermonkey-jsshell-diagnostic-flag-sweep.json` | available | diagnostic-flag-sweep-negative | unknown | unknown | no (unknown, markers=unknown) | unknown | unknown | not-claimed | no | unknown | no | no |
 | `taskcluster-debug-jsshell-codegen` | `spidermonkey-taskcluster-debug-jsshell-codegen-audit.json` | available | current-debug-codegen-scope-guard | unknown | yes | unknown | yes | no | not-claimed-non-stax-diagnostic | no | unknown | no | no |
 | `taskcluster-debug-jsshell-xml-codegen` | `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json` | available | current-debug-xml-codegen-scope-guard | unknown | yes | unknown | yes | no | not-claimed-non-stax-diagnostic | no | unknown | no | no |
+| `taskcluster-debug-jsshell-ascii-stax-codegen` | `spidermonkey-taskcluster-debug-jsshell-ascii-stax-codegen-audit.json` | available | current-debug-ascii-stax-codegen-scope-guard | unknown | yes | unknown | yes | no | not-claimed-non-stax-diagnostic | no | unknown | no | no |
 | `taskcluster-debug-jsshell-materialized-codegen` | `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json` | available | current-debug-materialized-codegen-scope-guard | unknown | yes | unknown | yes | no | not-claimed-non-stax-diagnostic | no | unknown | no | no |
 | `archival-debug-jsshell-codegen` | `spidermonkey-archival-debug-jsshell-codegen-audit.json` | available | archival-codegen-scope-guard | unknown | yes | unknown | yes | no | not-claimed-non-stax-diagnostic | no | unknown | no | no |
 | `installed-buildconfig-source-pin` | `firefox-spidermonkey-buildconfig-source-pin-audit.json` | source-pin | source-pin-only | unknown | unknown | unknown | unknown | unknown | not-claimed | no | unknown | no | no |

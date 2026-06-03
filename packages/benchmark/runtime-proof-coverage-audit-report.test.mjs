@@ -77,7 +77,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 228);
+  assert.equal(report.summary.scannedArtifactCount, 229);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'text-materialization-frontier-coverage-audit.json'
     && artifact.objective === 'text-materialization-frontier-coverage-audit'
@@ -114,11 +114,11 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.evidenceKinds.includes('TRACE_FACT')
     && artifact.evidenceKinds.includes('NEGATIVE_RESULT')
     && artifact.evidenceKinds.includes('SCOPE_GUARD')
-    && artifact.summary.candidateCount === 16
+    && artifact.summary.candidateCount === 18
     && artifact.summary.qualifiedClosureCount === 0
     && artifact.summary.selectedRowComparisonMatchCount === 0
     && artifact.summary.selectedRowComparisonMismatchCount === 1
-    && artifact.summary.selectedRowComparisonMissingCount === 15
+    && artifact.summary.selectedRowComparisonMissingCount === 17
     && artifact.summary.comparisonGeneratedAt === comparison.generatedAt
     && artifact.summary.comparisonRowCount === comparison.summary.rowCount
     && artifact.summary.minimumBlockedRequirementCount === 4
@@ -635,7 +635,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.openObligationCount, 2);
   assert.equal(report.summary.benchmarkArtifactCount, 157);
   assert.equal(report.summary.sourceArtifactCount, 26);
-  assert.equal(report.summary.traceArtifactCount, 19);
+  assert.equal(report.summary.traceArtifactCount, 20);
   assert.equal(report.summary.allocationArtifactCount, 16);
   assert.equal(report.summary.environmentArtifactCount, 5);
   assert.equal(report.summary.negativeArtifactCount, 32);
@@ -1320,11 +1320,12 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.coverage.spiderMonkeyDiagnostics.browserPreflight.sourceArtifact, 'firefox-spidermonkey-taskcluster-debug-browser-launch-preflight-audit.json');
   assert.equal(report.coverage.spiderMonkeyDiagnostics.browserPreflight.sameContractStaxRow, false);
   assert.equal(report.coverage.spiderMonkeyDiagnostics.browserPreflight.closesEmittedIrObligation, false);
-  assert.equal(report.coverage.spiderMonkeyDiagnostics.diagnosticRowCount, 11);
-  assert.equal(report.coverage.spiderMonkeyDiagnostics.closureAuditCandidateCount, 16);
-  assert.equal(report.coverage.spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap, 5);
+  assert.equal(report.coverage.spiderMonkeyDiagnostics.diagnosticRowCount, 12);
+  assert.equal(report.coverage.spiderMonkeyDiagnostics.closureAuditCandidateCount, 18);
+  assert.equal(report.coverage.spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap, 6);
   assert.deepEqual(report.coverage.spiderMonkeyDiagnostics.closureAuditCandidateSourcesOutsideDiagnostics, [
     'firefox-spidermonkey-profiler-trace.json',
+    'firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json',
     'spidermonkey-jsshell-materialized-headroom.json',
     'spidermonkey-jsshell-tokenizer-headroom.json',
     'spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json',
@@ -1337,7 +1338,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.coverage.spiderMonkeyDiagnostics.missingIrSurfaceCount, 2);
   assert.deepEqual(report.coverage.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts, {
     'not-claimed': 4,
-    'not-claimed-non-stax-diagnostic': 7,
+    'not-claimed-non-stax-diagnostic': 8,
   });
   assert.ok(report.coverage.spiderMonkeyDiagnostics.rows.some(row =>
     row.id === 'official-release-jsshell'
@@ -1422,10 +1423,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /## SpiderMonkey Diagnostic Surface/);
   assert.match(markdown, /Emitted SpiderMonkey IR\/codegen evidence artifacts: 0/);
   assert.match(markdown, /Raw SpiderMonkey emitted-IR closure claims: 0/);
-  assert.match(markdown, /SpiderMonkey diagnostics rows vs closure candidates: 11\/16 \(gap=5, closureQualified=0\)/);
-  assert.match(markdown, /SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace\.json`, `spidermonkey-jsshell-materialized-headroom\.json`, `spidermonkey-jsshell-tokenizer-headroom\.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun\.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun\.json`/);
+  assert.match(markdown, /SpiderMonkey diagnostics rows vs closure candidates: 12\/18 \(gap=6, closureQualified=0\)/);
+  assert.match(markdown, /SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace\.json`, `firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit\.json`, `spidermonkey-jsshell-materialized-headroom\.json`, `spidermonkey-jsshell-tokenizer-headroom\.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun\.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun\.json`/);
   assert.match(markdown, /SpiderMonkey coverage diagnostics outside closure candidates: none/);
-  assert.match(markdown, /SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7/);
+  assert.match(markdown, /SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=8/);
   assert.match(markdown, /Selected row identity/);
   assert.match(markdown, /Selected row metadata/);
   assert.match(markdown, /Comparison match/);
@@ -1436,6 +1437,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /\| `official-jsshell-diagnostic-flag-sweep` \| `spidermonkey-jsshell-diagnostic-flag-sweep\.json` \| available \| diagnostic-flag-sweep-negative \| unknown \| unknown \| no \(unknown, markers=unknown\) \| unknown \| unknown \| not-claimed \| no \| unknown \| no \|/);
   assert.match(markdown, /\| `taskcluster-debug-jsshell-codegen` \| `spidermonkey-taskcluster-debug-jsshell-codegen-audit\.json` \| available \| current-debug-codegen-scope-guard \| unknown \| yes \| unknown \| yes \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
   assert.match(markdown, /\| `taskcluster-debug-jsshell-xml-codegen` \| `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit\.json` \| available \| current-debug-xml-codegen-scope-guard \| unknown \| yes \| unknown \| yes \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
+  assert.match(markdown, /\| `taskcluster-debug-jsshell-ascii-stax-codegen` \| `spidermonkey-taskcluster-debug-jsshell-ascii-stax-codegen-audit\.json` \| available \| current-debug-ascii-stax-codegen-scope-guard \| unknown \| yes \| unknown \| yes \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
   assert.match(markdown, /\| `taskcluster-debug-jsshell-materialized-codegen` \| `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit\.json` \| available \| current-debug-materialized-codegen-scope-guard \| unknown \| yes \| unknown \| yes \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
   assert.match(markdown, /\| `archival-debug-jsshell-codegen` \| `spidermonkey-archival-debug-jsshell-codegen-audit\.json` \| available \| archival-codegen-scope-guard \| unknown \| yes \| unknown \| yes \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
   const flagSweep = report.coverage.spiderMonkeyDiagnostics.rows.find(row => row.id === 'official-jsshell-diagnostic-flag-sweep');
@@ -1463,6 +1465,15 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(taskclusterXmlDebug.taskId, taskclusterXmlIdentity.taskId);
   assert.equal(taskclusterXmlDebug.buildId, taskclusterXmlIdentity.buildId);
   assert.equal(taskclusterXmlDebug.sourceRevision, taskclusterXmlIdentity.sourceRevision);
+  const taskclusterAsciiStaxDebug = report.coverage.spiderMonkeyDiagnostics.rows.find(row => row.id === 'taskcluster-debug-jsshell-ascii-stax-codegen');
+  assert.equal(taskclusterAsciiStaxDebug.evidenceClass, 'current-debug-ascii-stax-codegen-scope-guard');
+  assert.equal(taskclusterAsciiStaxDebug.irDumpSurface, true);
+  assert.equal(taskclusterAsciiStaxDebug.nativeDumpComplete, true);
+  assert.equal(taskclusterAsciiStaxDebug.currentStaxAsciiPrimaryByteBatchRow, true);
+  assert.equal(taskclusterAsciiStaxDebug.canRunAsciiPrimaryByteBatchBenchmark, true);
+  assert.equal(taskclusterAsciiStaxDebug.sameContractStaxRow, false);
+  assert.equal(taskclusterAsciiStaxDebug.canRunCurrentStaxFullStringBenchmark, false);
+  assert.equal(taskclusterAsciiStaxDebug.closesEmittedIrObligation, false);
   const taskclusterMaterializedDebug = report.coverage.spiderMonkeyDiagnostics.rows.find(row => row.id === 'taskcluster-debug-jsshell-materialized-codegen');
   assert.equal(taskclusterMaterializedDebug.evidenceClass, 'current-debug-materialized-codegen-scope-guard');
   assert.equal(taskclusterMaterializedDebug.irDumpSurface, true);
@@ -1500,8 +1511,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /16 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 5/);
   assert.match(markdown, /Source artifacts: 26/);
-  assert.match(markdown, /Scanned primary artifacts: 228/);
-  assert.equal(report.summary.traceArtifactCount, 19);
+  assert.match(markdown, /Scanned primary artifacts: 229/);
+  assert.equal(report.summary.traceArtifactCount, 20);
   assert.match(markdown, /Negative-result artifacts: 32/);
   assert.match(markdown, /\| Node\/V8 \| 112 \| 597 \| 407 \|/);
   assert.match(markdown, /\| Bun\/JSC \| 42 \| 322 \| 209 \|/);

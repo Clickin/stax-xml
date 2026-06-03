@@ -21,6 +21,7 @@ const defaultMdOut = resolve(__dirname, 'results', 'release', 'runtime-limit-pro
 const runtimeLimitClaimId = 'CLAIM-JS-RUNTIME-LIMIT-200MIB';
 const expectedSpiderMonkeyClosureGapArtifacts = [
   'firefox-spidermonkey-profiler-trace.json',
+  'firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json',
   'spidermonkey-jsshell-materialized-headroom.json',
   'spidermonkey-jsshell-tokenizer-headroom.json',
   'spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json',
@@ -1276,7 +1277,7 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
     {
       id: 'spidermonkey-closure-audit-identity-statuses',
       description: 'SpiderMonkey closure audit must preserve non-StAX diagnostic identity status counts for closure-matrix candidates.',
-      satisfied: spiderBlockers.some(item => /selectedRowIdentityStatusCounts not-claimed-non-stax-diagnostic=\d+/.test(item)),
+      satisfied: spiderBlockers.some(item => /selectedRowIdentityStatusCounts (?:not-claimed-ascii-stax-diagnostic=\d+, )?not-claimed-non-stax-diagnostic=\d+/.test(item)),
     },
     {
       id: 'spidermonkey-selected-row-metadata-missing-fields',
@@ -1769,11 +1770,11 @@ function createCoverageGuards(snapshot, counterexampleSnapshot = null) {
     {
       id: 'spidermonkey-closure-audit-comparison-current',
       description: 'SpiderMonkey closure audit comparison freshness must be preserved in coverage: selected-row comparison counts must match the current same-contract comparison generatedAt and row count.',
-      satisfied: closureAudit.candidateCount === 16
+      satisfied: closureAudit.candidateCount === 18
         && closureAudit.qualifiedClosureCount === 0
         && closureAudit.selectedRowComparisonMatchCount === 0
         && closureAudit.selectedRowComparisonMismatchCount === 1
-        && closureAudit.selectedRowComparisonMissingCount === 15
+        && closureAudit.selectedRowComparisonMissingCount === 17
         && closureAudit.comparisonGeneratedAt === counterexampleSnapshot?.comparisonGeneratedAt
         && closureAudit.comparisonRowCount === counterexampleSnapshot?.comparisonRowCount,
     },

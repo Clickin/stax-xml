@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T03:26:51.156Z",
+  "generatedAt": "2026-06-03T04:11:42.265Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
@@ -9,7 +9,7 @@
     "comparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
-    "auditGeneratedAt": "2026-06-03T03:26:36.792Z",
+    "auditGeneratedAt": "2026-06-03T04:11:02.887Z",
     "auditObjective": "runtime-proof-coverage-audit",
     "auditContract": "static-release-artifact-proof-coverage"
   },
@@ -37,7 +37,7 @@
     "conclusionBlocker": "Open or partial obligations still require external runtime evidence before any runtime-limit conclusion."
   },
   "auditSummary": {
-    "artifactCount": 228,
+    "artifactCount": 229,
     "measuredRows": 1266,
     "counterexamples": null,
     "activeObligations": [
@@ -569,6 +569,7 @@
         "spidermonkey-jsshell-diagnostic-flag-sweep.json",
         "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
         "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
+        "spidermonkey-taskcluster-debug-jsshell-ascii-stax-codegen-audit.json",
         "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
         "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
         "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
@@ -597,17 +598,17 @@
         "A current Taskcluster debug js-shell emits JitSpew codegen output while materializing JS strings and public event-shaped objects (taskId=azB5UO80Q3KJPPyXD0C8tA, artifactName=public/build/target.jsshell.zip, artifactUrl=https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/azB5UO80Q3KJPPyXD0C8tA/artifacts/public/build/target.jsshell.zip, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic.",
         "A rerun of the current Taskcluster debug js-shell codegen probe reproduces JitSpew output (taskId=azB5UO80Q3KJPPyXD0C8tA, artifactName=public/build/target.jsshell.zip, artifactUrl=https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/azB5UO80Q3KJPPyXD0C8tA/artifacts/public/build/target.jsshell.zip, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenMarkers=54761), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and closesEmittedIrObligation=false.",
         "A rerun of the current Taskcluster debug js-shell materialized string/object probe reproduces JitSpew output (taskId=azB5UO80Q3KJPPyXD0C8tA, artifactName=public/build/target.jsshell.zip, artifactUrl=https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/azB5UO80Q3KJPPyXD0C8tA/artifacts/public/build/target.jsshell.zip, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenMarkers=234582, throughputMiBPerSec=0.76), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and closesEmittedIrObligation=false.",
-        "Coverage diagnostic identity status counts: selectedRowIdentityStatusCounts not-claimed=4, not-claimed-non-stax-diagnostic=7.",
+        "Coverage diagnostic identity status counts: selectedRowIdentityStatusCounts not-claimed=4, not-claimed-non-stax-diagnostic=8.",
         "The ASCII scope-distance audit pins corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, and reducesScopeDistance=true while closesCodegenObligation=false, so ASCII corpus equivalence narrows materialized js-shell scope but does not supply unchanged StAX closure evidence.",
         "The materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=2 and closureRequirementsBlocked=4; primarySyncByteBatchMissingGlobals=TextDecoder; asciiTextDecoderEquivalent=true; diagnosticThroughputMiBPerSec=0.7656093369946506; throughputCountsAsTargetEvidence=false; closesCodegenObligation=false, preventing the materialized js-shell artifact from being cited as unchanged StAX closure evidence.",
-        "The SpiderMonkey codegen closure audit checks 16 diagnostic/codegen candidates against same-contract comparison generatedAt=2026-06-02T20:08:45.362Z, comparisonRowCount=289, finds emittedCodegenSurfaceCount=6, sameContractStaxRowCount=0, profiledFullStringParityCount=1, unchangedRunnableCount=0, selectedRowMetadataCount=1, diagnosticWorkloadMetadataCount=3, nonComparableDiagnosticWorkloadMetadataCount=3, selectedRowComparisonMatchCount=0, selectedRowComparisonMismatchCount=1, selectedRowComparisonMissingCount=15, selectedRowMetadataMissingFieldCounts selectedChecksum=15, selectedEventCount=15, selectedRowId=15, closingMetadataMissingFieldCounts diagnosticFlags=10, emittedDumpMetadata=10, runtimeBuildIdentity=11, disallowedEvidenceClassCounts archival-codegen-scope-guard=1, availability-only=1, bytecode-diagnostic-only=2, current-debug-codegen-scope-guard=2, current-debug-materialized-codegen-scope-guard=2, current-debug-xml-codegen-scope-guard=1, diagnostic-flag-sweep-negative=1, gecko-profiler-scope-guard=1, host-api-surface-gap=1, materialized-headroom-only=1, negative-diagnostic-surface=1, parser-core-headroom-only=1, source-pin-only=1, selectedRowIdentityStatusCounts not-claimed-non-stax-diagnostic=16, qualifiedClosureCount=0, contradictedClosureClaimCount=0, and conclusionAllowed=false.",
+        "The SpiderMonkey codegen closure audit checks 18 diagnostic/codegen candidates against same-contract comparison generatedAt=2026-06-02T20:08:45.362Z, comparisonRowCount=289, finds emittedCodegenSurfaceCount=7, sameContractStaxRowCount=0, profiledFullStringParityCount=1, unchangedRunnableCount=0, selectedRowMetadataCount=1, diagnosticWorkloadMetadataCount=3, nonComparableDiagnosticWorkloadMetadataCount=3, selectedRowComparisonMatchCount=0, selectedRowComparisonMismatchCount=1, selectedRowComparisonMissingCount=17, selectedRowMetadataMissingFieldCounts selectedChecksum=17, selectedEventCount=17, selectedRowId=17, closingMetadataMissingFieldCounts diagnosticFlags=12, emittedDumpMetadata=12, runtimeBuildIdentity=12, disallowedEvidenceClassCounts archival-codegen-scope-guard=1, availability-only=1, bytecode-diagnostic-only=2, current-debug-ascii-stax-codegen-scope-guard=1, current-debug-codegen-scope-guard=2, current-debug-materialized-codegen-scope-guard=2, current-debug-xml-codegen-scope-guard=1, diagnostic-flag-sweep-negative=1, gecko-profiler-scope-guard=1, host-api-surface-gap=1, materialized-headroom-only=1, negative-diagnostic-surface=1, parser-core-headroom-only=1, source-pin-only=1, unknown=1, selectedRowIdentityStatusCounts not-claimed-ascii-stax-diagnostic=1, not-claimed-non-stax-diagnostic=17, qualifiedClosureCount=0, contradictedClosureClaimCount=0, and conclusionAllowed=false.",
         "The SpiderMonkey codegen closure frontier has closestBlockedCandidateCount=5, minimumBlockedRequirementCount=4, closestBlockedCandidates=`spidermonkey-taskcluster-debug-jsshell-codegen-audit.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json`, and closest-candidate common missing requirements sameContractStaxRow=5, selectedRowMetadata=5, unchangedRunnable=5, evidenceClassAllowed=5.",
         "The SpiderMonkey codegen rerun stability audit compares 2 original/rerun pairs, reproduces 2 pairs on the same Taskcluster build and codegen marker counts, but qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false, and conclusionAllowed=false.",
         "Installed Firefox about:buildconfig records --enable-js-shell / MOZ_PACKAGE_JSSHELL but does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW."
       ],
       "diagnosticIdentityStatusCounts": {
         "not-claimed": 4,
-        "not-claimed-non-stax-diagnostic": 7
+        "not-claimed-non-stax-diagnostic": 8
       },
       "scopeGuard": "These are local, official-shell, and Taskcluster debug-shell diagnostic facts only; they are not emitted SpiderMonkey JIT IR or optimized-code evidence for a same-contract StAX row."
     }
@@ -776,6 +777,7 @@
           "spidermonkey-jsshell-diagnostic-flag-sweep.json",
           "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
           "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
+          "spidermonkey-taskcluster-debug-jsshell-ascii-stax-codegen-audit.json",
           "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
           "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
           "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
@@ -804,17 +806,17 @@
           "A current Taskcluster debug js-shell emits JitSpew codegen output while materializing JS strings and public event-shaped objects (taskId=azB5UO80Q3KJPPyXD0C8tA, artifactName=public/build/target.jsshell.zip, artifactUrl=https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/azB5UO80Q3KJPPyXD0C8tA/artifacts/public/build/target.jsshell.zip, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic.",
           "A rerun of the current Taskcluster debug js-shell codegen probe reproduces JitSpew output (taskId=azB5UO80Q3KJPPyXD0C8tA, artifactName=public/build/target.jsshell.zip, artifactUrl=https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/azB5UO80Q3KJPPyXD0C8tA/artifacts/public/build/target.jsshell.zip, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenMarkers=54761), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and closesEmittedIrObligation=false.",
           "A rerun of the current Taskcluster debug js-shell materialized string/object probe reproduces JitSpew output (taskId=azB5UO80Q3KJPPyXD0C8tA, artifactName=public/build/target.jsshell.zip, artifactUrl=https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/azB5UO80Q3KJPPyXD0C8tA/artifacts/public/build/target.jsshell.zip, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenMarkers=234582, throughputMiBPerSec=0.76), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and closesEmittedIrObligation=false.",
-          "Coverage diagnostic identity status counts: selectedRowIdentityStatusCounts not-claimed=4, not-claimed-non-stax-diagnostic=7.",
+          "Coverage diagnostic identity status counts: selectedRowIdentityStatusCounts not-claimed=4, not-claimed-non-stax-diagnostic=8.",
           "The ASCII scope-distance audit pins corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, and reducesScopeDistance=true while closesCodegenObligation=false, so ASCII corpus equivalence narrows materialized js-shell scope but does not supply unchanged StAX closure evidence.",
           "The materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=2 and closureRequirementsBlocked=4; primarySyncByteBatchMissingGlobals=TextDecoder; asciiTextDecoderEquivalent=true; diagnosticThroughputMiBPerSec=0.7656093369946506; throughputCountsAsTargetEvidence=false; closesCodegenObligation=false, preventing the materialized js-shell artifact from being cited as unchanged StAX closure evidence.",
-          "The SpiderMonkey codegen closure audit checks 16 diagnostic/codegen candidates against same-contract comparison generatedAt=2026-06-02T20:08:45.362Z, comparisonRowCount=289, finds emittedCodegenSurfaceCount=6, sameContractStaxRowCount=0, profiledFullStringParityCount=1, unchangedRunnableCount=0, selectedRowMetadataCount=1, diagnosticWorkloadMetadataCount=3, nonComparableDiagnosticWorkloadMetadataCount=3, selectedRowComparisonMatchCount=0, selectedRowComparisonMismatchCount=1, selectedRowComparisonMissingCount=15, selectedRowMetadataMissingFieldCounts selectedChecksum=15, selectedEventCount=15, selectedRowId=15, closingMetadataMissingFieldCounts diagnosticFlags=10, emittedDumpMetadata=10, runtimeBuildIdentity=11, disallowedEvidenceClassCounts archival-codegen-scope-guard=1, availability-only=1, bytecode-diagnostic-only=2, current-debug-codegen-scope-guard=2, current-debug-materialized-codegen-scope-guard=2, current-debug-xml-codegen-scope-guard=1, diagnostic-flag-sweep-negative=1, gecko-profiler-scope-guard=1, host-api-surface-gap=1, materialized-headroom-only=1, negative-diagnostic-surface=1, parser-core-headroom-only=1, source-pin-only=1, selectedRowIdentityStatusCounts not-claimed-non-stax-diagnostic=16, qualifiedClosureCount=0, contradictedClosureClaimCount=0, and conclusionAllowed=false.",
+          "The SpiderMonkey codegen closure audit checks 18 diagnostic/codegen candidates against same-contract comparison generatedAt=2026-06-02T20:08:45.362Z, comparisonRowCount=289, finds emittedCodegenSurfaceCount=7, sameContractStaxRowCount=0, profiledFullStringParityCount=1, unchangedRunnableCount=0, selectedRowMetadataCount=1, diagnosticWorkloadMetadataCount=3, nonComparableDiagnosticWorkloadMetadataCount=3, selectedRowComparisonMatchCount=0, selectedRowComparisonMismatchCount=1, selectedRowComparisonMissingCount=17, selectedRowMetadataMissingFieldCounts selectedChecksum=17, selectedEventCount=17, selectedRowId=17, closingMetadataMissingFieldCounts diagnosticFlags=12, emittedDumpMetadata=12, runtimeBuildIdentity=12, disallowedEvidenceClassCounts archival-codegen-scope-guard=1, availability-only=1, bytecode-diagnostic-only=2, current-debug-ascii-stax-codegen-scope-guard=1, current-debug-codegen-scope-guard=2, current-debug-materialized-codegen-scope-guard=2, current-debug-xml-codegen-scope-guard=1, diagnostic-flag-sweep-negative=1, gecko-profiler-scope-guard=1, host-api-surface-gap=1, materialized-headroom-only=1, negative-diagnostic-surface=1, parser-core-headroom-only=1, source-pin-only=1, unknown=1, selectedRowIdentityStatusCounts not-claimed-ascii-stax-diagnostic=1, not-claimed-non-stax-diagnostic=17, qualifiedClosureCount=0, contradictedClosureClaimCount=0, and conclusionAllowed=false.",
           "The SpiderMonkey codegen closure frontier has closestBlockedCandidateCount=5, minimumBlockedRequirementCount=4, closestBlockedCandidates=`spidermonkey-taskcluster-debug-jsshell-codegen-audit.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json`, and closest-candidate common missing requirements sameContractStaxRow=5, selectedRowMetadata=5, unchangedRunnable=5, evidenceClassAllowed=5.",
           "The SpiderMonkey codegen rerun stability audit compares 2 original/rerun pairs, reproduces 2 pairs on the same Taskcluster build and codegen marker counts, but qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false, and conclusionAllowed=false.",
           "Installed Firefox about:buildconfig records --enable-js-shell / MOZ_PACKAGE_JSSHELL but does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW."
         ],
         "diagnosticIdentityStatusCounts": {
           "not-claimed": 4,
-          "not-claimed-non-stax-diagnostic": 7
+          "not-claimed-non-stax-diagnostic": 8
         },
         "scopeGuard": "These are local, official-shell, and Taskcluster debug-shell diagnostic facts only; they are not emitted SpiderMonkey JIT IR or optimized-code evidence for a same-contract StAX row."
       },

@@ -565,6 +565,7 @@ function createLocalClosure(activeObligations, audit, options = {}) {
     const jsShellDiagnosticFlagSweep = artifactByName.get('spidermonkey-jsshell-diagnostic-flag-sweep.json') ?? null;
     const taskclusterDebugJsShell = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-codegen-audit.json') ?? null;
     const taskclusterDebugJsShellXml = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json') ?? null;
+    const taskclusterDebugJsShellAsciiStax = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-ascii-stax-codegen-audit.json') ?? null;
     const taskclusterDebugJsShellMaterialized = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json') ?? null;
     const taskclusterDebugJsShellRerun = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json') ?? null;
     const taskclusterDebugJsShellMaterializedRerun = artifactByName.get('spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json') ?? null;
@@ -709,7 +710,7 @@ function createLocalClosure(activeObligations, audit, options = {}) {
       obligationId: 'codegen-traces-open',
       localStatus: blocked ? 'external-run-required' : 'partial-local-status',
       localRunnable: blocked ? false : null,
-      evidenceArtifacts: [diagnostic, taskclusterDebugBrowserPreflight, taskclusterDebugBrowserDiagnostic, jsShell, releaseJsShell, nightlyJsShell, profilerTrace, jsShellApiGap, staxHostApiBoundary, jsShellTokenizerHeadroom, jsShellMaterializedHeadroom, jsShellDiagnosticFlagSweep, taskclusterDebugJsShell, taskclusterDebugJsShellXml, taskclusterDebugJsShellMaterialized, taskclusterDebugJsShellRerun, taskclusterDebugJsShellMaterializedRerun, asciiScopeDistance, materializedScopeDistance, codegenClosureAudit, codegenRerunStability, archivalDebugJsShell, buildconfig]
+      evidenceArtifacts: [diagnostic, taskclusterDebugBrowserPreflight, taskclusterDebugBrowserDiagnostic, jsShell, releaseJsShell, nightlyJsShell, profilerTrace, jsShellApiGap, staxHostApiBoundary, jsShellTokenizerHeadroom, jsShellMaterializedHeadroom, jsShellDiagnosticFlagSweep, taskclusterDebugJsShell, taskclusterDebugJsShellXml, taskclusterDebugJsShellAsciiStax, taskclusterDebugJsShellMaterialized, taskclusterDebugJsShellRerun, taskclusterDebugJsShellMaterializedRerun, asciiScopeDistance, materializedScopeDistance, codegenClosureAudit, codegenRerunStability, archivalDebugJsShell, buildconfig]
         .filter(Boolean)
         .map(artifact => artifact.sourceArtifact),
       blockers: [

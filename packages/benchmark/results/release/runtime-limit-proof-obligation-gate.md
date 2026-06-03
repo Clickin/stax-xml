@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-03T03:27:25.153Z
+Generated: 2026-06-03T04:12:11.618Z
 
 ## Scope
 
@@ -89,13 +89,13 @@ Disclosure-only guards: 3
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-03T03:26:36.792Z)
+- Coverage audit loaded: yes (2026-06-03T04:11:02.887Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
-- SpiderMonkey diagnostics rows vs closure candidates: 11/16 (gap=5, closureQualified=0)
-- SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace.json`, `spidermonkey-jsshell-materialized-headroom.json`, `spidermonkey-jsshell-tokenizer-headroom.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`
+- SpiderMonkey diagnostics rows vs closure candidates: 12/18 (gap=6, closureQualified=0)
+- SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace.json`, `firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json`, `spidermonkey-jsshell-materialized-headroom.json`, `spidermonkey-jsshell-tokenizer-headroom.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`
 - SpiderMonkey coverage diagnostics outside closure candidates: none
-- SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7
+- SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=8
 - SpiderMonkey closest codegen blockers: spidermonkey-taskcluster-debug-jsshell-codegen-audit.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]; spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]; spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]; spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]; spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]
 - SpiderMonkey Taskcluster route freshness: fresh (artifactIdentityMatchesRoute=yes, expectedIdentitySource=inferred-from-artifacts, checkedArtifacts=5, mismatchedArtifacts=none)
 - Safari/WebKit closure comparison: generatedAt=2026-06-02T20:08:45.362Z, rows=289, candidates=0, qualified=0
@@ -121,9 +121,9 @@ Disclosure-only guards: 3
 - Same-contract comparison contract: same-full-string-checksum-contract-not-same-object-shape; publicEventCase=eventObjectFull; objectShapeEquivalence=false; memoryEquivalence=false
 - Same-contract comparison rows: 289/289; largeFullJsRows=239
 - Same-contract comparison counterexamples: 0
-- Runtime counterexample scan loaded: yes (2026-06-03T02:52:52.955Z)
+- Runtime counterexample scan loaded: yes (2026-06-03T04:11:26.383Z)
 - Counterexample scan contract: threshold=200.00 MiB/s, minSizeGiB=1.00, parseErrors=0
-- Counterexample scan coverage shape: artifacts=228/228, measuredRows=1266/1266
+- Counterexample scan coverage shape: artifacts=229/229, measuredRows=1266/1266
 - Counterexample scan aggregate surface: aggregateRows=182, largeFullAggregateRows=142, measuredCounterexamples=0, aggregateCounterexamples=0
 - Counterexample scan source-shape surface: sourceModeRows=642, largeFullSourceModeRows=474, modes=generated-sync-iterable-byte-batches:382,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; file-backed-sync-iterable-byte-batches:53,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; async-iterable-byte-batches:15,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; web-readable-stream-pull:15,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=15; sync-iterable-byte-batches:4,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; fetch-async-iterable-byte-batches:2,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; fetch-readable-stream-pull:2,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=2; complete-js-string:1,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0
 - Runtime counterexample scan counterexamples: 0
@@ -141,7 +141,7 @@ Disclosure-only guards: 3
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-03T03:26:51.156Z)
+- Handoff loaded: yes (2026-06-03T04:11:42.265Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -180,8 +180,8 @@ Disclosure-only guards: 3
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-03T03:27:13.931Z)
-- Handoff validation target handoff generatedAt: 2026-06-03T03:26:51.156Z (current 2026-06-03T03:26:51.156Z)
+- Handoff validation loaded: yes (2026-06-03T04:11:55.089Z)
+- Handoff validation target handoff generatedAt: 2026-06-03T04:11:42.265Z (current 2026-06-03T04:11:42.265Z)
 - Handoff validation pass: yes
 - Commands checked: 15
 - Scripts referenced: 23
@@ -213,8 +213,8 @@ Disclosure-only guards: 3
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-03T03:26:57.194Z)
-- Source audit inputs: comparison=2026-06-02T20:08:45.362Z (current 2026-06-02T20:08:45.362Z), coverage=2026-06-03T03:26:36.792Z (current 2026-06-03T03:26:36.792Z)
+- Source audit loaded: yes (2026-06-03T04:11:12.958Z)
+- Source audit inputs: comparison=2026-06-02T20:08:45.362Z (current 2026-06-02T20:08:45.362Z), coverage=2026-06-03T04:11:02.887Z (current 2026-06-03T04:11:02.887Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary source boundary: demand-driven StreamReaderSync parser pulls

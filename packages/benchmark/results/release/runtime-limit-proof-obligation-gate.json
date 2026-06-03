@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T03:27:25.153Z",
+  "generatedAt": "2026-06-03T04:12:11.618Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -362,12 +362,12 @@
     "comparisonJsLargeFullRowCount": 239,
     "comparisonCounterexampleCount": 0,
     "counterexampleScanLoaded": true,
-    "counterexampleScanGeneratedAt": "2026-06-03T02:52:52.955Z",
+    "counterexampleScanGeneratedAt": "2026-06-03T04:11:26.383Z",
     "thresholdMiBPerSec": 200,
     "minSizeGiB": 0.999,
     "scanParseErrorCount": 0,
-    "scanScannedArtifactCount": 228,
-    "coverageScannedArtifactCount": 228,
+    "scanScannedArtifactCount": 229,
+    "coverageScannedArtifactCount": 229,
     "scanMeasuredRowCount": 1266,
     "coverageMeasuredRowCount": 1266,
     "scanAggregateRowCount": 182,
@@ -699,7 +699,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T03:26:51.156Z",
+    "generatedAt": "2026-06-03T04:11:42.265Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -869,9 +869,9 @@
   },
   "handoffValidationSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T03:27:13.931Z",
-    "validatedHandoffGeneratedAt": "2026-06-03T03:26:51.156Z",
-    "currentHandoffGeneratedAt": "2026-06-03T03:26:51.156Z",
+    "generatedAt": "2026-06-03T04:11:55.089Z",
+    "validatedHandoffGeneratedAt": "2026-06-03T04:11:42.265Z",
+    "currentHandoffGeneratedAt": "2026-06-03T04:11:42.265Z",
     "pass": true,
     "missingScriptCount": 0,
     "nonReleaseOutputPathCount": 0,
@@ -942,11 +942,11 @@
   },
   "sourceAuditSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T03:26:57.194Z",
+    "generatedAt": "2026-06-03T04:11:12.958Z",
     "inputComparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
     "currentComparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
-    "inputCoverageGeneratedAt": "2026-06-03T03:26:36.792Z",
-    "currentCoverageGeneratedAt": "2026-06-03T03:26:36.792Z",
+    "inputCoverageGeneratedAt": "2026-06-03T04:11:02.887Z",
+    "currentCoverageGeneratedAt": "2026-06-03T04:11:02.887Z",
     "status": "classified",
     "primarySourceContract": "primary-sync-iterable-byte-batches",
     "primaryParserInput": "synchronous Iterable<Uint8Array[]>",
@@ -1142,7 +1142,7 @@
   },
   "coverageSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T03:26:36.792Z",
+    "generatedAt": "2026-06-03T04:11:02.887Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -1201,9 +1201,9 @@
     "spiderMonkeyDiagnostics": {
       "selectedRowIdentityStatusCounts": {
         "not-claimed": 4,
-        "not-claimed-non-stax-diagnostic": 7
+        "not-claimed-non-stax-diagnostic": 8
       },
-      "diagnosticRowCount": 11,
+      "diagnosticRowCount": 12,
       "diagnosticRowSourceArtifacts": [
         "firefox-spidermonkey-buildconfig-source-pin-audit.json",
         "firefox-spidermonkey-diagnostic-dump-audit.json",
@@ -1213,11 +1213,12 @@
         "firefox-spidermonkey-release-jsshell-availability-audit.json",
         "spidermonkey-archival-debug-jsshell-codegen-audit.json",
         "spidermonkey-jsshell-diagnostic-flag-sweep.json",
+        "spidermonkey-taskcluster-debug-jsshell-ascii-stax-codegen-audit.json",
         "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
         "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
         "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
       ],
-      "closureAuditCandidateCount": 16,
+      "closureAuditCandidateCount": 18,
       "closureAuditCandidateSourceArtifacts": [
         "firefox-spidermonkey-buildconfig-source-pin-audit.json",
         "firefox-spidermonkey-diagnostic-dump-audit.json",
@@ -1226,19 +1227,22 @@
         "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
         "firefox-spidermonkey-profiler-trace.json",
         "firefox-spidermonkey-release-jsshell-availability-audit.json",
+        "firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json",
         "spidermonkey-archival-debug-jsshell-codegen-audit.json",
         "spidermonkey-jsshell-diagnostic-flag-sweep.json",
         "spidermonkey-jsshell-materialized-headroom.json",
         "spidermonkey-jsshell-tokenizer-headroom.json",
+        "spidermonkey-taskcluster-debug-jsshell-ascii-stax-codegen-audit.json",
         "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
         "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
         "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
         "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
         "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
       ],
-      "closureAuditDiagnosticRowGap": 5,
+      "closureAuditDiagnosticRowGap": 6,
       "closureAuditCandidateSourcesOutsideDiagnostics": [
         "firefox-spidermonkey-profiler-trace.json",
+        "firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json",
         "spidermonkey-jsshell-materialized-headroom.json",
         "spidermonkey-jsshell-tokenizer-headroom.json",
         "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
@@ -1256,11 +1260,11 @@
       "expectedIdentitySource": "inferred-from-artifacts"
     },
     "spiderMonkeyClosureAudit": {
-      "candidateCount": 16,
+      "candidateCount": 18,
       "qualifiedClosureCount": 0,
       "selectedRowComparisonMatchCount": 0,
       "selectedRowComparisonMismatchCount": 1,
-      "selectedRowComparisonMissingCount": 15,
+      "selectedRowComparisonMissingCount": 17,
       "comparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
       "comparisonRowCount": 289,
       "minimumBlockedRequirementCount": 4,

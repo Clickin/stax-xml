@@ -27,6 +27,7 @@ const disallowedEvidenceClasses = new Set([
   'archival-codegen-scope-guard',
   'current-debug-codegen-scope-guard',
   'current-debug-xml-codegen-scope-guard',
+  'current-debug-ascii-stax-codegen-scope-guard',
   'current-debug-materialized-codegen-scope-guard',
 ]);
 
@@ -1086,6 +1087,7 @@ function inferEvidenceClass(sourceArtifact, outcome) {
   if (/materialized-headroom/.test(sourceArtifact)) return 'materialized-headroom-only';
   if (/archival/.test(sourceArtifact)) return 'archival-codegen-scope-guard';
   if (/materialized-codegen/.test(sourceArtifact)) return 'current-debug-materialized-codegen-scope-guard';
+  if (/ascii-stax-codegen/.test(sourceArtifact)) return 'current-debug-ascii-stax-codegen-scope-guard';
   if (/xml-codegen/.test(sourceArtifact)) return 'current-debug-xml-codegen-scope-guard';
   if (/codegen/.test(sourceArtifact)) return 'current-debug-codegen-scope-guard';
   return 'unknown';

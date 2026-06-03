@@ -132,7 +132,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('nonComparableDiagnosticWorkloadMetadataCount')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('closingMetadataMissingFieldCounts diagnosticFlags')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('disallowedEvidenceClassCounts')));
-  assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('selectedRowIdentityStatusCounts not-claimed-non-stax-diagnostic')));
+  assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('selectedRowIdentityStatusCounts')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('qualifiedClosureCount=0')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('contradictedClosureClaimCount=0')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('closestBlockedCandidateCount')));
@@ -1129,7 +1129,7 @@ test('runtime proof handoff validation fails if SpiderMonkey closure omits closu
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
   spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
-    .map(item => item.replace(/, selectedRowIdentityStatusCounts not-claimed-non-stax-diagnostic=\d+/g, ''));
+    .map(item => item.replace(/, selectedRowIdentityStatusCounts (?:not-claimed-ascii-stax-diagnostic=\d+, )?not-claimed-non-stax-diagnostic=\d+/g, ''));
   writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
 
   const result = spawnSync(process.execPath, [

@@ -206,16 +206,16 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   ]);
   assert.deepEqual(report.coverageSnapshot.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts, {
     'not-claimed': 4,
-    'not-claimed-non-stax-diagnostic': 7,
+    'not-claimed-non-stax-diagnostic': 8,
   });
-  assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.diagnosticRowCount, 11);
-  assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditCandidateCount, 16);
-  assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap, 5);
-  assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.candidateCount, 16);
+  assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.diagnosticRowCount, 12);
+  assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditCandidateCount, 18);
+  assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap, 6);
+  assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.candidateCount, 18);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.qualifiedClosureCount, 0);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.selectedRowComparisonMatchCount, 0);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.selectedRowComparisonMismatchCount, 1);
-  assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.selectedRowComparisonMissingCount, 15);
+  assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.selectedRowComparisonMissingCount, 17);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.comparisonGeneratedAt, report.counterexampleSnapshot.comparisonGeneratedAt);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.comparisonRowCount, report.counterexampleSnapshot.comparisonRowCount);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.minimumBlockedRequirementCount, 4);
@@ -236,6 +236,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   ));
   assert.deepEqual(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditCandidateSourcesOutsideDiagnostics, [
     'firefox-spidermonkey-profiler-trace.json',
+    'firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json',
     'spidermonkey-jsshell-materialized-headroom.json',
     'spidermonkey-jsshell-tokenizer-headroom.json',
     'spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json',
@@ -396,9 +397,9 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /## Coverage Snapshot/);
   assert.match(markdown, /Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open/);
   assert.match(markdown, /allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open/);
-  assert.match(markdown, /SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7/);
-  assert.match(markdown, /SpiderMonkey diagnostics rows vs closure candidates: 11\/16 \(gap=5, closureQualified=0\)/);
-  assert.match(markdown, /SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace\.json`, `spidermonkey-jsshell-materialized-headroom\.json`, `spidermonkey-jsshell-tokenizer-headroom\.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun\.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun\.json`/);
+  assert.match(markdown, /SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=8/);
+  assert.match(markdown, /SpiderMonkey diagnostics rows vs closure candidates: 12\/18 \(gap=6, closureQualified=0\)/);
+  assert.match(markdown, /SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace\.json`, `firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit\.json`, `spidermonkey-jsshell-materialized-headroom\.json`, `spidermonkey-jsshell-tokenizer-headroom\.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun\.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun\.json`/);
   assert.match(markdown, /SpiderMonkey coverage diagnostics outside closure candidates: none/);
   assert.match(markdown, /Safari\/WebKit closure comparison: generatedAt=.*rows=289, candidates=0, qualified=0/);
   assert.match(markdown, /spidermonkey-identity-status-counts-present/);
@@ -414,7 +415,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /same-contract-comparison-contract/);
   assert.match(markdown, /same-contract-comparison-row-count/);
   assert.match(markdown, /Counterexample scan contract: threshold=200\.00 MiB\/s, minSizeGiB=1\.00, parseErrors=0/);
-  assert.match(markdown, /Counterexample scan coverage shape: artifacts=228\/228, measuredRows=1266\/1266/);
+  assert.match(markdown, /Counterexample scan coverage shape: artifacts=229\/229, measuredRows=1266\/1266/);
   assert.match(markdown, /Counterexample scan aggregate surface: aggregateRows=182, largeFullAggregateRows=142, measuredCounterexamples=0, aggregateCounterexamples=0/);
   assert.match(markdown, /Counterexample scan source-shape surface: sourceModeRows=642, largeFullSourceModeRows=474/);
   assert.match(markdown, /generated-sync-iterable-byte-batches:382,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0/);
@@ -691,7 +692,7 @@ test('runtime-limit proof-obligation gate fails if coverage omits SpiderMonkey c
 
   const markdown = readFileSync(badCoverageGateMdOut, 'utf8');
   assert.match(markdown, /Gate pass: no/);
-  assert.match(markdown, /SpiderMonkey diagnostics rows vs closure candidates: 11\/unknown/);
+  assert.match(markdown, /SpiderMonkey diagnostics rows vs closure candidates: 12\/unknown/);
   assert.match(markdown, /spidermonkey-closure-audit-surface-visible/);
 });
 
@@ -1517,7 +1518,7 @@ test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff omits cl
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(item => item.id === 'spidermonkey-codegen-handoff');
   spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
-    .map(item => item.replace(/, selectedRowIdentityStatusCounts not-claimed-non-stax-diagnostic=\d+/g, ''));
+    .map(item => item.replace(/, selectedRowIdentityStatusCounts (?:not-claimed-ascii-stax-diagnostic=\d+, )?not-claimed-non-stax-diagnostic=\d+/g, ''));
   writeFileSync(badHandoffJsonOut, `${JSON.stringify(handoff, null, 2)}\n`);
 
   const result = spawnSync(process.execPath, [

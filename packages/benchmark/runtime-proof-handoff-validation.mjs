@@ -257,7 +257,7 @@ function validateHandoff(handoff) {
           /selectedRowComparisonMatchCount=\d+, selectedRowComparisonMismatchCount=\d+, selectedRowComparisonMissingCount=\d+/,
           /closingMetadataMissingFieldCounts diagnosticFlags=\d+, emittedDumpMetadata=\d+, runtimeBuildIdentity=\d+/,
           /disallowedEvidenceClassCounts .*current-debug-codegen-scope-guard=\d+/,
-          /selectedRowIdentityStatusCounts not-claimed-non-stax-diagnostic=\d+/,
+          /selectedRowIdentityStatusCounts (?:not-claimed-ascii-stax-diagnostic=\d+, )?not-claimed-non-stax-diagnostic=\d+/,
           /qualifiedClosureCount=0/,
           /contradictedClosureClaimCount=0/,
           /closestBlockedCandidateCount=/,

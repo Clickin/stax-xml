@@ -827,6 +827,7 @@ function summarizeSpiderMonkeyDiagnostics(artifacts, sameContractComparisonRows 
   const jsShellDiagnosticFlagSweep = byName.get('spidermonkey-jsshell-diagnostic-flag-sweep.json') ?? null;
   const taskclusterDebugJsShell = byName.get('spidermonkey-taskcluster-debug-jsshell-codegen-audit.json') ?? null;
   const taskclusterDebugJsShellXml = byName.get('spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json') ?? null;
+  const taskclusterDebugJsShellAsciiStax = byName.get('spidermonkey-taskcluster-debug-jsshell-ascii-stax-codegen-audit.json') ?? null;
   const taskclusterDebugJsShellMaterialized = byName.get('spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json') ?? null;
   const archivalDebugJsShell = byName.get('spidermonkey-archival-debug-jsshell-codegen-audit.json') ?? null;
   const buildconfig = byName.get('firefox-spidermonkey-buildconfig-source-pin-audit.json') ?? null;
@@ -840,6 +841,7 @@ function summarizeSpiderMonkeyDiagnostics(artifacts, sameContractComparisonRows 
     summarizeSpiderMonkeyDiagnostic('official-jsshell-diagnostic-flag-sweep', jsShellDiagnosticFlagSweep, sameContractComparisonRows),
     summarizeSpiderMonkeyDiagnostic('taskcluster-debug-jsshell-codegen', taskclusterDebugJsShell, sameContractComparisonRows),
     summarizeSpiderMonkeyDiagnostic('taskcluster-debug-jsshell-xml-codegen', taskclusterDebugJsShellXml, sameContractComparisonRows),
+    summarizeSpiderMonkeyDiagnostic('taskcluster-debug-jsshell-ascii-stax-codegen', taskclusterDebugJsShellAsciiStax, sameContractComparisonRows),
     summarizeSpiderMonkeyDiagnostic('taskcluster-debug-jsshell-materialized-codegen', taskclusterDebugJsShellMaterialized, sameContractComparisonRows),
     summarizeSpiderMonkeyDiagnostic('archival-debug-jsshell-codegen', archivalDebugJsShell, sameContractComparisonRows),
     summarizeSpiderMonkeyDiagnostic('installed-buildconfig-source-pin', buildconfig, sameContractComparisonRows),
@@ -940,6 +942,12 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact, sameContractComparisonRow
     closesEmittedIrObligation,
     sameContractStaxRow,
     canRunCurrentStaxFullStringBenchmark,
+    currentStaxAsciiPrimaryByteBatchRow: typeof outcome.currentStaxAsciiPrimaryByteBatchRow === 'boolean'
+      ? outcome.currentStaxAsciiPrimaryByteBatchRow
+      : null,
+    canRunAsciiPrimaryByteBatchBenchmark: typeof outcome.canRunAsciiPrimaryByteBatchBenchmark === 'boolean'
+      ? outcome.canRunAsciiPrimaryByteBatchBenchmark
+      : null,
     selectedRowMetadataComplete,
     selectedRowMatchesCurrentComparison,
   });
@@ -987,6 +995,12 @@ function summarizeSpiderMonkeyDiagnostic(id, artifact, sameContractComparisonRow
         ? summary.binaryReadableShellCount === summary.shellCount && summary.shellCount > 0
         : null,
     canRunCurrentStaxFullStringBenchmark,
+    currentStaxAsciiPrimaryByteBatchRow: typeof outcome.currentStaxAsciiPrimaryByteBatchRow === 'boolean'
+      ? outcome.currentStaxAsciiPrimaryByteBatchRow
+      : null,
+    canRunAsciiPrimaryByteBatchBenchmark: typeof outcome.canRunAsciiPrimaryByteBatchBenchmark === 'boolean'
+      ? outcome.canRunAsciiPrimaryByteBatchBenchmark
+      : null,
     selectedRowId,
     selectedEventCount,
     selectedChecksum,
@@ -1140,6 +1154,7 @@ function extractSameContractComparisonRows(root) {
 
 function classifySpiderMonkeyDiagnosticEvidence({ id, hasJitExecutionStatus, closesEmittedIrObligation, emittedIrClosureQualified, irDumpSurface, nativeDumpComplete, bytecodeDumpOutput, selectedRowMatchesCurrentComparison, evidenceClassAllowed, outcome, summary }) {
   if (emittedIrClosureQualified) return 'emitted-ir';
+  if (outcome?.hasAsciiCurrentStaxCodegenOutput === true && outcome?.currentStaxAsciiPrimaryByteBatchRow === true && outcome?.sameContractStaxRow === false) return 'current-debug-ascii-stax-codegen-scope-guard';
   if (closesEmittedIrObligation || selectedRowMatchesCurrentComparison === false || evidenceClassAllowed === false) return 'emitted-ir-scope-guard';
   if (outcome?.hasMaterializedStringObjectCodegenOutput === true && outcome?.scopeComparableToCurrentFirefox === true && outcome?.sameContractStaxRow === false) return 'current-debug-materialized-codegen-scope-guard';
   if (outcome?.hasXmlWorkloadCodegenOutput === true && outcome?.scopeComparableToCurrentFirefox === true && outcome?.sameContractStaxRow === false) return 'current-debug-xml-codegen-scope-guard';
@@ -1808,6 +1823,7 @@ function summarizeOutcome(outcome = {}) {
     hasJitExecutionStatus: typeof outcome.hasJitExecutionStatus === 'boolean' ? outcome.hasJitExecutionStatus : null,
     hasIrDumpSurface: typeof outcome.hasIrDumpSurface === 'boolean' ? outcome.hasIrDumpSurface : null,
     hasCodegenDumpOutput: typeof outcome.hasCodegenDumpOutput === 'boolean' ? outcome.hasCodegenDumpOutput : null,
+    hasAsciiCurrentStaxCodegenOutput: typeof outcome.hasAsciiCurrentStaxCodegenOutput === 'boolean' ? outcome.hasAsciiCurrentStaxCodegenOutput : null,
     hasXmlWorkloadCodegenOutput: typeof outcome.hasXmlWorkloadCodegenOutput === 'boolean' ? outcome.hasXmlWorkloadCodegenOutput : null,
     hasMaterializedStringObjectCodegenOutput: typeof outcome.hasMaterializedStringObjectCodegenOutput === 'boolean' ? outcome.hasMaterializedStringObjectCodegenOutput : null,
     hasBytecodeDumpOutput: typeof outcome.hasBytecodeDumpOutput === 'boolean' ? outcome.hasBytecodeDumpOutput : null,
@@ -1819,8 +1835,10 @@ function summarizeOutcome(outcome = {}) {
     nativeDumpComplete: typeof outcome.nativeDumpComplete === 'boolean' ? outcome.nativeDumpComplete : null,
     scopeComparableToCurrentFirefox: typeof outcome.scopeComparableToCurrentFirefox === 'boolean' ? outcome.scopeComparableToCurrentFirefox : null,
     sameContractStaxRow: typeof outcome.sameContractStaxRow === 'boolean' ? outcome.sameContractStaxRow : null,
+    currentStaxAsciiPrimaryByteBatchRow: typeof outcome.currentStaxAsciiPrimaryByteBatchRow === 'boolean' ? outcome.currentStaxAsciiPrimaryByteBatchRow : null,
     canReadBinaryInput: typeof outcome.canReadBinaryInput === 'boolean' ? outcome.canReadBinaryInput : null,
     canRunCurrentStaxFullStringBenchmark: typeof outcome.canRunCurrentStaxFullStringBenchmark === 'boolean' ? outcome.canRunCurrentStaxFullStringBenchmark : null,
+    canRunAsciiPrimaryByteBatchBenchmark: typeof outcome.canRunAsciiPrimaryByteBatchBenchmark === 'boolean' ? outcome.canRunAsciiPrimaryByteBatchBenchmark : null,
     closesEmittedIrObligation: typeof outcome.closesEmittedIrObligation === 'boolean' ? outcome.closesEmittedIrObligation : null,
     selectedRowId: typeof outcome.selectedRowId === 'string'
       ? outcome.selectedRowId
