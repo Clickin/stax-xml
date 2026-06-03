@@ -1,13 +1,13 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-03T07:31:11.412Z
+Generated: 2026-06-03T07:44:37.702Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-06-03T07:30:58.287Z
+- Audit generated: 2026-06-03T07:44:19.970Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
 - Comparison generated: 2026-06-03T06:02:02.040Z
 - Active obligations: 1
@@ -147,7 +147,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
   - No Safari/WebKit benchmark row is recorded by the availability audit.
   - No exact Safari/WebKit source-boundary pin is recorded by the availability audit.
   - Safari closure matrix reports closureRequirementsMet=2, closureRequirementsBlocked=9, closesSafariObligation=false.
-  - The Safari/WebKit closure audit checks candidateRows=0, comparisonGeneratedAt=2026-06-03T06:02:02.040Z, comparisonRowCount=291, largeBoundedPrimaryRows=0, rowsInSameContractComparison=0, measuredExactBuildIdentityRows=0, rowLevelSourceBoundaryPinnedRows=0, sourceBoundaryPinned=false, qualifiedClosureCount=0, and conclusionAllowed=false.
+  - The Safari/WebKit closure audit checks candidateRows=0, comparisonGeneratedAt=2026-06-03T06:02:02.040Z, comparisonRowCount=291, largeBoundedPrimaryRows=0, acceptedClosureCaseRows=0, rowsInSameContractComparison=0, measuredExactBuildIdentityRows=0, rowLevelSourceBoundaryPinnedRows=0, sourceBoundaryPinned=false, qualifiedClosureCount=0, and conclusionAllowed=false.
 - Local evidence artifacts: safari-webkit-availability-audit.json, safari-webkit-closure-audit.json
 
 Prerequisites:

@@ -280,6 +280,9 @@ function summarizeArtifactSummary(summary, inputs = {}, closestBlockedCandidates
     candidateCount: typeof summary.candidateCount === 'number'
       ? summary.candidateCount
       : null,
+    acceptedClosureCaseRows: typeof summary.acceptedClosureCaseRows === 'number'
+      ? summary.acceptedClosureCaseRows
+      : null,
     candidateSourceArtifacts: Array.isArray(summary.candidateSourceArtifacts)
       ? uniqueStrings(summary.candidateSourceArtifacts)
       : null,

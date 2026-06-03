@@ -31,47 +31,60 @@ test('Safari/WebKit closure audit separates primary rows from direct stream rows
   assert.equal(report.objective, 'safari-webkit-closure-audit');
   assert.equal(report.contract, 'safari-webkit-same-contract-browser-row-closure-matrix');
   assert.equal(report.inputs.comparisonGeneratedAt, 'self-test');
-  assert.equal(report.inputs.comparisonRowCount, 3);
-  assert.equal(report.summary.candidateCount, 4);
-  assert.equal(report.summary.primarySyncByteBatchRows, 3);
-  assert.equal(report.summary.largeBoundedPrimaryRows, 3);
-  assert.equal(report.summary.rowsInSameContractComparison, 2);
-  assert.equal(report.summary.rowLevelSourceBoundaryPinnedRows, 3);
+  assert.equal(report.inputs.comparisonRowCount, 5);
+  assert.equal(report.summary.candidateCount, 5);
+  assert.equal(report.summary.primarySyncByteBatchRows, 4);
+  assert.equal(report.summary.largeBoundedPrimaryRows, 4);
+  assert.equal(report.summary.acceptedClosureCaseRows, 3);
+  assert.equal(report.summary.rowsInSameContractComparison, 4);
+  assert.equal(report.summary.rowLevelSourceBoundaryPinnedRows, 4);
   assert.equal(report.summary.qualifiedClosureCount, 1);
   assert.equal(report.summary.conclusionAllowed, true);
 
-  const direct = report.candidates.find(candidate => candidate.id === 'safari-direct-stream');
+  const direct = report.candidates.find(candidate => candidate.id === 'eventObjectFull');
   assert.ok(direct);
   assert.equal(direct.qualifiedClosure, false);
+  assert.ok(direct.requirements.acceptedClosureCase.met);
   assert.ok(direct.unmetRequirements.includes('primarySyncByteBatch'));
-  assert.ok(direct.unmetRequirements.includes('sameContractComparison'));
 
-  const valid = report.candidates.find(candidate => candidate.id === 'safari-valid');
+  const valid = report.candidates.find(candidate => candidate.id === 'rawFrameNameId');
   assert.ok(valid);
   assert.equal(valid.qualifiedClosure, true);
   assert.deepEqual(valid.unmetRequirements, []);
 
-  const genericSourcePin = report.candidates.find(candidate => candidate.id === 'safari-generic-source-pin');
+  const genericSourcePin = report.candidates.find(candidate => candidate.id === 'stringFull');
   assert.ok(genericSourcePin);
   assert.equal(genericSourcePin.qualifiedClosure, false);
+  assert.ok(genericSourcePin.requirements.acceptedClosureCase.met);
   assert.ok(genericSourcePin.requirements.sameContractComparison.met);
   assert.ok(genericSourcePin.requirements.measuredExactBuildIdentity.met);
   assert.ok(genericSourcePin.unmetRequirements.includes('rowLevelSourceBoundaryPinned'));
+
+  const unsupportedCase = report.candidates.find(candidate => candidate.id === 'cursorAccessor');
+  assert.ok(unsupportedCase);
+  assert.equal(unsupportedCase.qualifiedClosure, false);
+  assert.ok(unsupportedCase.requirements.sameContractComparison.met);
+  assert.ok(unsupportedCase.requirements.primarySyncByteBatch.met);
+  assert.ok(unsupportedCase.requirements.rowLevelSourceBoundaryPinned.met);
+  assert.ok(unsupportedCase.unmetRequirements.includes('acceptedClosureCase'));
 
   const partialComparisonOnly = report.candidates.find(candidate => candidate.id === 'safari-partial-comparison-only');
   assert.ok(partialComparisonOnly);
   assert.equal(partialComparisonOnly.qualifiedClosure, false);
   assert.ok(partialComparisonOnly.requirements.primarySyncByteBatch.met);
   assert.ok(partialComparisonOnly.requirements.rowLevelSourceBoundaryPinned.met);
+  assert.ok(partialComparisonOnly.unmetRequirements.includes('acceptedClosureCase'));
   assert.ok(partialComparisonOnly.unmetRequirements.includes('sameContractComparison'));
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Safari\/WebKit Closure Audit/);
   assert.match(markdown, /Comparison generatedAt: self-test/);
-  assert.match(markdown, /Comparison row count: 3/);
+  assert.match(markdown, /Comparison row count: 5/);
   assert.match(markdown, /Qualified closures: 1/);
-  assert.match(markdown, /Rows with row-level Safari\/WebKit source pins: 3/);
+  assert.match(markdown, /Accepted closure case rows: 3/);
+  assert.match(markdown, /Rows with row-level Safari\/WebKit source pins: 4/);
   assert.match(markdown, /Primary sync byte-batch/);
+  assert.match(markdown, /acceptedClosureCase/);
 });
 
 function resetTmp() {

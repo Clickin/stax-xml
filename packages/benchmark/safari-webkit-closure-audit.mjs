@@ -7,6 +7,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const defaultReleaseDir = resolve(__dirname, 'results', 'release');
 const defaultJsonOut = resolve(defaultReleaseDir, 'safari-webkit-closure-audit.json');
 const defaultMdOut = resolve(defaultReleaseDir, 'safari-webkit-closure-audit.md');
+const acceptedClosureCaseIds = new Set(['stringFull', 'eventObjectFull', 'rawFrameNameId']);
 
 function parseArgs(argv = process.argv.slice(2)) {
   const options = {
@@ -98,7 +99,8 @@ function createSelfTestReport(options) {
       root: {
         rows: [
           {
-            id: 'safari-valid',
+            id: 'rawFrameNameId',
+            caseId: 'rawFrameNameId',
             runtimeId: 'safari-jsc-browser',
             sizeGiB: 1,
             mibPerSec: 123,
@@ -128,7 +130,8 @@ function createSelfTestReport(options) {
             },
           },
           {
-            id: 'safari-direct-stream',
+            id: 'eventObjectFull',
+            caseId: 'eventObjectFull',
             runtimeId: 'safari-jsc-browser',
             sizeGiB: 1,
             mibPerSec: 125,
@@ -158,7 +161,8 @@ function createSelfTestReport(options) {
             },
           },
           {
-            id: 'safari-generic-source-pin',
+            id: 'stringFull',
+            caseId: 'stringFull',
             runtimeId: 'safari-jsc-browser',
             sizeGiB: 1,
             mibPerSec: 124,
@@ -187,7 +191,39 @@ function createSelfTestReport(options) {
             },
           },
           {
+            id: 'cursorAccessor',
+            caseId: 'cursorAccessor',
+            runtimeId: 'safari-jsc-browser',
+            sizeGiB: 1,
+            mibPerSec: 127,
+            fullStringParity: true,
+            sourceMode: 'sync-iterable-byte-batches',
+            directReadableStream: false,
+            fullArrayBufferParserInput: false,
+            demandDrivenSource: true,
+            boundedMemory: true,
+            memory: { primaryKind: 'browser-js-heap', peakBytes: 64 * MIB },
+            eventCount: 90,
+            checksum: 12,
+            environment: {
+              browserName: 'Safari',
+              browserVersion: '18.0',
+              webKitBuildVersion: '619.1.1',
+              userAgent: 'Version/18.0 Safari/605.1.15',
+            },
+            sourceBoundary: {
+              sourceRevision: '0123456789abcdef0123456789abcdef01234567',
+              stringBoundaryPinned: true,
+              textDecoderBoundaryPinned: true,
+              sourcePinArtifacts: [
+                'safari-webkit-string-source-pin-audit.json',
+                'safari-webkit-textdecoder-source-pin-audit.json',
+              ],
+            },
+          },
+          {
             id: 'safari-partial-comparison-only',
+            caseId: 'safari-partial-comparison-only',
             runtimeId: 'safari-jsc-browser',
             sizeGiB: 1,
             mibPerSec: 126,
@@ -221,8 +257,10 @@ function createSelfTestReport(options) {
     },
   ];
   const comparisonRows = [
-    { id: 'safari-valid', runtimeId: 'safari-jsc-browser', fullStringParity: true, eventCount: 12, checksum: 34 },
-    { id: 'safari-generic-source-pin', runtimeId: 'safari-jsc-browser', fullStringParity: true, eventCount: 56, checksum: 78 },
+    { id: 'rawFrameNameId', caseId: 'rawFrameNameId', runtimeId: 'safari-jsc-browser', fullStringParity: true, eventCount: 12, checksum: 34 },
+    { id: 'eventObjectFull', caseId: 'eventObjectFull', runtimeId: 'safari-jsc-browser', fullStringParity: true, eventCount: 12, checksum: 34 },
+    { id: 'stringFull', caseId: 'stringFull', runtimeId: 'safari-jsc-browser', fullStringParity: true, eventCount: 56, checksum: 78 },
+    { id: 'cursorAccessor', caseId: 'cursorAccessor', runtimeId: 'safari-jsc-browser', fullStringParity: true, eventCount: 90, checksum: 12 },
     { id: 'safari-partial-comparison-only', runtimeId: 'safari-jsc-browser', fullStringParity: false, eventCount: 12, checksum: 34 },
   ];
   const comparison = {
@@ -265,6 +303,7 @@ function buildReport(options, artifacts, comparisonRows, comparison = {}, compar
       primarySyncByteBatchRows: candidates.filter(candidate => candidate.requirements.primarySyncByteBatch.met).length,
       boundedPrimaryRows: candidates.filter(candidate => candidate.requirements.boundedMemory.met && candidate.requirements.primarySyncByteBatch.met).length,
       largeBoundedPrimaryRows: candidates.filter(candidate => candidate.requirements.largeOneGiB.met && candidate.requirements.boundedMemory.met && candidate.requirements.primarySyncByteBatch.met).length,
+      acceptedClosureCaseRows: candidates.filter(candidate => candidate.requirements.acceptedClosureCase.met).length,
       rowsInSameContractComparison: candidates.filter(candidate => candidate.requirements.sameContractComparison.met).length,
       measuredExactBuildIdentityRows: candidates.filter(candidate => candidate.requirements.measuredExactBuildIdentity.met).length,
       rowLevelSourceBoundaryPinnedRows: candidates.filter(candidate => candidate.requirements.rowLevelSourceBoundaryPinned.met).length,
@@ -314,15 +353,24 @@ function createCandidate(row, availability, comparisonRows, minLargeGiB) {
       met: typeof row.sizeGiB === 'number' && row.sizeGiB >= minLargeGiB,
       evidence: [`sizeGiB=${row.sizeGiB ?? 'unknown'}`],
     },
+    acceptedClosureCase: {
+      met: acceptedClosureCaseIds.has(row.caseId),
+      evidence: [
+        `caseId=${row.caseId ?? 'unknown'}`,
+        `acceptedClosureCaseIds=${Array.from(acceptedClosureCaseIds).join(', ')}`,
+      ],
+    },
     sameContractComparison: {
       met: comparisonRows.some(comparison =>
         comparison.id === row.id
           && comparison.runtimeId === 'safari-jsc-browser'
+          && comparison.caseId === row.caseId
           && comparison.eventCount === row.eventCount
           && comparison.checksum === row.checksum
       ),
       evidence: [
         `id=${row.id ?? 'unknown'}`,
+        `caseId=${row.caseId ?? 'unknown'}`,
         `eventCount=${row.eventCount ?? 'unknown'}`,
         `checksum=${row.checksum ?? 'unknown'}`,
       ],
@@ -358,6 +406,7 @@ function createCandidate(row, availability, comparisonRows, minLargeGiB) {
   return {
     sourceArtifact: row.sourceArtifact,
     id: row.id,
+    caseId: row.caseId,
     runtimeId: row.runtimeId,
     mibPerSec: row.mibPerSec,
     requirements,
@@ -399,6 +448,7 @@ function normalizeRow(sourceArtifact, node) {
   const runtimeId = normalizeRuntimeId(node);
   if (runtimeId !== 'safari-jsc-browser') return null;
   const id = firstString(node.id, node.caseId, node.name);
+  const caseId = firstString(node.caseId, node.id, node.name);
   const mibPerSec = firstFiniteNumber(node.mibPerSec, node.throughputMiBPerSec);
   if (!id || !Number.isFinite(mibPerSec)) return null;
   const memory = node.memory && typeof node.memory === 'object' ? node.memory : {};
@@ -412,6 +462,7 @@ function normalizeRow(sourceArtifact, node) {
   return {
     sourceArtifact,
     id,
+    caseId,
     runtimeId,
     mibPerSec,
     sizeGiB: firstFiniteNumber(node.sizeGiB, node.inputGiB),
@@ -450,16 +501,18 @@ function extractComparisonRows(root = {}) {
     if (!node || typeof node !== 'object' || Array.isArray(node)) return;
     const runtimeId = normalizeRuntimeId(node);
     const id = firstString(node.id, node.caseId, node.rowId);
+    const caseId = firstString(node.caseId, node.id, node.rowId);
     const eventCount = firstFiniteNumber(node.eventCount);
     const checksum = firstFiniteNumber(node.checksum);
     if (
       runtimeId === 'safari-jsc-browser'
       && node.fullStringParity === true
       && id
+      && caseId
       && Number.isFinite(eventCount)
       && Number.isFinite(checksum)
     ) {
-      rows.push({ id, runtimeId, eventCount, checksum });
+      rows.push({ id, caseId, runtimeId, eventCount, checksum });
     }
   });
   return rows;
@@ -568,6 +621,7 @@ function renderMarkdown(report) {
     `- Full-string rows: ${report.summary.fullStringRows}`,
     `- Primary sync byte-batch rows: ${report.summary.primarySyncByteBatchRows}`,
     `- Large bounded primary rows: ${report.summary.largeBoundedPrimaryRows}`,
+    `- Accepted closure case rows: ${report.summary.acceptedClosureCaseRows}`,
     `- Rows in same-contract comparison: ${report.summary.rowsInSameContractComparison}`,
     `- Rows with measured exact build identity: ${report.summary.measuredExactBuildIdentityRows}`,
     `- Rows with row-level Safari/WebKit source pins: ${report.summary.rowLevelSourceBoundaryPinnedRows}`,
@@ -585,19 +639,21 @@ function renderMarkdown(report) {
     '',
     '## Closure Matrix',
     '',
-    '| Artifact | Row | Primary sync | Bounded memory | 1 GiB+ | Same contract | Build identity | Row source pin | Availability source boundary | Qualified | Missing |',
-    '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
+    '| Artifact | Row | Case | Primary sync | Bounded memory | 1 GiB+ | Accepted case | Same contract | Build identity | Row source pin | Availability source boundary | Qualified | Missing |',
+    '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
   ];
   if (report.candidates.length === 0) {
-    lines.push('| none | | | | | | | | | | |');
+    lines.push('| none | | | | | | | | | | | | |');
   } else {
     for (const candidate of report.candidates) {
       lines.push([
         `| \`${candidate.sourceArtifact}\``,
         `\`${candidate.id ?? 'unknown'}\``,
+        `\`${candidate.caseId ?? 'unknown'}\``,
         yesNo(candidate.requirements.primarySyncByteBatch.met),
         yesNo(candidate.requirements.boundedMemory.met),
         yesNo(candidate.requirements.largeOneGiB.met),
+        yesNo(candidate.requirements.acceptedClosureCase.met),
         yesNo(candidate.requirements.sameContractComparison.met),
         yesNo(candidate.requirements.measuredExactBuildIdentity.met),
         yesNo(candidate.requirements.rowLevelSourceBoundaryPinned.met),
