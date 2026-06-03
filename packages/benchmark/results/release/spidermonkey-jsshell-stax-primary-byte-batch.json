@@ -1,0 +1,267 @@
+{
+  "generatedAt": "2026-06-03T05:58:26.999Z",
+  "objective": "spidermonkey-jsshell-stax-primary-byte-batch",
+  "contract": "current-stax-stream-reader-sync-primary-byte-batch-full-string-js-shell-row",
+  "note": "Runs the current built StreamReaderSync primary byte-batch path in official SpiderMonkey js-shells over corpus bytes read with read(file, \"binary\"). This is same full-string checksum StAX API evidence for js-shell, but not emitted-code closure and not a bounded-memory counterexample because row-level memory is unavailable.",
+  "fixture": {
+    "generated": true,
+    "source": "corpus-file",
+    "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+    "shape": "generated-single-root-corpus-repetition",
+    "seedBytes": 4551,
+    "targetBytes": 16777216,
+    "sizeMiB": 16,
+    "sizeGiB": 0.015625,
+    "batchSize": 1
+  },
+  "environment": {
+    "runtimeName": "spidermonkey-jsshell",
+    "javascriptEngine": "SpiderMonkey",
+    "platform": "win32-x64"
+  },
+  "sourceContract": {
+    "sourceMode": "sync-iterable-byte-batches",
+    "parserInput": "Iterable<Uint8Array[]>",
+    "directReadableStream": false,
+    "demandDrivenSource": true,
+    "fullArrayBufferParserInput": false,
+    "primarySyncByteBatchMissingGlobals": [],
+    "primaryPathRunnableWithoutHostEncoding": true
+  },
+  "variants": [
+    {
+      "id": "release-spidermonkey-stax-stream-reader-sync-primary-byte-batch",
+      "runtime": {
+        "id": "spidermonkey-jsshell",
+        "name": "SpiderMonkey js-shell",
+        "version": "JavaScript-C143.0.1",
+        "packageKind": "release",
+        "packageVerified": true,
+        "hasJitExecutionStatus": true,
+        "canReadBinaryInput": true
+      },
+      "implementation": "Current built StreamReaderSync index accessors over SpiderMonkey js-shell read(file, \"binary\") byte batches",
+      "family": "full-stax-js",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "sameContractStaxRow": true,
+      "currentStaxPrimaryByteBatchRow": true,
+      "canRunCurrentStaxPrimaryByteBatchBenchmark": true,
+      "canRunCurrentStaxFullStringBenchmark": false,
+      "unchangedStaxBenchmark": false,
+      "blockedUnchangedHarnessGlobals": [
+        "TextEncoder",
+        "ReadableStream",
+        "fetch"
+      ],
+      "boundedMemory": null,
+      "memory": {
+        "primaryKind": "not-recorded",
+        "note": "SpiderMonkey js-shell does not expose process RSS or JS heap counters in this harness."
+      },
+      "sourceMode": "sync-iterable-byte-batches",
+      "parserInput": "SpiderMonkey js-shell Uint8Array from read(file, \"binary\"), replayed as Iterable<Uint8Array[]> byte batches",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "corpusSeedReplay": false,
+      "corpusSeedBytes": 4551,
+      "generatedFixtureBytes": 16779772,
+      "targetBytes": 16779772,
+      "targetMiB": 16.002437591552734,
+      "sampleCount": 3,
+      "samplesMs": [
+        313,
+        314,
+        312
+      ],
+      "avgMs": 313,
+      "minMs": 312,
+      "maxMs": 314,
+      "sampleSpreadRatio": 0.006389776357827476,
+      "mibPerSec": 51.12599869505666,
+      "eventCount": 894724,
+      "checksum": -1087917522,
+      "globals": {
+        "TextDecoder": "undefined",
+        "TextEncoder": "undefined",
+        "ReadableStream": "undefined",
+        "fetch": "undefined",
+        "Uint8Array": "function",
+        "read": "function"
+      },
+      "sourceArtifact": "firefox-spidermonkey-release-jsshell-availability-audit.json",
+      "options": {
+        "runs": 3,
+        "warmups": 1
+      }
+    },
+    {
+      "id": "nightly-spidermonkey-stax-stream-reader-sync-primary-byte-batch",
+      "runtime": {
+        "id": "spidermonkey-jsshell",
+        "name": "SpiderMonkey js-shell",
+        "version": "JavaScript-C153.0a1",
+        "packageKind": "nightly",
+        "packageVerified": false,
+        "hasJitExecutionStatus": true,
+        "canReadBinaryInput": true
+      },
+      "implementation": "Current built StreamReaderSync index accessors over SpiderMonkey js-shell read(file, \"binary\") byte batches",
+      "family": "full-stax-js",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "sameContractStaxRow": true,
+      "currentStaxPrimaryByteBatchRow": true,
+      "canRunCurrentStaxPrimaryByteBatchBenchmark": true,
+      "canRunCurrentStaxFullStringBenchmark": false,
+      "unchangedStaxBenchmark": false,
+      "blockedUnchangedHarnessGlobals": [
+        "TextEncoder",
+        "ReadableStream",
+        "fetch"
+      ],
+      "boundedMemory": null,
+      "memory": {
+        "primaryKind": "not-recorded",
+        "note": "SpiderMonkey js-shell does not expose process RSS or JS heap counters in this harness."
+      },
+      "sourceMode": "sync-iterable-byte-batches",
+      "parserInput": "SpiderMonkey js-shell Uint8Array from read(file, \"binary\"), replayed as Iterable<Uint8Array[]> byte batches",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "corpusSeedReplay": false,
+      "corpusSeedBytes": 4551,
+      "generatedFixtureBytes": 16779772,
+      "targetBytes": 16779772,
+      "targetMiB": 16.002437591552734,
+      "sampleCount": 3,
+      "samplesMs": [
+        253,
+        257,
+        255
+      ],
+      "avgMs": 255,
+      "minMs": 253,
+      "maxMs": 257,
+      "sampleSpreadRatio": 0.01568627450980392,
+      "mibPerSec": 62.754657221775425,
+      "eventCount": 894724,
+      "checksum": -1087917522,
+      "globals": {
+        "TextDecoder": "undefined",
+        "TextEncoder": "undefined",
+        "ReadableStream": "undefined",
+        "fetch": "undefined",
+        "Uint8Array": "function",
+        "read": "function"
+      },
+      "sourceArtifact": "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
+      "options": {
+        "runs": 3,
+        "warmups": 1
+      }
+    }
+  ],
+  "summary": {
+    "rowCount": 2,
+    "fastest": {
+      "id": "nightly-spidermonkey-stax-stream-reader-sync-primary-byte-batch",
+      "runtime": {
+        "id": "spidermonkey-jsshell",
+        "name": "SpiderMonkey js-shell",
+        "version": "JavaScript-C153.0a1",
+        "packageKind": "nightly",
+        "packageVerified": false,
+        "hasJitExecutionStatus": true,
+        "canReadBinaryInput": true
+      },
+      "implementation": "Current built StreamReaderSync index accessors over SpiderMonkey js-shell read(file, \"binary\") byte batches",
+      "family": "full-stax-js",
+      "contractScope": "full-string-materialization",
+      "eventCountKind": "stream-events",
+      "fullStringParity": true,
+      "sameContractStaxRow": true,
+      "currentStaxPrimaryByteBatchRow": true,
+      "canRunCurrentStaxPrimaryByteBatchBenchmark": true,
+      "canRunCurrentStaxFullStringBenchmark": false,
+      "unchangedStaxBenchmark": false,
+      "blockedUnchangedHarnessGlobals": [
+        "TextEncoder",
+        "ReadableStream",
+        "fetch"
+      ],
+      "boundedMemory": null,
+      "memory": {
+        "primaryKind": "not-recorded",
+        "note": "SpiderMonkey js-shell does not expose process RSS or JS heap counters in this harness."
+      },
+      "sourceMode": "sync-iterable-byte-batches",
+      "parserInput": "SpiderMonkey js-shell Uint8Array from read(file, \"binary\"), replayed as Iterable<Uint8Array[]> byte batches",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "fullArrayBufferParserInput": false,
+      "corpusSeedReplay": false,
+      "corpusSeedBytes": 4551,
+      "generatedFixtureBytes": 16779772,
+      "targetBytes": 16779772,
+      "targetMiB": 16.002437591552734,
+      "sampleCount": 3,
+      "samplesMs": [
+        253,
+        257,
+        255
+      ],
+      "avgMs": 255,
+      "minMs": 253,
+      "maxMs": 257,
+      "sampleSpreadRatio": 0.01568627450980392,
+      "mibPerSec": 62.754657221775425,
+      "eventCount": 894724,
+      "checksum": -1087917522,
+      "globals": {
+        "TextDecoder": "undefined",
+        "TextEncoder": "undefined",
+        "ReadableStream": "undefined",
+        "fetch": "undefined",
+        "Uint8Array": "function",
+        "read": "function"
+      },
+      "sourceArtifact": "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
+      "options": {
+        "runs": 3,
+        "warmups": 1
+      }
+    },
+    "allRowsFullStringParity": true,
+    "allRowsPrimaryByteBatch": true,
+    "allRowsMissingHostEncodingGlobals": true,
+    "counterexampleCount": 0,
+    "conclusionAllowed": false
+  },
+  "findings": [
+    {
+      "id": "spidermonkey-jsshell-current-stax-primary-row",
+      "classification": "BENCH_FACT",
+      "summary": "Official SpiderMonkey js-shells can execute the current built StreamReaderSync primary byte-batch full-string checksum path without host TextDecoder or TextEncoder.",
+      "evidence": [
+        "rows=2",
+        "primaryPathRunnableWithoutHostEncoding=true",
+        "fastest=62.75 MiB/s"
+      ]
+    },
+    {
+      "id": "spidermonkey-jsshell-row-scope",
+      "classification": "SCOPE_GUARD",
+      "summary": "The row is not a runtime-limit closure because it has no row-level memory proof and no emitted same-contract codegen evidence.",
+      "evidence": [
+        "boundedMemory=null",
+        "canRunCurrentStaxFullStringBenchmark=false",
+        "conclusionAllowed=false"
+      ]
+    }
+  ]
+}

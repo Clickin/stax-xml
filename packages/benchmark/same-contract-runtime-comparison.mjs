@@ -186,6 +186,18 @@ const variantArtifacts = [
     cases: textDecoderCases,
   },
   {
+    group: 'spidermonkey-jsshell-primary-byte-batch',
+    file: 'spidermonkey-jsshell-stax-primary-byte-batch.json',
+    runtimeId: 'spidermonkey-jsshell',
+    runtimeLabel: 'SpiderMonkey js-shell',
+    jsRuntime: true,
+    cases: [
+      'release-spidermonkey-stax-stream-reader-sync-primary-byte-batch',
+      'nightly-spidermonkey-stax-stream-reader-sync-primary-byte-batch',
+    ],
+    sourceMode: 'sync-iterable-byte-batches',
+  },
+  {
     group: 'books-corpus-stability',
     file: 'candidate-headroom-books-corpus-stability.json',
     runtimeId: 'node-v8',

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T05:32:16.809Z",
+  "generatedAt": "2026-06-03T06:19:18.393Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -343,7 +343,7 @@
   ],
   "counterexampleSnapshot": {
     "comparisonLoaded": true,
-    "comparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
+    "comparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContractId": "same-full-string-checksum-contract-not-same-object-shape",
     "comparisonSemanticBasis": "Rows are comparable only through the same full-string event count and checksum contract.",
@@ -357,22 +357,22 @@
       "woodstox-jvm",
       "quick-xml-rust"
     ],
-    "comparisonSummaryRowCount": 289,
-    "comparisonRowCount": 289,
+    "comparisonSummaryRowCount": 291,
+    "comparisonRowCount": 291,
     "comparisonJsLargeFullRowCount": 239,
     "comparisonCounterexampleCount": 0,
     "counterexampleScanLoaded": true,
-    "counterexampleScanGeneratedAt": "2026-06-03T05:04:09.938Z",
+    "counterexampleScanGeneratedAt": "2026-06-03T06:02:30.754Z",
     "thresholdMiBPerSec": 200,
     "minSizeGiB": 0.999,
     "scanParseErrorCount": 0,
-    "scanScannedArtifactCount": 229,
-    "coverageScannedArtifactCount": 229,
-    "scanMeasuredRowCount": 1266,
-    "coverageMeasuredRowCount": 1266,
+    "scanScannedArtifactCount": 230,
+    "coverageScannedArtifactCount": 230,
+    "scanMeasuredRowCount": 1268,
+    "coverageMeasuredRowCount": 1268,
     "scanAggregateRowCount": 182,
     "scanLargeJsFullAggregateRowCount": 142,
-    "scanSourceModeRowCount": 642,
+    "scanSourceModeRowCount": 644,
     "scanLargeJsFullSourceModeRowCount": 474,
     "scanLargeJsFullSourceModeBreakdown": [
       {
@@ -699,7 +699,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T05:31:17.718Z",
+    "generatedAt": "2026-06-03T06:05:53.227Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -869,9 +869,9 @@
   },
   "handoffValidationSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T05:31:54.992Z",
-    "validatedHandoffGeneratedAt": "2026-06-03T05:31:17.718Z",
-    "currentHandoffGeneratedAt": "2026-06-03T05:31:17.718Z",
+    "generatedAt": "2026-06-03T06:08:26.016Z",
+    "validatedHandoffGeneratedAt": "2026-06-03T06:05:53.227Z",
+    "currentHandoffGeneratedAt": "2026-06-03T06:05:53.227Z",
     "pass": true,
     "missingScriptCount": 0,
     "nonReleaseOutputPathCount": 0,
@@ -942,11 +942,11 @@
   },
   "sourceAuditSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T05:31:57.696Z",
-    "inputComparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
-    "currentComparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
-    "inputCoverageGeneratedAt": "2026-06-03T05:30:57.600Z",
-    "currentCoverageGeneratedAt": "2026-06-03T05:30:57.600Z",
+    "generatedAt": "2026-06-03T06:05:27.098Z",
+    "inputComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
+    "currentComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
+    "inputCoverageGeneratedAt": "2026-06-03T06:05:26.749Z",
+    "currentCoverageGeneratedAt": "2026-06-03T06:05:26.749Z",
     "status": "classified",
     "primarySourceContract": "primary-sync-iterable-byte-batches",
     "primaryParserInput": "synchronous Iterable<Uint8Array[]>",
@@ -1009,9 +1009,9 @@
   "frontierAuditSnapshot": {
     "memory": {
       "loaded": true,
-      "generatedAt": "2026-06-02T20:13:07.896Z",
-      "inputComparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
-      "currentComparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
+      "generatedAt": "2026-06-03T06:02:49.227Z",
+      "inputComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
+      "currentComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
       "status": "classified",
       "fastestBoundedRateMiBPerSec": 185.5,
       "fastestBoundedMaxMiB": 60.45,
@@ -1026,9 +1026,9 @@
     },
     "targetDistance": {
       "loaded": true,
-      "generatedAt": "2026-06-02T20:10:53.513Z",
-      "inputComparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
-      "currentComparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
+      "generatedAt": "2026-06-03T06:03:26.996Z",
+      "inputComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
+      "currentComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
       "status": "classified",
       "woodstoxTargetMet": false,
       "quickXmlTargetMet": false,
@@ -1049,9 +1049,9 @@
     },
     "textMaterialization": {
       "loaded": true,
-      "generatedAt": "2026-06-02T20:12:57.397Z",
-      "inputComparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
-      "currentComparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
+      "generatedAt": "2026-06-03T06:03:26.424Z",
+      "inputComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
+      "currentComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
       "status": "classified",
       "fastestFullRateMiBPerSec": 185.5,
       "fastestWithoutTextFullStringParity": false,
@@ -1070,9 +1070,9 @@
     },
     "textMaterializationCoverage": {
       "loaded": true,
-      "generatedAt": "2026-06-02T20:13:21.685Z",
-      "inputComparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
-      "currentComparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
+      "generatedAt": "2026-06-03T06:03:18.013Z",
+      "inputComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
+      "currentComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
       "status": "classified",
       "requiredGroupCount": 8,
       "requiredCandidateCount": 11,
@@ -1142,7 +1142,7 @@
   },
   "coverageSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T05:30:57.600Z",
+    "generatedAt": "2026-06-03T06:05:26.749Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open",
       "codegen-traces-open"
@@ -1218,7 +1218,7 @@
         "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
         "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
       ],
-      "closureAuditCandidateCount": 18,
+      "closureAuditCandidateCount": 19,
       "closureAuditCandidateSourceArtifacts": [
         "firefox-spidermonkey-buildconfig-source-pin-audit.json",
         "firefox-spidermonkey-diagnostic-dump-audit.json",
@@ -1231,6 +1231,7 @@
         "spidermonkey-archival-debug-jsshell-codegen-audit.json",
         "spidermonkey-jsshell-diagnostic-flag-sweep.json",
         "spidermonkey-jsshell-materialized-headroom.json",
+        "spidermonkey-jsshell-stax-primary-byte-batch.json",
         "spidermonkey-jsshell-tokenizer-headroom.json",
         "spidermonkey-taskcluster-debug-jsshell-ascii-stax-codegen-audit.json",
         "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
@@ -1239,11 +1240,12 @@
         "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
         "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
       ],
-      "closureAuditDiagnosticRowGap": 6,
+      "closureAuditDiagnosticRowGap": 7,
       "closureAuditCandidateSourcesOutsideDiagnostics": [
         "firefox-spidermonkey-profiler-trace.json",
         "firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json",
         "spidermonkey-jsshell-materialized-headroom.json",
+        "spidermonkey-jsshell-stax-primary-byte-batch.json",
         "spidermonkey-jsshell-tokenizer-headroom.json",
         "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
         "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json"
@@ -1260,13 +1262,13 @@
       "expectedIdentitySource": "inferred-from-artifacts"
     },
     "spiderMonkeyClosureAudit": {
-      "candidateCount": 18,
+      "candidateCount": 19,
       "qualifiedClosureCount": 0,
       "selectedRowComparisonMatchCount": 0,
       "selectedRowComparisonMismatchCount": 1,
-      "selectedRowComparisonMissingCount": 17,
-      "comparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
-      "comparisonRowCount": 289,
+      "selectedRowComparisonMissingCount": 18,
+      "comparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
+      "comparisonRowCount": 291,
       "minimumBlockedRequirementCount": 4,
       "closestBlockedCandidateCount": 5,
       "closestBlockedCandidateSourceArtifacts": [
@@ -1328,8 +1330,8 @@
       "candidateCount": 0,
       "qualifiedClosureCount": 0,
       "rowLevelSourceBoundaryPinnedRows": 0,
-      "comparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
-      "comparisonRowCount": 289
+      "comparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
+      "comparisonRowCount": 291
     },
     "safariWebKitStatus": {
       "evidenceClass": "environment-availability-only",

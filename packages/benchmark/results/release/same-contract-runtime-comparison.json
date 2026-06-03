@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T20:08:45.362Z",
+  "generatedAt": "2026-06-03T06:02:02.040Z",
   "objective": "same-contract-runtime-comparison",
   "contract": "same-full-string-checksum-contract-not-same-object-shape",
   "note": "Aggregates existing release artifacts under the same semantic checksum contract. It does not run benchmarks, normalize memory counters across runtimes, or prove a JavaScript runtime ceiling.",
@@ -56,6 +56,7 @@
       "textdecoder-span-variants.json",
       "bun-textdecoder-span-variants.json",
       "browser-textdecoder-span-variants.json",
+      "spidermonkey-jsshell-stax-primary-byte-batch.json",
       "candidate-headroom-books-corpus-stability.json",
       "bun-candidate-headroom-books-corpus-stability.json",
       "text-cache-materialization-candidate-stability.json",
@@ -105,7 +106,7 @@
     ]
   },
   "summary": {
-    "rowCount": 289,
+    "rowCount": 291,
     "jsLargeFullRowCount": 239,
     "primaryJsLargeFullRowCount": 231,
     "jsRuntimeCounterexamples200MiB": 0,
@@ -2638,6 +2639,7 @@
     "memoryMetricKinds": [
       "browser-js-heap",
       "browser-js-heap-unavailable",
+      "not-recorded",
       "process-rss"
     ],
     "memoryFrontier": {
@@ -8091,6 +8093,102 @@
       "sampleMinMiBPerSec": 39.42,
       "sampleMaxMiBPerSec": 39.42,
       "sampleSpreadRatio": 0,
+      "woodstoxRatio": null,
+      "targetStatus": null,
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "spidermonkey-jsshell-primary-byte-batch",
+      "sourceArtifact": "spidermonkey-jsshell-stax-primary-byte-batch.json",
+      "runtimeId": "spidermonkey-jsshell",
+      "runtimeLabel": "SpiderMonkey js-shell",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "SpiderMonkey",
+      "engineVersion": null,
+      "caseId": "release-spidermonkey-stax-stream-reader-sync-primary-byte-batch",
+      "implementation": "Current built StreamReaderSync index accessors over SpiderMonkey js-shell read(file, \"binary\") byte batches",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "generated-single-root-corpus-repetition",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 0.02,
+        "sizeMiB": null,
+        "actualBytes": null,
+        "batchSize": 1,
+        "rowCycleSize": null,
+        "minRowBytes": null,
+        "maxRowBytes": null,
+        "averageRowBytes": null
+      },
+      "fullStringParity": true,
+      "eventCount": 894724,
+      "checksum": -1087917522,
+      "mibPerSec": 51.13,
+      "boundedMemory": false,
+      "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "respectsBackpressure": null,
+      "fullArrayBufferParserInput": false,
+      "memory": {
+        "primaryKind": "not-recorded",
+        "note": "memory was not recorded for this row"
+      },
+      "materializationCounters": {},
+      "sampleCount": 3,
+      "sampleMinMiBPerSec": null,
+      "sampleMaxMiBPerSec": null,
+      "sampleSpreadRatio": null,
+      "woodstoxRatio": null,
+      "targetStatus": null,
+      "runtimeLimitCounterexample": false
+    },
+    {
+      "group": "spidermonkey-jsshell-primary-byte-batch",
+      "sourceArtifact": "spidermonkey-jsshell-stax-primary-byte-batch.json",
+      "runtimeId": "spidermonkey-jsshell",
+      "runtimeLabel": "SpiderMonkey js-shell",
+      "languageFamily": "javascript",
+      "jsRuntime": true,
+      "engine": "SpiderMonkey",
+      "engineVersion": null,
+      "caseId": "nightly-spidermonkey-stax-stream-reader-sync-primary-byte-batch",
+      "implementation": "Current built StreamReaderSync index accessors over SpiderMonkey js-shell read(file, \"binary\") byte batches",
+      "contractScope": "full-string-materialization",
+      "fixture": {
+        "source": "corpus-file",
+        "shape": "generated-single-root-corpus-repetition",
+        "sourceFile": "G:\\programming\\stax-xml\\packages\\benchmark\\assets\\books.xml",
+        "sizeGiB": 0.02,
+        "sizeMiB": null,
+        "actualBytes": null,
+        "batchSize": 1,
+        "rowCycleSize": null,
+        "minRowBytes": null,
+        "maxRowBytes": null,
+        "averageRowBytes": null
+      },
+      "fullStringParity": true,
+      "eventCount": 894724,
+      "checksum": -1087917522,
+      "mibPerSec": 62.75,
+      "boundedMemory": false,
+      "sourceMode": "sync-iterable-byte-batches",
+      "demandDrivenSource": true,
+      "directReadableStream": false,
+      "respectsBackpressure": null,
+      "fullArrayBufferParserInput": false,
+      "memory": {
+        "primaryKind": "not-recorded",
+        "note": "memory was not recorded for this row"
+      },
+      "materializationCounters": {},
+      "sampleCount": 3,
+      "sampleMinMiBPerSec": null,
+      "sampleMaxMiBPerSec": null,
+      "sampleSpreadRatio": null,
       "woodstoxRatio": null,
       "targetStatus": null,
       "runtimeLimitCounterexample": false
@@ -18695,6 +18793,7 @@
       "evidence": [
         "browser-js-heap",
         "browser-js-heap-unavailable",
+        "not-recorded",
         "process-rss"
       ]
     },

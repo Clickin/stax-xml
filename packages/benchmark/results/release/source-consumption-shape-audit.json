@@ -1,20 +1,20 @@
 {
-  "generatedAt": "2026-06-03T05:31:57.696Z",
+  "generatedAt": "2026-06-03T06:05:27.098Z",
   "objective": "source-consumption-shape-audit",
   "contract": "large-js-full-string-rows-are-not-full-arraybuffer-parser-input",
   "note": "Audits source-consumption metadata from the same-contract aggregate. This is not a benchmark run and not a runtime-limit conclusion.",
   "inputs": {
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
-    "comparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
+    "comparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
     "coverageJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-coverage-audit.json",
-    "coverageGeneratedAt": "2026-06-03T05:30:57.600Z",
+    "coverageGeneratedAt": "2026-06-03T06:05:26.749Z",
     "coverageObjective": "runtime-proof-coverage-audit"
   },
   "summary": {
     "status": "classified",
-    "aggregateRowCount": 289,
+    "aggregateRowCount": 291,
     "jsLargeFullRowCount": 239,
     "sourceModes": [
       "fetch-async-iterable-byte-batches",

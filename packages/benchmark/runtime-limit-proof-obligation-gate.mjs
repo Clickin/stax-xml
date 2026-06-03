@@ -23,6 +23,7 @@ const expectedSpiderMonkeyClosureGapArtifacts = [
   'firefox-spidermonkey-profiler-trace.json',
   'firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json',
   'spidermonkey-jsshell-materialized-headroom.json',
+  'spidermonkey-jsshell-stax-primary-byte-batch.json',
   'spidermonkey-jsshell-tokenizer-headroom.json',
   'spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json',
   'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json',
@@ -1774,11 +1775,11 @@ function createCoverageGuards(snapshot, counterexampleSnapshot = null) {
     {
       id: 'spidermonkey-closure-audit-comparison-current',
       description: 'SpiderMonkey closure audit comparison freshness must be preserved in coverage: selected-row comparison counts must match the current same-contract comparison generatedAt and row count.',
-      satisfied: closureAudit.candidateCount === 18
+      satisfied: closureAudit.candidateCount === 19
         && closureAudit.qualifiedClosureCount === 0
         && closureAudit.selectedRowComparisonMatchCount === 0
         && closureAudit.selectedRowComparisonMismatchCount === 1
-        && closureAudit.selectedRowComparisonMissingCount === 17
+        && closureAudit.selectedRowComparisonMissingCount === 18
         && closureAudit.comparisonGeneratedAt === counterexampleSnapshot?.comparisonGeneratedAt
         && closureAudit.comparisonRowCount === counterexampleSnapshot?.comparisonRowCount,
     },

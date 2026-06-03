@@ -1,6 +1,6 @@
 # Source Consumption Shape Audit
 
-Generated: 2026-06-03T05:31:57.696Z
+Generated: 2026-06-03T06:05:27.098Z
 
 Audits source-consumption metadata from the same-contract aggregate. This is not a benchmark run and not a runtime-limit conclusion.
 
@@ -8,7 +8,7 @@ Audits source-consumption metadata from the same-contract aggregate. This is not
 
 - Status: classified
 - Source artifact: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
-- Aggregate rows: 289
+- Aggregate rows: 291
 - JavaScript 1 GiB+ full-string rows: 239
 - 1 GiB+ JS full-string rows with source-mode metadata: 233
 - Rows not using full ArrayBuffer parser input: 233/233

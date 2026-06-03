@@ -1,15 +1,15 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-03T05:31:17.718Z
+Generated: 2026-06-03T06:05:53.227Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-06-03T05:30:57.600Z
+- Audit generated: 2026-06-03T06:05:26.749Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
-- Comparison generated: 2026-06-02T20:08:45.362Z
+- Comparison generated: 2026-06-03T06:02:02.040Z
 - Active obligations: 2
 
 ## Summary
@@ -18,8 +18,8 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Unhandled obligations: 0
 - External-run required closures: 2
 - Locally runnable closures: 0
-- Audit artifacts: 229
-- Audit measured rows: 1266
+- Audit artifacts: 230
+- Audit measured rows: 1268
 - Primary source consumption: synchronous Iterable<Uint8Array[]> byte batches
 - Direct ReadableStream scope: separate source-overhead evidence only
 - Direct ReadableStream backpressure required: yes
@@ -34,7 +34,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 
 - Status: classified
 - Source artifact: same-contract-runtime-comparison.json
-- Aggregate rows: 289
+- Aggregate rows: 291
 - Source modes: fetch-async-iterable-byte-batches, fetch-readable-stream-pull, file-backed-sync-iterable-byte-batches, sync-iterable-byte-batches
 - 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 233/233
 - Full ArrayBuffer parser-input rows: 0
@@ -149,7 +149,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
   - No Safari/WebKit benchmark row is recorded by the availability audit.
   - No exact Safari/WebKit source-boundary pin is recorded by the availability audit.
   - Safari closure matrix reports closureRequirementsMet=2, closureRequirementsBlocked=9, closesSafariObligation=false.
-  - The Safari/WebKit closure audit checks candidateRows=0, comparisonGeneratedAt=2026-06-02T20:08:45.362Z, comparisonRowCount=289, largeBoundedPrimaryRows=0, rowsInSameContractComparison=0, measuredExactBuildIdentityRows=0, rowLevelSourceBoundaryPinnedRows=0, sourceBoundaryPinned=false, qualifiedClosureCount=0, and conclusionAllowed=false.
+  - The Safari/WebKit closure audit checks candidateRows=0, comparisonGeneratedAt=2026-06-03T06:02:02.040Z, comparisonRowCount=291, largeBoundedPrimaryRows=0, rowsInSameContractComparison=0, measuredExactBuildIdentityRows=0, rowLevelSourceBoundaryPinnedRows=0, sourceBoundaryPinned=false, qualifiedClosureCount=0, and conclusionAllowed=false.
 - Local evidence artifacts: safari-webkit-availability-audit.json, safari-webkit-closure-audit.json
 
 Prerequisites:
@@ -272,7 +272,7 @@ Scope guards:
   - Coverage diagnostic identity status counts: selectedRowIdentityStatusCounts not-claimed=4, not-claimed-non-stax-diagnostic=8.
   - The ASCII scope-distance audit pins corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, and reducesScopeDistance=true while closesCodegenObligation=false, so ASCII corpus equivalence narrows materialized js-shell scope but does not supply unchanged StAX closure evidence.
   - The materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=3 and closureRequirementsBlocked=3; primarySyncByteBatchMissingGlobals=none; asciiTextDecoderEquivalent=true; utf8FallbackDecoder=true; nonUtf8RequiresTextDecoder=true; diagnosticThroughputMiBPerSec=0.7656093369946506; throughputCountsAsTargetEvidence=false; closesCodegenObligation=false, preventing the materialized js-shell artifact from being cited as unchanged StAX closure evidence.
-  - The SpiderMonkey codegen closure audit checks 18 diagnostic/codegen candidates against same-contract comparison generatedAt=2026-06-02T20:08:45.362Z, comparisonRowCount=289, finds emittedCodegenSurfaceCount=7, sameContractStaxRowCount=0, profiledFullStringParityCount=1, unchangedRunnableCount=0, selectedRowMetadataCount=1, diagnosticWorkloadMetadataCount=3, nonComparableDiagnosticWorkloadMetadataCount=3, selectedRowComparisonMatchCount=0, selectedRowComparisonMismatchCount=1, selectedRowComparisonMissingCount=17, selectedRowMetadataMissingFieldCounts selectedChecksum=17, selectedEventCount=17, selectedRowId=17, closingMetadataMissingFieldCounts diagnosticFlags=12, emittedDumpMetadata=12, runtimeBuildIdentity=12, disallowedEvidenceClassCounts archival-codegen-scope-guard=1, availability-only=1, bytecode-diagnostic-only=2, current-debug-ascii-stax-codegen-scope-guard=1, current-debug-codegen-scope-guard=2, current-debug-materialized-codegen-scope-guard=2, current-debug-xml-codegen-scope-guard=1, diagnostic-flag-sweep-negative=1, gecko-profiler-scope-guard=1, host-api-surface-gap=1, materialized-headroom-only=1, negative-diagnostic-surface=1, parser-core-headroom-only=1, source-pin-only=1, unknown=1, selectedRowIdentityStatusCounts not-claimed-ascii-stax-diagnostic=1, not-claimed-non-stax-diagnostic=17, qualifiedClosureCount=0, contradictedClosureClaimCount=0, and conclusionAllowed=false.
+  - The SpiderMonkey codegen closure audit checks 19 diagnostic/codegen candidates against same-contract comparison generatedAt=2026-06-03T06:02:02.040Z, comparisonRowCount=291, finds emittedCodegenSurfaceCount=7, sameContractStaxRowCount=0, profiledFullStringParityCount=1, unchangedRunnableCount=0, selectedRowMetadataCount=1, diagnosticWorkloadMetadataCount=3, nonComparableDiagnosticWorkloadMetadataCount=3, selectedRowComparisonMatchCount=0, selectedRowComparisonMismatchCount=1, selectedRowComparisonMissingCount=18, selectedRowMetadataMissingFieldCounts selectedChecksum=18, selectedEventCount=18, selectedRowId=18, closingMetadataMissingFieldCounts diagnosticFlags=13, emittedDumpMetadata=13, runtimeBuildIdentity=13, disallowedEvidenceClassCounts archival-codegen-scope-guard=1, availability-only=1, bytecode-diagnostic-only=2, current-debug-ascii-stax-codegen-scope-guard=1, current-debug-codegen-scope-guard=2, current-debug-materialized-codegen-scope-guard=2, current-debug-xml-codegen-scope-guard=1, diagnostic-flag-sweep-negative=1, gecko-profiler-scope-guard=1, host-api-surface-gap=1, materialized-headroom-only=1, negative-diagnostic-surface=1, parser-core-headroom-only=1, source-pin-only=1, unknown=2, selectedRowIdentityStatusCounts not-claimed-ascii-stax-diagnostic=1, not-claimed-non-stax-diagnostic=18, qualifiedClosureCount=0, contradictedClosureClaimCount=0, and conclusionAllowed=false.
   - The SpiderMonkey codegen closure frontier has closestBlockedCandidateCount=5, minimumBlockedRequirementCount=4, closestBlockedCandidates=`spidermonkey-taskcluster-debug-jsshell-codegen-audit.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json`, and closest-candidate common missing requirements sameContractStaxRow=5, selectedRowMetadata=5, unchangedRunnable=5, evidenceClassAllowed=5.
   - The SpiderMonkey codegen rerun stability audit compares 2 original/rerun pairs, reproduces 2 pairs on the same Taskcluster build and codegen marker counts, but qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false, and conclusionAllowed=false.
   - Installed Firefox about:buildconfig records --enable-js-shell / MOZ_PACKAGE_JSSHELL but does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW.

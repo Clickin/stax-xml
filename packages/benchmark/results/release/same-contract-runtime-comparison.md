@@ -1,12 +1,12 @@
 # Same-Contract Runtime Comparison
 
-Generated: 2026-06-02T20:08:45.362Z
+Generated: 2026-06-03T06:02:02.040Z
 
 This report aggregates existing release artifacts. It compares rows only through the same full-string checksum contract; it does not assert identical object shape, identical allocation models, or a JavaScript runtime ceiling.
 
 ## Summary
 
-- Aggregated rows: 289
+- Aggregated rows: 291
 - 1 GiB+ JavaScript full-string rows: 239
 - Primary 1 GiB+ JS full-string sync byte-batch rows: 231
 - 200 MiB/s+ bounded-memory JavaScript counterexamples found: 0
@@ -335,6 +335,8 @@ Interpretation: Memory is classified on the same 1 GiB+ JavaScript full-string r
 | `generated-1gib-textdecoder` | Bun/JSC | `shortAsciiSubarraySharedDecoder` | 45189256 | 1421012805 | 47.67 | yes | process RSS max 215.22 MiB | n/a | unknown | no | `bun-textdecoder-span-variants.json` |
 | `generated-1gib-textdecoder` | Chrome/V8 browser | `subarraySharedDecoder` | 45189256 | 1421012805 | 16.63 | yes | JS heap max 9.77 MiB; host working set 479.99 MiB | n/a | unknown | no | `browser-textdecoder-span-variants.json` |
 | `generated-1gib-textdecoder` | Chrome/V8 browser | `shortAsciiSubarraySharedDecoder` | 45189256 | 1421012805 | 39.42 | yes | JS heap max 10.04 MiB; host working set 479.99 MiB | n/a | unknown | no | `browser-textdecoder-span-variants.json` |
+| `spidermonkey-jsshell-primary-byte-batch` | SpiderMonkey js-shell | `release-spidermonkey-stax-stream-reader-sync-primary-byte-batch` | 894724 | -1087917522 | 51.13 | no | not-recorded | `sync-iterable-byte-batches` | no | no | `spidermonkey-jsshell-stax-primary-byte-batch.json` |
+| `spidermonkey-jsshell-primary-byte-batch` | SpiderMonkey js-shell | `nightly-spidermonkey-stax-stream-reader-sync-primary-byte-batch` | 894724 | -1087917522 | 62.75 | no | not-recorded | `sync-iterable-byte-batches` | no | no | `spidermonkey-jsshell-stax-primary-byte-batch.json` |
 | `books-corpus-stability` | Node/V8 | `stringFull` | 57096514 | -540013997 | 154.29 | yes | process RSS max 66.80 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `candidate-headroom-books-corpus-stability.json` |
 | `books-corpus-stability` | Node/V8 | `eventObjectFull` | 57096514 | -540013997 | 141.62 | yes | process RSS max 203.27 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `candidate-headroom-books-corpus-stability.json` |
 | `books-corpus-stability` | Node/V8 | `rawFrameNameId` | 57096514 | -540013997 | 176.47 | yes | process RSS max 223.06 MiB | `sync-iterable-byte-batches` | no | yes (0.00 MiB) | `candidate-headroom-books-corpus-stability.json` |
@@ -550,6 +552,7 @@ These rows are evidence about allocation shape, not directly comparable peak mem
 - same-contract-not-same-memory-counter (SOURCE_AGGREGATION): Rows are grouped by semantic checksum contract, while memory counters remain runtime-specific.
   - browser-js-heap
   - browser-js-heap-unavailable
+  - not-recorded
   - process-rss
 - large-js-full-memory-frontier-visible (CLASSIFIED): The same 1 GiB+ JavaScript full-string row set used for counterexample scanning is classified by memory metric and bounded-memory status.
   - rows=239

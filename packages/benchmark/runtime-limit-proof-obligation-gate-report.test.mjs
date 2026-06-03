@@ -104,7 +104,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.counterexampleSnapshot.scanMeasuredRowCount, report.counterexampleSnapshot.coverageMeasuredRowCount);
   assert.equal(report.counterexampleSnapshot.scanAggregateRowCount, 182);
   assert.equal(report.counterexampleSnapshot.scanLargeJsFullAggregateRowCount, 142);
-  assert.equal(report.counterexampleSnapshot.scanSourceModeRowCount, 642);
+  assert.equal(report.counterexampleSnapshot.scanSourceModeRowCount, 644);
   assert.equal(report.counterexampleSnapshot.scanLargeJsFullSourceModeRowCount, 474);
   assert.ok(report.counterexampleSnapshot.scanLargeJsFullSourceModeBreakdown.some(entry =>
     entry.sourceMode === 'generated-sync-iterable-byte-batches'
@@ -209,13 +209,13 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
     'not-claimed-non-stax-diagnostic': 8,
   });
   assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.diagnosticRowCount, 12);
-  assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditCandidateCount, 18);
-  assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap, 6);
-  assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.candidateCount, 18);
+  assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditCandidateCount, 19);
+  assert.equal(report.coverageSnapshot.spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap, 7);
+  assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.candidateCount, 19);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.qualifiedClosureCount, 0);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.selectedRowComparisonMatchCount, 0);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.selectedRowComparisonMismatchCount, 1);
-  assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.selectedRowComparisonMissingCount, 17);
+  assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.selectedRowComparisonMissingCount, 18);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.comparisonGeneratedAt, report.counterexampleSnapshot.comparisonGeneratedAt);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.comparisonRowCount, report.counterexampleSnapshot.comparisonRowCount);
   assert.equal(report.coverageSnapshot.spiderMonkeyClosureAudit.minimumBlockedRequirementCount, 4);
@@ -238,6 +238,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
     'firefox-spidermonkey-profiler-trace.json',
     'firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json',
     'spidermonkey-jsshell-materialized-headroom.json',
+    'spidermonkey-jsshell-stax-primary-byte-batch.json',
     'spidermonkey-jsshell-tokenizer-headroom.json',
     'spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json',
     'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json',
@@ -398,10 +399,10 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open/);
   assert.match(markdown, /allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open/);
   assert.match(markdown, /SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=8/);
-  assert.match(markdown, /SpiderMonkey diagnostics rows vs closure candidates: 12\/18 \(gap=6, closureQualified=0\)/);
-  assert.match(markdown, /SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace\.json`, `firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit\.json`, `spidermonkey-jsshell-materialized-headroom\.json`, `spidermonkey-jsshell-tokenizer-headroom\.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun\.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun\.json`/);
+  assert.match(markdown, /SpiderMonkey diagnostics rows vs closure candidates: 12\/19 \(gap=7, closureQualified=0\)/);
+  assert.match(markdown, /SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace\.json`, `firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit\.json`, `spidermonkey-jsshell-materialized-headroom\.json`, `spidermonkey-jsshell-stax-primary-byte-batch\.json`, `spidermonkey-jsshell-tokenizer-headroom\.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun\.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun\.json`/);
   assert.match(markdown, /SpiderMonkey coverage diagnostics outside closure candidates: none/);
-  assert.match(markdown, /Safari\/WebKit closure comparison: generatedAt=.*rows=289, candidates=0, qualified=0/);
+  assert.match(markdown, /Safari\/WebKit closure comparison: generatedAt=.*rows=291, candidates=0, qualified=0/);
   assert.match(markdown, /spidermonkey-identity-status-counts-present/);
   assert.match(markdown, /safari-webkit-closure-audit-comparison-current/);
   assert.match(markdown, /spidermonkey-non-stax-diagnostic-rows-visible/);
@@ -410,14 +411,14 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /## Counterexample Snapshot/);
   assert.match(markdown, /Same-contract comparison contract: same-full-string-checksum-contract-not-same-object-shape/);
   assert.match(markdown, /objectShapeEquivalence=false; memoryEquivalence=false/);
-  assert.match(markdown, /Same-contract comparison rows: 289\/289; largeFullJsRows=239/);
+  assert.match(markdown, /Same-contract comparison rows: 291\/291; largeFullJsRows=239/);
   assert.match(markdown, /Same-contract comparison counterexamples: 0/);
   assert.match(markdown, /same-contract-comparison-contract/);
   assert.match(markdown, /same-contract-comparison-row-count/);
   assert.match(markdown, /Counterexample scan contract: threshold=200\.00 MiB\/s, minSizeGiB=1\.00, parseErrors=0/);
-  assert.match(markdown, /Counterexample scan coverage shape: artifacts=229\/229, measuredRows=1266\/1266/);
+  assert.match(markdown, /Counterexample scan coverage shape: artifacts=230\/230, measuredRows=1268\/1268/);
   assert.match(markdown, /Counterexample scan aggregate surface: aggregateRows=182, largeFullAggregateRows=142, measuredCounterexamples=0, aggregateCounterexamples=0/);
-  assert.match(markdown, /Counterexample scan source-shape surface: sourceModeRows=642, largeFullSourceModeRows=474/);
+  assert.match(markdown, /Counterexample scan source-shape surface: sourceModeRows=644, largeFullSourceModeRows=474/);
   assert.match(markdown, /generated-sync-iterable-byte-batches:382,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0/);
   assert.match(markdown, /web-readable-stream-pull:15,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=15/);
   assert.match(markdown, /counterexample-scan-current-coverage-shape/);

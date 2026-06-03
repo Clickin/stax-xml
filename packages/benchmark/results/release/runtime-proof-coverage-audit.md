@@ -1,25 +1,25 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-06-03T05:30:57.600Z
+Generated: 2026-06-03T06:05:26.749Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 229
+- Scanned primary artifacts: 230
 - Ignored derived artifacts: 7
-- Measured rows recognized: 1266
+- Measured rows recognized: 1268
 - Rows with unknown full-string parity: 0
-- Rows with unknown bounded-memory flag: 25
-  - Unknown bounded-memory JS rows: 9
-  - Unknown bounded-memory full-string rows: 20
+- Rows with unknown bounded-memory flag: 27
+  - Unknown bounded-memory JS rows: 11
+  - Unknown bounded-memory full-string rows: 22
   - Unknown bounded-memory 1 GiB+ JS full-string rows: 0
   - Unknown bounded-memory counterexample-relevant rows: 0
-  - Unknown bounded-memory small/diagnostic JS rows: 9
+  - Unknown bounded-memory small/diagnostic JS rows: 11
   - Unknown bounded-memory non-JS allocator-counter rows: 10
   - Unknown bounded-memory non-JS rows without peak-memory counters: 6
   - Unknown bounded-memory rows with memory counters: 10
-- Benchmark artifacts: 157
+- Benchmark artifacts: 158
 - Source artifacts: 26
 - Trace/profile artifacts: 20
 - Allocation artifacts: 16
@@ -55,6 +55,8 @@ These rows have enough throughput/parity metadata to be recognized, but no row-l
 | `quick-xml-shape-audit.json` | Java/Woodstox | `woodstox` | 0.02 | not-recorded | yes | 333.43 |
 | `spidermonkey-jsshell-materialized-headroom.json` | SpiderMonkey js-shell | `release-spidermonkey-materialized-string-object` | 0.02 | not-recorded | no | 33.97 |
 | `spidermonkey-jsshell-materialized-headroom.json` | SpiderMonkey js-shell | `nightly-spidermonkey-materialized-string-object` | 0.02 | not-recorded | no | 37.61 |
+| `spidermonkey-jsshell-stax-primary-byte-batch.json` | SpiderMonkey js-shell | `release-spidermonkey-stax-stream-reader-sync-primary-byte-batch` | 0.02 | not-recorded | yes | 51.13 |
+| `spidermonkey-jsshell-stax-primary-byte-batch.json` | SpiderMonkey js-shell | `nightly-spidermonkey-stax-stream-reader-sync-primary-byte-batch` | 0.02 | not-recorded | yes | 62.75 |
 | `spidermonkey-jsshell-tokenizer-headroom.json` | SpiderMonkey js-shell | `release-spidermonkey-token-boundary` | 0.02 | not-recorded | no | 121.47 |
 | `spidermonkey-jsshell-tokenizer-headroom.json` | SpiderMonkey js-shell | `nightly-spidermonkey-token-boundary` | 0.02 | not-recorded | no | 145.01 |
 | `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json` | SpiderMonkey js-shell | `taskcluster-debug-spidermonkey-xml-token-boundary-codegen` | 0.00 | not-recorded | no | 1.81 |
@@ -85,7 +87,7 @@ This classifies the parser input shape for 1 GiB+ JavaScript full-string rows th
 | Node/V8 | 112 | 597 | 407 | rawFrameNameId 185.50 MiB/s from text-trim-cost-decomposition.json | 2 | 2 | 5 |
 | Bun/JSC | 42 | 322 | 209 | rawFrameNameId 178.52 MiB/s from bun-candidate-headroom-books-corpus-stability.json | 3 | 4 | 2 |
 | Deno/V8 | 17 | 128 | 104 | rawFrameNameId 110.54 MiB/s from text-trim-cost-cross-process-books-corpus.json | 1 | 2 | 2 |
-| SpiderMonkey js-shell | 11 | 5 | 0 | none | 0 | 7 | 0 |
+| SpiderMonkey js-shell | 12 | 7 | 0 | none | 0 | 7 | 0 |
 | Chrome/V8 browser | 15 | 100 | 58 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |
 | Firefox/SpiderMonkey browser | 25 | 82 | 70 | rawFrameNameId 76.90 MiB/s from firefox-bidi-candidate-headroom-cross-process-books-corpus.json | 5 | 1 | 1 |
 | Safari/WebKit browser | 1 | 0 | 0 | none | 0 | 0 | 0 |
@@ -113,9 +115,9 @@ Safari/WebKit obligation closed: no
 
 Emitted SpiderMonkey IR/codegen evidence artifacts: 0
 Raw SpiderMonkey emitted-IR closure claims: 0
-SpiderMonkey diagnostics rows vs closure candidates: 12/18 (gap=6, closureQualified=0)
+SpiderMonkey diagnostics rows vs closure candidates: 12/19 (gap=7, closureQualified=0)
 SpiderMonkey debug browser preflight: blocked-by-dll-blocklist-interceptor from firefox-spidermonkey-taskcluster-debug-browser-launch-preflight-audit.json
-SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace.json`, `firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json`, `spidermonkey-jsshell-materialized-headroom.json`, `spidermonkey-jsshell-tokenizer-headroom.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`
+SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace.json`, `firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json`, `spidermonkey-jsshell-materialized-headroom.json`, `spidermonkey-jsshell-stax-primary-byte-batch.json`, `spidermonkey-jsshell-tokenizer-headroom.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`
 SpiderMonkey coverage diagnostics outside closure candidates: none
 SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=8
 JIT-status-only SpiderMonkey shell artifacts: 0

@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-03T05:32:16.809Z
+Generated: 2026-06-03T06:19:18.393Z
 
 ## Scope
 
@@ -89,16 +89,16 @@ Disclosure-only guards: 3
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-03T05:30:57.600Z)
+- Coverage audit loaded: yes (2026-06-03T06:05:26.749Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
-- SpiderMonkey diagnostics rows vs closure candidates: 12/18 (gap=6, closureQualified=0)
-- SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace.json`, `firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json`, `spidermonkey-jsshell-materialized-headroom.json`, `spidermonkey-jsshell-tokenizer-headroom.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`
+- SpiderMonkey diagnostics rows vs closure candidates: 12/19 (gap=7, closureQualified=0)
+- SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace.json`, `firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json`, `spidermonkey-jsshell-materialized-headroom.json`, `spidermonkey-jsshell-stax-primary-byte-batch.json`, `spidermonkey-jsshell-tokenizer-headroom.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`
 - SpiderMonkey coverage diagnostics outside closure candidates: none
 - SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=8
 - SpiderMonkey closest codegen blockers: spidermonkey-taskcluster-debug-jsshell-codegen-audit.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]; spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]; spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]; spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]; spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]
 - SpiderMonkey Taskcluster route freshness: fresh (artifactIdentityMatchesRoute=yes, expectedIdentitySource=inferred-from-artifacts, checkedArtifacts=5, mismatchedArtifacts=none)
-- Safari/WebKit closure comparison: generatedAt=2026-06-02T20:08:45.362Z, rows=289, candidates=0, qualified=0
+- Safari/WebKit closure comparison: generatedAt=2026-06-03T06:02:02.040Z, rows=291, candidates=0, qualified=0
 - Safari/WebKit status: evidenceClass=environment-availability-only, canRunSafariBrowserRows=no, browserRows=0, primarySyncRows=0, boundedPrimaryRows=0, largeBoundedPrimaryRows=0, exactBuildIdentity=no, sourceBoundaryPinned=no, closesSafariObligation=no
 - Safari/WebKit local closure blockers: met=`harness-supports-safari`, `direct-readable-stream-not-substitute`, blocked=`host-is-macos`, `safari-executable-found`, `safaridriver-found`, `can-run-safari-browser-rows`, `safari-benchmark-rows-recorded`, `primary-sync-byte-batch-rows-recorded`, `bounded-primary-sync-byte-batch-rows-recorded`, `exact-build-identity-recorded`, `source-boundary-pinned`
 
@@ -117,15 +117,15 @@ Disclosure-only guards: 3
 
 ## Counterexample Snapshot
 
-- Same-contract comparison loaded: yes (2026-06-02T20:08:45.362Z)
+- Same-contract comparison loaded: yes (2026-06-03T06:02:02.040Z)
 - Same-contract comparison contract: same-full-string-checksum-contract-not-same-object-shape; publicEventCase=eventObjectFull; objectShapeEquivalence=false; memoryEquivalence=false
-- Same-contract comparison rows: 289/289; largeFullJsRows=239
+- Same-contract comparison rows: 291/291; largeFullJsRows=239
 - Same-contract comparison counterexamples: 0
-- Runtime counterexample scan loaded: yes (2026-06-03T05:04:09.938Z)
+- Runtime counterexample scan loaded: yes (2026-06-03T06:02:30.754Z)
 - Counterexample scan contract: threshold=200.00 MiB/s, minSizeGiB=1.00, parseErrors=0
-- Counterexample scan coverage shape: artifacts=229/229, measuredRows=1266/1266
+- Counterexample scan coverage shape: artifacts=230/230, measuredRows=1268/1268
 - Counterexample scan aggregate surface: aggregateRows=182, largeFullAggregateRows=142, measuredCounterexamples=0, aggregateCounterexamples=0
-- Counterexample scan source-shape surface: sourceModeRows=642, largeFullSourceModeRows=474, modes=generated-sync-iterable-byte-batches:382,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; file-backed-sync-iterable-byte-batches:53,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; async-iterable-byte-batches:15,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; web-readable-stream-pull:15,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=15; sync-iterable-byte-batches:4,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; fetch-async-iterable-byte-batches:2,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; fetch-readable-stream-pull:2,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=2; complete-js-string:1,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0
+- Counterexample scan source-shape surface: sourceModeRows=644, largeFullSourceModeRows=474, modes=generated-sync-iterable-byte-batches:382,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; file-backed-sync-iterable-byte-batches:53,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; async-iterable-byte-batches:15,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; web-readable-stream-pull:15,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=15; sync-iterable-byte-batches:4,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; fetch-async-iterable-byte-batches:2,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; fetch-readable-stream-pull:2,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=2; complete-js-string:1,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0
 - Runtime counterexample scan counterexamples: 0
 - Current release counterexamples: 0
 - [x] same-contract-comparison-loaded: same-contract-runtime-comparison.json must be loaded by the gate.
@@ -141,7 +141,7 @@ Disclosure-only guards: 3
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-03T05:31:17.718Z)
+- Handoff loaded: yes (2026-06-03T06:05:53.227Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -180,8 +180,8 @@ Disclosure-only guards: 3
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-03T05:31:54.992Z)
-- Handoff validation target handoff generatedAt: 2026-06-03T05:31:17.718Z (current 2026-06-03T05:31:17.718Z)
+- Handoff validation loaded: yes (2026-06-03T06:08:26.016Z)
+- Handoff validation target handoff generatedAt: 2026-06-03T06:05:53.227Z (current 2026-06-03T06:05:53.227Z)
 - Handoff validation pass: yes
 - Commands checked: 15
 - Scripts referenced: 23
@@ -213,8 +213,8 @@ Disclosure-only guards: 3
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-03T05:31:57.696Z)
-- Source audit inputs: comparison=2026-06-02T20:08:45.362Z (current 2026-06-02T20:08:45.362Z), coverage=2026-06-03T05:30:57.600Z (current 2026-06-03T05:30:57.600Z)
+- Source audit loaded: yes (2026-06-03T06:05:27.098Z)
+- Source audit inputs: comparison=2026-06-03T06:02:02.040Z (current 2026-06-03T06:02:02.040Z), coverage=2026-06-03T06:05:26.749Z (current 2026-06-03T06:05:26.749Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary source boundary: demand-driven StreamReaderSync parser pulls
@@ -243,14 +243,14 @@ Disclosure-only guards: 3
 
 ## Frontier Audit Snapshot
 
-- Memory frontier loaded: yes (2026-06-02T20:13:07.896Z)
-- Frontier audit comparison inputs: memory=2026-06-02T20:08:45.362Z, target=2026-06-02T20:08:45.362Z, text=2026-06-02T20:08:45.362Z (current 2026-06-02T20:08:45.362Z)
+- Memory frontier loaded: yes (2026-06-03T06:02:49.227Z)
+- Frontier audit comparison inputs: memory=2026-06-03T06:02:02.040Z, target=2026-06-03T06:02:02.040Z, text=2026-06-03T06:02:02.040Z (current 2026-06-03T06:02:02.040Z)
 - Fastest bounded JS row: 185.50 MiB/s at 60.45 MiB
 - Unbounded or unproven memory rows: 17
 - Bounded rows without numeric memory proof: 0
 - Unbounded rows at or above 200 MiB/s: 0
 - Same-fixture process RSS: JS=61.77 MiB, Woodstox=312.71 MiB, quick-xml=4.78 MiB
-- Target distance loaded: yes (2026-06-02T20:10:53.513Z)
+- Target distance loaded: yes (2026-06-03T06:03:26.996Z)
 - Woodstox 0.9x target met: no
 - Woodstox 0.9x remaining: 164.29 MiB/s
 - quick-xml 0.9x target met: no
@@ -259,7 +259,7 @@ Disclosure-only guards: 3
 - Overall JS frontier separated from same-fixture target row: yes
 - Target JS row visible in counterexample scan: yes
 - Target JS contract: sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=no, fullArrayBufferParserInput=no, boundedMemory=yes, memoryKind=process-rss, maxRssMiB=61.77
-- Text materialization boundary loaded: yes (2026-06-02T20:12:57.397Z)
+- Text materialization boundary loaded: yes (2026-06-03T06:03:26.424Z)
 - Fastest full-string row: 185.50 MiB/s
 - Full-string rows crossing 200 MiB/s: 0
 - No-text rows crossing 200 MiB/s: 4
@@ -268,7 +268,7 @@ Disclosure-only guards: 3
 - No-trim/fold-trim bounded memory: no-trim=yes, fold-trim=yes
 - No-trim/fold-trim string reads: no-trim text=135898776, no-trim fields=502070478, fold-trim text=33974712, fold-trim fields=125517686
 - Without-text full-string parity: no
-- Text materialization frontier coverage loaded: yes (2026-06-02T20:13:21.685Z)
+- Text materialization frontier coverage loaded: yes (2026-06-03T06:03:18.013Z)
 - Required materialization negative candidates covered: 11/11
 - Missing materialization negative candidates: 0
 - Covered materialization negative candidates crossing 200 MiB/s: 0

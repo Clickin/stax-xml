@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-02T20:12:57.397Z",
+  "generatedAt": "2026-06-03T06:03:26.424Z",
   "objective": "text-materialization-boundary-audit",
   "contract": "text-cdata-materialization-headroom-is-not-full-string-counterexample",
   "note": "Audits the current text/CDATA materialization boundary from the same-contract aggregate. This is not a benchmark run and does not prove a JavaScript runtime ceiling.",
   "inputs": {
     "comparisonJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\same-contract-runtime-comparison.json",
-    "comparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
+    "comparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
     "frontierArtifact": "text-materialization-frontier.json"
