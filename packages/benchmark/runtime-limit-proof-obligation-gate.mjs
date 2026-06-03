@@ -1120,6 +1120,18 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
         && safariChecks.some(item => /1 GiB\+ bounded primary row id, event count, and checksum/.test(item)),
     },
     {
+      id: 'safari-closure-checks-accepted-cases',
+      description: 'Safari closure checks must require accepted closure case rows and accepted 1 GiB+ primary rows before closing Safari/WebKit coverage.',
+      satisfied: safariChecks.some(item =>
+        /acceptedClosureCaseRowsRecorded must be greater than 0/.test(item)
+        && /caseId=stringFull\|eventObjectFull\|rawFrameNameId/.test(item)
+      )
+        && safariChecks.some(item =>
+          /acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded must be greater than 0/.test(item)
+          && /1 GiB\+ accepted Safari\/WebKit primary rows/.test(item)
+        ),
+    },
+    {
       id: 'safari-row-level-source-boundary-required',
       description: 'Safari closure checks must require row-level source revision and source-pin artifact metadata, not only an availability-level sourceBoundaryPinned boolean.',
       satisfied: safariChecks.some(item => /rowLevelSourceBoundaryPinnedRowsRecorded must be greater than 0/.test(item))
@@ -1166,6 +1178,8 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
           /rowLevelSourceBoundaryPin/,
         ])
         && intakeHas(safariIntake, 'requiredAuditFields', [
+          /coverage\.safariWebKitStatus\.acceptedClosureCaseRowsRecorded>0/,
+          /coverage\.safariWebKitStatus\.acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded>0/,
           /coverage\.safariWebKitStatus\.closesSafariObligation=true/,
           /safari-webkit-closure-audit\.summary\.qualifiedClosureCount>0/,
         ])
@@ -1649,6 +1663,8 @@ function createNullSafariWebKitStatus() {
     primarySyncByteBatchRowsRecorded: null,
     boundedPrimarySyncByteBatchRowsRecorded: null,
     largeBoundedPrimarySyncByteBatchRowsRecorded: null,
+    acceptedClosureCaseRowsRecorded: null,
+    acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded: null,
     directReadableStreamRowsAreSeparateEvidence: null,
     exactBuildIdentityRecorded: null,
     rowLevelSourceBoundaryPinnedRowsRecorded: null,
@@ -1680,6 +1696,8 @@ function createSafariWebKitStatusSnapshot(status = {}) {
     primarySyncByteBatchRowsRecorded: status.primarySyncByteBatchRowsRecorded ?? null,
     boundedPrimarySyncByteBatchRowsRecorded: status.boundedPrimarySyncByteBatchRowsRecorded ?? null,
     largeBoundedPrimarySyncByteBatchRowsRecorded: status.largeBoundedPrimarySyncByteBatchRowsRecorded ?? null,
+    acceptedClosureCaseRowsRecorded: status.acceptedClosureCaseRowsRecorded ?? null,
+    acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded: status.acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded ?? null,
     directReadableStreamRowsAreSeparateEvidence: status.directReadableStreamRowsAreSeparateEvidence ?? null,
     exactBuildIdentityRecorded: status.exactBuildIdentityRecorded ?? null,
     rowLevelSourceBoundaryPinnedRowsRecorded: status.rowLevelSourceBoundaryPinnedRowsRecorded ?? null,

@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-03T07:58:27.513Z
+Generated: 2026-06-03T08:11:30.775Z
 
 ## Scope
 
@@ -141,7 +141,7 @@ Disclosure-only guards: 4
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-03T07:57:52.731Z)
+- Handoff loaded: yes (2026-06-03T08:08:08.745Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open
 - Handoff IDs: safari-webkit-browser-row-handoff
 
@@ -152,6 +152,7 @@ Disclosure-only guards: 4
 | `safari-closure-checks-primary-bounded` | yes | Safari closure checks must require primary and bounded sync byte-batch rows plus closesSafariObligation=true. |
 | `safari-closure-checks-same-contract-comparison` | yes | Safari closure checks must require bounded primary rows to match same-contract-runtime-comparison.json by row id, event count, and checksum via primaryRowsInSameContractComparison. |
 | `safari-closure-checks-1gib-primary` | yes | Safari closure checks must require largeBoundedPrimarySyncByteBatchRowsRecorded and largePrimaryRowsInSameContractComparison for 1 GiB+ bounded primary row id, event count, and checksum parity. |
+| `safari-closure-checks-accepted-cases` | yes | Safari closure checks must require accepted closure case rows and accepted 1 GiB+ primary rows before closing Safari/WebKit coverage. |
 | `safari-row-level-source-boundary-required` | yes | Safari closure checks must require row-level source revision and source-pin artifact metadata, not only an availability-level sourceBoundaryPinned boolean. |
 | `safari-source-boundary-separates-bun-webkit` | yes | Safari handoff must preserve that Bun/JSC and Bun-patched WebKit source pins are not Safari browser JSC source pins unless the tested build identity matches. |
 | `safari-target-distance-recomputed-after-rows` | yes | Safari handoff must require target-distance-audit regeneration after Safari/WebKit rows so Woodstox and quick-xml 0.9x targets use the updated JavaScript comparison set. |
@@ -160,8 +161,8 @@ Disclosure-only guards: 4
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-03T07:57:56.958Z)
-- Handoff validation target handoff generatedAt: 2026-06-03T07:57:52.731Z (current 2026-06-03T07:57:52.731Z)
+- Handoff validation loaded: yes (2026-06-03T08:08:27.039Z)
+- Handoff validation target handoff generatedAt: 2026-06-03T08:08:08.745Z (current 2026-06-03T08:08:08.745Z)
 - Handoff validation pass: yes
 - Commands checked: 5
 - Scripts referenced: 14

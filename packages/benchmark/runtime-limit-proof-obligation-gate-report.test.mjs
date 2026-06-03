@@ -258,6 +258,8 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.coverageSnapshot.safariWebKitStatus.primarySyncByteBatchRowsRecorded, 0);
   assert.equal(report.coverageSnapshot.safariWebKitStatus.boundedPrimarySyncByteBatchRowsRecorded, 0);
   assert.equal(report.coverageSnapshot.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsRecorded, 0);
+  assert.equal(report.coverageSnapshot.safariWebKitStatus.acceptedClosureCaseRowsRecorded, 0);
+  assert.equal(report.coverageSnapshot.safariWebKitStatus.acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded, 0);
   assert.equal(report.coverageSnapshot.safariWebKitStatus.directReadableStreamRowsAreSeparateEvidence, true);
   assert.equal(report.coverageSnapshot.safariWebKitStatus.exactBuildIdentityRecorded, false);
   assert.equal(report.coverageSnapshot.safariWebKitStatus.sourceBoundaryPinned, false);
@@ -337,6 +339,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-closure-checks-primary-bounded' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-closure-checks-same-contract-comparison' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-closure-checks-1gib-primary' && item.satisfied));
+  assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-closure-checks-accepted-cases' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-source-boundary-separates-bun-webkit' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-target-distance-recomputed-after-rows' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'safari-structured-evidence-intake-contract' && item.satisfied));
@@ -1045,6 +1048,47 @@ test('runtime-limit proof-obligation gate fails if Safari handoff omits 1GiB pri
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /largeBoundedPrimarySyncByteBatchRowsRecorded/);
   assert.match(markdown, /largePrimaryRowsInSameContractComparison/);
+});
+
+test('runtime-limit proof-obligation gate fails if Safari handoff omits accepted closure case checks', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
+  const safari = handoff.handoffs.find(item => item.id === 'safari-webkit-browser-row-handoff');
+  safari.closureChecks = safari.closureChecks.filter(item =>
+    !/acceptedClosureCaseRowsRecorded/.test(item)
+    && !/acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded/.test(item)
+  );
+  writeFileSync(badHandoffJsonOut, `${JSON.stringify(handoff, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--handoff-json',
+    badHandoffJsonOut,
+    '--json-out',
+    badHandoffGateJsonOut,
+    '--md-out',
+    badHandoffGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badHandoffGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.ok(report.handoffSnapshot.guards.some(item =>
+    item.id === 'safari-closure-checks-accepted-cases'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /accepted closure case rows/.test(error)));
+
+  const markdown = readFileSync(badHandoffGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /safari-closure-checks-accepted-cases/);
 });
 
 test('runtime-limit proof-obligation gate fails if Safari handoff omits Bun/WebKit scope guard', () => {

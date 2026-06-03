@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T07:58:27.513Z",
+  "generatedAt": "2026-06-03T08:11:30.775Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -699,7 +699,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T07:57:52.731Z",
+    "generatedAt": "2026-06-03T08:08:08.745Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open"
     ],
@@ -739,6 +739,11 @@
         "satisfied": true
       },
       {
+        "id": "safari-closure-checks-accepted-cases",
+        "description": "Safari closure checks must require accepted closure case rows and accepted 1 GiB+ primary rows before closing Safari/WebKit coverage.",
+        "satisfied": true
+      },
+      {
         "id": "safari-row-level-source-boundary-required",
         "description": "Safari closure checks must require row-level source revision and source-pin artifact metadata, not only an availability-level sourceBoundaryPinned boolean.",
         "satisfied": true
@@ -767,9 +772,9 @@
   },
   "handoffValidationSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T07:57:56.958Z",
-    "validatedHandoffGeneratedAt": "2026-06-03T07:57:52.731Z",
-    "currentHandoffGeneratedAt": "2026-06-03T07:57:52.731Z",
+    "generatedAt": "2026-06-03T08:08:27.039Z",
+    "validatedHandoffGeneratedAt": "2026-06-03T08:08:08.745Z",
+    "currentHandoffGeneratedAt": "2026-06-03T08:08:08.745Z",
     "pass": true,
     "missingScriptCount": 0,
     "nonReleaseOutputPathCount": 0,
@@ -1245,6 +1250,8 @@
       "primarySyncByteBatchRowsRecorded": 0,
       "boundedPrimarySyncByteBatchRowsRecorded": 0,
       "largeBoundedPrimarySyncByteBatchRowsRecorded": 0,
+      "acceptedClosureCaseRowsRecorded": 0,
+      "acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded": 0,
       "directReadableStreamRowsAreSeparateEvidence": true,
       "exactBuildIdentityRecorded": false,
       "rowLevelSourceBoundaryPinnedRowsRecorded": 0,
@@ -1498,8 +1505,8 @@
     "requiredCounterexampleScanGuards": 10,
     "satisfiedCoverageGuards": 10,
     "requiredCoverageGuards": 10,
-    "satisfiedHandoffGuards": 10,
-    "requiredHandoffGuards": 10,
+    "satisfiedHandoffGuards": 11,
+    "requiredHandoffGuards": 11,
     "satisfiedHandoffValidationGuards": 9,
     "requiredHandoffValidationGuards": 9,
     "satisfiedSourceAuditGuards": 7,

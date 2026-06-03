@@ -900,6 +900,8 @@ function createHandoffs(activeObligations, localClosure) {
         requiredAuditFields: [
           'coverage.safariWebKitStatus.primaryRowsInSameContractComparison=true',
           'coverage.safariWebKitStatus.largePrimaryRowsInSameContractComparison=true',
+          'coverage.safariWebKitStatus.acceptedClosureCaseRowsRecorded>0',
+          'coverage.safariWebKitStatus.acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded>0',
           'coverage.safariWebKitStatus.closesSafariObligation=true',
           'safari-webkit-closure-audit.summary.qualifiedClosureCount>0',
         ],
@@ -919,6 +921,8 @@ function createHandoffs(activeObligations, localClosure) {
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.boundedPrimarySyncByteBatchRowsRecorded must be greater than 0.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.primaryRowsInSameContractComparison must be true, with bounded primary row id, event count, and checksum matching same-contract-runtime-comparison.json.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsRecorded must be greater than 0 for 1 GiB+ Safari/WebKit primary rows.',
+        'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.acceptedClosureCaseRowsRecorded must be greater than 0 and limited to caseId=stringFull|eventObjectFull|rawFrameNameId.',
+        'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded must be greater than 0 for 1 GiB+ accepted Safari/WebKit primary rows.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.largePrimaryRowsInSameContractComparison must be true, with 1 GiB+ bounded primary row id, event count, and checksum matching same-contract-runtime-comparison.json.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.exactBuildIdentityRecorded must be true.',
         'runtime-proof-coverage-audit.json coverage.safariWebKitStatus.rowLevelSourceBoundaryPinnedRowsRecorded must be greater than 0.',
