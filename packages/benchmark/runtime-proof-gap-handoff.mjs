@@ -610,6 +610,7 @@ function createLocalClosure(activeObligations, audit, options = {}) {
     const jsShellApiGapStatus = jsShellApiGap?.summary?.status ?? null;
     const jsShellApiGapPinned = jsShellApiGapStatus === 'blocked-by-host-api-surface';
     const staxHostApiBoundaryPinned = staxHostApiBoundary?.summary?.primarySyncByteBatchRequiresTextDecoder === true
+      && staxHostApiBoundary?.summary?.asciiPrimarySyncByteBatchRequiresTextDecoder === false
       && staxHostApiBoundary?.summary?.directReadableStreamRequiresReadableStream === true
       && staxHostApiBoundary?.summary?.stringInputRequiresTextEncoder === true
       && staxHostApiBoundary?.summary?.rootImportRequiresTextEncoder === false
@@ -736,7 +737,7 @@ function createLocalClosure(activeObligations, audit, options = {}) {
           ? `The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface, with common missing globals: ${jsShellCommonMissing}, and direct unchanged harness attempts blocked before StAX load: ${jsShellDirectAttemptsBlocked}.`
           : 'The js-shell StAX API gap audit is missing or does not pin the unchanged-harness host API blocker.',
         staxHostApiBoundaryPinned
-          ? 'The StAX public reader host API boundary audit pins the current TextDecoder/ReadableStream/TextEncoder boundary: primarySyncByteBatchRequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, rootImportRequiresTextEncoder=false, and alternateDecoderWouldBeUnchangedClosure=false.'
+          ? 'The StAX public reader host API boundary audit pins the current TextDecoder/ReadableStream/TextEncoder boundary: primarySyncByteBatchRequiresTextDecoder=true, asciiPrimarySyncByteBatchRequiresTextDecoder=false, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, rootImportRequiresTextEncoder=false, and alternateDecoderWouldBeUnchangedClosure=false.'
           : 'The StAX public reader host API boundary audit is missing or does not pin the current TextDecoder/ReadableStream/TextEncoder boundary.',
         jsShellTokenizerHeadroomPinned
           ? `The SpiderMonkey js-shell tokenizer headroom audit records partial parser-core headroom only: fastest=${formatNumber(jsShellTokenizerHeadroomRaw.summary.fastest.mibPerSec)} MiB/s, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0.`

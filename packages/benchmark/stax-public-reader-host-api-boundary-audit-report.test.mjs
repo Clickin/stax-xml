@@ -38,16 +38,19 @@ test('stax public reader host API boundary audit pins current TextDecoder surfac
   assert.equal(report.contract, 'current-stax-public-reader-host-api-boundary');
   assert.equal(report.summary.allChecksPass, true);
   assert.equal(report.summary.primarySyncByteBatchRequiresTextDecoder, true);
+  assert.equal(report.summary.asciiPrimarySyncByteBatchRequiresTextDecoder, false);
   assert.equal(report.summary.directReadableStreamRequiresReadableStream, true);
   assert.equal(report.summary.stringInputRequiresTextEncoder, true);
   assert.equal(report.summary.rootImportRequiresTextEncoder, false);
   assert.equal(report.summary.alternateDecoderWouldBeUnchangedClosure, false);
   assert.deepEqual(report.summary.primarySyncByteBatchRequiredGlobals, ['Uint8Array', 'TextDecoder']);
+  assert.deepEqual(report.summary.asciiPrimarySyncByteBatchRequiredGlobals, ['Uint8Array']);
   assert.deepEqual(report.summary.directReadableStreamRequiredGlobals, ['Uint8Array', 'TextDecoder', 'ReadableStream']);
   assert.deepEqual(report.summary.stringInputRequiredGlobals, ['TextEncoder', 'TextDecoder']);
   assert.deepEqual(report.summary.rootImportRequiredGlobals, []);
   assert.ok(report.checks.every(check => check.matched));
   assert.ok(report.checks.some(check => check.id === 'iterable-reader-decodes-non-ascii-spans'));
+  assert.ok(report.checks.some(check => check.id === 'iterable-reader-ascii-spans-avoid-textdecoder'));
   assert.ok(report.checks.some(check => check.id === 'stream-batch-public-accessors-call-copy-methods'));
   assert.ok(report.checks.some(check => check.id === 'root-import-no-top-level-textencoder'));
   assert.ok(report.findings.some(finding =>
@@ -62,14 +65,20 @@ test('stax public reader host API boundary audit pins current TextDecoder surfac
     finding.id === 'stax-root-import-textencoder-not-primary-blocker'
     && finding.classification === 'SOURCE_FACT'
   ));
+  assert.ok(report.findings.some(finding =>
+    finding.id === 'stax-ascii-primary-byte-batch-textdecoder-not-blocker'
+    && finding.classification === 'SOURCE_FACT'
+  ));
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# StAX Public Reader Host API Boundary Audit/);
   assert.match(markdown, /Primary sync byte-batch requires TextDecoder: true/);
+  assert.match(markdown, /ASCII primary sync byte-batch requires TextDecoder: false/);
   assert.match(markdown, /Direct ReadableStream requires ReadableStream: true/);
   assert.match(markdown, /Root import requires TextEncoder: false/);
   assert.match(markdown, /Alternate decoder is unchanged closure: false/);
   assert.match(markdown, /iterable-reader-decodes-non-ascii-spans/);
+  assert.match(markdown, /iterable-reader-ascii-spans-avoid-textdecoder/);
   assert.match(markdown, /stream-batch-public-accessors-call-copy-methods/);
   assert.match(markdown, /root-import-no-top-level-textencoder/);
 });

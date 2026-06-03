@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T03:10:03.728Z",
+  "generatedAt": "2026-06-03T03:26:22.123Z",
   "objective": "stax-public-reader-host-api-boundary-audit",
   "contract": "current-stax-public-reader-host-api-boundary",
   "note": "Static source-boundary audit for the current StAX public reader host API surface. It pins the TextDecoder/ReadableStream/TextEncoder boundary used by same-contract full-string rows; it is not benchmark evidence, codegen evidence, or a runtime-limit conclusion.",
@@ -10,7 +10,7 @@
     },
     "iterableReader": {
       "path": "packages/stax-xml/src/IterableReader.ts",
-      "bytes": 44376
+      "bytes": 44600
     },
     "eventReader": {
       "path": "packages/stax-xml/src/EventReader.ts",
@@ -33,13 +33,19 @@
     {
       "id": "iterable-reader-constructs-textdecoder",
       "source": "IterableReader.ts",
-      "expected": "IterableReader constructs a native TextDecoder for byte-span string materialization.",
+      "expected": "IterableReader lazily constructs a native TextDecoder for non-ASCII byte-span string materialization.",
       "matched": true
     },
     {
       "id": "iterable-reader-decodes-non-ascii-spans",
       "source": "IterableReader.ts",
-      "expected": "decodeSpan falls back to TextDecoder.decode(currentBuffer.subarray(start, end)).",
+      "expected": "decodeSpan first accepts short ASCII spans and falls back to TextDecoder only through getDecoder().",
+      "matched": true
+    },
+    {
+      "id": "iterable-reader-ascii-spans-avoid-textdecoder",
+      "source": "IterableReader.ts",
+      "expected": "ASCII name/text/attribute spans return before getDecoder(), so ASCII primary byte-batch rows do not require TextDecoder.",
       "matched": true
     },
     {
@@ -82,12 +88,16 @@
   "summary": {
     "allChecksPass": true,
     "primarySyncByteBatchRequiresTextDecoder": true,
+    "asciiPrimarySyncByteBatchRequiresTextDecoder": false,
     "directReadableStreamRequiresReadableStream": true,
     "stringInputRequiresTextEncoder": true,
     "rootImportRequiresTextEncoder": false,
     "primarySyncByteBatchRequiredGlobals": [
       "Uint8Array",
       "TextDecoder"
+    ],
+    "asciiPrimarySyncByteBatchRequiredGlobals": [
+      "Uint8Array"
     ],
     "directReadableStreamRequiredGlobals": [
       "Uint8Array",
@@ -109,7 +119,9 @@
       "summary": "Current primary synchronous Iterable<Uint8Array[]> full-string rows require TextDecoder for public string materialization.",
       "evidence": [
         "primarySyncByteBatchRequiresTextDecoder=true",
-        "primarySyncByteBatchRequiredGlobals=Uint8Array, TextDecoder"
+        "primarySyncByteBatchRequiredGlobals=Uint8Array, TextDecoder",
+        "asciiPrimarySyncByteBatchRequiresTextDecoder=false",
+        "asciiPrimarySyncByteBatchRequiredGlobals=Uint8Array"
       ]
     },
     {
@@ -130,6 +142,15 @@
         "rootImportRequiresTextEncoder=false",
         "stringInputRequiresTextEncoder=true",
         "rootImportRequiredGlobals=none"
+      ]
+    },
+    {
+      "id": "stax-ascii-primary-byte-batch-textdecoder-not-blocker",
+      "classification": "SOURCE_FACT",
+      "summary": "ASCII primary byte-batch name, text, and attribute accessors can materialize strings through the internal ASCII span path without TextDecoder.",
+      "evidence": [
+        "asciiPrimarySyncByteBatchRequiresTextDecoder=false",
+        "asciiPrimarySyncByteBatchRequiredGlobals=Uint8Array"
       ]
     }
   ]

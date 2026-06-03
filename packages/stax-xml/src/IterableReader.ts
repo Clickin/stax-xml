@@ -96,7 +96,9 @@ export async function* toAsyncByteBatches(
 
 export class IterableReader {
   private readonly iterator: Iterator<ByteBatch>;
-  private readonly decoder: TextDecoder;
+  private decoder: TextDecoder | undefined;
+  private readonly decoderEncoding: string;
+  private readonly decoderFatal: boolean;
   private readonly incompleteFinalMarkupMessage?: string;
   private readonly emitStartDocumentBatchImmediately: boolean;
   private readonly documentMode: DocumentMode;
@@ -163,10 +165,8 @@ export class IterableReader {
   ) {
     this.iterator = source[Symbol.iterator]();
     this.documentMode = options.documentMode ?? 'fragment';
-    this.decoder = new TextDecoder(options.encoding ?? 'utf-8', {
-      fatal: this.documentMode === 'document',
-      ignoreBOM: true
-    });
+    this.decoderEncoding = options.encoding ?? 'utf-8';
+    this.decoderFatal = this.documentMode === 'document';
     this.incompleteFinalMarkupMessage = options.incompleteFinalMarkupMessage;
     this.emitStartDocumentBatchImmediately = options.emitStartDocumentBatchImmediately ?? false;
   }
@@ -307,11 +307,23 @@ export class IterableReader {
   }
 
   decodeSpan(start: number, end: number): string {
-    const ascii = decodeShortAsciiSpan(this.currentBuffer, start, end);
+    return this.decodeBufferSpan(this.currentBuffer, start, end);
+  }
+
+  private getDecoder(): TextDecoder {
+    this.decoder ??= new TextDecoder(this.decoderEncoding, {
+      fatal: this.decoderFatal,
+      ignoreBOM: true,
+    });
+    return this.decoder;
+  }
+
+  private decodeBufferSpan(buffer: Uint8Array, start: number, end: number): string {
+    const ascii = decodeShortAsciiSpan(buffer, start, end);
     if (ascii !== undefined) {
       return ascii;
     }
-    return this.decoder.decode(this.currentBuffer.subarray(start, end));
+    return this.getDecoder().decode(buffer.subarray(start, end));
   }
 
   copyName(index: number): string | undefined {
@@ -579,7 +591,7 @@ export class IterableReader {
         throw new Error('Processing instruction target is required.');
       }
       this.assertValidName(buffer, targetStart, targetEnd, 'processing instruction target');
-      const target = this.decoder.decode(buffer.subarray(targetStart, targetEnd));
+      const target = this.decodeBufferSpan(buffer, targetStart, targetEnd);
       if (target.toLowerCase() === 'xml' && !startsWithAscii(buffer, position, '<?xml')) {
         throw new Error('Processing instruction target "xml" is reserved.');
       }
@@ -604,7 +616,7 @@ export class IterableReader {
     this.assertValidName(buffer, nameStart, nameEnd, 'end tag name');
 
     if (this.elementDepth === 0) {
-      throw new Error(`Mismatched closing tag: </${this.decoder.decode(buffer.subarray(nameStart, nameEnd))}>. No open elements.`);
+      throw new Error(`Mismatched closing tag: </${this.decodeBufferSpan(buffer, nameStart, nameEnd)}>. No open elements.`);
     }
 
     const foundId = this.lookupNameId(buffer, nameStart, nameEnd);
@@ -615,7 +627,7 @@ export class IterableReader {
     const expectedEnd = this.elementNameEnds[expectedDepth]!;
     this.elementNameBuffers[expectedDepth] = EMPTY_BUFFER;
     if (foundId !== expectedId) {
-      const found = this.decoder.decode(buffer.subarray(nameStart, nameEnd));
+      const found = this.decodeBufferSpan(buffer, nameStart, nameEnd);
       const expected = this.materializeName(expectedId, expectedBuffer, expectedStart, expectedEnd);
       throw new Error(`Mismatched closing tag: </${found}>. Expected </${expected}>.`);
     }
@@ -750,7 +762,7 @@ export class IterableReader {
       const valueEnd = index;
       if (this.documentMode === 'document') {
         this.assertValidAttributeValue(buffer, valueStart, valueEnd);
-        const name = this.decoder.decode(buffer.subarray(nameStart, nameEnd));
+        const name = this.decodeBufferSpan(buffer, nameStart, nameEnd);
         if (seen!.has(name)) {
           throw new Error(`Duplicate attribute: ${name}.`);
         }
@@ -779,7 +791,7 @@ export class IterableReader {
     if (start >= end) {
       throw new Error(`Invalid XML ${label}: name is empty.`);
     }
-    const name = this.decoder.decode(buffer.subarray(start, end));
+    const name = this.decodeBufferSpan(buffer, start, end);
     if (!isXmlName(name)) {
       throw new Error(`Invalid XML ${label}: ${name}.`);
     }
@@ -798,7 +810,7 @@ export class IterableReader {
     if (this.documentMode !== 'document') {
       return;
     }
-    const value = this.decoder.decode(buffer.subarray(start, end));
+    const value = this.decodeBufferSpan(buffer, start, end);
     assertValidXmlCharacters(value, label);
     assertValidEntityReferences(value, this.declaredEntities, this.hasDoctype);
   }
@@ -807,11 +819,11 @@ export class IterableReader {
     if (this.documentMode !== 'document') {
       return;
     }
-    assertValidXmlCharacters(this.decoder.decode(buffer.subarray(start, end)), label);
+    assertValidXmlCharacters(this.decodeBufferSpan(buffer, start, end), label);
   }
 
   private recordEntityDeclarations(buffer: Uint8Array, start: number, end: number): void {
-    const declaration = this.decoder.decode(buffer.subarray(start, end));
+    const declaration = this.decodeBufferSpan(buffer, start, end);
     const entityRegex = /<!ENTITY\s+([A-Za-z_:][A-Za-z0-9._:\-\u00B7\u0300-\u036F\u203F-\u2040]*)\b/g;
     let match: RegExpExecArray | null;
     while ((match = entityRegex.exec(declaration))) {
@@ -866,8 +878,7 @@ export class IterableReader {
       return existing;
     }
 
-    const ascii = decodeShortAsciiSpan(buffer, start, end);
-    const name = ascii ?? this.decoder.decode(buffer.subarray(start, end));
+    const name = this.decodeBufferSpan(buffer, start, end);
     this.nameStrings[nameId] = name;
     return name;
   }

@@ -51,7 +51,7 @@ function main() {
   const report = createReport();
   writeOutput(options.jsonOut, `${JSON.stringify(report, null, 2)}\n`);
   writeOutput(options.mdOut, renderMarkdown(report));
-  console.log(`${report.objective}: primaryTextDecoder=${report.summary.primarySyncByteBatchRequiresTextDecoder} stream=${report.summary.directReadableStreamRequiresReadableStream} alternateDecoderClosure=${report.summary.alternateDecoderWouldBeUnchangedClosure}`);
+  console.log(`${report.objective}: primaryTextDecoder=${report.summary.primarySyncByteBatchRequiresTextDecoder} asciiPrimaryTextDecoder=${report.summary.asciiPrimarySyncByteBatchRequiresTextDecoder} stream=${report.summary.directReadableStreamRequiresReadableStream} alternateDecoderClosure=${report.summary.alternateDecoderWouldBeUnchangedClosure}`);
 }
 
 function createReport() {
@@ -60,17 +60,26 @@ function createReport() {
     {
       id: 'iterable-reader-constructs-textdecoder',
       source: 'IterableReader.ts',
-      expected: 'IterableReader constructs a native TextDecoder for byte-span string materialization.',
-      matched: /this\.decoder\s*=\s*new TextDecoder\(options\.encoding \?\? 'utf-8'/.test(sources.iterableReader.text)
-        && /fatal:\s*this\.documentMode === 'document'/.test(sources.iterableReader.text)
+      expected: 'IterableReader lazily constructs a native TextDecoder for non-ASCII byte-span string materialization.',
+      matched: /private decoder: TextDecoder \| undefined/.test(sources.iterableReader.text)
+        && /private getDecoder\(\): TextDecoder[\s\S]+?this\.decoder \?\?= new TextDecoder\(this\.decoderEncoding/.test(sources.iterableReader.text)
+        && /fatal:\s*this\.decoderFatal/.test(sources.iterableReader.text)
         && /ignoreBOM:\s*true/.test(sources.iterableReader.text),
     },
     {
       id: 'iterable-reader-decodes-non-ascii-spans',
       source: 'IterableReader.ts',
-      expected: 'decodeSpan falls back to TextDecoder.decode(currentBuffer.subarray(start, end)).',
-      matched: /decodeSpan\(start: number, end: number\): string[\s\S]+?decodeShortAsciiSpan/.test(sources.iterableReader.text)
-        && /return this\.decoder\.decode\(this\.currentBuffer\.subarray\(start, end\)\)/.test(sources.iterableReader.text),
+      expected: 'decodeSpan first accepts short ASCII spans and falls back to TextDecoder only through getDecoder().',
+      matched: /decodeSpan\(start: number, end: number\): string[\s\S]+?return this\.decodeBufferSpan\(this\.currentBuffer, start, end\)/.test(sources.iterableReader.text)
+        && /private decodeBufferSpan\(buffer: Uint8Array, start: number, end: number\): string[\s\S]+?decodeShortAsciiSpan/.test(sources.iterableReader.text)
+        && /return this\.getDecoder\(\)\.decode\(buffer\.subarray\(start, end\)\)/.test(sources.iterableReader.text),
+    },
+    {
+      id: 'iterable-reader-ascii-spans-avoid-textdecoder',
+      source: 'IterableReader.ts',
+      expected: 'ASCII name/text/attribute spans return before getDecoder(), so ASCII primary byte-batch rows do not require TextDecoder.',
+      matched: /private decodeBufferSpan\(buffer: Uint8Array, start: number, end: number\): string[\s\S]+?if \(ascii !== undefined\) \{[\s\S]+?return ascii;[\s\S]+?\}[\s\S]+?return this\.getDecoder\(\)\.decode/.test(sources.iterableReader.text)
+        && /private materializeName\(nameId: number, buffer: Uint8Array, start: number, end: number\): string[\s\S]+?const name = this\.decodeBufferSpan\(buffer, start, end\)/.test(sources.iterableReader.text),
     },
     {
       id: 'iterable-reader-public-copy-methods-use-decoder',
@@ -127,10 +136,12 @@ function createReport() {
   const summary = {
     allChecksPass,
     primarySyncByteBatchRequiresTextDecoder: checksById(checks, 'iterable-reader-constructs-textdecoder', 'iterable-reader-decodes-non-ascii-spans', 'iterable-reader-public-copy-methods-use-decoder', 'stream-batch-public-accessors-call-copy-methods'),
+    asciiPrimarySyncByteBatchRequiresTextDecoder: !checksById(checks, 'iterable-reader-ascii-spans-avoid-textdecoder'),
     directReadableStreamRequiresReadableStream: checksById(checks, 'event-reader-requires-web-readable-stream'),
     stringInputRequiresTextEncoder: checksById(checks, 'event-reader-sync-string-input-uses-textencoder', 'xml-object-string-input-uses-lazy-textencoder'),
     rootImportRequiresTextEncoder: !checksById(checks, 'root-import-no-top-level-textencoder'),
     primarySyncByteBatchRequiredGlobals: ['Uint8Array', 'TextDecoder'],
+    asciiPrimarySyncByteBatchRequiredGlobals: ['Uint8Array'],
     directReadableStreamRequiredGlobals: ['Uint8Array', 'TextDecoder', 'ReadableStream'],
     stringInputRequiredGlobals: ['TextEncoder', 'TextDecoder'],
     rootImportRequiredGlobals: [],
@@ -162,6 +173,8 @@ function createFindings(summary) {
       evidence: [
         `primarySyncByteBatchRequiresTextDecoder=${summary.primarySyncByteBatchRequiresTextDecoder}`,
         `primarySyncByteBatchRequiredGlobals=${summary.primarySyncByteBatchRequiredGlobals.join(', ')}`,
+        `asciiPrimarySyncByteBatchRequiresTextDecoder=${summary.asciiPrimarySyncByteBatchRequiresTextDecoder}`,
+        `asciiPrimarySyncByteBatchRequiredGlobals=${summary.asciiPrimarySyncByteBatchRequiredGlobals.join(', ')}`,
       ],
     },
     {
@@ -182,6 +195,15 @@ function createFindings(summary) {
         `rootImportRequiresTextEncoder=${summary.rootImportRequiresTextEncoder}`,
         `stringInputRequiresTextEncoder=${summary.stringInputRequiresTextEncoder}`,
         `rootImportRequiredGlobals=${summary.rootImportRequiredGlobals.join(', ') || 'none'}`,
+      ],
+    },
+    {
+      id: 'stax-ascii-primary-byte-batch-textdecoder-not-blocker',
+      classification: 'SOURCE_FACT',
+      summary: 'ASCII primary byte-batch name, text, and attribute accessors can materialize strings through the internal ASCII span path without TextDecoder.',
+      evidence: [
+        `asciiPrimarySyncByteBatchRequiresTextDecoder=${summary.asciiPrimarySyncByteBatchRequiresTextDecoder}`,
+        `asciiPrimarySyncByteBatchRequiredGlobals=${summary.asciiPrimarySyncByteBatchRequiredGlobals.join(', ')}`,
       ],
     },
   ];
@@ -211,6 +233,7 @@ function renderMarkdown(report) {
     '',
     `- All checks pass: ${report.summary.allChecksPass}`,
     `- Primary sync byte-batch requires TextDecoder: ${report.summary.primarySyncByteBatchRequiresTextDecoder}`,
+    `- ASCII primary sync byte-batch requires TextDecoder: ${report.summary.asciiPrimarySyncByteBatchRequiresTextDecoder}`,
     `- Direct ReadableStream requires ReadableStream: ${report.summary.directReadableStreamRequiresReadableStream}`,
     `- String input requires TextEncoder: ${report.summary.stringInputRequiresTextEncoder}`,
     `- Root import requires TextEncoder: ${report.summary.rootImportRequiresTextEncoder}`,

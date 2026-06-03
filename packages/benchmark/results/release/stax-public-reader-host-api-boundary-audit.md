@@ -1,6 +1,6 @@
 # StAX Public Reader Host API Boundary Audit
 
-Generated: 2026-06-03T03:10:03.728Z
+Generated: 2026-06-03T03:26:22.123Z
 
 Static source-boundary audit for the current StAX public reader host API surface. It pins the TextDecoder/ReadableStream/TextEncoder boundary used by same-contract full-string rows; it is not benchmark evidence, codegen evidence, or a runtime-limit conclusion.
 
@@ -8,6 +8,7 @@ Static source-boundary audit for the current StAX public reader host API surface
 
 - All checks pass: true
 - Primary sync byte-batch requires TextDecoder: true
+- ASCII primary sync byte-batch requires TextDecoder: false
 - Direct ReadableStream requires ReadableStream: true
 - String input requires TextEncoder: true
 - Root import requires TextEncoder: false
@@ -17,8 +18,9 @@ Static source-boundary audit for the current StAX public reader host API surface
 
 | Check | Source | Matched | Expected |
 | --- | --- | --- | --- |
-| `iterable-reader-constructs-textdecoder` | `IterableReader.ts` | yes | IterableReader constructs a native TextDecoder for byte-span string materialization. |
-| `iterable-reader-decodes-non-ascii-spans` | `IterableReader.ts` | yes | decodeSpan falls back to TextDecoder.decode(currentBuffer.subarray(start, end)). |
+| `iterable-reader-constructs-textdecoder` | `IterableReader.ts` | yes | IterableReader lazily constructs a native TextDecoder for non-ASCII byte-span string materialization. |
+| `iterable-reader-decodes-non-ascii-spans` | `IterableReader.ts` | yes | decodeSpan first accepts short ASCII spans and falls back to TextDecoder only through getDecoder(). |
+| `iterable-reader-ascii-spans-avoid-textdecoder` | `IterableReader.ts` | yes | ASCII name/text/attribute spans return before getDecoder(), so ASCII primary byte-batch rows do not require TextDecoder. |
 | `iterable-reader-public-copy-methods-use-decoder` | `IterableReader.ts` | yes | copyText, copyAttrValue, and copyAttributesObject route public string values through decodeSpan/materializeName. |
 | `stream-batch-public-accessors-call-copy-methods` | `stream-reader-core.ts` | yes | StreamBatch public name/text/attribute accessors call source copy methods. |
 | `event-reader-requires-web-readable-stream` | `EventReader.ts` | yes | The async public EventReader constructor requires a Web ReadableStream and consumes it through getReader(). |
@@ -31,6 +33,8 @@ Static source-boundary audit for the current StAX public reader host API surface
 - stax-primary-sync-byte-batch-textdecoder-boundary (SOURCE_FACT): Current primary synchronous Iterable<Uint8Array[]> full-string rows require TextDecoder for public string materialization.
   - primarySyncByteBatchRequiresTextDecoder=true
   - primarySyncByteBatchRequiredGlobals=Uint8Array, TextDecoder
+  - asciiPrimarySyncByteBatchRequiresTextDecoder=false
+  - asciiPrimarySyncByteBatchRequiredGlobals=Uint8Array
 - stax-host-api-substitution-scope-guard (SCOPE_GUARD): A js-shell polyfill or alternate decoder can be useful diagnostic evidence, but it is not unchanged StAX public-reader closure evidence.
   - directReadableStreamRequiresReadableStream=true
   - stringInputRequiresTextEncoder=true
@@ -39,3 +43,6 @@ Static source-boundary audit for the current StAX public reader host API surface
   - rootImportRequiresTextEncoder=false
   - stringInputRequiresTextEncoder=true
   - rootImportRequiredGlobals=none
+- stax-ascii-primary-byte-batch-textdecoder-not-blocker (SOURCE_FACT): ASCII primary byte-batch name, text, and attribute accessors can materialize strings through the internal ASCII span path without TextDecoder.
+  - asciiPrimarySyncByteBatchRequiresTextDecoder=false
+  - asciiPrimarySyncByteBatchRequiredGlobals=Uint8Array
