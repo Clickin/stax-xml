@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-03T08:20:28.276Z
+Generated: 2026-06-03T08:34:15.629Z
 
 ## Scope
 
@@ -89,7 +89,7 @@ Disclosure-only guards: 4
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-03T07:57:31.329Z)
+- Coverage audit loaded: yes (2026-06-03T08:32:15.977Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open
 - Covered coverage obligations: firefox-browser-rows-open, codegen-traces-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey diagnostics rows vs closure candidates: 12/20 (gap=8, closureQualified=1)
@@ -141,7 +141,7 @@ Disclosure-only guards: 4
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-03T08:18:11.518Z)
+- Handoff loaded: yes (2026-06-03T08:33:47.296Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open
 - Handoff IDs: safari-webkit-browser-row-handoff
 
@@ -161,8 +161,8 @@ Disclosure-only guards: 4
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-03T08:20:11.912Z)
-- Handoff validation target handoff generatedAt: 2026-06-03T08:18:11.518Z (current 2026-06-03T08:18:11.518Z)
+- Handoff validation loaded: yes (2026-06-03T08:33:59.502Z)
+- Handoff validation target handoff generatedAt: 2026-06-03T08:33:47.296Z (current 2026-06-03T08:33:47.296Z)
 - Handoff validation pass: yes
 - Commands checked: 5
 - Scripts referenced: 15
@@ -194,8 +194,8 @@ Disclosure-only guards: 4
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-03T07:58:16.227Z)
-- Source audit inputs: comparison=2026-06-03T06:02:02.040Z (current 2026-06-03T06:02:02.040Z), coverage=2026-06-03T07:57:31.329Z (current 2026-06-03T07:57:31.329Z)
+- Source audit loaded: yes (2026-06-03T08:33:22.619Z)
+- Source audit inputs: comparison=2026-06-03T06:02:02.040Z (current 2026-06-03T06:02:02.040Z), coverage=2026-06-03T08:32:15.977Z (current 2026-06-03T08:32:15.977Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary source boundary: demand-driven StreamReaderSync parser pulls
@@ -224,14 +224,14 @@ Disclosure-only guards: 4
 
 ## Frontier Audit Snapshot
 
-- Memory frontier loaded: yes (2026-06-03T06:02:49.227Z)
+- Memory frontier loaded: yes (2026-06-03T08:33:26.283Z)
 - Frontier audit comparison inputs: memory=2026-06-03T06:02:02.040Z, target=2026-06-03T06:02:02.040Z, text=2026-06-03T06:02:02.040Z (current 2026-06-03T06:02:02.040Z)
 - Fastest bounded JS row: 185.50 MiB/s at 60.45 MiB
 - Unbounded or unproven memory rows: 17
 - Bounded rows without numeric memory proof: 0
 - Unbounded rows at or above 200 MiB/s: 0
 - Same-fixture process RSS: JS=61.77 MiB, Woodstox=312.71 MiB, quick-xml=4.78 MiB
-- Target distance loaded: yes (2026-06-03T06:03:26.996Z)
+- Target distance loaded: yes (2026-06-03T08:33:27.756Z)
 - Woodstox 0.9x target met: no
 - Woodstox 0.9x remaining: 164.29 MiB/s
 - quick-xml 0.9x target met: no
@@ -240,7 +240,7 @@ Disclosure-only guards: 4
 - Overall JS frontier separated from same-fixture target row: yes
 - Target JS row visible in counterexample scan: yes
 - Target JS contract: sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=no, fullArrayBufferParserInput=no, boundedMemory=yes, memoryKind=process-rss, maxRssMiB=61.77
-- Text materialization boundary loaded: yes (2026-06-03T06:03:26.424Z)
+- Text materialization boundary loaded: yes (2026-06-03T08:33:34.877Z)
 - Fastest full-string row: 185.50 MiB/s
 - Full-string rows crossing 200 MiB/s: 0
 - No-text rows crossing 200 MiB/s: 4

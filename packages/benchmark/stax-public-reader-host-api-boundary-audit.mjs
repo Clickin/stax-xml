@@ -13,6 +13,8 @@ const sourceFiles = {
   eventReader: resolve(repoRoot, 'packages', 'stax-xml', 'src', 'EventReader.ts'),
   eventReaderSync: resolve(repoRoot, 'packages', 'stax-xml', 'src', 'EventReaderSync.ts'),
   xmlObject: resolve(repoRoot, 'packages', 'stax-xml', 'src', 'XmlObject.ts'),
+  projection: resolve(repoRoot, 'packages', 'stax-xml', 'src', 'projection', 'index.ts'),
+  compiledRootProcessor: resolve(repoRoot, 'packages', 'stax-xml', 'src', 'converter', 'CompiledRootProcessor.ts'),
   streamReaderCore: resolve(repoRoot, 'packages', 'stax-xml', 'src', 'stream-reader-core.ts'),
   writer: resolve(repoRoot, 'packages', 'stax-xml', 'src', 'Writer.ts'),
   writerSync: resolve(repoRoot, 'packages', 'stax-xml', 'src', 'WriterSync.ts'),
@@ -141,12 +143,35 @@ function createReport() {
         && /yield encodeXmlString\(input\)/.test(sources.xmlObject.text),
     },
     {
+      id: 'projection-compile-and-string-input-use-textencoder',
+      source: 'projection/index.ts',
+      expected: 'Projection compilation encodes path, field, and predicate strings into UTF-8 byte keys, and string XML input is encoded before StreamReaderSync.',
+      matched: /let textEncoder: TextEncoder \| undefined/.test(sources.projection.text)
+        && /function encodeUtf8\(input: string\): Uint8Array[\s\S]+?textEncoder \?\?= new TextEncoder\(\)/.test(sources.projection.text)
+        && /nameBytes: encodeUtf8\(field\.name\)/.test(sources.projection.text)
+        && /nameBytes: encodeUtf8\(predicate\.name\)/.test(sources.projection.text)
+        && /valueBytes: encodeUtf8\(predicate\.value\)/.test(sources.projection.text)
+        && /return segments\.map\(\(segment\) => encodeUtf8\(segment\)\)/.test(sources.projection.text)
+        && /if \(typeof input === 'string'\) \{[\s\S]+?return encodeUtf8\(input\)/.test(sources.projection.text),
+    },
+    {
+      id: 'compiled-converter-string-input-uses-textencoder',
+      source: 'converter/CompiledRootProcessor.ts',
+      expected: 'Compiled converter string inputs are lazily encoded through a native TextEncoder before the byte-oriented StreamReaderSync/StreamReader paths.',
+      matched: /let textEncoder: TextEncoder \| undefined/.test(sources.compiledRootProcessor.text)
+        && /function encodeXmlString\(input: string\): Uint8Array[\s\S]+?textEncoder \?\?= new TextEncoder\(\)/.test(sources.compiledRootProcessor.text)
+        && /parseSync<T>\(input: string \| ArrayBufferView[\s\S]+?if \(typeof input === 'string'\) \{[\s\S]+?return this\.parseSync<T>\(encodeXmlString\(input\)/.test(sources.compiledRootProcessor.text)
+        && /async parse<T>\(input: ParseInput[\s\S]+?if \(typeof input === 'string'\) \{[\s\S]+?return this\.parse<T>\(encodeXmlString\(input\)/.test(sources.compiledRootProcessor.text),
+    },
+    {
       id: 'root-import-no-top-level-textencoder',
       source: 'index.ts',
       expected: 'The root barrel can re-export StreamReaderSync, EventReaderSync, and XmlObject without a top-level TextEncoder allocation.',
       matched: /export \{ StreamEventType, StreamReaderSync \} from "\.\/StreamReaderSync\.js";/.test(sources.index.text)
         && !/const textEncoder = new TextEncoder\(\)/.test(sources.eventReaderSync.text)
         && !/const textEncoder = new TextEncoder\(\)/.test(sources.xmlObject.text)
+        && !/const textEncoder = new TextEncoder\(\)/.test(sources.projection.text)
+        && !/const textEncoder = new TextEncoder\(\)/.test(sources.compiledRootProcessor.text)
         && !/const textEncoder = new TextEncoder\(\)/.test(sources.writer.text),
     },
     {
@@ -177,7 +202,17 @@ function createReport() {
     nonUtf8RequiresTextDecoder: checksById(checks, 'iterable-reader-non-utf8-still-requires-textdecoder'),
     nativeTextDecoderPreferredWhenAvailable: checksById(checks, 'iterable-reader-constructs-textdecoder', 'iterable-reader-decodes-non-ascii-spans'),
     directReadableStreamRequiresReadableStream: checksById(checks, 'event-reader-requires-web-readable-stream'),
-    stringInputRequiresTextEncoder: checksById(checks, 'event-reader-sync-string-input-uses-textencoder', 'xml-object-string-input-uses-lazy-textencoder'),
+    stringInputRequiresTextEncoder: checksById(
+      checks,
+      'event-reader-sync-string-input-uses-textencoder',
+      'xml-object-string-input-uses-lazy-textencoder',
+      'projection-compile-and-string-input-use-textencoder',
+      'compiled-converter-string-input-uses-textencoder',
+    ),
+    eventReaderSyncDocumentStringInputRequiresTextEncoder: checksById(checks, 'event-reader-sync-string-input-uses-textencoder'),
+    xmlObjectStringInputRequiresTextEncoder: checksById(checks, 'xml-object-string-input-uses-lazy-textencoder'),
+    projectionCompileAndStringInputRequiresTextEncoder: checksById(checks, 'projection-compile-and-string-input-use-textencoder'),
+    compiledConverterStringInputRequiresTextEncoder: checksById(checks, 'compiled-converter-string-input-uses-textencoder'),
     rootImportRequiresTextEncoder: !checksById(checks, 'root-import-no-top-level-textencoder'),
     asyncWriterOutputRequiresTextEncoder: checksById(checks, 'async-writer-output-uses-textencoder'),
     syncWriterOutputRequiresTextEncoder: !checksById(checks, 'sync-writer-output-does-not-use-textencoder'),
@@ -230,6 +265,10 @@ function createFindings(summary) {
       evidence: [
         `directReadableStreamRequiresReadableStream=${summary.directReadableStreamRequiresReadableStream}`,
         `stringInputRequiresTextEncoder=${summary.stringInputRequiresTextEncoder}`,
+        `eventReaderSyncDocumentStringInputRequiresTextEncoder=${summary.eventReaderSyncDocumentStringInputRequiresTextEncoder}`,
+        `xmlObjectStringInputRequiresTextEncoder=${summary.xmlObjectStringInputRequiresTextEncoder}`,
+        `projectionCompileAndStringInputRequiresTextEncoder=${summary.projectionCompileAndStringInputRequiresTextEncoder}`,
+        `compiledConverterStringInputRequiresTextEncoder=${summary.compiledConverterStringInputRequiresTextEncoder}`,
         `alternateDecoderWouldBeUnchangedClosure=${summary.alternateDecoderWouldBeUnchangedClosure}`,
       ],
     },
@@ -295,6 +334,10 @@ function renderMarkdown(report) {
     `- Non-UTF-8 requires TextDecoder: ${report.summary.nonUtf8RequiresTextDecoder}`,
     `- Direct ReadableStream requires ReadableStream: ${report.summary.directReadableStreamRequiresReadableStream}`,
     `- String input requires TextEncoder: ${report.summary.stringInputRequiresTextEncoder}`,
+    `- EventReaderSync document string input requires TextEncoder: ${report.summary.eventReaderSyncDocumentStringInputRequiresTextEncoder}`,
+    `- XmlObject string input requires TextEncoder: ${report.summary.xmlObjectStringInputRequiresTextEncoder}`,
+    `- Projection compile/string input requires TextEncoder: ${report.summary.projectionCompileAndStringInputRequiresTextEncoder}`,
+    `- Compiled converter string input requires TextEncoder: ${report.summary.compiledConverterStringInputRequiresTextEncoder}`,
     `- Root import requires TextEncoder: ${report.summary.rootImportRequiresTextEncoder}`,
     `- Async byte-output Writer requires TextEncoder: ${report.summary.asyncWriterOutputRequiresTextEncoder}`,
     `- Sync string Writer requires TextEncoder: ${report.summary.syncWriterOutputRequiresTextEncoder}`,

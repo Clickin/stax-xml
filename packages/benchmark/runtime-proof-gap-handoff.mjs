@@ -616,6 +616,10 @@ function createLocalClosure(activeObligations, audit, options = {}) {
       && staxHostApiBoundary?.summary?.nonUtf8RequiresTextDecoder === true
       && staxHostApiBoundary?.summary?.directReadableStreamRequiresReadableStream === true
       && staxHostApiBoundary?.summary?.stringInputRequiresTextEncoder === true
+      && staxHostApiBoundary?.summary?.eventReaderSyncDocumentStringInputRequiresTextEncoder === true
+      && staxHostApiBoundary?.summary?.xmlObjectStringInputRequiresTextEncoder === true
+      && staxHostApiBoundary?.summary?.projectionCompileAndStringInputRequiresTextEncoder === true
+      && staxHostApiBoundary?.summary?.compiledConverterStringInputRequiresTextEncoder === true
       && staxHostApiBoundary?.summary?.rootImportRequiresTextEncoder === false
       && staxHostApiBoundary?.summary?.asyncWriterOutputRequiresTextEncoder === true
       && staxHostApiBoundary?.summary?.syncWriterOutputRequiresTextEncoder === false
@@ -753,7 +757,7 @@ function createLocalClosure(activeObligations, audit, options = {}) {
           ? `The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface, with unchanged harness missing globals: ${jsShellUnchangedHarnessMissing}, primary sync byte-batch missing globals: ${jsShellPrimarySyncByteBatchMissing}, primary path runnable without host encoding globals: ${jsShellPrimaryPathWithoutHostEncoding}, non-primary harness missing globals: ${jsShellNonPrimaryHarnessMissing}, and direct unchanged harness attempts blocked before StAX load: ${jsShellDirectAttemptsBlocked}.`
           : 'The js-shell StAX API gap audit is missing or does not pin the unchanged-harness host API blocker.',
         staxHostApiBoundaryPinned
-          ? 'The StAX public reader host API boundary audit pins the current UTF-8 fallback and host API boundary: primarySyncByteBatchRequiresTextDecoder=false, asciiPrimarySyncByteBatchRequiresTextDecoder=false, utf8FallbackDecoder=true, nonUtf8RequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, rootImportRequiresTextEncoder=false, asyncWriterOutputRequiresTextEncoder=true, syncWriterOutputRequiresTextEncoder=false, and alternateDecoderWouldBeUnchangedClosure=false.'
+          ? 'The StAX public reader host API boundary audit pins the current UTF-8 fallback and host API boundary: primarySyncByteBatchRequiresTextDecoder=false, asciiPrimarySyncByteBatchRequiresTextDecoder=false, utf8FallbackDecoder=true, nonUtf8RequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, eventReaderSyncDocumentStringInputRequiresTextEncoder=true, xmlObjectStringInputRequiresTextEncoder=true, projectionCompileAndStringInputRequiresTextEncoder=true, compiledConverterStringInputRequiresTextEncoder=true, rootImportRequiresTextEncoder=false, asyncWriterOutputRequiresTextEncoder=true, syncWriterOutputRequiresTextEncoder=false, and alternateDecoderWouldBeUnchangedClosure=false.'
           : 'The StAX public reader host API boundary audit is missing or does not pin the current UTF-8 fallback and host API boundary.',
         jsShellTokenizerHeadroomPinned
           ? `The SpiderMonkey js-shell tokenizer headroom audit records partial parser-core headroom only: fastest=${formatNumber(jsShellTokenizerHeadroomRaw.summary.fastest.mibPerSec)} MiB/s, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0.`

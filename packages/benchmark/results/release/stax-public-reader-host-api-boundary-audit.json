@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T07:30:45.049Z",
+  "generatedAt": "2026-06-03T08:32:01.563Z",
   "objective": "stax-public-reader-host-api-boundary-audit",
   "contract": "current-stax-public-reader-host-api-boundary",
   "note": "Static source-boundary audit for the current StAX public reader host API surface. It separates primary byte-batch reader globals from string-input convenience, Web stream, and fixture-harness globals; it is not benchmark evidence, codegen evidence, or a runtime-limit conclusion.",
@@ -23,6 +23,14 @@
     "xmlObject": {
       "path": "packages/stax-xml/src/XmlObject.ts",
       "bytes": 12814
+    },
+    "projection": {
+      "path": "packages/stax-xml/src/projection/index.ts",
+      "bytes": 26109
+    },
+    "compiledRootProcessor": {
+      "path": "packages/stax-xml/src/converter/CompiledRootProcessor.ts",
+      "bytes": 28015
     },
     "streamReaderCore": {
       "path": "packages/stax-xml/src/stream-reader-core.ts",
@@ -99,6 +107,18 @@
       "matched": true
     },
     {
+      "id": "projection-compile-and-string-input-use-textencoder",
+      "source": "projection/index.ts",
+      "expected": "Projection compilation encodes path, field, and predicate strings into UTF-8 byte keys, and string XML input is encoded before StreamReaderSync.",
+      "matched": true
+    },
+    {
+      "id": "compiled-converter-string-input-uses-textencoder",
+      "source": "converter/CompiledRootProcessor.ts",
+      "expected": "Compiled converter string inputs are lazily encoded through a native TextEncoder before the byte-oriented StreamReaderSync/StreamReader paths.",
+      "matched": true
+    },
+    {
       "id": "root-import-no-top-level-textencoder",
       "source": "index.ts",
       "expected": "The root barrel can re-export StreamReaderSync, EventReaderSync, and XmlObject without a top-level TextEncoder allocation.",
@@ -126,6 +146,10 @@
     "nativeTextDecoderPreferredWhenAvailable": true,
     "directReadableStreamRequiresReadableStream": true,
     "stringInputRequiresTextEncoder": true,
+    "eventReaderSyncDocumentStringInputRequiresTextEncoder": true,
+    "xmlObjectStringInputRequiresTextEncoder": true,
+    "projectionCompileAndStringInputRequiresTextEncoder": true,
+    "compiledConverterStringInputRequiresTextEncoder": true,
     "rootImportRequiresTextEncoder": false,
     "asyncWriterOutputRequiresTextEncoder": true,
     "syncWriterOutputRequiresTextEncoder": false,
@@ -173,6 +197,10 @@
       "evidence": [
         "directReadableStreamRequiresReadableStream=true",
         "stringInputRequiresTextEncoder=true",
+        "eventReaderSyncDocumentStringInputRequiresTextEncoder=true",
+        "xmlObjectStringInputRequiresTextEncoder=true",
+        "projectionCompileAndStringInputRequiresTextEncoder=true",
+        "compiledConverterStringInputRequiresTextEncoder=true",
         "alternateDecoderWouldBeUnchangedClosure=false"
       ]
     },

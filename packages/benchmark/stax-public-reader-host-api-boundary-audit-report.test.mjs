@@ -44,6 +44,10 @@ test('stax public reader host API boundary audit pins current TextDecoder surfac
   assert.equal(report.summary.nativeTextDecoderPreferredWhenAvailable, true);
   assert.equal(report.summary.directReadableStreamRequiresReadableStream, true);
   assert.equal(report.summary.stringInputRequiresTextEncoder, true);
+  assert.equal(report.summary.eventReaderSyncDocumentStringInputRequiresTextEncoder, true);
+  assert.equal(report.summary.xmlObjectStringInputRequiresTextEncoder, true);
+  assert.equal(report.summary.projectionCompileAndStringInputRequiresTextEncoder, true);
+  assert.equal(report.summary.compiledConverterStringInputRequiresTextEncoder, true);
   assert.equal(report.summary.rootImportRequiresTextEncoder, false);
   assert.equal(report.summary.asyncWriterOutputRequiresTextEncoder, true);
   assert.equal(report.summary.syncWriterOutputRequiresTextEncoder, false);
@@ -61,6 +65,8 @@ test('stax public reader host API boundary audit pins current TextDecoder surfac
   assert.ok(report.checks.some(check => check.id === 'iterable-reader-non-utf8-still-requires-textdecoder'));
   assert.ok(report.checks.some(check => check.id === 'iterable-reader-ascii-spans-avoid-textdecoder'));
   assert.ok(report.checks.some(check => check.id === 'stream-batch-public-accessors-call-copy-methods'));
+  assert.ok(report.checks.some(check => check.id === 'projection-compile-and-string-input-use-textencoder'));
+  assert.ok(report.checks.some(check => check.id === 'compiled-converter-string-input-uses-textencoder'));
   assert.ok(report.checks.some(check => check.id === 'root-import-no-top-level-textencoder'));
   assert.ok(report.checks.some(check => check.id === 'async-writer-output-uses-textencoder'));
   assert.ok(report.checks.some(check => check.id === 'sync-writer-output-does-not-use-textencoder'));
@@ -92,6 +98,10 @@ test('stax public reader host API boundary audit pins current TextDecoder surfac
   assert.match(markdown, /UTF-8 fallback decoder without TextDecoder: true/);
   assert.match(markdown, /Non-UTF-8 requires TextDecoder: true/);
   assert.match(markdown, /Direct ReadableStream requires ReadableStream: true/);
+  assert.match(markdown, /EventReaderSync document string input requires TextEncoder: true/);
+  assert.match(markdown, /XmlObject string input requires TextEncoder: true/);
+  assert.match(markdown, /Projection compile\/string input requires TextEncoder: true/);
+  assert.match(markdown, /Compiled converter string input requires TextEncoder: true/);
   assert.match(markdown, /Root import requires TextEncoder: false/);
   assert.match(markdown, /Async byte-output Writer requires TextEncoder: true/);
   assert.match(markdown, /Sync string Writer requires TextEncoder: false/);
@@ -101,6 +111,8 @@ test('stax public reader host API boundary audit pins current TextDecoder surfac
   assert.match(markdown, /iterable-reader-non-utf8-still-requires-textdecoder/);
   assert.match(markdown, /iterable-reader-ascii-spans-avoid-textdecoder/);
   assert.match(markdown, /stream-batch-public-accessors-call-copy-methods/);
+  assert.match(markdown, /projection-compile-and-string-input-use-textencoder/);
+  assert.match(markdown, /compiled-converter-string-input-uses-textencoder/);
   assert.match(markdown, /root-import-no-top-level-textencoder/);
   assert.match(markdown, /async-writer-output-uses-textencoder/);
   assert.match(markdown, /sync-writer-output-does-not-use-textencoder/);

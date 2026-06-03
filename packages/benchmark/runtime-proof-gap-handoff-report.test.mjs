@@ -471,7 +471,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /primary path runnable without host encoding globals: (true|unknown)/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /non-primary harness missing globals: TextEncoder, ReadableStream, fetch/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /direct unchanged harness attempts blocked before StAX load: 6\/10/.test(item)));
-  assert.ok(spiderMonkey.localClosure.blockers.some(item => /StAX public reader host API boundary audit pins.*primarySyncByteBatchRequiresTextDecoder=false.*utf8FallbackDecoder=true.*nonUtf8RequiresTextDecoder=true.*rootImportRequiresTextEncoder=false.*asyncWriterOutputRequiresTextEncoder=true.*syncWriterOutputRequiresTextEncoder=false/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /StAX public reader host API boundary audit pins.*primarySyncByteBatchRequiresTextDecoder=false.*utf8FallbackDecoder=true.*nonUtf8RequiresTextDecoder=true.*eventReaderSyncDocumentStringInputRequiresTextEncoder=true.*xmlObjectStringInputRequiresTextEncoder=true.*projectionCompileAndStringInputRequiresTextEncoder=true.*compiledConverterStringInputRequiresTextEncoder=true.*rootImportRequiresTextEncoder=false.*asyncWriterOutputRequiresTextEncoder=true.*syncWriterOutputRequiresTextEncoder=false/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /alternateDecoderWouldBeUnchangedClosure=false/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /SpiderMonkey js-shell tokenizer headroom audit records partial parser-core headroom only/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0/.test(item)));
@@ -695,7 +695,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /primary sync byte-batch missing globals: none/);
   assert.match(markdown, /non-primary harness missing globals: TextEncoder, ReadableStream, fetch/);
   assert.match(markdown, /direct unchanged harness attempts blocked before StAX load: 6\/10/);
-  assert.match(markdown, /StAX public reader host API boundary audit pins.*primarySyncByteBatchRequiresTextDecoder=false.*utf8FallbackDecoder=true.*nonUtf8RequiresTextDecoder=true.*rootImportRequiresTextEncoder=false.*asyncWriterOutputRequiresTextEncoder=true.*syncWriterOutputRequiresTextEncoder=false/);
+  assert.match(markdown, /StAX public reader host API boundary audit pins.*primarySyncByteBatchRequiresTextDecoder=false.*utf8FallbackDecoder=true.*nonUtf8RequiresTextDecoder=true.*eventReaderSyncDocumentStringInputRequiresTextEncoder=true.*xmlObjectStringInputRequiresTextEncoder=true.*projectionCompileAndStringInputRequiresTextEncoder=true.*compiledConverterStringInputRequiresTextEncoder=true.*rootImportRequiresTextEncoder=false.*asyncWriterOutputRequiresTextEncoder=true.*syncWriterOutputRequiresTextEncoder=false/);
   assert.match(markdown, /alternateDecoderWouldBeUnchangedClosure=false/);
   assert.match(markdown, /stax-public-reader-host-api-boundary/);
   assert.match(markdown, /SpiderMonkey js-shell tokenizer headroom audit records partial parser-core headroom only/);

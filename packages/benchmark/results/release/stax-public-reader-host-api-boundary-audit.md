@@ -1,6 +1,6 @@
 # StAX Public Reader Host API Boundary Audit
 
-Generated: 2026-06-03T07:30:45.049Z
+Generated: 2026-06-03T08:32:01.563Z
 
 Static source-boundary audit for the current StAX public reader host API surface. It separates primary byte-batch reader globals from string-input convenience, Web stream, and fixture-harness globals; it is not benchmark evidence, codegen evidence, or a runtime-limit conclusion.
 
@@ -13,6 +13,10 @@ Static source-boundary audit for the current StAX public reader host API surface
 - Non-UTF-8 requires TextDecoder: true
 - Direct ReadableStream requires ReadableStream: true
 - String input requires TextEncoder: true
+- EventReaderSync document string input requires TextEncoder: true
+- XmlObject string input requires TextEncoder: true
+- Projection compile/string input requires TextEncoder: true
+- Compiled converter string input requires TextEncoder: true
 - Root import requires TextEncoder: false
 - Async byte-output Writer requires TextEncoder: true
 - Sync string Writer requires TextEncoder: false
@@ -32,6 +36,8 @@ Static source-boundary audit for the current StAX public reader host API surface
 | `event-reader-requires-web-readable-stream` | `EventReader.ts` | yes | The async public EventReader constructor requires a Web ReadableStream and consumes it through getReader(). |
 | `event-reader-sync-string-input-uses-textencoder` | `EventReaderSync.ts` | yes | String-input EventReaderSync lazily encodes document-mode strings through a native TextEncoder before StreamReaderSync. |
 | `xml-object-string-input-uses-lazy-textencoder` | `XmlObject.ts` | yes | String-input tree/object helpers lazily encode strings through a native TextEncoder, while byte inputs do not require it. |
+| `projection-compile-and-string-input-use-textencoder` | `projection/index.ts` | yes | Projection compilation encodes path, field, and predicate strings into UTF-8 byte keys, and string XML input is encoded before StreamReaderSync. |
+| `compiled-converter-string-input-uses-textencoder` | `converter/CompiledRootProcessor.ts` | yes | Compiled converter string inputs are lazily encoded through a native TextEncoder before the byte-oriented StreamReaderSync/StreamReader paths. |
 | `root-import-no-top-level-textencoder` | `index.ts` | yes | The root barrel can re-export StreamReaderSync, EventReaderSync, and XmlObject without a top-level TextEncoder allocation. |
 | `async-writer-output-uses-textencoder` | `Writer.ts` | yes | The async byte-output Writer constructs TextEncoder in its constructor and uses encodeInto/encode to emit UTF-8 Uint8Array chunks. |
 | `sync-writer-output-does-not-use-textencoder` | `WriterSync.ts` | yes | WriterSync and WriterSyncSink emit JavaScript strings to string buffers or SyncTextSink.write() and do not construct TextEncoder. |
@@ -49,6 +55,10 @@ Static source-boundary audit for the current StAX public reader host API surface
 - stax-host-api-substitution-scope-guard (SCOPE_GUARD): A js-shell polyfill or alternate non-StAX decoder can be useful diagnostic evidence, but current UTF-8 byte-batch fallback keeps primary StAX materialization on the public reader path.
   - directReadableStreamRequiresReadableStream=true
   - stringInputRequiresTextEncoder=true
+  - eventReaderSyncDocumentStringInputRequiresTextEncoder=true
+  - xmlObjectStringInputRequiresTextEncoder=true
+  - projectionCompileAndStringInputRequiresTextEncoder=true
+  - compiledConverterStringInputRequiresTextEncoder=true
   - alternateDecoderWouldBeUnchangedClosure=false
 - stax-root-import-textencoder-not-primary-blocker (SOURCE_FACT): Root imports and primary byte-batch reader access do not require TextEncoder; TextEncoder is limited to string-input convenience paths.
   - rootImportRequiresTextEncoder=false
