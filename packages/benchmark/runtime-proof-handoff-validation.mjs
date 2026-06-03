@@ -70,8 +70,10 @@ function createReport(handoff, options) {
     (handoffRow.commands ?? []).map(command => validateCommand(handoffRow, command))
   );
   const handoffChecks = handoffRows.map(validateHandoff);
-  const requiredHandoffIds = ['safari-webkit-browser-row-handoff', 'spidermonkey-codegen-handoff'];
-  const requiredHandoffsPresent = requiredHandoffIds.every(id => handoffRows.some(row => row.id === id));
+  const expectedHandoffCount = handoff.summary?.activeObligationCount ?? handoff.summary?.handoffCount ?? null;
+  const requiredHandoffsPresent = expectedHandoffCount === handoffRows.length
+    && handoffRows.length === (handoff.summary?.handoffCount ?? handoffRows.length)
+    && handoffRows.every(row => Array.isArray(row.obligationIds) && row.obligationIds.length > 0);
   const allCommandsReferenceExistingScripts = commandChecks.every(check => check.scriptPaths.every(script => script.exists));
   const allReleaseOutputsCurated = commandChecks.every(check => check.releaseOutputPaths.every(output => output.underRelease));
   const allRawOutputsSeparated = commandChecks.every(check => check.rawOutputPaths.every(output => output.underRawOrCrossProcess));

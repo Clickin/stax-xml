@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T06:05:26.749Z",
+  "generatedAt": "2026-06-03T07:06:44.632Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -5504,7 +5504,6 @@
       "objective": "spidermonkey-codegen-closure-audit",
       "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
       "evidenceKinds": [
-        "NEGATIVE_RESULT",
         "SCOPE_GUARD",
         "TRACE_FACT"
       ],
@@ -5543,7 +5542,7 @@
         "reproduciblePairs": null,
         "sameTaskclusterBuildPairs": null,
         "sameCodegenMarkerPairs": null,
-        "candidateCount": 19,
+        "candidateCount": 20,
         "candidateSourceArtifacts": [
           "firefox-spidermonkey-buildconfig-source-pin-audit.json",
           "firefox-spidermonkey-diagnostic-dump-audit.json",
@@ -5563,12 +5562,13 @@
           "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
           "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
           "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
+          "spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit.json",
           "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
         ],
-        "qualifiedClosureCount": 0,
+        "qualifiedClosureCount": 1,
         "profiledFullStringParityCount": 1,
         "rowLevelSourceBoundaryPinnedRows": null,
-        "selectedRowComparisonMatchCount": 0,
+        "selectedRowComparisonMatchCount": 1,
         "selectedRowComparisonMismatchCount": 1,
         "selectedRowComparisonMissingCount": 18,
         "comparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
@@ -5587,7 +5587,7 @@
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
-        "conclusionAllowed": false,
+        "conclusionAllowed": true,
         "closestBlockedCandidateSourceArtifacts": [
           "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
           "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
@@ -6485,6 +6485,91 @@
       },
       "corpusSeed": null,
       "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit.json",
+      "objective": "spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit",
+      "contract": "spidermonkey-taskcluster-debug-jsshell-current-stax-primary-byte-batch-same-contract-codegen",
+      "evidenceKinds": [
+        "BENCH_FACT",
+        "SCOPE_GUARD",
+        "TRACE_FACT"
+      ],
+      "runtimes": [
+        "spidermonkey-jsshell"
+      ],
+      "parameters": {
+        "searchRoots": null,
+        "browserExecutable": null
+      },
+      "availability": null,
+      "outcome": {
+        "status": "same-contract-codegen-output-emitted",
+        "evidenceClass": "same-contract-spidermonkey-codegen",
+        "completed": null,
+        "canStartDebugBrowser": null,
+        "emittedDump": null,
+        "dumpFileCount": null,
+        "attemptCount": null,
+        "dllBlocklistFailureCount": null,
+        "disableDllBlocklistChangedFailure": null,
+        "exitCode": null,
+        "signal": null,
+        "timedOut": null,
+        "foundCount": null,
+        "foundCandidates": null,
+        "packageVerified": null,
+        "hasJitExecutionStatus": null,
+        "hasIrDumpSurface": null,
+        "hasCodegenDumpOutput": true,
+        "hasAsciiCurrentStaxCodegenOutput": null,
+        "hasUtf8CurrentStaxCodegenOutput": null,
+        "hasXmlWorkloadCodegenOutput": null,
+        "hasMaterializedStringObjectCodegenOutput": null,
+        "hasBytecodeDumpOutput": null,
+        "bytecodeProbeCount": null,
+        "bytecodeOutputProbeCount": null,
+        "irOrCodegenProbeCount": null,
+        "hasDiagnosticPrefSurface": null,
+        "hasNativeDisassemblySurface": null,
+        "nativeDumpComplete": true,
+        "scopeComparableToCurrentFirefox": null,
+        "sameContractStaxRow": true,
+        "currentStaxAsciiPrimaryByteBatchRow": null,
+        "currentStaxUtf8PrimaryByteBatchRow": null,
+        "canReadBinaryInput": null,
+        "canRunCurrentStaxFullStringBenchmark": true,
+        "canRunAsciiPrimaryByteBatchBenchmark": null,
+        "canRunUtf8PrimaryByteBatchBenchmark": null,
+        "closesEmittedIrObligation": true,
+        "selectedRowId": "nightly-spidermonkey-stax-stream-reader-sync-primary-byte-batch",
+        "selectedEventCount": 894724,
+        "selectedChecksum": -1087917522
+      },
+      "shell": {
+        "codegenProbe": {
+          "status": "primary-byte-batch-codegen-output-emitted",
+          "flags": "codegen",
+          "outputBytes": 24087282,
+          "codegenMarkerCount": 547558,
+          "ionScriptMarkerCount": 223,
+          "assemblyMnemonicCount": 197574
+        },
+        "provenance": {
+          "taskId": "azB5UO80Q3KJPPyXD0C8tA",
+          "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
+          "artifactName": "public/build/target.jsshell.zip",
+          "artifactBytes": 24838016,
+          "buildId": "20260602214419",
+          "sourceRevision": "e4f9cbec72268c8efc0137a1d593e24af3df0712",
+          "targetVersion": "153.0a1",
+          "debug": true,
+          "official": true
+        }
+      },
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 1
     },
     {
       "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-route-freshness-audit.json",
@@ -8115,33 +8200,33 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 230,
+    "scannedArtifactCount": 231,
     "ignoredArtifactCount": 7,
     "parseErrorCount": 0,
-    "measuredRowCount": 1268,
+    "measuredRowCount": 1269,
     "rowClassificationCompleteness": {
-      "measuredRows": 1268,
-      "unknownFullStringParityRows": 0,
-      "unknownBoundedMemoryRows": 27
+      "measuredRows": 1269,
+      "unknownFullStringParityRows": 1,
+      "unknownBoundedMemoryRows": 28
     },
     "unknownBoundedMemoryBreakdown": {
-      "total": 27,
-      "jsRows": 11,
+      "total": 28,
+      "jsRows": 12,
       "fullStringRows": 22,
       "jsFullStringRows": 6,
       "largeJsFullStringRows": 0,
       "counterexampleRelevantRows": 0,
-      "smallOrDiagnosticJsRows": 11,
+      "smallOrDiagnosticJsRows": 12,
       "nonJsAllocatorCounterRows": 10,
       "nonJsNoPeakMemoryRows": 6,
       "rowsWithMemoryCounter": 10
     },
-    "benchmarkArtifactCount": 158,
+    "benchmarkArtifactCount": 159,
     "sourceArtifactCount": 26,
-    "traceArtifactCount": 20,
+    "traceArtifactCount": 21,
     "allocationArtifactCount": 16,
     "environmentArtifactCount": 5,
-    "negativeArtifactCount": 32,
+    "negativeArtifactCount": 31,
     "largeJsFullRowCount": 848,
     "largeJsFullSourceInputSafety": {
       "rows": 848,
@@ -8364,7 +8449,7 @@
     },
     "runtimeCount": 9,
     "corpusSeedCount": 4,
-    "openObligationCount": 2,
+    "openObligationCount": 1,
     "conclusionAllowed": false
   },
   "coverage": {
@@ -8521,8 +8606,8 @@
       {
         "runtimeId": "spidermonkey-jsshell",
         "runtimeLabel": "SpiderMonkey js-shell",
-        "artifactCount": 12,
-        "measuredRowCount": 7,
+        "artifactCount": 13,
+        "measuredRowCount": 8,
         "largeFullStringRowCount": 0,
         "fastestLargeFullStringRow": null,
         "sourcePins": [],
@@ -8533,6 +8618,7 @@
           "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
           "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
           "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
+          "spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit.json",
           "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
         ],
         "allocationArtifacts": []
@@ -27521,7 +27607,7 @@
         "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
         "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
       ],
-      "closureAuditCandidateCount": 19,
+      "closureAuditCandidateCount": 20,
       "closureAuditCandidateSourceArtifacts": [
         "firefox-spidermonkey-buildconfig-source-pin-audit.json",
         "firefox-spidermonkey-diagnostic-dump-audit.json",
@@ -27541,9 +27627,10 @@
         "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
         "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
         "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
+        "spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit.json",
         "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
       ],
-      "closureAuditDiagnosticRowGap": 7,
+      "closureAuditDiagnosticRowGap": 8,
       "closureAuditCandidateSourcesOutsideDiagnostics": [
         "firefox-spidermonkey-profiler-trace.json",
         "firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json",
@@ -27551,11 +27638,12 @@
         "spidermonkey-jsshell-stax-primary-byte-batch.json",
         "spidermonkey-jsshell-tokenizer-headroom.json",
         "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
-        "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json"
+        "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
+        "spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit.json"
       ],
       "diagnosticSourcesOutsideClosureAudit": [],
-      "closureAuditQualifiedClosureCount": 0,
-      "closureAuditConclusionAllowed": false,
+      "closureAuditQualifiedClosureCount": 1,
+      "closureAuditConclusionAllowed": true,
       "emittedIrEvidenceCount": 0,
       "emittedIrClaimCount": 0,
       "jitStatusOnlyCount": 0,
@@ -27904,7 +27992,6 @@
         "objective": "spidermonkey-codegen-closure-audit",
         "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
         "evidenceKinds": [
-          "NEGATIVE_RESULT",
           "SCOPE_GUARD",
           "TRACE_FACT"
         ],
@@ -27943,7 +28030,7 @@
           "reproduciblePairs": null,
           "sameTaskclusterBuildPairs": null,
           "sameCodegenMarkerPairs": null,
-          "candidateCount": 19,
+          "candidateCount": 20,
           "candidateSourceArtifacts": [
             "firefox-spidermonkey-buildconfig-source-pin-audit.json",
             "firefox-spidermonkey-diagnostic-dump-audit.json",
@@ -27963,12 +28050,13 @@
             "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
             "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
             "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
+            "spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit.json",
             "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
           ],
-          "qualifiedClosureCount": 0,
+          "qualifiedClosureCount": 1,
           "profiledFullStringParityCount": 1,
           "rowLevelSourceBoundaryPinnedRows": null,
-          "selectedRowComparisonMatchCount": 0,
+          "selectedRowComparisonMatchCount": 1,
           "selectedRowComparisonMismatchCount": 1,
           "selectedRowComparisonMissingCount": 18,
           "comparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
@@ -27987,7 +28075,7 @@
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
-          "conclusionAllowed": false,
+          "conclusionAllowed": true,
           "closestBlockedCandidateSourceArtifacts": [
             "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
             "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
@@ -28552,6 +28640,91 @@
         },
         "corpusSeed": null,
         "measuredRowCount": 0
+      },
+      {
+        "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit.json",
+        "objective": "spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit",
+        "contract": "spidermonkey-taskcluster-debug-jsshell-current-stax-primary-byte-batch-same-contract-codegen",
+        "evidenceKinds": [
+          "BENCH_FACT",
+          "SCOPE_GUARD",
+          "TRACE_FACT"
+        ],
+        "runtimes": [
+          "spidermonkey-jsshell"
+        ],
+        "parameters": {
+          "searchRoots": null,
+          "browserExecutable": null
+        },
+        "availability": null,
+        "outcome": {
+          "status": "same-contract-codegen-output-emitted",
+          "evidenceClass": "same-contract-spidermonkey-codegen",
+          "completed": null,
+          "canStartDebugBrowser": null,
+          "emittedDump": null,
+          "dumpFileCount": null,
+          "attemptCount": null,
+          "dllBlocklistFailureCount": null,
+          "disableDllBlocklistChangedFailure": null,
+          "exitCode": null,
+          "signal": null,
+          "timedOut": null,
+          "foundCount": null,
+          "foundCandidates": null,
+          "packageVerified": null,
+          "hasJitExecutionStatus": null,
+          "hasIrDumpSurface": null,
+          "hasCodegenDumpOutput": true,
+          "hasAsciiCurrentStaxCodegenOutput": null,
+          "hasUtf8CurrentStaxCodegenOutput": null,
+          "hasXmlWorkloadCodegenOutput": null,
+          "hasMaterializedStringObjectCodegenOutput": null,
+          "hasBytecodeDumpOutput": null,
+          "bytecodeProbeCount": null,
+          "bytecodeOutputProbeCount": null,
+          "irOrCodegenProbeCount": null,
+          "hasDiagnosticPrefSurface": null,
+          "hasNativeDisassemblySurface": null,
+          "nativeDumpComplete": true,
+          "scopeComparableToCurrentFirefox": null,
+          "sameContractStaxRow": true,
+          "currentStaxAsciiPrimaryByteBatchRow": null,
+          "currentStaxUtf8PrimaryByteBatchRow": null,
+          "canReadBinaryInput": null,
+          "canRunCurrentStaxFullStringBenchmark": true,
+          "canRunAsciiPrimaryByteBatchBenchmark": null,
+          "canRunUtf8PrimaryByteBatchBenchmark": null,
+          "closesEmittedIrObligation": true,
+          "selectedRowId": "nightly-spidermonkey-stax-stream-reader-sync-primary-byte-batch",
+          "selectedEventCount": 894724,
+          "selectedChecksum": -1087917522
+        },
+        "shell": {
+          "codegenProbe": {
+            "status": "primary-byte-batch-codegen-output-emitted",
+            "flags": "codegen",
+            "outputBytes": 24087282,
+            "codegenMarkerCount": 547558,
+            "ionScriptMarkerCount": 223,
+            "assemblyMnemonicCount": 197574
+          },
+          "provenance": {
+            "taskId": "azB5UO80Q3KJPPyXD0C8tA",
+            "route": "gecko.v2.mozilla-central.latest.firefox.win64-debug",
+            "artifactName": "public/build/target.jsshell.zip",
+            "artifactBytes": 24838016,
+            "buildId": "20260602214419",
+            "sourceRevision": "e4f9cbec72268c8efc0137a1d593e24af3df0712",
+            "targetVersion": "153.0a1",
+            "debug": true,
+            "official": true
+          }
+        },
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 1
       },
       {
         "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
@@ -31734,155 +31907,6 @@
         "measuredRowCount": 0
       },
       {
-        "sourceArtifact": "spidermonkey-codegen-closure-audit.json",
-        "objective": "spidermonkey-codegen-closure-audit",
-        "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
-        "evidenceKinds": [
-          "NEGATIVE_RESULT",
-          "SCOPE_GUARD",
-          "TRACE_FACT"
-        ],
-        "runtimes": [],
-        "parameters": {
-          "searchRoots": null,
-          "browserExecutable": null
-        },
-        "availability": null,
-        "outcome": null,
-        "summary": {
-          "status": null,
-          "shellCount": null,
-          "availableShellCount": null,
-          "jitStatusShellCount": null,
-          "binaryReadableShellCount": null,
-          "unchangedRunnableShellCount": null,
-          "commonMissingGlobals": null,
-          "primarySyncByteBatchMissingGlobals": null,
-          "nonPrimaryHarnessMissingGlobals": null,
-          "blockedSurfaceCount": null,
-          "directUnchangedHarnessAttemptCount": null,
-          "blockedDirectUnchangedHarnessAttemptCount": null,
-          "runnableDirectUnchangedHarnessAttemptCount": null,
-          "canCloseEmittedIrObligation": null,
-          "semanticEquivalentForAsciiFields": null,
-          "allCorpusFilesAscii": null,
-          "corpusFileCount": null,
-          "asciiByteToStringEquivalentToUtf8": null,
-          "semanticMaterializedWorkload": null,
-          "reducesScopeDistance": null,
-          "closesCodegenObligation": null,
-          "closureRequirementsMet": null,
-          "closureRequirementsBlocked": null,
-          "pairCount": null,
-          "reproduciblePairs": null,
-          "sameTaskclusterBuildPairs": null,
-          "sameCodegenMarkerPairs": null,
-          "candidateCount": 19,
-          "candidateSourceArtifacts": [
-            "firefox-spidermonkey-buildconfig-source-pin-audit.json",
-            "firefox-spidermonkey-diagnostic-dump-audit.json",
-            "firefox-spidermonkey-js-shell-availability-audit.json",
-            "firefox-spidermonkey-jsshell-stax-api-gap-audit.json",
-            "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
-            "firefox-spidermonkey-profiler-trace.json",
-            "firefox-spidermonkey-release-jsshell-availability-audit.json",
-            "firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json",
-            "spidermonkey-archival-debug-jsshell-codegen-audit.json",
-            "spidermonkey-jsshell-diagnostic-flag-sweep.json",
-            "spidermonkey-jsshell-materialized-headroom.json",
-            "spidermonkey-jsshell-stax-primary-byte-batch.json",
-            "spidermonkey-jsshell-tokenizer-headroom.json",
-            "spidermonkey-taskcluster-debug-jsshell-ascii-stax-codegen-audit.json",
-            "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
-            "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
-            "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
-            "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
-            "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
-          ],
-          "qualifiedClosureCount": 0,
-          "profiledFullStringParityCount": 1,
-          "rowLevelSourceBoundaryPinnedRows": null,
-          "selectedRowComparisonMatchCount": 0,
-          "selectedRowComparisonMismatchCount": 1,
-          "selectedRowComparisonMissingCount": 18,
-          "comparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
-          "comparisonRowCount": 291,
-          "minimumBlockedRequirementCount": 4,
-          "closestBlockedCandidateCount": 5,
-          "diagnosticThroughputMiBPerSec": null,
-          "diagnosticThroughputClass": null,
-          "throughputCountsAsTargetEvidence": null,
-          "primarySyncByteBatchRequiresTextDecoder": null,
-          "asciiPrimarySyncByteBatchRequiresTextDecoder": null,
-          "utf8FallbackDecoder": null,
-          "nonUtf8RequiresTextDecoder": null,
-          "nativeTextDecoderPreferredWhenAvailable": null,
-          "directReadableStreamRequiresReadableStream": null,
-          "stringInputRequiresTextEncoder": null,
-          "rootImportRequiresTextEncoder": null,
-          "alternateDecoderWouldBeUnchangedClosure": null,
-          "conclusionAllowed": false,
-          "closestBlockedCandidateSourceArtifacts": [
-            "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
-            "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
-            "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
-            "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
-            "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
-          ],
-          "closestBlockedCandidateRequirementSets": [
-            {
-              "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
-              "unmetRequirements": [
-                "evidenceClassAllowed",
-                "sameContractStaxRow",
-                "selectedRowMetadata",
-                "unchangedRunnable"
-              ]
-            },
-            {
-              "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
-              "unmetRequirements": [
-                "evidenceClassAllowed",
-                "sameContractStaxRow",
-                "selectedRowMetadata",
-                "unchangedRunnable"
-              ]
-            },
-            {
-              "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
-              "unmetRequirements": [
-                "evidenceClassAllowed",
-                "sameContractStaxRow",
-                "selectedRowMetadata",
-                "unchangedRunnable"
-              ]
-            },
-            {
-              "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
-              "unmetRequirements": [
-                "evidenceClassAllowed",
-                "sameContractStaxRow",
-                "selectedRowMetadata",
-                "unchangedRunnable"
-              ]
-            },
-            {
-              "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
-              "unmetRequirements": [
-                "evidenceClassAllowed",
-                "sameContractStaxRow",
-                "selectedRowMetadata",
-                "unchangedRunnable"
-              ]
-            }
-          ]
-        },
-        "shell": null,
-        "fixture": null,
-        "corpusSeed": null,
-        "measuredRowCount": 0
-      },
-      {
         "sourceArtifact": "spidermonkey-codegen-rerun-stability-audit.json",
         "objective": "spidermonkey-codegen-rerun-stability-audit",
         "contract": "spidermonkey-debug-jsshell-codegen-rerun-reproducibility-not-closure",
@@ -32767,8 +32791,8 @@
     },
     {
       "id": "codegen-traces-open",
-      "status": "partial",
-      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Deno/V8 codegen trace evidence present (2 artifacts). Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey Taskcluster debug browser diagnostic dump audit was attempted with FIREFOX_PATH=G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe and failed before same-contract BiDi execution (status=failed, exitCode=1, emittedDump=false). Firefox/SpiderMonkey local js-shell availability audit present (status=available, found=2, searchRoots=2); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is bytecode/JIT-status diagnostic evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is bytecode/JIT-status diagnostic evidence only, not emitted JIT IR. Current StAX public reader host API boundary audit present (primarySyncByteBatchRequiresTextDecoder=false, asciiPrimarySyncByteBatchRequiresTextDecoder=false, utf8FallbackDecoder=true, nonUtf8RequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, rootImportRequiresTextEncoder=false, alternateDecoderWouldBeUnchangedClosure=false); it pins why UTF-8 primary byte-batch materialization can run without host TextDecoder while non-UTF-8 and non-primary harness globals remain separate. Firefox/SpiderMonkey js-shell StAX API gap audit present (status=blocked-by-host-api-surface, unchangedRunnableShells=0/2, blockedSurfaces=3, directUnchangedHarnessAttemptsBlocked=6/10, unchangedHarnessMissingGlobals=TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=none, primaryPathRunnableWithoutHostEncoding=true, nonPrimaryHarnessMissingGlobals=TextEncoder, ReadableStream, fetch); it is host API surface evidence only, not emitted JIT IR. Firefox/SpiderMonkey public js-shell diagnostic flag sweep present (bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false); it rules out easy public-shell bytecode/dump flag paths but is not emitted JIT IR. Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell materialized string/object codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark. Firefox/SpiderMonkey codegen rerun stability audit present (pairs=2, reproduciblePairs=2, sameTaskclusterBuildPairs=2, sameCodegenMarkerPairs=2, qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false); it proves diagnostic rerun reproducibility but still not same-contract StAX closure. Firefox/SpiderMonkey ASCII scope-distance audit present (corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, reducesScopeDistance=true, closesCodegenObligation=false); it narrows ASCII materialized js-shell scope but is not unchanged StAX closure evidence. Firefox/SpiderMonkey materialized scope-distance audit present (semanticEquivalentForAsciiFields=true, closureRequirementsMet=3, closureRequirementsBlocked=3, primarySyncByteBatchMissingGlobals=none, asciiTextDecoderEquivalent=true, diagnosticThroughputMiBPerSec=0.7656093369946506, throughputCountsAsTargetEvidence=false, closesCodegenObligation=false); it records why the materialized js-shell codegen artifact is useful but still not closure evidence. Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.",
+      "status": "covered",
+      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Deno/V8 codegen trace evidence present (2 artifacts). Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey Taskcluster debug browser diagnostic dump audit was attempted with FIREFOX_PATH=G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe and failed before same-contract BiDi execution (status=failed, exitCode=1, emittedDump=false). Firefox/SpiderMonkey local js-shell availability audit present (status=available, found=2, searchRoots=2); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is bytecode/JIT-status diagnostic evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is bytecode/JIT-status diagnostic evidence only, not emitted JIT IR. Current StAX public reader host API boundary audit present (primarySyncByteBatchRequiresTextDecoder=false, asciiPrimarySyncByteBatchRequiresTextDecoder=false, utf8FallbackDecoder=true, nonUtf8RequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, rootImportRequiresTextEncoder=false, alternateDecoderWouldBeUnchangedClosure=false); it pins why UTF-8 primary byte-batch materialization can run without host TextDecoder while non-UTF-8 and non-primary harness globals remain separate. Firefox/SpiderMonkey js-shell StAX API gap audit present (status=blocked-by-host-api-surface, unchangedRunnableShells=0/2, blockedSurfaces=3, directUnchangedHarnessAttemptsBlocked=6/10, unchangedHarnessMissingGlobals=TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=none, primaryPathRunnableWithoutHostEncoding=true, nonPrimaryHarnessMissingGlobals=TextEncoder, ReadableStream, fetch); it is host API surface evidence only, not emitted JIT IR. Firefox/SpiderMonkey public js-shell diagnostic flag sweep present (bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false); it rules out easy public-shell bytecode/dump flag paths but is not emitted JIT IR. Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell materialized string/object codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark. Firefox/SpiderMonkey codegen rerun stability audit present (pairs=2, reproduciblePairs=2, sameTaskclusterBuildPairs=2, sameCodegenMarkerPairs=2, qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false); it proves diagnostic rerun reproducibility but still not same-contract StAX closure. Firefox/SpiderMonkey ASCII scope-distance audit present (corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, reducesScopeDistance=true, closesCodegenObligation=false); it narrows ASCII materialized js-shell scope but is not unchanged StAX closure evidence. Firefox/SpiderMonkey materialized scope-distance audit present (semanticEquivalentForAsciiFields=true, closureRequirementsMet=3, closureRequirementsBlocked=3, primarySyncByteBatchMissingGlobals=none, asciiTextDecoderEquivalent=true, diagnosticThroughputMiBPerSec=0.7656093369946506, throughputCountsAsTargetEvidence=false, closesCodegenObligation=false); it records why the materialized js-shell codegen artifact is useful but still not closure evidence. Firefox/SpiderMonkey same-contract emitted codegen closure evidence present (qualifiedClosureCount=1).",
       "nextExperiment": "Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows."
     },
     {
@@ -33172,6 +33196,23 @@
       "contractScope": "xml-token-boundary-no-string-materialization"
     },
     {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit.json",
+      "jsonPath": "selectedComparisonRow",
+      "id": "nightly-spidermonkey-stax-stream-reader-sync-primary-byte-batch",
+      "runtimeId": "spidermonkey-jsshell",
+      "runtimeLabel": "SpiderMonkey js-shell",
+      "sizeGiB": null,
+      "fixtureSource": null,
+      "fixtureShape": null,
+      "corpusSeed": null,
+      "mibPerSec": 62.75,
+      "fullStringParity": null,
+      "memoryKind": "not-recorded",
+      "eventCount": 894724,
+      "checksum": -1087917522,
+      "contractScope": "spidermonkey-taskcluster-debug-jsshell-current-stax-primary-byte-batch-same-contract-codegen"
+    },
+    {
       "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
       "jsonPath": "row",
       "id": "taskcluster-debug-spidermonkey-xml-token-boundary-codegen",
@@ -33276,10 +33317,9 @@
     {
       "id": "open-obligations-ranked",
       "status": "OPEN",
-      "summary": "2 proof obligation(s) remain open or partial after scanning current release artifacts.",
+      "summary": "1 proof obligation(s) remain open or partial after scanning current release artifacts.",
       "evidence": [
-        "safari-jsc-source-and-browser-rows-open",
-        "codegen-traces-open"
+        "safari-jsc-source-and-browser-rows-open"
       ]
     }
   ]

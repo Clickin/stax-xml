@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T06:05:08.379Z",
+  "generatedAt": "2026-06-03T07:06:33.437Z",
   "objective": "spidermonkey-codegen-closure-audit",
   "contract": "spidermonkey-emitted-codegen-same-contract-closure-matrix",
   "note": "Audits SpiderMonkey diagnostic/codegen artifacts against the exact closure requirements for codegen-traces-open. This is not benchmark evidence and not emitted IR by itself; it prevents diagnostic js-shell or availability artifacts from being promoted to same-contract StAX closure evidence.",
@@ -1612,6 +1612,81 @@
       "qualifiedClosure": false
     },
     {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit.json",
+      "objective": "spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit",
+      "status": "same-contract-codegen-output-emitted",
+      "evidenceClass": "same-contract-spidermonkey-codegen",
+      "hasAnyDiagnosticSurface": true,
+      "profiledFullStringParity": false,
+      "selectedRowIdentityStatus": "same-contract-stax-row",
+      "selectedRowMatchesCurrentComparison": true,
+      "diagnosticWorkloadMetadata": null,
+      "diagnosticWorkloadMatchesCurrentComparison": null,
+      "diagnosticWorkloadMetadataComparable": null,
+      "selectedRowMetadataMissingFields": [],
+      "closingMetadataMissingFields": [],
+      "requirements": {
+        "emittedCodegenSurface": {
+          "met": true,
+          "evidence": [
+            "hasCodegenDumpOutput=true",
+            "irDumpSurface=false",
+            "nativeDumpComplete=true",
+            "codegenMarkers=547558"
+          ]
+        },
+        "sameContractStaxRow": {
+          "met": true,
+          "evidence": [
+            "sameContractStaxRow=true",
+            "profiledFullStringParity=unknown"
+          ]
+        },
+        "unchangedRunnable": {
+          "met": true,
+          "evidence": [
+            "canRunCurrentStaxFullStringBenchmark=true",
+            "unchangedStaxBenchmark=true"
+          ]
+        },
+        "selectedRowMetadata": {
+          "met": true,
+          "evidence": [
+            "selectedRowId=nightly-spidermonkey-stax-stream-reader-sync-primary-byte-batch",
+            "selectedEventCount=894724",
+            "selectedChecksum=-1087917522"
+          ]
+        },
+        "selectedRowMatchesCurrentComparison": {
+          "met": true,
+          "evidence": [
+            "selectedRowMatchesCurrentComparison=true",
+            "comparisonRows=247"
+          ]
+        },
+        "closingMetadata": {
+          "met": true,
+          "evidence": [
+            "taskId=azB5UO80Q3KJPPyXD0C8tA",
+            "buildId=20260602214419",
+            "sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712",
+            "runtimeBuildIdentityRecorded=true",
+            "diagnosticFlagsRecorded=true",
+            "emittedDumpMetadataRecorded=true"
+          ]
+        },
+        "evidenceClassAllowed": {
+          "met": true,
+          "evidence": [
+            "evidenceClass=same-contract-spidermonkey-codegen"
+          ]
+        }
+      },
+      "unmetRequirements": [],
+      "declaresClosure": true,
+      "qualifiedClosure": true
+    },
+    {
       "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
       "objective": "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit",
       "status": "available",
@@ -1774,7 +1849,7 @@
   ],
   "contradictedClosureClaims": [],
   "summary": {
-    "candidateCount": 19,
+    "candidateCount": 20,
     "candidateSourceArtifacts": [
       "firefox-spidermonkey-buildconfig-source-pin-audit.json",
       "firefox-spidermonkey-diagnostic-dump-audit.json",
@@ -1794,28 +1869,30 @@
       "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
       "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
       "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
+      "spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit.json",
       "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json"
     ],
-    "diagnosticSurfaceCount": 7,
-    "emittedCodegenSurfaceCount": 7,
-    "sameContractStaxRowCount": 0,
+    "diagnosticSurfaceCount": 8,
+    "emittedCodegenSurfaceCount": 8,
+    "sameContractStaxRowCount": 1,
     "profiledFullStringParityCount": 1,
-    "unchangedRunnableCount": 0,
-    "selectedRowMetadataCount": 1,
+    "unchangedRunnableCount": 1,
+    "selectedRowMetadataCount": 2,
     "diagnosticWorkloadMetadataCount": 3,
     "diagnosticWorkloadComparisonMatchCount": 0,
     "diagnosticWorkloadComparisonMismatchCount": 3,
-    "diagnosticWorkloadComparisonMissingCount": 16,
+    "diagnosticWorkloadComparisonMissingCount": 17,
     "nonComparableDiagnosticWorkloadMetadataCount": 3,
-    "selectedRowComparisonMatchCount": 0,
+    "selectedRowComparisonMatchCount": 1,
     "selectedRowComparisonMismatchCount": 1,
     "selectedRowComparisonMissingCount": 18,
-    "closingMetadataCount": 5,
-    "qualifiedClosureCount": 0,
+    "closingMetadataCount": 6,
+    "qualifiedClosureCount": 1,
     "contradictedClosureClaimCount": 0,
     "selectedRowIdentityStatusCounts": {
       "not-claimed-ascii-stax-diagnostic": 1,
-      "not-claimed-non-stax-diagnostic": 18
+      "not-claimed-non-stax-diagnostic": 18,
+      "same-contract-stax-row": 1
     },
     "selectedRowMetadataMissingFieldCounts": {
       "selectedChecksum": 18,
@@ -1841,6 +1918,7 @@
       "materialized-headroom-only": 1,
       "negative-diagnostic-surface": 1,
       "parser-core-headroom-only": 1,
+      "same-contract-spidermonkey-codegen": 1,
       "source-pin-only": 1,
       "unknown": 2
     },
@@ -1864,7 +1942,7 @@
     "blockedCandidateCount": 19,
     "minimumBlockedRequirementCount": 4,
     "closestBlockedCandidateCount": 5,
-    "conclusionAllowed": false
+    "conclusionAllowed": true
   },
   "findings": [
     {
@@ -1872,18 +1950,8 @@
       "classification": "SCOPE_GUARD",
       "summary": "SpiderMonkey diagnostic/codegen artifacts are classified through the same-contract closure matrix before they can close codegen-traces-open.",
       "evidence": [
-        "candidates=19",
-        "qualifiedClosures=0"
-      ]
-    },
-    {
-      "id": "spidermonkey-codegen-closure-not-met",
-      "classification": "NEGATIVE_RESULT",
-      "summary": "No current SpiderMonkey diagnostic/codegen artifact satisfies emitted-codegen, unchanged StAX, selected-row metadata, and closing-metadata requirements together.",
-      "evidence": [
-        "emittedCodegenSurface=7",
-        "sameContractStaxRows=0",
-        "unchangedRunnable=0"
+        "candidates=20",
+        "qualifiedClosures=1"
       ]
     },
     {
@@ -1893,7 +1961,7 @@
       "evidence": [
         "diagnosticWorkloadMetadata=3",
         "nonComparableDiagnosticWorkloadMetadata=3",
-        "selectedRowMetadata=1"
+        "selectedRowMetadata=2"
       ]
     }
   ]

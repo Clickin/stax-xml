@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-03T06:19:18.393Z
+Generated: 2026-06-03T07:09:31.018Z
 
 ## Scope
 
@@ -76,24 +76,24 @@ This is a static gate over the proof ledger for the broad `CLAIM-JS-RUNTIME-LIMI
 ## Open Obligations
 
 These are static disclosure guards. They must stay disclosed while the broad runtime-limit claim remains below `CONCLUSION`; the coverage snapshot column records whether the current evidence audit still treats each guard as active.
-Active evidence-gap disclosures: 2
-Disclosure-only guards: 3
+Active evidence-gap disclosures: 1
+Disclosure-only guards: 4
 
 | ID | Disclosed | Coverage status | Gate role | Meaning |
 | --- | --- | --- | --- | --- |
 | `safari-jsc-source-and-browser-rows-open` | yes | open | active-evidence-gap | Safari/browser JSC source and benchmark coverage remains separate from Bun/JSC coverage. |
-| `codegen-traces-open` | yes | partial | active-evidence-gap | Runtime codegen/JIT evidence remains required for broad runtime-limit conclusions. |
+| `codegen-traces-open` | yes | covered | disclosure-only-guard | Runtime codegen/JIT evidence remains required for broad runtime-limit conclusions. |
 | `allocation-profiles-open` | yes | covered | disclosure-only-guard | Allocation/heap evidence remains required for runtimes without adequate traces. |
 | `independent-corpus-suite-open` | yes | covered | disclosure-only-guard | More independent real/corpus fixtures remain required. |
 | `counterexample-rule-present` | yes | covered | disclosure-only-guard | The ledger must preserve the rule that a bounded full-string 200 MiB/s JavaScript row disproves the limit claim. |
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-03T06:05:26.749Z)
-- Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
-- Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
-- SpiderMonkey diagnostics rows vs closure candidates: 12/19 (gap=7, closureQualified=0)
-- SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace.json`, `firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json`, `spidermonkey-jsshell-materialized-headroom.json`, `spidermonkey-jsshell-stax-primary-byte-batch.json`, `spidermonkey-jsshell-tokenizer-headroom.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`
+- Coverage audit loaded: yes (2026-06-03T07:06:44.632Z)
+- Active coverage obligations: safari-jsc-source-and-browser-rows-open
+- Covered coverage obligations: firefox-browser-rows-open, codegen-traces-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
+- SpiderMonkey diagnostics rows vs closure candidates: 12/20 (gap=8, closureQualified=1)
+- SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace.json`, `firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json`, `spidermonkey-jsshell-materialized-headroom.json`, `spidermonkey-jsshell-stax-primary-byte-batch.json`, `spidermonkey-jsshell-tokenizer-headroom.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit.json`
 - SpiderMonkey coverage diagnostics outside closure candidates: none
 - SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=8
 - SpiderMonkey closest codegen blockers: spidermonkey-taskcluster-debug-jsshell-codegen-audit.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]; spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]; spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]; spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]; spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]
@@ -121,9 +121,9 @@ Disclosure-only guards: 3
 - Same-contract comparison contract: same-full-string-checksum-contract-not-same-object-shape; publicEventCase=eventObjectFull; objectShapeEquivalence=false; memoryEquivalence=false
 - Same-contract comparison rows: 291/291; largeFullJsRows=239
 - Same-contract comparison counterexamples: 0
-- Runtime counterexample scan loaded: yes (2026-06-03T06:02:30.754Z)
+- Runtime counterexample scan loaded: yes (2026-06-03T07:07:03.679Z)
 - Counterexample scan contract: threshold=200.00 MiB/s, minSizeGiB=1.00, parseErrors=0
-- Counterexample scan coverage shape: artifacts=230/230, measuredRows=1268/1268
+- Counterexample scan coverage shape: artifacts=231/231, measuredRows=1269/1269
 - Counterexample scan aggregate surface: aggregateRows=182, largeFullAggregateRows=142, measuredCounterexamples=0, aggregateCounterexamples=0
 - Counterexample scan source-shape surface: sourceModeRows=644, largeFullSourceModeRows=474, modes=generated-sync-iterable-byte-batches:382,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; file-backed-sync-iterable-byte-batches:53,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; async-iterable-byte-batches:15,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; web-readable-stream-pull:15,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=15; sync-iterable-byte-batches:4,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; fetch-async-iterable-byte-batches:2,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; fetch-readable-stream-pull:2,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=2; complete-js-string:1,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0
 - Runtime counterexample scan counterexamples: 0
@@ -141,9 +141,9 @@ Disclosure-only guards: 3
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-03T06:05:53.227Z)
-- Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
-- Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
+- Handoff loaded: yes (2026-06-03T07:07:20.880Z)
+- Handoff active obligations: safari-jsc-source-and-browser-rows-open
+- Handoff IDs: safari-webkit-browser-row-handoff
 
 | ID | Satisfied | Meaning |
 | --- | --- | --- |
@@ -157,47 +157,27 @@ Disclosure-only guards: 3
 | `safari-target-distance-recomputed-after-rows` | yes | Safari handoff must require target-distance-audit regeneration after Safari/WebKit rows so Woodstox and quick-xml 0.9x targets use the updated JavaScript comparison set. |
 | `safari-structured-evidence-intake-contract` | yes | Safari handoff must expose structured required artifacts, row fields, audit fields, and rejection rules for external row intake. |
 | `safari-local-availability-blocker` | yes | Safari handoff must preserve the local Safari availability blocker with host/harness runability details and zero-candidate closure audit summary tied to the current same-contract comparison identity. |
-| `spidermonkey-closing-artifact-schema-evidence` | yes | SpiderMonkey expected evidence must require explicit closure declarations, same-contract row status, comparison match, and allowed evidence class. |
-| `spidermonkey-structured-evidence-intake-contract` | yes | SpiderMonkey handoff must expose structured required artifacts, row fields, audit fields, and rejection rules for emitted-codegen intake. |
-| `spidermonkey-emitted-ir-required` | yes | SpiderMonkey closure checks must require emitted IR/codegen evidence and no missing IR surface. |
-| `spidermonkey-materialized-scope-not-enough` | yes | SpiderMonkey materialized js-shell codegen must require closureRequirementsBlocked=0 and closesCodegenObligation=true before closing. |
-| `spidermonkey-materialized-utf8-fallback-boundary` | yes | SpiderMonkey materialized js-shell codegen must preserve the UTF-8 fallback boundary before treating materialized codegen as unchanged StAX closure. |
-| `spidermonkey-unchanged-stax-required` | yes | SpiderMonkey closing artifacts must require sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true unless a browser-row artifact supplies closure. |
-| `spidermonkey-same-contract-comparison-required` | yes | SpiderMonkey closing artifacts must require the selected row id to match same-contract-runtime-comparison.json with event count and checksum parity. |
-| `spidermonkey-closing-metadata-required` | yes | SpiderMonkey closing artifacts must require runtime/build identity, diagnostic flags, row identity, checksum parity, and emitted IR or optimized-code dump metadata. |
-| `spidermonkey-diagnostic-row-identity-blocker` | yes | SpiderMonkey diagnostic rows must remain blocked with selectedRowIdentityStatus=not-claimed-non-stax-diagnostic until they are same-contract StAX closure evidence. |
-| `spidermonkey-taskcluster-source-revision-visible` | yes | SpiderMonkey Taskcluster debug-shell handoff blockers must preserve sourceRevision and artifact URL identity for current diagnostic codegen evidence. |
-| `spidermonkey-closure-audit-identity-statuses` | yes | SpiderMonkey closure audit must preserve non-StAX diagnostic identity status counts for closure-matrix candidates. |
-| `spidermonkey-selected-row-metadata-missing-fields` | yes | SpiderMonkey closure audit must preserve which selected-row metadata fields are missing from closure-matrix candidates. |
-| `spidermonkey-selected-row-comparison-match-counts` | yes | SpiderMonkey closure audit must preserve selected-row comparison match counts against same-contract-runtime-comparison.json. |
-| `spidermonkey-diagnostic-workload-metadata-not-row-identity` | yes | SpiderMonkey closure audit must preserve diagnostic workload metadata counts separately from same-contract selected-row identity. |
-| `spidermonkey-profiled-parity-not-same-contract-row` | yes | SpiderMonkey closure audit must keep profiler full-string parity separate from explicit sameContractStaxRow closure evidence. |
-| `spidermonkey-codegen-comparison-freshness` | yes | SpiderMonkey closure audit must preserve the current same-contract comparison generatedAt and row count used for selected-row matching. |
-| `spidermonkey-closing-metadata-missing-fields` | yes | SpiderMonkey closure audit must preserve which closing metadata subfields are missing from closure-matrix candidates. |
-| `spidermonkey-disallowed-evidence-class-counts` | yes | SpiderMonkey closure audit must preserve which diagnostic scope-guard evidence classes are disallowed as closure evidence. |
-| `spidermonkey-closure-frontier-blockers` | yes | SpiderMonkey handoff must preserve named closest blocked candidates and common missing requirements from the closure audit frontier. |
-| `spidermonkey-contradicted-closure-claims-clear` | yes | SpiderMonkey closure audit must preserve contradictedClosureClaimCount=0 before codegen evidence can be reclassified. |
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-03T06:08:26.016Z)
-- Handoff validation target handoff generatedAt: 2026-06-03T06:05:53.227Z (current 2026-06-03T06:05:53.227Z)
+- Handoff validation loaded: yes (2026-06-03T07:09:15.991Z)
+- Handoff validation target handoff generatedAt: 2026-06-03T07:07:20.880Z (current 2026-06-03T07:07:20.880Z)
 - Handoff validation pass: yes
-- Commands checked: 15
-- Scripts referenced: 23
+- Commands checked: 5
+- Scripts referenced: 14
 - Missing scripts: 0
-- Release output paths: 78
+- Release output paths: 30
 - Non-release output paths: 0
-- Raw output paths: 2
+- Raw output paths: 1
 - Raw output path policy violations: 0
 - Required flags present: yes
 - Required handoffs present: yes
 - Required contracts present: yes
 - External-run status pinned: yes
-- External-run required handoffs: 2
+- External-run required handoffs: 1
 - Locally runnable handoffs: 0
 - Unhandled obligations in validated handoff: 0
-- Validated handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
+- Validated handoff IDs: safari-webkit-browser-row-handoff
 
 | ID | Satisfied | Meaning |
 | --- | --- | --- |
@@ -206,15 +186,15 @@ Disclosure-only guards: 3
 | `handoff-validation-contracts-present` | yes | runtime-proof-handoff-validation.json must report all required contracts present. |
 | `handoff-validation-command-and-path-safety` | yes | runtime-proof-handoff-validation.json must report required flags present, existing scripts, curated release outputs, and separated raw outputs. |
 | `handoff-validation-external-run-status-pinned` | yes | runtime-proof-handoff-validation.json must report all current handoffs as external-run-required with zero locally runnable closures. |
-| `handoff-validation-required-handoffs-present` | yes | runtime-proof-handoff-validation.json must report required Safari and SpiderMonkey handoffs present. |
+| `handoff-validation-required-handoffs-present` | yes | runtime-proof-handoff-validation.json must report required current handoffs present. |
 | `handoff-validation-current-handoff` | yes | runtime-proof-handoff-validation.json must validate the currently loaded runtime-proof-gap-handoff.json generatedAt. |
 | `handoff-validation-no-unhandled-obligations` | yes | runtime-proof-handoff-validation.json must validate a handoff with zero unhandled obligations. |
 | `handoff-validation-spidermonkey-utf8-fallback-boundary` | yes | runtime-proof-handoff-validation.json must require the SpiderMonkey UTF-8 fallback boundary contract patterns. |
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-03T06:05:27.098Z)
-- Source audit inputs: comparison=2026-06-03T06:02:02.040Z (current 2026-06-03T06:02:02.040Z), coverage=2026-06-03T06:05:26.749Z (current 2026-06-03T06:05:26.749Z)
+- Source audit loaded: yes (2026-06-03T07:07:16.636Z)
+- Source audit inputs: comparison=2026-06-03T06:02:02.040Z (current 2026-06-03T06:02:02.040Z), coverage=2026-06-03T07:06:44.632Z (current 2026-06-03T07:06:44.632Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary source boundary: demand-driven StreamReaderSync parser pulls
@@ -314,4 +294,4 @@ These checks keep known semantic distinctions from being collapsed into a strong
 
 ## Interpretation
 
-A passing report currently means the proof ledger is conservative, not that the target runtime limit has been proven. Current coverage audit blockers: safari-jsc-source-and-browser-rows-open, codegen-traces-open. Static disclosure guards may include evidence families that the latest coverage audit already marks covered; those guards prevent stale broad conclusions, not duplicate the active coverage list. A future 200 MiB/s+ bounded-memory full-string JavaScript row remains a counterexample.
+A passing report currently means the proof ledger is conservative, not that the target runtime limit has been proven. Current coverage audit blockers: safari-jsc-source-and-browser-rows-open. Static disclosure guards may include evidence families that the latest coverage audit already marks covered; those guards prevent stale broad conclusions, not duplicate the active coverage list. A future 200 MiB/s+ bounded-memory full-string JavaScript row remains a counterexample.

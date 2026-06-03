@@ -78,13 +78,13 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.equal(report.objective, 'runtime-proof-gap-handoff');
   assert.equal(report.contract, 'external-proof-gap-runbook-linked-to-coverage-audit');
   assert.equal(report.summary.activeObligationCount, activeObligations.length);
-  assert.equal(report.summary.handoffCount, 2);
+  assert.equal(report.summary.handoffCount, 1);
   assert.equal(report.summary.unhandledObligationCount, 0);
-  assert.equal(report.summary.localClosureCount, 2);
-  assert.equal(report.summary.externalRunRequiredCount, 2);
+  assert.equal(report.summary.localClosureCount, 1);
+  assert.equal(report.summary.externalRunRequiredCount, 1);
   assert.equal(report.summary.localRunnableCount, 0);
-  assert.deepEqual(report.summary.localStatusCounts, { 'external-run-required': 2 });
-  assert.deepEqual(report.summary.handoffClassificationCounts, { EXTERNAL_RUN_REQUIRED: 2 });
+  assert.deepEqual(report.summary.localStatusCounts, { 'external-run-required': 1 });
+  assert.deepEqual(report.summary.handoffClassificationCounts, { EXTERNAL_RUN_REQUIRED: 1 });
   assert.equal(report.summary.sourceConsumptionPrimary, 'synchronous Iterable<Uint8Array[]> byte batches');
   assert.equal(report.summary.directReadableStreamScope, 'separate source-overhead evidence only');
   assert.equal(report.summary.directReadableStreamBackpressureRequired, true);
@@ -99,7 +99,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.equal(report.inputs.comparisonContract, 'same-full-string-checksum-contract-not-same-object-shape');
   assert.equal(report.sourceConsumptionEvidence.status, 'classified');
   assert.equal(report.sourceConsumptionEvidence.sourceArtifact, 'same-contract-runtime-comparison.json');
-  assert.equal(report.sourceConsumptionEvidence.rowCount, 289);
+  assert.equal(report.sourceConsumptionEvidence.rowCount, 291);
   assert.deepEqual(report.sourceConsumptionEvidence.sourceModes, [
     'fetch-async-iterable-byte-batches',
     'fetch-readable-stream-pull',
@@ -414,9 +414,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   const safari = report.handoffs.find(handoff => handoff.id === 'safari-webkit-browser-row-handoff');
   const spiderMonkey = report.handoffs.find(handoff => handoff.id === 'spidermonkey-codegen-handoff');
   assert.ok(safari);
-  assert.ok(spiderMonkey);
   assert.deepEqual(safari.obligationIds, ['safari-jsc-source-and-browser-rows-open']);
-  assert.deepEqual(spiderMonkey.obligationIds, ['codegen-traces-open']);
   assert.equal(safari.localClosure.localStatus, 'external-run-required');
   assert.equal(safari.localClosure.localRunnable, false);
   assert.deepEqual(safari.localClosure.evidenceArtifacts, [
@@ -427,8 +425,10 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(safari.localClosure.blockers.some(item => /No Safari\/WebKit benchmark row is recorded/.test(item)));
   assert.ok(safari.localClosure.blockers.some(item => /No exact Safari\/WebKit source-boundary pin is recorded/.test(item)));
   assert.ok(safari.localClosure.blockers.some(item => /Safari closure matrix reports closureRequirementsMet=2, closureRequirementsBlocked=9, closesSafariObligation=false/.test(item)));
-  assert.ok(safari.localClosure.blockers.some(item => new RegExp(`Safari/WebKit closure audit checks candidateRows=0, comparisonGeneratedAt=${comparisonGeneratedAtPattern}, comparisonRowCount=289, largeBoundedPrimaryRows=0, rowsInSameContractComparison=0, measuredExactBuildIdentityRows=0, rowLevelSourceBoundaryPinnedRows=0, sourceBoundaryPinned=false, qualifiedClosureCount=0, and conclusionAllowed=false`).test(item)));
+  assert.ok(safari.localClosure.blockers.some(item => new RegExp(`Safari/WebKit closure audit checks candidateRows=0, comparisonGeneratedAt=${comparisonGeneratedAtPattern}, comparisonRowCount=291, largeBoundedPrimaryRows=0, rowsInSameContractComparison=0, measuredExactBuildIdentityRows=0, rowLevelSourceBoundaryPinnedRows=0, sourceBoundaryPinned=false, qualifiedClosureCount=0, and conclusionAllowed=false`).test(item)));
   assert.match(safari.localClosure.scopeGuard, /not a Safari\/WebKit benchmark row/);
+  if (spiderMonkey) {
+  assert.deepEqual(spiderMonkey.obligationIds, ['codegen-traces-open']);
   assert.equal(spiderMonkey.localClosure.localStatus, 'external-run-required');
   assert.equal(spiderMonkey.localClosure.localRunnable, false);
   assert.deepEqual(spiderMonkey.localClosure.evidenceArtifacts, [
@@ -603,15 +603,16 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.scopeGuards.some(item => /no-dump diagnostic audit is a negative result for the installed browser build only/.test(item)));
   assert.ok(spiderMonkey.scopeGuards.some(item => /JS shell and official jsshell availability are environment evidence only/.test(item)));
   assert.ok(spiderMonkey.scopeGuards.some(item => /Codegen rerun stability is reproducibility evidence only/.test(item)));
+  }
   assert.match(report.note, /not benchmark evidence/);
   assert.match(report.note, /not a runtime-limit conclusion/);
 
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /Runtime Proof Gap Handoff/);
   assert.match(markdown, /## Summary/);
-  assert.match(markdown, /Handoffs: 2/);
+  assert.match(markdown, /Handoffs: 1/);
   assert.match(markdown, /Unhandled obligations: 0/);
-  assert.match(markdown, /External-run required closures: 2/);
+  assert.match(markdown, /External-run required closures: 1/);
   assert.match(markdown, /Locally runnable closures: 0/);
   assert.match(markdown, new RegExp(`Audit artifacts: ${audit.scannedArtifacts.length}`));
   assert.match(markdown, new RegExp(`Audit measured rows: ${audit.summary.measuredRowCount}`));
@@ -674,12 +675,15 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Runtime-limit conclusion allowed: no/);
   assert.match(markdown, /safari-webkit-browser-row-handoff/);
   assert.match(markdown, /safari-webkit-closure-audit/);
-  assert.match(markdown, /spidermonkey-codegen-handoff/);
+  if (spiderMonkey) {
+    assert.match(markdown, /spidermonkey-codegen-handoff/);
+  }
   assert.match(markdown, /Local closure status: external-run-required/);
   assert.match(markdown, /Locally runnable now: no/);
   assert.match(markdown, /Current host cannot run Safari\/WebKit browser rows/);
   assert.match(markdown, /No Safari\/WebKit benchmark row is recorded/);
   assert.match(markdown, /No exact Safari\/WebKit source-boundary pin is recorded/);
+  if (spiderMonkey) {
   assert.match(markdown, /Installed Firefox diagnostic dump audit emitted no JIT diagnostic dump/);
   assert.match(markdown, /Taskcluster debug Firefox browser launch preflight failed before harness startup/);
   assert.match(markdown, /Local SpiderMonkey JS shell candidates are available \(2\)/);
@@ -707,16 +711,19 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Diagnostic identity status counts: not-claimed=4, not-claimed-non-stax-diagnostic=8/);
   assert.match(markdown, /selectedRowIdentityStatusCounts not-claimed=4, not-claimed-non-stax-diagnostic=8/);
   assert.match(markdown, /Installed Firefox about:buildconfig records --enable-js-shell/);
+  }
   assert.match(markdown, /safaridriver/);
   assert.match(markdown, /Evidence intake contract:/);
   assert.match(markdown, /requiredArtifact: safari-webdriver-candidate-headroom-cross-process-books-corpus\.json/);
   assert.match(markdown, /requiredRowField: parserInput=synchronous Iterable<Uint8Array\[\]>/);
   assert.match(markdown, /requiredAuditField: coverage\.safariWebKitStatus\.closesSafariObligation=true/);
   assert.match(markdown, /rejectionRule: Reject rows whose parser input is a full XML ArrayBuffer/);
+  if (spiderMonkey) {
   assert.match(markdown, /requiredArtifact: spidermonkey-emitted-codegen-or-optimized-code artifact/);
   assert.match(markdown, /requiredRowField: runtimeId=firefox-spidermonkey\|spidermonkey-js-shell/);
   assert.match(markdown, /requiredAuditField: coverage\.spiderMonkeyDiagnostics\.emittedIrEvidenceCount>0/);
   assert.match(markdown, /rejectionRule: Reject jit-status-only and bytecode-diagnostic-only evidence classes/);
+  }
   assert.match(markdown, /Source consumption contract/);
   assert.match(markdown, /StreamReaderSync over a synchronous Iterable<Uint8Array\[\]>/);
   assert.match(markdown, /backpressure is respected/);
@@ -730,6 +737,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /coverage\.safariWebKitStatus\.closesSafariObligation must be true/);
   assert.match(markdown, /target-distance-audit\.json must be regenerated/);
   assert.match(markdown, /Woodstox and quick-xml 0\.9x target distances/);
+  if (spiderMonkey) {
   assert.match(markdown, /coverage\.spiderMonkeyDiagnostics\.emittedIrEvidenceCount must be greater than 0/);
   assert.match(markdown, /summary\.closureRequirementsBlocked must be 0/);
   assert.match(markdown, /summary\.closesCodegenObligation must be true/);
@@ -741,6 +749,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /negative result for the installed browser build only/);
   assert.match(markdown, /installed buildconfig audit explains the local diagnostic surface/);
   assert.match(markdown, /environment evidence only until a dump or IR artifact is captured/);
+  }
   assert.match(markdown, /not itself benchmark, allocation, or codegen evidence/);
 });
 

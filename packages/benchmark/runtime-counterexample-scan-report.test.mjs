@@ -33,7 +33,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.counterexampleCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 230);
+  assert.equal(report.summary.scannedArtifactCount, 231);
   assert.ok(report.scannedArtifacts.includes('concat-buffer-reuse-negative-result.json'));
   assert.ok(report.scannedArtifacts.includes('firefox-spidermonkey-nightly-jsshell-availability-audit.json'));
   assert.ok(report.scannedArtifacts.includes('firefox-spidermonkey-release-jsshell-availability-audit.json'));
@@ -50,6 +50,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('spidermonkey-taskcluster-debug-jsshell-codegen-audit.json'));
   assert.ok(report.scannedArtifacts.includes('spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json'));
   assert.ok(report.scannedArtifacts.includes('spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json'));
+  assert.ok(report.scannedArtifacts.includes('spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit.json'));
   assert.ok(report.scannedArtifacts.includes('spidermonkey-taskcluster-debug-jsshell-route-freshness-audit.json'));
   assert.ok(report.scannedArtifacts.includes('spidermonkey-materialized-scope-distance-audit.json'));
   assert.ok(report.scannedArtifacts.includes('spidermonkey-ascii-scope-distance-audit.json'));
@@ -95,7 +96,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.ok(report.scannedArtifacts.includes('raw-frame-nameid-alone-cross-process-books-corpus.json'));
   assert.ok(report.ignoredArtifacts.includes('access-shape-candidate-cross-process.json'));
   assert.ok(report.ignoredArtifacts.includes('runtime-proof-gap-handoff.json'));
-  assert.equal(report.summary.measuredRowCount, 1268);
+  assert.equal(report.summary.measuredRowCount, 1269);
   assert.equal(report.summary.aggregateRowCount, 182);
   assert.equal(report.summary.largeJsFullRowCount, 848);
   assert.equal(report.summary.largeJsFullAggregateRowCount, 142);
@@ -103,8 +104,8 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   assert.equal(report.summary.largeJsFullSourceModeRowCount, 474);
   assert.equal(report.summary.partialHeadroomRowCount, 35);
   assert.equal(report.summary.textMaterializationHeadroomRowCount, 13);
-  assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 0);
-  assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 27);
+  assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 1);
+  assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 28);
   assert.equal(report.summary.unboundedOrUnknownLargeFullRowCount, 91);
   assert.deepEqual(report.summary.largeFullMemoryRejectionBreakdown, {
     total: 91,
@@ -114,7 +115,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     missingRowMemoryProof: 70,
   });
   assert.deepEqual(report.summary.unknownBoundedMemoryBreakdown, {
-    total: 27,
+    total: 28,
     jsRows: 11,
     fullStringRows: 22,
     jsFullStringRows: 6,
@@ -122,7 +123,7 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     counterexampleRelevantRows: 0,
     smallOrDiagnosticJsRows: 11,
     nonJsAllocatorCounterRows: 10,
-    nonJsNoPeakMemoryRows: 6,
+    nonJsNoPeakMemoryRows: 7,
     rowsWithMemoryCounter: 10,
   });
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.hasMemoryProof, true);
@@ -924,13 +925,13 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Runtime Counterexample Scan/);
   assert.match(markdown, /Counterexamples found: 0/);
-  assert.match(markdown, /Scanned artifacts: 230/);
-  assert.match(markdown, /Measured rows recognized: 1268/);
+  assert.match(markdown, /Scanned artifacts: 231/);
+  assert.match(markdown, /Measured rows recognized: 1269/);
   assert.match(markdown, /Aggregate rows recognized: 182/);
   assert.match(markdown, /1 GiB\+ JS full-string aggregate rows recognized: 142/);
   assert.match(markdown, /1 GiB\+ JS full-string rows recognized: 848/);
-  assert.match(markdown, /Rows with unknown full-string parity: 0/);
-  assert.match(markdown, /Rows with unknown bounded-memory flag: 27/);
+  assert.match(markdown, /Rows with unknown full-string parity: 1/);
+  assert.match(markdown, /Rows with unknown bounded-memory flag: 28/);
   assert.match(markdown, /Rows with recognized source mode: 644/);
   assert.match(markdown, /Partial\/projection threshold rows: 35/);
   assert.match(markdown, /1 GiB\+ JS full-string rows with recognized source mode: 474/);

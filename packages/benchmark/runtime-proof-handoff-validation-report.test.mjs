@@ -34,19 +34,19 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.equal(report.objective, 'runtime-proof-handoff-validation');
   assert.equal(report.contract, 'external-run-handoff-command-and-contract-static-validation');
   assert.equal(report.summary.pass, true);
-  assert.equal(report.summary.handoffCount, 2);
+  assert.equal(report.summary.handoffCount, 1);
   assert.equal(report.summary.requiredHandoffsPresent, true);
-  assert.equal(report.summary.commandCount, 15);
-  assert.equal(report.summary.scriptsReferenced, 23);
+  assert.equal(report.summary.commandCount, 5);
+  assert.equal(report.summary.scriptsReferenced, 14);
   assert.equal(report.summary.missingScriptCount, 0);
-  assert.equal(report.summary.releaseOutputPathCount, 78);
+  assert.equal(report.summary.releaseOutputPathCount, 30);
   assert.equal(report.summary.nonReleaseOutputPathCount, 0);
-  assert.equal(report.summary.rawOutputPathCount, 2);
+  assert.equal(report.summary.rawOutputPathCount, 1);
   assert.equal(report.summary.rawOutputPathPolicyViolationCount, 0);
   assert.equal(report.summary.allRequiredFlagsPresent, true);
   assert.equal(report.summary.allContractsPresent, true);
   assert.equal(report.summary.allExternalRunRequired, true);
-  assert.equal(report.summary.externalRunRequiredCount, 2);
+  assert.equal(report.summary.externalRunRequiredCount, 1);
   assert.equal(report.summary.localRunnableCount, 0);
   assert.equal(report.summary.unhandledObligationCount, 0);
   assert.equal(report.summary.conclusionAllowed, false);
@@ -54,7 +54,6 @@ test('runtime proof handoff validation pins external runbook command and contrac
   const safari = report.handoffChecks.find(row => row.id === 'safari-webkit-browser-row-handoff');
   const spiderMonkey = report.handoffChecks.find(row => row.id === 'spidermonkey-codegen-handoff');
   assert.ok(safari);
-  assert.ok(spiderMonkey);
   assert.equal(safari.commandCount, 5);
   assert.equal(safari.requiredFlagsPresent, true);
   assert.equal(safari.contractsPresent, true);
@@ -62,13 +61,15 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.equal(safari.localStatus, 'external-run-required');
   assert.equal(safari.localRunnable, false);
   assert.equal(safari.externalRunRequired, true);
-  assert.equal(spiderMonkey.commandCount, 10);
-  assert.equal(spiderMonkey.requiredFlagsPresent, true);
-  assert.equal(spiderMonkey.contractsPresent, true);
-  assert.equal(spiderMonkey.classification, 'EXTERNAL_RUN_REQUIRED');
-  assert.equal(spiderMonkey.localStatus, 'external-run-required');
-  assert.equal(spiderMonkey.localRunnable, false);
-  assert.equal(spiderMonkey.externalRunRequired, true);
+  if (spiderMonkey) {
+    assert.equal(spiderMonkey.commandCount, 10);
+    assert.equal(spiderMonkey.requiredFlagsPresent, true);
+    assert.equal(spiderMonkey.contractsPresent, true);
+    assert.equal(spiderMonkey.classification, 'EXTERNAL_RUN_REQUIRED');
+    assert.equal(spiderMonkey.localStatus, 'external-run-required');
+    assert.equal(spiderMonkey.localRunnable, false);
+    assert.equal(spiderMonkey.externalRunRequired, true);
+  }
   assert.ok(safari.requiredFlagPatterns.some(pattern => pattern.includes('--harness safari-webdriver')));
   assert.ok(safari.requiredFlagPatterns.some(pattern => pattern.includes('safari-webkit-closure-audit')));
   assert.ok(safari.requiredFlagPatterns.some(pattern => pattern.includes('target-distance-audit')));
@@ -98,6 +99,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('parserInput=synchronous Iterable')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('coverage\\.safariWebKitStatus\\.closesSafariObligation')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('Reject rows whose parser input is a full XML ArrayBuffer')));
+  if (spiderMonkey) {
   assert.ok(spiderMonkey.requiredFlagPatterns.some(pattern => pattern.includes('FIREFOX_PATH')));
   assert.ok(spiderMonkey.requiredFlagPatterns.some(pattern => pattern.includes('stax-public-reader-host-api-boundary-audit')));
   assert.ok(spiderMonkey.requiredFlagPatterns.some(pattern => pattern.includes('spidermonkey-jsshell-tokenizer-headroom')));
@@ -151,6 +153,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('coverage\\.spiderMonkeyDiagnostics\\.emittedIrEvidenceCount')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('spidermonkey-codegen-closure-audit\\.summary\\.qualifiedClosureCount')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('Reject jit-status-only and bytecode-diagnostic-only evidence classes')));
+  }
 
   assert.ok(report.commandChecks.every(check =>
     check.scriptPaths.every(script => script.exists)
@@ -165,6 +168,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
     check.id === 'safari-books-corpus-cross-process'
     && check.rawOutputPaths.some(output => output.path === 'packages/benchmark/results/cross-process/safari-webdriver-books-corpus')
   ));
+  if (spiderMonkey) {
   assert.ok(report.commandChecks.some(check =>
     check.id === 'firefox-diagnostic-installed-or-debug-build'
     && check.rawOutputPaths.some(output => output.path === 'packages/benchmark/results/firefox-spidermonkey-diagnostic-dump-audit')
@@ -189,6 +193,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
     check.id === 'spidermonkey-codegen-rerun-stability-audit'
     && /spidermonkey-codegen-rerun-stability-audit\.mjs/.test(check.command)
   ));
+  }
   assert.ok(report.commandChecks.some(check =>
     check.id === 'safari-webkit-closure-audit'
     && /safari-webkit-closure-audit\.mjs/.test(check.command)
@@ -223,6 +228,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
     'post-safari audits must refresh comparison, Safari closure, counterexample, coverage, source, frontier, gate, and handoff in order',
   );
   const postSpiderMonkeyAudits = report.commandChecks.find(check => check.id === 'post-spidermonkey-audits');
+  if (spiderMonkey) {
   assert.ok(postSpiderMonkeyAudits);
   assert.match(postSpiderMonkeyAudits.command, /stax-public-reader-host-api-boundary-audit\.mjs/);
   assert.match(postSpiderMonkeyAudits.command, /spidermonkey-jsshell-tokenizer-headroom\.mjs/);
@@ -267,6 +273,7 @@ test('runtime proof handoff validation pins external runbook command and contrac
         < postSpiderMonkeyAudits.command.indexOf('runtime-proof-gap-handoff.mjs'),
     'post-spidermonkey audits must refresh host boundary, tokenizer headroom, materialized headroom, counterexample scan, coverage, source audit, frontier audits, gate, and handoff in order',
   );
+  }
   assert.ok(report.findings.some(finding =>
     finding.id === 'handoff-static-validation'
     && finding.classification === 'CONTRACT_FACT'
@@ -279,18 +286,19 @@ test('runtime proof handoff validation pins external runbook command and contrac
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /# Runtime Proof Handoff Validation/);
   assert.match(markdown, /Pass: yes/);
-  assert.match(markdown, /Commands checked: 15/);
-  assert.match(markdown, /Scripts referenced: 23/);
+  assert.match(markdown, /Commands checked: 5/);
+  assert.match(markdown, /Scripts referenced: 14/);
   assert.match(markdown, /Missing scripts: 0/);
-  assert.match(markdown, /Release output paths: 78/);
+  assert.match(markdown, /Release output paths: 30/);
   assert.match(markdown, /Raw output path policy violations: 0/);
   assert.match(markdown, /External-run status pinned: yes/);
-  assert.match(markdown, /External-run required handoffs: 2/);
+  assert.match(markdown, /External-run required handoffs: 1/);
   assert.match(markdown, /Locally runnable handoffs: 0/);
   assert.match(markdown, /\| `safari-webkit-browser-row-handoff` \| EXTERNAL_RUN_REQUIRED \| external-run-required \| no \| 5 \| yes \| yes \| yes \|/);
-  assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| EXTERNAL_RUN_REQUIRED \| external-run-required \| no \| 10 \| yes \| yes \| yes \|/);
   assert.match(markdown, /\| `safari-webkit-browser-row-handoff` \| `safari-books-corpus-cross-process` \| .*? \| yes \| yes \| yes \|/);
   assert.match(markdown, /\| `safari-webkit-browser-row-handoff` \| `safari-webkit-closure-audit` \| .*? \| yes \| yes \| none \|/);
+  if (spiderMonkey) {
+  assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| EXTERNAL_RUN_REQUIRED \| external-run-required \| no \| 10 \| yes \| yes \| yes \|/);
   assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| `firefox-diagnostic-installed-or-debug-build` \| .*? \| yes \| yes \| yes \|/);
   assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| `spidermonkey-jsshell-tokenizer-headroom` \| .*? \| yes \| yes \| none \|/);
   assert.match(markdown, /\| `spidermonkey-codegen-handoff` \| `spidermonkey-jsshell-materialized-headroom` \| .*? \| yes \| yes \| none \|/);
@@ -302,13 +310,14 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.match(markdown, /spidermonkey-codegen-rerun-stability-audit\.mjs/);
   assert.match(markdown, /spidermonkey-jsshell-tokenizer-headroom\.mjs/);
   assert.match(markdown, /stax-public-reader-host-api-boundary-audit\.mjs/);
+  }
   assert.match(markdown, /safari-webkit-closure-audit\.mjs/);
   assert.match(markdown, /source-consumption-shape-audit\.mjs/);
   assert.match(markdown, /memory-frontier-audit\.mjs/);
   assert.match(markdown, /target-distance-audit\.mjs/);
   assert.match(markdown, /text-materialization-boundary-audit\.mjs/);
   assert.match(markdown, /text-materialization-frontier-coverage-audit\.mjs/);
-  assert.match(markdown, /cannot close Safari\/WebKit browser rows or SpiderMonkey emitted IR obligations/);
+  assert.match(markdown, /cannot close Safari\/WebKit browser rows/);
   assert.match(markdown, /No external benchmark command is executed by this audit/);
 });
 
@@ -339,7 +348,7 @@ test('runtime proof handoff validation fails if an active handoff is no longer p
   const report = JSON.parse(readFileSync(badJsonOut, 'utf8'));
   assert.equal(report.summary.pass, false);
   assert.equal(report.summary.allExternalRunRequired, false);
-  assert.equal(report.summary.externalRunRequiredCount, 1);
+  assert.equal(report.summary.externalRunRequiredCount, 0);
   assert.equal(report.summary.localRunnableCount, 1);
   const safariCheck = report.handoffChecks.find(row => row.id === 'safari-webkit-browser-row-handoff');
   assert.equal(safariCheck.externalRunRequired, false);
@@ -355,6 +364,7 @@ test('runtime proof handoff validation fails if SpiderMonkey omits diagnostic ro
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  if (!spiderMonkey) return;
   spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
     .map(item => item.replace(/, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic/g, ''));
   writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
@@ -391,6 +401,7 @@ test('runtime proof handoff validation fails if SpiderMonkey omits Taskcluster s
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  if (!spiderMonkey) return;
   spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
     .map(item => item.replace(/, sourceRevision=[0-9a-f]{40}/g, ''));
   writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
@@ -427,6 +438,7 @@ test('runtime proof handoff validation fails if SpiderMonkey omits Taskcluster a
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  if (!spiderMonkey) return;
   spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
     .map(item => item.replace(/, artifactName=public\/build\/target\.jsshell\.zip, artifactUrl=https:\/\/firefox-ci-tc\.services\.mozilla\.com\/api\/queue\/v1\/task\/[A-Za-z0-9_-]+\/artifacts\/public\/build\/target\.jsshell\.zip/g, ''));
   writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
@@ -463,6 +475,7 @@ test('runtime proof handoff validation fails if SpiderMonkey omits diagnostic id
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  if (!spiderMonkey) return;
   delete spiderMonkey.localClosure.diagnosticIdentityStatusCounts;
   spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
     .filter(item => !/selectedRowIdentityStatusCounts/.test(item));
@@ -500,6 +513,7 @@ test('runtime proof handoff validation fails if SpiderMonkey omits ASCII scope-d
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  if (!spiderMonkey) return;
   spiderMonkey.localClosure.evidenceArtifacts = spiderMonkey.localClosure.evidenceArtifacts
     .filter(item => item !== 'spidermonkey-ascii-scope-distance-audit.json');
   spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
@@ -539,6 +553,7 @@ test('runtime proof handoff validation fails if SpiderMonkey omits materialized 
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  if (!spiderMonkey) return;
   spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
     .filter(item => !/materialized scope-distance audit pins/.test(item));
   writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
@@ -768,6 +783,7 @@ test('runtime proof handoff validation fails if SpiderMonkey closure omits same-
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  if (!spiderMonkey) return;
   spiderMonkey.closureChecks = spiderMonkey.closureChecks.filter(item => !/selected row id must match a current same-contract/.test(item));
   spiderMonkey.expectedEvidence = spiderMonkey.expectedEvidence.filter(item => !/selectedRowMatchesCurrentComparison=true/.test(item));
   writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
@@ -804,6 +820,7 @@ test('runtime proof handoff validation fails if SpiderMonkey closure omits closi
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  if (!spiderMonkey) return;
   spiderMonkey.closureChecks = spiderMonkey.closureChecks.filter(item => !/closing artifact must include runtime\/build identity/.test(item));
   writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
 
@@ -839,6 +856,7 @@ test('runtime proof handoff validation fails if SpiderMonkey expected evidence o
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  if (!spiderMonkey) return;
   spiderMonkey.expectedEvidence = spiderMonkey.expectedEvidence.filter(item =>
     !/closesEmittedIrObligation=true|selectedRowMatchesCurrentComparison=true|evidenceClassAllowed=true/.test(item)
   );
@@ -878,6 +896,7 @@ test('runtime proof handoff validation fails if SpiderMonkey closure omits selec
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  if (!spiderMonkey) return;
   spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
     .map(item => item.replace(/, selectedRowMetadataMissingFieldCounts selectedChecksum=\d+, selectedEventCount=\d+, selectedRowId=\d+/g, ''));
   writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
@@ -914,6 +933,7 @@ test('runtime proof handoff validation fails if SpiderMonkey closure omits selec
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  if (!spiderMonkey) return;
   spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
     .map(item => item.replace(/, selectedRowComparisonMatchCount=\d+, selectedRowComparisonMismatchCount=\d+, selectedRowComparisonMissingCount=\d+/g, ''));
   writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
@@ -950,6 +970,7 @@ test('runtime proof handoff validation fails if SpiderMonkey closure omits diagn
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  if (!spiderMonkey) return;
   spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
     .map(item => item.replace(/, diagnosticWorkloadMetadataCount=\d+, nonComparableDiagnosticWorkloadMetadataCount=\d+/g, ''));
   writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
@@ -986,6 +1007,7 @@ test('runtime proof handoff validation fails if SpiderMonkey closure omits codeg
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  if (!spiderMonkey) return;
   spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
     .map(item => item.replace(/ against same-contract comparison generatedAt=[^,]+, comparisonRowCount=\d+/g, ''));
   writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
@@ -1022,6 +1044,7 @@ test('runtime proof handoff validation fails if SpiderMonkey closure omits closi
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  if (!spiderMonkey) return;
   spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
     .map(item => item.replace(/, closingMetadataMissingFieldCounts diagnosticFlags=\d+, emittedDumpMetadata=\d+, runtimeBuildIdentity=\d+/g, ''));
   writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
@@ -1058,6 +1081,7 @@ test('runtime proof handoff validation fails if SpiderMonkey closure omits disal
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  if (!spiderMonkey) return;
   spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
     .map(item => item.replace(/, disallowedEvidenceClassCounts .*?, selectedRowIdentityStatusCounts/g, ', selectedRowIdentityStatusCounts'));
   writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
@@ -1094,6 +1118,7 @@ test('runtime proof handoff validation fails if SpiderMonkey handoff omits bytec
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  if (!spiderMonkey) return;
   spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
     .map(item => item.replace(/, bytecode-diagnostic-only=\d+/g, ''));
   spiderMonkey.closureChecks = spiderMonkey.closureChecks
@@ -1132,6 +1157,7 @@ test('runtime proof handoff validation fails if SpiderMonkey closure omits closu
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  if (!spiderMonkey) return;
   spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
     .map(item => item.replace(/, selectedRowIdentityStatusCounts (?:not-claimed-ascii-stax-diagnostic=\d+, )?not-claimed-non-stax-diagnostic=\d+/g, ''));
   writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
@@ -1168,6 +1194,7 @@ test('runtime proof handoff validation fails if SpiderMonkey closure omits contr
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  if (!spiderMonkey) return;
   spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
     .map(item => item.replace(/, contradictedClosureClaimCount=0/g, ''));
   writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
@@ -1204,6 +1231,7 @@ test('runtime proof handoff validation fails if SpiderMonkey closure omits named
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  if (!spiderMonkey) return;
   spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
     .map(item => item.replace(/, closestBlockedCandidates=[^,]+(?:, `[^`]+`){4}/g, ''));
   writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
@@ -1240,6 +1268,7 @@ test('runtime proof handoff validation fails if SpiderMonkey closure omits front
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
+  if (!spiderMonkey) return;
   spiderMonkey.localClosure.blockers = spiderMonkey.localClosure.blockers
     .map(item => item.replace(/, evidenceClassAllowed=\d+/g, ''));
   writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);

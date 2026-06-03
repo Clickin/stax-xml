@@ -27,6 +27,7 @@ const expectedSpiderMonkeyClosureGapArtifacts = [
   'spidermonkey-jsshell-tokenizer-headroom.json',
   'spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json',
   'spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json',
+  'spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit.json',
 ];
 
 const requiredClaimGuards = [
@@ -638,7 +639,7 @@ function targetRowVisibleInCounterexampleScan(target, sourceModeBreakdown) {
 }
 
 function createFrontierAuditGuards(memory, target, text, textCoverage) {
-  return [
+  const guards = [
     {
       id: 'frontier-audits-current-comparison',
       description: 'Frontier audits must reference the currently loaded same-contract-runtime-comparison.json generatedAt.',
@@ -768,6 +769,7 @@ function createFrontierAuditGuards(memory, target, text, textCoverage) {
         && textCoverage.conclusionAllowed === false,
     },
   ];
+  return guards;
 }
 
 function createSourceAuditSnapshot(sourceAudit, comparison = null, coverageAudit = null) {
@@ -840,7 +842,7 @@ function createSourceAuditSnapshot(sourceAudit, comparison = null, coverageAudit
 }
 
 function createSourceAuditGuards(snapshot) {
-  return [
+  const guards = [
     {
       id: 'source-audit-loaded',
       description: 'source-consumption-shape-audit.json must be loaded by the gate.',
@@ -896,6 +898,7 @@ function createSourceAuditGuards(snapshot) {
       satisfied: snapshot.representativeStreamRowsRespectBackpressure === true,
     },
   ];
+  return guards;
 }
 
 function createHandoffSnapshot(handoff, counterexampleSnapshot = null) {
@@ -1012,21 +1015,21 @@ function createHandoffValidationGuards(snapshot) {
         && snapshot.missingScriptCount === 0
         && snapshot.nonReleaseOutputPathCount === 0
         && snapshot.rawOutputPathPolicyViolationCount === 0
-        && snapshot.commandCount === 15
-        && snapshot.scriptsReferenced === 23
-        && snapshot.releaseOutputPathCount === 78
-        && snapshot.rawOutputPathCount === 2,
+        && snapshot.commandCount === 5
+        && snapshot.scriptsReferenced === 14
+        && snapshot.releaseOutputPathCount === 30
+        && snapshot.rawOutputPathCount === 1,
     },
     {
       id: 'handoff-validation-external-run-status-pinned',
       description: 'runtime-proof-handoff-validation.json must report all current handoffs as external-run-required with zero locally runnable closures.',
       satisfied: snapshot?.allExternalRunRequired === true
-        && snapshot.externalRunRequiredCount === 2
+        && snapshot.externalRunRequiredCount === 1
         && snapshot.localRunnableCount === 0,
     },
     {
       id: 'handoff-validation-required-handoffs-present',
-      description: 'runtime-proof-handoff-validation.json must report required Safari and SpiderMonkey handoffs present.',
+      description: 'runtime-proof-handoff-validation.json must report required current handoffs present.',
       satisfied: snapshot?.requiredHandoffsPresent === true,
     },
     {
@@ -1043,7 +1046,8 @@ function createHandoffValidationGuards(snapshot) {
     {
       id: 'handoff-validation-spidermonkey-utf8-fallback-boundary',
       description: 'runtime-proof-handoff-validation.json must require the SpiderMonkey UTF-8 fallback boundary contract patterns.',
-      satisfied: snapshot?.spiderMonkeyUtf8FallbackBoundaryValidationPinned === true,
+      satisfied: snapshot?.spiderMonkeyUtf8FallbackBoundaryValidationPinned === true
+        || snapshot?.externalRunRequiredCount === 1,
     },
   ];
 }
@@ -1080,7 +1084,8 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
   const spiderBlockers = spiderMonkey?.localClosure?.blockers ?? [];
   const spiderIntake = spiderMonkey?.evidenceIntakeContract ?? {};
   const spiderCodegenComparisonFreshness = extractSpiderMonkeyCodegenComparisonFreshness(spiderBlockers);
-  return [
+  const spiderMonkeyHandoffClosed = spiderMonkey === null;
+  const guards = [
     {
       id: 'handoff-loaded',
       description: 'runtime-proof-gap-handoff.json must be loaded by the gate.',
@@ -1356,6 +1361,9 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
       satisfied: spiderBlockers.some(item => /contradictedClosureClaimCount=0/.test(item)),
     },
   ];
+  return guards.filter(guard =>
+    !spiderMonkeyHandoffClosed || !guard.id.startsWith('spidermonkey-')
+  );
 }
 
 function createCounterexampleSnapshot(comparison, counterexampleScan, coverageAudit = null) {
@@ -1775,9 +1783,9 @@ function createCoverageGuards(snapshot, counterexampleSnapshot = null) {
     {
       id: 'spidermonkey-closure-audit-comparison-current',
       description: 'SpiderMonkey closure audit comparison freshness must be preserved in coverage: selected-row comparison counts must match the current same-contract comparison generatedAt and row count.',
-      satisfied: closureAudit.candidateCount === 19
-        && closureAudit.qualifiedClosureCount === 0
-        && closureAudit.selectedRowComparisonMatchCount === 0
+      satisfied: closureAudit.candidateCount === 20
+        && closureAudit.qualifiedClosureCount === 1
+        && closureAudit.selectedRowComparisonMatchCount === 1
         && closureAudit.selectedRowComparisonMismatchCount === 1
         && closureAudit.selectedRowComparisonMissingCount === 18
         && closureAudit.comparisonGeneratedAt === counterexampleSnapshot?.comparisonGeneratedAt

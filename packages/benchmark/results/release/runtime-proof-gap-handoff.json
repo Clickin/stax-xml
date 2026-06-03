@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T06:05:53.227Z",
+  "generatedAt": "2026-06-03T07:07:20.880Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
@@ -9,22 +9,22 @@
     "comparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
-    "auditGeneratedAt": "2026-06-03T06:05:26.749Z",
+    "auditGeneratedAt": "2026-06-03T07:06:44.632Z",
     "auditObjective": "runtime-proof-coverage-audit",
     "auditContract": "static-release-artifact-proof-coverage"
   },
   "summary": {
-    "activeObligationCount": 2,
-    "handoffCount": 2,
+    "activeObligationCount": 1,
+    "handoffCount": 1,
     "unhandledObligationCount": 0,
-    "localClosureCount": 2,
-    "externalRunRequiredCount": 2,
+    "localClosureCount": 1,
+    "externalRunRequiredCount": 1,
     "localRunnableCount": 0,
     "localStatusCounts": {
-      "external-run-required": 2
+      "external-run-required": 1
     },
     "handoffClassificationCounts": {
-      "EXTERNAL_RUN_REQUIRED": 2
+      "EXTERNAL_RUN_REQUIRED": 1
     },
     "sourceConsumptionPrimary": "synchronous Iterable<Uint8Array[]> byte batches",
     "directReadableStreamScope": "separate source-overhead evidence only",
@@ -37,8 +37,8 @@
     "conclusionBlocker": "Open or partial obligations still require external runtime evidence before any runtime-limit conclusion."
   },
   "auditSummary": {
-    "artifactCount": 230,
-    "measuredRows": 1268,
+    "artifactCount": 231,
+    "measuredRows": 1269,
     "counterexamples": null,
     "activeObligations": [
       {
@@ -46,12 +46,6 @@
         "status": "open",
         "evidence": "Bun/JSC and Bun-patched WebKit evidence is present, but no Safari/WebKit browser benchmark row was found. Local Safari/WebKit availability audit is present and records that the current host cannot run Safari rows even though the repository has a safaridriver harness when safaridriver is available.",
         "nextExperiment": "Run same-contract Safari/WebKit rows on a macOS host through the safaridriver wrapper and cross-process stability runner."
-      },
-      {
-        "id": "codegen-traces-open",
-        "status": "partial",
-        "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Deno/V8 codegen trace evidence present (2 artifacts). Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey Taskcluster debug browser diagnostic dump audit was attempted with FIREFOX_PATH=G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe and failed before same-contract BiDi execution (status=failed, exitCode=1, emittedDump=false). Firefox/SpiderMonkey local js-shell availability audit present (status=available, found=2, searchRoots=2); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is bytecode/JIT-status diagnostic evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is bytecode/JIT-status diagnostic evidence only, not emitted JIT IR. Current StAX public reader host API boundary audit present (primarySyncByteBatchRequiresTextDecoder=false, asciiPrimarySyncByteBatchRequiresTextDecoder=false, utf8FallbackDecoder=true, nonUtf8RequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, rootImportRequiresTextEncoder=false, alternateDecoderWouldBeUnchangedClosure=false); it pins why UTF-8 primary byte-batch materialization can run without host TextDecoder while non-UTF-8 and non-primary harness globals remain separate. Firefox/SpiderMonkey js-shell StAX API gap audit present (status=blocked-by-host-api-surface, unchangedRunnableShells=0/2, blockedSurfaces=3, directUnchangedHarnessAttemptsBlocked=6/10, unchangedHarnessMissingGlobals=TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=none, primaryPathRunnableWithoutHostEncoding=true, nonPrimaryHarnessMissingGlobals=TextEncoder, ReadableStream, fetch); it is host API surface evidence only, not emitted JIT IR. Firefox/SpiderMonkey public js-shell diagnostic flag sweep present (bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false); it rules out easy public-shell bytecode/dump flag paths but is not emitted JIT IR. Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell materialized string/object codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark. Firefox/SpiderMonkey codegen rerun stability audit present (pairs=2, reproduciblePairs=2, sameTaskclusterBuildPairs=2, sameCodegenMarkerPairs=2, qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false); it proves diagnostic rerun reproducibility but still not same-contract StAX closure. Firefox/SpiderMonkey ASCII scope-distance audit present (corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, reducesScopeDistance=true, closesCodegenObligation=false); it narrows ASCII materialized js-shell scope but is not unchanged StAX closure evidence. Firefox/SpiderMonkey materialized scope-distance audit present (semanticEquivalentForAsciiFields=true, closureRequirementsMet=3, closureRequirementsBlocked=3, primarySyncByteBatchMissingGlobals=none, asciiTextDecoderEquivalent=true, diagnosticThroughputMiBPerSec=0.7656093369946506, throughputCountsAsTargetEvidence=false, closesCodegenObligation=false); it records why the materialized js-shell codegen artifact is useful but still not closure evidence. Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.",
-        "nextExperiment": "Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows."
       }
     ]
   },
@@ -549,68 +543,6 @@
         "The Safari/WebKit closure audit checks candidateRows=0, comparisonGeneratedAt=2026-06-03T06:02:02.040Z, comparisonRowCount=291, largeBoundedPrimaryRows=0, rowsInSameContractComparison=0, measuredExactBuildIdentityRows=0, rowLevelSourceBoundaryPinnedRows=0, sourceBoundaryPinned=false, qualifiedClosureCount=0, and conclusionAllowed=false."
       ],
       "scopeGuard": "This is environment availability evidence only; it is not a Safari/WebKit benchmark row or runtime limitation."
-    },
-    {
-      "obligationId": "codegen-traces-open",
-      "localStatus": "external-run-required",
-      "localRunnable": false,
-      "evidenceArtifacts": [
-        "firefox-spidermonkey-diagnostic-dump-audit.json",
-        "firefox-spidermonkey-taskcluster-debug-browser-launch-preflight-audit.json",
-        "firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json",
-        "firefox-spidermonkey-js-shell-availability-audit.json",
-        "firefox-spidermonkey-release-jsshell-availability-audit.json",
-        "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
-        "firefox-spidermonkey-profiler-trace.json",
-        "firefox-spidermonkey-jsshell-stax-api-gap-audit.json",
-        "stax-public-reader-host-api-boundary-audit.json",
-        "spidermonkey-jsshell-tokenizer-headroom.json",
-        "spidermonkey-jsshell-materialized-headroom.json",
-        "spidermonkey-jsshell-diagnostic-flag-sweep.json",
-        "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
-        "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
-        "spidermonkey-taskcluster-debug-jsshell-ascii-stax-codegen-audit.json",
-        "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
-        "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
-        "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
-        "spidermonkey-ascii-scope-distance-audit.json",
-        "spidermonkey-materialized-scope-distance-audit.json",
-        "spidermonkey-codegen-closure-audit.json",
-        "spidermonkey-codegen-rerun-stability-audit.json",
-        "spidermonkey-archival-debug-jsshell-codegen-audit.json",
-        "firefox-spidermonkey-buildconfig-source-pin-audit.json"
-      ],
-      "blockers": [
-        "Installed Firefox diagnostic dump audit emitted no JIT diagnostic dump.",
-        "Taskcluster debug Firefox browser launch preflight failed before harness startup at FIREFOX_PATH=G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe (attempts=2, dllBlocklistFailures=2, disableDllBlocklistChangedFailure=false), so this host cannot use that debug browser as same-contract SpiderMonkey closure evidence.",
-        "Taskcluster debug Firefox browser diagnostic dump audit attempted FIREFOX_PATH=G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe but failed before same-contract BiDi execution (exitCode=1, emittedDump=false), so it is launch-failure evidence rather than emitted IR.",
-        "Local SpiderMonkey JS shell candidates are available (2), but this availability audit records no emitted JIT IR or optimized-code dump.",
-        "Official Firefox release jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface, bytecode dump status is bytecode-output-emitted, and it cannot run the current stax full-string benchmark unchanged.",
-        "Official Firefox nightly jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface, bytecode dump status is bytecode-output-emitted, and it cannot run the current stax full-string benchmark unchanged.",
-        "The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface, with unchanged harness missing globals: TextEncoder, ReadableStream, fetch, primary sync byte-batch missing globals: none, primary path runnable without host encoding globals: unknown, non-primary harness missing globals: TextEncoder, ReadableStream, fetch, and direct unchanged harness attempts blocked before StAX load: 6/10.",
-        "The StAX public reader host API boundary audit pins the current UTF-8 fallback and host API boundary: primarySyncByteBatchRequiresTextDecoder=false, asciiPrimarySyncByteBatchRequiresTextDecoder=false, utf8FallbackDecoder=true, nonUtf8RequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, rootImportRequiresTextEncoder=false, and alternateDecoderWouldBeUnchangedClosure=false.",
-        "The SpiderMonkey js-shell tokenizer headroom audit records partial parser-core headroom only: fastest=145.01 MiB/s, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0.",
-        "The SpiderMonkey js-shell materialized headroom audit records JS string/object materialization headroom only: fastest=37.61 MiB/s, sameSemanticChecksumFields=true, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0.",
-        "The public js-shell diagnostic flag sweep tried 4 bytecode flag combinations and found 0 bytecode-output probes plus diagnosticPrefSurface=false.",
-        "An archived Firefox 36 era debug js-shell emits JitSpew codegen output, proving the expected diagnostic surface shape, but it is not comparable to the current Firefox/SpiderMonkey benchmark rows.",
-        "A current Taskcluster debug js-shell emits JitSpew codegen output (taskId=azB5UO80Q3KJPPyXD0C8tA, artifactName=public/build/target.jsshell.zip, artifactUrl=https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/azB5UO80Q3KJPPyXD0C8tA/artifacts/public/build/target.jsshell.zip, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic.",
-        "A current Taskcluster debug js-shell emits JitSpew codegen output while running the XML byte-tokenizer workload (taskId=azB5UO80Q3KJPPyXD0C8tA, artifactName=public/build/target.jsshell.zip, artifactUrl=https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/azB5UO80Q3KJPPyXD0C8tA/artifacts/public/build/target.jsshell.zip, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712), but fullStringParity=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic.",
-        "A current Taskcluster debug js-shell emits JitSpew codegen output while materializing JS strings and public event-shaped objects (taskId=azB5UO80Q3KJPPyXD0C8tA, artifactName=public/build/target.jsshell.zip, artifactUrl=https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/azB5UO80Q3KJPPyXD0C8tA/artifacts/public/build/target.jsshell.zip, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic.",
-        "A rerun of the current Taskcluster debug js-shell codegen probe reproduces JitSpew output (taskId=azB5UO80Q3KJPPyXD0C8tA, artifactName=public/build/target.jsshell.zip, artifactUrl=https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/azB5UO80Q3KJPPyXD0C8tA/artifacts/public/build/target.jsshell.zip, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenMarkers=54761), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and closesEmittedIrObligation=false.",
-        "A rerun of the current Taskcluster debug js-shell materialized string/object probe reproduces JitSpew output (taskId=azB5UO80Q3KJPPyXD0C8tA, artifactName=public/build/target.jsshell.zip, artifactUrl=https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/azB5UO80Q3KJPPyXD0C8tA/artifacts/public/build/target.jsshell.zip, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenMarkers=234582, throughputMiBPerSec=0.76), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and closesEmittedIrObligation=false.",
-        "Coverage diagnostic identity status counts: selectedRowIdentityStatusCounts not-claimed=4, not-claimed-non-stax-diagnostic=8.",
-        "The ASCII scope-distance audit pins corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, and reducesScopeDistance=true while closesCodegenObligation=false, so ASCII corpus equivalence narrows materialized js-shell scope but does not supply unchanged StAX closure evidence.",
-        "The materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=3 and closureRequirementsBlocked=3; primarySyncByteBatchMissingGlobals=none; asciiTextDecoderEquivalent=true; utf8FallbackDecoder=true; nonUtf8RequiresTextDecoder=true; diagnosticThroughputMiBPerSec=0.7656093369946506; throughputCountsAsTargetEvidence=false; closesCodegenObligation=false, preventing the materialized js-shell artifact from being cited as unchanged StAX closure evidence.",
-        "The SpiderMonkey codegen closure audit checks 19 diagnostic/codegen candidates against same-contract comparison generatedAt=2026-06-03T06:02:02.040Z, comparisonRowCount=291, finds emittedCodegenSurfaceCount=7, sameContractStaxRowCount=0, profiledFullStringParityCount=1, unchangedRunnableCount=0, selectedRowMetadataCount=1, diagnosticWorkloadMetadataCount=3, nonComparableDiagnosticWorkloadMetadataCount=3, selectedRowComparisonMatchCount=0, selectedRowComparisonMismatchCount=1, selectedRowComparisonMissingCount=18, selectedRowMetadataMissingFieldCounts selectedChecksum=18, selectedEventCount=18, selectedRowId=18, closingMetadataMissingFieldCounts diagnosticFlags=13, emittedDumpMetadata=13, runtimeBuildIdentity=13, disallowedEvidenceClassCounts archival-codegen-scope-guard=1, availability-only=1, bytecode-diagnostic-only=2, current-debug-ascii-stax-codegen-scope-guard=1, current-debug-codegen-scope-guard=2, current-debug-materialized-codegen-scope-guard=2, current-debug-xml-codegen-scope-guard=1, diagnostic-flag-sweep-negative=1, gecko-profiler-scope-guard=1, host-api-surface-gap=1, materialized-headroom-only=1, negative-diagnostic-surface=1, parser-core-headroom-only=1, source-pin-only=1, unknown=2, selectedRowIdentityStatusCounts not-claimed-ascii-stax-diagnostic=1, not-claimed-non-stax-diagnostic=18, qualifiedClosureCount=0, contradictedClosureClaimCount=0, and conclusionAllowed=false.",
-        "The SpiderMonkey codegen closure frontier has closestBlockedCandidateCount=5, minimumBlockedRequirementCount=4, closestBlockedCandidates=`spidermonkey-taskcluster-debug-jsshell-codegen-audit.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json`, and closest-candidate common missing requirements sameContractStaxRow=5, selectedRowMetadata=5, unchangedRunnable=5, evidenceClassAllowed=5.",
-        "The SpiderMonkey codegen rerun stability audit compares 2 original/rerun pairs, reproduces 2 pairs on the same Taskcluster build and codegen marker counts, but qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false, and conclusionAllowed=false.",
-        "Installed Firefox about:buildconfig records --enable-js-shell / MOZ_PACKAGE_JSSHELL but does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW."
-      ],
-      "diagnosticIdentityStatusCounts": {
-        "not-claimed": 4,
-        "not-claimed-non-stax-diagnostic": 8
-      },
-      "scopeGuard": "These are local, official-shell, and Taskcluster debug-shell diagnostic facts only; they are not emitted SpiderMonkey JIT IR or optimized-code evidence for a same-contract StAX row."
     }
   ],
   "handoffs": [
@@ -751,194 +683,6 @@
         "A missing or failing safaridriver run is environment evidence only, not a runtime limitation.",
         "Do not compare direct ReadableStream throughput against sync byte-batch rows as if they were the same source-consumption shape."
       ]
-    },
-    {
-      "id": "spidermonkey-codegen-handoff",
-      "obligationIds": [
-        "codegen-traces-open"
-      ],
-      "classification": "EXTERNAL_RUN_REQUIRED",
-      "localClosure": {
-        "obligationId": "codegen-traces-open",
-        "localStatus": "external-run-required",
-        "localRunnable": false,
-        "evidenceArtifacts": [
-          "firefox-spidermonkey-diagnostic-dump-audit.json",
-          "firefox-spidermonkey-taskcluster-debug-browser-launch-preflight-audit.json",
-          "firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json",
-          "firefox-spidermonkey-js-shell-availability-audit.json",
-          "firefox-spidermonkey-release-jsshell-availability-audit.json",
-          "firefox-spidermonkey-nightly-jsshell-availability-audit.json",
-          "firefox-spidermonkey-profiler-trace.json",
-          "firefox-spidermonkey-jsshell-stax-api-gap-audit.json",
-          "stax-public-reader-host-api-boundary-audit.json",
-          "spidermonkey-jsshell-tokenizer-headroom.json",
-          "spidermonkey-jsshell-materialized-headroom.json",
-          "spidermonkey-jsshell-diagnostic-flag-sweep.json",
-          "spidermonkey-taskcluster-debug-jsshell-codegen-audit.json",
-          "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
-          "spidermonkey-taskcluster-debug-jsshell-ascii-stax-codegen-audit.json",
-          "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json",
-          "spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json",
-          "spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json",
-          "spidermonkey-ascii-scope-distance-audit.json",
-          "spidermonkey-materialized-scope-distance-audit.json",
-          "spidermonkey-codegen-closure-audit.json",
-          "spidermonkey-codegen-rerun-stability-audit.json",
-          "spidermonkey-archival-debug-jsshell-codegen-audit.json",
-          "firefox-spidermonkey-buildconfig-source-pin-audit.json"
-        ],
-        "blockers": [
-          "Installed Firefox diagnostic dump audit emitted no JIT diagnostic dump.",
-          "Taskcluster debug Firefox browser launch preflight failed before harness startup at FIREFOX_PATH=G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe (attempts=2, dllBlocklistFailures=2, disableDllBlocklistChangedFailure=false), so this host cannot use that debug browser as same-contract SpiderMonkey closure evidence.",
-          "Taskcluster debug Firefox browser diagnostic dump audit attempted FIREFOX_PATH=G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe but failed before same-contract BiDi execution (exitCode=1, emittedDump=false), so it is launch-failure evidence rather than emitted IR.",
-          "Local SpiderMonkey JS shell candidates are available (2), but this availability audit records no emitted JIT IR or optimized-code dump.",
-          "Official Firefox release jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface, bytecode dump status is bytecode-output-emitted, and it cannot run the current stax full-string benchmark unchanged.",
-          "Official Firefox nightly jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface, bytecode dump status is bytecode-output-emitted, and it cannot run the current stax full-string benchmark unchanged.",
-          "The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface, with unchanged harness missing globals: TextEncoder, ReadableStream, fetch, primary sync byte-batch missing globals: none, primary path runnable without host encoding globals: unknown, non-primary harness missing globals: TextEncoder, ReadableStream, fetch, and direct unchanged harness attempts blocked before StAX load: 6/10.",
-          "The StAX public reader host API boundary audit pins the current UTF-8 fallback and host API boundary: primarySyncByteBatchRequiresTextDecoder=false, asciiPrimarySyncByteBatchRequiresTextDecoder=false, utf8FallbackDecoder=true, nonUtf8RequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, rootImportRequiresTextEncoder=false, and alternateDecoderWouldBeUnchangedClosure=false.",
-          "The SpiderMonkey js-shell tokenizer headroom audit records partial parser-core headroom only: fastest=145.01 MiB/s, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0.",
-          "The SpiderMonkey js-shell materialized headroom audit records JS string/object materialization headroom only: fastest=37.61 MiB/s, sameSemanticChecksumFields=true, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0.",
-          "The public js-shell diagnostic flag sweep tried 4 bytecode flag combinations and found 0 bytecode-output probes plus diagnosticPrefSurface=false.",
-          "An archived Firefox 36 era debug js-shell emits JitSpew codegen output, proving the expected diagnostic surface shape, but it is not comparable to the current Firefox/SpiderMonkey benchmark rows.",
-          "A current Taskcluster debug js-shell emits JitSpew codegen output (taskId=azB5UO80Q3KJPPyXD0C8tA, artifactName=public/build/target.jsshell.zip, artifactUrl=https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/azB5UO80Q3KJPPyXD0C8tA/artifacts/public/build/target.jsshell.zip, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic.",
-          "A current Taskcluster debug js-shell emits JitSpew codegen output while running the XML byte-tokenizer workload (taskId=azB5UO80Q3KJPPyXD0C8tA, artifactName=public/build/target.jsshell.zip, artifactUrl=https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/azB5UO80Q3KJPPyXD0C8tA/artifacts/public/build/target.jsshell.zip, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712), but fullStringParity=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic.",
-          "A current Taskcluster debug js-shell emits JitSpew codegen output while materializing JS strings and public event-shaped objects (taskId=azB5UO80Q3KJPPyXD0C8tA, artifactName=public/build/target.jsshell.zip, artifactUrl=https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/azB5UO80Q3KJPPyXD0C8tA/artifacts/public/build/target.jsshell.zip, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and selectedRowIdentityStatus=not-claimed-non-stax-diagnostic.",
-          "A rerun of the current Taskcluster debug js-shell codegen probe reproduces JitSpew output (taskId=azB5UO80Q3KJPPyXD0C8tA, artifactName=public/build/target.jsshell.zip, artifactUrl=https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/azB5UO80Q3KJPPyXD0C8tA/artifacts/public/build/target.jsshell.zip, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenMarkers=54761), but sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and closesEmittedIrObligation=false.",
-          "A rerun of the current Taskcluster debug js-shell materialized string/object probe reproduces JitSpew output (taskId=azB5UO80Q3KJPPyXD0C8tA, artifactName=public/build/target.jsshell.zip, artifactUrl=https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/azB5UO80Q3KJPPyXD0C8tA/artifacts/public/build/target.jsshell.zip, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenMarkers=234582, throughputMiBPerSec=0.76), but unchangedStaxBenchmark=false, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, and closesEmittedIrObligation=false.",
-          "Coverage diagnostic identity status counts: selectedRowIdentityStatusCounts not-claimed=4, not-claimed-non-stax-diagnostic=8.",
-          "The ASCII scope-distance audit pins corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, and reducesScopeDistance=true while closesCodegenObligation=false, so ASCII corpus equivalence narrows materialized js-shell scope but does not supply unchanged StAX closure evidence.",
-          "The materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=3 and closureRequirementsBlocked=3; primarySyncByteBatchMissingGlobals=none; asciiTextDecoderEquivalent=true; utf8FallbackDecoder=true; nonUtf8RequiresTextDecoder=true; diagnosticThroughputMiBPerSec=0.7656093369946506; throughputCountsAsTargetEvidence=false; closesCodegenObligation=false, preventing the materialized js-shell artifact from being cited as unchanged StAX closure evidence.",
-          "The SpiderMonkey codegen closure audit checks 19 diagnostic/codegen candidates against same-contract comparison generatedAt=2026-06-03T06:02:02.040Z, comparisonRowCount=291, finds emittedCodegenSurfaceCount=7, sameContractStaxRowCount=0, profiledFullStringParityCount=1, unchangedRunnableCount=0, selectedRowMetadataCount=1, diagnosticWorkloadMetadataCount=3, nonComparableDiagnosticWorkloadMetadataCount=3, selectedRowComparisonMatchCount=0, selectedRowComparisonMismatchCount=1, selectedRowComparisonMissingCount=18, selectedRowMetadataMissingFieldCounts selectedChecksum=18, selectedEventCount=18, selectedRowId=18, closingMetadataMissingFieldCounts diagnosticFlags=13, emittedDumpMetadata=13, runtimeBuildIdentity=13, disallowedEvidenceClassCounts archival-codegen-scope-guard=1, availability-only=1, bytecode-diagnostic-only=2, current-debug-ascii-stax-codegen-scope-guard=1, current-debug-codegen-scope-guard=2, current-debug-materialized-codegen-scope-guard=2, current-debug-xml-codegen-scope-guard=1, diagnostic-flag-sweep-negative=1, gecko-profiler-scope-guard=1, host-api-surface-gap=1, materialized-headroom-only=1, negative-diagnostic-surface=1, parser-core-headroom-only=1, source-pin-only=1, unknown=2, selectedRowIdentityStatusCounts not-claimed-ascii-stax-diagnostic=1, not-claimed-non-stax-diagnostic=18, qualifiedClosureCount=0, contradictedClosureClaimCount=0, and conclusionAllowed=false.",
-          "The SpiderMonkey codegen closure frontier has closestBlockedCandidateCount=5, minimumBlockedRequirementCount=4, closestBlockedCandidates=`spidermonkey-taskcluster-debug-jsshell-codegen-audit.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json`, and closest-candidate common missing requirements sameContractStaxRow=5, selectedRowMetadata=5, unchangedRunnable=5, evidenceClassAllowed=5.",
-          "The SpiderMonkey codegen rerun stability audit compares 2 original/rerun pairs, reproduces 2 pairs on the same Taskcluster build and codegen marker counts, but qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false, and conclusionAllowed=false.",
-          "Installed Firefox about:buildconfig records --enable-js-shell / MOZ_PACKAGE_JSSHELL but does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW."
-        ],
-        "diagnosticIdentityStatusCounts": {
-          "not-claimed": 4,
-          "not-claimed-non-stax-diagnostic": 8
-        },
-        "scopeGuard": "These are local, official-shell, and Taskcluster debug-shell diagnostic facts only; they are not emitted SpiderMonkey JIT IR or optimized-code evidence for a same-contract StAX row."
-      },
-      "proofGoal": "Capture emitted SpiderMonkey JIT IR, optimized-code, or codegen diagnostics for same-contract Firefox/SpiderMonkey full-string rows.",
-      "prerequisites": [
-        "Diagnostic-capable Firefox build or SpiderMonkey shell built with the required JitSpew/codegen diagnostics enabled.",
-        "Set FIREFOX_PATH when using a non-default Firefox build; set SPIDERMONKEY_JS_SHELL, JSSHELL, or JS_SHELL when probing a shell.",
-        "Keep checksum parity rows small first, then scale only after dump emission is proven."
-      ],
-      "commands": [
-        {
-          "id": "firefox-buildconfig-boundary",
-          "purpose": "Record whether the selected Firefox build exposes JitSpew/codegen diagnostic build flags.",
-          "command": "FIREFOX_PATH=/path/to/firefox node packages/benchmark/firefox-spidermonkey-buildconfig-source-pin-audit.mjs --json-out packages/benchmark/results/release/firefox-spidermonkey-buildconfig-source-pin-audit.json --md-out packages/benchmark/results/release/firefox-spidermonkey-buildconfig-source-pin-audit.md"
-        },
-        {
-          "id": "firefox-diagnostic-installed-or-debug-build",
-          "purpose": "Run the existing browser diagnostic dump audit against the Firefox build selected by FIREFOX_PATH.",
-          "command": "FIREFOX_PATH=/path/to/firefox node packages/benchmark/firefox-spidermonkey-diagnostic-dump-audit.mjs --size-gib 0.0001 --fixture-shape diverse-cycle --diverse-cycle-size 16 --cases rawFrameNameId --output-dir packages/benchmark/results/firefox-spidermonkey-diagnostic-dump-audit --json-out packages/benchmark/results/release/firefox-spidermonkey-diagnostic-dump-audit.json --md-out packages/benchmark/results/release/firefox-spidermonkey-diagnostic-dump-audit.md"
-        },
-        {
-          "id": "spidermonkey-js-shell-availability",
-          "purpose": "Record whether a local SpiderMonkey shell is available for follow-up JIT diagnostics.",
-          "command": "SPIDERMONKEY_JS_SHELL=/path/to/js node packages/benchmark/firefox-spidermonkey-js-shell-availability-audit.mjs --json-out packages/benchmark/results/release/firefox-spidermonkey-js-shell-availability-audit.json --md-out packages/benchmark/results/release/firefox-spidermonkey-js-shell-availability-audit.md"
-        },
-        {
-          "id": "spidermonkey-official-jsshell-surface",
-          "purpose": "Repeat the official release/nightly jsshell diagnostic surface audit before assuming a downloaded shell can emit MIR/LIR or optimized code.",
-          "command": "node packages/benchmark/firefox-spidermonkey-release-jsshell-availability-audit.mjs --package-kind release --json-out packages/benchmark/results/release/firefox-spidermonkey-release-jsshell-availability-audit.json --md-out packages/benchmark/results/release/firefox-spidermonkey-release-jsshell-availability-audit.md && node packages/benchmark/firefox-spidermonkey-release-jsshell-availability-audit.mjs --package-kind nightly --json-out packages/benchmark/results/release/firefox-spidermonkey-nightly-jsshell-availability-audit.json --md-out packages/benchmark/results/release/firefox-spidermonkey-nightly-jsshell-availability-audit.md"
-        },
-        {
-          "id": "spidermonkey-jsshell-tokenizer-headroom",
-          "purpose": "Refresh js-shell tokenizer headroom as partial non-StAX evidence before reclassifying runtime-limit or counterexample status.",
-          "command": "node packages/benchmark/spidermonkey-jsshell-tokenizer-headroom.mjs --json-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.json --md-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.md"
-        },
-        {
-          "id": "spidermonkey-jsshell-materialized-headroom",
-          "purpose": "Refresh js-shell string/object materialization headroom as partial non-StAX evidence before reclassifying runtime-limit or counterexample status.",
-          "command": "node packages/benchmark/spidermonkey-jsshell-materialized-headroom.mjs --json-out packages/benchmark/results/release/spidermonkey-jsshell-materialized-headroom.json --md-out packages/benchmark/results/release/spidermonkey-jsshell-materialized-headroom.md"
-        },
-        {
-          "id": "stax-public-reader-host-api-boundary",
-          "purpose": "Re-pin the current StAX public reader UTF-8 fallback and host API boundary before evaluating js-shell closure.",
-          "command": "node packages/benchmark/stax-public-reader-host-api-boundary-audit.mjs --json-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.json --md-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.md"
-        },
-        {
-          "id": "spidermonkey-codegen-closure-audit",
-          "purpose": "Recompute the same-contract SpiderMonkey codegen closure matrix before reclassifying the obligation.",
-          "command": "node packages/benchmark/spidermonkey-codegen-closure-audit.mjs --json-out packages/benchmark/results/release/spidermonkey-codegen-closure-audit.json --md-out packages/benchmark/results/release/spidermonkey-codegen-closure-audit.md"
-        },
-        {
-          "id": "spidermonkey-codegen-rerun-stability-audit",
-          "purpose": "Recompute original/rerun SpiderMonkey debug js-shell codegen stability as diagnostic non-closure evidence.",
-          "command": "node packages/benchmark/spidermonkey-codegen-rerun-stability-audit.mjs --json-out packages/benchmark/results/release/spidermonkey-codegen-rerun-stability-audit.json --md-out packages/benchmark/results/release/spidermonkey-codegen-rerun-stability-audit.md"
-        },
-        {
-          "id": "post-spidermonkey-audits",
-          "purpose": "Reclassify the codegen obligation after diagnostic artifacts are generated.",
-          "command": "node packages/benchmark/stax-public-reader-host-api-boundary-audit.mjs --json-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.json --md-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.md && node packages/benchmark/spidermonkey-jsshell-tokenizer-headroom.mjs --json-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.json --md-out packages/benchmark/results/release/spidermonkey-jsshell-tokenizer-headroom.md && node packages/benchmark/spidermonkey-jsshell-materialized-headroom.mjs --json-out packages/benchmark/results/release/spidermonkey-jsshell-materialized-headroom.json --md-out packages/benchmark/results/release/spidermonkey-jsshell-materialized-headroom.md && node packages/benchmark/spidermonkey-codegen-closure-audit.mjs --json-out packages/benchmark/results/release/spidermonkey-codegen-closure-audit.json --md-out packages/benchmark/results/release/spidermonkey-codegen-closure-audit.md && node packages/benchmark/spidermonkey-codegen-rerun-stability-audit.mjs --json-out packages/benchmark/results/release/spidermonkey-codegen-rerun-stability-audit.json --md-out packages/benchmark/results/release/spidermonkey-codegen-rerun-stability-audit.md && node packages/benchmark/runtime-counterexample-scan.mjs --json-out packages/benchmark/results/release/runtime-counterexample-scan.json --md-out packages/benchmark/results/release/runtime-counterexample-scan.md && node packages/benchmark/runtime-proof-coverage-audit.mjs --json-out packages/benchmark/results/release/runtime-proof-coverage-audit.json --md-out packages/benchmark/results/release/runtime-proof-coverage-audit.md && node packages/benchmark/source-consumption-shape-audit.mjs --json-out packages/benchmark/results/release/source-consumption-shape-audit.json --md-out packages/benchmark/results/release/source-consumption-shape-audit.md && node packages/benchmark/memory-frontier-audit.mjs --json-out packages/benchmark/results/release/memory-frontier-audit.json --md-out packages/benchmark/results/release/memory-frontier-audit.md && node packages/benchmark/target-distance-audit.mjs --json-out packages/benchmark/results/release/target-distance-audit.json --md-out packages/benchmark/results/release/target-distance-audit.md && node packages/benchmark/text-materialization-boundary-audit.mjs --json-out packages/benchmark/results/release/text-materialization-boundary-audit.json --md-out packages/benchmark/results/release/text-materialization-boundary-audit.md && node packages/benchmark/text-materialization-frontier-coverage-audit.mjs --json-out packages/benchmark/results/release/text-materialization-frontier-coverage-audit.json --md-out packages/benchmark/results/release/text-materialization-frontier-coverage-audit.md && node packages/benchmark/runtime-limit-proof-obligation-gate.mjs --json-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.json --md-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.md && node packages/benchmark/runtime-proof-gap-handoff.mjs --json-out packages/benchmark/results/release/runtime-proof-gap-handoff.json --md-out packages/benchmark/results/release/runtime-proof-gap-handoff.md"
-        }
-      ],
-      "expectedEvidence": [
-        "A release artifact whose objective records emitted Firefox/SpiderMonkey JIT IR, optimized-code, or codegen dump evidence.",
-        "The artifact must include the runtime/build identity, diagnostic flags, selected row id, event count, and checksum parity.",
-        "The artifact must declare closesEmittedIrObligation=true only when sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true.",
-        "The artifact must report selectedRowMatchesCurrentComparison=true against same-contract-runtime-comparison.json with event count and checksum parity.",
-        "The artifact must report evidenceClassAllowed=true; diagnostic scope-guard, availability, source-pin, and negative-diagnostic classes cannot close the obligation.",
-        "The coverage audit must classify the artifact as SpiderMonkey codegen evidence, not merely profiler/source/availability evidence."
-      ],
-      "evidenceIntakeContract": {
-        "requiredArtifacts": [
-          "spidermonkey-emitted-codegen-or-optimized-code artifact",
-          "same-contract-runtime-comparison.json",
-          "spidermonkey-codegen-closure-audit.json",
-          "spidermonkey-codegen-rerun-stability-audit.json",
-          "runtime-proof-coverage-audit.json",
-          "runtime-counterexample-scan.json"
-        ],
-        "requiredRowFields": [
-          "runtimeId=firefox-spidermonkey|spidermonkey-js-shell",
-          "selectedRowId",
-          "selectedEventCount",
-          "selectedChecksum",
-          "sameContractStaxRow=true",
-          "canRunCurrentStaxFullStringBenchmark=true",
-          "selectedRowMatchesCurrentComparison=true",
-          "runtimeBuildIdentity",
-          "diagnosticFlags",
-          "emittedDumpMetadata",
-          "evidenceClassAllowed=true"
-        ],
-        "requiredAuditFields": [
-          "coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount>0",
-          "coverage.spiderMonkeyDiagnostics.missingIrSurfaceCount=0 for claimed closure rows",
-          "spidermonkey-codegen-closure-audit.summary.qualifiedClosureCount>0",
-          "spidermonkey-codegen-closure-audit.summary.conclusionAllowed=true only after same-contract row parity"
-        ],
-        "rejectionRules": [
-          "Reject jit-status-only and bytecode-diagnostic-only evidence classes.",
-          "Reject source-pin, availability-only, profiler-only, and negative-diagnostic artifacts as closure evidence.",
-          "Reject materialized js-shell evidence while selected-row identity, unchanged benchmark status, or emitted-codegen closure metadata remains blocked.",
-          "Reject rerun-stability evidence unless each compared artifact is itself same-contract StAX closure evidence."
-        ]
-      },
-      "closureChecks": [
-        "runtime-proof-coverage-audit.json coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount must be greater than 0.",
-        "runtime-proof-coverage-audit.json coverage.spiderMonkeyDiagnostics.missingIrSurfaceCount must be 0 for the SpiderMonkey diagnostic rows that are claimed as codegen closure evidence.",
-        "spidermonkey-materialized-scope-distance-audit.json summary.closureRequirementsBlocked must be 0 before any materialized js-shell codegen artifact can be cited as same-contract StAX closure evidence.",
-        "spidermonkey-materialized-scope-distance-audit.json summary.closesCodegenObligation must be true before materialized string/object codegen can close codegen-traces-open.",
-        "spidermonkey-codegen-closure-audit.json summary.qualifiedClosureCount must be greater than 0 before codegen-traces-open can be closed.",
-        "spidermonkey-codegen-rerun-stability-audit.json summary.qualifiedClosureCount must remain 0 unless the compared rerun artifacts are same-contract StAX closure evidence.",
-        "Any SpiderMonkey closing artifact must report sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true, or explicitly explain why the browser-row artifact rather than js-shell artifact supplies unchanged StAX closure.",
-        "The closing artifact selected row id must match a current same-contract full-string JavaScript row in same-contract-runtime-comparison.json, with event count and checksum parity recorded.",
-        "The closing artifact must not have evidenceClass jit-status-only, bytecode-diagnostic-only, source-pin-only, negative-diagnostic-surface, or missing-availability-audit.",
-        "The closing artifact must include runtime/build identity, diagnostic flags, selected row id, event count, checksum parity, and emitted IR or optimized-code dump metadata."
-      ],
-      "scopeGuards": [
-        "The existing no-dump diagnostic audit is a negative result for the installed browser build only.",
-        "The installed buildconfig audit explains the local diagnostic surface but is still not emitted JIT IR.",
-        "JS shell and official jsshell availability are environment evidence only until a dump or IR artifact is captured.",
-        "Codegen rerun stability is reproducibility evidence only; it does not turn diagnostic js-shell workloads into unchanged StAX rows."
-      ]
     }
   ],
   "unhandledObligations": [],
@@ -948,8 +692,8 @@
       "classification": "SCOPE_GUARD",
       "summary": "The handoff records next experiments for open proof gaps; it is not itself benchmark, allocation, or codegen evidence.",
       "evidence": [
-        "activeObligations=safari-jsc-source-and-browser-rows-open:open, codegen-traces-open:partial",
-        "handoffs=safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff"
+        "activeObligations=safari-jsc-source-and-browser-rows-open:open",
+        "handoffs=safari-webkit-browser-row-handoff"
       ]
     },
     {
