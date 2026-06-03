@@ -1,9 +1,13 @@
 {
-  "generatedAt": "2026-06-02T15:41:02.747Z",
+  "generatedAt": "2026-06-03T03:10:03.728Z",
   "objective": "stax-public-reader-host-api-boundary-audit",
   "contract": "current-stax-public-reader-host-api-boundary",
   "note": "Static source-boundary audit for the current StAX public reader host API surface. It pins the TextDecoder/ReadableStream/TextEncoder boundary used by same-contract full-string rows; it is not benchmark evidence, codegen evidence, or a runtime-limit conclusion.",
   "sources": {
+    "index": {
+      "path": "packages/stax-xml/src/index.ts",
+      "bytes": 1543
+    },
     "iterableReader": {
       "path": "packages/stax-xml/src/IterableReader.ts",
       "bytes": 44376
@@ -14,7 +18,11 @@
     },
     "eventReaderSync": {
       "path": "packages/stax-xml/src/EventReaderSync.ts",
-      "bytes": 6901
+      "bytes": 7021
+    },
+    "xmlObject": {
+      "path": "packages/stax-xml/src/XmlObject.ts",
+      "bytes": 12814
     },
     "streamReaderCore": {
       "path": "packages/stax-xml/src/stream-reader-core.ts",
@@ -55,7 +63,19 @@
     {
       "id": "event-reader-sync-string-input-uses-textencoder",
       "source": "EventReaderSync.ts",
-      "expected": "String-input EventReaderSync encodes document-mode strings through a native TextEncoder before StreamReaderSync.",
+      "expected": "String-input EventReaderSync lazily encodes document-mode strings through a native TextEncoder before StreamReaderSync.",
+      "matched": true
+    },
+    {
+      "id": "xml-object-string-input-uses-lazy-textencoder",
+      "source": "XmlObject.ts",
+      "expected": "String-input tree/object helpers lazily encode strings through a native TextEncoder, while byte inputs do not require it.",
+      "matched": true
+    },
+    {
+      "id": "root-import-no-top-level-textencoder",
+      "source": "index.ts",
+      "expected": "The root barrel can re-export StreamReaderSync, EventReaderSync, and XmlObject without a top-level TextEncoder allocation.",
       "matched": true
     }
   ],
@@ -64,6 +84,7 @@
     "primarySyncByteBatchRequiresTextDecoder": true,
     "directReadableStreamRequiresReadableStream": true,
     "stringInputRequiresTextEncoder": true,
+    "rootImportRequiresTextEncoder": false,
     "primarySyncByteBatchRequiredGlobals": [
       "Uint8Array",
       "TextDecoder"
@@ -77,6 +98,7 @@
       "TextEncoder",
       "TextDecoder"
     ],
+    "rootImportRequiredGlobals": [],
     "alternateDecoderWouldBeUnchangedClosure": false,
     "conclusionAllowed": false
   },
@@ -98,6 +120,16 @@
         "directReadableStreamRequiresReadableStream=true",
         "stringInputRequiresTextEncoder=true",
         "alternateDecoderWouldBeUnchangedClosure=false"
+      ]
+    },
+    {
+      "id": "stax-root-import-textencoder-not-primary-blocker",
+      "classification": "SOURCE_FACT",
+      "summary": "Root imports and primary byte-batch reader access do not require TextEncoder; TextEncoder is limited to string-input convenience paths.",
+      "evidence": [
+        "rootImportRequiresTextEncoder=false",
+        "stringInputRequiresTextEncoder=true",
+        "rootImportRequiredGlobals=none"
       ]
     }
   ]

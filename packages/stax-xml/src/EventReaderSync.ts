@@ -7,7 +7,12 @@ import { StreamReaderSync, type StreamBatch } from './StreamReaderSync.js';
 import { StringEventParserSync } from './StringEventParserSync.js';
 import { XmlEventType, type AnyXmlEvent, type DocumentMode, type ParserEventFilter } from './types.js';
 
-const textEncoder = new TextEncoder();
+let textEncoder: TextEncoder | undefined;
+
+function encodeXmlString(xml: string): Uint8Array {
+  textEncoder ??= new TextEncoder();
+  return textEncoder.encode(xml);
+}
 
 /**
  * Synchronous event reader options.
@@ -67,7 +72,7 @@ export class EventReaderSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEv
     }
 
     this.source = new CoreSyncEventSource(
-      new StreamReaderSync(textEncoder.encode(xml), { documentMode: options.documentMode }),
+      new StreamReaderSync(encodeXmlString(xml), { documentMode: options.documentMode }),
       materializer,
     );
   }

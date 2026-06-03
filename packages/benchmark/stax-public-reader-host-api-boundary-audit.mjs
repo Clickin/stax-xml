@@ -8,9 +8,11 @@ const defaultJsonOut = resolve(__dirname, 'results', 'release', 'stax-public-rea
 const defaultMdOut = resolve(__dirname, 'results', 'release', 'stax-public-reader-host-api-boundary-audit.md');
 
 const sourceFiles = {
+  index: resolve(repoRoot, 'packages', 'stax-xml', 'src', 'index.ts'),
   iterableReader: resolve(repoRoot, 'packages', 'stax-xml', 'src', 'IterableReader.ts'),
   eventReader: resolve(repoRoot, 'packages', 'stax-xml', 'src', 'EventReader.ts'),
   eventReaderSync: resolve(repoRoot, 'packages', 'stax-xml', 'src', 'EventReaderSync.ts'),
+  xmlObject: resolve(repoRoot, 'packages', 'stax-xml', 'src', 'XmlObject.ts'),
   streamReaderCore: resolve(repoRoot, 'packages', 'stax-xml', 'src', 'stream-reader-core.ts'),
 };
 
@@ -98,9 +100,27 @@ function createReport() {
     {
       id: 'event-reader-sync-string-input-uses-textencoder',
       source: 'EventReaderSync.ts',
-      expected: 'String-input EventReaderSync encodes document-mode strings through a native TextEncoder before StreamReaderSync.',
-      matched: /const textEncoder = new TextEncoder\(\)/.test(sources.eventReaderSync.text)
-        && /new StreamReaderSync\(textEncoder\.encode\(xml\)/.test(sources.eventReaderSync.text),
+      expected: 'String-input EventReaderSync lazily encodes document-mode strings through a native TextEncoder before StreamReaderSync.',
+      matched: /let textEncoder: TextEncoder \| undefined/.test(sources.eventReaderSync.text)
+        && /function encodeXmlString\(xml: string\): Uint8Array[\s\S]+?textEncoder \?\?= new TextEncoder\(\)/.test(sources.eventReaderSync.text)
+        && /new StreamReaderSync\(encodeXmlString\(xml\)/.test(sources.eventReaderSync.text),
+    },
+    {
+      id: 'xml-object-string-input-uses-lazy-textencoder',
+      source: 'XmlObject.ts',
+      expected: 'String-input tree/object helpers lazily encode strings through a native TextEncoder, while byte inputs do not require it.',
+      matched: /let textEncoder: TextEncoder \| undefined/.test(sources.xmlObject.text)
+        && /function encodeXmlString\(input: string\): Uint8Array[\s\S]+?textEncoder \?\?= new TextEncoder\(\)/.test(sources.xmlObject.text)
+        && /typeof input === 'string' \? encodeXmlString\(input\) : input/.test(sources.xmlObject.text)
+        && /yield encodeXmlString\(input\)/.test(sources.xmlObject.text),
+    },
+    {
+      id: 'root-import-no-top-level-textencoder',
+      source: 'index.ts',
+      expected: 'The root barrel can re-export StreamReaderSync, EventReaderSync, and XmlObject without a top-level TextEncoder allocation.',
+      matched: /export \{ StreamEventType, StreamReaderSync \} from "\.\/StreamReaderSync\.js";/.test(sources.index.text)
+        && !/const textEncoder = new TextEncoder\(\)/.test(sources.eventReaderSync.text)
+        && !/const textEncoder = new TextEncoder\(\)/.test(sources.xmlObject.text),
     },
   ];
   const allChecksPass = checks.every(check => check.matched);
@@ -108,10 +128,12 @@ function createReport() {
     allChecksPass,
     primarySyncByteBatchRequiresTextDecoder: checksById(checks, 'iterable-reader-constructs-textdecoder', 'iterable-reader-decodes-non-ascii-spans', 'iterable-reader-public-copy-methods-use-decoder', 'stream-batch-public-accessors-call-copy-methods'),
     directReadableStreamRequiresReadableStream: checksById(checks, 'event-reader-requires-web-readable-stream'),
-    stringInputRequiresTextEncoder: checksById(checks, 'event-reader-sync-string-input-uses-textencoder'),
+    stringInputRequiresTextEncoder: checksById(checks, 'event-reader-sync-string-input-uses-textencoder', 'xml-object-string-input-uses-lazy-textencoder'),
+    rootImportRequiresTextEncoder: !checksById(checks, 'root-import-no-top-level-textencoder'),
     primarySyncByteBatchRequiredGlobals: ['Uint8Array', 'TextDecoder'],
     directReadableStreamRequiredGlobals: ['Uint8Array', 'TextDecoder', 'ReadableStream'],
     stringInputRequiredGlobals: ['TextEncoder', 'TextDecoder'],
+    rootImportRequiredGlobals: [],
     alternateDecoderWouldBeUnchangedClosure: false,
     conclusionAllowed: false,
   };
@@ -152,6 +174,16 @@ function createFindings(summary) {
         `alternateDecoderWouldBeUnchangedClosure=${summary.alternateDecoderWouldBeUnchangedClosure}`,
       ],
     },
+    {
+      id: 'stax-root-import-textencoder-not-primary-blocker',
+      classification: 'SOURCE_FACT',
+      summary: 'Root imports and primary byte-batch reader access do not require TextEncoder; TextEncoder is limited to string-input convenience paths.',
+      evidence: [
+        `rootImportRequiresTextEncoder=${summary.rootImportRequiresTextEncoder}`,
+        `stringInputRequiresTextEncoder=${summary.stringInputRequiresTextEncoder}`,
+        `rootImportRequiredGlobals=${summary.rootImportRequiredGlobals.join(', ') || 'none'}`,
+      ],
+    },
   ];
 }
 
@@ -181,6 +213,7 @@ function renderMarkdown(report) {
     `- Primary sync byte-batch requires TextDecoder: ${report.summary.primarySyncByteBatchRequiresTextDecoder}`,
     `- Direct ReadableStream requires ReadableStream: ${report.summary.directReadableStreamRequiresReadableStream}`,
     `- String input requires TextEncoder: ${report.summary.stringInputRequiresTextEncoder}`,
+    `- Root import requires TextEncoder: ${report.summary.rootImportRequiresTextEncoder}`,
     `- Alternate decoder is unchanged closure: ${report.summary.alternateDecoderWouldBeUnchangedClosure}`,
     '',
     '## Checks',

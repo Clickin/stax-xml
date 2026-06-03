@@ -85,7 +85,12 @@ export interface XmlObjectRecord<T = XmlObjectValue> {
 type TreeXmlEvent = Exclude<AnyXmlEvent, ErrorEvent>;
 
 const DEFAULT_BATCH_SIZE = 16;
-const textEncoder = new TextEncoder();
+let textEncoder: TextEncoder | undefined;
+
+function encodeXmlString(input: string): Uint8Array {
+  textEncoder ??= new TextEncoder();
+  return textEncoder.encode(input);
+}
 
 /** Parse XML into an order-preserving tree using a synchronous input. */
 export function parseXmlTreeSync(input: XmlSyncInput, options: ParseXmlTreeOptions = {}): XmlTreeDocument {
@@ -160,7 +165,7 @@ interface RequiredObjectOptions {
 }
 
 function* iterateSyncEvents(input: XmlSyncInput, options: RequiredTreeOptions): Iterable<TreeXmlEvent> {
-  const normalizedInput = typeof input === 'string' ? textEncoder.encode(input) : input;
+  const normalizedInput = typeof input === 'string' ? encodeXmlString(input) : input;
   const materializer = new IterableEventMaterializer({
     autoDecodeEntities: options.autoDecodeEntities,
     addEntities: options.addEntities,
@@ -364,7 +369,7 @@ function nullRecord<T = XmlObjectValue>(): XmlObjectRecord<T> {
 
 function* syncInputChunks(input: XmlSyncInput): Iterable<Uint8Array> {
   if (typeof input === 'string') {
-    yield textEncoder.encode(input);
+    yield encodeXmlString(input);
     return;
   }
   if (input instanceof Uint8Array) {

@@ -216,6 +216,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.summary.primarySyncByteBatchRequiresTextDecoder === true
     && artifact.summary.directReadableStreamRequiresReadableStream === true
     && artifact.summary.stringInputRequiresTextEncoder === true
+    && artifact.summary.rootImportRequiresTextEncoder === false
     && artifact.summary.alternateDecoderWouldBeUnchangedClosure === false
   ));
   assert.ok(report.scannedArtifacts.some(artifact =>
@@ -1484,7 +1485,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey local js-shell availability audit present \(status=available, found=2, searchRoots=2\); no emitted JIT IR is recorded by that audit/);
   assert.match(markdown, /Firefox\/SpiderMonkey official release js-shell audit present \(status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is bytecode\/JIT-status diagnostic evidence only, not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey official nightly js-shell audit present \(status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is bytecode\/JIT-status diagnostic evidence only, not emitted JIT IR/);
-  assert.match(markdown, /Current StAX public reader host API boundary audit present \(primarySyncByteBatchRequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, alternateDecoderWouldBeUnchangedClosure=false\); it pins why a js-shell alternate decoder or polyfill is not unchanged StAX public-reader closure evidence/);
+  assert.match(markdown, /Current StAX public reader host API boundary audit present \(primarySyncByteBatchRequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, rootImportRequiresTextEncoder=false, alternateDecoderWouldBeUnchangedClosure=false\); it pins why a js-shell alternate decoder or polyfill is not unchanged StAX public-reader closure evidence/);
   assert.match(markdown, /\| `official-jsshell-stax-api-gap` \| `firefox-spidermonkey-jsshell-stax-api-gap-audit\.json` \| blocked-by-host-api-surface \| host-api-surface-gap \| yes \| unknown \| unknown \| unknown \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
   assert.match(markdown, /Firefox\/SpiderMonkey js-shell StAX API gap audit present \(status=blocked-by-host-api-surface, unchangedRunnableShells=0\/2, blockedSurfaces=5, directUnchangedHarnessAttemptsBlocked=10\/10, commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch\); it is host API surface evidence only, not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey public js-shell diagnostic flag sweep present \(bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false\); it rules out easy public-shell bytecode\/dump flag paths but is not emitted JIT IR/);
