@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T08:59:39.396Z",
+  "generatedAt": "2026-06-03T09:14:28.544Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -33157,7 +33157,9 @@
       "memoryKind": "not-recorded",
       "eventCount": 318974,
       "checksum": 1006682924,
-      "contractScope": "browser-v8-trace-opt-deopt-same-contract-reader-shapes"
+      "contractScope": "browser-v8-trace-opt-deopt-same-contract-reader-shapes",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "js-row-below-large-size-threshold"
     },
     {
       "sourceArtifact": "browser-v8-codegen-trace.json",
@@ -33174,7 +33176,9 @@
       "memoryKind": "not-recorded",
       "eventCount": 318974,
       "checksum": 1006682924,
-      "contractScope": "browser-v8-trace-opt-deopt-same-contract-reader-shapes"
+      "contractScope": "browser-v8-trace-opt-deopt-same-contract-reader-shapes",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "js-row-below-large-size-threshold"
     },
     {
       "sourceArtifact": "browser-v8-codegen-trace.json",
@@ -33191,7 +33195,9 @@
       "memoryKind": "not-recorded",
       "eventCount": 318974,
       "checksum": 1006682924,
-      "contractScope": "browser-v8-trace-opt-deopt-same-contract-reader-shapes"
+      "contractScope": "browser-v8-trace-opt-deopt-same-contract-reader-shapes",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "js-row-below-large-size-threshold"
     },
     {
       "sourceArtifact": "firefox-spidermonkey-diagnostic-dump-audit.json",
@@ -33208,7 +33214,9 @@
       "memoryKind": "not-recorded",
       "eventCount": 4985,
       "checksum": 1856142966,
-      "contractScope": "firefox-browser-spidermonkey-diagnostic-dump-availability"
+      "contractScope": "firefox-browser-spidermonkey-diagnostic-dump-availability",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "js-row-without-large-size-proof"
     },
     {
       "sourceArtifact": "quick-xml-allocation-count-stability.json",
@@ -33225,7 +33233,9 @@
       "memoryKind": "allocator-counters",
       "eventCount": 967967,
       "checksum": -746772258,
-      "contractScope": "measured-consume-global-allocator-count"
+      "contractScope": "measured-consume-global-allocator-count",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "non-js-allocator-counter-not-runtime-limit-target"
     },
     {
       "sourceArtifact": "quick-xml-allocation-count-stability.json",
@@ -33242,7 +33252,9 @@
       "memoryKind": "allocator-counters",
       "eventCount": 78898,
       "checksum": 1840671295,
-      "contractScope": "measured-consume-global-allocator-count"
+      "contractScope": "measured-consume-global-allocator-count",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "non-js-allocator-counter-not-runtime-limit-target"
     },
     {
       "sourceArtifact": "quick-xml-allocation-count-stability.json",
@@ -33259,7 +33271,9 @@
       "memoryKind": "allocator-counters",
       "eventCount": 46914,
       "checksum": -1045261330,
-      "contractScope": "measured-consume-global-allocator-count"
+      "contractScope": "measured-consume-global-allocator-count",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "non-js-allocator-counter-not-runtime-limit-target"
     },
     {
       "sourceArtifact": "quick-xml-allocation-count-stability.json",
@@ -33276,7 +33290,9 @@
       "memoryKind": "allocator-counters",
       "eventCount": 33466,
       "checksum": -1470519692,
-      "contractScope": "measured-consume-global-allocator-count"
+      "contractScope": "measured-consume-global-allocator-count",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "non-js-allocator-counter-not-runtime-limit-target"
     },
     {
       "sourceArtifact": "quick-xml-allocation-count-stability.json",
@@ -33293,7 +33309,9 @@
       "memoryKind": "allocator-counters",
       "eventCount": 74364,
       "checksum": -631568628,
-      "contractScope": "measured-consume-global-allocator-count"
+      "contractScope": "measured-consume-global-allocator-count",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "non-js-allocator-counter-not-runtime-limit-target"
     },
     {
       "sourceArtifact": "quick-xml-allocation-count.json",
@@ -33310,7 +33328,9 @@
       "memoryKind": "allocator-counters",
       "eventCount": 967967,
       "checksum": -746772258,
-      "contractScope": "measured-consume-global-allocator-count"
+      "contractScope": "measured-consume-global-allocator-count",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "non-js-allocator-counter-not-runtime-limit-target"
     },
     {
       "sourceArtifact": "quick-xml-allocation-count.json",
@@ -33327,7 +33347,9 @@
       "memoryKind": "allocator-counters",
       "eventCount": 78898,
       "checksum": 1840671295,
-      "contractScope": "measured-consume-global-allocator-count"
+      "contractScope": "measured-consume-global-allocator-count",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "non-js-allocator-counter-not-runtime-limit-target"
     },
     {
       "sourceArtifact": "quick-xml-allocation-count.json",
@@ -33344,7 +33366,9 @@
       "memoryKind": "allocator-counters",
       "eventCount": 46914,
       "checksum": -1045261330,
-      "contractScope": "measured-consume-global-allocator-count"
+      "contractScope": "measured-consume-global-allocator-count",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "non-js-allocator-counter-not-runtime-limit-target"
     },
     {
       "sourceArtifact": "quick-xml-allocation-count.json",
@@ -33361,7 +33385,9 @@
       "memoryKind": "allocator-counters",
       "eventCount": 33466,
       "checksum": -1470519692,
-      "contractScope": "measured-consume-global-allocator-count"
+      "contractScope": "measured-consume-global-allocator-count",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "non-js-allocator-counter-not-runtime-limit-target"
     },
     {
       "sourceArtifact": "quick-xml-allocation-count.json",
@@ -33378,7 +33404,9 @@
       "memoryKind": "allocator-counters",
       "eventCount": 74364,
       "checksum": -631568628,
-      "contractScope": "measured-consume-global-allocator-count"
+      "contractScope": "measured-consume-global-allocator-count",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "non-js-allocator-counter-not-runtime-limit-target"
     },
     {
       "sourceArtifact": "quick-xml-shape-audit.json",
@@ -33395,7 +33423,9 @@
       "memoryKind": "not-recorded",
       "eventCount": 967967,
       "checksum": -746772258,
-      "contractScope": "full-string-checksum"
+      "contractScope": "full-string-checksum",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "non-js-no-peak-memory-not-runtime-limit-target"
     },
     {
       "sourceArtifact": "quick-xml-shape-audit.json",
@@ -33412,7 +33442,9 @@
       "memoryKind": "not-recorded",
       "eventCount": 967967,
       "checksum": -746772258,
-      "contractScope": "full-string-checksum"
+      "contractScope": "full-string-checksum",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "non-js-no-peak-memory-not-runtime-limit-target"
     },
     {
       "sourceArtifact": "spidermonkey-jsshell-materialized-headroom.json",
@@ -33429,7 +33461,9 @@
       "memoryKind": "not-recorded",
       "eventCount": 892131,
       "checksum": -404209556,
-      "contractScope": "ascii-materialized-string-object-no-textdecoder"
+      "contractScope": "ascii-materialized-string-object-no-textdecoder",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "js-row-not-full-string-contract"
     },
     {
       "sourceArtifact": "spidermonkey-jsshell-materialized-headroom.json",
@@ -33446,7 +33480,9 @@
       "memoryKind": "not-recorded",
       "eventCount": 892131,
       "checksum": -404209556,
-      "contractScope": "ascii-materialized-string-object-no-textdecoder"
+      "contractScope": "ascii-materialized-string-object-no-textdecoder",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "js-row-not-full-string-contract"
     },
     {
       "sourceArtifact": "spidermonkey-jsshell-stax-primary-byte-batch.json",
@@ -33463,7 +33499,9 @@
       "memoryKind": "not-recorded",
       "eventCount": 894724,
       "checksum": -1087917522,
-      "contractScope": "full-string-materialization"
+      "contractScope": "full-string-materialization",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "js-row-below-large-size-threshold"
     },
     {
       "sourceArtifact": "spidermonkey-jsshell-stax-primary-byte-batch.json",
@@ -33480,7 +33518,9 @@
       "memoryKind": "not-recorded",
       "eventCount": 894724,
       "checksum": -1087917522,
-      "contractScope": "full-string-materialization"
+      "contractScope": "full-string-materialization",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "js-row-below-large-size-threshold"
     },
     {
       "sourceArtifact": "spidermonkey-jsshell-tokenizer-headroom.json",
@@ -33497,7 +33537,9 @@
       "memoryKind": "not-recorded",
       "eventCount": 892131,
       "checksum": 134568078,
-      "contractScope": "xml-token-boundary-no-string-materialization"
+      "contractScope": "xml-token-boundary-no-string-materialization",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "js-row-not-full-string-contract"
     },
     {
       "sourceArtifact": "spidermonkey-jsshell-tokenizer-headroom.json",
@@ -33514,7 +33556,9 @@
       "memoryKind": "not-recorded",
       "eventCount": 892131,
       "checksum": 134568078,
-      "contractScope": "xml-token-boundary-no-string-materialization"
+      "contractScope": "xml-token-boundary-no-string-materialization",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "js-row-not-full-string-contract"
     },
     {
       "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit.json",
@@ -33531,7 +33575,9 @@
       "memoryKind": "not-recorded",
       "eventCount": 894724,
       "checksum": -1087917522,
-      "contractScope": "spidermonkey-taskcluster-debug-jsshell-current-stax-primary-byte-batch-same-contract-codegen"
+      "contractScope": "spidermonkey-taskcluster-debug-jsshell-current-stax-primary-byte-batch-same-contract-codegen",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "js-row-not-full-string-contract"
     },
     {
       "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json",
@@ -33548,7 +33594,9 @@
       "memoryKind": "not-recorded",
       "eventCount": 55759,
       "checksum": 9292058,
-      "contractScope": "xml-token-boundary-no-string-materialization"
+      "contractScope": "xml-token-boundary-no-string-materialization",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "js-row-not-full-string-contract"
     },
     {
       "sourceArtifact": "woodstox-hotspot-trace.json",
@@ -33565,7 +33613,9 @@
       "memoryKind": "not-recorded",
       "eventCount": 967967,
       "checksum": -746772258,
-      "contractScope": "hotspot-printcompilation-printinlining"
+      "contractScope": "hotspot-printcompilation-printinlining",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "non-js-no-peak-memory-not-runtime-limit-target"
     },
     {
       "sourceArtifact": "woodstox-jfr-allocation.json",
@@ -33582,7 +33632,9 @@
       "memoryKind": "not-recorded",
       "eventCount": 967967,
       "checksum": -746772258,
-      "contractScope": "jfr-allocation-sampling"
+      "contractScope": "jfr-allocation-sampling",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "non-js-no-peak-memory-not-runtime-limit-target"
     },
     {
       "sourceArtifact": "woodstox-measured-jfr-allocation-rerun.json",
@@ -33599,7 +33651,9 @@
       "memoryKind": "not-recorded",
       "eventCount": 967967,
       "checksum": -746772258,
-      "contractScope": "jfr-measured-allocation-sampling"
+      "contractScope": "jfr-measured-allocation-sampling",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "non-js-no-peak-memory-not-runtime-limit-target"
     },
     {
       "sourceArtifact": "woodstox-measured-jfr-allocation.json",
@@ -33616,7 +33670,9 @@
       "memoryKind": "not-recorded",
       "eventCount": 967967,
       "checksum": -746772258,
-      "contractScope": "jfr-measured-allocation-sampling"
+      "contractScope": "jfr-measured-allocation-sampling",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "non-js-no-peak-memory-not-runtime-limit-target"
     }
   ],
   "findings": [

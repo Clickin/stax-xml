@@ -613,10 +613,22 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     rowsWithMemoryCounter: 10,
   });
   assert.equal(report.unknownBoundedMemoryRows.length, 28);
+  assert.equal(report.unknownBoundedMemoryRows.filter(row => row.counterexampleRelevant === false).length, 28);
+  assert.equal(report.unknownBoundedMemoryRows.filter(row => typeof row.counterexampleExclusionReason === 'string').length, 28);
   assert.equal(report.unknownBoundedMemoryRows.filter(row => row.memoryKind === 'allocator-counters').length, 10);
   assert.ok(report.unknownBoundedMemoryRows
     .filter(row => row.sourceArtifact.startsWith('quick-xml-allocation-count'))
-    .every(row => row.memoryKind === 'allocator-counters'));
+    .every(row =>
+      row.memoryKind === 'allocator-counters'
+      && row.counterexampleExclusionReason === 'non-js-allocator-counter-not-runtime-limit-target'
+    ));
+  assert.ok(report.unknownBoundedMemoryRows
+    .filter(row => isJsRuntime(row.runtimeId))
+    .every(row => [
+      'js-row-below-large-size-threshold',
+      'js-row-not-full-string-contract',
+      'js-row-without-large-size-proof',
+    ].includes(row.counterexampleExclusionReason)));
   assert.ok(!report.unknownBoundedMemoryRows.some(row =>
     isJsRuntime(row.runtimeId)
     && row.fullStringParity === true

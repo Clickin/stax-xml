@@ -1558,6 +1558,9 @@ function createCoverageSnapshot(audit, counterexampleSnapshot = null) {
         closestBlockedCandidateSourceArtifacts: [],
         closestBlockedCandidateRequirementSets: [],
       },
+      unknownBoundedMemoryRowCount: null,
+      unknownBoundedMemoryRowsWithExclusionReasonCount: null,
+      unknownBoundedMemoryCounterexampleRelevantRowCount: null,
       safariWebKitClosureAudit: {
         candidateCount: null,
         qualifiedClosureCount: null,
@@ -1628,6 +1631,19 @@ function createCoverageSnapshot(audit, counterexampleSnapshot = null) {
         ? closureAudit.closestBlockedCandidateRequirementSets
         : [],
     },
+    unknownBoundedMemoryRowCount: Array.isArray(audit.unknownBoundedMemoryRows)
+      ? audit.unknownBoundedMemoryRows.length
+      : null,
+    unknownBoundedMemoryRowsWithExclusionReasonCount: Array.isArray(audit.unknownBoundedMemoryRows)
+      ? audit.unknownBoundedMemoryRows.filter(row =>
+        typeof row.counterexampleExclusionReason === 'string'
+        && row.counterexampleExclusionReason.length > 0
+        && typeof row.counterexampleRelevant === 'boolean'
+      ).length
+      : null,
+    unknownBoundedMemoryCounterexampleRelevantRowCount: Array.isArray(audit.unknownBoundedMemoryRows)
+      ? audit.unknownBoundedMemoryRows.filter(row => row.counterexampleRelevant === true).length
+      : null,
     safariWebKitClosureAudit: {
       candidateCount: safariClosureAudit.candidateCount ?? null,
       qualifiedClosureCount: safariClosureAudit.qualifiedClosureCount ?? null,
@@ -1786,6 +1802,13 @@ function createCoverageGuards(snapshot, counterexampleSnapshot = null) {
         && safariClosureAudit.rowLevelSourceBoundaryPinnedRows === 0
         && safariClosureAudit.comparisonGeneratedAt === counterexampleSnapshot?.comparisonGeneratedAt
         && safariClosureAudit.comparisonRowCount === counterexampleSnapshot?.comparisonRowCount,
+    },
+    {
+      id: 'coverage-unknown-bounded-memory-row-exclusions',
+      description: 'runtime-proof-coverage-audit.json must give every unknown bounded-memory row a row-level counterexample exclusion reason and report no counterexample-relevant unknown bounded-memory rows.',
+      satisfied: typeof snapshot?.unknownBoundedMemoryRowCount === 'number'
+        && snapshot.unknownBoundedMemoryRowCount === snapshot.unknownBoundedMemoryRowsWithExclusionReasonCount
+        && snapshot.unknownBoundedMemoryCounterexampleRelevantRowCount === 0,
     },
     {
       id: 'spidermonkey-identity-status-counts-present',
@@ -1973,6 +1996,7 @@ function renderMarkdown(report) {
   `- SpiderMonkey selected row identity statuses: ${formatCountMap(report.coverageSnapshot.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts)}`,
   `- SpiderMonkey closest codegen blockers: ${formatClosestBlockedRequirementSets(report.coverageSnapshot.spiderMonkeyClosureAudit.closestBlockedCandidateRequirementSets)}`,
   `- SpiderMonkey Taskcluster route freshness: ${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.routeFresh === true ? 'fresh' : 'stale'} (artifactIdentityMatchesRoute=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.artifactIdentityMatchesRoute === true ? 'yes' : 'no'}, expectedIdentitySource=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.expectedIdentitySource ?? 'unknown'}, checkedArtifacts=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.checkedArtifactCount ?? 'unknown'}, mismatchedArtifacts=${formatStringList(report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.mismatchedArtifacts ?? [])})`,
+  `- Unknown bounded-memory row exclusions: rows=${report.coverageSnapshot.unknownBoundedMemoryRowCount ?? 'unknown'}, withReason=${report.coverageSnapshot.unknownBoundedMemoryRowsWithExclusionReasonCount ?? 'unknown'}, counterexampleRelevant=${report.coverageSnapshot.unknownBoundedMemoryCounterexampleRelevantRowCount ?? 'unknown'}`,
   `- Safari/WebKit closure comparison: generatedAt=${report.coverageSnapshot.safariWebKitClosureAudit.comparisonGeneratedAt ?? 'unknown'}, rows=${report.coverageSnapshot.safariWebKitClosureAudit.comparisonRowCount ?? 'unknown'}, candidates=${report.coverageSnapshot.safariWebKitClosureAudit.candidateCount ?? 'unknown'}, qualified=${report.coverageSnapshot.safariWebKitClosureAudit.qualifiedClosureCount ?? 'unknown'}`,
   `- Safari/WebKit status: evidenceClass=${report.coverageSnapshot.safariWebKitStatus?.evidenceClass ?? 'unknown'}, canRunSafariBrowserRows=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.canRunSafariBrowserRows)}, browserRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.benchmarkRowsRecorded)}, primarySyncRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.primarySyncByteBatchRowsRecorded)}, boundedPrimaryRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.boundedPrimarySyncByteBatchRowsRecorded)}, largeBoundedPrimaryRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.largeBoundedPrimarySyncByteBatchRowsRecorded)}, acceptedCases=${formatStringList(report.coverageSnapshot.safariWebKitStatus?.acceptedClosureCaseIdsRecorded)}, allAcceptedCases=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.allAcceptedClosureCasesRecorded)}, acceptedLargePrimaryCases=${formatStringList(report.coverageSnapshot.safariWebKitStatus?.acceptedLargeBoundedPrimaryClosureCaseIdsRecorded)}, allAcceptedLargePrimaryCases=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.allAcceptedLargeBoundedPrimaryClosureCasesRecorded)}, exactBuildIdentity=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.exactBuildIdentityRecorded)}, sourceBoundaryPinned=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.sourceBoundaryPinned)}, closesSafariObligation=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.closesSafariObligation)}`,
   `- Safari/WebKit local closure blockers: met=${formatStringList(report.coverageSnapshot.safariWebKitStatus?.availabilityMetClosureRequirementIds)}, blocked=${formatStringList(report.coverageSnapshot.safariWebKitStatus?.availabilityBlockedClosureRequirementIds)}`,

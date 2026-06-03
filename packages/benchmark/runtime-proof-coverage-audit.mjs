@@ -120,7 +120,7 @@ function createReport(options) {
   const unknownBoundedMemoryRows = artifacts
     .flatMap(artifact => artifact.measuredRows)
     .filter(row => row.boundedMemory === null)
-    .map(summarizeUnknownBoundedMemoryRow);
+    .map(row => summarizeUnknownBoundedMemoryRow(row, options));
   const summary = {
     scannedArtifactCount: artifacts.length,
     ignoredArtifactCount: ignored.length,
@@ -1304,7 +1304,8 @@ function summarizeUnknownBoundedMemoryRows(rows, options) {
   };
 }
 
-function summarizeUnknownBoundedMemoryRow(row) {
+function summarizeUnknownBoundedMemoryRow(row, options) {
+  const counterexampleRelevant = isUnknownBoundedMemoryCounterexampleRelevant(row, options);
   return {
     sourceArtifact: row.sourceArtifact,
     jsonPath: row.jsonPath,
@@ -1321,7 +1322,40 @@ function summarizeUnknownBoundedMemoryRow(row) {
     eventCount: row.eventCount,
     checksum: row.checksum,
     contractScope: row.contractScope,
+    counterexampleRelevant,
+    counterexampleExclusionReason: counterexampleRelevant
+      ? 'counterexample-relevant-unclassified-memory'
+      : unknownBoundedMemoryExclusionReason(row, options),
   };
+}
+
+function isUnknownBoundedMemoryCounterexampleRelevant(row, options) {
+  return isJsRuntime(row.runtimeId)
+    && row.fullStringParity === true
+    && row.sizeGiB !== null
+    && row.sizeGiB >= options.minLargeGiB;
+}
+
+function unknownBoundedMemoryExclusionReason(row, options) {
+  if (!isJsRuntime(row.runtimeId) && row.memoryKind === 'allocator-counters') {
+    return 'non-js-allocator-counter-not-runtime-limit-target';
+  }
+  if (!isJsRuntime(row.runtimeId) && row.memoryKind === 'not-recorded') {
+    return 'non-js-no-peak-memory-not-runtime-limit-target';
+  }
+  if (!isJsRuntime(row.runtimeId)) {
+    return 'non-js-row-not-runtime-limit-target';
+  }
+  if (row.fullStringParity !== true) {
+    return 'js-row-not-full-string-contract';
+  }
+  if (row.sizeGiB === null) {
+    return 'js-row-without-large-size-proof';
+  }
+  if (row.sizeGiB < options.minLargeGiB) {
+    return 'js-row-below-large-size-threshold';
+  }
+  return 'counterexample-relevant-unclassified-memory';
 }
 
 function createRuntimeCoverage(runtimeId, artifacts, allRows) {

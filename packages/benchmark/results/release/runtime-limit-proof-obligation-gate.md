@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-03T09:01:46.934Z
+Generated: 2026-06-03T09:16:12.716Z
 
 ## Scope
 
@@ -89,7 +89,7 @@ Disclosure-only guards: 4
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-03T08:59:39.396Z)
+- Coverage audit loaded: yes (2026-06-03T09:14:28.544Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open
 - Covered coverage obligations: firefox-browser-rows-open, codegen-traces-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey diagnostics rows vs closure candidates: 12/20 (gap=8, closureQualified=1)
@@ -98,6 +98,7 @@ Disclosure-only guards: 4
 - SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=8
 - SpiderMonkey closest codegen blockers: spidermonkey-taskcluster-debug-jsshell-codegen-audit.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]; spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]; spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]; spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]; spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json=[evidenceClassAllowed, sameContractStaxRow, selectedRowMetadata, unchangedRunnable]
 - SpiderMonkey Taskcluster route freshness: fresh (artifactIdentityMatchesRoute=yes, expectedIdentitySource=inferred-from-artifacts, checkedArtifacts=5, mismatchedArtifacts=none)
+- Unknown bounded-memory row exclusions: rows=28, withReason=28, counterexampleRelevant=0
 - Safari/WebKit closure comparison: generatedAt=2026-06-03T06:02:02.040Z, rows=291, candidates=0, qualified=0
 - Safari/WebKit status: evidenceClass=environment-availability-only, canRunSafariBrowserRows=no, browserRows=0, primarySyncRows=0, boundedPrimaryRows=0, largeBoundedPrimaryRows=0, acceptedCases=none, allAcceptedCases=no, acceptedLargePrimaryCases=none, allAcceptedLargePrimaryCases=no, exactBuildIdentity=no, sourceBoundaryPinned=no, closesSafariObligation=no
 - Safari/WebKit local closure blockers: met=`harness-supports-safari`, `direct-readable-stream-not-substitute`, blocked=`host-is-macos`, `safari-executable-found`, `safaridriver-found`, `can-run-safari-browser-rows`, `safari-benchmark-rows-recorded`, `primary-sync-byte-batch-rows-recorded`, `bounded-primary-sync-byte-batch-rows-recorded`, `exact-build-identity-recorded`, `source-boundary-pinned`
@@ -107,6 +108,7 @@ Disclosure-only guards: 4
 | `coverage-loaded` | yes | runtime-proof-coverage-audit.json must be loaded by the gate. |
 | `safari-webkit-local-unavailable-status-visible` | yes | Safari/WebKit local unavailable status must stay visible in coverage: current host has no Safari/safaridriver row, zero Safari browser rows are recorded, and the Safari obligation remains open. |
 | `safari-webkit-closure-audit-comparison-current` | yes | Safari/WebKit closure audit comparison freshness must be preserved in coverage: the closure matrix must reference the current same-contract comparison generatedAt and row count even when no Safari rows are present. |
+| `coverage-unknown-bounded-memory-row-exclusions` | yes | runtime-proof-coverage-audit.json must give every unknown bounded-memory row a row-level counterexample exclusion reason and report no counterexample-relevant unknown bounded-memory rows. |
 | `spidermonkey-identity-status-counts-present` | yes | Coverage audit must expose coverage.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts for gate-level review. |
 | `spidermonkey-non-stax-diagnostic-rows-visible` | yes | Coverage audit must keep non-StAX SpiderMonkey diagnostic rows visible via selectedRowIdentityStatusCounts.not-claimed-non-stax-diagnostic. |
 | `spidermonkey-closure-audit-surface-visible` | yes | Coverage audit must expose SpiderMonkey diagnostic row count, closure-audit candidate count, their gap, and qualifiedClosureCount so gate review sees the curated coverage surface is not the full closure matrix. |
@@ -141,7 +143,7 @@ Disclosure-only guards: 4
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-03T08:59:39.690Z)
+- Handoff loaded: yes (2026-06-03T09:14:28.883Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open
 - Handoff IDs: safari-webkit-browser-row-handoff
 
@@ -161,8 +163,8 @@ Disclosure-only guards: 4
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-03T09:01:46.866Z)
-- Handoff validation target handoff generatedAt: 2026-06-03T08:59:39.690Z (current 2026-06-03T08:59:39.690Z)
+- Handoff validation loaded: yes (2026-06-03T09:14:28.948Z)
+- Handoff validation target handoff generatedAt: 2026-06-03T09:14:28.883Z (current 2026-06-03T09:14:28.883Z)
 - Handoff validation pass: yes
 - Commands checked: 5
 - Scripts referenced: 15
@@ -194,8 +196,8 @@ Disclosure-only guards: 4
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-03T08:59:39.459Z)
-- Source audit inputs: comparison=2026-06-03T06:02:02.040Z (current 2026-06-03T06:02:02.040Z), coverage=2026-06-03T08:59:39.396Z (current 2026-06-03T08:59:39.396Z)
+- Source audit loaded: yes (2026-06-03T09:14:28.616Z)
+- Source audit inputs: comparison=2026-06-03T06:02:02.040Z (current 2026-06-03T06:02:02.040Z), coverage=2026-06-03T09:14:28.544Z (current 2026-06-03T09:14:28.544Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary source boundary: demand-driven StreamReaderSync parser pulls
@@ -224,14 +226,14 @@ Disclosure-only guards: 4
 
 ## Frontier Audit Snapshot
 
-- Memory frontier loaded: yes (2026-06-03T08:59:39.518Z)
+- Memory frontier loaded: yes (2026-06-03T09:14:28.670Z)
 - Frontier audit comparison inputs: memory=2026-06-03T06:02:02.040Z, target=2026-06-03T06:02:02.040Z, text=2026-06-03T06:02:02.040Z (current 2026-06-03T06:02:02.040Z)
 - Fastest bounded JS row: 185.50 MiB/s at 60.45 MiB
 - Unbounded or unproven memory rows: 17
 - Bounded rows without numeric memory proof: 0
 - Unbounded rows at or above 200 MiB/s: 0
 - Same-fixture process RSS: JS=61.77 MiB, Woodstox=312.71 MiB, quick-xml=4.78 MiB
-- Target distance loaded: yes (2026-06-03T08:59:39.572Z)
+- Target distance loaded: yes (2026-06-03T09:14:28.749Z)
 - Woodstox 0.9x target met: no
 - Woodstox 0.9x remaining: 164.29 MiB/s
 - quick-xml 0.9x target met: no
@@ -240,7 +242,7 @@ Disclosure-only guards: 4
 - Overall JS frontier separated from same-fixture target row: yes
 - Target JS row visible in counterexample scan: yes
 - Target JS contract: sourceMode=file-backed-sync-iterable-byte-batches, directReadableStream=no, fullArrayBufferParserInput=no, boundedMemory=yes, memoryKind=process-rss, maxRssMiB=61.77
-- Text materialization boundary loaded: yes (2026-06-03T08:59:39.628Z)
+- Text materialization boundary loaded: yes (2026-06-03T09:14:28.811Z)
 - Fastest full-string row: 185.50 MiB/s
 - Full-string rows crossing 200 MiB/s: 0
 - No-text rows crossing 200 MiB/s: 4

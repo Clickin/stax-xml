@@ -287,7 +287,11 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.coverageSnapshot.safariWebKitClosureAudit.qualifiedClosureCount, 0);
   assert.equal(report.coverageSnapshot.safariWebKitClosureAudit.comparisonGeneratedAt, report.counterexampleSnapshot.comparisonGeneratedAt);
   assert.equal(report.coverageSnapshot.safariWebKitClosureAudit.comparisonRowCount, report.counterexampleSnapshot.comparisonRowCount);
+  assert.equal(report.coverageSnapshot.unknownBoundedMemoryRowCount, 28);
+  assert.equal(report.coverageSnapshot.unknownBoundedMemoryRowsWithExclusionReasonCount, 28);
+  assert.equal(report.coverageSnapshot.unknownBoundedMemoryCounterexampleRelevantRowCount, 0);
   assert.ok(report.coverageSnapshot.guards.some(item => item.id === 'coverage-loaded' && item.satisfied));
+  assert.ok(report.coverageSnapshot.guards.some(item => item.id === 'coverage-unknown-bounded-memory-row-exclusions' && item.satisfied));
   assert.ok(report.coverageSnapshot.guards.some(item => item.id === 'safari-webkit-local-unavailable-status-visible' && item.satisfied));
   assert.ok(report.coverageSnapshot.guards.some(item => item.id === 'safari-webkit-closure-audit-comparison-current' && item.satisfied));
   assert.ok(report.coverageSnapshot.guards.some(item => item.id === 'spidermonkey-identity-status-counts-present' && item.satisfied));
@@ -378,6 +382,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /# Runtime-Limit Proof Obligation Gate/);
   assert.match(markdown, /Gate pass: yes/);
   assert.match(markdown, /Conclusion allowed: no/);
+  assert.match(markdown, /Unknown bounded-memory row exclusions: rows=28, withReason=28, counterexampleRelevant=0/);
   assert.match(markdown, /runtime-limit-remains-hypothesis/);
   assert.match(markdown, /safari-jsc-source-and-browser-rows-open/);
   assert.match(markdown, /Active evidence-gap disclosures: 1/);
@@ -540,6 +545,50 @@ test('runtime-limit proof-obligation gate fails if coverage omits SpiderMonkey i
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /SpiderMonkey selected row identity statuses: none/);
   assert.match(markdown, /spidermonkey-identity-status-counts-present/);
+});
+
+test('runtime-limit proof-obligation gate fails if unknown bounded-memory rows lack exclusion reasons', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const coverage = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-coverage-audit.json'), 'utf8'));
+  assert.ok(Array.isArray(coverage.unknownBoundedMemoryRows));
+  assert.ok(coverage.unknownBoundedMemoryRows.length > 0);
+  delete coverage.unknownBoundedMemoryRows[0].counterexampleExclusionReason;
+  coverage.unknownBoundedMemoryRows[1].counterexampleRelevant = true;
+  writeFileSync(badCoverageJsonOut, `${JSON.stringify(coverage, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--coverage-json',
+    badCoverageJsonOut,
+    '--json-out',
+    badCoverageGateJsonOut,
+    '--md-out',
+    badCoverageGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badCoverageGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.equal(report.coverageSnapshot.unknownBoundedMemoryRowCount, 28);
+  assert.equal(report.coverageSnapshot.unknownBoundedMemoryRowsWithExclusionReasonCount, 27);
+  assert.equal(report.coverageSnapshot.unknownBoundedMemoryCounterexampleRelevantRowCount, 1);
+  assert.ok(report.coverageSnapshot.guards.some(item =>
+    item.id === 'coverage-unknown-bounded-memory-row-exclusions'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /unknown bounded-memory row/.test(error)));
+
+  const markdown = readFileSync(badCoverageGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /Unknown bounded-memory row exclusions: rows=28, withReason=27, counterexampleRelevant=1/);
+  assert.match(markdown, /coverage-unknown-bounded-memory-row-exclusions/);
 });
 
 test('runtime-limit proof-obligation gate fails if Taskcluster route freshness no longer matches evidence artifacts', () => {
