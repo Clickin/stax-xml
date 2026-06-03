@@ -600,6 +600,14 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   ));
   assert.equal(report.summary.rowClassificationCompleteness.unknownFullStringParityRows, 1);
   assert.equal(report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows, 28);
+  assert.deepEqual(report.summary.unknownFullStringParityBreakdown, {
+    total: 1,
+    jsRows: 1,
+    boundedRows: 0,
+    largeJsRows: 0,
+    atOrAboveThresholdRows: 0,
+    counterexampleRelevantRows: 0,
+  });
   assert.deepEqual(report.summary.unknownBoundedMemoryBreakdown, {
     total: 28,
     jsRows: 12,
@@ -638,6 +646,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assertUnknownBoundedMemoryRow(report, 'browser-v8-codegen-trace.json', 'stringFull');
   assertNoUnknownBoundedMemoryRow(report, 'external-baseline-1024mib-file-sync-batches.json', 'woodstox');
   assertNoUnknownBoundedMemoryRow(report, 'external-baseline-1024mib-file-sync-batches.json', 'quick-xml');
+  assert.equal(report.unknownFullStringParityRows.length, 1);
+  assert.equal(report.unknownFullStringParityRows[0].sourceArtifact, 'spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit.json');
+  assert.equal(report.unknownFullStringParityRows[0].counterexampleRelevant, false);
+  assert.equal(report.unknownFullStringParityRows[0].counterexampleExclusionReason, 'js-row-without-bounded-memory-proof');
   assertKnownBoundedMemoryRow(report, 'file-backed-trim-boundary-check-candidate.json', 'woodstox');
   assertKnownBoundedMemoryRow(report, 'file-backed-short-attr-value-cache-candidate.json', 'quick-xml');
   assertNoUnknownBoundedMemoryRow(report, 'external-baseline.json', 'stax-stream');

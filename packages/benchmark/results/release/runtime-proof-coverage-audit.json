@@ -1,11 +1,12 @@
 {
-  "generatedAt": "2026-06-03T09:14:28.544Z",
+  "generatedAt": "2026-06-03T09:26:08.349Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
   "parameters": {
     "releaseDir": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release",
-    "minLargeGiB": 0.999
+    "minLargeGiB": 0.999,
+    "thresholdMiBPerSec": 200
   },
   "scannedArtifacts": [
     {
@@ -8362,6 +8363,14 @@
       "measuredRows": 1269,
       "unknownFullStringParityRows": 1,
       "unknownBoundedMemoryRows": 28
+    },
+    "unknownFullStringParityBreakdown": {
+      "total": 1,
+      "jsRows": 1,
+      "boundedRows": 0,
+      "largeJsRows": 0,
+      "atOrAboveThresholdRows": 0,
+      "counterexampleRelevantRows": 0
     },
     "unknownBoundedMemoryBreakdown": {
       "total": 28,
@@ -33139,6 +33148,28 @@
       "status": "covered",
       "evidence": "runtime-counterexample-scan.md is a required gate artifact and preserves the bounded full-string 200 MiB/s counterexample rule.",
       "nextExperiment": "Keep new rows flowing through the counterexample scanner before broadening claims."
+    }
+  ],
+  "unknownFullStringParityRows": [
+    {
+      "sourceArtifact": "spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit.json",
+      "jsonPath": "selectedComparisonRow",
+      "id": "nightly-spidermonkey-stax-stream-reader-sync-primary-byte-batch",
+      "runtimeId": "spidermonkey-jsshell",
+      "runtimeLabel": "SpiderMonkey js-shell",
+      "sizeGiB": null,
+      "fixtureSource": null,
+      "fixtureShape": null,
+      "corpusSeed": null,
+      "mibPerSec": 62.75,
+      "fullStringParity": null,
+      "boundedMemory": null,
+      "memoryKind": "not-recorded",
+      "eventCount": 894724,
+      "checksum": -1087917522,
+      "contractScope": "spidermonkey-taskcluster-debug-jsshell-current-stax-primary-byte-batch-same-contract-codegen",
+      "counterexampleRelevant": false,
+      "counterexampleExclusionReason": "js-row-without-bounded-memory-proof"
     }
   ],
   "unknownBoundedMemoryRows": [

@@ -39,6 +39,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
     minLargeGiB: 0.999,
+    thresholdMiBPerSec: 200,
   };
 
   for (let index = 0; index < argv.length; index++) {
@@ -65,6 +66,9 @@ function parseArgs(argv = process.argv.slice(2)) {
         break;
       case '--min-large-gib':
         options.minLargeGiB = parsePositiveNumber(readValue(), name);
+        break;
+      case '--threshold-mib-per-sec':
+        options.thresholdMiBPerSec = parsePositiveNumber(readValue(), name);
         break;
       default:
         throw new Error(`Unknown argument: ${arg}`);
@@ -121,12 +125,17 @@ function createReport(options) {
     .flatMap(artifact => artifact.measuredRows)
     .filter(row => row.boundedMemory === null)
     .map(row => summarizeUnknownBoundedMemoryRow(row, options));
+  const unknownFullStringParityRows = artifacts
+    .flatMap(artifact => artifact.measuredRows)
+    .filter(row => row.fullStringParity === null)
+    .map(row => summarizeUnknownFullStringParityRow(row, options));
   const summary = {
     scannedArtifactCount: artifacts.length,
     ignoredArtifactCount: ignored.length,
     parseErrorCount: parseErrors.length,
     measuredRowCount: sum(artifacts.map(artifact => artifact.measuredRows.length)),
     rowClassificationCompleteness: summarizeRowClassificationCompleteness(artifacts.flatMap(artifact => artifact.measuredRows)),
+    unknownFullStringParityBreakdown: summarizeUnknownFullStringParityRows(artifacts.flatMap(artifact => artifact.measuredRows), options),
     unknownBoundedMemoryBreakdown: summarizeUnknownBoundedMemoryRows(artifacts.flatMap(artifact => artifact.measuredRows), options),
     benchmarkArtifactCount: artifacts.filter(artifact => artifact.evidenceKinds.includes('BENCH_FACT')).length,
     sourceArtifactCount: artifacts.filter(artifact => artifact.evidenceKinds.includes('SOURCE_FACT')).length,
@@ -150,6 +159,7 @@ function createReport(options) {
     parameters: {
       releaseDir: options.releaseDir,
       minLargeGiB: options.minLargeGiB,
+      thresholdMiBPerSec: options.thresholdMiBPerSec,
     },
     scannedArtifacts: artifacts.map(artifact => summarizeArtifact(artifact)),
     ignoredArtifacts: ignored,
@@ -157,6 +167,7 @@ function createReport(options) {
     summary,
     coverage,
     obligations,
+    unknownFullStringParityRows,
     unknownBoundedMemoryRows,
     findings: createFindings(coverage, obligations),
   };
@@ -1304,6 +1315,78 @@ function summarizeUnknownBoundedMemoryRows(rows, options) {
   };
 }
 
+function summarizeUnknownFullStringParityRows(rows, options) {
+  const unknownRows = rows.filter(row => row.fullStringParity === null);
+  const counterexampleRelevantRows = unknownRows.filter(row =>
+    isUnknownFullStringParityCounterexampleRelevant(row, options)
+  );
+  return {
+    total: unknownRows.length,
+    jsRows: unknownRows.filter(row => isJsRuntime(row.runtimeId)).length,
+    boundedRows: unknownRows.filter(row => row.boundedMemory === true).length,
+    largeJsRows: unknownRows.filter(row =>
+      isJsRuntime(row.runtimeId)
+      && row.sizeGiB !== null
+      && row.sizeGiB >= options.minLargeGiB
+    ).length,
+    atOrAboveThresholdRows: unknownRows.filter(row => row.mibPerSec >= options.thresholdMiBPerSec).length,
+    counterexampleRelevantRows: counterexampleRelevantRows.length,
+  };
+}
+
+function summarizeUnknownFullStringParityRow(row, options) {
+  const counterexampleRelevant = isUnknownFullStringParityCounterexampleRelevant(row, options);
+  return {
+    sourceArtifact: row.sourceArtifact,
+    jsonPath: row.jsonPath,
+    id: row.id,
+    runtimeId: row.runtimeId,
+    runtimeLabel: row.runtimeLabel,
+    sizeGiB: row.sizeGiB,
+    fixtureSource: row.fixtureSource,
+    fixtureShape: row.fixtureShape,
+    corpusSeed: row.corpusSeed,
+    mibPerSec: row.mibPerSec,
+    fullStringParity: row.fullStringParity,
+    boundedMemory: row.boundedMemory,
+    memoryKind: row.memoryKind,
+    eventCount: row.eventCount,
+    checksum: row.checksum,
+    contractScope: row.contractScope,
+    counterexampleRelevant,
+    counterexampleExclusionReason: counterexampleRelevant
+      ? 'counterexample-relevant-unclassified-full-string-parity'
+      : unknownFullStringParityExclusionReason(row, options),
+  };
+}
+
+function isUnknownFullStringParityCounterexampleRelevant(row, options) {
+  return isJsRuntime(row.runtimeId)
+    && row.boundedMemory === true
+    && row.sizeGiB !== null
+    && row.sizeGiB >= options.minLargeGiB
+    && row.mibPerSec >= options.thresholdMiBPerSec;
+}
+
+function unknownFullStringParityExclusionReason(row, options) {
+  if (!isJsRuntime(row.runtimeId)) {
+    return 'non-js-row-not-runtime-limit-target';
+  }
+  if (row.boundedMemory !== true) {
+    return 'js-row-without-bounded-memory-proof';
+  }
+  if (row.sizeGiB === null) {
+    return 'js-row-without-large-size-proof';
+  }
+  if (row.sizeGiB < options.minLargeGiB) {
+    return 'js-row-below-large-size-threshold';
+  }
+  if (row.mibPerSec < options.thresholdMiBPerSec) {
+    return 'js-row-below-counterexample-throughput-threshold';
+  }
+  return 'counterexample-relevant-unclassified-full-string-parity';
+}
+
 function summarizeUnknownBoundedMemoryRow(row, options) {
   const counterexampleRelevant = isUnknownBoundedMemoryCounterexampleRelevant(row, options);
   return {
@@ -2108,6 +2191,11 @@ function renderMarkdown(report) {
     `- Ignored derived artifacts: ${report.summary.ignoredArtifactCount}`,
     `- Measured rows recognized: ${report.summary.measuredRowCount}`,
     `- Rows with unknown full-string parity: ${report.summary.rowClassificationCompleteness.unknownFullStringParityRows}`,
+    `  - Unknown full-string parity JS rows: ${report.summary.unknownFullStringParityBreakdown.jsRows}`,
+    `  - Unknown full-string parity bounded rows: ${report.summary.unknownFullStringParityBreakdown.boundedRows}`,
+    `  - Unknown full-string parity 1 GiB+ JS rows: ${report.summary.unknownFullStringParityBreakdown.largeJsRows}`,
+    `  - Unknown full-string parity rows at or above threshold: ${report.summary.unknownFullStringParityBreakdown.atOrAboveThresholdRows}`,
+    `  - Unknown full-string parity counterexample-relevant rows: ${report.summary.unknownFullStringParityBreakdown.counterexampleRelevantRows}`,
     `- Rows with unknown bounded-memory flag: ${report.summary.rowClassificationCompleteness.unknownBoundedMemoryRows}`,
     `  - Unknown bounded-memory JS rows: ${report.summary.unknownBoundedMemoryBreakdown.jsRows}`,
     `  - Unknown bounded-memory full-string rows: ${report.summary.unknownBoundedMemoryBreakdown.fullStringRows}`,
@@ -2140,18 +2228,35 @@ function renderMarkdown(report) {
   }
 
   lines.push(
+    '## Unknown Full-String Parity Rows',
+    '',
+    'These rows have throughput metadata but do not claim whether they satisfy the full-string contract. They are listed with row-level exclusion reasons so unknown parity cannot silently hide a 200 MiB/s bounded full-string JavaScript counterexample.',
+    '',
+    '| Artifact | Runtime | Row | Size GiB | Bounded memory | MiB/s | Counterexample relevant | Exclusion reason |',
+    '| --- | --- | --- | ---: | --- | ---: | --- | --- |',
+  );
+  if (report.unknownFullStringParityRows.length === 0) {
+    lines.push('| none | | | | | | | |');
+  } else {
+    for (const row of report.unknownFullStringParityRows) {
+      lines.push(`| \`${row.sourceArtifact}\` | ${row.runtimeLabel} | \`${row.id}\` | ${formatNumber(row.sizeGiB)} | ${formatBoolean(row.boundedMemory)} | ${formatNumber(row.mibPerSec)} | ${formatBoolean(row.counterexampleRelevant)} | ${row.counterexampleExclusionReason} |`);
+    }
+  }
+  lines.push('');
+
+  lines.push(
     '## Unknown Bounded-Memory Rows',
     '',
     'These rows have enough throughput/parity metadata to be recognized, but no row-level memory counter or bounded-memory flag. They are listed so remaining unknowns are auditable rather than only counted. The counterexample-relevant subset is 1 GiB+ JavaScript full-string rows, and is summarized separately above.',
     '',
-    '| Artifact | Runtime | Row | Size GiB | Memory | Full string | MiB/s |',
-    '| --- | --- | --- | ---: | --- | --- | ---: |',
+    '| Artifact | Runtime | Row | Size GiB | Memory | Full string | MiB/s | Counterexample relevant | Exclusion reason |',
+    '| --- | --- | --- | ---: | --- | --- | ---: | --- | --- |',
   );
   if (report.unknownBoundedMemoryRows.length === 0) {
-    lines.push('| none | | | | | | |');
+    lines.push('| none | | | | | | | | |');
   } else {
     for (const row of report.unknownBoundedMemoryRows) {
-      lines.push(`| \`${row.sourceArtifact}\` | ${row.runtimeLabel} | \`${row.id}\` | ${formatNumber(row.sizeGiB)} | ${row.memoryKind} | ${formatBoolean(row.fullStringParity)} | ${formatNumber(row.mibPerSec)} |`);
+      lines.push(`| \`${row.sourceArtifact}\` | ${row.runtimeLabel} | \`${row.id}\` | ${formatNumber(row.sizeGiB)} | ${row.memoryKind} | ${formatBoolean(row.fullStringParity)} | ${formatNumber(row.mibPerSec)} | ${formatBoolean(row.counterexampleRelevant)} | ${row.counterexampleExclusionReason} |`);
     }
   }
   lines.push('');

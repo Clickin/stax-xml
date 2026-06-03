@@ -287,10 +287,14 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.coverageSnapshot.safariWebKitClosureAudit.qualifiedClosureCount, 0);
   assert.equal(report.coverageSnapshot.safariWebKitClosureAudit.comparisonGeneratedAt, report.counterexampleSnapshot.comparisonGeneratedAt);
   assert.equal(report.coverageSnapshot.safariWebKitClosureAudit.comparisonRowCount, report.counterexampleSnapshot.comparisonRowCount);
+  assert.equal(report.coverageSnapshot.unknownFullStringParityRowCount, 1);
+  assert.equal(report.coverageSnapshot.unknownFullStringParityRowsWithExclusionReasonCount, 1);
+  assert.equal(report.coverageSnapshot.unknownFullStringParityCounterexampleRelevantRowCount, 0);
   assert.equal(report.coverageSnapshot.unknownBoundedMemoryRowCount, 28);
   assert.equal(report.coverageSnapshot.unknownBoundedMemoryRowsWithExclusionReasonCount, 28);
   assert.equal(report.coverageSnapshot.unknownBoundedMemoryCounterexampleRelevantRowCount, 0);
   assert.ok(report.coverageSnapshot.guards.some(item => item.id === 'coverage-loaded' && item.satisfied));
+  assert.ok(report.coverageSnapshot.guards.some(item => item.id === 'coverage-unknown-full-string-parity-row-exclusions' && item.satisfied));
   assert.ok(report.coverageSnapshot.guards.some(item => item.id === 'coverage-unknown-bounded-memory-row-exclusions' && item.satisfied));
   assert.ok(report.coverageSnapshot.guards.some(item => item.id === 'safari-webkit-local-unavailable-status-visible' && item.satisfied));
   assert.ok(report.coverageSnapshot.guards.some(item => item.id === 'safari-webkit-closure-audit-comparison-current' && item.satisfied));
@@ -382,6 +386,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /# Runtime-Limit Proof Obligation Gate/);
   assert.match(markdown, /Gate pass: yes/);
   assert.match(markdown, /Conclusion allowed: no/);
+  assert.match(markdown, /Unknown full-string parity row exclusions: rows=1, withReason=1, counterexampleRelevant=0/);
   assert.match(markdown, /Unknown bounded-memory row exclusions: rows=28, withReason=28, counterexampleRelevant=0/);
   assert.match(markdown, /runtime-limit-remains-hypothesis/);
   assert.match(markdown, /safari-jsc-source-and-browser-rows-open/);
@@ -589,6 +594,50 @@ test('runtime-limit proof-obligation gate fails if unknown bounded-memory rows l
   assert.match(markdown, /Gate pass: no/);
   assert.match(markdown, /Unknown bounded-memory row exclusions: rows=28, withReason=27, counterexampleRelevant=1/);
   assert.match(markdown, /coverage-unknown-bounded-memory-row-exclusions/);
+});
+
+test('runtime-limit proof-obligation gate fails if unknown full-string parity rows lack exclusion reasons', () => {
+  resetTmp();
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const coverage = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-coverage-audit.json'), 'utf8'));
+  assert.ok(Array.isArray(coverage.unknownFullStringParityRows));
+  assert.ok(coverage.unknownFullStringParityRows.length > 0);
+  delete coverage.unknownFullStringParityRows[0].counterexampleExclusionReason;
+  coverage.unknownFullStringParityRows[0].counterexampleRelevant = true;
+  writeFileSync(badCoverageJsonOut, `${JSON.stringify(coverage, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--coverage-json',
+    badCoverageJsonOut,
+    '--json-out',
+    badCoverageGateJsonOut,
+    '--md-out',
+    badCoverageGateMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(badCoverageGateJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.equal(report.coverageSnapshot.unknownFullStringParityRowCount, 1);
+  assert.equal(report.coverageSnapshot.unknownFullStringParityRowsWithExclusionReasonCount, 0);
+  assert.equal(report.coverageSnapshot.unknownFullStringParityCounterexampleRelevantRowCount, 1);
+  assert.ok(report.coverageSnapshot.guards.some(item =>
+    item.id === 'coverage-unknown-full-string-parity-row-exclusions'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /unknown full-string parity row/.test(error)));
+
+  const markdown = readFileSync(badCoverageGateMdOut, 'utf8');
+  assert.match(markdown, /Gate pass: no/);
+  assert.match(markdown, /Unknown full-string parity row exclusions: rows=1, withReason=0, counterexampleRelevant=1/);
+  assert.match(markdown, /coverage-unknown-full-string-parity-row-exclusions/);
 });
 
 test('runtime-limit proof-obligation gate fails if Taskcluster route freshness no longer matches evidence artifacts', () => {
