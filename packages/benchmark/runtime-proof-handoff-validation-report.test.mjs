@@ -37,9 +37,9 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.equal(report.summary.handoffCount, 1);
   assert.equal(report.summary.requiredHandoffsPresent, true);
   assert.equal(report.summary.commandCount, 5);
-  assert.equal(report.summary.scriptsReferenced, 14);
+  assert.equal(report.summary.scriptsReferenced, 15);
   assert.equal(report.summary.missingScriptCount, 0);
-  assert.equal(report.summary.releaseOutputPathCount, 30);
+  assert.equal(report.summary.releaseOutputPathCount, 32);
   assert.equal(report.summary.nonReleaseOutputPathCount, 0);
   assert.equal(report.summary.rawOutputPathCount, 1);
   assert.equal(report.summary.rawOutputPathPolicyViolationCount, 0);
@@ -211,6 +211,9 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.match(postSafariAudits.command, /target-distance-audit\.mjs/);
   assert.match(postSafariAudits.command, /text-materialization-boundary-audit\.mjs/);
   assert.match(postSafariAudits.command, /text-materialization-frontier-coverage-audit\.mjs/);
+  assert.match(postSafariAudits.command, /runtime-proof-gap-handoff\.mjs/);
+  assert.match(postSafariAudits.command, /runtime-proof-handoff-validation\.mjs/);
+  assert.match(postSafariAudits.command, /runtime-limit-proof-obligation-gate\.mjs/);
   assert.ok(
     postSafariAudits.command.indexOf('same-contract-runtime-comparison.mjs')
       < postSafariAudits.command.indexOf('safari-webkit-closure-audit.mjs')
@@ -229,8 +232,12 @@ test('runtime proof handoff validation pins external runbook command and contrac
       && postSafariAudits.command.indexOf('text-materialization-boundary-audit.mjs')
         < postSafariAudits.command.indexOf('text-materialization-frontier-coverage-audit.mjs')
       && postSafariAudits.command.indexOf('text-materialization-frontier-coverage-audit.mjs')
+        < postSafariAudits.command.indexOf('runtime-proof-gap-handoff.mjs')
+      && postSafariAudits.command.indexOf('runtime-proof-gap-handoff.mjs')
+        < postSafariAudits.command.indexOf('runtime-proof-handoff-validation.mjs')
+      && postSafariAudits.command.indexOf('runtime-proof-handoff-validation.mjs')
         < postSafariAudits.command.indexOf('runtime-limit-proof-obligation-gate.mjs'),
-    'post-safari audits must refresh comparison, Safari closure, counterexample, coverage, source, frontier, gate, and handoff in order',
+    'post-safari audits must refresh comparison, Safari closure, counterexample, coverage, source, frontier, handoff, validation, and gate in order',
   );
   const postSpiderMonkeyAudits = report.commandChecks.find(check => check.id === 'post-spidermonkey-audits');
   if (spiderMonkey) {
@@ -247,8 +254,9 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.match(postSpiderMonkeyAudits.command, /target-distance-audit\.mjs/);
   assert.match(postSpiderMonkeyAudits.command, /text-materialization-boundary-audit\.mjs/);
   assert.match(postSpiderMonkeyAudits.command, /text-materialization-frontier-coverage-audit\.mjs/);
-  assert.match(postSpiderMonkeyAudits.command, /runtime-limit-proof-obligation-gate\.mjs/);
   assert.match(postSpiderMonkeyAudits.command, /runtime-proof-gap-handoff\.mjs/);
+  assert.match(postSpiderMonkeyAudits.command, /runtime-proof-handoff-validation\.mjs/);
+  assert.match(postSpiderMonkeyAudits.command, /runtime-limit-proof-obligation-gate\.mjs/);
   assert.ok(
     postSpiderMonkeyAudits.command.indexOf('stax-public-reader-host-api-boundary-audit.mjs')
       < postSpiderMonkeyAudits.command.indexOf('spidermonkey-jsshell-tokenizer-headroom.mjs')
@@ -273,10 +281,12 @@ test('runtime proof handoff validation pins external runbook command and contrac
       && postSpiderMonkeyAudits.command.indexOf('text-materialization-boundary-audit.mjs')
         < postSpiderMonkeyAudits.command.indexOf('text-materialization-frontier-coverage-audit.mjs')
       && postSpiderMonkeyAudits.command.indexOf('text-materialization-frontier-coverage-audit.mjs')
-        < postSpiderMonkeyAudits.command.indexOf('runtime-limit-proof-obligation-gate.mjs')
-      && postSpiderMonkeyAudits.command.indexOf('runtime-limit-proof-obligation-gate.mjs')
-        < postSpiderMonkeyAudits.command.indexOf('runtime-proof-gap-handoff.mjs'),
-    'post-spidermonkey audits must refresh host boundary, tokenizer headroom, materialized headroom, counterexample scan, coverage, source audit, frontier audits, gate, and handoff in order',
+        < postSpiderMonkeyAudits.command.indexOf('runtime-proof-gap-handoff.mjs')
+      && postSpiderMonkeyAudits.command.indexOf('runtime-proof-gap-handoff.mjs')
+        < postSpiderMonkeyAudits.command.indexOf('runtime-proof-handoff-validation.mjs')
+      && postSpiderMonkeyAudits.command.indexOf('runtime-proof-handoff-validation.mjs')
+        < postSpiderMonkeyAudits.command.indexOf('runtime-limit-proof-obligation-gate.mjs'),
+    'post-spidermonkey audits must refresh host boundary, tokenizer headroom, materialized headroom, counterexample scan, coverage, source audit, frontier audits, handoff, validation, and gate in order',
   );
   }
   assert.ok(report.findings.some(finding =>
@@ -292,9 +302,9 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.match(markdown, /# Runtime Proof Handoff Validation/);
   assert.match(markdown, /Pass: yes/);
   assert.match(markdown, /Commands checked: 5/);
-  assert.match(markdown, /Scripts referenced: 14/);
+  assert.match(markdown, /Scripts referenced: 15/);
   assert.match(markdown, /Missing scripts: 0/);
-  assert.match(markdown, /Release output paths: 30/);
+  assert.match(markdown, /Release output paths: 32/);
   assert.match(markdown, /Raw output path policy violations: 0/);
   assert.match(markdown, /External-run status pinned: yes/);
   assert.match(markdown, /External-run required handoffs: 1/);

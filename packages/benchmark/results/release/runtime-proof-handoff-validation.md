@@ -1,6 +1,6 @@
 # Runtime Proof Handoff Validation
 
-Generated: 2026-06-03T08:08:27.039Z
+Generated: 2026-06-03T08:20:11.912Z
 
 Static validation for runtime-proof-gap-handoff external runbooks. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
@@ -10,9 +10,9 @@ Static validation for runtime-proof-gap-handoff external runbooks. This is not b
 - Handoffs: 1
 - Required handoffs present: yes
 - Commands checked: 5
-- Scripts referenced: 14
+- Scripts referenced: 15
 - Missing scripts: 0
-- Release output paths: 30
+- Release output paths: 32
 - Non-release output paths: 0
 - Raw output paths: 1
 - Raw output path policy violations: 0
@@ -38,7 +38,7 @@ Static validation for runtime-proof-gap-handoff external runbooks. This is not b
 | `safari-webkit-browser-row-handoff` | `safari-smoke` | `packages/benchmark/safari-webdriver-candidate-headroom.mjs` | yes | yes | none |
 | `safari-webkit-browser-row-handoff` | `safari-books-corpus-cross-process` | `packages/benchmark/browser-candidate-headroom-cross-process.mjs` | yes | yes | yes |
 | `safari-webkit-browser-row-handoff` | `safari-webkit-closure-audit` | `packages/benchmark/safari-webkit-closure-audit.mjs` | yes | yes | none |
-| `safari-webkit-browser-row-handoff` | `post-safari-audits` | `packages/benchmark/same-contract-runtime-comparison.mjs`<br>`packages/benchmark/safari-webkit-closure-audit.mjs`<br>`packages/benchmark/runtime-counterexample-scan.mjs`<br>`packages/benchmark/runtime-proof-coverage-audit.mjs`<br>`packages/benchmark/source-consumption-shape-audit.mjs`<br>`packages/benchmark/memory-frontier-audit.mjs`<br>`packages/benchmark/target-distance-audit.mjs`<br>`packages/benchmark/text-materialization-boundary-audit.mjs`<br>`packages/benchmark/text-materialization-frontier-coverage-audit.mjs`<br>`packages/benchmark/runtime-limit-proof-obligation-gate.mjs`<br>`packages/benchmark/runtime-proof-gap-handoff.mjs` | yes | yes | none |
+| `safari-webkit-browser-row-handoff` | `post-safari-audits` | `packages/benchmark/same-contract-runtime-comparison.mjs`<br>`packages/benchmark/safari-webkit-closure-audit.mjs`<br>`packages/benchmark/runtime-counterexample-scan.mjs`<br>`packages/benchmark/runtime-proof-coverage-audit.mjs`<br>`packages/benchmark/source-consumption-shape-audit.mjs`<br>`packages/benchmark/memory-frontier-audit.mjs`<br>`packages/benchmark/target-distance-audit.mjs`<br>`packages/benchmark/text-materialization-boundary-audit.mjs`<br>`packages/benchmark/text-materialization-frontier-coverage-audit.mjs`<br>`packages/benchmark/runtime-proof-gap-handoff.mjs`<br>`packages/benchmark/runtime-proof-handoff-validation.mjs`<br>`packages/benchmark/runtime-limit-proof-obligation-gate.mjs` | yes | yes | none |
 
 ## Findings
 

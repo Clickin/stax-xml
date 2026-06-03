@@ -149,6 +149,7 @@ function validateHandoff(handoff) {
         /safari-webkit-closure-audit\.mjs/,
         /target-distance-audit\.mjs/,
         /text-materialization-frontier-coverage-audit\.mjs/,
+        /runtime-proof-handoff-validation\.mjs/,
       ]
     : isSpiderMonkey
       ? [
@@ -163,6 +164,7 @@ function validateHandoff(handoff) {
           /spidermonkey-codegen-closure-audit\.mjs/,
           /spidermonkey-codegen-rerun-stability-audit\.mjs/,
           /text-materialization-frontier-coverage-audit\.mjs/,
+          /runtime-proof-handoff-validation\.mjs/,
         ]
       : [];
   const requiredContracts = isSafari

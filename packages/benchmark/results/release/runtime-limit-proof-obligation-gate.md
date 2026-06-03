@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-03T08:11:30.775Z
+Generated: 2026-06-03T08:20:28.276Z
 
 ## Scope
 
@@ -141,7 +141,7 @@ Disclosure-only guards: 4
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-03T08:08:08.745Z)
+- Handoff loaded: yes (2026-06-03T08:18:11.518Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open
 - Handoff IDs: safari-webkit-browser-row-handoff
 
@@ -161,13 +161,13 @@ Disclosure-only guards: 4
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-03T08:08:27.039Z)
-- Handoff validation target handoff generatedAt: 2026-06-03T08:08:08.745Z (current 2026-06-03T08:08:08.745Z)
+- Handoff validation loaded: yes (2026-06-03T08:20:11.912Z)
+- Handoff validation target handoff generatedAt: 2026-06-03T08:18:11.518Z (current 2026-06-03T08:18:11.518Z)
 - Handoff validation pass: yes
 - Commands checked: 5
-- Scripts referenced: 14
+- Scripts referenced: 15
 - Missing scripts: 0
-- Release output paths: 30
+- Release output paths: 32
 - Non-release output paths: 0
 - Raw output paths: 1
 - Raw output path policy violations: 0

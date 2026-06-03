@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T08:11:30.775Z",
+  "generatedAt": "2026-06-03T08:20:28.276Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -699,7 +699,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T08:08:08.745Z",
+    "generatedAt": "2026-06-03T08:18:11.518Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open"
     ],
@@ -772,9 +772,9 @@
   },
   "handoffValidationSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T08:08:27.039Z",
-    "validatedHandoffGeneratedAt": "2026-06-03T08:08:08.745Z",
-    "currentHandoffGeneratedAt": "2026-06-03T08:08:08.745Z",
+    "generatedAt": "2026-06-03T08:20:11.912Z",
+    "validatedHandoffGeneratedAt": "2026-06-03T08:18:11.518Z",
+    "currentHandoffGeneratedAt": "2026-06-03T08:18:11.518Z",
     "pass": true,
     "missingScriptCount": 0,
     "nonReleaseOutputPathCount": 0,
@@ -785,8 +785,8 @@
     "externalRunRequiredCount": 1,
     "localRunnableCount": 0,
     "commandCount": 5,
-    "scriptsReferenced": 14,
-    "releaseOutputPathCount": 30,
+    "scriptsReferenced": 15,
+    "releaseOutputPathCount": 32,
     "rawOutputPathCount": 1,
     "requiredHandoffsPresent": true,
     "unhandledObligationCount": 0,

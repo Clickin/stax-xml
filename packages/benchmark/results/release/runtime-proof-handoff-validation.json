@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-03T08:08:27.039Z",
+  "generatedAt": "2026-06-03T08:20:11.912Z",
   "objective": "runtime-proof-handoff-validation",
   "contract": "external-run-handoff-command-and-contract-static-validation",
   "note": "Static validation for runtime-proof-gap-handoff external runbooks. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
   "inputs": {
     "handoffJson": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\release\\runtime-proof-gap-handoff.json",
-    "handoffGeneratedAt": "2026-06-03T08:08:08.745Z",
+    "handoffGeneratedAt": "2026-06-03T08:18:11.518Z",
     "handoffObjective": "runtime-proof-gap-handoff",
     "handoffContract": "external-proof-gap-runbook-linked-to-coverage-audit"
   },
@@ -14,9 +14,9 @@
     "handoffCount": 1,
     "requiredHandoffsPresent": true,
     "commandCount": 5,
-    "scriptsReferenced": 14,
+    "scriptsReferenced": 15,
     "missingScriptCount": 0,
-    "releaseOutputPathCount": 30,
+    "releaseOutputPathCount": 32,
     "nonReleaseOutputPathCount": 0,
     "rawOutputPathCount": 1,
     "rawOutputPathPolicyViolationCount": 0,
@@ -48,7 +48,8 @@
         "--cases stringFull,eventObjectFull,rawFrameNameId",
         "safari-webkit-closure-audit\\.mjs",
         "target-distance-audit\\.mjs",
-        "text-materialization-frontier-coverage-audit\\.mjs"
+        "text-materialization-frontier-coverage-audit\\.mjs",
+        "runtime-proof-handoff-validation\\.mjs"
       ],
       "requiredContractPatterns": [
         "synchronous Iterable<Uint8Array\\[\\]>",
@@ -239,11 +240,15 @@
           "exists": true
         },
         {
-          "path": "packages/benchmark/runtime-limit-proof-obligation-gate.mjs",
+          "path": "packages/benchmark/runtime-proof-gap-handoff.mjs",
           "exists": true
         },
         {
-          "path": "packages/benchmark/runtime-proof-gap-handoff.mjs",
+          "path": "packages/benchmark/runtime-proof-handoff-validation.mjs",
+          "exists": true
+        },
+        {
+          "path": "packages/benchmark/runtime-limit-proof-obligation-gate.mjs",
           "exists": true
         }
       ],
@@ -285,11 +290,15 @@
           "underRelease": true
         },
         {
-          "path": "packages/benchmark/results/release/runtime-limit-proof-obligation-gate.json",
+          "path": "packages/benchmark/results/release/runtime-proof-gap-handoff.json",
           "underRelease": true
         },
         {
-          "path": "packages/benchmark/results/release/runtime-proof-gap-handoff.json",
+          "path": "packages/benchmark/results/release/runtime-proof-handoff-validation.json",
+          "underRelease": true
+        },
+        {
+          "path": "packages/benchmark/results/release/runtime-limit-proof-obligation-gate.json",
           "underRelease": true
         },
         {
@@ -329,16 +338,20 @@
           "underRelease": true
         },
         {
-          "path": "packages/benchmark/results/release/runtime-limit-proof-obligation-gate.md",
+          "path": "packages/benchmark/results/release/runtime-proof-gap-handoff.md",
           "underRelease": true
         },
         {
-          "path": "packages/benchmark/results/release/runtime-proof-gap-handoff.md",
+          "path": "packages/benchmark/results/release/runtime-proof-handoff-validation.md",
+          "underRelease": true
+        },
+        {
+          "path": "packages/benchmark/results/release/runtime-limit-proof-obligation-gate.md",
           "underRelease": true
         }
       ],
       "rawOutputPaths": [],
-      "command": "node packages/benchmark/same-contract-runtime-comparison.mjs --json-out packages/benchmark/results/release/same-contract-runtime-comparison.json --md-out packages/benchmark/results/release/same-contract-runtime-comparison.md && node packages/benchmark/safari-webkit-closure-audit.mjs --json-out packages/benchmark/results/release/safari-webkit-closure-audit.json --md-out packages/benchmark/results/release/safari-webkit-closure-audit.md && node packages/benchmark/runtime-counterexample-scan.mjs --json-out packages/benchmark/results/release/runtime-counterexample-scan.json --md-out packages/benchmark/results/release/runtime-counterexample-scan.md && node packages/benchmark/runtime-proof-coverage-audit.mjs --json-out packages/benchmark/results/release/runtime-proof-coverage-audit.json --md-out packages/benchmark/results/release/runtime-proof-coverage-audit.md && node packages/benchmark/source-consumption-shape-audit.mjs --json-out packages/benchmark/results/release/source-consumption-shape-audit.json --md-out packages/benchmark/results/release/source-consumption-shape-audit.md && node packages/benchmark/memory-frontier-audit.mjs --json-out packages/benchmark/results/release/memory-frontier-audit.json --md-out packages/benchmark/results/release/memory-frontier-audit.md && node packages/benchmark/target-distance-audit.mjs --json-out packages/benchmark/results/release/target-distance-audit.json --md-out packages/benchmark/results/release/target-distance-audit.md && node packages/benchmark/text-materialization-boundary-audit.mjs --json-out packages/benchmark/results/release/text-materialization-boundary-audit.json --md-out packages/benchmark/results/release/text-materialization-boundary-audit.md && node packages/benchmark/text-materialization-frontier-coverage-audit.mjs --json-out packages/benchmark/results/release/text-materialization-frontier-coverage-audit.json --md-out packages/benchmark/results/release/text-materialization-frontier-coverage-audit.md && node packages/benchmark/runtime-limit-proof-obligation-gate.mjs --json-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.json --md-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.md && node packages/benchmark/runtime-proof-gap-handoff.mjs --json-out packages/benchmark/results/release/runtime-proof-gap-handoff.json --md-out packages/benchmark/results/release/runtime-proof-gap-handoff.md"
+      "command": "node packages/benchmark/same-contract-runtime-comparison.mjs --json-out packages/benchmark/results/release/same-contract-runtime-comparison.json --md-out packages/benchmark/results/release/same-contract-runtime-comparison.md && node packages/benchmark/safari-webkit-closure-audit.mjs --json-out packages/benchmark/results/release/safari-webkit-closure-audit.json --md-out packages/benchmark/results/release/safari-webkit-closure-audit.md && node packages/benchmark/runtime-counterexample-scan.mjs --json-out packages/benchmark/results/release/runtime-counterexample-scan.json --md-out packages/benchmark/results/release/runtime-counterexample-scan.md && node packages/benchmark/runtime-proof-coverage-audit.mjs --json-out packages/benchmark/results/release/runtime-proof-coverage-audit.json --md-out packages/benchmark/results/release/runtime-proof-coverage-audit.md && node packages/benchmark/source-consumption-shape-audit.mjs --json-out packages/benchmark/results/release/source-consumption-shape-audit.json --md-out packages/benchmark/results/release/source-consumption-shape-audit.md && node packages/benchmark/memory-frontier-audit.mjs --json-out packages/benchmark/results/release/memory-frontier-audit.json --md-out packages/benchmark/results/release/memory-frontier-audit.md && node packages/benchmark/target-distance-audit.mjs --json-out packages/benchmark/results/release/target-distance-audit.json --md-out packages/benchmark/results/release/target-distance-audit.md && node packages/benchmark/text-materialization-boundary-audit.mjs --json-out packages/benchmark/results/release/text-materialization-boundary-audit.json --md-out packages/benchmark/results/release/text-materialization-boundary-audit.md && node packages/benchmark/text-materialization-frontier-coverage-audit.mjs --json-out packages/benchmark/results/release/text-materialization-frontier-coverage-audit.json --md-out packages/benchmark/results/release/text-materialization-frontier-coverage-audit.md && node packages/benchmark/runtime-proof-gap-handoff.mjs --json-out packages/benchmark/results/release/runtime-proof-gap-handoff.json --md-out packages/benchmark/results/release/runtime-proof-gap-handoff.md && node packages/benchmark/runtime-proof-handoff-validation.mjs --json-out packages/benchmark/results/release/runtime-proof-handoff-validation.json --md-out packages/benchmark/results/release/runtime-proof-handoff-validation.md && node packages/benchmark/runtime-limit-proof-obligation-gate.mjs --json-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.json --md-out packages/benchmark/results/release/runtime-limit-proof-obligation-gate.md"
     }
   ],
   "findings": [

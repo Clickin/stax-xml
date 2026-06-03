@@ -347,9 +347,9 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.handoffValidationSnapshot.loaded);
   assert.equal(report.handoffValidationSnapshot.pass, true);
   assert.equal(report.handoffValidationSnapshot.commandCount, 5);
-  assert.equal(report.handoffValidationSnapshot.scriptsReferenced, 14);
+  assert.equal(report.handoffValidationSnapshot.scriptsReferenced, 15);
   assert.equal(report.handoffValidationSnapshot.missingScriptCount, 0);
-  assert.equal(report.handoffValidationSnapshot.releaseOutputPathCount, 30);
+  assert.equal(report.handoffValidationSnapshot.releaseOutputPathCount, 32);
   assert.equal(report.handoffValidationSnapshot.nonReleaseOutputPathCount, 0);
   assert.equal(report.handoffValidationSnapshot.rawOutputPathCount, 1);
   assert.equal(report.handoffValidationSnapshot.rawOutputPathPolicyViolationCount, 0);
@@ -425,9 +425,9 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /Handoff validation target handoff generatedAt:/);
   assert.match(markdown, /Handoff validation pass: yes/);
   assert.match(markdown, /Commands checked: 5/);
-  assert.match(markdown, /Scripts referenced: 14/);
+  assert.match(markdown, /Scripts referenced: 15/);
   assert.match(markdown, /Missing scripts: 0/);
-  assert.match(markdown, /Release output paths: 30/);
+  assert.match(markdown, /Release output paths: 32/);
   assert.match(markdown, /Non-release output paths: 0/);
   assert.match(markdown, /Raw output paths: 1/);
   assert.match(markdown, /Raw output path policy violations: 0/);
