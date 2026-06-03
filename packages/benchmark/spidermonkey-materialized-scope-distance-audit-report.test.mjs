@@ -70,7 +70,7 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
   );
   assert.match(
     report.closureMatrix.find(item => item.id === 'host-api-surface').observed,
-    /missingGlobals=TextEncoder, ReadableStream, fetch/,
+    /unchangedHarnessMissingGlobals=TextEncoder, ReadableStream, fetch/,
   );
   assert.match(
     report.closureMatrix.find(item => item.id === 'host-api-surface').observed,
@@ -116,7 +116,7 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
   assert.match(markdown, /Token workload: xml-token-boundary-no-string-materialization, fullStringParity=false/);
   assert.match(markdown, /Materialized workload: ascii-js-string-and-public-event-object-materialization, fullStringParity=true, diagnosticThroughputMiBPerSec=0\.49, throughputCountsAsTargetEvidence=false/);
   assert.match(markdown, /\| `same-contract-stax-row` \| blocked \| The emitted codegen corresponds to the unchanged same-contract StAX benchmark row\. \| sameContractStaxRow=false \|/);
-  assert.match(markdown, /\| `host-api-surface` \| met \| The js-shell can run the current UTF-8 primary byte-batch StAX materialization path without host API substitution\. \| canRunCurrentStaxFullStringBenchmark=false, missingGlobals=TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=none \|/);
+  assert.match(markdown, /\| `host-api-surface` \| met \| The js-shell can run the current UTF-8 primary byte-batch StAX materialization path without host API substitution\. \| canRunCurrentStaxFullStringBenchmark=false, unchangedHarnessMissingGlobals=TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=none \|/);
   assert.match(markdown, /unchanged-stax-non-primary-harness-gap-remains: pass/);
 });
 

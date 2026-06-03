@@ -104,10 +104,13 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /runtime-limit-proof-obligation-gate\.md/);
   assert.match(markdown, /incomplete-proof-correctly-blocked/);
   assert.match(markdown, /all 10 required claim guards are satisfied/);
-  assert.match(markdown, /all 39 required artifact mentions\s+are present/);
+  assert.match(markdown, /all 40 required artifact mentions\s+are present/);
   assert.match(markdown, /all 5 required open-obligation disclosures are present/);
   assert.match(markdown, /all 18\s+proof-rule checks are satisfied/);
-  assert.match(markdown, /all 5\s+handoff-validation guards are satisfied/);
+  assert.match(markdown, /all 30\s+handoff guards are satisfied/);
+  assert.match(markdown, /all 9\s+handoff-validation guards are satisfied/);
+  assert.match(markdown, /all 7\s+source-audit guards are\s+satisfied/);
+  assert.match(markdown, /all 11\s+frontier-audit guards are satisfied/);
   assert.match(markdown, /`conclusionAllowed: false`/);
   assert.match(markdown, /treating Woodstox or quick-xml as JavaScript object\s+shape parity/);
   assert.match(markdown, /treating lazy getters as an untried default candidate/);
@@ -315,7 +318,7 @@ test('proof ledger keeps runtime-limit claims below conclusion strength', () => 
   assert.match(markdown, /155 benchmark artifacts, 24 source artifacts, 15\s+trace\/profile artifacts, 16 allocation artifacts, 4 environment artifacts, and\s+24 negative-result artifacts, 848 JavaScript 1 GiB\+ full-string rows/);
   assert.match(markdown, /runtime-proof-handoff-validation\.md/);
   assert.match(markdown, /statically validates the two external-run handoffs/);
-  assert.match(markdown, /12\s+referenced scripts exist, 28 release output paths are under the curated release\s+directory/);
+  assert.match(markdown, /23\s+referenced scripts exist, 78 release output paths are under the curated release\s+directory/);
   assert.match(markdown, /zero missing scripts or output-path policy violations/);
   assert.match(markdown, /synchronous `Iterable<Uint8Array\[\]>` byte batches are the\s+primary parser input/);
   assert.match(markdown, /does not emit SpiderMonkey IR or optimized code/);

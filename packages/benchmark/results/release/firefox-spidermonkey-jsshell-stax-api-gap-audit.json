@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T04:55:55.191Z",
+  "generatedAt": "2026-06-03T05:30:17.397Z",
   "objective": "firefox-spidermonkey-jsshell-stax-api-gap-audit",
   "contract": "spidermonkey-jsshell-current-stax-full-string-api-surface-gap",
   "note": "Synthesizes the official release/nightly SpiderMonkey js-shell API probes against the unchanged current full-string stax benchmark surface. This is not benchmark evidence, emitted JIT IR, optimized-code evidence, or a runtime-limit conclusion.",
@@ -93,8 +93,15 @@
       "fetch"
     ],
     "commonMissingGlobalCount": 3,
+    "unchangedHarnessMissingGlobals": [
+      "TextEncoder",
+      "ReadableStream",
+      "fetch"
+    ],
+    "unchangedHarnessMissingGlobalCount": 3,
     "primarySyncByteBatchMissingGlobals": [],
     "primarySyncByteBatchMissingGlobalCount": 0,
+    "primaryPathRunnableWithoutHostEncoding": true,
     "nonPrimaryHarnessMissingGlobals": [
       "TextEncoder",
       "ReadableStream",
@@ -471,8 +478,9 @@
       "classification": "NEGATIVE_RESULT",
       "summary": "The official release and nightly SpiderMonkey js-shells are executable and can read binary XML. Current UTF-8 primary byte-batch StAX materialization requires only Uint8Array host support; generated fixture, string-input convenience, Web stream, and live-source harness surfaces still lack their own Web-compatible globals.",
       "evidence": [
-        "commonMissingGlobals=TextEncoder, ReadableStream, fetch",
+        "unchangedHarnessMissingGlobals=TextEncoder, ReadableStream, fetch",
         "primarySyncByteBatchMissingGlobals=none",
+        "primaryPathRunnableWithoutHostEncoding=true",
         "nonPrimaryHarnessMissingGlobals=TextEncoder, ReadableStream, fetch",
         "blockedSurfaces=3/5",
         "directUnchangedHarnessAttemptsBlocked=6/10",

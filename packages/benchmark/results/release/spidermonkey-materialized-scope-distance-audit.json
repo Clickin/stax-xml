@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T04:56:17.989Z",
+  "generatedAt": "2026-06-03T05:30:38.630Z",
   "objective": "spidermonkey-materialized-scope-distance-audit",
   "contract": "materialized-js-shell-workload-equivalence-and-scope-distance",
   "note": "Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen artifact against the token-only codegen artifact, the js-shell StAX API gap, and the semantic materialization contract. This audit records exactly what the materialized js-shell workload proves and why it still cannot close the unchanged StAX codegen obligation.",
@@ -155,7 +155,7 @@
     {
       "id": "host-api-surface",
       "required": "The js-shell can run the current UTF-8 primary byte-batch StAX materialization path without host API substitution.",
-      "observed": "canRunCurrentStaxFullStringBenchmark=false, missingGlobals=TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=none",
+      "observed": "canRunCurrentStaxFullStringBenchmark=false, unchangedHarnessMissingGlobals=TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=none",
       "status": "met"
     },
     {
@@ -207,7 +207,7 @@
       "id": "unchanged-stax-non-primary-harness-gap-remains",
       "status": "pass",
       "evidence": [
-        "missingGlobals=TextEncoder, ReadableStream, fetch",
+        "unchangedHarnessMissingGlobals=TextEncoder, ReadableStream, fetch",
         "primarySyncByteBatchMissingGlobals=none",
         "canRunCurrentStaxFullStringBenchmark=false"
       ]

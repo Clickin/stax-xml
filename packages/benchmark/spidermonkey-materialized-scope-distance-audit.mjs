@@ -91,7 +91,8 @@ function buildReport(options, sources) {
   const ascii = sources.ascii;
   const workload = materialized.materializedWorkload ?? {};
   const tokenWorkload = token.row ?? {};
-  const missingGlobals = apiGap.summary?.commonMissingGlobals
+  const missingGlobals = apiGap.summary?.unchangedHarnessMissingGlobals
+    ?? apiGap.summary?.commonMissingGlobals
     ?? materialized.shell?.apiProbe?.missingGlobals
     ?? [];
   const hostApiSurface = summarizeHostApiSurface(apiGap, missingGlobals);
@@ -146,7 +147,7 @@ function buildReport(options, sources) {
         ? 'pass'
         : 'fail',
       evidence: [
-        `missingGlobals=${missingGlobals.join(', ') || 'none'}`,
+        `unchangedHarnessMissingGlobals=${missingGlobals.join(', ') || 'none'}`,
         `primarySyncByteBatchMissingGlobals=${hostApiSurface.primarySyncByteBatchMissingGlobals.join(', ') || 'none'}`,
         `canRunCurrentStaxFullStringBenchmark=${materialized.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}`,
       ],
@@ -341,7 +342,7 @@ function createClosureRequirementMatrix({ materialized, workload, missingGlobals
     {
       id: 'host-api-surface',
       required: 'The js-shell can run the current UTF-8 primary byte-batch StAX materialization path without host API substitution.',
-      observed: `canRunCurrentStaxFullStringBenchmark=${materialized.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, missingGlobals=${missingGlobals.join(', ') || 'none'}, primarySyncByteBatchMissingGlobals=${hostApiSurface.primarySyncByteBatchMissingGlobals.join(', ') || 'none'}`,
+      observed: `canRunCurrentStaxFullStringBenchmark=${materialized.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}, unchangedHarnessMissingGlobals=${missingGlobals.join(', ') || 'none'}, primarySyncByteBatchMissingGlobals=${hostApiSurface.primarySyncByteBatchMissingGlobals.join(', ') || 'none'}`,
       status: hostApiSurface.primarySyncByteBatchMissingGlobals.length === 0 ? 'met' : 'blocked',
     },
     {

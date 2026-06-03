@@ -119,7 +119,7 @@ function createReport(inputs, options) {
   const allHaveJitStatus = shellRows.every(row => row.hasJitExecutionStatus === true);
   const allCanRunUnchanged = shellRows.every(row => row.canRunCurrentStaxFullStringBenchmark === true);
   const missingByShell = shellRows.map(row => row.missingRequiredGlobals);
-  const commonMissingGlobals = requiredGlobals
+  const unchangedHarnessMissingGlobals = requiredGlobals
     .map(item => item.name)
     .filter(name => missingByShell.every(missing => missing.includes(name)));
   const blockedSurfaces = summarizeBlockedSurfaces(shellRows);
@@ -127,7 +127,11 @@ function createReport(inputs, options) {
   const primarySyncByteBatchMissingGlobals = Array.from(new Set(
     primarySyncByteBatchSurface?.shellBlockers.flatMap(shell => shell.missingGlobals) ?? [],
   ));
-  const nonPrimaryHarnessMissingGlobals = commonMissingGlobals.filter(name => !primarySyncByteBatchMissingGlobals.includes(name));
+  const primaryPathRunnableWithoutHostEncoding = primarySyncByteBatchMissingGlobals.length === 0
+    && shellRows.every(row => row.apiSurface.Uint8Array === 'function')
+    && shellRows.every(row => row.binaryInput === 'ok');
+  const nonPrimaryHarnessMissingGlobals = unchangedHarnessMissingGlobals
+    .filter(name => !primarySyncByteBatchMissingGlobals.includes(name));
   const directUnchangedHarnessAttempts = summarizeDirectUnchangedHarnessAttempts(shellRows, blockedSurfaces);
   const blockedDirectAttemptCount = directUnchangedHarnessAttempts
     .filter(attempt => attempt.status === 'blocked-before-stax-load')
@@ -152,10 +156,13 @@ function createReport(inputs, options) {
       jitStatusShellCount: shellRows.filter(row => row.hasJitExecutionStatus === true).length,
       binaryReadableShellCount: shellRows.filter(row => row.binaryInput === 'ok').length,
       unchangedRunnableShellCount: shellRows.filter(row => row.canRunCurrentStaxFullStringBenchmark === true).length,
-      commonMissingGlobals,
-      commonMissingGlobalCount: commonMissingGlobals.length,
+      commonMissingGlobals: unchangedHarnessMissingGlobals,
+      commonMissingGlobalCount: unchangedHarnessMissingGlobals.length,
+      unchangedHarnessMissingGlobals,
+      unchangedHarnessMissingGlobalCount: unchangedHarnessMissingGlobals.length,
       primarySyncByteBatchMissingGlobals,
       primarySyncByteBatchMissingGlobalCount: primarySyncByteBatchMissingGlobals.length,
+      primaryPathRunnableWithoutHostEncoding,
       nonPrimaryHarnessMissingGlobals,
       nonPrimaryHarnessMissingGlobalCount: nonPrimaryHarnessMissingGlobals.length,
       blockedSurfaceCount: blockedSurfaces.filter(surface => surface.blockedShellCount > 0).length,
@@ -240,8 +247,9 @@ function createFindings(report) {
       classification: 'NEGATIVE_RESULT',
       summary: 'The official release and nightly SpiderMonkey js-shells are executable and can read binary XML. Current UTF-8 primary byte-batch StAX materialization requires only Uint8Array host support; generated fixture, string-input convenience, Web stream, and live-source harness surfaces still lack their own Web-compatible globals.',
       evidence: [
-        `commonMissingGlobals=${report.summary.commonMissingGlobals.join(', ') || 'none'}`,
+        `unchangedHarnessMissingGlobals=${report.summary.unchangedHarnessMissingGlobals.join(', ') || 'none'}`,
         `primarySyncByteBatchMissingGlobals=${report.summary.primarySyncByteBatchMissingGlobals.join(', ') || 'none'}`,
+        `primaryPathRunnableWithoutHostEncoding=${report.summary.primaryPathRunnableWithoutHostEncoding}`,
         `nonPrimaryHarnessMissingGlobals=${report.summary.nonPrimaryHarnessMissingGlobals.join(', ') || 'none'}`,
         `blockedSurfaces=${report.summary.blockedSurfaceCount}/${report.blockedSurfaces.length}`,
         `directUnchangedHarnessAttemptsBlocked=${report.summary.blockedDirectUnchangedHarnessAttemptCount}/${report.summary.directUnchangedHarnessAttemptCount}`,
@@ -277,8 +285,9 @@ function renderMarkdown(report) {
     `- JIT-status shells: ${report.summary.jitStatusShellCount}`,
     `- Binary-readable shells: ${report.summary.binaryReadableShellCount}`,
     `- Unchanged current StAX full-string runnable shells: ${report.summary.unchangedRunnableShellCount}`,
-    `- Common missing globals: ${report.summary.commonMissingGlobals.join(', ') || 'none'}`,
+    `- Unchanged harness missing globals: ${report.summary.unchangedHarnessMissingGlobals.join(', ') || 'none'}`,
     `- Primary sync byte-batch missing globals: ${report.summary.primarySyncByteBatchMissingGlobals.join(', ') || 'none'}`,
+    `- Primary sync byte-batch runnable without host encoding globals: ${report.summary.primaryPathRunnableWithoutHostEncoding ? 'yes' : 'no'}`,
     `- Non-primary harness missing globals: ${report.summary.nonPrimaryHarnessMissingGlobals.join(', ') || 'none'}`,
     `- Blocked current StAX surfaces: ${report.summary.blockedSurfaceCount}/${report.blockedSurfaces.length}`,
     `- Direct unchanged harness attempts blocked before StAX load: ${report.summary.blockedDirectUnchangedHarnessAttemptCount}/${report.summary.directUnchangedHarnessAttemptCount}`,

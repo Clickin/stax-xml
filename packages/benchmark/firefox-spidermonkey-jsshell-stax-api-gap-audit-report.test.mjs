@@ -41,8 +41,15 @@ test('Firefox SpiderMonkey js-shell StAX API gap audit pins unchanged harness bl
     'ReadableStream',
     'fetch',
   ]);
+  assert.deepEqual(report.summary.unchangedHarnessMissingGlobals, [
+    'TextEncoder',
+    'ReadableStream',
+    'fetch',
+  ]);
+  assert.equal(report.summary.unchangedHarnessMissingGlobalCount, 3);
   assert.deepEqual(report.summary.primarySyncByteBatchMissingGlobals, []);
   assert.equal(report.summary.primarySyncByteBatchMissingGlobalCount, 0);
+  assert.equal(report.summary.primaryPathRunnableWithoutHostEncoding, true);
   assert.deepEqual(report.summary.nonPrimaryHarnessMissingGlobals, [
     'TextEncoder',
     'ReadableStream',
@@ -128,8 +135,9 @@ test('Firefox SpiderMonkey js-shell StAX API gap audit pins unchanged harness bl
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /Firefox\/SpiderMonkey JS Shell StAX API Gap Audit/);
   assert.match(markdown, /Status: blocked-by-host-api-surface/);
-  assert.match(markdown, /Common missing globals: TextEncoder, ReadableStream, fetch/);
+  assert.match(markdown, /Unchanged harness missing globals: TextEncoder, ReadableStream, fetch/);
   assert.match(markdown, /Primary sync byte-batch missing globals: none/);
+  assert.match(markdown, /Primary sync byte-batch runnable without host encoding globals: yes/);
   assert.match(markdown, /Non-primary harness missing globals: TextEncoder, ReadableStream, fetch/);
   assert.match(markdown, /Blocked current StAX surfaces: 3\/5/);
   assert.match(markdown, /Direct unchanged harness attempts blocked before StAX load: 6\/10/);
@@ -146,7 +154,9 @@ test('Firefox SpiderMonkey js-shell StAX API gap audit pins unchanged harness bl
   assert.match(markdown, /\| EventReader ReadableStream<Uint8Array> full-string rows \| Direct Web ReadableStream source-overhead rows\. \| Uint8Array, ReadableStream \| 2\/2 \| ReadableStream \|/);
   assert.match(markdown, /\| browser fetch live-source rows \| Live fetch Response\.body rows such as fetchReadableStreamFull and fetchAsyncByteBatchFull\. \| Uint8Array, ReadableStream, fetch \| 2\/2 \| ReadableStream, fetch \|/);
   assert.match(markdown, /blockedSurfaces=3\/5/);
+  assert.match(markdown, /unchangedHarnessMissingGlobals=TextEncoder, ReadableStream, fetch/);
   assert.match(markdown, /primarySyncByteBatchMissingGlobals=none/);
+  assert.match(markdown, /primaryPathRunnableWithoutHostEncoding=true/);
   assert.match(markdown, /nonPrimaryHarnessMissingGlobals=TextEncoder, ReadableStream, fetch/);
   assert.match(markdown, /directUnchangedHarnessAttemptsBlocked=6\/10/);
   assert.match(markdown, /UTF-8 primary byte-batch StAX materialization requires only Uint8Array host support/);

@@ -1,6 +1,6 @@
 # SpiderMonkey Materialized Scope Distance Audit
 
-Generated: 2026-06-03T04:56:17.989Z
+Generated: 2026-06-03T05:30:38.630Z
 
 Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen artifact against the token-only codegen artifact, the js-shell StAX API gap, and the semantic materialization contract. This audit records exactly what the materialized js-shell workload proves and why it still cannot close the unchanged StAX codegen obligation.
 
@@ -37,7 +37,7 @@ Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen arti
 | `full-string-semantic-materialization` | met | The workload materializes JS strings and public event objects for the checksum fields under test. | fullStringParity=true, materializedStringCount=61289, materializedObjectCount=55759 |
 | `same-contract-stax-row` | blocked | The emitted codegen corresponds to the unchanged same-contract StAX benchmark row. | sameContractStaxRow=false |
 | `unchanged-stax-benchmark` | blocked | The benchmark harness is unchanged from the current same-contract StAX row. | unchangedStaxBenchmark=false |
-| `host-api-surface` | met | The js-shell can run the current UTF-8 primary byte-batch StAX materialization path without host API substitution. | canRunCurrentStaxFullStringBenchmark=false, missingGlobals=TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=none |
+| `host-api-surface` | met | The js-shell can run the current UTF-8 primary byte-batch StAX materialization path without host API substitution. | canRunCurrentStaxFullStringBenchmark=false, unchangedHarnessMissingGlobals=TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=none |
 | `closure-declared-by-source-artifact` | blocked | The source artifact declares that it closes the emitted-IR obligation. | closesEmittedIrObligation=false |
 
 ## Checks
@@ -60,7 +60,7 @@ Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen arti
   - tokenChecksum=9292058
   - materializedChecksum=-553631888
 - unchanged-stax-non-primary-harness-gap-remains: pass
-  - missingGlobals=TextEncoder, ReadableStream, fetch
+  - unchangedHarnessMissingGlobals=TextEncoder, ReadableStream, fetch
   - primarySyncByteBatchMissingGlobals=none
   - canRunCurrentStaxFullStringBenchmark=false
 - unchanged-stax-closure-blocked: pass

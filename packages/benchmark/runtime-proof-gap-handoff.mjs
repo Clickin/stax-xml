@@ -696,8 +696,13 @@ function createLocalClosure(activeObligations, audit, options = {}) {
       && asciiScopeDistance?.summary?.semanticMaterializedWorkload === true
       && asciiScopeDistance?.summary?.reducesScopeDistance === true
       && asciiScopeDistance?.summary?.closesCodegenObligation === false;
-    const jsShellCommonMissing = Array.isArray(jsShellApiGap?.summary?.commonMissingGlobals)
-      ? jsShellApiGap.summary.commonMissingGlobals.join(', ')
+    const jsShellUnchangedHarnessMissing = Array.isArray(jsShellApiGap?.summary?.unchangedHarnessMissingGlobals)
+      ? jsShellApiGap.summary.unchangedHarnessMissingGlobals.join(', ')
+      : Array.isArray(jsShellApiGap?.summary?.commonMissingGlobals)
+        ? jsShellApiGap.summary.commonMissingGlobals.join(', ')
+        : 'unknown';
+    const jsShellPrimaryPathWithoutHostEncoding = typeof jsShellApiGap?.summary?.primaryPathRunnableWithoutHostEncoding === 'boolean'
+      ? String(jsShellApiGap.summary.primaryPathRunnableWithoutHostEncoding)
       : 'unknown';
     const jsShellPrimarySyncByteBatchMissing = Array.isArray(jsShellApiGap?.summary?.primarySyncByteBatchMissingGlobals)
       ? jsShellApiGap.summary.primarySyncByteBatchMissingGlobals.join(', ') || 'none'
@@ -743,7 +748,7 @@ function createLocalClosure(activeObligations, audit, options = {}) {
           ? `Official Firefox nightly jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface, bytecode dump status is ${nightlyBytecodeStatus}, and it cannot run the current stax full-string benchmark unchanged.`
           : 'Official Firefox nightly jsshell diagnostic status is not pinned as available-without-IR.',
         jsShellApiGapPinned
-          ? `The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface, with common missing globals: ${jsShellCommonMissing}, primary sync byte-batch missing globals: ${jsShellPrimarySyncByteBatchMissing}, non-primary harness missing globals: ${jsShellNonPrimaryHarnessMissing}, and direct unchanged harness attempts blocked before StAX load: ${jsShellDirectAttemptsBlocked}.`
+          ? `The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface, with unchanged harness missing globals: ${jsShellUnchangedHarnessMissing}, primary sync byte-batch missing globals: ${jsShellPrimarySyncByteBatchMissing}, primary path runnable without host encoding globals: ${jsShellPrimaryPathWithoutHostEncoding}, non-primary harness missing globals: ${jsShellNonPrimaryHarnessMissing}, and direct unchanged harness attempts blocked before StAX load: ${jsShellDirectAttemptsBlocked}.`
           : 'The js-shell StAX API gap audit is missing or does not pin the unchanged-harness host API blocker.',
         staxHostApiBoundaryPinned
           ? 'The StAX public reader host API boundary audit pins the current UTF-8 fallback and host API boundary: primarySyncByteBatchRequiresTextDecoder=false, asciiPrimarySyncByteBatchRequiresTextDecoder=false, utf8FallbackDecoder=true, nonUtf8RequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, rootImportRequiresTextEncoder=false, and alternateDecoderWouldBeUnchangedClosure=false.'

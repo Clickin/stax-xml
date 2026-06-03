@@ -466,8 +466,9 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /release jsshell.*bytecode dump status is bytecode-output-emitted/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /nightly jsshell.*bytecode dump status is bytecode-output-emitted/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /js-shell StAX API gap audit pins the unchanged-harness blocker/.test(item)));
-  assert.ok(spiderMonkey.localClosure.blockers.some(item => /common missing globals: TextEncoder, ReadableStream, fetch/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /unchanged harness missing globals: TextEncoder, ReadableStream, fetch/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /primary sync byte-batch missing globals: none/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /primary path runnable without host encoding globals: (true|unknown)/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /non-primary harness missing globals: TextEncoder, ReadableStream, fetch/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /direct unchanged harness attempts blocked before StAX load: 6\/10/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /StAX public reader host API boundary audit pins.*primarySyncByteBatchRequiresTextDecoder=false.*utf8FallbackDecoder=true.*nonUtf8RequiresTextDecoder=true.*rootImportRequiresTextEncoder=false/.test(item)));
@@ -686,7 +687,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Official Firefox nightly jsshell is executable/);
   assert.match(markdown, /bytecode dump status is bytecode-output-emitted/);
   assert.match(markdown, /The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface/);
-  assert.match(markdown, /common missing globals: TextEncoder, ReadableStream, fetch/);
+  assert.match(markdown, /unchanged harness missing globals: TextEncoder, ReadableStream, fetch/);
   assert.match(markdown, /primary sync byte-batch missing globals: none/);
   assert.match(markdown, /non-primary harness missing globals: TextEncoder, ReadableStream, fetch/);
   assert.match(markdown, /direct unchanged harness attempts blocked before StAX load: 6\/10/);
