@@ -43,6 +43,7 @@ test('Safari/WebKit availability audit records local execution gap without claim
   assert.equal(report.summary.safariBenchmarkRowsRecorded, false);
   assert.equal(report.summary.exactSafariBuildIdentityRecorded, false);
   assert.equal(report.summary.safariSourceBoundaryPinned, false);
+  assert.equal(report.summary.webKitAdjacentEvidenceClosesSafari, false);
   assert.equal(report.summary.primarySyncByteBatchRowsRecorded, false);
   assert.equal(report.summary.boundedPrimarySyncByteBatchRowsRecorded, false);
   assert.equal(report.summary.directReadableStreamRowsAreSeparateEvidence, true);
@@ -64,6 +65,7 @@ test('Safari/WebKit availability audit records local execution gap without claim
     && requirement.status === 'blocked'
   ));
   assert.ok(report.probes.commands.some(probe => probe.name === 'safaridriver'));
+  assert.ok(report.probes.commands.some(probe => probe.name === 'WebKitWebDriver'));
   assert.ok(report.probes.paths.some(probe => probe.label === 'macOS Safari app'));
   assert.ok(report.probes.environmentVariables.some(probe => probe.name === 'SAFARI_PATH'));
   assert.ok(report.probes.harnessSupport.entryPoints.some(entry =>
@@ -84,6 +86,7 @@ test('Safari/WebKit availability audit records local execution gap without claim
   assert.match(markdown, /Safari benchmark rows recorded: no/);
   assert.match(markdown, /Exact Safari build identity recorded: no/);
   assert.match(markdown, /Safari source boundary pinned: no/);
+  assert.match(markdown, /WebKit-adjacent evidence closes Safari obligation: no/);
   assert.match(markdown, /Primary sync byte-batch rows recorded: no/);
   assert.match(markdown, /Bounded primary sync byte-batch rows recorded: no/);
   assert.match(markdown, /Direct ReadableStream rows are separate evidence: yes/);
@@ -97,4 +100,5 @@ test('Safari/WebKit availability audit records local execution gap without claim
   assert.match(markdown, /SAFARI_PATH/);
   assert.match(markdown, /safari smoke harness/);
   assert.match(markdown, /Open obligation remains: yes/);
+  assert.match(markdown, /WebKit-adjacent executables or drivers such as MiniBrowser, WebKitWebDriver, or Playwright WebKit do not close the Apple Safari browser-row obligation/);
 });

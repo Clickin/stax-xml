@@ -1,6 +1,6 @@
 # Safari/WebKit Availability Audit
 
-Generated: 2026-06-02T15:40:46.975Z
+Generated: 2026-06-03T07:19:45.500Z
 
 ENVIRONMENT_FACT_LIMIT evidence for the current host and repository harness. It does not benchmark Safari/WebKit and does not prove Safari/WebKit cannot be a counterexample elsewhere.
 
@@ -11,6 +11,10 @@ ENVIRONMENT_FACT_LIMIT evidence for the current host and repository harness. It 
 - Safari executable found: no
 - Safari executable path: none
 - safaridriver found: no
+- WebKitWebDriver found: no
+- WebKit-adjacent executable found: no
+- WebKit-adjacent executable path: none
+- WebKit-adjacent evidence closes Safari obligation: no
 - Current harness supports Safari/WebKit: yes
 - Can run Safari browser rows now: no
 - Safari benchmark rows recorded: no
@@ -65,8 +69,8 @@ Current benchmark browser harnesses support Chrome/Edge through CDP, Firefox thr
 | Requirement | Status | Summary |
 | --- | --- | --- |
 | `host-is-macos` | blocked | Current host is not macOS, so this audit cannot produce local Safari browser rows. |
-| `safari-executable-found` | blocked | No Safari/WebKit executable was found on PATH, common install paths, or configured environment variables. |
-| `safaridriver-found` | blocked | No safaridriver/WebKit driver was found. |
+| `safari-executable-found` | blocked | No Apple Safari executable was found on PATH, common install paths, or SAFARI_PATH. |
+| `safaridriver-found` | blocked | No Apple safaridriver path was found. Non-Safari WebKit drivers do not close the Safari row obligation. |
 | `harness-supports-safari` | met | Repository harness has a Safari/WebKit execution path. |
 | `can-run-safari-browser-rows` | blocked | Current host cannot run Safari/WebKit browser benchmark rows. |
 | `safari-benchmark-rows-recorded` | blocked | No Safari/WebKit benchmark row is recorded by this environment audit. |
@@ -79,8 +83,9 @@ Current benchmark browser harnesses support Chrome/Edge through CDP, Firefox thr
 ## Findings
 
 - local-host-platform (ENVIRONMENT_FACT_LIMIT): Current host is not macOS, so Apple Safari browser rows are not locally runnable through the normal Safari/safaridriver path.
-- local-safari-executable (OPEN): No local Safari/WebKit executable was found through PATH, common install paths, or explicit environment variables.
-- local-safaridriver (OPEN): No local safaridriver/WebKit driver path was found.
+- local-safari-executable (OPEN): No local Apple Safari executable was found through PATH, common install paths, or SAFARI_PATH.
+- local-safaridriver (OPEN): No local Apple safaridriver path was found.
+- webkit-adjacent-not-safari-closure (ENVIRONMENT_FACT_LIMIT): No WebKit-adjacent executable or driver was found; this absence is local environment evidence only.
 - repo-harness-support (ENVIRONMENT_FACT_LIMIT): Current benchmark browser harnesses support Chrome/Edge through CDP, Firefox through built-in WebDriver BiDi, and Safari/WebKit through the safaridriver WebDriver wrapper, including cross-process stability rows, when safaridriver is available.
 - safari-row-obligation-remains (OPEN): Safari/WebKit browser rows remain unrecorded; this audit only explains the local gap and is not a substitute for same-contract rows.
 
@@ -88,4 +93,5 @@ Current benchmark browser harnesses support Chrome/Edge through CDP, Firefox thr
 
 - This is an environment availability audit, not a benchmark row.
 - This does not prove Safari/WebKit cannot exceed any throughput threshold.
+- WebKit-adjacent executables or drivers such as MiniBrowser, WebKitWebDriver, or Playwright WebKit do not close the Apple Safari browser-row obligation without exact Safari/WebKit build identity and accepted same-contract rows.
 - A future Safari/WebKit row must still use the same full-string contract and counterexample scanner.

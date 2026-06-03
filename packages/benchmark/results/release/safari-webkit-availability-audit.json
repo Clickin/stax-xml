@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T15:40:46.975Z",
+  "generatedAt": "2026-06-03T07:19:45.500Z",
   "objective": "safari-webkit-availability-audit",
   "contract": "local-safari-webkit-browser-row-availability",
   "note": "ENVIRONMENT_FACT_LIMIT evidence for the current host and repository harness. It does not benchmark Safari/WebKit and does not prove Safari/WebKit cannot be a counterexample elsewhere.",
@@ -104,6 +104,10 @@
     "safariExecutableFound": false,
     "safariExecutablePath": null,
     "safaridriverFound": false,
+    "webKitWebDriverFound": false,
+    "webKitAdjacentExecutableFound": false,
+    "webKitAdjacentExecutablePath": null,
+    "webKitAdjacentEvidenceClosesSafari": false,
     "currentHarnessSupportsSafari": true,
     "canRunSafariBrowserRows": false,
     "safariBenchmarkRowsRecorded": false,
@@ -126,12 +130,12 @@
     {
       "id": "safari-executable-found",
       "status": "blocked",
-      "summary": "No Safari/WebKit executable was found on PATH, common install paths, or configured environment variables."
+      "summary": "No Apple Safari executable was found on PATH, common install paths, or SAFARI_PATH."
     },
     {
       "id": "safaridriver-found",
       "status": "blocked",
-      "summary": "No safaridriver/WebKit driver was found."
+      "summary": "No Apple safaridriver path was found. Non-Safari WebKit drivers do not close the Safari row obligation."
     },
     {
       "id": "harness-supports-safari",
@@ -183,12 +187,17 @@
     {
       "id": "local-safari-executable",
       "classification": "OPEN",
-      "summary": "No local Safari/WebKit executable was found through PATH, common install paths, or explicit environment variables."
+      "summary": "No local Apple Safari executable was found through PATH, common install paths, or SAFARI_PATH."
     },
     {
       "id": "local-safaridriver",
       "classification": "OPEN",
-      "summary": "No local safaridriver/WebKit driver path was found."
+      "summary": "No local Apple safaridriver path was found."
+    },
+    {
+      "id": "webkit-adjacent-not-safari-closure",
+      "classification": "ENVIRONMENT_FACT_LIMIT",
+      "summary": "No WebKit-adjacent executable or driver was found; this absence is local environment evidence only."
     },
     {
       "id": "repo-harness-support",

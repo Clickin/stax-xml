@@ -68,14 +68,22 @@ function createReport() {
     envProbe('WEBKIT_BROWSER_PATH'),
     envProbe('PLAYWRIGHT_WEBKIT_EXECUTABLE_PATH'),
   ];
-  const availableExecutable = firstAvailable([
-    ...commands.map(item => item.resolvedPath),
-    ...paths.filter(item => item.exists).map(item => item.path),
-    ...environmentVariables.filter(item => item.exists).map(item => item.value),
+  const safariExecutable = firstAvailable([
+    ...commands.filter(item => item.name === 'Safari').map(item => item.resolvedPath),
+    ...paths.filter(item => /^macOS Safari app$|^Windows legacy Safari/.test(item.label) && item.exists).map(item => item.path),
+    ...environmentVariables.filter(item => item.name === 'SAFARI_PATH' && item.exists).map(item => item.value),
+  ]);
+  const webkitAdjacentExecutable = firstAvailable([
+    ...commands.filter(item => item.name === 'MiniBrowser').map(item => item.resolvedPath),
+    ...environmentVariables.filter(item =>
+      ['WEBKIT_PATH', 'WEBKIT_BROWSER_PATH', 'PLAYWRIGHT_WEBKIT_EXECUTABLE_PATH'].includes(item.name)
+      && item.exists
+    ).map(item => item.value),
   ]);
   const isMac = platform() === 'darwin';
   const hasSafaridriver = commands.some(item => item.name === 'safaridriver' && item.found)
     || paths.some(item => item.label === 'macOS safaridriver' && item.exists);
+  const hasWebKitWebDriver = commands.some(item => item.name === 'WebKitWebDriver' && item.found);
   const harnessSupport = {
     chromiumCdp: true,
     firefoxBidi: true,
@@ -88,10 +96,10 @@ function createReport() {
     ],
     note: 'Current benchmark browser harnesses support Chrome/Edge through CDP, Firefox through built-in WebDriver BiDi, and Safari/WebKit through the safaridriver WebDriver wrapper, including cross-process stability rows, when safaridriver is available.',
   };
-  const canRunSafariBrowserRows = isMac && Boolean(availableExecutable) && hasSafaridriver && harnessSupport.safariWebDriver;
+  const canRunSafariBrowserRows = isMac && Boolean(safariExecutable) && hasSafaridriver && harnessSupport.safariWebDriver;
   const closureMatrix = createClosureMatrix({
     isMac,
-    availableExecutable,
+    safariExecutable,
     hasSafaridriver,
     harnessSupport,
     canRunSafariBrowserRows,
@@ -120,9 +128,13 @@ function createReport() {
     },
     summary: {
       hostIsMacOS: isMac,
-      safariExecutableFound: Boolean(availableExecutable),
-      safariExecutablePath: availableExecutable,
+      safariExecutableFound: Boolean(safariExecutable),
+      safariExecutablePath: safariExecutable,
       safaridriverFound: hasSafaridriver,
+      webKitWebDriverFound: hasWebKitWebDriver,
+      webKitAdjacentExecutableFound: Boolean(webkitAdjacentExecutable),
+      webKitAdjacentExecutablePath: webkitAdjacentExecutable,
+      webKitAdjacentEvidenceClosesSafari: false,
       currentHarnessSupportsSafari: harnessSupport.safariWebDriver || harnessSupport.webkitRemoteInspector,
       canRunSafariBrowserRows,
       safariBenchmarkRowsRecorded: false,
@@ -137,13 +149,21 @@ function createReport() {
       openObligationRemains: true,
     },
     closureMatrix,
-    findings: createFindings(isMac, availableExecutable, hasSafaridriver, harnessSupport, canRunSafariBrowserRows),
+    findings: createFindings({
+      isMac,
+      safariExecutable,
+      hasSafaridriver,
+      hasWebKitWebDriver,
+      webkitAdjacentExecutable,
+      harnessSupport,
+      canRunSafariBrowserRows,
+    }),
   };
 }
 
 function createClosureMatrix({
   isMac,
-  availableExecutable,
+  safariExecutable,
   hasSafaridriver,
   harnessSupport,
   canRunSafariBrowserRows,
@@ -157,15 +177,15 @@ function createClosureMatrix({
     ),
     closureRequirement(
       'safari-executable-found',
-      Boolean(availableExecutable),
-      'Safari/WebKit executable is available on the current host.',
-      'No Safari/WebKit executable was found on PATH, common install paths, or configured environment variables.',
+      Boolean(safariExecutable),
+      'Apple Safari executable is available on the current host.',
+      'No Apple Safari executable was found on PATH, common install paths, or SAFARI_PATH.',
     ),
     closureRequirement(
       'safaridriver-found',
       hasSafaridriver,
-      'safaridriver or an equivalent WebKit WebDriver is available.',
-      'No safaridriver/WebKit driver was found.',
+      'Apple safaridriver is available.',
+      'No Apple safaridriver path was found. Non-Safari WebKit drivers do not close the Safari row obligation.',
     ),
     closureRequirement(
       'harness-supports-safari',
@@ -274,7 +294,15 @@ function envProbe(name) {
   };
 }
 
-function createFindings(isMac, availableExecutable, hasSafaridriver, harnessSupport, canRunSafariBrowserRows) {
+function createFindings({
+  isMac,
+  safariExecutable,
+  hasSafaridriver,
+  hasWebKitWebDriver,
+  webkitAdjacentExecutable,
+  harnessSupport,
+  canRunSafariBrowserRows,
+}) {
   const findings = [
     {
       id: 'local-host-platform',
@@ -285,17 +313,24 @@ function createFindings(isMac, availableExecutable, hasSafaridriver, harnessSupp
     },
     {
       id: 'local-safari-executable',
-      classification: availableExecutable ? 'ENVIRONMENT_FACT_LIMIT' : 'OPEN',
-      summary: availableExecutable
-        ? `A local Safari/WebKit-like executable was found at ${availableExecutable}.`
-        : 'No local Safari/WebKit executable was found through PATH, common install paths, or explicit environment variables.',
+      classification: safariExecutable ? 'ENVIRONMENT_FACT_LIMIT' : 'OPEN',
+      summary: safariExecutable
+        ? `A local Apple Safari executable was found at ${safariExecutable}.`
+        : 'No local Apple Safari executable was found through PATH, common install paths, or SAFARI_PATH.',
     },
     {
       id: 'local-safaridriver',
       classification: hasSafaridriver ? 'ENVIRONMENT_FACT_LIMIT' : 'OPEN',
       summary: hasSafaridriver
-        ? 'A local safaridriver/WebKit driver command or path was found.'
-        : 'No local safaridriver/WebKit driver path was found.',
+        ? 'A local Apple safaridriver command or path was found.'
+        : 'No local Apple safaridriver path was found.',
+    },
+    {
+      id: 'webkit-adjacent-not-safari-closure',
+      classification: hasWebKitWebDriver || webkitAdjacentExecutable ? 'SCOPE_GUARD' : 'ENVIRONMENT_FACT_LIMIT',
+      summary: hasWebKitWebDriver || webkitAdjacentExecutable
+        ? 'A WebKit-adjacent executable or driver was found, but it is not accepted as Apple Safari browser-row closure evidence without Safari build identity and safaridriver-compatible rows.'
+        : 'No WebKit-adjacent executable or driver was found; this absence is local environment evidence only.',
     },
     {
       id: 'repo-harness-support',
@@ -328,6 +363,10 @@ function renderMarkdown(report) {
     `- Safari executable found: ${formatBoolean(report.summary.safariExecutableFound)}`,
     `- Safari executable path: ${report.summary.safariExecutablePath ?? 'none'}`,
     `- safaridriver found: ${formatBoolean(report.summary.safaridriverFound)}`,
+    `- WebKitWebDriver found: ${formatBoolean(report.summary.webKitWebDriverFound)}`,
+    `- WebKit-adjacent executable found: ${formatBoolean(report.summary.webKitAdjacentExecutableFound)}`,
+    `- WebKit-adjacent executable path: ${report.summary.webKitAdjacentExecutablePath ?? 'none'}`,
+    `- WebKit-adjacent evidence closes Safari obligation: ${formatBoolean(report.summary.webKitAdjacentEvidenceClosesSafari)}`,
     `- Current harness supports Safari/WebKit: ${formatBoolean(report.summary.currentHarnessSupportsSafari)}`,
     `- Can run Safari browser rows now: ${formatBoolean(report.summary.canRunSafariBrowserRows)}`,
     `- Safari benchmark rows recorded: ${formatBoolean(report.summary.safariBenchmarkRowsRecorded)}`,
@@ -377,6 +416,7 @@ function renderMarkdown(report) {
     '',
     '- This is an environment availability audit, not a benchmark row.',
     '- This does not prove Safari/WebKit cannot exceed any throughput threshold.',
+    '- WebKit-adjacent executables or drivers such as MiniBrowser, WebKitWebDriver, or Playwright WebKit do not close the Apple Safari browser-row obligation without exact Safari/WebKit build identity and accepted same-contract rows.',
     '- A future Safari/WebKit row must still use the same full-string contract and counterexample scanner.',
     '',
   );

@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-03T07:09:31.018Z
+Generated: 2026-06-03T07:21:46.314Z
 
 ## Scope
 
@@ -89,7 +89,7 @@ Disclosure-only guards: 4
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-03T07:06:44.632Z)
+- Coverage audit loaded: yes (2026-06-03T07:20:13.329Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open
 - Covered coverage obligations: firefox-browser-rows-open, codegen-traces-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey diagnostics rows vs closure candidates: 12/20 (gap=8, closureQualified=1)
@@ -141,7 +141,7 @@ Disclosure-only guards: 4
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-03T07:07:20.880Z)
+- Handoff loaded: yes (2026-06-03T07:20:38.003Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open
 - Handoff IDs: safari-webkit-browser-row-handoff
 
@@ -160,8 +160,8 @@ Disclosure-only guards: 4
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-03T07:09:15.991Z)
-- Handoff validation target handoff generatedAt: 2026-06-03T07:07:20.880Z (current 2026-06-03T07:07:20.880Z)
+- Handoff validation loaded: yes (2026-06-03T07:21:33.453Z)
+- Handoff validation target handoff generatedAt: 2026-06-03T07:20:38.003Z (current 2026-06-03T07:20:38.003Z)
 - Handoff validation pass: yes
 - Commands checked: 5
 - Scripts referenced: 14
@@ -193,8 +193,8 @@ Disclosure-only guards: 4
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-03T07:07:16.636Z)
-- Source audit inputs: comparison=2026-06-03T06:02:02.040Z (current 2026-06-03T06:02:02.040Z), coverage=2026-06-03T07:06:44.632Z (current 2026-06-03T07:06:44.632Z)
+- Source audit loaded: yes (2026-06-03T07:21:16.734Z)
+- Source audit inputs: comparison=2026-06-03T06:02:02.040Z (current 2026-06-03T06:02:02.040Z), coverage=2026-06-03T07:20:13.329Z (current 2026-06-03T07:20:13.329Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary source boundary: demand-driven StreamReaderSync parser pulls
