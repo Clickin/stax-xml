@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T09:26:08.792Z",
+  "generatedAt": "2026-06-03T09:41:42.010Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -699,7 +699,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T09:26:08.666Z",
+    "generatedAt": "2026-06-03T09:41:22.954Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open"
     ],
@@ -772,9 +772,9 @@
   },
   "handoffValidationSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T09:26:08.719Z",
-    "validatedHandoffGeneratedAt": "2026-06-03T09:26:08.666Z",
-    "currentHandoffGeneratedAt": "2026-06-03T09:26:08.666Z",
+    "generatedAt": "2026-06-03T09:41:27.016Z",
+    "validatedHandoffGeneratedAt": "2026-06-03T09:41:22.954Z",
+    "currentHandoffGeneratedAt": "2026-06-03T09:41:22.954Z",
     "pass": true,
     "missingScriptCount": 0,
     "nonReleaseOutputPathCount": 0,
@@ -844,11 +844,11 @@
   },
   "sourceAuditSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T09:26:08.416Z",
+    "generatedAt": "2026-06-03T09:40:28.073Z",
     "inputComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
     "currentComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
-    "inputCoverageGeneratedAt": "2026-06-03T09:26:08.349Z",
-    "currentCoverageGeneratedAt": "2026-06-03T09:26:08.349Z",
+    "inputCoverageGeneratedAt": "2026-06-03T09:39:41.398Z",
+    "currentCoverageGeneratedAt": "2026-06-03T09:39:41.398Z",
     "status": "classified",
     "primarySourceContract": "primary-sync-iterable-byte-batches",
     "primaryParserInput": "synchronous Iterable<Uint8Array[]>",
@@ -911,7 +911,7 @@
   "frontierAuditSnapshot": {
     "memory": {
       "loaded": true,
-      "generatedAt": "2026-06-03T09:26:08.476Z",
+      "generatedAt": "2026-06-03T09:40:19.910Z",
       "inputComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
       "currentComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
       "status": "classified",
@@ -928,7 +928,7 @@
     },
     "targetDistance": {
       "loaded": true,
-      "generatedAt": "2026-06-03T09:26:08.548Z",
+      "generatedAt": "2026-06-03T09:40:19.347Z",
       "inputComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
       "currentComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
       "status": "classified",
@@ -951,7 +951,7 @@
     },
     "textMaterialization": {
       "loaded": true,
-      "generatedAt": "2026-06-03T09:26:08.607Z",
+      "generatedAt": "2026-06-03T09:40:35.881Z",
       "inputComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
       "currentComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
       "status": "classified",
@@ -1044,7 +1044,7 @@
   },
   "coverageSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T09:26:08.349Z",
+    "generatedAt": "2026-06-03T09:39:41.398Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open"
     ],

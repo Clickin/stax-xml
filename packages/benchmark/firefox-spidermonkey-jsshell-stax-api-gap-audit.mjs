@@ -9,7 +9,7 @@ const defaultJsonOut = resolve(__dirname, 'results', 'release', 'firefox-spiderm
 const defaultMdOut = resolve(__dirname, 'results', 'release', 'firefox-spidermonkey-jsshell-stax-api-gap-audit.md');
 
 const requiredGlobals = [
-  { name: 'TextEncoder', expected: 'function', reason: 'Generated-fixture and string-input convenience harness paths encode XML strings into Uint8Array fixtures; corpus byte-batch reader rows do not require it.' },
+  { name: 'TextEncoder', expected: 'function', reason: 'Generated-fixture construction and string-input convenience harness paths encode XML strings into Uint8Array fixtures; corpus byte-batch reader rows do not require it.' },
   { name: 'ReadableStream', expected: 'function', reason: 'Browser-compatible source paths and unchanged harness checks expect Web Streams.' },
   { name: 'fetch', expected: 'function', reason: 'Browser-compatible live source rows and unchanged harness checks expect fetch.' },
   { name: 'Uint8Array', expected: 'function', reason: 'Neutral byte-batch parser input is Uint8Array-based.' },
@@ -18,10 +18,10 @@ const requiredGlobals = [
 const requiredSurfaces = [
   {
     id: 'sync-byte-batch-full-string',
-    label: 'StreamReaderSync generated-fixture Iterable<Uint8Array[]> full-string rows',
-    contract: 'Generated-fixture same-contract StAX rows over synchronous byte batches.',
+    label: 'StreamReaderSync generated-fixture-construction Iterable<Uint8Array[]> full-string rows',
+    contract: 'Generated XML fixture construction before same-contract StAX rows over synchronous byte batches.',
     requiredGlobals: ['Uint8Array', 'TextEncoder'],
-    reason: 'Uint8Array carries parser input and the current generated-fixture harness still encodes XML strings into Uint8Array fixtures. UTF-8 StAX string materialization has an internal fallback when TextDecoder is unavailable.',
+    reason: 'Uint8Array carries parser input. TextEncoder is required only because this generated-fixture harness builds Uint8Array fixtures from XML strings before parsing; UTF-8 StAX string materialization has an internal fallback when TextDecoder is unavailable.',
   },
   {
     id: 'sync-corpus-byte-batch-full-string',
@@ -245,7 +245,7 @@ function createFindings(report) {
     {
       id: 'spidermonkey-jsshell-api-gap',
       classification: 'NEGATIVE_RESULT',
-      summary: 'The official release and nightly SpiderMonkey js-shells are executable and can read binary XML. Current UTF-8 primary byte-batch StAX materialization requires only Uint8Array host support; generated fixture, string-input convenience, Web stream, and live-source harness surfaces still lack their own Web-compatible globals.',
+      summary: 'The official release and nightly SpiderMonkey js-shells are executable and can read binary XML. Current UTF-8 primary byte-batch StAX materialization requires only Uint8Array host support; generated-fixture construction, string-input convenience, Web stream, and live-source harness surfaces still lack their own Web-compatible globals.',
       evidence: [
         `unchangedHarnessMissingGlobals=${report.summary.unchangedHarnessMissingGlobals.join(', ') || 'none'}`,
         `primarySyncByteBatchMissingGlobals=${report.summary.primarySyncByteBatchMissingGlobals.join(', ') || 'none'}`,

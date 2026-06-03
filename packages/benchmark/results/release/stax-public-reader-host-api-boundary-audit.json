@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T08:32:01.563Z",
+  "generatedAt": "2026-06-03T09:39:08.540Z",
   "objective": "stax-public-reader-host-api-boundary-audit",
   "contract": "current-stax-public-reader-host-api-boundary",
   "note": "Static source-boundary audit for the current StAX public reader host API surface. It separates primary byte-batch reader globals from string-input convenience, Web stream, and fixture-harness globals; it is not benchmark evidence, codegen evidence, or a runtime-limit conclusion.",

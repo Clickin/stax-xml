@@ -1,6 +1,6 @@
 # StAX Public Reader Host API Boundary Audit
 
-Generated: 2026-06-03T08:32:01.563Z
+Generated: 2026-06-03T09:39:08.540Z
 
 Static source-boundary audit for the current StAX public reader host API surface. It separates primary byte-batch reader globals from string-input convenience, Web stream, and fixture-harness globals; it is not benchmark evidence, codegen evidence, or a runtime-limit conclusion.
 

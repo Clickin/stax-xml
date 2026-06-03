@@ -148,7 +148,7 @@ test('Firefox SpiderMonkey js-shell StAX API gap audit pins unchanged harness bl
   assert.match(markdown, /## Direct Unchanged Harness Attempts/);
   assert.match(markdown, /\| release \| sync-corpus-byte-batch-full-string \| runnable-prerequisites-present \| none \| none \|/);
   assert.match(markdown, /\| nightly \| browser-fetch-live-source \| blocked-before-stax-load \| ReadableStream \| ReadableStream, fetch \|/);
-  assert.match(markdown, /\| StreamReaderSync generated-fixture Iterable<Uint8Array\[\]> full-string rows \| Generated-fixture same-contract StAX rows over synchronous byte batches\. \| Uint8Array, TextEncoder \| 2\/2 \| TextEncoder \|/);
+  assert.match(markdown, /\| StreamReaderSync generated-fixture-construction Iterable<Uint8Array\[\]> full-string rows \| Generated XML fixture construction before same-contract StAX rows over synchronous byte batches\. \| Uint8Array, TextEncoder \| 2\/2 \| TextEncoder \|/);
   assert.match(markdown, /\| StreamReaderSync corpus-file Iterable<Uint8Array\[\]> full-string rows \| Corpus-file same-contract StAX rows over synchronous byte batches\. \| Uint8Array \| 0\/2 \| none \|/);
   assert.match(markdown, /\| createEventReaderFromAsyncByteBatches full-string rows \| Async byte-batch public event rows without direct ReadableStream consumption\. \| Uint8Array \| 0\/2 \| none \|/);
   assert.match(markdown, /\| EventReader ReadableStream<Uint8Array> full-string rows \| Direct Web ReadableStream source-overhead rows\. \| Uint8Array, ReadableStream \| 2\/2 \| ReadableStream \|/);
@@ -160,6 +160,7 @@ test('Firefox SpiderMonkey js-shell StAX API gap audit pins unchanged harness bl
   assert.match(markdown, /nonPrimaryHarnessMissingGlobals=TextEncoder, ReadableStream, fetch/);
   assert.match(markdown, /directUnchangedHarnessAttemptsBlocked=6\/10/);
   assert.match(markdown, /UTF-8 primary byte-batch StAX materialization requires only Uint8Array host support/);
+  assert.match(markdown, /generated-fixture construction, string-input convenience, Web stream, and live-source harness surfaces/);
   assert.match(markdown, /not a SpiderMonkey throughput limit or emitted-code proof/);
 });
 

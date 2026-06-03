@@ -1,6 +1,6 @@
 # Firefox/SpiderMonkey JS Shell StAX API Gap Audit
 
-Generated: 2026-06-03T05:30:17.397Z
+Generated: 2026-06-03T09:38:52.811Z
 
 Synthesizes the official release/nightly SpiderMonkey js-shell API probes against the unchanged current full-string stax benchmark surface. This is not benchmark evidence, emitted JIT IR, optimized-code evidence, or a runtime-limit conclusion.
 
@@ -32,7 +32,7 @@ Synthesizes the official release/nightly SpiderMonkey js-shell API probes agains
 
 | Global | Expected | Reason |
 | --- | --- | --- |
-| TextEncoder | function | Generated-fixture and string-input convenience harness paths encode XML strings into Uint8Array fixtures; corpus byte-batch reader rows do not require it. |
+| TextEncoder | function | Generated-fixture construction and string-input convenience harness paths encode XML strings into Uint8Array fixtures; corpus byte-batch reader rows do not require it. |
 | ReadableStream | function | Browser-compatible source paths and unchanged harness checks expect Web Streams. |
 | fetch | function | Browser-compatible live source rows and unchanged harness checks expect fetch. |
 | Uint8Array | function | Neutral byte-batch parser input is Uint8Array-based. |
@@ -41,7 +41,7 @@ Synthesizes the official release/nightly SpiderMonkey js-shell API probes agains
 
 | Surface | Contract | Required globals | Blocked shells | Missing globals |
 | --- | --- | --- | ---: | --- |
-| StreamReaderSync generated-fixture Iterable<Uint8Array[]> full-string rows | Generated-fixture same-contract StAX rows over synchronous byte batches. | Uint8Array, TextEncoder | 2/2 | TextEncoder |
+| StreamReaderSync generated-fixture-construction Iterable<Uint8Array[]> full-string rows | Generated XML fixture construction before same-contract StAX rows over synchronous byte batches. | Uint8Array, TextEncoder | 2/2 | TextEncoder |
 | StreamReaderSync corpus-file Iterable<Uint8Array[]> full-string rows | Corpus-file same-contract StAX rows over synchronous byte batches. | Uint8Array | 0/2 | none |
 | createEventReaderFromAsyncByteBatches full-string rows | Async byte-batch public event rows without direct ReadableStream consumption. | Uint8Array | 0/2 | none |
 | EventReader ReadableStream<Uint8Array> full-string rows | Direct Web ReadableStream source-overhead rows. | Uint8Array, ReadableStream | 2/2 | ReadableStream |
@@ -64,7 +64,7 @@ Synthesizes the official release/nightly SpiderMonkey js-shell API probes agains
 
 ## Findings
 
-- spidermonkey-jsshell-api-gap (NEGATIVE_RESULT): The official release and nightly SpiderMonkey js-shells are executable and can read binary XML. Current UTF-8 primary byte-batch StAX materialization requires only Uint8Array host support; generated fixture, string-input convenience, Web stream, and live-source harness surfaces still lack their own Web-compatible globals.
+- spidermonkey-jsshell-api-gap (NEGATIVE_RESULT): The official release and nightly SpiderMonkey js-shells are executable and can read binary XML. Current UTF-8 primary byte-batch StAX materialization requires only Uint8Array host support; generated-fixture construction, string-input convenience, Web stream, and live-source harness surfaces still lack their own Web-compatible globals.
   - unchangedHarnessMissingGlobals=TextEncoder, ReadableStream, fetch
   - primarySyncByteBatchMissingGlobals=none
   - primaryPathRunnableWithoutHostEncoding=true
