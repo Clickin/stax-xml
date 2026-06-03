@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T04:55:35.708Z",
+  "generatedAt": "2026-06-03T07:30:45.049Z",
   "objective": "stax-public-reader-host-api-boundary-audit",
   "contract": "current-stax-public-reader-host-api-boundary",
   "note": "Static source-boundary audit for the current StAX public reader host API surface. It separates primary byte-batch reader globals from string-input convenience, Web stream, and fixture-harness globals; it is not benchmark evidence, codegen evidence, or a runtime-limit conclusion.",
@@ -27,6 +27,14 @@
     "streamReaderCore": {
       "path": "packages/stax-xml/src/stream-reader-core.ts",
       "bytes": 9330
+    },
+    "writer": {
+      "path": "packages/stax-xml/src/Writer.ts",
+      "bytes": 19199
+    },
+    "writerSync": {
+      "path": "packages/stax-xml/src/WriterSync.ts",
+      "bytes": 18971
     }
   },
   "checks": [
@@ -95,6 +103,18 @@
       "source": "index.ts",
       "expected": "The root barrel can re-export StreamReaderSync, EventReaderSync, and XmlObject without a top-level TextEncoder allocation.",
       "matched": true
+    },
+    {
+      "id": "async-writer-output-uses-textencoder",
+      "source": "Writer.ts",
+      "expected": "The async byte-output Writer constructs TextEncoder in its constructor and uses encodeInto/encode to emit UTF-8 Uint8Array chunks.",
+      "matched": true
+    },
+    {
+      "id": "sync-writer-output-does-not-use-textencoder",
+      "source": "WriterSync.ts",
+      "expected": "WriterSync and WriterSyncSink emit JavaScript strings to string buffers or SyncTextSink.write() and do not construct TextEncoder.",
+      "matched": true
     }
   ],
   "summary": {
@@ -107,6 +127,8 @@
     "directReadableStreamRequiresReadableStream": true,
     "stringInputRequiresTextEncoder": true,
     "rootImportRequiresTextEncoder": false,
+    "asyncWriterOutputRequiresTextEncoder": true,
+    "syncWriterOutputRequiresTextEncoder": false,
     "primarySyncByteBatchRequiredGlobals": [
       "Uint8Array"
     ],
@@ -121,6 +143,11 @@
       "TextEncoder"
     ],
     "rootImportRequiredGlobals": [],
+    "asyncWriterOutputRequiredGlobals": [
+      "TextEncoder",
+      "WritableStream"
+    ],
+    "syncWriterOutputRequiredGlobals": [],
     "alternateDecoderWouldBeUnchangedClosure": false,
     "conclusionAllowed": false
   },
@@ -157,6 +184,17 @@
         "rootImportRequiresTextEncoder=false",
         "stringInputRequiresTextEncoder=true",
         "rootImportRequiredGlobals=none"
+      ]
+    },
+    {
+      "id": "stax-writer-textencoder-boundary",
+      "classification": "SOURCE_FACT",
+      "summary": "The async byte-output Writer requires TextEncoder to encode XML strings into Uint8Array chunks; the sync string writers do not.",
+      "evidence": [
+        "asyncWriterOutputRequiresTextEncoder=true",
+        "asyncWriterOutputRequiredGlobals=TextEncoder, WritableStream",
+        "syncWriterOutputRequiresTextEncoder=false",
+        "syncWriterOutputRequiredGlobals=none"
       ]
     },
     {

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T07:20:13.329Z",
+  "generatedAt": "2026-06-03T07:30:58.287Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -202,6 +202,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": false
       },
@@ -276,6 +278,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": false
       },
@@ -350,6 +354,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": false
       },
@@ -3297,6 +3303,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": false
       },
@@ -4014,6 +4022,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": false
       },
@@ -4165,6 +4175,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": false
       },
@@ -4267,6 +4279,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": null
       },
@@ -4941,6 +4955,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": false
       },
@@ -5053,6 +5069,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": null
       },
@@ -5127,6 +5145,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": false
       },
@@ -5344,6 +5364,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": false
       },
@@ -5491,6 +5513,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": false
       },
@@ -5586,6 +5610,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": true,
         "closestBlockedCandidateSourceArtifacts": [
@@ -5715,6 +5741,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": false
       },
@@ -5884,6 +5912,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": false
       },
@@ -6027,6 +6057,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": false
       },
@@ -6661,6 +6693,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": false
       },
@@ -6850,6 +6884,8 @@
         "directReadableStreamRequiresReadableStream": true,
         "stringInputRequiresTextEncoder": true,
         "rootImportRequiresTextEncoder": false,
+        "asyncWriterOutputRequiresTextEncoder": true,
+        "syncWriterOutputRequiresTextEncoder": false,
         "alternateDecoderWouldBeUnchangedClosure": false,
         "conclusionAllowed": false
       },
@@ -7197,6 +7233,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": false
       },
@@ -7438,6 +7476,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": false
       },
@@ -7516,6 +7556,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": false
       },
@@ -7592,6 +7634,8 @@
         "directReadableStreamRequiresReadableStream": null,
         "stringInputRequiresTextEncoder": null,
         "rootImportRequiresTextEncoder": null,
+        "asyncWriterOutputRequiresTextEncoder": null,
+        "syncWriterOutputRequiresTextEncoder": null,
         "alternateDecoderWouldBeUnchangedClosure": null,
         "conclusionAllowed": false
       },
@@ -28074,6 +28118,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": true,
           "closestBlockedCandidateSourceArtifacts": [
@@ -28203,6 +28249,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": false
         },
@@ -29654,6 +29702,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": false
         },
@@ -29728,6 +29778,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": null
         },
@@ -29899,6 +29951,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": false
         },
@@ -29973,6 +30027,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": false
         },
@@ -30080,6 +30136,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": false
         },
@@ -30197,6 +30255,8 @@
           "directReadableStreamRequiresReadableStream": true,
           "stringInputRequiresTextEncoder": true,
           "rootImportRequiresTextEncoder": false,
+          "asyncWriterOutputRequiresTextEncoder": true,
+          "syncWriterOutputRequiresTextEncoder": false,
           "alternateDecoderWouldBeUnchangedClosure": false,
           "conclusionAllowed": false
         },
@@ -30270,6 +30330,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": false
         },
@@ -30343,6 +30405,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": false
         },
@@ -30421,6 +30485,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": false
         },
@@ -30745,6 +30811,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": null
         },
@@ -30843,6 +30911,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": false
         },
@@ -30919,6 +30989,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": false
         },
@@ -30993,6 +31065,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": false
         },
@@ -31067,6 +31141,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": false
         },
@@ -31322,6 +31398,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": false
         },
@@ -31749,6 +31827,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": false
         },
@@ -31898,6 +31978,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": false
         },
@@ -31973,6 +32055,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": false
         },
@@ -32144,6 +32228,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": false
         },
@@ -32690,6 +32776,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": false
         },
@@ -32766,6 +32854,8 @@
           "directReadableStreamRequiresReadableStream": null,
           "stringInputRequiresTextEncoder": null,
           "rootImportRequiresTextEncoder": null,
+          "asyncWriterOutputRequiresTextEncoder": null,
+          "syncWriterOutputRequiresTextEncoder": null,
           "alternateDecoderWouldBeUnchangedClosure": null,
           "conclusionAllowed": false
         },
@@ -32792,7 +32882,7 @@
     {
       "id": "codegen-traces-open",
       "status": "covered",
-      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Deno/V8 codegen trace evidence present (2 artifacts). Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey Taskcluster debug browser diagnostic dump audit was attempted with FIREFOX_PATH=G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe and failed before same-contract BiDi execution (status=failed, exitCode=1, emittedDump=false). Firefox/SpiderMonkey local js-shell availability audit present (status=available, found=2, searchRoots=2); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is bytecode/JIT-status diagnostic evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is bytecode/JIT-status diagnostic evidence only, not emitted JIT IR. Current StAX public reader host API boundary audit present (primarySyncByteBatchRequiresTextDecoder=false, asciiPrimarySyncByteBatchRequiresTextDecoder=false, utf8FallbackDecoder=true, nonUtf8RequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, rootImportRequiresTextEncoder=false, alternateDecoderWouldBeUnchangedClosure=false); it pins why UTF-8 primary byte-batch materialization can run without host TextDecoder while non-UTF-8 and non-primary harness globals remain separate. Firefox/SpiderMonkey js-shell StAX API gap audit present (status=blocked-by-host-api-surface, unchangedRunnableShells=0/2, blockedSurfaces=3, directUnchangedHarnessAttemptsBlocked=6/10, unchangedHarnessMissingGlobals=TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=none, primaryPathRunnableWithoutHostEncoding=true, nonPrimaryHarnessMissingGlobals=TextEncoder, ReadableStream, fetch); it is host API surface evidence only, not emitted JIT IR. Firefox/SpiderMonkey public js-shell diagnostic flag sweep present (bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false); it rules out easy public-shell bytecode/dump flag paths but is not emitted JIT IR. Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell materialized string/object codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark. Firefox/SpiderMonkey codegen rerun stability audit present (pairs=2, reproduciblePairs=2, sameTaskclusterBuildPairs=2, sameCodegenMarkerPairs=2, qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false); it proves diagnostic rerun reproducibility but still not same-contract StAX closure. Firefox/SpiderMonkey ASCII scope-distance audit present (corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, reducesScopeDistance=true, closesCodegenObligation=false); it narrows ASCII materialized js-shell scope but is not unchanged StAX closure evidence. Firefox/SpiderMonkey materialized scope-distance audit present (semanticEquivalentForAsciiFields=true, closureRequirementsMet=3, closureRequirementsBlocked=3, primarySyncByteBatchMissingGlobals=none, asciiTextDecoderEquivalent=true, diagnosticThroughputMiBPerSec=0.7656093369946506, throughputCountsAsTargetEvidence=false, closesCodegenObligation=false); it records why the materialized js-shell codegen artifact is useful but still not closure evidence. Firefox/SpiderMonkey same-contract emitted codegen closure evidence present (qualifiedClosureCount=1).",
+      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Deno/V8 codegen trace evidence present (2 artifacts). Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey Taskcluster debug browser diagnostic dump audit was attempted with FIREFOX_PATH=G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe and failed before same-contract BiDi execution (status=failed, exitCode=1, emittedDump=false). Firefox/SpiderMonkey local js-shell availability audit present (status=available, found=2, searchRoots=2); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is bytecode/JIT-status diagnostic evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is bytecode/JIT-status diagnostic evidence only, not emitted JIT IR. Current StAX public reader host API boundary audit present (primarySyncByteBatchRequiresTextDecoder=false, asciiPrimarySyncByteBatchRequiresTextDecoder=false, utf8FallbackDecoder=true, nonUtf8RequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, rootImportRequiresTextEncoder=false, asyncWriterOutputRequiresTextEncoder=true, syncWriterOutputRequiresTextEncoder=false, alternateDecoderWouldBeUnchangedClosure=false); it pins why UTF-8 primary byte-batch materialization can run without host TextDecoder while non-UTF-8, writer output, and non-primary harness globals remain separate. Firefox/SpiderMonkey js-shell StAX API gap audit present (status=blocked-by-host-api-surface, unchangedRunnableShells=0/2, blockedSurfaces=3, directUnchangedHarnessAttemptsBlocked=6/10, unchangedHarnessMissingGlobals=TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=none, primaryPathRunnableWithoutHostEncoding=true, nonPrimaryHarnessMissingGlobals=TextEncoder, ReadableStream, fetch); it is host API surface evidence only, not emitted JIT IR. Firefox/SpiderMonkey public js-shell diagnostic flag sweep present (bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false); it rules out easy public-shell bytecode/dump flag paths but is not emitted JIT IR. Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell materialized string/object codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark. Firefox/SpiderMonkey codegen rerun stability audit present (pairs=2, reproduciblePairs=2, sameTaskclusterBuildPairs=2, sameCodegenMarkerPairs=2, qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false); it proves diagnostic rerun reproducibility but still not same-contract StAX closure. Firefox/SpiderMonkey ASCII scope-distance audit present (corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, reducesScopeDistance=true, closesCodegenObligation=false); it narrows ASCII materialized js-shell scope but is not unchanged StAX closure evidence. Firefox/SpiderMonkey materialized scope-distance audit present (semanticEquivalentForAsciiFields=true, closureRequirementsMet=3, closureRequirementsBlocked=3, primarySyncByteBatchMissingGlobals=none, asciiTextDecoderEquivalent=true, diagnosticThroughputMiBPerSec=0.7656093369946506, throughputCountsAsTargetEvidence=false, closesCodegenObligation=false); it records why the materialized js-shell codegen artifact is useful but still not closure evidence. Firefox/SpiderMonkey same-contract emitted codegen closure evidence present (qualifiedClosureCount=1).",
       "nextExperiment": "Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows."
     },
     {

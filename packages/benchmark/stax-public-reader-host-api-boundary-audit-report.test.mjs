@@ -45,12 +45,16 @@ test('stax public reader host API boundary audit pins current TextDecoder surfac
   assert.equal(report.summary.directReadableStreamRequiresReadableStream, true);
   assert.equal(report.summary.stringInputRequiresTextEncoder, true);
   assert.equal(report.summary.rootImportRequiresTextEncoder, false);
+  assert.equal(report.summary.asyncWriterOutputRequiresTextEncoder, true);
+  assert.equal(report.summary.syncWriterOutputRequiresTextEncoder, false);
   assert.equal(report.summary.alternateDecoderWouldBeUnchangedClosure, false);
   assert.deepEqual(report.summary.primarySyncByteBatchRequiredGlobals, ['Uint8Array']);
   assert.deepEqual(report.summary.asciiPrimarySyncByteBatchRequiredGlobals, ['Uint8Array']);
   assert.deepEqual(report.summary.directReadableStreamRequiredGlobals, ['Uint8Array', 'ReadableStream']);
   assert.deepEqual(report.summary.stringInputRequiredGlobals, ['TextEncoder']);
   assert.deepEqual(report.summary.rootImportRequiredGlobals, []);
+  assert.deepEqual(report.summary.asyncWriterOutputRequiredGlobals, ['TextEncoder', 'WritableStream']);
+  assert.deepEqual(report.summary.syncWriterOutputRequiredGlobals, []);
   assert.ok(report.checks.every(check => check.matched));
   assert.ok(report.checks.some(check => check.id === 'iterable-reader-decodes-non-ascii-spans'));
   assert.ok(report.checks.some(check => check.id === 'iterable-reader-utf8-fallback-without-textdecoder'));
@@ -58,6 +62,8 @@ test('stax public reader host API boundary audit pins current TextDecoder surfac
   assert.ok(report.checks.some(check => check.id === 'iterable-reader-ascii-spans-avoid-textdecoder'));
   assert.ok(report.checks.some(check => check.id === 'stream-batch-public-accessors-call-copy-methods'));
   assert.ok(report.checks.some(check => check.id === 'root-import-no-top-level-textencoder'));
+  assert.ok(report.checks.some(check => check.id === 'async-writer-output-uses-textencoder'));
+  assert.ok(report.checks.some(check => check.id === 'sync-writer-output-does-not-use-textencoder'));
   assert.ok(report.findings.some(finding =>
     finding.id === 'stax-primary-sync-byte-batch-textdecoder-boundary'
     && finding.classification === 'SOURCE_FACT'
@@ -68,6 +74,10 @@ test('stax public reader host API boundary audit pins current TextDecoder surfac
   ));
   assert.ok(report.findings.some(finding =>
     finding.id === 'stax-root-import-textencoder-not-primary-blocker'
+    && finding.classification === 'SOURCE_FACT'
+  ));
+  assert.ok(report.findings.some(finding =>
+    finding.id === 'stax-writer-textencoder-boundary'
     && finding.classification === 'SOURCE_FACT'
   ));
   assert.ok(report.findings.some(finding =>
@@ -83,6 +93,8 @@ test('stax public reader host API boundary audit pins current TextDecoder surfac
   assert.match(markdown, /Non-UTF-8 requires TextDecoder: true/);
   assert.match(markdown, /Direct ReadableStream requires ReadableStream: true/);
   assert.match(markdown, /Root import requires TextEncoder: false/);
+  assert.match(markdown, /Async byte-output Writer requires TextEncoder: true/);
+  assert.match(markdown, /Sync string Writer requires TextEncoder: false/);
   assert.match(markdown, /Alternate decoder is unchanged closure: false/);
   assert.match(markdown, /iterable-reader-decodes-non-ascii-spans/);
   assert.match(markdown, /iterable-reader-utf8-fallback-without-textdecoder/);
@@ -90,4 +102,6 @@ test('stax public reader host API boundary audit pins current TextDecoder surfac
   assert.match(markdown, /iterable-reader-ascii-spans-avoid-textdecoder/);
   assert.match(markdown, /stream-batch-public-accessors-call-copy-methods/);
   assert.match(markdown, /root-import-no-top-level-textencoder/);
+  assert.match(markdown, /async-writer-output-uses-textencoder/);
+  assert.match(markdown, /sync-writer-output-does-not-use-textencoder/);
 });

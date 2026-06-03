@@ -14,6 +14,8 @@ const sourceFiles = {
   eventReaderSync: resolve(repoRoot, 'packages', 'stax-xml', 'src', 'EventReaderSync.ts'),
   xmlObject: resolve(repoRoot, 'packages', 'stax-xml', 'src', 'XmlObject.ts'),
   streamReaderCore: resolve(repoRoot, 'packages', 'stax-xml', 'src', 'stream-reader-core.ts'),
+  writer: resolve(repoRoot, 'packages', 'stax-xml', 'src', 'Writer.ts'),
+  writerSync: resolve(repoRoot, 'packages', 'stax-xml', 'src', 'WriterSync.ts'),
 };
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -144,7 +146,26 @@ function createReport() {
       expected: 'The root barrel can re-export StreamReaderSync, EventReaderSync, and XmlObject without a top-level TextEncoder allocation.',
       matched: /export \{ StreamEventType, StreamReaderSync \} from "\.\/StreamReaderSync\.js";/.test(sources.index.text)
         && !/const textEncoder = new TextEncoder\(\)/.test(sources.eventReaderSync.text)
-        && !/const textEncoder = new TextEncoder\(\)/.test(sources.xmlObject.text),
+        && !/const textEncoder = new TextEncoder\(\)/.test(sources.xmlObject.text)
+        && !/const textEncoder = new TextEncoder\(\)/.test(sources.writer.text),
+    },
+    {
+      id: 'async-writer-output-uses-textencoder',
+      source: 'Writer.ts',
+      expected: 'The async byte-output Writer constructs TextEncoder in its constructor and uses encodeInto/encode to emit UTF-8 Uint8Array chunks.',
+      matched: /private encoder: TextEncoder/.test(sources.writer.text)
+        && /this\.encoder = new TextEncoder\(\)/.test(sources.writer.text)
+        && /this\.encoder\.encodeInto\(source, target\)/.test(sources.writer.text)
+        && /this\.encoder\.encode\(codePoint\)/.test(sources.writer.text),
+    },
+    {
+      id: 'sync-writer-output-does-not-use-textencoder',
+      source: 'WriterSync.ts',
+      expected: 'WriterSync and WriterSyncSink emit JavaScript strings to string buffers or SyncTextSink.write() and do not construct TextEncoder.',
+      matched: !/TextEncoder/.test(sources.writerSync.text)
+        && /export class WriterSync extends AbstractWriterSync[\s\S]+?private xmlString = ''/.test(sources.writerSync.text)
+        && /export class WriterSyncSink extends AbstractWriterSync[\s\S]+?private readonly sink: SyncTextSink/.test(sources.writerSync.text)
+        && /this\.sink\.write\(output\)/.test(sources.writerSync.text),
     },
   ];
   const allChecksPass = checks.every(check => check.matched);
@@ -158,11 +179,15 @@ function createReport() {
     directReadableStreamRequiresReadableStream: checksById(checks, 'event-reader-requires-web-readable-stream'),
     stringInputRequiresTextEncoder: checksById(checks, 'event-reader-sync-string-input-uses-textencoder', 'xml-object-string-input-uses-lazy-textencoder'),
     rootImportRequiresTextEncoder: !checksById(checks, 'root-import-no-top-level-textencoder'),
+    asyncWriterOutputRequiresTextEncoder: checksById(checks, 'async-writer-output-uses-textencoder'),
+    syncWriterOutputRequiresTextEncoder: !checksById(checks, 'sync-writer-output-does-not-use-textencoder'),
     primarySyncByteBatchRequiredGlobals: ['Uint8Array'],
     asciiPrimarySyncByteBatchRequiredGlobals: ['Uint8Array'],
     directReadableStreamRequiredGlobals: ['Uint8Array', 'ReadableStream'],
     stringInputRequiredGlobals: ['TextEncoder'],
     rootImportRequiredGlobals: [],
+    asyncWriterOutputRequiredGlobals: ['TextEncoder', 'WritableStream'],
+    syncWriterOutputRequiredGlobals: [],
     alternateDecoderWouldBeUnchangedClosure: false,
     conclusionAllowed: false,
   };
@@ -219,6 +244,17 @@ function createFindings(summary) {
       ],
     },
     {
+      id: 'stax-writer-textencoder-boundary',
+      classification: 'SOURCE_FACT',
+      summary: 'The async byte-output Writer requires TextEncoder to encode XML strings into Uint8Array chunks; the sync string writers do not.',
+      evidence: [
+        `asyncWriterOutputRequiresTextEncoder=${summary.asyncWriterOutputRequiresTextEncoder}`,
+        `asyncWriterOutputRequiredGlobals=${summary.asyncWriterOutputRequiredGlobals.join(', ')}`,
+        `syncWriterOutputRequiresTextEncoder=${summary.syncWriterOutputRequiresTextEncoder}`,
+        `syncWriterOutputRequiredGlobals=${summary.syncWriterOutputRequiredGlobals.join(', ') || 'none'}`,
+      ],
+    },
+    {
       id: 'stax-ascii-primary-byte-batch-textdecoder-not-blocker',
       classification: 'SOURCE_FACT',
       summary: 'ASCII primary byte-batch name, text, and attribute accessors can materialize strings through the internal ASCII span path without TextDecoder.',
@@ -260,6 +296,8 @@ function renderMarkdown(report) {
     `- Direct ReadableStream requires ReadableStream: ${report.summary.directReadableStreamRequiresReadableStream}`,
     `- String input requires TextEncoder: ${report.summary.stringInputRequiresTextEncoder}`,
     `- Root import requires TextEncoder: ${report.summary.rootImportRequiresTextEncoder}`,
+    `- Async byte-output Writer requires TextEncoder: ${report.summary.asyncWriterOutputRequiresTextEncoder}`,
+    `- Sync string Writer requires TextEncoder: ${report.summary.syncWriterOutputRequiresTextEncoder}`,
     `- Alternate decoder is unchanged closure: ${report.summary.alternateDecoderWouldBeUnchangedClosure}`,
     '',
     '## Checks',
