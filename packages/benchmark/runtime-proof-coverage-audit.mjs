@@ -8,6 +8,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const defaultReleaseDir = resolve(__dirname, 'results', 'release');
 const defaultJsonOut = resolve(defaultReleaseDir, 'runtime-proof-coverage-audit.json');
 const defaultMdOut = resolve(defaultReleaseDir, 'runtime-proof-coverage-audit.md');
+const safariAcceptedClosureCaseIds = new Set(['stringFull', 'eventObjectFull', 'rawFrameNameId']);
 
 const ignoredArtifacts = new Set([
   'latest-summary.json',
@@ -461,6 +462,7 @@ function extractMeasuredRows(sourceArtifact, root) {
       sourceArtifact,
       jsonPath: path.join('.'),
       id: String(node.id ?? node.tool ?? node.name ?? path.at(-1) ?? 'row'),
+      caseId: String(node.caseId ?? node.id ?? node.tool ?? node.name ?? path.at(-1) ?? 'row'),
       runtimeId: classifyRuntime(sourceArtifact, node, context),
       runtimeLabel: runtimeLabel(classifyRuntime(sourceArtifact, node, context)),
       sizeGiB: fixture?.sizeGiB ?? null,
@@ -702,9 +704,14 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows, sameContra
   const largeBoundedPrimaryRows = boundedPrimaryRows.filter(row =>
     typeof row.sizeGiB === 'number' && row.sizeGiB >= minLargeGiB
   );
+  const acceptedClosureCaseRows = safariRows.filter(row => safariAcceptedClosureCaseIds.has(row.caseId));
+  const acceptedLargeBoundedPrimaryRows = largeBoundedPrimaryRows.filter(row =>
+    safariAcceptedClosureCaseIds.has(row.caseId)
+  );
   const boundedPrimaryRowsInSameContractComparison = boundedPrimaryRows.filter(row =>
     matchSameContractComparisonRow({
       selectedRowId: row.id,
+      selectedCaseId: row.caseId,
       selectedEventCount: row.eventCount,
       selectedChecksum: row.checksum,
       comparisonRows: sameContractComparisonRows,
@@ -714,6 +721,7 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows, sameContra
   const largeBoundedPrimaryRowsInSameContractComparison = largeBoundedPrimaryRows.filter(row =>
     matchSameContractComparisonRow({
       selectedRowId: row.id,
+      selectedCaseId: row.caseId,
       selectedEventCount: row.eventCount,
       selectedChecksum: row.checksum,
       comparisonRows: sameContractComparisonRows,
@@ -724,6 +732,8 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows, sameContra
   const largeBoundedPrimaryRowsWithMeasuredExactBuildIdentity = largeBoundedPrimaryRows.filter(hasMeasuredSafariBuildIdentity);
   const safariRowsWithRowLevelSourceBoundaryPin = safariRows.filter(hasSafariWebKitSourceBoundaryPin);
   const largeBoundedPrimaryRowsWithRowLevelSourceBoundaryPin = largeBoundedPrimaryRows.filter(hasSafariWebKitSourceBoundaryPin);
+  const acceptedLargeBoundedPrimaryRowsWithMeasuredExactBuildIdentity = acceptedLargeBoundedPrimaryRows.filter(hasMeasuredSafariBuildIdentity);
+  const acceptedLargeBoundedPrimaryRowsWithRowLevelSourceBoundaryPin = acceptedLargeBoundedPrimaryRows.filter(hasSafariWebKitSourceBoundaryPin);
   const primaryRowsInSameContractComparison = boundedPrimaryRows.length > 0
     && boundedPrimaryRowsInSameContractComparison.length === boundedPrimaryRows.length;
   const largePrimaryRowsInSameContractComparison = largeBoundedPrimaryRows.length > 0
@@ -767,6 +777,8 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows, sameContra
     primarySyncByteBatchRowsRecorded: safariPrimaryRows.length,
     boundedPrimarySyncByteBatchRowsRecorded: boundedPrimaryRows.length,
     largeBoundedPrimarySyncByteBatchRowsRecorded: largeBoundedPrimaryRows.length,
+    acceptedClosureCaseRowsRecorded: acceptedClosureCaseRows.length,
+    acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded: acceptedLargeBoundedPrimaryRows.length,
     boundedPrimarySyncByteBatchRowsInSameContractComparison: boundedPrimaryRowsInSameContractComparison.length,
     largeBoundedPrimarySyncByteBatchRowsInSameContractComparison: largeBoundedPrimaryRowsInSameContractComparison.length,
     primaryRowsInSameContractComparison,
@@ -780,8 +792,8 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows, sameContra
       && exactBuildIdentityRecorded
       && availability.safariSourceBoundaryPinned === true
       && availability.directReadableStreamRowsAreSeparateEvidence === true
-      && largeBoundedPrimaryRowsWithMeasuredExactBuildIdentity.length > 0
-      && largeBoundedPrimaryRowsWithRowLevelSourceBoundaryPin.length > 0
+      && acceptedLargeBoundedPrimaryRowsWithMeasuredExactBuildIdentity.length > 0
+      && acceptedLargeBoundedPrimaryRowsWithRowLevelSourceBoundaryPin.length > 0
       && largePrimaryRowsInSameContractComparison,
   };
 }
@@ -1152,6 +1164,7 @@ function hasPositiveSpiderMonkeyCodegenProbe(probe) {
 
 function matchSameContractComparisonRow({
   selectedRowId,
+  selectedCaseId = null,
   selectedEventCount,
   selectedChecksum,
   comparisonRows,
@@ -1161,6 +1174,7 @@ function matchSameContractComparisonRow({
   if (typeof selectedRowId !== 'string' || selectedRowId.length === 0) return false;
   return comparisonRows.some(row => {
     if (row.id !== selectedRowId) return false;
+    if (selectedCaseId !== null && selectedCaseId !== undefined && row.caseId !== selectedCaseId) return false;
     if (
       Array.isArray(expectedRuntimeIds)
       && expectedRuntimeIds.length > 0
@@ -1181,6 +1195,7 @@ function extractSameContractComparisonRows(root) {
   return rows
     .map(row => ({
       id: row.id ?? row.caseId ?? null,
+      caseId: row.caseId ?? row.id ?? null,
       runtimeId: row.runtimeId ?? row.runtime?.id ?? null,
       jsRuntime: row.jsRuntime === true || isJsRuntime(row.runtimeId ?? row.runtime?.id),
       fullStringParity: row.fullStringParity === true,
@@ -1418,7 +1433,7 @@ function createObligationRows(coverage) {
         : hasSafariRows
           ? [
             `${coverage.browser.safariBenchmarkRows.length} Safari/WebKit browser benchmark rows found, but the obligation is not closed.`,
-            `exactBuildIdentityRecorded=${coverage.safariWebKitStatus.exactBuildIdentityRecorded}; sourceBoundaryPinned=${coverage.safariWebKitStatus.sourceBoundaryPinned}; directReadableStreamRowsAreSeparateEvidence=${coverage.safariWebKitStatus.directReadableStreamRowsAreSeparateEvidence}; directReadableStreamFullStringRows=${coverage.safariWebKitStatus.directReadableStreamFullStringRowsRecorded}; primarySyncByteBatchRows=${coverage.safariWebKitStatus.primarySyncByteBatchRowsRecorded}; boundedPrimarySyncByteBatchRows=${coverage.safariWebKitStatus.boundedPrimarySyncByteBatchRowsRecorded}; largeBoundedPrimarySyncByteBatchRows=${coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsRecorded}; primaryRowsInSameContractComparison=${coverage.safariWebKitStatus.primaryRowsInSameContractComparison}; largePrimaryRowsInSameContractComparison=${coverage.safariWebKitStatus.largePrimaryRowsInSameContractComparison}; closesSafariObligation=${coverage.safariWebKitStatus.closesSafariObligation}.`,
+            `exactBuildIdentityRecorded=${coverage.safariWebKitStatus.exactBuildIdentityRecorded}; sourceBoundaryPinned=${coverage.safariWebKitStatus.sourceBoundaryPinned}; directReadableStreamRowsAreSeparateEvidence=${coverage.safariWebKitStatus.directReadableStreamRowsAreSeparateEvidence}; directReadableStreamFullStringRows=${coverage.safariWebKitStatus.directReadableStreamFullStringRowsRecorded}; primarySyncByteBatchRows=${coverage.safariWebKitStatus.primarySyncByteBatchRowsRecorded}; boundedPrimarySyncByteBatchRows=${coverage.safariWebKitStatus.boundedPrimarySyncByteBatchRowsRecorded}; largeBoundedPrimarySyncByteBatchRows=${coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsRecorded}; acceptedClosureCaseRows=${coverage.safariWebKitStatus.acceptedClosureCaseRowsRecorded}; acceptedLargeBoundedPrimarySyncByteBatchRows=${coverage.safariWebKitStatus.acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded}; primaryRowsInSameContractComparison=${coverage.safariWebKitStatus.primaryRowsInSameContractComparison}; largePrimaryRowsInSameContractComparison=${coverage.safariWebKitStatus.largePrimaryRowsInSameContractComparison}; closesSafariObligation=${coverage.safariWebKitStatus.closesSafariObligation}.`,
           ].join(' ')
         : [
           'Bun/JSC and Bun-patched WebKit evidence is present, but no Safari/WebKit browser benchmark row was found.',
@@ -2107,13 +2122,15 @@ function renderMarkdown(report) {
     `Safari/WebKit 1 GiB+ bounded primary rows with measured exact build identity: ${report.coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsWithMeasuredExactBuildIdentity}`,
     `Safari/WebKit rows with row-level source pins: ${report.coverage.safariWebKitStatus.rowLevelSourceBoundaryPinnedRowsRecorded}`,
     `Safari/WebKit 1 GiB+ bounded primary rows with row-level source pins: ${report.coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsWithRowLevelSourceBoundaryPin}`,
+    `Safari/WebKit accepted closure case rows: ${report.coverage.safariWebKitStatus.acceptedClosureCaseRowsRecorded}`,
+    `Safari/WebKit accepted 1 GiB+ bounded primary rows: ${report.coverage.safariWebKitStatus.acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded}`,
     `Safari/WebKit primary rows in same-contract comparison: ${formatBoolean(report.coverage.safariWebKitStatus.primaryRowsInSameContractComparison)}`,
     `Safari/WebKit 1 GiB+ bounded primary rows in same-contract comparison: ${formatBoolean(report.coverage.safariWebKitStatus.largePrimaryRowsInSameContractComparison)}`,
     `Safari/WebKit obligation closed: ${formatBoolean(report.coverage.safariWebKitStatus.closesSafariObligation)}`,
     '',
-    '| Availability artifact | macOS host | Safari executable | safaridriver | Harness support | Runnable here | Browser rows | Full rows | Primary sync rows | Bounded primary rows | 1 GiB+ bounded primary rows | Comparison primary rows | 1 GiB+ comparison primary rows | Exact build identity | Source boundary pinned |',
-    '| --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |',
-    `| ${formatOptionalArtifact(report.coverage.safariWebKitStatus.availabilityArtifact)} | ${formatBoolean(report.coverage.safariWebKitStatus.hostIsMacOS)} | ${formatBoolean(report.coverage.safariWebKitStatus.safariExecutableFound)} | ${formatBoolean(report.coverage.safariWebKitStatus.safaridriverFound)} | ${formatBoolean(report.coverage.safariWebKitStatus.harnessSupportsSafari)} | ${formatBoolean(report.coverage.safariWebKitStatus.canRunSafariBrowserRows)} | ${report.coverage.safariWebKitStatus.benchmarkRowsRecorded} | ${report.coverage.safariWebKitStatus.fullStringRowsRecorded} | ${report.coverage.safariWebKitStatus.primarySyncByteBatchRowsRecorded} | ${report.coverage.safariWebKitStatus.boundedPrimarySyncByteBatchRowsRecorded} | ${report.coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsRecorded} | ${report.coverage.safariWebKitStatus.boundedPrimarySyncByteBatchRowsInSameContractComparison} | ${report.coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsInSameContractComparison} | ${formatBoolean(report.coverage.safariWebKitStatus.exactBuildIdentityRecorded)} | ${formatBoolean(report.coverage.safariWebKitStatus.sourceBoundaryPinned)} |`,
+    '| Availability artifact | macOS host | Safari executable | safaridriver | Harness support | Runnable here | Browser rows | Full rows | Primary sync rows | Bounded primary rows | 1 GiB+ bounded primary rows | Accepted case rows | Accepted 1 GiB+ primary rows | Comparison primary rows | 1 GiB+ comparison primary rows | Exact build identity | Source boundary pinned |',
+    '| --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |',
+    `| ${formatOptionalArtifact(report.coverage.safariWebKitStatus.availabilityArtifact)} | ${formatBoolean(report.coverage.safariWebKitStatus.hostIsMacOS)} | ${formatBoolean(report.coverage.safariWebKitStatus.safariExecutableFound)} | ${formatBoolean(report.coverage.safariWebKitStatus.safaridriverFound)} | ${formatBoolean(report.coverage.safariWebKitStatus.harnessSupportsSafari)} | ${formatBoolean(report.coverage.safariWebKitStatus.canRunSafariBrowserRows)} | ${report.coverage.safariWebKitStatus.benchmarkRowsRecorded} | ${report.coverage.safariWebKitStatus.fullStringRowsRecorded} | ${report.coverage.safariWebKitStatus.primarySyncByteBatchRowsRecorded} | ${report.coverage.safariWebKitStatus.boundedPrimarySyncByteBatchRowsRecorded} | ${report.coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsRecorded} | ${report.coverage.safariWebKitStatus.acceptedClosureCaseRowsRecorded} | ${report.coverage.safariWebKitStatus.acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded} | ${report.coverage.safariWebKitStatus.boundedPrimarySyncByteBatchRowsInSameContractComparison} | ${report.coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsInSameContractComparison} | ${formatBoolean(report.coverage.safariWebKitStatus.exactBuildIdentityRecorded)} | ${formatBoolean(report.coverage.safariWebKitStatus.sourceBoundaryPinned)} |`,
   );
 
   lines.push(

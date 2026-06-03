@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T07:45:12.819Z",
+  "generatedAt": "2026-06-03T07:58:27.513Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -362,7 +362,7 @@
     "comparisonJsLargeFullRowCount": 239,
     "comparisonCounterexampleCount": 0,
     "counterexampleScanLoaded": true,
-    "counterexampleScanGeneratedAt": "2026-06-03T07:44:58.950Z",
+    "counterexampleScanGeneratedAt": "2026-06-03T07:57:57.472Z",
     "thresholdMiBPerSec": 200,
     "minSizeGiB": 0.999,
     "scanParseErrorCount": 0,
@@ -699,7 +699,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T07:44:37.702Z",
+    "generatedAt": "2026-06-03T07:57:52.731Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open"
     ],
@@ -767,9 +767,9 @@
   },
   "handoffValidationSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T07:44:38.767Z",
-    "validatedHandoffGeneratedAt": "2026-06-03T07:44:37.702Z",
-    "currentHandoffGeneratedAt": "2026-06-03T07:44:37.702Z",
+    "generatedAt": "2026-06-03T07:57:56.958Z",
+    "validatedHandoffGeneratedAt": "2026-06-03T07:57:52.731Z",
+    "currentHandoffGeneratedAt": "2026-06-03T07:57:52.731Z",
     "pass": true,
     "missingScriptCount": 0,
     "nonReleaseOutputPathCount": 0,
@@ -839,11 +839,11 @@
   },
   "sourceAuditSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T07:44:58.095Z",
+    "generatedAt": "2026-06-03T07:58:16.227Z",
     "inputComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
     "currentComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
-    "inputCoverageGeneratedAt": "2026-06-03T07:44:19.970Z",
-    "currentCoverageGeneratedAt": "2026-06-03T07:44:19.970Z",
+    "inputCoverageGeneratedAt": "2026-06-03T07:57:31.329Z",
+    "currentCoverageGeneratedAt": "2026-06-03T07:57:31.329Z",
     "status": "classified",
     "primarySourceContract": "primary-sync-iterable-byte-batches",
     "primaryParserInput": "synchronous Iterable<Uint8Array[]>",
@@ -1039,7 +1039,7 @@
   },
   "coverageSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T07:44:19.970Z",
+    "generatedAt": "2026-06-03T07:57:31.329Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open"
     ],

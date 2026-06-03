@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-06-03T07:44:19.970Z
+Generated: 2026-06-03T07:57:31.329Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -104,13 +104,15 @@ Safari/WebKit rows with measured exact build identity: 0
 Safari/WebKit 1 GiB+ bounded primary rows with measured exact build identity: 0
 Safari/WebKit rows with row-level source pins: 0
 Safari/WebKit 1 GiB+ bounded primary rows with row-level source pins: 0
+Safari/WebKit accepted closure case rows: 0
+Safari/WebKit accepted 1 GiB+ bounded primary rows: 0
 Safari/WebKit primary rows in same-contract comparison: no
 Safari/WebKit 1 GiB+ bounded primary rows in same-contract comparison: no
 Safari/WebKit obligation closed: no
 
-| Availability artifact | macOS host | Safari executable | safaridriver | Harness support | Runnable here | Browser rows | Full rows | Primary sync rows | Bounded primary rows | 1 GiB+ bounded primary rows | Comparison primary rows | 1 GiB+ comparison primary rows | Exact build identity | Source boundary pinned |
-| --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| `safari-webkit-availability-audit.json` | no | no | no | yes | no | 0 | 0 | 0 | 0 | 0 | 0 | 0 | no | no |
+| Availability artifact | macOS host | Safari executable | safaridriver | Harness support | Runnable here | Browser rows | Full rows | Primary sync rows | Bounded primary rows | 1 GiB+ bounded primary rows | Accepted case rows | Accepted 1 GiB+ primary rows | Comparison primary rows | 1 GiB+ comparison primary rows | Exact build identity | Source boundary pinned |
+| --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| `safari-webkit-availability-audit.json` | no | no | no | yes | no | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | no | no |
 
 ## SpiderMonkey Diagnostic Surface
 

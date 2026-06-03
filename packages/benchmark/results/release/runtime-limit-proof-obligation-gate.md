@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-03T07:45:12.819Z
+Generated: 2026-06-03T07:58:27.513Z
 
 ## Scope
 
@@ -89,7 +89,7 @@ Disclosure-only guards: 4
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-03T07:44:19.970Z)
+- Coverage audit loaded: yes (2026-06-03T07:57:31.329Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open
 - Covered coverage obligations: firefox-browser-rows-open, codegen-traces-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey diagnostics rows vs closure candidates: 12/20 (gap=8, closureQualified=1)
@@ -121,7 +121,7 @@ Disclosure-only guards: 4
 - Same-contract comparison contract: same-full-string-checksum-contract-not-same-object-shape; publicEventCase=eventObjectFull; objectShapeEquivalence=false; memoryEquivalence=false
 - Same-contract comparison rows: 291/291; largeFullJsRows=239
 - Same-contract comparison counterexamples: 0
-- Runtime counterexample scan loaded: yes (2026-06-03T07:44:58.950Z)
+- Runtime counterexample scan loaded: yes (2026-06-03T07:57:57.472Z)
 - Counterexample scan contract: threshold=200.00 MiB/s, minSizeGiB=1.00, parseErrors=0
 - Counterexample scan coverage shape: artifacts=231/231, measuredRows=1269/1269
 - Counterexample scan aggregate surface: aggregateRows=182, largeFullAggregateRows=142, measuredCounterexamples=0, aggregateCounterexamples=0
@@ -141,7 +141,7 @@ Disclosure-only guards: 4
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-03T07:44:37.702Z)
+- Handoff loaded: yes (2026-06-03T07:57:52.731Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open
 - Handoff IDs: safari-webkit-browser-row-handoff
 
@@ -160,8 +160,8 @@ Disclosure-only guards: 4
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-03T07:44:38.767Z)
-- Handoff validation target handoff generatedAt: 2026-06-03T07:44:37.702Z (current 2026-06-03T07:44:37.702Z)
+- Handoff validation loaded: yes (2026-06-03T07:57:56.958Z)
+- Handoff validation target handoff generatedAt: 2026-06-03T07:57:52.731Z (current 2026-06-03T07:57:52.731Z)
 - Handoff validation pass: yes
 - Commands checked: 5
 - Scripts referenced: 14
@@ -193,8 +193,8 @@ Disclosure-only guards: 4
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-03T07:44:58.095Z)
-- Source audit inputs: comparison=2026-06-03T06:02:02.040Z (current 2026-06-03T06:02:02.040Z), coverage=2026-06-03T07:44:19.970Z (current 2026-06-03T07:44:19.970Z)
+- Source audit loaded: yes (2026-06-03T07:58:16.227Z)
+- Source audit inputs: comparison=2026-06-03T06:02:02.040Z (current 2026-06-03T06:02:02.040Z), coverage=2026-06-03T07:57:31.329Z (current 2026-06-03T07:57:31.329Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary source boundary: demand-driven StreamReaderSync parser pulls
