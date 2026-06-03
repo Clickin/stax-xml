@@ -77,7 +77,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 227);
+  assert.equal(report.summary.scannedArtifactCount, 228);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'text-materialization-frontier-coverage-audit.json'
     && artifact.objective === 'text-materialization-frontier-coverage-audit'
@@ -88,6 +88,15 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     artifact.sourceArtifact === 'runtime-proof-handoff-validation.json'
     && artifact.objective === 'runtime-proof-handoff-validation'
     && artifact.measuredRowCount === 0
+  ));
+  assert.ok(report.scannedArtifacts.some(artifact =>
+    artifact.sourceArtifact === 'firefox-spidermonkey-taskcluster-debug-browser-launch-preflight-audit.json'
+    && artifact.objective === 'firefox-spidermonkey-taskcluster-debug-browser-launch-preflight-audit'
+    && artifact.measuredRowCount === 0
+    && artifact.evidenceKinds.includes('NEGATIVE_RESULT')
+    && artifact.outcome.status === 'blocked-by-dll-blocklist-interceptor'
+    && artifact.outcome.sameContractStaxRow === false
+    && artifact.outcome.closesEmittedIrObligation === false
   ));
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json'
@@ -627,7 +636,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.traceArtifactCount, 19);
   assert.equal(report.summary.allocationArtifactCount, 16);
   assert.equal(report.summary.environmentArtifactCount, 5);
-  assert.equal(report.summary.negativeArtifactCount, 31);
+  assert.equal(report.summary.negativeArtifactCount, 32);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'firefox-spidermonkey-js-shell-availability-audit.json'
     && artifact.evidenceKinds.includes('ENVIRONMENT_FACT')
@@ -1305,6 +1314,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     closesSafariObligation: false,
   });
   assert.equal(report.coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount, 0);
+  assert.equal(report.coverage.spiderMonkeyDiagnostics.browserPreflight.status, 'blocked-by-dll-blocklist-interceptor');
+  assert.equal(report.coverage.spiderMonkeyDiagnostics.browserPreflight.sourceArtifact, 'firefox-spidermonkey-taskcluster-debug-browser-launch-preflight-audit.json');
+  assert.equal(report.coverage.spiderMonkeyDiagnostics.browserPreflight.sameContractStaxRow, false);
+  assert.equal(report.coverage.spiderMonkeyDiagnostics.browserPreflight.closesEmittedIrObligation, false);
   assert.equal(report.coverage.spiderMonkeyDiagnostics.diagnosticRowCount, 11);
   assert.equal(report.coverage.spiderMonkeyDiagnostics.closureAuditCandidateCount, 16);
   assert.equal(report.coverage.spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap, 5);
@@ -1485,13 +1498,13 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /16 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 5/);
   assert.match(markdown, /Source artifacts: 26/);
-  assert.match(markdown, /Scanned primary artifacts: 227/);
+  assert.match(markdown, /Scanned primary artifacts: 228/);
   assert.equal(report.summary.traceArtifactCount, 19);
-  assert.match(markdown, /Negative-result artifacts: 31/);
+  assert.match(markdown, /Negative-result artifacts: 32/);
   assert.match(markdown, /\| Node\/V8 \| 112 \| 597 \| 407 \|/);
   assert.match(markdown, /\| Bun\/JSC \| 42 \| 322 \| 209 \|/);
   assert.match(markdown, /\| Deno\/V8 \| 17 \| 128 \| 104 \|/);
-  assert.match(markdown, /\| Firefox\/SpiderMonkey browser \| 24 \| 82 \| 70 \|/);
+  assert.match(markdown, /\| Firefox\/SpiderMonkey browser \| 25 \| 82 \| 70 \|/);
   assert.match(markdown, /\| Java\/Woodstox \| 12 \| 13 \| 5 \|/);
   assert.match(markdown, /\| Rust\/quick-xml \| 11 \| 19 \| 5 \|/);
   assert.doesNotMatch(markdown, /\| unknown \| \d+ \| \d+ \| \d+ \|/);

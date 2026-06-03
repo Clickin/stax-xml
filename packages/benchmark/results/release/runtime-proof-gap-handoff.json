@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T23:38:38.398Z",
+  "generatedAt": "2026-06-03T02:52:53.236Z",
   "objective": "runtime-proof-gap-handoff",
   "contract": "external-proof-gap-runbook-linked-to-coverage-audit",
   "note": "Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.",
@@ -9,7 +9,7 @@
     "comparisonGeneratedAt": "2026-06-02T20:08:45.362Z",
     "comparisonObjective": "same-contract-runtime-comparison",
     "comparisonContract": "same-full-string-checksum-contract-not-same-object-shape",
-    "auditGeneratedAt": "2026-06-02T23:38:25.607Z",
+    "auditGeneratedAt": "2026-06-03T02:52:53.101Z",
     "auditObjective": "runtime-proof-coverage-audit",
     "auditContract": "static-release-artifact-proof-coverage"
   },
@@ -37,7 +37,7 @@
     "conclusionBlocker": "Open or partial obligations still require external runtime evidence before any runtime-limit conclusion."
   },
   "auditSummary": {
-    "artifactCount": 227,
+    "artifactCount": 228,
     "measuredRows": 1266,
     "counterexamples": null,
     "activeObligations": [
@@ -556,6 +556,7 @@
       "localRunnable": false,
       "evidenceArtifacts": [
         "firefox-spidermonkey-diagnostic-dump-audit.json",
+        "firefox-spidermonkey-taskcluster-debug-browser-launch-preflight-audit.json",
         "firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json",
         "firefox-spidermonkey-js-shell-availability-audit.json",
         "firefox-spidermonkey-release-jsshell-availability-audit.json",
@@ -580,6 +581,7 @@
       ],
       "blockers": [
         "Installed Firefox diagnostic dump audit emitted no JIT diagnostic dump.",
+        "Taskcluster debug Firefox browser launch preflight failed before harness startup at FIREFOX_PATH=G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe (attempts=2, dllBlocklistFailures=2, disableDllBlocklistChangedFailure=false), so this host cannot use that debug browser as same-contract SpiderMonkey closure evidence.",
         "Taskcluster debug Firefox browser diagnostic dump audit attempted FIREFOX_PATH=G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe but failed before same-contract BiDi execution (exitCode=1, emittedDump=false), so it is launch-failure evidence rather than emitted IR.",
         "Local SpiderMonkey JS shell candidates are available (2), but this availability audit records no emitted JIT IR or optimized-code dump.",
         "Official Firefox release jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface, bytecode dump status is bytecode-output-emitted, and it cannot run the current stax full-string benchmark unchanged.",
@@ -761,6 +763,7 @@
         "localRunnable": false,
         "evidenceArtifacts": [
           "firefox-spidermonkey-diagnostic-dump-audit.json",
+          "firefox-spidermonkey-taskcluster-debug-browser-launch-preflight-audit.json",
           "firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json",
           "firefox-spidermonkey-js-shell-availability-audit.json",
           "firefox-spidermonkey-release-jsshell-availability-audit.json",
@@ -785,6 +788,7 @@
         ],
         "blockers": [
           "Installed Firefox diagnostic dump audit emitted no JIT diagnostic dump.",
+          "Taskcluster debug Firefox browser launch preflight failed before harness startup at FIREFOX_PATH=G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe (attempts=2, dllBlocklistFailures=2, disableDllBlocklistChangedFailure=false), so this host cannot use that debug browser as same-contract SpiderMonkey closure evidence.",
           "Taskcluster debug Firefox browser diagnostic dump audit attempted FIREFOX_PATH=G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe but failed before same-contract BiDi execution (exitCode=1, emittedDump=false), so it is launch-failure evidence rather than emitted IR.",
           "Local SpiderMonkey JS shell candidates are available (2), but this availability audit records no emitted JIT IR or optimized-code dump.",
           "Official Firefox release jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface, bytecode dump status is bytecode-output-emitted, and it cannot run the current stax full-string benchmark unchanged.",

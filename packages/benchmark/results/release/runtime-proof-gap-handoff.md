@@ -1,13 +1,13 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-02T23:38:38.398Z
+Generated: 2026-06-03T02:52:53.236Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-06-02T23:38:25.607Z
+- Audit generated: 2026-06-03T02:52:53.101Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
 - Comparison generated: 2026-06-02T20:08:45.362Z
 - Active obligations: 2
@@ -18,7 +18,7 @@ Turns current open or partial runtime proof obligations into concrete external-r
 - Unhandled obligations: 0
 - External-run required closures: 2
 - Locally runnable closures: 0
-- Audit artifacts: 227
+- Audit artifacts: 228
 - Audit measured rows: 1266
 - Primary source consumption: synchronous Iterable<Uint8Array[]> byte batches
 - Direct ReadableStream scope: separate source-overhead evidence only
@@ -253,6 +253,7 @@ Scope guards:
 - Diagnostic identity status counts: not-claimed=4, not-claimed-non-stax-diagnostic=7
 - Local blockers:
   - Installed Firefox diagnostic dump audit emitted no JIT diagnostic dump.
+  - Taskcluster debug Firefox browser launch preflight failed before harness startup at FIREFOX_PATH=G:\tmp\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\extract\firefox\firefox.exe (attempts=2, dllBlocklistFailures=2, disableDllBlocklistChangedFailure=false), so this host cannot use that debug browser as same-contract SpiderMonkey closure evidence.
   - Taskcluster debug Firefox browser diagnostic dump audit attempted FIREFOX_PATH=G:\tmp\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\extract\firefox\firefox.exe but failed before same-contract BiDi execution (exitCode=1, emittedDump=false), so it is launch-failure evidence rather than emitted IR.
   - Local SpiderMonkey JS shell candidates are available (2), but this availability audit records no emitted JIT IR or optimized-code dump.
   - Official Firefox release jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface, bytecode dump status is bytecode-output-emitted, and it cannot run the current stax full-string benchmark unchanged.
@@ -275,7 +276,7 @@ Scope guards:
   - The SpiderMonkey codegen closure frontier has closestBlockedCandidateCount=5, minimumBlockedRequirementCount=4, closestBlockedCandidates=`spidermonkey-taskcluster-debug-jsshell-codegen-audit.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json`, and closest-candidate common missing requirements sameContractStaxRow=5, selectedRowMetadata=5, unchangedRunnable=5, evidenceClassAllowed=5.
   - The SpiderMonkey codegen rerun stability audit compares 2 original/rerun pairs, reproduces 2 pairs on the same Taskcluster build and codegen marker counts, but qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false, and conclusionAllowed=false.
   - Installed Firefox about:buildconfig records --enable-js-shell / MOZ_PACKAGE_JSSHELL but does not mention --enable-jitspew, JS_JITSPEW, or JS_STRUCTURED_SPEW.
-- Local evidence artifacts: firefox-spidermonkey-diagnostic-dump-audit.json, firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json, firefox-spidermonkey-js-shell-availability-audit.json, firefox-spidermonkey-release-jsshell-availability-audit.json, firefox-spidermonkey-nightly-jsshell-availability-audit.json, firefox-spidermonkey-profiler-trace.json, firefox-spidermonkey-jsshell-stax-api-gap-audit.json, stax-public-reader-host-api-boundary-audit.json, spidermonkey-jsshell-tokenizer-headroom.json, spidermonkey-jsshell-materialized-headroom.json, spidermonkey-jsshell-diagnostic-flag-sweep.json, spidermonkey-taskcluster-debug-jsshell-codegen-audit.json, spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json, spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json, spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json, spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json, spidermonkey-ascii-scope-distance-audit.json, spidermonkey-materialized-scope-distance-audit.json, spidermonkey-codegen-closure-audit.json, spidermonkey-codegen-rerun-stability-audit.json, spidermonkey-archival-debug-jsshell-codegen-audit.json, firefox-spidermonkey-buildconfig-source-pin-audit.json
+- Local evidence artifacts: firefox-spidermonkey-diagnostic-dump-audit.json, firefox-spidermonkey-taskcluster-debug-browser-launch-preflight-audit.json, firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json, firefox-spidermonkey-js-shell-availability-audit.json, firefox-spidermonkey-release-jsshell-availability-audit.json, firefox-spidermonkey-nightly-jsshell-availability-audit.json, firefox-spidermonkey-profiler-trace.json, firefox-spidermonkey-jsshell-stax-api-gap-audit.json, stax-public-reader-host-api-boundary-audit.json, spidermonkey-jsshell-tokenizer-headroom.json, spidermonkey-jsshell-materialized-headroom.json, spidermonkey-jsshell-diagnostic-flag-sweep.json, spidermonkey-taskcluster-debug-jsshell-codegen-audit.json, spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json, spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit.json, spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json, spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json, spidermonkey-ascii-scope-distance-audit.json, spidermonkey-materialized-scope-distance-audit.json, spidermonkey-codegen-closure-audit.json, spidermonkey-codegen-rerun-stability-audit.json, spidermonkey-archival-debug-jsshell-codegen-audit.json, firefox-spidermonkey-buildconfig-source-pin-audit.json
 
 Prerequisites:
 - Diagnostic-capable Firefox build or SpiderMonkey shell built with the required JitSpew/codegen diagnostics enabled.

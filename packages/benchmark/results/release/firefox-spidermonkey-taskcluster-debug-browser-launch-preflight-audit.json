@@ -1,0 +1,95 @@
+{
+  "generatedAt": "2026-06-03T02:49:00.569Z",
+  "objective": "firefox-spidermonkey-taskcluster-debug-browser-launch-preflight-audit",
+  "contract": "taskcluster-debug-firefox-browser-launch-preflight-not-same-contract-stax",
+  "note": "Checks whether the Taskcluster win64-debug Firefox browser can start at all on this Windows host before treating it as a same-contract SpiderMonkey browser codegen path. This is launch preflight evidence, not emitted IR, not benchmark throughput, and not a runtime-limit conclusion.",
+  "parameters": {
+    "browserExecutable": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe",
+    "timeoutMs": 30000,
+    "attemptedEnvOverrides": [
+      "MOZ_DISABLE_DLL_BLOCKLIST=1"
+    ]
+  },
+  "environment": {
+    "runtimeName": "browser",
+    "browserName": "Firefox",
+    "javascriptEngine": "SpiderMonkey",
+    "hostPlatform": "win32-x64"
+  },
+  "attempts": [
+    {
+      "id": "help-baseline",
+      "argv": [
+        "G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe",
+        "--help"
+      ],
+      "extraEnv": {},
+      "status": "failed",
+      "exitCode": 2147483651,
+      "signal": null,
+      "timedOut": false,
+      "error": null,
+      "stdoutTail": "",
+      "stderrTail": "DLL blocklist was unable to intercept AppInit DLLs.\r\n[13152] Assertion failure: false (MOZ_ASSERT_UNREACHABLE: Unrecognized opcode sequence), at \\builds\\worker\\workspace\\obj-build\\dist\\include\\mozilla\\interceptor\\PatcherDetour.h:1653\r\n#01: mozilla_net_is_label_safe[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x13396bf]\r\n#02: mozilla_net_is_label_safe[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x133732f]\r\n#03: mozilla_net_is_label_safe[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x133dbe5]\r\n#04: mozilla_net_is_label_safe[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x1336f11]\r\n#05: RtlRunOnceExecuteOnce[C:\\WINDOWS\\SYSTEM32\\ntdll.dll +0x98265]\r\n#06: InitOnceExecuteOnce[C:\\WINDOWS\\System32\\KERNELBASE.dll +0xb1d21]\r\n#07: mozilla_net_is_label_safe[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x1333469]\r\n#08: mozilla_net_is_label_safe[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x1340fe7]\r\n#09: CrashReporter::SetRemoteExceptionHandler[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x843759a]\r\n#10: CrashReporter::SetRemoteExceptionHandler[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x84382d8]\r\n#11: ???[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe +0x1815]\r\n#12: ???[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe +0x1217]\r\n#13: TargetNtUnmapViewOfSection[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe +0xd28d8]\r\n#14: BaseThreadInitThunk[C:\\WINDOWS\\System32\\KERNEL32.DLL +0x2e957]\r\n#15: RtlUserThreadStart[C:\\WINDOWS\\SYSTEM32\\ntdll.dll +0x427c]\r\n",
+      "dllBlocklistFailure": true,
+      "interceptorAssertion": true,
+      "bidiRunnable": false
+    },
+    {
+      "id": "help-disable-dll-blocklist",
+      "argv": [
+        "G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe",
+        "--help"
+      ],
+      "extraEnv": {
+        "MOZ_DISABLE_DLL_BLOCKLIST": "1"
+      },
+      "status": "failed",
+      "exitCode": 2147483651,
+      "signal": null,
+      "timedOut": false,
+      "error": null,
+      "stdoutTail": "",
+      "stderrTail": "DLL blocklist was unable to intercept AppInit DLLs.\r\n[26500] Assertion failure: false (MOZ_ASSERT_UNREACHABLE: Unrecognized opcode sequence), at \\builds\\worker\\workspace\\obj-build\\dist\\include\\mozilla\\interceptor\\PatcherDetour.h:1653\r\n#01: mozilla_net_is_label_safe[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x13396bf]\r\n#02: mozilla_net_is_label_safe[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x133732f]\r\n#03: mozilla_net_is_label_safe[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x133dbe5]\r\n#04: mozilla_net_is_label_safe[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x1336f11]\r\n#05: RtlRunOnceExecuteOnce[C:\\WINDOWS\\SYSTEM32\\ntdll.dll +0x98265]\r\n#06: InitOnceExecuteOnce[C:\\WINDOWS\\System32\\KERNELBASE.dll +0xb1d21]\r\n#07: mozilla_net_is_label_safe[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x1333469]\r\n#08: mozilla_net_is_label_safe[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x1340fe7]\r\n#09: CrashReporter::SetRemoteExceptionHandler[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x843759a]\r\n#10: CrashReporter::SetRemoteExceptionHandler[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x84382d8]\r\n#11: ???[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe +0x1815]\r\n#12: ???[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe +0x1217]\r\n#13: TargetNtUnmapViewOfSection[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe +0xd28d8]\r\n#14: BaseThreadInitThunk[C:\\WINDOWS\\System32\\KERNEL32.DLL +0x2e957]\r\n#15: RtlUserThreadStart[C:\\WINDOWS\\SYSTEM32\\ntdll.dll +0x427c]\r\n",
+      "dllBlocklistFailure": true,
+      "interceptorAssertion": true,
+      "bidiRunnable": false
+    }
+  ],
+  "outcome": {
+    "status": "blocked-by-dll-blocklist-interceptor",
+    "executablePresent": true,
+    "attemptCount": 2,
+    "startedAttemptCount": 0,
+    "failedAttemptCount": 2,
+    "dllBlocklistFailureCount": 2,
+    "disableDllBlocklistChangedFailure": false,
+    "canStartDebugBrowser": false,
+    "canRunCurrentStaxFullStringBenchmark": false,
+    "sameContractStaxRow": false,
+    "closesEmittedIrObligation": false,
+    "emittedDump": false,
+    "evidenceClass": "negative-diagnostic-surface"
+  },
+  "findings": [
+    {
+      "id": "taskcluster-debug-firefox-preflight-blocked",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "The Taskcluster debug Firefox browser fails during minimal process startup before any BiDi or StAX benchmark work can run.",
+      "evidence": [
+        "attempts=2",
+        "dllBlocklistFailures=2",
+        "disableDllBlocklistChangedFailure=false"
+      ]
+    },
+    {
+      "id": "debug-browser-preflight-scope",
+      "classification": "SCOPE_GUARD",
+      "summary": "This launch preflight is not SpiderMonkey emitted IR or same-contract StAX closure evidence.",
+      "evidence": [
+        "A failed debug browser startup cannot close codegen-traces-open.",
+        "A future debug browser that reaches BiDi must still emit IR or optimized-code metadata for a same-contract full-string StAX row."
+      ]
+    }
+  ]
+}

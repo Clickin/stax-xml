@@ -813,6 +813,7 @@ function summarizeSafariSourceBoundary(sourceBoundary = {}) {
 function summarizeSpiderMonkeyDiagnostics(artifacts, sameContractComparisonRows = []) {
   const byName = new Map(artifacts.map(artifact => [artifact.sourceArtifact, artifact]));
   const diagnosticDump = byName.get('firefox-spidermonkey-diagnostic-dump-audit.json') ?? null;
+  const taskclusterDebugBrowserPreflight = byName.get('firefox-spidermonkey-taskcluster-debug-browser-launch-preflight-audit.json') ?? null;
   const localJsShell = byName.get('firefox-spidermonkey-js-shell-availability-audit.json') ?? null;
   const releaseJsShell = byName.get('firefox-spidermonkey-release-jsshell-availability-audit.json') ?? null;
   const nightlyJsShell = byName.get('firefox-spidermonkey-nightly-jsshell-availability-audit.json') ?? null;
@@ -850,6 +851,7 @@ function summarizeSpiderMonkeyDiagnostics(artifacts, sameContractComparisonRows 
   const closureAuditConclusionAllowed = closureAudit?.summary?.conclusionAllowed ?? null;
   return {
     rows,
+    browserPreflight: summarizeSpiderMonkeyDiagnostic('taskcluster-debug-browser-launch-preflight', taskclusterDebugBrowserPreflight, sameContractComparisonRows),
     diagnosticRowCount: rows.length,
     diagnosticRowSourceArtifacts,
     closureAuditCandidateCount,
@@ -1785,8 +1787,12 @@ function summarizeOutcome(outcome = {}) {
     status: outcome.status ?? null,
     evidenceClass: typeof outcome.evidenceClass === 'string' ? outcome.evidenceClass : null,
     completed: typeof outcome.completed === 'boolean' ? outcome.completed : null,
+    canStartDebugBrowser: typeof outcome.canStartDebugBrowser === 'boolean' ? outcome.canStartDebugBrowser : null,
     emittedDump: typeof outcome.emittedDump === 'boolean' ? outcome.emittedDump : null,
     dumpFileCount: typeof outcome.dumpFileCount === 'number' ? outcome.dumpFileCount : null,
+    attemptCount: typeof outcome.attemptCount === 'number' ? outcome.attemptCount : null,
+    dllBlocklistFailureCount: typeof outcome.dllBlocklistFailureCount === 'number' ? outcome.dllBlocklistFailureCount : null,
+    disableDllBlocklistChangedFailure: typeof outcome.disableDllBlocklistChangedFailure === 'boolean' ? outcome.disableDllBlocklistChangedFailure : null,
     exitCode: typeof outcome.exitCode === 'number' ? outcome.exitCode : null,
     signal: typeof outcome.signal === 'string' ? outcome.signal : null,
     timedOut: typeof outcome.timedOut === 'boolean' ? outcome.timedOut : null,
@@ -2036,6 +2042,7 @@ function renderMarkdown(report) {
     `Emitted SpiderMonkey IR/codegen evidence artifacts: ${report.coverage.spiderMonkeyDiagnostics.emittedIrEvidenceCount}`,
     `Raw SpiderMonkey emitted-IR closure claims: ${report.coverage.spiderMonkeyDiagnostics.emittedIrClaimCount}`,
     `SpiderMonkey diagnostics rows vs closure candidates: ${report.coverage.spiderMonkeyDiagnostics.diagnosticRowCount ?? 'unknown'}/${report.coverage.spiderMonkeyDiagnostics.closureAuditCandidateCount ?? 'unknown'} (gap=${report.coverage.spiderMonkeyDiagnostics.closureAuditDiagnosticRowGap ?? 'unknown'}, closureQualified=${report.coverage.spiderMonkeyDiagnostics.closureAuditQualifiedClosureCount ?? 'unknown'})`,
+    `SpiderMonkey debug browser preflight: ${report.coverage.spiderMonkeyDiagnostics.browserPreflight?.status ?? 'not-recorded'} from ${report.coverage.spiderMonkeyDiagnostics.browserPreflight?.sourceArtifact ?? 'none'}`,
     `SpiderMonkey closure candidates outside coverage diagnostics: ${formatStringList(report.coverage.spiderMonkeyDiagnostics.closureAuditCandidateSourcesOutsideDiagnostics)}`,
     `SpiderMonkey coverage diagnostics outside closure candidates: ${formatStringList(report.coverage.spiderMonkeyDiagnostics.diagnosticSourcesOutsideClosureAudit)}`,
     `SpiderMonkey selected row identity statuses: ${formatCountMap(report.coverage.spiderMonkeyDiagnostics.selectedRowIdentityStatusCounts)}`,

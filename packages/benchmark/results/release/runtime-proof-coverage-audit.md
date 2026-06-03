@@ -1,12 +1,12 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-06-02T23:38:25.607Z
+Generated: 2026-06-03T02:52:53.101Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
 ## Summary
 
-- Scanned primary artifacts: 227
+- Scanned primary artifacts: 228
 - Ignored derived artifacts: 7
 - Measured rows recognized: 1266
 - Rows with unknown full-string parity: 0
@@ -24,7 +24,7 @@ This audit scans current release artifacts to show which proof obligations are c
 - Trace/profile artifacts: 19
 - Allocation artifacts: 16
 - Environment artifacts: 5
-- Negative-result artifacts: 31
+- Negative-result artifacts: 32
 - 1 GiB+ JS full-string rows: 848
 - 1 GiB+ JS full-string source-mode rows not using full ArrayBuffer parser input: 474/474
 - 1 GiB+ JS full-string separate direct ReadableStream source-overhead rows: 17
@@ -87,7 +87,7 @@ This classifies the parser input shape for 1 GiB+ JavaScript full-string rows th
 | Deno/V8 | 17 | 128 | 104 | rawFrameNameId 110.54 MiB/s from text-trim-cost-cross-process-books-corpus.json | 1 | 2 | 2 |
 | SpiderMonkey js-shell | 10 | 5 | 0 | none | 0 | 6 | 0 |
 | Chrome/V8 browser | 15 | 100 | 58 | rawFrameNameId 130.32 MiB/s from browser-candidate-headroom-cross-process-books-corpus.json | 2 | 1 | 1 |
-| Firefox/SpiderMonkey browser | 24 | 82 | 70 | rawFrameNameId 76.90 MiB/s from firefox-bidi-candidate-headroom-cross-process-books-corpus.json | 5 | 1 | 1 |
+| Firefox/SpiderMonkey browser | 25 | 82 | 70 | rawFrameNameId 76.90 MiB/s from firefox-bidi-candidate-headroom-cross-process-books-corpus.json | 5 | 1 | 1 |
 | Safari/WebKit browser | 1 | 0 | 0 | none | 0 | 0 | 0 |
 | Java/Woodstox | 12 | 13 | 5 | woodstox 351.56 MiB/s from file-backed-trim-boundary-check-candidate.json | 0 | 1 | 3 |
 | Rust/quick-xml | 11 | 19 | 5 | quick-xml 274.63 MiB/s from file-backed-short-attr-value-cache-candidate.json | 0 | 0 | 2 |
@@ -114,6 +114,7 @@ Safari/WebKit obligation closed: no
 Emitted SpiderMonkey IR/codegen evidence artifacts: 0
 Raw SpiderMonkey emitted-IR closure claims: 0
 SpiderMonkey diagnostics rows vs closure candidates: 11/16 (gap=5, closureQualified=0)
+SpiderMonkey debug browser preflight: blocked-by-dll-blocklist-interceptor from firefox-spidermonkey-taskcluster-debug-browser-launch-preflight-audit.json
 SpiderMonkey closure candidates outside coverage diagnostics: `firefox-spidermonkey-profiler-trace.json`, `spidermonkey-jsshell-materialized-headroom.json`, `spidermonkey-jsshell-tokenizer-headroom.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun.json`
 SpiderMonkey coverage diagnostics outside closure candidates: none
 SpiderMonkey selected row identity statuses: not-claimed=4, not-claimed-non-stax-diagnostic=7
