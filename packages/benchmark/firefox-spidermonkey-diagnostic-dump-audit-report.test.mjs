@@ -10,6 +10,8 @@ const repoRoot = resolve(__dirname, '..', '..');
 const tmpDir = join(__dirname, 'results', 'tmp');
 const jsonOut = join(tmpDir, 'firefox-spidermonkey-diagnostic-dump-audit-test.json');
 const mdOut = join(tmpDir, 'firefox-spidermonkey-diagnostic-dump-audit-test.md');
+const failedJsonOut = join(tmpDir, 'firefox-spidermonkey-diagnostic-dump-audit-failed-test.json');
+const failedMdOut = join(tmpDir, 'firefox-spidermonkey-diagnostic-dump-audit-failed-test.md');
 
 test('Firefox diagnostic dump audit records no-dump as a scoped negative result', () => {
   mkdirSync(tmpDir, { recursive: true });
@@ -53,4 +55,42 @@ test('Firefox diagnostic dump audit records no-dump as a scoped negative result'
   assert.match(markdown, /Emitted dump: no/);
   assert.match(markdown, /ION_SPEW_FILENAME/);
   assert.match(markdown, /keep the codegen proof obligation open/);
+});
+
+test('Firefox diagnostic dump audit distinguishes browser launch failure from completed no-dump', () => {
+  mkdirSync(tmpDir, { recursive: true });
+  for (const filePath of [failedJsonOut, failedMdOut]) {
+    if (existsSync(filePath)) rmSync(filePath);
+  }
+
+  const missingFirefox = join(tmpDir, 'missing-firefox.exe');
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'firefox-spidermonkey-diagnostic-dump-audit.mjs'),
+    '--json-out',
+    failedJsonOut,
+    '--md-out',
+    failedMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    env: {
+      ...process.env,
+      FIREFOX_PATH: missingFirefox,
+    },
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(failedJsonOut, 'utf8'));
+  assert.equal(report.outcome.status, 'failed');
+  assert.equal(report.outcome.completed, false);
+  assert.equal(report.outcome.emittedDump, false);
+  assert.equal(report.parameters.browserExecutable, missingFirefox);
+  assert.ok(report.findings.some(entry =>
+    entry.id === 'spidermonkey-diagnostic-browser-run-failed'
+    && entry.classification === 'NEGATIVE_RESULT'
+    && entry.evidence.some(item => /^exitCode=/.test(item))
+  ));
+  assert.equal(report.findings.some(entry => entry.id === 'spidermonkey-diagnostic-dump-not-emitted'), false);
 });

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T23:13:14.970Z",
+  "generatedAt": "2026-06-02T23:38:25.607Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -20,7 +20,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -40,7 +41,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -68,7 +70,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -88,7 +91,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -115,7 +119,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -141,7 +146,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -207,7 +213,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -273,7 +280,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -340,7 +348,8 @@
         "chrome-v8-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -367,7 +376,8 @@
         "chrome-v8-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -394,7 +404,8 @@
         "chrome-v8-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -421,7 +432,8 @@
         "chrome-v8-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -448,7 +460,8 @@
         "chrome-v8-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -475,7 +488,8 @@
         "chrome-v8-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -502,7 +516,8 @@
         "chrome-v8-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -529,7 +544,8 @@
         "chrome-v8-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -556,7 +572,8 @@
         "chrome-v8-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -576,7 +593,8 @@
         "chrome-v8-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -603,7 +621,8 @@
         "chrome-v8-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -631,7 +650,8 @@
         "chrome-v8-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -659,7 +679,8 @@
         "chrome-v8-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -686,7 +707,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -713,7 +735,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -740,7 +763,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -767,7 +791,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -794,7 +819,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -821,7 +847,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -848,7 +875,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -875,7 +903,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -902,7 +931,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -929,7 +959,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -956,7 +987,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -983,7 +1015,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1005,7 +1038,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1034,7 +1068,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1055,7 +1090,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1077,7 +1113,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1106,7 +1143,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1134,7 +1172,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1152,7 +1191,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1174,7 +1214,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1202,7 +1243,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1222,7 +1264,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1249,7 +1292,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1277,7 +1321,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1297,7 +1342,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1324,7 +1370,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1351,7 +1398,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1379,7 +1427,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1400,7 +1449,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1421,7 +1471,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1442,7 +1493,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1463,7 +1515,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1485,7 +1538,8 @@
         "deno-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1505,7 +1559,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1532,7 +1587,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1559,7 +1615,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1586,7 +1643,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1613,7 +1671,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1641,7 +1700,8 @@
         "chrome-v8-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1661,7 +1721,8 @@
         "chrome-v8-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1680,7 +1741,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1704,7 +1766,8 @@
       "evidenceKinds": [],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1731,7 +1794,8 @@
         "deno-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1751,7 +1815,8 @@
         "deno-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1771,7 +1836,8 @@
         "deno-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1798,7 +1864,8 @@
         "deno-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1826,7 +1893,8 @@
         "deno-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1846,7 +1914,8 @@
         "deno-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1873,7 +1942,8 @@
         "deno-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1900,7 +1970,8 @@
         "deno-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1927,7 +1998,8 @@
         "deno-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1955,7 +2027,8 @@
         "deno-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -1983,7 +2056,8 @@
         "deno-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2010,7 +2084,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2039,7 +2114,8 @@
         "deno-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2061,7 +2137,8 @@
         "deno-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2081,7 +2158,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2108,7 +2186,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2128,7 +2207,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2157,7 +2237,8 @@
         "quick-xml-rust"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2186,7 +2267,8 @@
         "quick-xml-rust"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2215,7 +2297,8 @@
         "quick-xml-rust"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2242,7 +2325,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2269,7 +2353,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2296,7 +2381,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2325,7 +2411,8 @@
         "quick-xml-rust"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2352,7 +2439,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2377,7 +2465,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2404,7 +2493,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2433,7 +2523,8 @@
         "quick-xml-rust"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2460,7 +2551,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2487,7 +2579,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2516,7 +2609,8 @@
         "quick-xml-rust"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2544,7 +2638,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2571,7 +2666,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2598,7 +2694,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2625,7 +2722,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2652,7 +2750,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2679,7 +2778,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2706,7 +2806,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2733,7 +2834,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2760,7 +2862,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2787,7 +2890,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2814,7 +2918,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2841,7 +2946,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": {
@@ -2850,6 +2956,9 @@
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
+        "exitCode": null,
+        "signal": "timeout",
+        "timedOut": null,
         "foundCount": null,
         "foundCandidates": null,
         "packageVerified": null,
@@ -2891,7 +3000,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -2913,7 +3023,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": "C:\\Program Files\\Mozilla Firefox\\firefox.exe"
       },
       "availability": null,
       "outcome": null,
@@ -2935,7 +3046,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": {
@@ -2944,6 +3056,9 @@
         "completed": true,
         "emittedDump": false,
         "dumpFileCount": 0,
+        "exitCode": 0,
+        "signal": null,
+        "timedOut": false,
         "foundCount": null,
         "foundCandidates": null,
         "packageVerified": null,
@@ -2985,7 +3100,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3009,7 +3125,8 @@
         "searchRoots": [
           "G:\\tmp\\stax-spidermonkey-jsshell\\extract",
           "G:\\tmp\\stax-spidermonkey-nightly-jsshell"
-        ]
+        ],
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": {
@@ -3018,6 +3135,9 @@
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
+        "exitCode": null,
+        "signal": null,
+        "timedOut": null,
         "foundCount": 2,
         "foundCandidates": [
           "G:\\tmp\\stax-spidermonkey-jsshell\\extract\\js.exe",
@@ -3062,7 +3182,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3134,7 +3255,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3156,7 +3278,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": {
@@ -3165,6 +3288,9 @@
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
+        "exitCode": null,
+        "signal": null,
+        "timedOut": null,
         "foundCount": null,
         "foundCandidates": null,
         "packageVerified": false,
@@ -3212,7 +3338,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3241,7 +3368,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": {
@@ -3250,6 +3378,9 @@
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
+        "exitCode": null,
+        "signal": null,
+        "timedOut": null,
         "foundCount": null,
         "foundCandidates": null,
         "packageVerified": true,
@@ -3295,10 +3426,65 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
+      "shell": null,
+      "fixture": null,
+      "corpusSeed": null,
+      "measuredRowCount": 0
+    },
+    {
+      "sourceArtifact": "firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json",
+      "objective": "firefox-spidermonkey-diagnostic-dump-audit",
+      "contract": "firefox-browser-spidermonkey-diagnostic-dump-availability",
+      "evidenceKinds": [
+        "NEGATIVE_RESULT",
+        "SCOPE_GUARD"
+      ],
+      "runtimes": [
+        "firefox-spidermonkey-browser"
+      ],
+      "parameters": {
+        "searchRoots": null,
+        "browserExecutable": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe"
+      },
+      "availability": null,
+      "outcome": {
+        "status": "failed",
+        "evidenceClass": null,
+        "completed": false,
+        "emittedDump": false,
+        "dumpFileCount": 0,
+        "exitCode": 1,
+        "signal": null,
+        "timedOut": false,
+        "foundCount": null,
+        "foundCandidates": null,
+        "packageVerified": null,
+        "hasJitExecutionStatus": null,
+        "hasIrDumpSurface": null,
+        "hasCodegenDumpOutput": null,
+        "hasXmlWorkloadCodegenOutput": null,
+        "hasMaterializedStringObjectCodegenOutput": null,
+        "hasBytecodeDumpOutput": null,
+        "bytecodeProbeCount": null,
+        "bytecodeOutputProbeCount": null,
+        "irOrCodegenProbeCount": null,
+        "hasDiagnosticPrefSurface": null,
+        "hasNativeDisassemblySurface": null,
+        "nativeDumpComplete": null,
+        "scopeComparableToCurrentFirefox": null,
+        "sameContractStaxRow": null,
+        "canReadBinaryInput": null,
+        "canRunCurrentStaxFullStringBenchmark": null,
+        "closesEmittedIrObligation": null,
+        "selectedRowId": null,
+        "selectedEventCount": null,
+        "selectedChecksum": null
+      },
       "shell": null,
       "fixture": null,
       "corpusSeed": null,
@@ -3316,7 +3502,8 @@
         "firefox-spidermonkey-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3336,7 +3523,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3363,7 +3551,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3390,7 +3579,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3417,7 +3607,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3444,7 +3635,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3471,7 +3663,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3502,7 +3695,8 @@
         "quick-xml-rust"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3521,7 +3715,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3540,7 +3735,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3559,7 +3755,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3579,7 +3776,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3605,7 +3803,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3673,7 +3872,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3693,7 +3893,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3720,7 +3921,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3745,7 +3947,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3812,7 +4015,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3838,7 +4042,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3905,7 +4110,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3932,7 +4138,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3959,7 +4166,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -3988,7 +4196,8 @@
         "deno-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4008,7 +4217,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4036,7 +4246,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4056,7 +4267,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4083,7 +4295,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4103,7 +4316,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4130,7 +4344,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4157,7 +4372,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4185,7 +4401,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4205,7 +4422,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4232,7 +4450,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4265,7 +4484,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4286,7 +4506,8 @@
         "quick-xml-rust"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4314,7 +4535,8 @@
         "quick-xml-rust"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4342,7 +4564,8 @@
         "quick-xml-rust"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4364,7 +4587,8 @@
         "quick-xml-rust"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4386,7 +4610,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4407,7 +4632,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4429,7 +4655,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4456,7 +4683,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4481,7 +4709,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4548,7 +4777,8 @@
         "safari-jsc-browser"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": {
         "hostIsMacOS": false,
@@ -4651,7 +4881,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4719,7 +4950,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4747,7 +4979,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4775,7 +5008,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4803,7 +5037,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4830,7 +5065,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4855,7 +5091,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -4923,7 +5160,8 @@
         "spidermonkey-jsshell"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": {
@@ -4932,6 +5170,9 @@
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
+        "exitCode": null,
+        "signal": null,
+        "timedOut": null,
         "foundCount": null,
         "foundCandidates": null,
         "packageVerified": null,
@@ -4980,7 +5221,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -5047,7 +5289,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -5185,7 +5428,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -5253,7 +5497,8 @@
         "spidermonkey-jsshell"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": {
@@ -5262,6 +5507,9 @@
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
+        "exitCode": null,
+        "signal": null,
+        "timedOut": null,
         "foundCount": null,
         "foundCandidates": null,
         "packageVerified": null,
@@ -5303,7 +5551,8 @@
         "spidermonkey-jsshell"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -5331,7 +5580,8 @@
         "spidermonkey-jsshell"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -5358,7 +5608,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": {
         "hostIsMacOS": null,
@@ -5483,7 +5734,8 @@
         "spidermonkey-jsshell"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": {
@@ -5492,6 +5744,9 @@
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
+        "exitCode": null,
+        "signal": null,
+        "timedOut": null,
         "foundCount": null,
         "foundCandidates": null,
         "packageVerified": null,
@@ -5554,7 +5809,8 @@
         "spidermonkey-jsshell"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": {
@@ -5563,6 +5819,9 @@
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
+        "exitCode": null,
+        "signal": null,
+        "timedOut": null,
         "foundCount": null,
         "foundCandidates": null,
         "packageVerified": null,
@@ -5625,7 +5884,8 @@
         "spidermonkey-jsshell"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": {
@@ -5634,6 +5894,9 @@
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
+        "exitCode": null,
+        "signal": null,
+        "timedOut": null,
         "foundCount": null,
         "foundCandidates": null,
         "packageVerified": null,
@@ -5703,7 +5966,8 @@
         "spidermonkey-jsshell"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": {
@@ -5712,6 +5976,9 @@
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
+        "exitCode": null,
+        "signal": null,
+        "timedOut": null,
         "foundCount": null,
         "foundCandidates": null,
         "packageVerified": null,
@@ -5780,7 +6047,8 @@
         "spidermonkey-jsshell"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": {
         "hostIsMacOS": null,
@@ -5872,7 +6140,8 @@
         "spidermonkey-jsshell"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": {
@@ -5881,6 +6150,9 @@
         "completed": null,
         "emittedDump": null,
         "dumpFileCount": null,
+        "exitCode": null,
+        "signal": null,
+        "timedOut": null,
         "foundCount": null,
         "foundCandidates": null,
         "packageVerified": null,
@@ -5949,7 +6221,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -5968,7 +6241,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6035,7 +6309,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6062,7 +6337,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6087,7 +6363,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6112,7 +6389,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6139,7 +6417,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6164,7 +6443,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6191,7 +6471,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6218,7 +6499,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6245,7 +6527,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6272,7 +6555,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6297,7 +6581,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6364,7 +6649,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6391,7 +6677,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6418,7 +6705,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6445,7 +6733,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6472,7 +6761,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6499,7 +6789,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6524,7 +6815,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6594,7 +6886,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6662,7 +6955,8 @@
       ],
       "runtimes": [],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6731,7 +7025,8 @@
         "deno-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6753,7 +7048,8 @@
         "deno-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6773,7 +7069,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6800,7 +7097,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6827,7 +7125,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6854,7 +7153,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6881,7 +7181,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6908,7 +7209,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6935,7 +7237,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6963,7 +7266,8 @@
         "bun-jsc"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -6983,7 +7287,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -7010,7 +7315,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -7037,7 +7343,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -7064,7 +7371,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -7091,7 +7399,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -7118,7 +7427,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -7143,7 +7453,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -7163,7 +7474,8 @@
         "node-v8"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -7184,7 +7496,8 @@
         "woodstox-jvm"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -7212,7 +7525,8 @@
         "woodstox-jvm"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -7240,7 +7554,8 @@
         "woodstox-jvm"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -7268,7 +7583,8 @@
         "woodstox-jvm"
       ],
       "parameters": {
-        "searchRoots": null
+        "searchRoots": null,
+        "browserExecutable": null
       },
       "availability": null,
       "outcome": null,
@@ -7296,7 +7612,7 @@
   ],
   "parseErrors": [],
   "summary": {
-    "scannedArtifactCount": 226,
+    "scannedArtifactCount": 227,
     "ignoredArtifactCount": 7,
     "parseErrorCount": 0,
     "measuredRowCount": 1266,
@@ -7322,7 +7638,7 @@
     "traceArtifactCount": 19,
     "allocationArtifactCount": 16,
     "environmentArtifactCount": 5,
-    "negativeArtifactCount": 30,
+    "negativeArtifactCount": 31,
     "largeJsFullRowCount": 848,
     "largeJsFullSourceInputSafety": {
       "rows": 848,
@@ -7766,7 +8082,7 @@
       {
         "runtimeId": "firefox-spidermonkey-browser",
         "runtimeLabel": "Firefox/SpiderMonkey browser",
-        "artifactCount": 23,
+        "artifactCount": 24,
         "measuredRowCount": 82,
         "largeFullStringRowCount": 70,
         "fastestLargeFullStringRow": {
@@ -10942,7 +11258,7 @@
           "fixtureSource": null,
           "fixtureShape": null,
           "corpusSeed": null,
-          "mibPerSec": 24.32,
+          "mibPerSec": 25.27,
           "fullStringParity": true,
           "boundedMemory": null,
           "memoryKind": "not-recorded",
@@ -12338,7 +12654,7 @@
           "fixtureSource": null,
           "fixtureShape": null,
           "corpusSeed": null,
-          "mibPerSec": 24.32,
+          "mibPerSec": 25.27,
           "fullStringParity": true,
           "boundedMemory": null,
           "memoryKind": "not-recorded",
@@ -13734,7 +14050,7 @@
           "fixtureSource": null,
           "fixtureShape": null,
           "corpusSeed": null,
-          "mibPerSec": 24.32,
+          "mibPerSec": 25.27,
           "fullStringParity": true,
           "boundedMemory": null,
           "memoryKind": "not-recorded",
@@ -26552,7 +26868,8 @@
           "chrome-v8-browser"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -26581,7 +26898,8 @@
           "bun-jsc"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -26610,7 +26928,8 @@
           "bun-jsc"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -26632,7 +26951,8 @@
           "bun-jsc"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -26661,7 +26981,8 @@
           "bun-jsc"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -26689,7 +27010,8 @@
           "deno-v8"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -26717,7 +27039,8 @@
           "deno-v8"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -26745,7 +27068,8 @@
           "node-v8"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -26774,7 +27098,8 @@
           "firefox-spidermonkey-browser"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -26802,7 +27127,8 @@
           "spidermonkey-jsshell"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": {
@@ -26811,6 +27137,9 @@
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
+          "exitCode": null,
+          "signal": null,
+          "timedOut": null,
           "foundCount": null,
           "foundCandidates": null,
           "packageVerified": null,
@@ -26860,7 +27189,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -26998,7 +27328,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27067,7 +27398,8 @@
           "spidermonkey-jsshell"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": {
@@ -27076,6 +27408,9 @@
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
+          "exitCode": null,
+          "signal": null,
+          "timedOut": null,
           "foundCount": null,
           "foundCandidates": null,
           "packageVerified": null,
@@ -27138,7 +27473,8 @@
           "spidermonkey-jsshell"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": {
@@ -27147,6 +27483,9 @@
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
+          "exitCode": null,
+          "signal": null,
+          "timedOut": null,
           "foundCount": null,
           "foundCandidates": null,
           "packageVerified": null,
@@ -27209,7 +27548,8 @@
           "spidermonkey-jsshell"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": {
@@ -27218,6 +27558,9 @@
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
+          "exitCode": null,
+          "signal": null,
+          "timedOut": null,
           "foundCount": null,
           "foundCandidates": null,
           "packageVerified": null,
@@ -27287,7 +27630,8 @@
           "spidermonkey-jsshell"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": {
@@ -27296,6 +27640,9 @@
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
+          "exitCode": null,
+          "signal": null,
+          "timedOut": null,
           "foundCount": null,
           "foundCandidates": null,
           "packageVerified": null,
@@ -27366,7 +27713,8 @@
           "spidermonkey-jsshell"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": {
@@ -27375,6 +27723,9 @@
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
+          "exitCode": null,
+          "signal": null,
+          "timedOut": null,
           "foundCount": null,
           "foundCandidates": null,
           "packageVerified": null,
@@ -27442,7 +27793,8 @@
           "node-v8"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27470,7 +27822,8 @@
           "woodstox-jvm"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27500,7 +27853,8 @@
           "chrome-v8-browser"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27528,7 +27882,8 @@
           "bun-jsc"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27550,7 +27905,8 @@
           "bun-jsc"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27577,7 +27933,8 @@
           "deno-v8"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27604,7 +27961,8 @@
           "deno-v8"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27632,7 +27990,8 @@
           "firefox-spidermonkey-browser"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27653,7 +28012,8 @@
           "quick-xml-rust"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27681,7 +28041,8 @@
           "quick-xml-rust"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27708,7 +28069,8 @@
           "node-v8"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27735,7 +28097,8 @@
           "node-v8"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27762,7 +28125,8 @@
           "node-v8"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27789,7 +28153,8 @@
           "node-v8"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27816,7 +28181,8 @@
           "node-v8"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27844,7 +28210,8 @@
           "woodstox-jvm"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27872,7 +28239,8 @@
           "woodstox-jvm"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27900,7 +28268,8 @@
           "woodstox-jvm"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27930,7 +28299,8 @@
           "bun-jsc"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27951,7 +28321,8 @@
           "bun-jsc"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27972,7 +28343,8 @@
           "bun-jsc"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -27993,7 +28365,8 @@
           "chrome-v8-browser"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28013,7 +28386,8 @@
           "chrome-v8-browser"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28034,7 +28408,8 @@
           "deno-v8"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28056,7 +28431,8 @@
           "firefox-spidermonkey-browser"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": "C:\\Program Files\\Mozilla Firefox\\firefox.exe"
         },
         "availability": null,
         "outcome": null,
@@ -28077,7 +28453,8 @@
           "firefox-spidermonkey-browser"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28097,7 +28474,8 @@
           "firefox-spidermonkey-browser"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28117,7 +28495,8 @@
           "firefox-spidermonkey-browser"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28138,7 +28517,8 @@
           "firefox-spidermonkey-browser"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28162,7 +28542,8 @@
           "quick-xml-rust"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28180,7 +28561,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28246,7 +28628,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28314,7 +28697,8 @@
           "node-v8"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28336,7 +28720,8 @@
           "quick-xml-rust"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28358,7 +28743,8 @@
           "node-v8"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28380,7 +28766,8 @@
           "node-v8"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28405,7 +28792,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28471,7 +28859,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28538,7 +28927,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": {
           "hostIsMacOS": null,
@@ -28662,7 +29052,8 @@
           "node-v8"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28681,7 +29072,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28746,7 +29138,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28811,7 +29204,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28881,7 +29275,8 @@
           "bun-jsc"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -28954,7 +29349,8 @@
           "searchRoots": [
             "G:\\tmp\\stax-spidermonkey-jsshell\\extract",
             "G:\\tmp\\stax-spidermonkey-nightly-jsshell"
-          ]
+          ],
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": {
@@ -28963,6 +29359,9 @@
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
+          "exitCode": null,
+          "signal": null,
+          "timedOut": null,
           "foundCount": 2,
           "foundCandidates": [
             "G:\\tmp\\stax-spidermonkey-jsshell\\extract\\js.exe",
@@ -29008,7 +29407,8 @@
           "firefox-spidermonkey-browser"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": {
@@ -29017,6 +29417,9 @@
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
+          "exitCode": null,
+          "signal": null,
+          "timedOut": null,
           "foundCount": null,
           "foundCandidates": null,
           "packageVerified": false,
@@ -29064,7 +29467,8 @@
           "firefox-spidermonkey-browser"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": {
@@ -29073,6 +29477,9 @@
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
+          "exitCode": null,
+          "signal": null,
+          "timedOut": null,
           "foundCount": null,
           "foundCandidates": null,
           "packageVerified": true,
@@ -29118,7 +29525,8 @@
           "safari-jsc-browser"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": {
           "hostIsMacOS": false,
@@ -29223,7 +29631,8 @@
           "spidermonkey-jsshell"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": {
           "hostIsMacOS": null,
@@ -29313,7 +29722,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -29379,7 +29789,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -29445,7 +29856,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -29511,7 +29923,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -29531,7 +29944,8 @@
           "firefox-spidermonkey-browser"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": {
@@ -29540,6 +29954,9 @@
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
+          "exitCode": null,
+          "signal": "timeout",
+          "timedOut": null,
           "foundCount": null,
           "foundCandidates": null,
           "packageVerified": null,
@@ -29582,7 +29999,8 @@
           "firefox-spidermonkey-browser"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": "C:\\Program Files\\Mozilla Firefox\\firefox.exe"
         },
         "availability": null,
         "outcome": null,
@@ -29604,7 +30022,8 @@
           "firefox-spidermonkey-browser"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": {
@@ -29613,6 +30032,9 @@
           "completed": true,
           "emittedDump": false,
           "dumpFileCount": 0,
+          "exitCode": 0,
+          "signal": null,
+          "timedOut": false,
           "foundCount": null,
           "foundCandidates": null,
           "packageVerified": null,
@@ -29654,7 +30076,8 @@
           "firefox-spidermonkey-browser"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -29728,7 +30151,8 @@
           "firefox-spidermonkey-browser"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": {
@@ -29737,6 +30161,9 @@
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
+          "exitCode": null,
+          "signal": null,
+          "timedOut": null,
           "foundCount": null,
           "foundCandidates": null,
           "packageVerified": false,
@@ -29784,7 +30211,8 @@
           "firefox-spidermonkey-browser"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": {
@@ -29793,6 +30221,9 @@
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
+          "exitCode": null,
+          "signal": null,
+          "timedOut": null,
           "foundCount": null,
           "foundCandidates": null,
           "packageVerified": true,
@@ -29828,6 +30259,60 @@
         "measuredRowCount": 0
       },
       {
+        "sourceArtifact": "firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json",
+        "objective": "firefox-spidermonkey-diagnostic-dump-audit",
+        "contract": "firefox-browser-spidermonkey-diagnostic-dump-availability",
+        "evidenceKinds": [
+          "NEGATIVE_RESULT",
+          "SCOPE_GUARD"
+        ],
+        "runtimes": [
+          "firefox-spidermonkey-browser"
+        ],
+        "parameters": {
+          "searchRoots": null,
+          "browserExecutable": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe"
+        },
+        "availability": null,
+        "outcome": {
+          "status": "failed",
+          "evidenceClass": null,
+          "completed": false,
+          "emittedDump": false,
+          "dumpFileCount": 0,
+          "exitCode": 1,
+          "signal": null,
+          "timedOut": false,
+          "foundCount": null,
+          "foundCandidates": null,
+          "packageVerified": null,
+          "hasJitExecutionStatus": null,
+          "hasIrDumpSurface": null,
+          "hasCodegenDumpOutput": null,
+          "hasXmlWorkloadCodegenOutput": null,
+          "hasMaterializedStringObjectCodegenOutput": null,
+          "hasBytecodeDumpOutput": null,
+          "bytecodeProbeCount": null,
+          "bytecodeOutputProbeCount": null,
+          "irOrCodegenProbeCount": null,
+          "hasDiagnosticPrefSurface": null,
+          "hasNativeDisassemblySurface": null,
+          "nativeDumpComplete": null,
+          "scopeComparableToCurrentFirefox": null,
+          "sameContractStaxRow": null,
+          "canReadBinaryInput": null,
+          "canRunCurrentStaxFullStringBenchmark": null,
+          "closesEmittedIrObligation": null,
+          "selectedRowId": null,
+          "selectedEventCount": null,
+          "selectedChecksum": null
+        },
+        "shell": null,
+        "fixture": null,
+        "corpusSeed": null,
+        "measuredRowCount": 0
+      },
+      {
         "sourceArtifact": "materialization-contract-audit.json",
         "objective": "materialization-contract-audit",
         "contract": "semantic-materialization-not-object-shape",
@@ -29842,7 +30327,8 @@
           "quick-xml-rust"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -29861,7 +30347,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -29880,7 +30367,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -29899,7 +30387,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -29918,7 +30407,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -29986,7 +30476,8 @@
           "quick-xml-rust"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -30008,7 +30499,8 @@
           "node-v8"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -30030,7 +30522,8 @@
           "node-v8"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -30056,7 +30549,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -30123,7 +30617,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -30261,7 +30756,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -30329,7 +30825,8 @@
           "spidermonkey-jsshell"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": {
@@ -30338,6 +30835,9 @@
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
+          "exitCode": null,
+          "signal": null,
+          "timedOut": null,
           "foundCount": null,
           "foundCandidates": null,
           "packageVerified": null,
@@ -30378,7 +30878,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": {
           "hostIsMacOS": null,
@@ -30503,7 +31004,8 @@
           "spidermonkey-jsshell"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": {
@@ -30512,6 +31014,9 @@
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
+          "exitCode": null,
+          "signal": null,
+          "timedOut": null,
           "foundCount": null,
           "foundCandidates": null,
           "packageVerified": null,
@@ -30574,7 +31079,8 @@
           "spidermonkey-jsshell"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": {
@@ -30583,6 +31089,9 @@
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
+          "exitCode": null,
+          "signal": null,
+          "timedOut": null,
           "foundCount": null,
           "foundCandidates": null,
           "packageVerified": null,
@@ -30645,7 +31154,8 @@
           "spidermonkey-jsshell"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": {
@@ -30654,6 +31164,9 @@
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
+          "exitCode": null,
+          "signal": null,
+          "timedOut": null,
           "foundCount": null,
           "foundCandidates": null,
           "packageVerified": null,
@@ -30723,7 +31236,8 @@
           "spidermonkey-jsshell"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": {
@@ -30732,6 +31246,9 @@
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
+          "exitCode": null,
+          "signal": null,
+          "timedOut": null,
           "foundCount": null,
           "foundCandidates": null,
           "packageVerified": null,
@@ -30802,7 +31319,8 @@
           "spidermonkey-jsshell"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": {
@@ -30811,6 +31329,9 @@
           "completed": null,
           "emittedDump": null,
           "dumpFileCount": null,
+          "exitCode": null,
+          "signal": null,
+          "timedOut": null,
           "foundCount": null,
           "foundCandidates": null,
           "packageVerified": null,
@@ -30881,7 +31402,8 @@
           "bun-jsc"
         ],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -30949,7 +31471,8 @@
         ],
         "runtimes": [],
         "parameters": {
-          "searchRoots": null
+          "searchRoots": null,
+          "browserExecutable": null
         },
         "availability": null,
         "outcome": null,
@@ -31023,7 +31546,7 @@
     {
       "id": "codegen-traces-open",
       "status": "partial",
-      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Deno/V8 codegen trace evidence present (2 artifacts). Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey local js-shell availability audit present (status=available, found=2, searchRoots=2); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is bytecode/JIT-status diagnostic evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is bytecode/JIT-status diagnostic evidence only, not emitted JIT IR. Current StAX public reader host API boundary audit present (primarySyncByteBatchRequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, alternateDecoderWouldBeUnchangedClosure=false); it pins why a js-shell alternate decoder or polyfill is not unchanged StAX public-reader closure evidence. Firefox/SpiderMonkey js-shell StAX API gap audit present (status=blocked-by-host-api-surface, unchangedRunnableShells=0/2, blockedSurfaces=5, directUnchangedHarnessAttemptsBlocked=10/10, commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch); it is host API surface evidence only, not emitted JIT IR. Firefox/SpiderMonkey public js-shell diagnostic flag sweep present (bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false); it rules out easy public-shell bytecode/dump flag paths but is not emitted JIT IR. Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell materialized string/object codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark. Firefox/SpiderMonkey codegen rerun stability audit present (pairs=2, reproduciblePairs=2, sameTaskclusterBuildPairs=2, sameCodegenMarkerPairs=2, qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false); it proves diagnostic rerun reproducibility but still not same-contract StAX closure. Firefox/SpiderMonkey ASCII scope-distance audit present (corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, reducesScopeDistance=true, closesCodegenObligation=false); it narrows ASCII materialized js-shell scope but is not unchanged StAX closure evidence. Firefox/SpiderMonkey materialized scope-distance audit present (semanticEquivalentForAsciiFields=true, closureRequirementsMet=2, closureRequirementsBlocked=4, primarySyncByteBatchMissingGlobals=TextDecoder, asciiTextDecoderEquivalent=true, diagnosticThroughputMiBPerSec=0.7656093369946506, throughputCountsAsTargetEvidence=false, closesCodegenObligation=false); it records why the materialized js-shell codegen artifact is useful but still not closure evidence. Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.",
+      "evidence": "Node/V8 trace evidence present. Bun/JSC codegen/IR evidence present. Chrome/V8 browser codegen trace evidence present. Deno/V8 codegen trace evidence present (2 artifacts). Firefox/SpiderMonkey Gecko Profiler trace evidence present. Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR. Firefox/SpiderMonkey installed buildconfig source pin present (buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true). Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=no-dump-emitted, dumpFiles=0). Firefox/SpiderMonkey Taskcluster debug browser diagnostic dump audit was attempted with FIREFOX_PATH=G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe and failed before same-contract BiDi execution (status=failed, exitCode=1, emittedDump=false). Firefox/SpiderMonkey local js-shell availability audit present (status=available, found=2, searchRoots=2); no emitted JIT IR is recorded by that audit. Firefox/SpiderMonkey official release js-shell audit present (status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is bytecode/JIT-status diagnostic evidence only, not emitted JIT IR. Firefox/SpiderMonkey official nightly js-shell audit present (status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false); it is bytecode/JIT-status diagnostic evidence only, not emitted JIT IR. Current StAX public reader host API boundary audit present (primarySyncByteBatchRequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, alternateDecoderWouldBeUnchangedClosure=false); it pins why a js-shell alternate decoder or polyfill is not unchanged StAX public-reader closure evidence. Firefox/SpiderMonkey js-shell StAX API gap audit present (status=blocked-by-host-api-surface, unchangedRunnableShells=0/2, blockedSurfaces=5, directUnchangedHarnessAttemptsBlocked=10/10, commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch); it is host API surface evidence only, not emitted JIT IR. Firefox/SpiderMonkey public js-shell diagnostic flag sweep present (bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false); it rules out easy public-shell bytecode/dump flag paths but is not emitted JIT IR. Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row. Firefox/SpiderMonkey current Taskcluster debug js-shell materialized string/object codegen audit present (taskId=azB5UO80Q3KJPPyXD0C8tA, buildId=20260602214419, sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark. Firefox/SpiderMonkey codegen rerun stability audit present (pairs=2, reproduciblePairs=2, sameTaskclusterBuildPairs=2, sameCodegenMarkerPairs=2, qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false); it proves diagnostic rerun reproducibility but still not same-contract StAX closure. Firefox/SpiderMonkey ASCII scope-distance audit present (corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, reducesScopeDistance=true, closesCodegenObligation=false); it narrows ASCII materialized js-shell scope but is not unchanged StAX closure evidence. Firefox/SpiderMonkey materialized scope-distance audit present (semanticEquivalentForAsciiFields=true, closureRequirementsMet=2, closureRequirementsBlocked=4, primarySyncByteBatchMissingGlobals=TextDecoder, asciiTextDecoderEquivalent=true, diagnosticThroughputMiBPerSec=0.7656093369946506, throughputCountsAsTargetEvidence=false, closesCodegenObligation=false); it records why the materialized js-shell codegen artifact is useful but still not closure evidence. Firefox/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing.",
       "nextExperiment": "Capture runtime-specific optimized-code or IR evidence for the fastest full-string rows, especially Firefox/SpiderMonkey and any future Safari/WebKit rows."
     },
     {
@@ -31113,7 +31636,7 @@
       "fixtureSource": null,
       "fixtureShape": null,
       "corpusSeed": null,
-      "mibPerSec": 24.32,
+      "mibPerSec": 25.27,
       "fullStringParity": true,
       "memoryKind": "not-recorded",
       "eventCount": 4985,

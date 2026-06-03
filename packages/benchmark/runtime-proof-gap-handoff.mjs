@@ -548,6 +548,7 @@ function createLocalClosure(activeObligations, audit, options = {}) {
 
   if (activeById.has('codegen-traces-open')) {
     const diagnostic = artifactByName.get('firefox-spidermonkey-diagnostic-dump-audit.json') ?? null;
+    const taskclusterDebugBrowserDiagnostic = artifactByName.get('firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json') ?? null;
     const jsShell = artifactByName.get('firefox-spidermonkey-js-shell-availability-audit.json') ?? null;
     const releaseJsShell = artifactByName.get('firefox-spidermonkey-release-jsshell-availability-audit.json') ?? null;
     const nightlyJsShell = artifactByName.get('firefox-spidermonkey-nightly-jsshell-availability-audit.json') ?? null;
@@ -589,6 +590,9 @@ function createLocalClosure(activeObligations, audit, options = {}) {
     const diagnosticIdentityStatusCounts = audit.coverage?.spiderMonkeyDiagnostics?.selectedRowIdentityStatusCounts ?? {};
     const diagnosticNoDump = diagnostic?.outcome?.status === 'no-dump-emitted'
       && diagnostic?.outcome?.emittedDump === false;
+    const taskclusterDebugBrowserDiagnosticFailed = taskclusterDebugBrowserDiagnostic?.outcome?.status === 'failed'
+      && taskclusterDebugBrowserDiagnostic?.outcome?.completed === false
+      && taskclusterDebugBrowserDiagnostic?.outcome?.emittedDump === false;
     const jsShellMissing = jsShell?.outcome?.status === 'not-found'
       && jsShell?.outcome?.foundCount === 0;
     const jsShellAvailable = jsShell?.outcome?.status === 'available'
@@ -699,13 +703,16 @@ function createLocalClosure(activeObligations, audit, options = {}) {
       obligationId: 'codegen-traces-open',
       localStatus: blocked ? 'external-run-required' : 'partial-local-status',
       localRunnable: blocked ? false : null,
-      evidenceArtifacts: [diagnostic, jsShell, releaseJsShell, nightlyJsShell, profilerTrace, jsShellApiGap, staxHostApiBoundary, jsShellTokenizerHeadroom, jsShellMaterializedHeadroom, jsShellDiagnosticFlagSweep, taskclusterDebugJsShell, taskclusterDebugJsShellXml, taskclusterDebugJsShellMaterialized, taskclusterDebugJsShellRerun, taskclusterDebugJsShellMaterializedRerun, asciiScopeDistance, materializedScopeDistance, codegenClosureAudit, codegenRerunStability, archivalDebugJsShell, buildconfig]
+      evidenceArtifacts: [diagnostic, taskclusterDebugBrowserDiagnostic, jsShell, releaseJsShell, nightlyJsShell, profilerTrace, jsShellApiGap, staxHostApiBoundary, jsShellTokenizerHeadroom, jsShellMaterializedHeadroom, jsShellDiagnosticFlagSweep, taskclusterDebugJsShell, taskclusterDebugJsShellXml, taskclusterDebugJsShellMaterialized, taskclusterDebugJsShellRerun, taskclusterDebugJsShellMaterializedRerun, asciiScopeDistance, materializedScopeDistance, codegenClosureAudit, codegenRerunStability, archivalDebugJsShell, buildconfig]
         .filter(Boolean)
         .map(artifact => artifact.sourceArtifact),
       blockers: [
         diagnosticNoDump
           ? 'Installed Firefox diagnostic dump audit emitted no JIT diagnostic dump.'
           : 'Installed Firefox diagnostic dump status is not a confirmed no-dump result.',
+        taskclusterDebugBrowserDiagnosticFailed
+          ? `Taskcluster debug Firefox browser diagnostic dump audit attempted FIREFOX_PATH=${taskclusterDebugBrowserDiagnostic.parameters?.browserExecutable ?? 'unknown'} but failed before same-contract BiDi execution (exitCode=${taskclusterDebugBrowserDiagnostic.outcome?.exitCode ?? 'unknown'}, emittedDump=${taskclusterDebugBrowserDiagnostic.outcome?.emittedDump ?? 'unknown'}), so it is launch-failure evidence rather than emitted IR.`
+          : 'Taskcluster debug Firefox browser diagnostic dump audit is missing or did not record a launch-failure negative result.',
         jsShellMissing
           ? 'No local SpiderMonkey JS shell was found for JIT IR probing across env, PATH, and filesystem search-root probes.'
           : jsShellAvailable

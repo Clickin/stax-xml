@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T16:01:02.545Z",
+  "generatedAt": "2026-06-02T23:28:09.142Z",
   "objective": "firefox-spidermonkey-diagnostic-dump-audit",
   "contract": "firefox-browser-spidermonkey-diagnostic-dump-availability",
   "note": "Attempts to collect SpiderMonkey JIT diagnostic dump output from the installed Firefox browser while running the same browser reader harness. This is an availability audit; if no dump is emitted, it is not JIT IR evidence and must not be counted as optimized-code proof.",
@@ -13,6 +13,7 @@
     ],
     "browserTimeoutMs": 180000,
     "outputDir": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\firefox-spidermonkey-diagnostic-dump-audit",
+    "browserExecutable": null,
     "diagnosticEnv": {
       "IONFLAGS": "logs,codegen,mir,lir,aborts,scripts",
       "ION_SPEW_FILENAME": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\firefox-spidermonkey-diagnostic-dump-audit\\ion-spew.log",
@@ -32,7 +33,7 @@
     "signal": null,
     "timedOut": false,
     "error": null,
-    "stdoutTail": "Wrote firefox-bidi-candidate-headroom: 107600 bytes\nFastest partial: n/a\nFastest full: rawFrameNameId 24.32 MiB/s\n",
+    "stdoutTail": "Wrote firefox-bidi-candidate-headroom: 107600 bytes\nFastest partial: n/a\nFastest full: rawFrameNameId 25.27 MiB/s\n",
     "stderrTail": "",
     "dumpFiles": []
   },
@@ -52,7 +53,7 @@
   "variants": [
     {
       "id": "rawFrameNameId",
-      "mibPerSec": 24.316435176614178,
+      "mibPerSec": 25.274718336284206,
       "eventCount": 4985,
       "checksum": 1856142966,
       "fullStringParity": true
@@ -72,7 +73,7 @@
       "classification": "BENCH_FACT",
       "summary": "The Firefox browser reader harness completed while SpiderMonkey diagnostic dump environment variables were set.",
       "evidence": [
-        "rawFrameNameId: events=4985, checksum=1856142966, throughput=24.32 MiB/s"
+        "rawFrameNameId: events=4985, checksum=1856142966, throughput=25.27 MiB/s"
       ]
     },
     {

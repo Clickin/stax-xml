@@ -1,0 +1,65 @@
+{
+  "generatedAt": "2026-06-02T23:33:13.317Z",
+  "objective": "firefox-spidermonkey-diagnostic-dump-audit",
+  "contract": "firefox-browser-spidermonkey-diagnostic-dump-availability",
+  "note": "Attempts to collect SpiderMonkey JIT diagnostic dump output from the installed Firefox browser while running the same browser reader harness. This is an availability audit; if no dump is emitted, it is not JIT IR evidence and must not be counted as optimized-code proof.",
+  "parameters": {
+    "sizeGiB": 0.0001,
+    "fixtureShape": "diverse-cycle",
+    "diverseCycleSize": 16,
+    "batchSize": 16,
+    "cases": [
+      "rawFrameNameId"
+    ],
+    "browserTimeoutMs": 180000,
+    "outputDir": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit",
+    "browserExecutable": "G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe",
+    "diagnosticEnv": {
+      "IONFLAGS": "logs,codegen,mir,lir,aborts,scripts",
+      "ION_SPEW_FILENAME": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit\\ion-spew.log",
+      "JIT_SPEW_DIR": "G:\\programming\\stax-xml\\packages\\benchmark\\results\\firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit",
+      "JS_JITSPEW": "logs,codegen,mir,lir,aborts,scripts"
+    }
+  },
+  "outcome": {
+    "status": "failed",
+    "completed": false,
+    "emittedDump": false,
+    "dumpFileCount": 0,
+    "dumpBytes": 0,
+    "stderrDiagnosticHits": 4,
+    "stdoutDiagnosticHits": 0,
+    "exitCode": 1,
+    "signal": null,
+    "timedOut": false,
+    "error": null,
+    "stdoutTail": "",
+    "stderrTail": "file:///G:/programming/stax-xml/packages/benchmark/firefox-bidi-candidate-headroom.mjs:304\r\n        throw new Error(`Firefox exited before BiDi became available: ${browser.exitCode}\\n${browser.stderrText}`);\r\n              ^\r\n\r\nError: Firefox exited before BiDi became available: 2147483651\r\nDLL blocklist was unable to intercept AppInit DLLs.\r\r\n[40164] Assertion failure: false (MOZ_ASSERT_UNREACHABLE: Unrecognized opcode sequence), at \\builds\\worker\\workspace\\obj-build\\dist\\include\\mozilla\\interceptor\\PatcherDetour.h:1653\r\r\n#01: mozilla_net_is_label_safe[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x13396bf]\r\r\n#02: mozilla_net_is_label_safe[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x133732f]\r\r\n#03: mozilla_net_is_label_safe[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x133dbe5]\r\r\n#04: mozilla_net_is_label_safe[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x1336f11]\r\r\n#05: RtlRunOnceExecuteOnce[C:\\WINDOWS\\SYSTEM32\\ntdll.dll +0x98265]\r\r\n#06: InitOnceExecuteOnce[C:\\WINDOWS\\System32\\KERNELBASE.dll +0xb1d21]\r\r\n#07: mozilla_net_is_label_safe[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x1333469]\r\r\n#08: mozilla_net_is_label_safe[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x1340fe7]\r\r\n#09: CrashReporter::SetRemoteExceptionHandler[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x843759a]\r\r\n#10: CrashReporter::SetRemoteExceptionHandler[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\xul.dll +0x84382d8]\r\r\n#11: ???[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe +0x1815]\r\r\n#12: ???[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe +0x1217]\r\r\n#13: TargetNtUnmapViewOfSection[G:\\tmp\\stax-spidermonkey-taskcluster-debug-firefox-azB5UO80Q3KJPPyXD0C8tA\\extract\\firefox\\firefox.exe +0xd28d8]\r\r\n#14: BaseThreadInitThunk[C:\\WINDOWS\\System32\\KERNEL32.DLL +0x2e957]\r\r\n#15: RtlUserThreadStart[C:\\WINDOWS\\SYSTEM32\\ntdll.dll +0x427c]\r\r\n\r\n    at FirefoxBidiClient.connect (file:///G:/programming/stax-xml/packages/benchmark/firefox-bidi-candidate-headroom.mjs:304:15)\r\n    at async main (file:///G:/programming/stax-xml/packages/benchmark/firefox-bidi-candidate-headroom.mjs:132:14)\r\n    at async file:///G:/programming/stax-xml/packages/benchmark/firefox-bidi-candidate-headroom.mjs:499:3\r\n\r\nNode.js v24.15.0\r\n",
+    "dumpFiles": []
+  },
+  "environment": null,
+  "variants": [],
+  "parity": null,
+  "findings": [
+    {
+      "id": "spidermonkey-diagnostic-browser-run-failed",
+      "classification": "NEGATIVE_RESULT",
+      "summary": "The Firefox browser reader harness did not complete, so no same-contract SpiderMonkey diagnostic dump evidence was collected.",
+      "evidence": [
+        "exitCode=1",
+        "signal=none",
+        "timedOut=false",
+        "error=none"
+      ]
+    },
+    {
+      "id": "diagnostic-dump-audit-scope",
+      "classification": "SCOPE_GUARD",
+      "summary": "This artifact is an availability audit for diagnostic dump output, not a proof that SpiderMonkey has no optimized-code headroom.",
+      "evidence": [
+        "A no-dump result may mean the installed release build does not expose this diagnostic surface.",
+        "A future debug/nightly/js-shell run can still provide SpiderMonkey JIT IR or optimized-code evidence."
+      ]
+    }
+  ]
+}

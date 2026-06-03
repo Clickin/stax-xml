@@ -384,6 +384,7 @@ function summarizeParameters(parameters = {}) {
   if (!parameters || typeof parameters !== 'object') return null;
   return {
     searchRoots: Array.isArray(parameters.searchRoots) ? parameters.searchRoots : null,
+    browserExecutable: typeof parameters.browserExecutable === 'string' ? parameters.browserExecutable : null,
   };
 }
 
@@ -1248,6 +1249,13 @@ function createObligationRows(coverage) {
     artifact.sourceArtifact === 'firefox-spidermonkey-diagnostic-dump-audit.json'
   );
   const hasSpiderMonkeyDiagnosticNoDump = spiderMonkeyDiagnosticDumpAudit?.outcome?.status === 'no-dump-emitted';
+  const spiderMonkeyTaskclusterDebugBrowserDiagnosticDumpAudit = coverage.negativeArtifacts.find(artifact =>
+    artifact.sourceArtifact === 'firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json'
+  );
+  const hasSpiderMonkeyTaskclusterDebugBrowserDiagnosticFailure =
+    spiderMonkeyTaskclusterDebugBrowserDiagnosticDumpAudit?.outcome?.status === 'failed'
+    && spiderMonkeyTaskclusterDebugBrowserDiagnosticDumpAudit?.outcome?.completed === false
+    && spiderMonkeyTaskclusterDebugBrowserDiagnosticDumpAudit?.outcome?.emittedDump === false;
   const spiderMonkeyJsShellAvailabilityAudit = coverage.negativeArtifacts.find(artifact =>
     artifact.sourceArtifact === 'firefox-spidermonkey-js-shell-availability-audit.json'
   ) ?? coverage.environmentArtifacts.find(artifact =>
@@ -1361,6 +1369,7 @@ function createObligationRows(coverage) {
         hasSpiderMonkeyJitSpewSourcePin ? 'Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence present, but it is not emitted JIT IR.' : 'Firefox/SpiderMonkey JitSpew/IONFLAGS source gate evidence missing.',
         hasSpiderMonkeyBuildconfigSourcePin ? `Firefox/SpiderMonkey installed buildconfig source pin present (${spiderMonkeyBuildconfigSourcePin.limitation}).` : 'Firefox/SpiderMonkey installed buildconfig source pin missing.',
         hasSpiderMonkeyDiagnosticNoDump ? `Firefox/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build (status=${spiderMonkeyDiagnosticDumpAudit.outcome.status}, dumpFiles=${spiderMonkeyDiagnosticDumpAudit.outcome.dumpFileCount ?? 'unknown'}).` : 'Firefox/SpiderMonkey diagnostic dump availability audit missing or did not complete as a no-dump result.',
+        hasSpiderMonkeyTaskclusterDebugBrowserDiagnosticFailure ? `Firefox/SpiderMonkey Taskcluster debug browser diagnostic dump audit was attempted with FIREFOX_PATH=${spiderMonkeyTaskclusterDebugBrowserDiagnosticDumpAudit.parameters?.browserExecutable ?? 'unknown'} and failed before same-contract BiDi execution (status=${spiderMonkeyTaskclusterDebugBrowserDiagnosticDumpAudit.outcome.status}, exitCode=${spiderMonkeyTaskclusterDebugBrowserDiagnosticDumpAudit.outcome.exitCode ?? 'unknown'}, emittedDump=${spiderMonkeyTaskclusterDebugBrowserDiagnosticDumpAudit.outcome.emittedDump ?? 'unknown'}).` : 'Firefox/SpiderMonkey Taskcluster debug browser diagnostic dump audit missing or did not record a launch failure.',
         hasSpiderMonkeyJsShellAvailabilityAudit ? `Firefox/SpiderMonkey local js-shell availability audit present (status=${spiderMonkeyJsShellAvailabilityAudit.outcome?.status ?? 'unknown'}, found=${spiderMonkeyJsShellAvailabilityAudit.outcome?.foundCount ?? 'unknown'}, searchRoots=${spiderMonkeyJsShellAvailabilityAudit.parameters?.searchRoots?.length ?? 0}); no emitted JIT IR is recorded by that audit.` : 'Firefox/SpiderMonkey local js-shell availability audit missing.',
         hasSpiderMonkeyReleaseJsShellAvailabilityAudit ? `Firefox/SpiderMonkey official release js-shell audit present (status=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.status ?? 'unknown'}, packageVerified=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.packageVerified ?? 'unknown'}, jitStatus=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.hasJitExecutionStatus ?? 'unknown'}, irDumpSurface=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.hasIrDumpSurface ?? 'unknown'}, bytecodeDumpOutput=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.hasBytecodeDumpOutput ?? 'unknown'}, bytecodeDumpStatus=${spiderMonkeyReleaseJsShellAvailabilityAudit.shell?.bytecodeDumpProbe?.status ?? 'unknown'}, nativeDisassemblySurface=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.hasNativeDisassemblySurface ?? 'unknown'}, nativeDumpComplete=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.nativeDumpComplete ?? 'unknown'}, canReadBinaryInput=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.canReadBinaryInput ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyReleaseJsShellAvailabilityAudit.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}); it is bytecode/JIT-status diagnostic evidence only, not emitted JIT IR.` : 'Firefox/SpiderMonkey official release js-shell audit missing.',
         hasSpiderMonkeyNightlyJsShellAvailabilityAudit ? `Firefox/SpiderMonkey official nightly js-shell audit present (status=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.status ?? 'unknown'}, packageVerified=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.packageVerified ?? 'unknown'}, jitStatus=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasJitExecutionStatus ?? 'unknown'}, irDumpSurface=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasIrDumpSurface ?? 'unknown'}, bytecodeDumpOutput=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasBytecodeDumpOutput ?? 'unknown'}, bytecodeDumpStatus=${spiderMonkeyNightlyJsShellAvailabilityAudit.shell?.bytecodeDumpProbe?.status ?? 'unknown'}, nativeDisassemblySurface=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.hasNativeDisassemblySurface ?? 'unknown'}, nativeDumpComplete=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.nativeDumpComplete ?? 'unknown'}, canReadBinaryInput=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.canReadBinaryInput ?? 'unknown'}, canRunCurrentStaxFullStringBenchmark=${spiderMonkeyNightlyJsShellAvailabilityAudit.outcome?.canRunCurrentStaxFullStringBenchmark ?? 'unknown'}); it is bytecode/JIT-status diagnostic evidence only, not emitted JIT IR.` : 'Firefox/SpiderMonkey official nightly js-shell audit missing.',
@@ -1778,6 +1787,9 @@ function summarizeOutcome(outcome = {}) {
     completed: typeof outcome.completed === 'boolean' ? outcome.completed : null,
     emittedDump: typeof outcome.emittedDump === 'boolean' ? outcome.emittedDump : null,
     dumpFileCount: typeof outcome.dumpFileCount === 'number' ? outcome.dumpFileCount : null,
+    exitCode: typeof outcome.exitCode === 'number' ? outcome.exitCode : null,
+    signal: typeof outcome.signal === 'string' ? outcome.signal : null,
+    timedOut: typeof outcome.timedOut === 'boolean' ? outcome.timedOut : null,
     foundCount: typeof outcome.foundCount === 'number' ? outcome.foundCount : null,
     foundCandidates: Array.isArray(outcome.foundCandidates) ? outcome.foundCandidates : null,
     packageVerified: typeof outcome.packageVerified === 'boolean' ? outcome.packageVerified : null,

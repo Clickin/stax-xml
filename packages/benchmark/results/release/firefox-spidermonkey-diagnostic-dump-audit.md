@@ -1,6 +1,6 @@
 # Firefox/SpiderMonkey Diagnostic Dump Audit
 
-Generated: 2026-05-26T16:01:02.545Z
+Generated: 2026-06-02T23:28:09.142Z
 
 Attempts to collect SpiderMonkey JIT diagnostic dump output from the installed Firefox browser while running the same browser reader harness. This is an availability audit; if no dump is emitted, it is not JIT IR evidence and must not be counted as optimized-code proof.
 
@@ -25,12 +25,12 @@ Attempts to collect SpiderMonkey JIT diagnostic dump output from the installed F
 
 | Variant | Throughput | Events | Checksum | Full parity |
 | --- | ---: | ---: | ---: | --- |
-| rawFrameNameId | 24.32 MiB/s | 4985 | 1856142966 | yes |
+| rawFrameNameId | 25.27 MiB/s | 4985 | 1856142966 | yes |
 
 ## Findings
 
 - same-harness-diagnostic-run-completed (BENCH_FACT): The Firefox browser reader harness completed while SpiderMonkey diagnostic dump environment variables were set.
-  - rawFrameNameId: events=4985, checksum=1856142966, throughput=24.32 MiB/s
+  - rawFrameNameId: events=4985, checksum=1856142966, throughput=25.27 MiB/s
 - spidermonkey-diagnostic-dump-not-emitted (NEGATIVE_RESULT): The installed Firefox run completed but did not emit SpiderMonkey JIT diagnostic dump files or recognizable diagnostic stream output.
   - IONFLAGS=logs,codegen,mir,lir,aborts,scripts
   - ION_SPEW_FILENAME was set inside the audit output directory

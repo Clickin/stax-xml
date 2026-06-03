@@ -77,7 +77,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.contract, 'static-release-artifact-proof-coverage');
   assert.equal(report.summary.conclusionAllowed, false);
   assert.equal(report.summary.parseErrorCount, 0);
-  assert.equal(report.summary.scannedArtifactCount, 226);
+  assert.equal(report.summary.scannedArtifactCount, 227);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'text-materialization-frontier-coverage-audit.json'
     && artifact.objective === 'text-materialization-frontier-coverage-audit'
@@ -88,6 +88,16 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     artifact.sourceArtifact === 'runtime-proof-handoff-validation.json'
     && artifact.objective === 'runtime-proof-handoff-validation'
     && artifact.measuredRowCount === 0
+  ));
+  assert.ok(report.scannedArtifacts.some(artifact =>
+    artifact.sourceArtifact === 'firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json'
+    && artifact.objective === 'firefox-spidermonkey-diagnostic-dump-audit'
+    && artifact.measuredRowCount === 0
+    && artifact.evidenceKinds.includes('NEGATIVE_RESULT')
+    && artifact.outcome.status === 'failed'
+    && artifact.outcome.completed === false
+    && artifact.outcome.emittedDump === false
+    && /taskcluster/i.test(artifact.parameters.browserExecutable)
   ));
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'spidermonkey-codegen-closure-audit.json'
@@ -617,7 +627,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.equal(report.summary.traceArtifactCount, 19);
   assert.equal(report.summary.allocationArtifactCount, 16);
   assert.equal(report.summary.environmentArtifactCount, 5);
-  assert.equal(report.summary.negativeArtifactCount, 30);
+  assert.equal(report.summary.negativeArtifactCount, 31);
   assert.ok(report.scannedArtifacts.some(artifact =>
     artifact.sourceArtifact === 'firefox-spidermonkey-js-shell-availability-audit.json'
     && artifact.evidenceKinds.includes('ENVIRONMENT_FACT')
@@ -1457,6 +1467,7 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey JitSpew\/IONFLAGS source gate evidence present, but it is not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey installed buildconfig source pin present \(buildconfig source pin only; enableJitSpew=false, enableJsShell=true, mozPackageJsShell=true\)/);
   assert.match(markdown, /Firefox\/SpiderMonkey diagnostic dump audit was attempted and emitted no JIT diagnostic dump from this installed browser build \(status=no-dump-emitted, dumpFiles=0\)/);
+  assert.match(markdown, /Firefox\/SpiderMonkey Taskcluster debug browser diagnostic dump audit was attempted with FIREFOX_PATH=.*firefox\.exe and failed before same-contract BiDi execution \(status=failed, exitCode=1, emittedDump=false\)/i);
   assert.match(markdown, /Firefox\/SpiderMonkey local js-shell availability audit present \(status=available, found=2, searchRoots=2\); no emitted JIT IR is recorded by that audit/);
   assert.match(markdown, /Firefox\/SpiderMonkey official release js-shell audit present \(status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is bytecode\/JIT-status diagnostic evidence only, not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey official nightly js-shell audit present \(status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is bytecode\/JIT-status diagnostic evidence only, not emitted JIT IR/);
@@ -1474,13 +1485,13 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /16 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 5/);
   assert.match(markdown, /Source artifacts: 26/);
-  assert.match(markdown, /Scanned primary artifacts: 226/);
+  assert.match(markdown, /Scanned primary artifacts: 227/);
   assert.equal(report.summary.traceArtifactCount, 19);
-  assert.match(markdown, /Negative-result artifacts: 30/);
+  assert.match(markdown, /Negative-result artifacts: 31/);
   assert.match(markdown, /\| Node\/V8 \| 112 \| 597 \| 407 \|/);
   assert.match(markdown, /\| Bun\/JSC \| 42 \| 322 \| 209 \|/);
   assert.match(markdown, /\| Deno\/V8 \| 17 \| 128 \| 104 \|/);
-  assert.match(markdown, /\| Firefox\/SpiderMonkey browser \| 23 \| 82 \| 70 \|/);
+  assert.match(markdown, /\| Firefox\/SpiderMonkey browser \| 24 \| 82 \| 70 \|/);
   assert.match(markdown, /\| Java\/Woodstox \| 12 \| 13 \| 5 \|/);
   assert.match(markdown, /\| Rust\/quick-xml \| 11 \| 19 \| 5 \|/);
   assert.doesNotMatch(markdown, /\| unknown \| \d+ \| \d+ \| \d+ \|/);

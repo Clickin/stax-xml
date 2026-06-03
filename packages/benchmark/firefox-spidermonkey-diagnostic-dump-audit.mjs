@@ -236,8 +236,8 @@ function createReport(options, result) {
   const dumpBytes = result.dumpFiles.reduce((sum, file) => sum + file.bytes, 0);
   const stderrDiagnosticHits = countDiagnosticHits(result.stderrTail);
   const stdoutDiagnosticHits = countDiagnosticHits(result.stdoutTail);
-  const emittedDump = result.dumpFiles.length > 0 || stderrDiagnosticHits > 0 || stdoutDiagnosticHits > 0;
   const completed = result.exitCode === 0 && Boolean(result.childReport);
+  const emittedDump = result.dumpFiles.length > 0 || (completed && (stderrDiagnosticHits > 0 || stdoutDiagnosticHits > 0));
   return {
     generatedAt: new Date().toISOString(),
     objective: 'firefox-spidermonkey-diagnostic-dump-audit',
@@ -251,6 +251,7 @@ function createReport(options, result) {
       cases: options.cases,
       browserTimeoutMs: options.browserTimeoutMs,
       outputDir: options.outputDir,
+      browserExecutable: process.env.FIREFOX_PATH ?? null,
       diagnosticEnv: result.diagnosticEnv,
     },
     outcome: {
@@ -278,7 +279,7 @@ function createReport(options, result) {
       fullStringParity: row.fullStringParity,
     })),
     parity: result.childReport?.fullStringParity ?? null,
-    findings: createFindings(completed, emittedDump, result.dumpFiles, dumpBytes, result.childReport),
+    findings: createFindings(completed, emittedDump, result.dumpFiles, dumpBytes, result.childReport, result),
   };
 }
 
@@ -286,7 +287,7 @@ function countDiagnosticHits(text) {
   return (text.match(/ion|baseline|jit|mir|lir|codegen|spew/gi) ?? []).length;
 }
 
-function createFindings(completed, emittedDump, dumpFiles, dumpBytes, childReport) {
+function createFindings(completed, emittedDump, dumpFiles, dumpBytes, childReport, result) {
   const findings = [];
   if (completed) {
     findings.push({
@@ -297,7 +298,19 @@ function createFindings(completed, emittedDump, dumpFiles, dumpBytes, childRepor
         `${row.id}: events=${row.eventCount}, checksum=${row.checksum}, throughput=${row.mibPerSec.toFixed(2)} MiB/s`),
     });
   }
-  if (emittedDump) {
+  if (!completed) {
+    findings.push({
+      id: 'spidermonkey-diagnostic-browser-run-failed',
+      classification: 'NEGATIVE_RESULT',
+      summary: 'The Firefox browser reader harness did not complete, so no same-contract SpiderMonkey diagnostic dump evidence was collected.',
+      evidence: [
+        `exitCode=${result.exitCode ?? 'unknown'}`,
+        `signal=${result.signal ?? 'none'}`,
+        `timedOut=${result.timedOut}`,
+        `error=${result.error ?? 'none'}`,
+      ],
+    });
+  } else if (emittedDump) {
     findings.push({
       id: 'spidermonkey-diagnostic-dump-emitted',
       classification: 'TRACE_FACT',

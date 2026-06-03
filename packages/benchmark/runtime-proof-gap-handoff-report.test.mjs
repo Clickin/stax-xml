@@ -433,6 +433,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.equal(spiderMonkey.localClosure.localRunnable, false);
   assert.deepEqual(spiderMonkey.localClosure.evidenceArtifacts, [
     'firefox-spidermonkey-diagnostic-dump-audit.json',
+    'firefox-spidermonkey-taskcluster-debug-browser-diagnostic-dump-audit.json',
     'firefox-spidermonkey-js-shell-availability-audit.json',
     'firefox-spidermonkey-release-jsshell-availability-audit.json',
     'firefox-spidermonkey-nightly-jsshell-availability-audit.json',
@@ -455,6 +456,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
     'firefox-spidermonkey-buildconfig-source-pin-audit.json',
   ]);
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /emitted no JIT diagnostic dump/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /Taskcluster debug Firefox browser diagnostic dump audit attempted FIREFOX_PATH=.*firefox\.exe but failed before same-contract BiDi execution \(exitCode=1, emittedDump=false\)/i.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /Local SpiderMonkey JS shell candidates are available \(2\)/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /Official Firefox release jsshell is executable/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /Official Firefox nightly jsshell is executable/.test(item)));

@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-02T23:17:40.127Z
+Generated: 2026-06-03T02:25:05.137Z
 
 ## Scope
 
@@ -89,7 +89,7 @@ Disclosure-only guards: 3
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-02T23:13:14.970Z)
+- Coverage audit loaded: yes (2026-06-02T23:38:25.607Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey diagnostics rows vs closure candidates: 11/16 (gap=5, closureQualified=0)
@@ -121,9 +121,9 @@ Disclosure-only guards: 3
 - Same-contract comparison contract: same-full-string-checksum-contract-not-same-object-shape; publicEventCase=eventObjectFull; objectShapeEquivalence=false; memoryEquivalence=false
 - Same-contract comparison rows: 289/289; largeFullJsRows=239
 - Same-contract comparison counterexamples: 0
-- Runtime counterexample scan loaded: yes (2026-06-02T23:13:03.677Z)
+- Runtime counterexample scan loaded: yes (2026-06-02T23:38:26.018Z)
 - Counterexample scan contract: threshold=200.00 MiB/s, minSizeGiB=1.00, parseErrors=0
-- Counterexample scan coverage shape: artifacts=226/226, measuredRows=1266/1266
+- Counterexample scan coverage shape: artifacts=227/227, measuredRows=1266/1266
 - Counterexample scan aggregate surface: aggregateRows=182, largeFullAggregateRows=142, measuredCounterexamples=0, aggregateCounterexamples=0
 - Counterexample scan source-shape surface: sourceModeRows=642, largeFullSourceModeRows=474, modes=generated-sync-iterable-byte-batches:382,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; file-backed-sync-iterable-byte-batches:53,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; async-iterable-byte-batches:15,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; web-readable-stream-pull:15,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=15; sync-iterable-byte-batches:4,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; fetch-async-iterable-byte-batches:2,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; fetch-readable-stream-pull:2,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=2; complete-js-string:1,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0
 - Runtime counterexample scan counterexamples: 0
@@ -141,7 +141,7 @@ Disclosure-only guards: 3
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-02T23:13:57.717Z)
+- Handoff loaded: yes (2026-06-02T23:38:38.398Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -180,8 +180,8 @@ Disclosure-only guards: 3
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-02T23:17:25.505Z)
-- Handoff validation target handoff generatedAt: 2026-06-02T23:13:57.717Z (current 2026-06-02T23:13:57.717Z)
+- Handoff validation loaded: yes (2026-06-02T23:38:49.225Z)
+- Handoff validation target handoff generatedAt: 2026-06-02T23:38:38.398Z (current 2026-06-02T23:38:38.398Z)
 - Handoff validation pass: yes
 - Commands checked: 15
 - Scripts referenced: 23
@@ -213,8 +213,8 @@ Disclosure-only guards: 3
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-02T23:13:27.570Z)
-- Source audit inputs: comparison=2026-06-02T20:08:45.362Z (current 2026-06-02T20:08:45.362Z), coverage=2026-06-02T23:13:14.970Z (current 2026-06-02T23:13:14.970Z)
+- Source audit loaded: yes (2026-06-02T23:38:36.362Z)
+- Source audit inputs: comparison=2026-06-02T20:08:45.362Z (current 2026-06-02T20:08:45.362Z), coverage=2026-06-02T23:38:25.607Z (current 2026-06-02T23:38:25.607Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary source boundary: demand-driven StreamReaderSync parser pulls
