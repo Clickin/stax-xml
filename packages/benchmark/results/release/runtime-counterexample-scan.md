@@ -1,6 +1,6 @@
 # Runtime Counterexample Scan
 
-Generated: 2026-06-03T07:57:57.472Z
+Generated: 2026-06-03T09:51:45.489Z
 
 This scan walks recognized throughput rows and aggregate rows in primary release JSON artifacts and applies the broad counterexample rule mechanically: JavaScript runtime, 1 GiB+ fixture, full-string parity, bounded memory, and throughput at or above the threshold.
 
@@ -24,6 +24,8 @@ This scan walks recognized throughput rows and aggregate rows in primary release
   - Unknown bounded-memory non-JS allocator-counter rows: 10
   - Unknown bounded-memory non-JS rows without peak-memory counters: 7
   - Unknown bounded-memory rows with memory counters: 10
+- Unknown full-string parity row exclusions: rows=1, withReason=1, counterexampleRelevant=0
+- Unknown bounded-memory row exclusions: rows=28, withReason=28, counterexampleRelevant=0
 - Counterexamples found: 0
   - Measured row counterexamples: 0
   - Aggregate row counterexamples: 0
@@ -39,6 +41,45 @@ This scan walks recognized throughput rows and aggregate rows in primary release
 - Fastest 1 GiB+ JS full-string aggregate row with memory proof: Node/V8 rawFrameNameId from access-shape-candidate-cross-process-batch8.json at avg 172.66 MiB/s (yes, process-rss, samples 3, spread 3.03%)
 - Fastest partial/projection threshold row: Node/V8 grouped-segment-scan from segment-scan-headroom.json at 682.83 MiB/s (yes, process-rss)
 - Fastest text/CDATA materialization headroom row: Node/V8 withoutTextStrings from text-trim-cost-decomposition-4gib.json at 252.36 MiB/s (yes, process-rss)
+
+## Unknown Full-String Parity Rows
+
+| Artifact | Runtime | Row | Size GiB | MiB/s | Bounded | Memory | Relevant | Exclusion reason |
+| --- | --- | --- | ---: | ---: | --- | --- | --- | --- |
+| `spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit.json` | unknown | `nightly-spidermonkey-stax-stream-reader-sync-primary-byte-batch` |  | 62.75 | unknown | not-recorded | no | non-js-row-not-runtime-limit-target |
+
+## Unknown Bounded-Memory Rows
+
+| Artifact | Runtime | Row | Size GiB | MiB/s | Bounded | Memory | Relevant | Exclusion reason |
+| --- | --- | --- | ---: | ---: | --- | --- | --- | --- |
+| `browser-v8-codegen-trace.json` | HeadlessChrome/V8 | `stringFull` | 0.00 | 49.46 | unknown | not-recorded | no | js-row-below-large-size-threshold |
+| `browser-v8-codegen-trace.json` | HeadlessChrome/V8 | `rawFrameNameId` | 0.00 | 28.68 | unknown | not-recorded | no | js-row-below-large-size-threshold |
+| `browser-v8-codegen-trace.json` | HeadlessChrome/V8 | `eventObjectFull` | 0.00 | 41.47 | unknown | not-recorded | no | js-row-below-large-size-threshold |
+| `firefox-spidermonkey-diagnostic-dump-audit.json` | Firefox/SpiderMonkey | `rawFrameNameId` |  | 25.27 | unknown | not-recorded | no | js-row-without-large-size-proof |
+| `quick-xml-allocation-count-stability.json` | unknown | `benchmark` | 0.02 | 220.90 | unknown | allocator-counters | no | non-js-allocator-counter-not-runtime-limit-target |
+| `quick-xml-allocation-count-stability.json` | unknown | `benchmark` | 0.00 | 183.58 | unknown | allocator-counters | no | non-js-allocator-counter-not-runtime-limit-target |
+| `quick-xml-allocation-count-stability.json` | unknown | `benchmark` | 0.00 | 259.32 | unknown | allocator-counters | no | non-js-allocator-counter-not-runtime-limit-target |
+| `quick-xml-allocation-count-stability.json` | unknown | `benchmark` | 0.00 | 303.17 | unknown | allocator-counters | no | non-js-allocator-counter-not-runtime-limit-target |
+| `quick-xml-allocation-count-stability.json` | unknown | `benchmark` | 0.00 | 205.74 | unknown | allocator-counters | no | non-js-allocator-counter-not-runtime-limit-target |
+| `quick-xml-allocation-count.json` | unknown | `benchmark` | 0.02 | 257.43 | unknown | allocator-counters | no | non-js-allocator-counter-not-runtime-limit-target |
+| `quick-xml-allocation-count.json` | unknown | `benchmark` | 0.00 | 183.37 | unknown | allocator-counters | no | non-js-allocator-counter-not-runtime-limit-target |
+| `quick-xml-allocation-count.json` | unknown | `benchmark` | 0.00 | 227.89 | unknown | allocator-counters | no | non-js-allocator-counter-not-runtime-limit-target |
+| `quick-xml-allocation-count.json` | unknown | `benchmark` | 0.00 | 316.77 | unknown | allocator-counters | no | non-js-allocator-counter-not-runtime-limit-target |
+| `quick-xml-allocation-count.json` | unknown | `benchmark` | 0.00 | 205.15 | unknown | allocator-counters | no | non-js-allocator-counter-not-runtime-limit-target |
+| `quick-xml-shape-audit.json` | Rust/quick-xml | `quick-xml` | 0.02 | 309.82 | unknown | not-recorded | no | non-js-no-peak-memory-not-runtime-limit-target |
+| `quick-xml-shape-audit.json` | Java/Woodstox | `woodstox` | 0.02 | 333.43 | unknown | not-recorded | no | non-js-no-peak-memory-not-runtime-limit-target |
+| `spidermonkey-jsshell-materialized-headroom.json` | SpiderMonkey js-shell | `release-spidermonkey-materialized-string-object` | 0.02 | 33.97 | unknown | not-recorded | no | js-row-not-full-string-contract |
+| `spidermonkey-jsshell-materialized-headroom.json` | SpiderMonkey js-shell | `nightly-spidermonkey-materialized-string-object` | 0.02 | 37.61 | unknown | not-recorded | no | js-row-not-full-string-contract |
+| `spidermonkey-jsshell-stax-primary-byte-batch.json` | SpiderMonkey js-shell | `release-spidermonkey-stax-stream-reader-sync-primary-byte-batch` | 0.02 | 51.13 | unknown | not-recorded | no | js-row-below-large-size-threshold |
+| `spidermonkey-jsshell-stax-primary-byte-batch.json` | SpiderMonkey js-shell | `nightly-spidermonkey-stax-stream-reader-sync-primary-byte-batch` | 0.02 | 62.75 | unknown | not-recorded | no | js-row-below-large-size-threshold |
+| `spidermonkey-jsshell-tokenizer-headroom.json` | SpiderMonkey js-shell | `release-spidermonkey-token-boundary` | 0.02 | 121.47 | unknown | not-recorded | no | js-row-not-full-string-contract |
+| `spidermonkey-jsshell-tokenizer-headroom.json` | SpiderMonkey js-shell | `nightly-spidermonkey-token-boundary` | 0.02 | 145.01 | unknown | not-recorded | no | js-row-not-full-string-contract |
+| `spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit.json` | unknown | `nightly-spidermonkey-stax-stream-reader-sync-primary-byte-batch` |  | 62.75 | unknown | not-recorded | no | non-js-no-peak-memory-not-runtime-limit-target |
+| `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit.json` | SpiderMonkey js-shell | `taskcluster-debug-spidermonkey-xml-token-boundary-codegen` | 0.00 | 1.81 | unknown | not-recorded | no | js-row-not-full-string-contract |
+| `woodstox-hotspot-trace.json` | unknown | `benchmark` | 0.02 | 322.29 | unknown | not-recorded | no | non-js-no-peak-memory-not-runtime-limit-target |
+| `woodstox-jfr-allocation.json` | unknown | `benchmark` | 0.02 | 311.86 | unknown | not-recorded | no | non-js-no-peak-memory-not-runtime-limit-target |
+| `woodstox-measured-jfr-allocation-rerun.json` | unknown | `benchmark` | 0.02 | 136.56 | unknown | not-recorded | no | non-js-no-peak-memory-not-runtime-limit-target |
+| `woodstox-measured-jfr-allocation.json` | unknown | `benchmark` | 0.02 | 182.56 | unknown | not-recorded | no | non-js-no-peak-memory-not-runtime-limit-target |
 
 ## Counterexamples
 

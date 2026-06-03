@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T09:41:42.010Z",
+  "generatedAt": "2026-06-03T09:56:30.381Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -362,7 +362,7 @@
     "comparisonJsLargeFullRowCount": 239,
     "comparisonCounterexampleCount": 0,
     "counterexampleScanLoaded": true,
-    "counterexampleScanGeneratedAt": "2026-06-03T07:57:57.472Z",
+    "counterexampleScanGeneratedAt": "2026-06-03T09:51:45.489Z",
     "thresholdMiBPerSec": 200,
     "minSizeGiB": 0.999,
     "scanParseErrorCount": 0,
@@ -640,6 +640,12 @@
         "unknownArrayBufferRows": 0
       }
     ],
+    "scanUnknownFullStringParityRowCount": 1,
+    "scanUnknownFullStringParityRowsWithExclusionReasonCount": 1,
+    "scanUnknownFullStringParityCounterexampleRelevantRowCount": 0,
+    "scanUnknownBoundedMemoryRowCount": 28,
+    "scanUnknownBoundedMemoryRowsWithExclusionReasonCount": 28,
+    "scanUnknownBoundedMemoryCounterexampleRelevantRowCount": 0,
     "scanMeasuredCounterexampleCount": 0,
     "scanAggregateCounterexampleCount": 0,
     "scanCounterexampleCount": 0,
@@ -693,6 +699,16 @@
       {
         "id": "counterexample-scan-source-shape-surface",
         "description": "runtime-counterexample-scan.json must preserve source-mode classification for large full-string JavaScript rows and keep full ArrayBuffer parser inputs visible.",
+        "satisfied": true
+      },
+      {
+        "id": "counterexample-scan-unknown-full-string-parity-row-exclusions",
+        "description": "runtime-counterexample-scan.json must classify every unknown full-string parity row as not counterexample-relevant or expose it as an unclassified relevant row.",
+        "satisfied": true
+      },
+      {
+        "id": "counterexample-scan-unknown-bounded-memory-row-exclusions",
+        "description": "runtime-counterexample-scan.json must classify every unknown bounded-memory row as not counterexample-relevant or expose it as an unclassified relevant row.",
         "satisfied": true
       }
     ]
@@ -1521,8 +1537,8 @@
     "satisfiedProofRules": 18,
     "requiredProofRules": 18,
     "currentCounterexamples": 0,
-    "satisfiedCounterexampleScanGuards": 10,
-    "requiredCounterexampleScanGuards": 10,
+    "satisfiedCounterexampleScanGuards": 12,
+    "requiredCounterexampleScanGuards": 12,
     "satisfiedCoverageGuards": 12,
     "requiredCoverageGuards": 12,
     "satisfiedHandoffGuards": 11,

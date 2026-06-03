@@ -1420,6 +1420,12 @@ function createCounterexampleSnapshot(comparison, counterexampleScan, coverageAu
     scanLargeJsFullSourceModeBreakdown: Array.isArray(counterexampleScan?.summary?.largeJsFullSourceModeBreakdown)
       ? counterexampleScan.summary.largeJsFullSourceModeBreakdown
       : [],
+    scanUnknownFullStringParityRowCount: counterexampleScan?.summary?.unknownFullStringParityRowCount ?? null,
+    scanUnknownFullStringParityRowsWithExclusionReasonCount: counterexampleScan?.summary?.unknownFullStringParityRowsWithExclusionReasonCount ?? null,
+    scanUnknownFullStringParityCounterexampleRelevantRowCount: counterexampleScan?.summary?.unknownFullStringParityCounterexampleRelevantRowCount ?? null,
+    scanUnknownBoundedMemoryRowCount: counterexampleScan?.summary?.unknownBoundedMemoryRowCount ?? null,
+    scanUnknownBoundedMemoryRowsWithExclusionReasonCount: counterexampleScan?.summary?.unknownBoundedMemoryRowsWithExclusionReasonCount ?? null,
+    scanUnknownBoundedMemoryCounterexampleRelevantRowCount: counterexampleScan?.summary?.unknownBoundedMemoryCounterexampleRelevantRowCount ?? null,
     scanMeasuredCounterexampleCount: counterexampleScan?.summary?.measuredCounterexampleCount ?? null,
     scanAggregateCounterexampleCount: counterexampleScan?.summary?.aggregateCounterexampleCount ?? null,
     scanCounterexampleCount: typeof scanCount === 'number' ? scanCount : null,
@@ -1515,6 +1521,22 @@ function createCounterexampleScanGuards(snapshot) {
         && snapshot.scanLargeJsFullSourceModeBreakdown.some(entry => (entry.directReadableStreamRows ?? 0) > 0)
         && snapshot.scanLargeJsFullSourceModeBreakdown.every(entry => entry.fullArrayBufferRows === 0 && entry.unknownArrayBufferRows === 0)
         && snapshot.scanLargeJsFullSourceModeBreakdown.reduce((sum, entry) => sum + (entry.rowCount ?? 0), 0) === snapshot.scanLargeJsFullSourceModeRowCount,
+    },
+    {
+      id: 'counterexample-scan-unknown-full-string-parity-row-exclusions',
+      description: 'runtime-counterexample-scan.json must classify every unknown full-string parity row as not counterexample-relevant or expose it as an unclassified relevant row.',
+      satisfied: typeof snapshot.scanUnknownFullStringParityRowCount === 'number'
+        && snapshot.scanUnknownFullStringParityRowCount >= 0
+        && snapshot.scanUnknownFullStringParityRowsWithExclusionReasonCount === snapshot.scanUnknownFullStringParityRowCount
+        && snapshot.scanUnknownFullStringParityCounterexampleRelevantRowCount === 0,
+    },
+    {
+      id: 'counterexample-scan-unknown-bounded-memory-row-exclusions',
+      description: 'runtime-counterexample-scan.json must classify every unknown bounded-memory row as not counterexample-relevant or expose it as an unclassified relevant row.',
+      satisfied: typeof snapshot.scanUnknownBoundedMemoryRowCount === 'number'
+        && snapshot.scanUnknownBoundedMemoryRowCount >= 0
+        && snapshot.scanUnknownBoundedMemoryRowsWithExclusionReasonCount === snapshot.scanUnknownBoundedMemoryRowCount
+        && snapshot.scanUnknownBoundedMemoryCounterexampleRelevantRowCount === 0,
     },
   ];
 }
@@ -2049,6 +2071,8 @@ function renderMarkdown(report) {
     `- Counterexample scan coverage shape: artifacts=${formatNullableCount(report.counterexampleSnapshot.scanScannedArtifactCount)}/${formatNullableCount(report.counterexampleSnapshot.coverageScannedArtifactCount)}, measuredRows=${formatNullableCount(report.counterexampleSnapshot.scanMeasuredRowCount)}/${formatNullableCount(report.counterexampleSnapshot.coverageMeasuredRowCount)}`,
     `- Counterexample scan aggregate surface: aggregateRows=${formatNullableCount(report.counterexampleSnapshot.scanAggregateRowCount)}, largeFullAggregateRows=${formatNullableCount(report.counterexampleSnapshot.scanLargeJsFullAggregateRowCount)}, measuredCounterexamples=${formatNullableCount(report.counterexampleSnapshot.scanMeasuredCounterexampleCount)}, aggregateCounterexamples=${formatNullableCount(report.counterexampleSnapshot.scanAggregateCounterexampleCount)}`,
     `- Counterexample scan source-shape surface: sourceModeRows=${formatNullableCount(report.counterexampleSnapshot.scanSourceModeRowCount)}, largeFullSourceModeRows=${formatNullableCount(report.counterexampleSnapshot.scanLargeJsFullSourceModeRowCount)}, modes=${formatSourceModeBreakdown(report.counterexampleSnapshot.scanLargeJsFullSourceModeBreakdown)}`,
+    `- Counterexample scan unknown full-string parity row exclusions: rows=${formatNullableCount(report.counterexampleSnapshot.scanUnknownFullStringParityRowCount)}, withReason=${formatNullableCount(report.counterexampleSnapshot.scanUnknownFullStringParityRowsWithExclusionReasonCount)}, counterexampleRelevant=${formatNullableCount(report.counterexampleSnapshot.scanUnknownFullStringParityCounterexampleRelevantRowCount)}`,
+    `- Counterexample scan unknown bounded-memory row exclusions: rows=${formatNullableCount(report.counterexampleSnapshot.scanUnknownBoundedMemoryRowCount)}, withReason=${formatNullableCount(report.counterexampleSnapshot.scanUnknownBoundedMemoryRowsWithExclusionReasonCount)}, counterexampleRelevant=${formatNullableCount(report.counterexampleSnapshot.scanUnknownBoundedMemoryCounterexampleRelevantRowCount)}`,
     `- Runtime counterexample scan counterexamples: ${formatNullableCount(report.counterexampleSnapshot.scanCounterexampleCount)}`,
     `- Current release counterexamples: ${report.counterexampleSnapshot.currentCounterexampleCount}`,
   );

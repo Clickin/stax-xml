@@ -106,6 +106,12 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.counterexampleSnapshot.scanLargeJsFullAggregateRowCount, 142);
   assert.equal(report.counterexampleSnapshot.scanSourceModeRowCount, 644);
   assert.equal(report.counterexampleSnapshot.scanLargeJsFullSourceModeRowCount, 474);
+  assert.equal(report.counterexampleSnapshot.scanUnknownFullStringParityRowCount, 1);
+  assert.equal(report.counterexampleSnapshot.scanUnknownFullStringParityRowsWithExclusionReasonCount, 1);
+  assert.equal(report.counterexampleSnapshot.scanUnknownFullStringParityCounterexampleRelevantRowCount, 0);
+  assert.equal(report.counterexampleSnapshot.scanUnknownBoundedMemoryRowCount, 28);
+  assert.equal(report.counterexampleSnapshot.scanUnknownBoundedMemoryRowsWithExclusionReasonCount, 28);
+  assert.equal(report.counterexampleSnapshot.scanUnknownBoundedMemoryCounterexampleRelevantRowCount, 0);
   assert.ok(report.counterexampleSnapshot.scanLargeJsFullSourceModeBreakdown.some(entry =>
     entry.sourceMode === 'generated-sync-iterable-byte-batches'
     && entry.rowCount === 382
@@ -128,6 +134,8 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.counterexampleSnapshot.guards.some(item => item.id === 'counterexample-scan-no-parse-errors' && item.satisfied));
   assert.ok(report.counterexampleSnapshot.guards.some(item => item.id === 'counterexample-scan-current-coverage-shape' && item.satisfied));
   assert.ok(report.counterexampleSnapshot.guards.some(item => item.id === 'counterexample-scan-aggregate-surface' && item.satisfied));
+  assert.ok(report.counterexampleSnapshot.guards.some(item => item.id === 'counterexample-scan-unknown-full-string-parity-row-exclusions' && item.satisfied));
+  assert.ok(report.counterexampleSnapshot.guards.some(item => item.id === 'counterexample-scan-unknown-bounded-memory-row-exclusions' && item.satisfied));
   assert.ok(report.sourceAuditSnapshot.loaded);
   assert.equal(report.sourceAuditSnapshot.coverageCrosscheckStatus, 'consistent');
   assert.equal(report.sourceAuditSnapshot.coverageSourceModeRows, 474);
@@ -2655,6 +2663,55 @@ test('runtime-limit proof-obligation gate fails if counterexample scan contract 
   assert.match(markdown, /counterexample-scan-no-parse-errors/);
   assert.match(markdown, /counterexample-scan-current-coverage-shape/);
   assert.match(markdown, /counterexample-scan-aggregate-surface/);
+});
+
+test('runtime-limit proof-obligation gate fails if counterexample scan unknown row exclusions drift', () => {
+  resetTmp();
+  const scanJson = join(tmpDir, 'runtime-counterexample-scan-bad-unknown-row-exclusions.json');
+  writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
+  const scan = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-counterexample-scan.json'), 'utf8'));
+  scan.summary.unknownFullStringParityRowsWithExclusionReasonCount = 0;
+  scan.summary.unknownFullStringParityCounterexampleRelevantRowCount = 1;
+  scan.summary.unknownBoundedMemoryRowsWithExclusionReasonCount = 27;
+  scan.summary.unknownBoundedMemoryCounterexampleRelevantRowCount = 1;
+  writeFileSync(scanJson, `${JSON.stringify(scan, null, 2)}\n`);
+
+  const result = spawnSync(process.execPath, [
+    join(__dirname, 'runtime-limit-proof-obligation-gate.mjs'),
+    '--ledger',
+    goodLedger,
+    '--counterexample-scan-json',
+    scanJson,
+    '--json-out',
+    counterexampleJsonOut,
+    '--md-out',
+    counterexampleMdOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+
+  const report = JSON.parse(readFileSync(counterexampleJsonOut, 'utf8'));
+  assert.equal(report.gate.pass, false);
+  assert.equal(report.counterexampleSnapshot.scanUnknownFullStringParityCounterexampleRelevantRowCount, 1);
+  assert.equal(report.counterexampleSnapshot.scanUnknownBoundedMemoryCounterexampleRelevantRowCount, 1);
+  assert.ok(report.counterexampleSnapshot.guards.some(item =>
+    item.id === 'counterexample-scan-unknown-full-string-parity-row-exclusions'
+    && !item.satisfied
+  ));
+  assert.ok(report.counterexampleSnapshot.guards.some(item =>
+    item.id === 'counterexample-scan-unknown-bounded-memory-row-exclusions'
+    && !item.satisfied
+  ));
+  assert.ok(report.gate.errors.some(error => /counterexample-scan-unknown-full-string-parity-row-exclusions/.test(error)));
+  assert.ok(report.gate.errors.some(error => /counterexample-scan-unknown-bounded-memory-row-exclusions/.test(error)));
+
+  const markdown = readFileSync(counterexampleMdOut, 'utf8');
+  assert.match(markdown, /Counterexample scan unknown full-string parity row exclusions: rows=1, withReason=0, counterexampleRelevant=1/);
+  assert.match(markdown, /Counterexample scan unknown bounded-memory row exclusions: rows=28, withReason=27, counterexampleRelevant=1/);
 });
 
 test('runtime-limit proof-obligation gate fails if counterexample scan loses source-shape surface', () => {

@@ -160,6 +160,8 @@ function createReport(options) {
   const largeJsFullSourceModeBreakdown = summarizeSourceModes(largeJsFullSourceModeRows);
   const rowClassificationCompleteness = summarizeRowClassificationCompleteness(measuredRows);
   const unknownBoundedMemoryBreakdown = summarizeUnknownBoundedMemoryRows(measuredRows, options);
+  const unknownFullStringParityRows = createUnknownFullStringParityRows(measuredRows, options);
+  const unknownBoundedMemoryRows = createUnknownBoundedMemoryRows(measuredRows, options);
 
   return {
     generatedAt: new Date().toISOString(),
@@ -188,6 +190,12 @@ function createReport(options) {
       largeJsFullSourceModeBreakdown,
       rowClassificationCompleteness,
       unknownBoundedMemoryBreakdown,
+      unknownFullStringParityRowCount: unknownFullStringParityRows.length,
+      unknownFullStringParityRowsWithExclusionReasonCount: unknownFullStringParityRows.filter(row => row.counterexampleExclusionReason).length,
+      unknownFullStringParityCounterexampleRelevantRowCount: unknownFullStringParityRows.filter(row => row.counterexampleRelevant).length,
+      unknownBoundedMemoryRowCount: unknownBoundedMemoryRows.length,
+      unknownBoundedMemoryRowsWithExclusionReasonCount: unknownBoundedMemoryRows.filter(row => row.counterexampleExclusionReason).length,
+      unknownBoundedMemoryCounterexampleRelevantRowCount: unknownBoundedMemoryRows.filter(row => row.counterexampleRelevant).length,
       counterexampleCount: counterexamples.length,
       measuredCounterexampleCount: measuredCounterexamples.length,
       aggregateCounterexampleCount: aggregateCounterexamples.length,
@@ -213,6 +221,8 @@ function createReport(options) {
       .sort((left, right) => right.mibPerSec - left.mibPerSec),
     textMaterializationHeadroomRows,
     unboundedOrUnknownLargeFullRows,
+    unknownFullStringParityRows,
+    unknownBoundedMemoryRows,
     aggregateRows,
     sourceModeRows,
     findings: createFindings(counterexamples, partialHeadroomRows, textMaterializationHeadroomRows, largeFullMemoryRejectionBreakdown, rowClassificationCompleteness, fastestLargeFullAggregateRowsWithMemoryProof, largeJsFullSourceModeBreakdown),
@@ -480,6 +490,71 @@ function summarizeUnknownBoundedMemoryRows(rows, options) {
     ).length,
     rowsWithMemoryCounter: unknownRows.filter(row => row.hasMemoryProof).length,
   };
+}
+
+function createUnknownFullStringParityRows(rows, options) {
+  return rows
+    .filter(row => row.fullStringParity === null)
+    .map(row => {
+      const counterexampleRelevant = isUnknownFullStringParityCounterexampleRelevant(row, options);
+      return {
+        ...summarizeRow(row),
+        counterexampleRelevant,
+        counterexampleExclusionReason: counterexampleRelevant
+          ? 'counterexample-relevant-unclassified-full-string-parity'
+          : unknownFullStringParityExclusionReason(row, options),
+      };
+    });
+}
+
+function createUnknownBoundedMemoryRows(rows, options) {
+  return rows
+    .filter(row => row.boundedMemory === null)
+    .map(row => {
+      const counterexampleRelevant = isUnknownBoundedMemoryCounterexampleRelevant(row, options);
+      return {
+        ...summarizeRow(row),
+        counterexampleRelevant,
+        counterexampleExclusionReason: counterexampleRelevant
+          ? 'counterexample-relevant-unclassified-memory'
+          : unknownBoundedMemoryExclusionReason(row, options),
+      };
+    });
+}
+
+function isUnknownFullStringParityCounterexampleRelevant(row, options) {
+  return row.jsRuntime
+    && row.boundedMemory === true
+    && row.hasMemoryProof
+    && row.sizeGiB !== null
+    && row.sizeGiB >= options.minSizeGiB
+    && row.mibPerSec >= options.thresholdMiBPerSec;
+}
+
+function unknownFullStringParityExclusionReason(row, options) {
+  if (!row.jsRuntime) return 'non-js-row-not-runtime-limit-target';
+  if (row.boundedMemory !== true || !row.hasMemoryProof) return 'js-row-without-bounded-memory-proof';
+  if (row.sizeGiB === null) return 'js-row-without-large-size-proof';
+  if (row.sizeGiB < options.minSizeGiB) return 'js-row-below-large-size-threshold';
+  if (row.mibPerSec < options.thresholdMiBPerSec) return 'js-row-below-counterexample-throughput-threshold';
+  return 'counterexample-relevant-unclassified-full-string-parity';
+}
+
+function isUnknownBoundedMemoryCounterexampleRelevant(row, options) {
+  return row.jsRuntime
+    && row.fullStringParity === true
+    && row.sizeGiB !== null
+    && row.sizeGiB >= options.minSizeGiB;
+}
+
+function unknownBoundedMemoryExclusionReason(row, options) {
+  if (!row.jsRuntime && row.memoryKind === 'allocator-counters') return 'non-js-allocator-counter-not-runtime-limit-target';
+  if (!row.jsRuntime && row.memoryKind === 'not-recorded') return 'non-js-no-peak-memory-not-runtime-limit-target';
+  if (!row.jsRuntime) return 'non-js-row-not-runtime-limit-target';
+  if (row.fullStringParity !== true) return 'js-row-not-full-string-contract';
+  if (row.sizeGiB === null) return 'js-row-without-large-size-proof';
+  if (row.sizeGiB < options.minSizeGiB) return 'js-row-below-large-size-threshold';
+  return 'counterexample-relevant-unclassified-memory';
 }
 
 function classifyFullStringParity(node, context) {
@@ -799,6 +874,8 @@ function renderMarkdown(report) {
     `  - Unknown bounded-memory non-JS allocator-counter rows: ${report.summary.unknownBoundedMemoryBreakdown.nonJsAllocatorCounterRows}`,
     `  - Unknown bounded-memory non-JS rows without peak-memory counters: ${report.summary.unknownBoundedMemoryBreakdown.nonJsNoPeakMemoryRows}`,
     `  - Unknown bounded-memory rows with memory counters: ${report.summary.unknownBoundedMemoryBreakdown.rowsWithMemoryCounter}`,
+    `- Unknown full-string parity row exclusions: rows=${report.summary.unknownFullStringParityRowCount}, withReason=${report.summary.unknownFullStringParityRowsWithExclusionReasonCount}, counterexampleRelevant=${report.summary.unknownFullStringParityCounterexampleRelevantRowCount}`,
+    `- Unknown bounded-memory row exclusions: rows=${report.summary.unknownBoundedMemoryRowCount}, withReason=${report.summary.unknownBoundedMemoryRowsWithExclusionReasonCount}, counterexampleRelevant=${report.summary.unknownBoundedMemoryCounterexampleRelevantRowCount}`,
     `- Counterexamples found: ${report.summary.counterexampleCount}`,
     `  - Measured row counterexamples: ${report.summary.measuredCounterexampleCount}`,
     `  - Aggregate row counterexamples: ${report.summary.aggregateCounterexampleCount}`,
@@ -824,6 +901,33 @@ function renderMarkdown(report) {
     }
     lines.push('');
   }
+
+  lines.push(
+    '## Unknown Full-String Parity Rows',
+    '',
+    '| Artifact | Runtime | Row | Size GiB | MiB/s | Bounded | Memory | Relevant | Exclusion reason |',
+    '| --- | --- | --- | ---: | ---: | --- | --- | --- | --- |',
+  );
+  if (report.unknownFullStringParityRows.length === 0) {
+    lines.push('| none | | | | | | | | |');
+  } else {
+    for (const row of report.unknownFullStringParityRows) lines.push(renderUnknownRow(row));
+  }
+
+  lines.push(
+    '',
+    '## Unknown Bounded-Memory Rows',
+    '',
+    '| Artifact | Runtime | Row | Size GiB | MiB/s | Bounded | Memory | Relevant | Exclusion reason |',
+    '| --- | --- | --- | ---: | ---: | --- | --- | --- | --- |',
+  );
+  if (report.unknownBoundedMemoryRows.length === 0) {
+    lines.push('| none | | | | | | | | |');
+  } else {
+    for (const row of report.unknownBoundedMemoryRows) lines.push(renderUnknownRow(row));
+  }
+
+  lines.push('');
 
   lines.push(
     '## Counterexamples',
@@ -966,6 +1070,10 @@ function renderSourceModeBreakdownRow(entry) {
     ? `${row.runtimeLabel} ${row.id} from ${row.sourceArtifact}`
     : 'none';
   return `| \`${entry.sourceMode}\` | ${entry.rowCount} | ${entry.fullStringRowCount} | ${entry.boundedFullStringRowCount} | ${formatNumber(entry.fastestMiBPerSec)} | ${escapePipe(fastest)} | ${entry.demandDrivenRows} | ${entry.directReadableStreamRows} | ${entry.backpressureRows} | ${entry.notFullArrayBufferRows} |`;
+}
+
+function renderUnknownRow(row) {
+  return `| \`${row.sourceArtifact}\` | ${row.runtimeLabel} | \`${row.id}\` | ${formatNumber(row.sizeGiB)} | ${formatNumber(row.mibPerSec)} | ${formatBounded(row)} | ${row.memoryKind} | ${row.counterexampleRelevant ? 'yes' : 'no'} | ${row.counterexampleExclusionReason} |`;
 }
 
 function summarizeRow(row) {

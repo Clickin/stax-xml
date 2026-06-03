@@ -126,6 +126,22 @@ test('runtime counterexample scan applies the broad 200 MiB/s rule mechanically'
     nonJsNoPeakMemoryRows: 7,
     rowsWithMemoryCounter: 10,
   });
+  assert.equal(report.summary.unknownFullStringParityRowCount, 1);
+  assert.equal(report.summary.unknownFullStringParityRowsWithExclusionReasonCount, 1);
+  assert.equal(report.summary.unknownFullStringParityCounterexampleRelevantRowCount, 0);
+  assert.equal(report.summary.unknownBoundedMemoryRowCount, 28);
+  assert.equal(report.summary.unknownBoundedMemoryRowsWithExclusionReasonCount, 28);
+  assert.equal(report.summary.unknownBoundedMemoryCounterexampleRelevantRowCount, 0);
+  assert.equal(report.unknownFullStringParityRows.length, 1);
+  assert.equal(report.unknownFullStringParityRows[0].sourceArtifact, 'spidermonkey-taskcluster-debug-jsshell-primary-byte-batch-codegen-audit.json');
+  assert.equal(report.unknownFullStringParityRows[0].counterexampleRelevant, false);
+  assert.equal(report.unknownFullStringParityRows[0].counterexampleExclusionReason, 'non-js-row-not-runtime-limit-target');
+  assert.equal(report.unknownBoundedMemoryRows.length, 28);
+  assert.ok(report.unknownBoundedMemoryRows.every(row => row.counterexampleRelevant === false));
+  assert.ok(report.unknownBoundedMemoryRows.every(row => typeof row.counterexampleExclusionReason === 'string' && row.counterexampleExclusionReason.length > 0));
+  assert.ok(report.unknownBoundedMemoryRows.some(row => row.counterexampleExclusionReason === 'non-js-allocator-counter-not-runtime-limit-target'));
+  assert.ok(report.unknownBoundedMemoryRows.some(row => row.counterexampleExclusionReason === 'non-js-no-peak-memory-not-runtime-limit-target'));
+  assert.ok(report.unknownBoundedMemoryRows.some(row => row.counterexampleExclusionReason === 'js-row-below-large-size-threshold'));
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.hasMemoryProof, true);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.boundedMemory, true);
   assert.equal(report.summary.fastestLargeFullRowWithMemoryProof.sourceArtifact, 'text-trim-cost-decomposition.json');

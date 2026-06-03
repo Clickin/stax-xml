@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-03T09:41:42.010Z
+Generated: 2026-06-03T09:56:30.381Z
 
 ## Scope
 
@@ -125,11 +125,13 @@ Disclosure-only guards: 4
 - Same-contract comparison contract: same-full-string-checksum-contract-not-same-object-shape; publicEventCase=eventObjectFull; objectShapeEquivalence=false; memoryEquivalence=false
 - Same-contract comparison rows: 291/291; largeFullJsRows=239
 - Same-contract comparison counterexamples: 0
-- Runtime counterexample scan loaded: yes (2026-06-03T07:57:57.472Z)
+- Runtime counterexample scan loaded: yes (2026-06-03T09:51:45.489Z)
 - Counterexample scan contract: threshold=200.00 MiB/s, minSizeGiB=1.00, parseErrors=0
 - Counterexample scan coverage shape: artifacts=231/231, measuredRows=1269/1269
 - Counterexample scan aggregate surface: aggregateRows=182, largeFullAggregateRows=142, measuredCounterexamples=0, aggregateCounterexamples=0
 - Counterexample scan source-shape surface: sourceModeRows=644, largeFullSourceModeRows=474, modes=generated-sync-iterable-byte-batches:382,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; file-backed-sync-iterable-byte-batches:53,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; async-iterable-byte-batches:15,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; web-readable-stream-pull:15,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=15; sync-iterable-byte-batches:4,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; fetch-async-iterable-byte-batches:2,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0; fetch-readable-stream-pull:2,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=2; complete-js-string:1,fullArrayBuffer=0,unknownArrayBuffer=0,directReadableStream=0
+- Counterexample scan unknown full-string parity row exclusions: rows=1, withReason=1, counterexampleRelevant=0
+- Counterexample scan unknown bounded-memory row exclusions: rows=28, withReason=28, counterexampleRelevant=0
 - Runtime counterexample scan counterexamples: 0
 - Current release counterexamples: 0
 - [x] same-contract-comparison-loaded: same-contract-runtime-comparison.json must be loaded by the gate.
@@ -142,6 +144,8 @@ Disclosure-only guards: 4
 - [x] counterexample-scan-current-coverage-shape: runtime-counterexample-scan.json must scan the same artifact and measured-row counts as the current coverage audit.
 - [x] counterexample-scan-aggregate-surface: runtime-counterexample-scan.json must preserve aggregate-row counterexample counts as a separate surface from measured rows.
 - [x] counterexample-scan-source-shape-surface: runtime-counterexample-scan.json must preserve source-mode classification for large full-string JavaScript rows and keep full ArrayBuffer parser inputs visible.
+- [x] counterexample-scan-unknown-full-string-parity-row-exclusions: runtime-counterexample-scan.json must classify every unknown full-string parity row as not counterexample-relevant or expose it as an unclassified relevant row.
+- [x] counterexample-scan-unknown-bounded-memory-row-exclusions: runtime-counterexample-scan.json must classify every unknown bounded-memory row as not counterexample-relevant or expose it as an unclassified relevant row.
 
 ## Handoff Snapshot
 
