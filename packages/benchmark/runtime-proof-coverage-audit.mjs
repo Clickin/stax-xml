@@ -720,6 +720,8 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows, sameContra
   const acceptedLargeBoundedPrimaryRows = largeBoundedPrimaryRows.filter(row =>
     safariAcceptedClosureCaseIds.has(row.caseId)
   );
+  const acceptedClosureCaseIdsRecorded = acceptedClosureCaseIdsFor(acceptedClosureCaseRows);
+  const acceptedLargeBoundedPrimaryClosureCaseIdsRecorded = acceptedClosureCaseIdsFor(acceptedLargeBoundedPrimaryRows);
   const boundedPrimaryRowsInSameContractComparison = boundedPrimaryRows.filter(row =>
     matchSameContractComparisonRow({
       selectedRowId: row.id,
@@ -746,6 +748,12 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows, sameContra
   const largeBoundedPrimaryRowsWithRowLevelSourceBoundaryPin = largeBoundedPrimaryRows.filter(hasSafariWebKitSourceBoundaryPin);
   const acceptedLargeBoundedPrimaryRowsWithMeasuredExactBuildIdentity = acceptedLargeBoundedPrimaryRows.filter(hasMeasuredSafariBuildIdentity);
   const acceptedLargeBoundedPrimaryRowsWithRowLevelSourceBoundaryPin = acceptedLargeBoundedPrimaryRows.filter(hasSafariWebKitSourceBoundaryPin);
+  const acceptedLargeBoundedPrimaryClosureCaseIdsWithMeasuredExactBuildIdentity = acceptedClosureCaseIdsFor(acceptedLargeBoundedPrimaryRowsWithMeasuredExactBuildIdentity);
+  const acceptedLargeBoundedPrimaryClosureCaseIdsWithRowLevelSourceBoundaryPin = acceptedClosureCaseIdsFor(acceptedLargeBoundedPrimaryRowsWithRowLevelSourceBoundaryPin);
+  const allAcceptedClosureCasesRecorded = hasAllAcceptedClosureCases(acceptedClosureCaseIdsRecorded);
+  const allAcceptedLargeBoundedPrimaryClosureCasesRecorded = hasAllAcceptedClosureCases(acceptedLargeBoundedPrimaryClosureCaseIdsRecorded);
+  const allAcceptedLargeBoundedPrimaryClosureCasesWithMeasuredExactBuildIdentity = hasAllAcceptedClosureCases(acceptedLargeBoundedPrimaryClosureCaseIdsWithMeasuredExactBuildIdentity);
+  const allAcceptedLargeBoundedPrimaryClosureCasesWithRowLevelSourceBoundaryPin = hasAllAcceptedClosureCases(acceptedLargeBoundedPrimaryClosureCaseIdsWithRowLevelSourceBoundaryPin);
   const primaryRowsInSameContractComparison = boundedPrimaryRows.length > 0
     && boundedPrimaryRowsInSameContractComparison.length === boundedPrimaryRows.length;
   const largePrimaryRowsInSameContractComparison = largeBoundedPrimaryRows.length > 0
@@ -790,7 +798,11 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows, sameContra
     boundedPrimarySyncByteBatchRowsRecorded: boundedPrimaryRows.length,
     largeBoundedPrimarySyncByteBatchRowsRecorded: largeBoundedPrimaryRows.length,
     acceptedClosureCaseRowsRecorded: acceptedClosureCaseRows.length,
+    acceptedClosureCaseIdsRecorded,
+    allAcceptedClosureCasesRecorded,
     acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded: acceptedLargeBoundedPrimaryRows.length,
+    acceptedLargeBoundedPrimaryClosureCaseIdsRecorded,
+    allAcceptedLargeBoundedPrimaryClosureCasesRecorded,
     boundedPrimarySyncByteBatchRowsInSameContractComparison: boundedPrimaryRowsInSameContractComparison.length,
     largeBoundedPrimarySyncByteBatchRowsInSameContractComparison: largeBoundedPrimaryRowsInSameContractComparison.length,
     primaryRowsInSameContractComparison,
@@ -804,10 +816,24 @@ function summarizeSafariWebKitStatus(artifacts, browserBenchmarkRows, sameContra
       && exactBuildIdentityRecorded
       && availability.safariSourceBoundaryPinned === true
       && availability.directReadableStreamRowsAreSeparateEvidence === true
-      && acceptedLargeBoundedPrimaryRowsWithMeasuredExactBuildIdentity.length > 0
-      && acceptedLargeBoundedPrimaryRowsWithRowLevelSourceBoundaryPin.length > 0
+      && allAcceptedLargeBoundedPrimaryClosureCasesRecorded
+      && allAcceptedLargeBoundedPrimaryClosureCasesWithMeasuredExactBuildIdentity
+      && allAcceptedLargeBoundedPrimaryClosureCasesWithRowLevelSourceBoundaryPin
       && largePrimaryRowsInSameContractComparison,
   };
+}
+
+function acceptedClosureCaseIdsFor(rows) {
+  return Array.from(new Set(rows
+    .map(row => row.caseId)
+    .filter(caseId => safariAcceptedClosureCaseIds.has(caseId))))
+    .sort();
+}
+
+function hasAllAcceptedClosureCases(caseIds) {
+  if (!Array.isArray(caseIds)) return false;
+  const actual = new Set(caseIds);
+  return Array.from(safariAcceptedClosureCaseIds).every(caseId => actual.has(caseId));
 }
 
 function hasAcceptedBoundedMemoryProof(row) {
@@ -1441,11 +1467,11 @@ function createObligationRows(coverage) {
       id: 'safari-jsc-source-and-browser-rows-open',
       status: closesSafariObligation ? 'covered' : hasSafariRows ? 'partial' : 'open',
       evidence: closesSafariObligation
-        ? `${coverage.browser.safariBenchmarkRows.length} Safari/WebKit browser benchmark rows found with exact build identity, source-boundary evidence, and bounded primary sync byte-batch full-string rows.`
+        ? `${coverage.browser.safariBenchmarkRows.length} Safari/WebKit browser benchmark rows found with exact build identity, source-boundary evidence, and all accepted 1 GiB+ bounded primary sync byte-batch full-string cases.`
         : hasSafariRows
           ? [
             `${coverage.browser.safariBenchmarkRows.length} Safari/WebKit browser benchmark rows found, but the obligation is not closed.`,
-            `exactBuildIdentityRecorded=${coverage.safariWebKitStatus.exactBuildIdentityRecorded}; sourceBoundaryPinned=${coverage.safariWebKitStatus.sourceBoundaryPinned}; directReadableStreamRowsAreSeparateEvidence=${coverage.safariWebKitStatus.directReadableStreamRowsAreSeparateEvidence}; directReadableStreamFullStringRows=${coverage.safariWebKitStatus.directReadableStreamFullStringRowsRecorded}; primarySyncByteBatchRows=${coverage.safariWebKitStatus.primarySyncByteBatchRowsRecorded}; boundedPrimarySyncByteBatchRows=${coverage.safariWebKitStatus.boundedPrimarySyncByteBatchRowsRecorded}; largeBoundedPrimarySyncByteBatchRows=${coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsRecorded}; acceptedClosureCaseRows=${coverage.safariWebKitStatus.acceptedClosureCaseRowsRecorded}; acceptedLargeBoundedPrimarySyncByteBatchRows=${coverage.safariWebKitStatus.acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded}; primaryRowsInSameContractComparison=${coverage.safariWebKitStatus.primaryRowsInSameContractComparison}; largePrimaryRowsInSameContractComparison=${coverage.safariWebKitStatus.largePrimaryRowsInSameContractComparison}; closesSafariObligation=${coverage.safariWebKitStatus.closesSafariObligation}.`,
+            `exactBuildIdentityRecorded=${coverage.safariWebKitStatus.exactBuildIdentityRecorded}; sourceBoundaryPinned=${coverage.safariWebKitStatus.sourceBoundaryPinned}; directReadableStreamRowsAreSeparateEvidence=${coverage.safariWebKitStatus.directReadableStreamRowsAreSeparateEvidence}; directReadableStreamFullStringRows=${coverage.safariWebKitStatus.directReadableStreamFullStringRowsRecorded}; primarySyncByteBatchRows=${coverage.safariWebKitStatus.primarySyncByteBatchRowsRecorded}; boundedPrimarySyncByteBatchRows=${coverage.safariWebKitStatus.boundedPrimarySyncByteBatchRowsRecorded}; largeBoundedPrimarySyncByteBatchRows=${coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsRecorded}; acceptedClosureCaseRows=${coverage.safariWebKitStatus.acceptedClosureCaseRowsRecorded}; acceptedClosureCaseIds=${(coverage.safariWebKitStatus.acceptedClosureCaseIdsRecorded ?? []).join(',') || 'none'}; allAcceptedClosureCasesRecorded=${coverage.safariWebKitStatus.allAcceptedClosureCasesRecorded}; acceptedLargeBoundedPrimarySyncByteBatchRows=${coverage.safariWebKitStatus.acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded}; acceptedLargeBoundedPrimaryClosureCaseIds=${(coverage.safariWebKitStatus.acceptedLargeBoundedPrimaryClosureCaseIdsRecorded ?? []).join(',') || 'none'}; allAcceptedLargeBoundedPrimaryClosureCasesRecorded=${coverage.safariWebKitStatus.allAcceptedLargeBoundedPrimaryClosureCasesRecorded}; primaryRowsInSameContractComparison=${coverage.safariWebKitStatus.primaryRowsInSameContractComparison}; largePrimaryRowsInSameContractComparison=${coverage.safariWebKitStatus.largePrimaryRowsInSameContractComparison}; closesSafariObligation=${coverage.safariWebKitStatus.closesSafariObligation}.`,
           ].join(' ')
         : [
           'Bun/JSC and Bun-patched WebKit evidence is present, but no Safari/WebKit browser benchmark row was found.',
@@ -2135,7 +2161,11 @@ function renderMarkdown(report) {
     `Safari/WebKit rows with row-level source pins: ${report.coverage.safariWebKitStatus.rowLevelSourceBoundaryPinnedRowsRecorded}`,
     `Safari/WebKit 1 GiB+ bounded primary rows with row-level source pins: ${report.coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsWithRowLevelSourceBoundaryPin}`,
     `Safari/WebKit accepted closure case rows: ${report.coverage.safariWebKitStatus.acceptedClosureCaseRowsRecorded}`,
+    `Safari/WebKit accepted closure case ids: ${(report.coverage.safariWebKitStatus.acceptedClosureCaseIdsRecorded ?? []).join(', ') || 'none'}`,
+    `Safari/WebKit all accepted closure cases recorded: ${formatBoolean(report.coverage.safariWebKitStatus.allAcceptedClosureCasesRecorded)}`,
     `Safari/WebKit accepted 1 GiB+ bounded primary rows: ${report.coverage.safariWebKitStatus.acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded}`,
+    `Safari/WebKit accepted 1 GiB+ bounded primary case ids: ${(report.coverage.safariWebKitStatus.acceptedLargeBoundedPrimaryClosureCaseIdsRecorded ?? []).join(', ') || 'none'}`,
+    `Safari/WebKit all accepted 1 GiB+ bounded primary cases recorded: ${formatBoolean(report.coverage.safariWebKitStatus.allAcceptedLargeBoundedPrimaryClosureCasesRecorded)}`,
     `Safari/WebKit primary rows in same-contract comparison: ${formatBoolean(report.coverage.safariWebKitStatus.primaryRowsInSameContractComparison)}`,
     `Safari/WebKit 1 GiB+ bounded primary rows in same-contract comparison: ${formatBoolean(report.coverage.safariWebKitStatus.largePrimaryRowsInSameContractComparison)}`,
     `Safari/WebKit obligation closed: ${formatBoolean(report.coverage.safariWebKitStatus.closesSafariObligation)}`,

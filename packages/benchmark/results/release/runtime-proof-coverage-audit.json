@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T08:32:15.977Z",
+  "generatedAt": "2026-06-03T08:59:39.396Z",
   "objective": "runtime-proof-coverage-audit",
   "contract": "static-release-artifact-proof-coverage",
   "note": "Scans current release artifacts for runtime, browser-engine, corpus, codegen/profile, and allocation coverage. This is a coverage audit over existing artifacts, not a benchmark run or runtime-limit proof.",
@@ -27092,7 +27092,11 @@
       "boundedPrimarySyncByteBatchRowsRecorded": 0,
       "largeBoundedPrimarySyncByteBatchRowsRecorded": 0,
       "acceptedClosureCaseRowsRecorded": 0,
+      "acceptedClosureCaseIdsRecorded": [],
+      "allAcceptedClosureCasesRecorded": false,
       "acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded": 0,
+      "acceptedLargeBoundedPrimaryClosureCaseIdsRecorded": [],
+      "allAcceptedLargeBoundedPrimaryClosureCasesRecorded": false,
       "boundedPrimarySyncByteBatchRowsInSameContractComparison": 0,
       "largeBoundedPrimarySyncByteBatchRowsInSameContractComparison": 0,
       "primaryRowsInSameContractComparison": false,

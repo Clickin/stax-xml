@@ -1,6 +1,6 @@
 # Runtime Proof Coverage Audit
 
-Generated: 2026-06-03T08:32:15.977Z
+Generated: 2026-06-03T08:59:39.396Z
 
 This audit scans current release artifacts to show which proof obligations are covered, partial, or still open. It is not a new benchmark run and not an impossibility proof.
 
@@ -105,7 +105,11 @@ Safari/WebKit 1 GiB+ bounded primary rows with measured exact build identity: 0
 Safari/WebKit rows with row-level source pins: 0
 Safari/WebKit 1 GiB+ bounded primary rows with row-level source pins: 0
 Safari/WebKit accepted closure case rows: 0
+Safari/WebKit accepted closure case ids: none
+Safari/WebKit all accepted closure cases recorded: no
 Safari/WebKit accepted 1 GiB+ bounded primary rows: 0
+Safari/WebKit accepted 1 GiB+ bounded primary case ids: none
+Safari/WebKit all accepted 1 GiB+ bounded primary cases recorded: no
 Safari/WebKit primary rows in same-contract comparison: no
 Safari/WebKit 1 GiB+ bounded primary rows in same-contract comparison: no
 Safari/WebKit obligation closed: no

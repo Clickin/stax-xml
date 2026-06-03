@@ -78,9 +78,9 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('must not substitute for primarySyncByteBatchRowsRecorded')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('primaryRowsInSameContractComparison')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('largeBoundedPrimarySyncByteBatchRowsRecorded')));
-  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('acceptedClosureCaseRowsRecorded')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('allAcceptedClosureCasesRecorded')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('caseId=stringFull')));
-  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('allAcceptedLargeBoundedPrimaryClosureCasesRecorded')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('largePrimaryRowsInSameContractComparison')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('same-contract-runtime-comparison')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('safari-webkit-closure-audit')));
@@ -100,8 +100,8 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('safari-webdriver-candidate-headroom-cross-process-books-corpus')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('runtimeId=safari-jsc-browser')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('parserInput=synchronous Iterable')));
-  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('coverage\\.safariWebKitStatus\\.acceptedClosureCaseRowsRecorded')));
-  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('coverage\\.safariWebKitStatus\\.acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('coverage\\.safariWebKitStatus\\.allAcceptedClosureCasesRecorded')));
+  assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('coverage\\.safariWebKitStatus\\.allAcceptedLargeBoundedPrimaryClosureCasesRecorded')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('coverage\\.safariWebKitStatus\\.closesSafariObligation')));
   assert.ok(safari.requiredContractPatterns.some(pattern => pattern.includes('Reject rows whose parser input is a full XML ArrayBuffer')));
   if (spiderMonkey) {
@@ -380,12 +380,12 @@ test('runtime proof handoff validation fails if Safari omits accepted closure ca
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const safari = handoff.handoffs.find(row => row.id === 'safari-webkit-browser-row-handoff');
   safari.closureChecks = safari.closureChecks.filter(item =>
-    !/acceptedClosureCaseRowsRecorded/.test(item)
-    && !/acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded/.test(item)
+    !/allAcceptedClosureCasesRecorded/.test(item)
+    && !/allAcceptedLargeBoundedPrimaryClosureCasesRecorded/.test(item)
   );
   safari.evidenceIntakeContract.requiredAuditFields = safari.evidenceIntakeContract.requiredAuditFields.filter(item =>
-    !/acceptedClosureCaseRowsRecorded/.test(item)
-    && !/acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded/.test(item)
+    !/allAcceptedClosureCasesRecorded/.test(item)
+    && !/allAcceptedLargeBoundedPrimaryClosureCasesRecorded/.test(item)
   );
   writeFileSync(badHandoffJson, `${JSON.stringify(handoff, null, 2)}\n`);
 
@@ -410,8 +410,8 @@ test('runtime proof handoff validation fails if Safari omits accepted closure ca
   assert.equal(report.summary.allContractsPresent, false);
   const safariCheck = report.handoffChecks.find(row => row.id === 'safari-webkit-browser-row-handoff');
   assert.equal(safariCheck.contractsPresent, false);
-  assert.ok(safariCheck.requiredContractPatterns.some(pattern => /acceptedClosureCaseRowsRecorded/.test(pattern)));
-  assert.ok(safariCheck.requiredContractPatterns.some(pattern => /acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded/.test(pattern)));
+  assert.ok(safariCheck.requiredContractPatterns.some(pattern => /allAcceptedClosureCasesRecorded/.test(pattern)));
+  assert.ok(safariCheck.requiredContractPatterns.some(pattern => /allAcceptedLargeBoundedPrimaryClosureCasesRecorded/.test(pattern)));
 
   const markdown = readFileSync(badMdOut, 'utf8');
   assert.match(markdown, /Pass: no/);

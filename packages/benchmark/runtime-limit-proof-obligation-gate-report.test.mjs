@@ -259,7 +259,11 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.coverageSnapshot.safariWebKitStatus.boundedPrimarySyncByteBatchRowsRecorded, 0);
   assert.equal(report.coverageSnapshot.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsRecorded, 0);
   assert.equal(report.coverageSnapshot.safariWebKitStatus.acceptedClosureCaseRowsRecorded, 0);
+  assert.deepEqual(report.coverageSnapshot.safariWebKitStatus.acceptedClosureCaseIdsRecorded, []);
+  assert.equal(report.coverageSnapshot.safariWebKitStatus.allAcceptedClosureCasesRecorded, false);
   assert.equal(report.coverageSnapshot.safariWebKitStatus.acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded, 0);
+  assert.deepEqual(report.coverageSnapshot.safariWebKitStatus.acceptedLargeBoundedPrimaryClosureCaseIdsRecorded, []);
+  assert.equal(report.coverageSnapshot.safariWebKitStatus.allAcceptedLargeBoundedPrimaryClosureCasesRecorded, false);
   assert.equal(report.coverageSnapshot.safariWebKitStatus.directReadableStreamRowsAreSeparateEvidence, true);
   assert.equal(report.coverageSnapshot.safariWebKitStatus.exactBuildIdentityRecorded, false);
   assert.equal(report.coverageSnapshot.safariWebKitStatus.sourceBoundaryPinned, false);
@@ -1056,8 +1060,8 @@ test('runtime-limit proof-obligation gate fails if Safari handoff omits accepted
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const safari = handoff.handoffs.find(item => item.id === 'safari-webkit-browser-row-handoff');
   safari.closureChecks = safari.closureChecks.filter(item =>
-    !/acceptedClosureCaseRowsRecorded/.test(item)
-    && !/acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded/.test(item)
+    !/allAcceptedClosureCasesRecorded/.test(item)
+    && !/allAcceptedLargeBoundedPrimaryClosureCasesRecorded/.test(item)
   );
   writeFileSync(badHandoffJsonOut, `${JSON.stringify(handoff, null, 2)}\n`);
 
@@ -1084,7 +1088,7 @@ test('runtime-limit proof-obligation gate fails if Safari handoff omits accepted
     item.id === 'safari-closure-checks-accepted-cases'
     && !item.satisfied
   ));
-  assert.ok(report.gate.errors.some(error => /accepted closure case rows/.test(error)));
+  assert.ok(report.gate.errors.some(error => /all accepted closure cases/.test(error)));
 
   const markdown = readFileSync(badHandoffGateMdOut, 'utf8');
   assert.match(markdown, /Gate pass: no/);

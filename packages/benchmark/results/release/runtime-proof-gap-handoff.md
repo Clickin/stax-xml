@@ -1,13 +1,13 @@
 # Runtime Proof Gap Handoff
 
-Generated: 2026-06-03T08:33:47.296Z
+Generated: 2026-06-03T08:59:39.690Z
 
 Turns current open or partial runtime proof obligations into concrete external-run handoffs. This is not benchmark evidence, not emitted JIT IR, not Safari/WebKit throughput evidence, and not a runtime-limit conclusion.
 
 ## Audit Input
 
 - Audit JSON: G:\programming\stax-xml\packages\benchmark\results\release\runtime-proof-coverage-audit.json
-- Audit generated: 2026-06-03T08:32:15.977Z
+- Audit generated: 2026-06-03T08:59:39.396Z
 - Comparison JSON: G:\programming\stax-xml\packages\benchmark\results\release\same-contract-runtime-comparison.json
 - Comparison generated: 2026-06-03T06:02:02.040Z
 - Active obligations: 1
@@ -208,8 +208,8 @@ Evidence intake contract:
 - requiredRowField: rowLevelSourceBoundaryPin
 - requiredAuditField: coverage.safariWebKitStatus.primaryRowsInSameContractComparison=true
 - requiredAuditField: coverage.safariWebKitStatus.largePrimaryRowsInSameContractComparison=true
-- requiredAuditField: coverage.safariWebKitStatus.acceptedClosureCaseRowsRecorded>0
-- requiredAuditField: coverage.safariWebKitStatus.acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded>0
+- requiredAuditField: coverage.safariWebKitStatus.allAcceptedClosureCasesRecorded=true
+- requiredAuditField: coverage.safariWebKitStatus.allAcceptedLargeBoundedPrimaryClosureCasesRecorded=true
 - requiredAuditField: coverage.safariWebKitStatus.closesSafariObligation=true
 - requiredAuditField: safari-webkit-closure-audit.summary.qualifiedClosureCount>0
 - rejectionRule: Reject rows whose parser input is a full XML ArrayBuffer or full XML string.
@@ -226,8 +226,8 @@ Closure checks:
 - runtime-proof-coverage-audit.json coverage.safariWebKitStatus.boundedPrimarySyncByteBatchRowsRecorded must be greater than 0.
 - runtime-proof-coverage-audit.json coverage.safariWebKitStatus.primaryRowsInSameContractComparison must be true, with bounded primary row id, event count, and checksum matching same-contract-runtime-comparison.json.
 - runtime-proof-coverage-audit.json coverage.safariWebKitStatus.largeBoundedPrimarySyncByteBatchRowsRecorded must be greater than 0 for 1 GiB+ Safari/WebKit primary rows.
-- runtime-proof-coverage-audit.json coverage.safariWebKitStatus.acceptedClosureCaseRowsRecorded must be greater than 0 and limited to caseId=stringFull|eventObjectFull|rawFrameNameId.
-- runtime-proof-coverage-audit.json coverage.safariWebKitStatus.acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded must be greater than 0 for 1 GiB+ accepted Safari/WebKit primary rows.
+- runtime-proof-coverage-audit.json coverage.safariWebKitStatus.allAcceptedClosureCasesRecorded must be true for caseId=stringFull|eventObjectFull|rawFrameNameId.
+- runtime-proof-coverage-audit.json coverage.safariWebKitStatus.allAcceptedLargeBoundedPrimaryClosureCasesRecorded must be true for 1 GiB+ accepted Safari/WebKit primary rows covering caseId=stringFull|eventObjectFull|rawFrameNameId.
 - runtime-proof-coverage-audit.json coverage.safariWebKitStatus.largePrimaryRowsInSameContractComparison must be true, with 1 GiB+ bounded primary row id, event count, and checksum matching same-contract-runtime-comparison.json.
 - runtime-proof-coverage-audit.json coverage.safariWebKitStatus.exactBuildIdentityRecorded must be true.
 - runtime-proof-coverage-audit.json coverage.safariWebKitStatus.rowLevelSourceBoundaryPinnedRowsRecorded must be greater than 0.

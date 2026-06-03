@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T08:34:15.629Z",
+  "generatedAt": "2026-06-03T09:01:46.934Z",
   "objective": "runtime-limit-proof-obligation-gate",
   "contract": "static-ledger-proof-obligations",
   "note": "Static proof-obligation gate for the broad 200 MiB/s JavaScript runtime-limit claim. Passing this gate currently means the ledger is conservative: the broad claim remains a hypothesis and known open obligations are disclosed.",
@@ -699,7 +699,7 @@
   },
   "handoffSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T08:33:47.296Z",
+    "generatedAt": "2026-06-03T08:59:39.690Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open"
     ],
@@ -740,7 +740,7 @@
       },
       {
         "id": "safari-closure-checks-accepted-cases",
-        "description": "Safari closure checks must require accepted closure case rows and accepted 1 GiB+ primary rows before closing Safari/WebKit coverage.",
+        "description": "Safari closure checks must require all accepted closure cases and all accepted 1 GiB+ primary cases before closing Safari/WebKit coverage.",
         "satisfied": true
       },
       {
@@ -772,9 +772,9 @@
   },
   "handoffValidationSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T08:33:59.502Z",
-    "validatedHandoffGeneratedAt": "2026-06-03T08:33:47.296Z",
-    "currentHandoffGeneratedAt": "2026-06-03T08:33:47.296Z",
+    "generatedAt": "2026-06-03T09:01:46.866Z",
+    "validatedHandoffGeneratedAt": "2026-06-03T08:59:39.690Z",
+    "currentHandoffGeneratedAt": "2026-06-03T08:59:39.690Z",
     "pass": true,
     "missingScriptCount": 0,
     "nonReleaseOutputPathCount": 0,
@@ -844,11 +844,11 @@
   },
   "sourceAuditSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T08:33:22.619Z",
+    "generatedAt": "2026-06-03T08:59:39.459Z",
     "inputComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
     "currentComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
-    "inputCoverageGeneratedAt": "2026-06-03T08:32:15.977Z",
-    "currentCoverageGeneratedAt": "2026-06-03T08:32:15.977Z",
+    "inputCoverageGeneratedAt": "2026-06-03T08:59:39.396Z",
+    "currentCoverageGeneratedAt": "2026-06-03T08:59:39.396Z",
     "status": "classified",
     "primarySourceContract": "primary-sync-iterable-byte-batches",
     "primaryParserInput": "synchronous Iterable<Uint8Array[]>",
@@ -911,7 +911,7 @@
   "frontierAuditSnapshot": {
     "memory": {
       "loaded": true,
-      "generatedAt": "2026-06-03T08:33:26.283Z",
+      "generatedAt": "2026-06-03T08:59:39.518Z",
       "inputComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
       "currentComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
       "status": "classified",
@@ -928,7 +928,7 @@
     },
     "targetDistance": {
       "loaded": true,
-      "generatedAt": "2026-06-03T08:33:27.756Z",
+      "generatedAt": "2026-06-03T08:59:39.572Z",
       "inputComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
       "currentComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
       "status": "classified",
@@ -951,7 +951,7 @@
     },
     "textMaterialization": {
       "loaded": true,
-      "generatedAt": "2026-06-03T08:33:34.877Z",
+      "generatedAt": "2026-06-03T08:59:39.628Z",
       "inputComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
       "currentComparisonGeneratedAt": "2026-06-03T06:02:02.040Z",
       "status": "classified",
@@ -1044,7 +1044,7 @@
   },
   "coverageSnapshot": {
     "loaded": true,
-    "generatedAt": "2026-06-03T08:32:15.977Z",
+    "generatedAt": "2026-06-03T08:59:39.396Z",
     "activeObligationIds": [
       "safari-jsc-source-and-browser-rows-open"
     ],
@@ -1251,7 +1251,11 @@
       "boundedPrimarySyncByteBatchRowsRecorded": 0,
       "largeBoundedPrimarySyncByteBatchRowsRecorded": 0,
       "acceptedClosureCaseRowsRecorded": 0,
+      "acceptedClosureCaseIdsRecorded": [],
+      "allAcceptedClosureCasesRecorded": false,
       "acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded": 0,
+      "acceptedLargeBoundedPrimaryClosureCaseIdsRecorded": [],
+      "allAcceptedLargeBoundedPrimaryClosureCasesRecorded": false,
       "directReadableStreamRowsAreSeparateEvidence": true,
       "exactBuildIdentityRecorded": false,
       "rowLevelSourceBoundaryPinnedRowsRecorded": 0,

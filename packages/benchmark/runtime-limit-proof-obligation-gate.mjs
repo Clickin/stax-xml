@@ -1121,14 +1121,14 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
     },
     {
       id: 'safari-closure-checks-accepted-cases',
-      description: 'Safari closure checks must require accepted closure case rows and accepted 1 GiB+ primary rows before closing Safari/WebKit coverage.',
+      description: 'Safari closure checks must require all accepted closure cases and all accepted 1 GiB+ primary cases before closing Safari/WebKit coverage.',
       satisfied: safariChecks.some(item =>
-        /acceptedClosureCaseRowsRecorded must be greater than 0/.test(item)
+        /allAcceptedClosureCasesRecorded must be true/.test(item)
         && /caseId=stringFull\|eventObjectFull\|rawFrameNameId/.test(item)
       )
         && safariChecks.some(item =>
-          /acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded must be greater than 0/.test(item)
-          && /1 GiB\+ accepted Safari\/WebKit primary rows/.test(item)
+          /allAcceptedLargeBoundedPrimaryClosureCasesRecorded must be true/.test(item)
+          && /1 GiB\+ accepted Safari\/WebKit primary rows covering caseId=stringFull\|eventObjectFull\|rawFrameNameId/.test(item)
         ),
     },
     {
@@ -1178,8 +1178,8 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
           /rowLevelSourceBoundaryPin/,
         ])
         && intakeHas(safariIntake, 'requiredAuditFields', [
-          /coverage\.safariWebKitStatus\.acceptedClosureCaseRowsRecorded>0/,
-          /coverage\.safariWebKitStatus\.acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded>0/,
+          /coverage\.safariWebKitStatus\.allAcceptedClosureCasesRecorded=true/,
+          /coverage\.safariWebKitStatus\.allAcceptedLargeBoundedPrimaryClosureCasesRecorded=true/,
           /coverage\.safariWebKitStatus\.closesSafariObligation=true/,
           /safari-webkit-closure-audit\.summary\.qualifiedClosureCount>0/,
         ])
@@ -1664,7 +1664,11 @@ function createNullSafariWebKitStatus() {
     boundedPrimarySyncByteBatchRowsRecorded: null,
     largeBoundedPrimarySyncByteBatchRowsRecorded: null,
     acceptedClosureCaseRowsRecorded: null,
+    acceptedClosureCaseIdsRecorded: [],
+    allAcceptedClosureCasesRecorded: null,
     acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded: null,
+    acceptedLargeBoundedPrimaryClosureCaseIdsRecorded: [],
+    allAcceptedLargeBoundedPrimaryClosureCasesRecorded: null,
     directReadableStreamRowsAreSeparateEvidence: null,
     exactBuildIdentityRecorded: null,
     rowLevelSourceBoundaryPinnedRowsRecorded: null,
@@ -1697,7 +1701,15 @@ function createSafariWebKitStatusSnapshot(status = {}) {
     boundedPrimarySyncByteBatchRowsRecorded: status.boundedPrimarySyncByteBatchRowsRecorded ?? null,
     largeBoundedPrimarySyncByteBatchRowsRecorded: status.largeBoundedPrimarySyncByteBatchRowsRecorded ?? null,
     acceptedClosureCaseRowsRecorded: status.acceptedClosureCaseRowsRecorded ?? null,
+    acceptedClosureCaseIdsRecorded: Array.isArray(status.acceptedClosureCaseIdsRecorded)
+      ? status.acceptedClosureCaseIdsRecorded
+      : [],
+    allAcceptedClosureCasesRecorded: status.allAcceptedClosureCasesRecorded ?? null,
     acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded: status.acceptedLargeBoundedPrimarySyncByteBatchRowsRecorded ?? null,
+    acceptedLargeBoundedPrimaryClosureCaseIdsRecorded: Array.isArray(status.acceptedLargeBoundedPrimaryClosureCaseIdsRecorded)
+      ? status.acceptedLargeBoundedPrimaryClosureCaseIdsRecorded
+      : [],
+    allAcceptedLargeBoundedPrimaryClosureCasesRecorded: status.allAcceptedLargeBoundedPrimaryClosureCasesRecorded ?? null,
     directReadableStreamRowsAreSeparateEvidence: status.directReadableStreamRowsAreSeparateEvidence ?? null,
     exactBuildIdentityRecorded: status.exactBuildIdentityRecorded ?? null,
     rowLevelSourceBoundaryPinnedRowsRecorded: status.rowLevelSourceBoundaryPinnedRowsRecorded ?? null,
@@ -1962,7 +1974,7 @@ function renderMarkdown(report) {
   `- SpiderMonkey closest codegen blockers: ${formatClosestBlockedRequirementSets(report.coverageSnapshot.spiderMonkeyClosureAudit.closestBlockedCandidateRequirementSets)}`,
   `- SpiderMonkey Taskcluster route freshness: ${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.routeFresh === true ? 'fresh' : 'stale'} (artifactIdentityMatchesRoute=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.artifactIdentityMatchesRoute === true ? 'yes' : 'no'}, expectedIdentitySource=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.expectedIdentitySource ?? 'unknown'}, checkedArtifacts=${report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.checkedArtifactCount ?? 'unknown'}, mismatchedArtifacts=${formatStringList(report.coverageSnapshot.spiderMonkeyTaskclusterRouteFreshness?.mismatchedArtifacts ?? [])})`,
   `- Safari/WebKit closure comparison: generatedAt=${report.coverageSnapshot.safariWebKitClosureAudit.comparisonGeneratedAt ?? 'unknown'}, rows=${report.coverageSnapshot.safariWebKitClosureAudit.comparisonRowCount ?? 'unknown'}, candidates=${report.coverageSnapshot.safariWebKitClosureAudit.candidateCount ?? 'unknown'}, qualified=${report.coverageSnapshot.safariWebKitClosureAudit.qualifiedClosureCount ?? 'unknown'}`,
-  `- Safari/WebKit status: evidenceClass=${report.coverageSnapshot.safariWebKitStatus?.evidenceClass ?? 'unknown'}, canRunSafariBrowserRows=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.canRunSafariBrowserRows)}, browserRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.benchmarkRowsRecorded)}, primarySyncRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.primarySyncByteBatchRowsRecorded)}, boundedPrimaryRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.boundedPrimarySyncByteBatchRowsRecorded)}, largeBoundedPrimaryRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.largeBoundedPrimarySyncByteBatchRowsRecorded)}, exactBuildIdentity=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.exactBuildIdentityRecorded)}, sourceBoundaryPinned=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.sourceBoundaryPinned)}, closesSafariObligation=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.closesSafariObligation)}`,
+  `- Safari/WebKit status: evidenceClass=${report.coverageSnapshot.safariWebKitStatus?.evidenceClass ?? 'unknown'}, canRunSafariBrowserRows=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.canRunSafariBrowserRows)}, browserRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.benchmarkRowsRecorded)}, primarySyncRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.primarySyncByteBatchRowsRecorded)}, boundedPrimaryRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.boundedPrimarySyncByteBatchRowsRecorded)}, largeBoundedPrimaryRows=${formatNullableCount(report.coverageSnapshot.safariWebKitStatus?.largeBoundedPrimarySyncByteBatchRowsRecorded)}, acceptedCases=${formatStringList(report.coverageSnapshot.safariWebKitStatus?.acceptedClosureCaseIdsRecorded)}, allAcceptedCases=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.allAcceptedClosureCasesRecorded)}, acceptedLargePrimaryCases=${formatStringList(report.coverageSnapshot.safariWebKitStatus?.acceptedLargeBoundedPrimaryClosureCaseIdsRecorded)}, allAcceptedLargePrimaryCases=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.allAcceptedLargeBoundedPrimaryClosureCasesRecorded)}, exactBuildIdentity=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.exactBuildIdentityRecorded)}, sourceBoundaryPinned=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.sourceBoundaryPinned)}, closesSafariObligation=${formatYesNo(report.coverageSnapshot.safariWebKitStatus?.closesSafariObligation)}`,
   `- Safari/WebKit local closure blockers: met=${formatStringList(report.coverageSnapshot.safariWebKitStatus?.availabilityMetClosureRequirementIds)}, blocked=${formatStringList(report.coverageSnapshot.safariWebKitStatus?.availabilityBlockedClosureRequirementIds)}`,
   '',
     '| ID | Satisfied | Meaning |',
