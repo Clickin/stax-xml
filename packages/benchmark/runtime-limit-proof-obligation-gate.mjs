@@ -976,9 +976,11 @@ function createHandoffValidationSnapshot(validation, handoffSnapshot = null) {
     requiredHandoffsPresent: validation.summary?.requiredHandoffsPresent ?? null,
     unhandledObligationCount: validation.summary?.unhandledObligationCount ?? null,
     handoffIds: handoffChecks.map(check => check.id).filter(Boolean),
-    spiderMonkeyTextDecoderHostApiValidationPinned: /materialized scope-distance audit pins/.test(spiderMonkeyRequiredContracts)
-      && /primarySyncByteBatchMissingGlobals=TextDecoder/.test(spiderMonkeyRequiredContracts)
-      && /asciiTextDecoderEquivalent=true/.test(spiderMonkeyRequiredContracts),
+    spiderMonkeyUtf8FallbackBoundaryValidationPinned: /materialized scope-distance audit pins/.test(spiderMonkeyRequiredContracts)
+      && /primarySyncByteBatchMissingGlobals=none/.test(spiderMonkeyRequiredContracts)
+      && /asciiTextDecoderEquivalent=true/.test(spiderMonkeyRequiredContracts)
+      && /utf8FallbackDecoder=true/.test(spiderMonkeyRequiredContracts)
+      && /nonUtf8RequiresTextDecoder=true/.test(spiderMonkeyRequiredContracts),
     guards: [],
   };
   snapshot.guards = createHandoffValidationGuards(snapshot);
@@ -1038,9 +1040,9 @@ function createHandoffValidationGuards(snapshot) {
       satisfied: snapshot?.unhandledObligationCount === 0,
     },
     {
-      id: 'handoff-validation-spidermonkey-textdecoder-host-api-blocker',
-      description: 'runtime-proof-handoff-validation.json must require the SpiderMonkey materialized TextDecoder host API blocker contract patterns.',
-      satisfied: snapshot?.spiderMonkeyTextDecoderHostApiValidationPinned === true,
+      id: 'handoff-validation-spidermonkey-utf8-fallback-boundary',
+      description: 'runtime-proof-handoff-validation.json must require the SpiderMonkey UTF-8 fallback boundary contract patterns.',
+      satisfied: snapshot?.spiderMonkeyUtf8FallbackBoundaryValidationPinned === true,
     },
   ];
 }
@@ -1229,12 +1231,14 @@ function createHandoffGuards(byId, counterexampleSnapshot = null) {
         && spiderChecks.some(item => /closesCodegenObligation must be true/.test(item)),
     },
     {
-      id: 'spidermonkey-materialized-textdecoder-host-api-blocker',
-      description: 'SpiderMonkey materialized js-shell codegen must preserve the TextDecoder host API blocker before treating ASCII materialized codegen as unchanged StAX closure.',
+      id: 'spidermonkey-materialized-utf8-fallback-boundary',
+      description: 'SpiderMonkey materialized js-shell codegen must preserve the UTF-8 fallback boundary before treating materialized codegen as unchanged StAX closure.',
       satisfied: spiderBlockers.some(item =>
         /materialized scope-distance audit pins/.test(item)
-        && /primarySyncByteBatchMissingGlobals=TextDecoder/.test(item)
+        && /primarySyncByteBatchMissingGlobals=none/.test(item)
         && /asciiTextDecoderEquivalent=true/.test(item)
+        && /utf8FallbackDecoder=true/.test(item)
+        && /nonUtf8RequiresTextDecoder=true/.test(item)
         && /closesCodegenObligation=false/.test(item)
       ),
     },

@@ -213,8 +213,10 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.measuredRowCount === 0
     && artifact.evidenceKinds.includes('SOURCE_FACT')
     && artifact.evidenceKinds.includes('SCOPE_GUARD')
-    && artifact.summary.primarySyncByteBatchRequiresTextDecoder === true
+    && artifact.summary.primarySyncByteBatchRequiresTextDecoder === false
     && artifact.summary.asciiPrimarySyncByteBatchRequiresTextDecoder === false
+    && artifact.summary.utf8FallbackDecoder === true
+    && artifact.summary.nonUtf8RequiresTextDecoder === true
     && artifact.summary.directReadableStreamRequiresReadableStream === true
     && artifact.summary.stringInputRequiresTextEncoder === true
     && artifact.summary.rootImportRequiresTextEncoder === false
@@ -323,8 +325,8 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && artifact.evidenceKinds.includes('SCOPE_GUARD')
     && artifact.evidenceKinds.includes('NEGATIVE_RESULT')
     && artifact.summary.semanticEquivalentForAsciiFields === true
-    && artifact.summary.closureRequirementsMet === 2
-    && artifact.summary.closureRequirementsBlocked === 4
+    && artifact.summary.closureRequirementsMet === 3
+    && artifact.summary.closureRequirementsBlocked === 3
     && artifact.summary.closesCodegenObligation === false
     && artifact.summary.diagnosticThroughputMiBPerSec === materializedScopeDistance.summary.diagnosticThroughputMiBPerSec
     && artifact.summary.diagnosticThroughputClass === 'debug-jitspew-diagnostic-not-frontier'
@@ -804,7 +806,9 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
     && row.canReadBinaryInput === true
     && row.canRunCurrentStaxFullStringBenchmark === false
     && row.closesEmittedIrObligation === false
-    && row.commonMissingGlobals.join(', ') === 'TextDecoder, TextEncoder, ReadableStream, fetch'
+    && row.commonMissingGlobals.join(', ') === 'TextEncoder, ReadableStream, fetch'
+    && row.primarySyncByteBatchMissingGlobals.join(', ') === ''
+    && row.nonPrimaryHarnessMissingGlobals.join(', ') === 'TextEncoder, ReadableStream, fetch'
   ));
   assert.ok(report.scannedArtifacts.some(row =>
     row.sourceArtifact === 'quick-xml-allocation-count-stability.json'
@@ -1497,16 +1501,16 @@ test('runtime proof coverage audit keeps open proof obligations explicit', () =>
   assert.match(markdown, /Firefox\/SpiderMonkey local js-shell availability audit present \(status=available, found=2, searchRoots=2\); no emitted JIT IR is recorded by that audit/);
   assert.match(markdown, /Firefox\/SpiderMonkey official release js-shell audit present \(status=available, packageVerified=true, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is bytecode\/JIT-status diagnostic evidence only, not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey official nightly js-shell audit present \(status=available, packageVerified=false, jitStatus=true, irDumpSurface=false, bytecodeDumpOutput=true, bytecodeDumpStatus=bytecode-output-emitted, nativeDisassemblySurface=false, nativeDumpComplete=false, canReadBinaryInput=true, canRunCurrentStaxFullStringBenchmark=false\); it is bytecode\/JIT-status diagnostic evidence only, not emitted JIT IR/);
-  assert.match(markdown, /Current StAX public reader host API boundary audit present \(primarySyncByteBatchRequiresTextDecoder=true, asciiPrimarySyncByteBatchRequiresTextDecoder=false, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, rootImportRequiresTextEncoder=false, alternateDecoderWouldBeUnchangedClosure=false\); it pins why a js-shell alternate decoder or polyfill is not unchanged StAX public-reader closure evidence/);
+  assert.match(markdown, /Current StAX public reader host API boundary audit present \(primarySyncByteBatchRequiresTextDecoder=false, asciiPrimarySyncByteBatchRequiresTextDecoder=false, utf8FallbackDecoder=true, nonUtf8RequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, rootImportRequiresTextEncoder=false, alternateDecoderWouldBeUnchangedClosure=false\); it pins why UTF-8 primary byte-batch materialization can run without host TextDecoder while non-UTF-8 and non-primary harness globals remain separate/);
   assert.match(markdown, /\| `official-jsshell-stax-api-gap` \| `firefox-spidermonkey-jsshell-stax-api-gap-audit\.json` \| blocked-by-host-api-surface \| host-api-surface-gap \| yes \| unknown \| unknown \| unknown \| no \| not-claimed-non-stax-diagnostic \| no \| unknown \| no \|/);
-  assert.match(markdown, /Firefox\/SpiderMonkey js-shell StAX API gap audit present \(status=blocked-by-host-api-surface, unchangedRunnableShells=0\/2, blockedSurfaces=5, directUnchangedHarnessAttemptsBlocked=10\/10, commonMissingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch\); it is host API surface evidence only, not emitted JIT IR/);
+  assert.match(markdown, /Firefox\/SpiderMonkey js-shell StAX API gap audit present \(status=blocked-by-host-api-surface, unchangedRunnableShells=0\/2, blockedSurfaces=3, directUnchangedHarnessAttemptsBlocked=6\/10, commonMissingGlobals=TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=none, nonPrimaryHarnessMissingGlobals=TextEncoder, ReadableStream, fetch\); it is host API surface evidence only, not emitted JIT IR/);
   assert.match(markdown, /Firefox\/SpiderMonkey public js-shell diagnostic flag sweep present \(bytecodeProbes=4, bytecodeOutputProbes=0, diagnosticPrefSurface=false\); it rules out easy public-shell bytecode\/dump flag paths but is not emitted JIT IR/);
   assert.match(markdown, new RegExp(`Firefox/SpiderMonkey current Taskcluster debug js-shell codegen audit present \\(${taskclusterSummaryPattern(taskclusterCodegenIdentity)}, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic\\); it proves a current diagnostic shell path but is not emitted codegen for a same-contract StAX row`));
   assert.match(markdown, new RegExp(`Firefox/SpiderMonkey current Taskcluster debug js-shell XML workload codegen audit present \\(${taskclusterSummaryPattern(taskclusterXmlIdentity)}, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic\\); it ties the current diagnostic shell to an XML byte-tokenizer workload but is still not emitted codegen for a same-contract full-string StAX row`));
   assert.match(markdown, new RegExp(`Firefox/SpiderMonkey current Taskcluster debug js-shell materialized string/object codegen audit present \\(${taskclusterSummaryPattern(taskclusterMaterializedIdentity)}, codegenDump=true, sameContractStaxRow=false, canRunCurrentStaxFullStringBenchmark=false, selectedRowIdentityStatus=not-claimed-non-stax-diagnostic\\); it ties the current diagnostic shell to JS string and event-object materialization but is still not the unchanged full-string StAX benchmark`));
   assert.match(markdown, /Firefox\/SpiderMonkey codegen rerun stability audit present \(pairs=2, reproduciblePairs=2, sameTaskclusterBuildPairs=2, sameCodegenMarkerPairs=2, qualifiedClosureCount=0, throughputCountsAsTargetEvidence=false\); it proves diagnostic rerun reproducibility but still not same-contract StAX closure/);
   assert.match(markdown, /Firefox\/SpiderMonkey ASCII scope-distance audit present \(corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, reducesScopeDistance=true, closesCodegenObligation=false\); it narrows ASCII materialized js-shell scope but is not unchanged StAX closure evidence/);
-  assert.match(markdown, new RegExp(`Firefox/SpiderMonkey materialized scope-distance audit present \\(semanticEquivalentForAsciiFields=true, closureRequirementsMet=2, closureRequirementsBlocked=4, primarySyncByteBatchMissingGlobals=TextDecoder, asciiTextDecoderEquivalent=true, diagnosticThroughputMiBPerSec=${materializedScopeThroughputPattern}, throughputCountsAsTargetEvidence=false, closesCodegenObligation=false\\); it records why the materialized js-shell codegen artifact is useful but still not closure evidence`));
+  assert.match(markdown, new RegExp(`Firefox/SpiderMonkey materialized scope-distance audit present \\(semanticEquivalentForAsciiFields=true, closureRequirementsMet=3, closureRequirementsBlocked=3, primarySyncByteBatchMissingGlobals=none, asciiTextDecoderEquivalent=true, diagnosticThroughputMiBPerSec=${materializedScopeThroughputPattern}, throughputCountsAsTargetEvidence=false, closesCodegenObligation=false\\); it records why the materialized js-shell codegen artifact is useful but still not closure evidence`));
   assert.match(markdown, /Firefox\/SpiderMonkey emitted JIT IR or optimized-code dump evidence missing/);
   assert.match(markdown, /16 allocation\/profile artifacts found/);
   assert.match(markdown, /Environment artifacts: 5/);

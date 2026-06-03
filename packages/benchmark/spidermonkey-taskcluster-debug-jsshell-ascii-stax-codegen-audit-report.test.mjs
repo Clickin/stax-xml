@@ -33,11 +33,14 @@ test('Taskcluster SpiderMonkey debug js-shell ASCII StAX codegen audit stays sco
   assert.equal(report.contract, 'current-taskcluster-debug-spidermonkey-ascii-primary-stax-codegen-scope-guard');
   assert.equal(report.outcome.hasCodegenDumpOutput, true);
   assert.equal(report.outcome.hasAsciiCurrentStaxCodegenOutput, true);
+  assert.equal(report.outcome.hasUtf8CurrentStaxCodegenOutput, true);
   assert.equal(report.outcome.currentStaxAsciiPrimaryByteBatchRow, true);
+  assert.equal(report.outcome.currentStaxUtf8PrimaryByteBatchRow, true);
   assert.equal(report.outcome.sameContractStaxRow, false);
   assert.equal(report.outcome.unchangedStaxBenchmark, false);
   assert.equal(report.outcome.canRunCurrentStaxFullStringBenchmark, false);
   assert.equal(report.outcome.canRunAsciiPrimaryByteBatchBenchmark, true);
+  assert.equal(report.outcome.canRunUtf8PrimaryByteBatchBenchmark, true);
   assert.equal(report.outcome.evidenceClass, 'current-debug-ascii-stax-codegen-scope-guard');
   assert.equal(report.outcome.selectedRowIdentityStatus, 'not-claimed-ascii-stax-diagnostic');
   assert.equal(report.outcome.closesDiagnosticSurfaceObligation, true);
@@ -47,9 +50,18 @@ test('Taskcluster SpiderMonkey debug js-shell ASCII StAX codegen audit stays sco
   assert.equal(report.asciiStaxWorkload.materializedFields.attrName, 'a');
   assert.equal(report.asciiStaxWorkload.materializedFields.attrValue, 'b');
   assert.equal(report.asciiStaxWorkload.materializedFields.text, 'text');
+  assert.equal(report.utf8StaxWorkload.eventCount, 4);
+  assert.equal(report.utf8StaxWorkload.materializedFields.name, 'root');
+  assert.equal(report.utf8StaxWorkload.materializedFields.attrName, 'a');
+  assert.equal(report.utf8StaxWorkload.materializedFields.attrValue, '값');
+  assert.equal(report.utf8StaxWorkload.materializedFields.text, '본문🌊');
   assert.deepEqual(report.shell.apiProbe.missingGlobals, ['TextDecoder', 'TextEncoder', 'ReadableStream', 'fetch']);
   assert.ok(report.findings.some(finding =>
     finding.id === 'taskcluster-debug-jsshell-ascii-stax-codegen-emitted'
+    && finding.classification === 'TRACE_FACT'
+  ));
+  assert.ok(report.findings.some(finding =>
+    finding.id === 'taskcluster-debug-jsshell-utf8-stax-codegen-emitted'
     && finding.classification === 'TRACE_FACT'
   ));
   assert.ok(report.findings.some(finding =>
@@ -60,9 +72,11 @@ test('Taskcluster SpiderMonkey debug js-shell ASCII StAX codegen audit stays sco
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /SpiderMonkey Taskcluster Debug JS Shell ASCII StAX Codegen Audit/);
   assert.match(markdown, /Current StAX ASCII primary byte-batch row: true/);
+  assert.match(markdown, /Current StAX UTF-8 primary byte-batch row: true/);
   assert.match(markdown, /Same-contract StAX row: false/);
   assert.match(markdown, /Can run current StAX full-string benchmark: false/);
   assert.match(markdown, /Can run ASCII primary byte-batch benchmark: true/);
+  assert.match(markdown, /Can run UTF-8 primary byte-batch benchmark: true/);
   assert.match(markdown, /Evidence class: current-debug-ascii-stax-codegen-scope-guard/);
   assert.match(markdown, /Closes emitted IR obligation: false/);
 });

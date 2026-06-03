@@ -9,8 +9,7 @@ const defaultJsonOut = resolve(__dirname, 'results', 'release', 'firefox-spiderm
 const defaultMdOut = resolve(__dirname, 'results', 'release', 'firefox-spidermonkey-jsshell-stax-api-gap-audit.md');
 
 const requiredGlobals = [
-  { name: 'TextDecoder', expected: 'function', reason: 'Full-string rows materialize UTF-8 XML spans as JavaScript strings.' },
-  { name: 'TextEncoder', expected: 'function', reason: 'Current generated-fixture and harness paths encode XML strings into Uint8Array fixtures.' },
+  { name: 'TextEncoder', expected: 'function', reason: 'Generated-fixture and string-input convenience harness paths encode XML strings into Uint8Array fixtures; corpus byte-batch reader rows do not require it.' },
   { name: 'ReadableStream', expected: 'function', reason: 'Browser-compatible source paths and unchanged harness checks expect Web Streams.' },
   { name: 'fetch', expected: 'function', reason: 'Browser-compatible live source rows and unchanged harness checks expect fetch.' },
   { name: 'Uint8Array', expected: 'function', reason: 'Neutral byte-batch parser input is Uint8Array-based.' },
@@ -21,36 +20,36 @@ const requiredSurfaces = [
     id: 'sync-byte-batch-full-string',
     label: 'StreamReaderSync generated-fixture Iterable<Uint8Array[]> full-string rows',
     contract: 'Generated-fixture same-contract StAX rows over synchronous byte batches.',
-    requiredGlobals: ['Uint8Array', 'TextDecoder', 'TextEncoder'],
-    reason: 'Uint8Array carries parser input, TextDecoder materializes StAX strings, and TextEncoder is used by the current generated-fixture harness.',
+    requiredGlobals: ['Uint8Array', 'TextEncoder'],
+    reason: 'Uint8Array carries parser input and the current generated-fixture harness still encodes XML strings into Uint8Array fixtures. UTF-8 StAX string materialization has an internal fallback when TextDecoder is unavailable.',
   },
   {
     id: 'sync-corpus-byte-batch-full-string',
     label: 'StreamReaderSync corpus-file Iterable<Uint8Array[]> full-string rows',
     contract: 'Corpus-file same-contract StAX rows over synchronous byte batches.',
-    requiredGlobals: ['Uint8Array', 'TextDecoder'],
-    reason: 'The official shells can read binary XML with read(..., "binary"), so TextEncoder is not a corpus-file blocker; TextDecoder remains required for full StAX string materialization.',
+    requiredGlobals: ['Uint8Array'],
+    reason: 'The official shells can read binary XML with read(..., "binary"), and current UTF-8 StAX string materialization has an internal fallback when TextDecoder is unavailable.',
   },
   {
     id: 'async-byte-batch-full-string',
     label: 'createEventReaderFromAsyncByteBatches full-string rows',
     contract: 'Async byte-batch public event rows without direct ReadableStream consumption.',
-    requiredGlobals: ['Uint8Array', 'TextDecoder'],
-    reason: 'The parser input is Uint8Array[] and public event-object materialization still depends on TextDecoder.',
+    requiredGlobals: ['Uint8Array'],
+    reason: 'The parser input is Uint8Array[] and public event-object materialization uses the same UTF-8 fallback when TextDecoder is unavailable.',
   },
   {
     id: 'readable-stream-full-string',
     label: 'EventReader ReadableStream<Uint8Array> full-string rows',
     contract: 'Direct Web ReadableStream source-overhead rows.',
-    requiredGlobals: ['Uint8Array', 'TextDecoder', 'ReadableStream'],
-    reason: 'The public EventReader constructor checks for a Web ReadableStream and materializes strings through the same decoder-backed event path.',
+    requiredGlobals: ['Uint8Array', 'ReadableStream'],
+    reason: 'The public EventReader constructor checks for a Web ReadableStream; UTF-8 string materialization no longer requires host TextDecoder.',
   },
   {
     id: 'browser-fetch-live-source',
     label: 'browser fetch live-source rows',
     contract: 'Live fetch Response.body rows such as fetchReadableStreamFull and fetchAsyncByteBatchFull.',
-    requiredGlobals: ['Uint8Array', 'TextDecoder', 'ReadableStream', 'fetch'],
-    reason: 'The live browser source rows require fetch, Response.body ReadableStream support, byte input, and full string materialization.',
+    requiredGlobals: ['Uint8Array', 'ReadableStream', 'fetch'],
+    reason: 'The live browser source rows require fetch, Response.body ReadableStream support, and byte input; UTF-8 string materialization no longer requires host TextDecoder.',
   },
 ];
 
@@ -124,6 +123,11 @@ function createReport(inputs, options) {
     .map(item => item.name)
     .filter(name => missingByShell.every(missing => missing.includes(name)));
   const blockedSurfaces = summarizeBlockedSurfaces(shellRows);
+  const primarySyncByteBatchSurface = blockedSurfaces.find(surface => surface.id === 'sync-corpus-byte-batch-full-string');
+  const primarySyncByteBatchMissingGlobals = Array.from(new Set(
+    primarySyncByteBatchSurface?.shellBlockers.flatMap(shell => shell.missingGlobals) ?? [],
+  ));
+  const nonPrimaryHarnessMissingGlobals = commonMissingGlobals.filter(name => !primarySyncByteBatchMissingGlobals.includes(name));
   const directUnchangedHarnessAttempts = summarizeDirectUnchangedHarnessAttempts(shellRows, blockedSurfaces);
   const blockedDirectAttemptCount = directUnchangedHarnessAttempts
     .filter(attempt => attempt.status === 'blocked-before-stax-load')
@@ -150,6 +154,10 @@ function createReport(inputs, options) {
       unchangedRunnableShellCount: shellRows.filter(row => row.canRunCurrentStaxFullStringBenchmark === true).length,
       commonMissingGlobals,
       commonMissingGlobalCount: commonMissingGlobals.length,
+      primarySyncByteBatchMissingGlobals,
+      primarySyncByteBatchMissingGlobalCount: primarySyncByteBatchMissingGlobals.length,
+      nonPrimaryHarnessMissingGlobals,
+      nonPrimaryHarnessMissingGlobalCount: nonPrimaryHarnessMissingGlobals.length,
       blockedSurfaceCount: blockedSurfaces.filter(surface => surface.blockedShellCount > 0).length,
       directUnchangedHarnessAttemptCount: directUnchangedHarnessAttempts.length,
       blockedDirectUnchangedHarnessAttemptCount: blockedDirectAttemptCount,
@@ -230,9 +238,11 @@ function createFindings(report) {
     {
       id: 'spidermonkey-jsshell-api-gap',
       classification: 'NEGATIVE_RESULT',
-      summary: 'The official release and nightly SpiderMonkey js-shells are executable and can read binary XML, but both lack required Web-compatible globals for the current full-string stax benchmark unchanged.',
+      summary: 'The official release and nightly SpiderMonkey js-shells are executable and can read binary XML. Current UTF-8 primary byte-batch StAX materialization requires only Uint8Array host support; generated fixture, string-input convenience, Web stream, and live-source harness surfaces still lack their own Web-compatible globals.',
       evidence: [
         `commonMissingGlobals=${report.summary.commonMissingGlobals.join(', ') || 'none'}`,
+        `primarySyncByteBatchMissingGlobals=${report.summary.primarySyncByteBatchMissingGlobals.join(', ') || 'none'}`,
+        `nonPrimaryHarnessMissingGlobals=${report.summary.nonPrimaryHarnessMissingGlobals.join(', ') || 'none'}`,
         `blockedSurfaces=${report.summary.blockedSurfaceCount}/${report.blockedSurfaces.length}`,
         `directUnchangedHarnessAttemptsBlocked=${report.summary.blockedDirectUnchangedHarnessAttemptCount}/${report.summary.directUnchangedHarnessAttemptCount}`,
         `unchangedRunnableShells=${report.summary.unchangedRunnableShellCount}/${report.summary.shellCount}`,
@@ -244,7 +254,7 @@ function createFindings(report) {
       summary: 'This gap is a host API surface fact, not a SpiderMonkey throughput limit or emitted-code proof.',
       evidence: [
         'Adding a polyfill or alternate decoder would create a different harness surface and must not be counted as the unchanged current StAX full-string benchmark.',
-        'Corpus-file byte-batch rows do not require TextEncoder when binary input is read directly by the shell, but they still require TextDecoder for the public full-string contract.',
+        'Corpus-file UTF-8 byte-batch rows do not require TextEncoder when binary input is read directly by the shell, and current public full-string materialization no longer requires host TextDecoder.',
         'A diagnostic-capable shell or Firefox build can still close the emitted IR/codegen obligation.',
       ],
     },
@@ -268,6 +278,8 @@ function renderMarkdown(report) {
     `- Binary-readable shells: ${report.summary.binaryReadableShellCount}`,
     `- Unchanged current StAX full-string runnable shells: ${report.summary.unchangedRunnableShellCount}`,
     `- Common missing globals: ${report.summary.commonMissingGlobals.join(', ') || 'none'}`,
+    `- Primary sync byte-batch missing globals: ${report.summary.primarySyncByteBatchMissingGlobals.join(', ') || 'none'}`,
+    `- Non-primary harness missing globals: ${report.summary.nonPrimaryHarnessMissingGlobals.join(', ') || 'none'}`,
     `- Blocked current StAX surfaces: ${report.summary.blockedSurfaceCount}/${report.blockedSurfaces.length}`,
     `- Direct unchanged harness attempts blocked before StAX load: ${report.summary.blockedDirectUnchangedHarnessAttemptCount}/${report.summary.directUnchangedHarnessAttemptCount}`,
     `- Closes emitted IR obligation: ${report.summary.canCloseEmittedIrObligation ? 'yes' : 'no'}`,
@@ -309,7 +321,7 @@ function writeOutput(path, contents) {
 }
 
 function printSummary(report) {
-  console.log(`firefox-spidermonkey-jsshell-stax-api-gap-audit: status=${report.summary.status} commonMissing=${report.summary.commonMissingGlobalCount}`);
+  console.log(`firefox-spidermonkey-jsshell-stax-api-gap-audit: status=${report.summary.status} primaryMissing=${report.summary.primarySyncByteBatchMissingGlobalCount} nonPrimaryHarnessMissing=${report.summary.nonPrimaryHarnessMissingGlobalCount}`);
 }
 
 function oneLine(value) {

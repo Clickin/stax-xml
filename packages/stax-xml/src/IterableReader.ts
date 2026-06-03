@@ -323,6 +323,12 @@ export class IterableReader {
     if (ascii !== undefined) {
       return ascii;
     }
+    if (typeof globalThis.TextDecoder !== 'function') {
+      if (!isUtf8Encoding(this.decoderEncoding)) {
+        throw new Error(`TextDecoder is required to decode ${this.decoderEncoding}.`);
+      }
+      return decodeUtf8Span(buffer, start, end, this.decoderFatal);
+    }
     return this.getDecoder().decode(buffer.subarray(start, end));
   }
 
@@ -1216,6 +1222,109 @@ function decodeShortAsciiSpan(buffer: Uint8Array, start: number, end: number): s
     default:
       return undefined;
   }
+}
+
+function isUtf8Encoding(encoding: string): boolean {
+  return /^utf-?8$/i.test(encoding);
+}
+
+function decodeUtf8Span(buffer: Uint8Array, start: number, end: number, fatal: boolean): string {
+  let result = '';
+  let chunk = '';
+  const flushCodeUnit = (codeUnit: number): void => {
+    chunk += String.fromCharCode(codeUnit);
+    if (chunk.length >= 4096) {
+      result += chunk;
+      chunk = '';
+    }
+  };
+  const flushCodePoint = (codePoint: number): void => {
+    if (codePoint <= 0xffff) {
+      flushCodeUnit(codePoint);
+      return;
+    }
+    const value = codePoint - 0x10000;
+    flushCodeUnit(0xd800 + (value >> 10));
+    flushCodeUnit(0xdc00 + (value & 0x3ff));
+  };
+  const replacement = (): void => {
+    if (fatal) {
+      throw new TypeError('The encoded data was not valid for encoding utf-8.');
+    }
+    flushCodeUnit(0xfffd);
+  };
+
+  let index = start;
+  while (index < end) {
+    const b0 = buffer[index++]!;
+    if (b0 <= 0x7f) {
+      flushCodeUnit(b0);
+      continue;
+    }
+    if (b0 >= 0xc2 && b0 <= 0xdf) {
+      if (index >= end) {
+        replacement();
+        break;
+      }
+      const b1 = buffer[index]!;
+      if ((b1 & 0xc0) !== 0x80) {
+        replacement();
+        continue;
+      }
+      index++;
+      flushCodePoint(((b0 & 0x1f) << 6) | (b1 & 0x3f));
+      continue;
+    }
+    if (b0 >= 0xe0 && b0 <= 0xef) {
+      if (index + 1 >= end) {
+        replacement();
+        break;
+      }
+      const b1 = buffer[index]!;
+      const b2 = buffer[index + 1]!;
+      const validB1 = b0 === 0xe0
+        ? b1 >= 0xa0 && b1 <= 0xbf
+        : b0 === 0xed
+          ? b1 >= 0x80 && b1 <= 0x9f
+          : (b1 & 0xc0) === 0x80;
+      if (!validB1 || (b2 & 0xc0) !== 0x80) {
+        replacement();
+        continue;
+      }
+      index += 2;
+      flushCodePoint(((b0 & 0x0f) << 12) | ((b1 & 0x3f) << 6) | (b2 & 0x3f));
+      continue;
+    }
+    if (b0 >= 0xf0 && b0 <= 0xf4) {
+      if (index + 2 >= end) {
+        replacement();
+        break;
+      }
+      const b1 = buffer[index]!;
+      const b2 = buffer[index + 1]!;
+      const b3 = buffer[index + 2]!;
+      const validB1 = b0 === 0xf0
+        ? b1 >= 0x90 && b1 <= 0xbf
+        : b0 === 0xf4
+          ? b1 >= 0x80 && b1 <= 0x8f
+          : (b1 & 0xc0) === 0x80;
+      if (!validB1 || (b2 & 0xc0) !== 0x80 || (b3 & 0xc0) !== 0x80) {
+        replacement();
+        continue;
+      }
+      index += 3;
+      flushCodePoint(
+        ((b0 & 0x07) << 18)
+        | ((b1 & 0x3f) << 12)
+        | ((b2 & 0x3f) << 6)
+        | (b3 & 0x3f),
+      );
+      continue;
+    }
+    replacement();
+  }
+
+  return result + chunk;
 }
 
 function nameKey(buffer: Uint8Array, start: number, end: number): number {

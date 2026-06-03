@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-06-03T04:10:33.624Z",
+  "generatedAt": "2026-06-03T04:25:29.271Z",
   "objective": "spidermonkey-taskcluster-debug-jsshell-ascii-stax-codegen-audit",
   "contract": "current-taskcluster-debug-spidermonkey-ascii-primary-stax-codegen-scope-guard",
-  "note": "Runs the current built StAX StreamReaderSync primary byte-batch API in a Taskcluster debug SpiderMonkey js-shell on an ASCII fixture and records JitSpew codegen output. This proves a current StAX API ASCII js-shell codegen surface after the TextDecoder lazy boundary, but it is not the broad full-string same-contract benchmark because non-ASCII/general materialization still requires TextDecoder and the selected row is not in same-contract-runtime-comparison.",
+  "note": "Runs the current built StAX StreamReaderSync primary byte-batch API in a Taskcluster debug SpiderMonkey js-shell on ASCII and UTF-8 fixtures and records JitSpew codegen output. This proves a current StAX API UTF-8 js-shell codegen surface after the internal UTF-8 fallback boundary, but it is not the broad 1 GiB same-contract benchmark because the selected row is not in same-contract-runtime-comparison.",
   "environment": {
     "platform": "win32-x64"
   },
@@ -55,12 +55,12 @@
       "flags": "codegen",
       "exitCode": 0,
       "error": null,
-      "outputBytes": 23083991,
+      "outputBytes": 26346382,
       "stdoutLineCount": 1,
-      "stderrLineCount": 527629,
-      "codegenMarkerCount": 527628,
-      "ionScriptMarkerCount": 251,
-      "assemblyMnemonicCount": 190152,
+      "stderrLineCount": 603869,
+      "codegenMarkerCount": 603868,
+      "ionScriptMarkerCount": 268,
+      "assemblyMnemonicCount": 217637,
       "payload": {
         "iterations": 200,
         "byteLength": 23,
@@ -72,6 +72,15 @@
           "attrValue": "b",
           "text": "text"
         },
+        "utf8ByteLength": 31,
+        "utf8Result": {
+          "eventCount": 4,
+          "checksum": 544876941,
+          "name": "root",
+          "attrName": "a",
+          "attrValue": "값",
+          "text": "본문🌊"
+        },
         "globals": {
           "TextDecoder": "undefined",
           "TextEncoder": "undefined",
@@ -81,7 +90,7 @@
         }
       },
       "excerpt": [
-        "asciiStaxPayload={\"iterations\":200,\"byteLength\":23,\"result\":{\"eventCount\":4,\"checksum\":1418510204,\"name\":\"root\",\"attrName\":\"a\",\"attrValue\":\"b\",\"text\":\"text\"},\"globals\":{\"TextDecoder\":\"undefined\",\"TextEncoder\":\"undefined\",\"ReadableStream\":\"undefined\",\"fetch\":\"undefined\",\"Uint8Array\":\"function\"}}",
+        "asciiStaxPayload={\"iterations\":200,\"byteLength\":23,\"result\":{\"eventCount\":4,\"checksum\":1418510204,\"name\":\"root\",\"attrName\":\"a\",\"attrValue\":\"b\",\"text\":\"text\"},\"utf8ByteLength\":31,\"utf8Result\":{\"eventCount\":4,\"checksum\":544876941,\"name\":\"root\",\"attrName\":\"a\",\"attrValue\":\"값\",\"text\":\"본문🌊\"},\"globals\":{\"TextDecoder\":\"undefined\",\"TextEncoder\":\"undefined\",\"ReadableStream\":\"undefined\",\"fetch\":\"undefined\",\"Uint8Array\":\"function\"}}",
         "found tag: codegen",
         "[Codegen] # Emitting bailout tail stub",
         "[Codegen] # BEGIN creators: JitRuntime::generateBailoutTailStub",
@@ -178,20 +187,43 @@
       "Uint8Array": "function"
     }
   },
+  "utf8StaxWorkload": {
+    "sourceMode": "current-stax-stream-reader-sync-utf8-primary-byte-batch",
+    "byteLength": 31,
+    "iterations": 200,
+    "eventCount": 4,
+    "checksum": 544876941,
+    "materializedFields": {
+      "name": "root",
+      "attrName": "a",
+      "attrValue": "값",
+      "text": "본문🌊"
+    },
+    "globals": {
+      "TextDecoder": "undefined",
+      "TextEncoder": "undefined",
+      "ReadableStream": "undefined",
+      "fetch": "undefined",
+      "Uint8Array": "function"
+    }
+  },
   "outcome": {
     "status": "available",
     "hasJitExecutionStatus": null,
     "hasIrDumpSurface": true,
     "hasCodegenDumpOutput": true,
     "hasAsciiCurrentStaxCodegenOutput": true,
+    "hasUtf8CurrentStaxCodegenOutput": true,
     "hasNativeDisassemblySurface": true,
     "nativeDumpComplete": true,
     "scopeComparableToCurrentFirefox": true,
     "currentStaxAsciiPrimaryByteBatchRow": true,
+    "currentStaxUtf8PrimaryByteBatchRow": true,
     "sameContractStaxRow": false,
     "unchangedStaxBenchmark": false,
     "canRunCurrentStaxFullStringBenchmark": false,
     "canRunAsciiPrimaryByteBatchBenchmark": true,
+    "canRunUtf8PrimaryByteBatchBenchmark": true,
     "evidenceClass": "current-debug-ascii-stax-codegen-scope-guard",
     "selectedRowIdentityStatus": "not-claimed-ascii-stax-diagnostic",
     "closesDiagnosticSurfaceObligation": true,
@@ -208,18 +240,33 @@
         "buildId=20260602214419",
         "sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712",
         "status=ascii-stax-codegen-output-emitted",
-        "codegenMarkers=527628",
+        "codegenMarkers=603868",
         "eventCount=4",
         "checksum=1418510204"
       ]
     },
     {
+      "id": "taskcluster-debug-jsshell-utf8-stax-codegen-emitted",
+      "classification": "TRACE_FACT",
+      "summary": "The current Taskcluster debug SpiderMonkey shell emits JitSpew codegen while running the built StAX StreamReaderSync UTF-8 primary byte-batch API without host TextDecoder.",
+      "evidence": [
+        "currentStaxUtf8PrimaryByteBatchRow=true",
+        "canRunUtf8PrimaryByteBatchBenchmark=true",
+        "eventCount=4",
+        "checksum=544876941",
+        "attrValue=값",
+        "text=본문🌊"
+      ]
+    },
+    {
       "id": "taskcluster-debug-jsshell-ascii-stax-host-api-narrowing",
       "classification": "SCOPE_GUARD",
-      "summary": "The ASCII primary byte-batch StAX path can run without TextDecoder/TextEncoder, but this does not prove the general full-string benchmark.",
+      "summary": "The ASCII and UTF-8 primary byte-batch StAX paths can run without TextDecoder/TextEncoder, but this does not prove the selected 1 GiB same-contract benchmark.",
       "evidence": [
         "currentStaxAsciiPrimaryByteBatchRow=true",
+        "currentStaxUtf8PrimaryByteBatchRow=true",
         "canRunAsciiPrimaryByteBatchBenchmark=true",
+        "canRunUtf8PrimaryByteBatchBenchmark=true",
         "missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch",
         "sameContractStaxRow=false",
         "closesEmittedIrObligation=false"

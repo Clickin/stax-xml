@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-06-03T03:26:22.123Z",
+  "generatedAt": "2026-06-03T04:55:35.708Z",
   "objective": "stax-public-reader-host-api-boundary-audit",
   "contract": "current-stax-public-reader-host-api-boundary",
-  "note": "Static source-boundary audit for the current StAX public reader host API surface. It pins the TextDecoder/ReadableStream/TextEncoder boundary used by same-contract full-string rows; it is not benchmark evidence, codegen evidence, or a runtime-limit conclusion.",
+  "note": "Static source-boundary audit for the current StAX public reader host API surface. It separates primary byte-batch reader globals from string-input convenience, Web stream, and fixture-harness globals; it is not benchmark evidence, codegen evidence, or a runtime-limit conclusion.",
   "sources": {
     "index": {
       "path": "packages/stax-xml/src/index.ts",
@@ -10,7 +10,7 @@
     },
     "iterableReader": {
       "path": "packages/stax-xml/src/IterableReader.ts",
-      "bytes": 44600
+      "bytes": 47480
     },
     "eventReader": {
       "path": "packages/stax-xml/src/EventReader.ts",
@@ -33,13 +33,25 @@
     {
       "id": "iterable-reader-constructs-textdecoder",
       "source": "IterableReader.ts",
-      "expected": "IterableReader lazily constructs a native TextDecoder for non-ASCII byte-span string materialization.",
+      "expected": "IterableReader lazily constructs a native TextDecoder when the host provides one.",
       "matched": true
     },
     {
       "id": "iterable-reader-decodes-non-ascii-spans",
       "source": "IterableReader.ts",
-      "expected": "decodeSpan first accepts short ASCII spans and falls back to TextDecoder only through getDecoder().",
+      "expected": "decodeSpan first accepts short ASCII spans, then uses native TextDecoder when available.",
+      "matched": true
+    },
+    {
+      "id": "iterable-reader-utf8-fallback-without-textdecoder",
+      "source": "IterableReader.ts",
+      "expected": "UTF-8 primary byte-batch materialization has an internal fallback when TextDecoder is unavailable.",
+      "matched": true
+    },
+    {
+      "id": "iterable-reader-non-utf8-still-requires-textdecoder",
+      "source": "IterableReader.ts",
+      "expected": "Non-UTF-8 decoding still requires host TextDecoder.",
       "matched": true
     },
     {
@@ -87,26 +99,26 @@
   ],
   "summary": {
     "allChecksPass": true,
-    "primarySyncByteBatchRequiresTextDecoder": true,
+    "primarySyncByteBatchRequiresTextDecoder": false,
     "asciiPrimarySyncByteBatchRequiresTextDecoder": false,
+    "utf8FallbackDecoder": true,
+    "nonUtf8RequiresTextDecoder": true,
+    "nativeTextDecoderPreferredWhenAvailable": true,
     "directReadableStreamRequiresReadableStream": true,
     "stringInputRequiresTextEncoder": true,
     "rootImportRequiresTextEncoder": false,
     "primarySyncByteBatchRequiredGlobals": [
-      "Uint8Array",
-      "TextDecoder"
+      "Uint8Array"
     ],
     "asciiPrimarySyncByteBatchRequiredGlobals": [
       "Uint8Array"
     ],
     "directReadableStreamRequiredGlobals": [
       "Uint8Array",
-      "TextDecoder",
       "ReadableStream"
     ],
     "stringInputRequiredGlobals": [
-      "TextEncoder",
-      "TextDecoder"
+      "TextEncoder"
     ],
     "rootImportRequiredGlobals": [],
     "alternateDecoderWouldBeUnchangedClosure": false,
@@ -116,10 +128,13 @@
     {
       "id": "stax-primary-sync-byte-batch-textdecoder-boundary",
       "classification": "SOURCE_FACT",
-      "summary": "Current primary synchronous Iterable<Uint8Array[]> full-string rows require TextDecoder for public string materialization.",
+      "summary": "Current primary synchronous UTF-8 Iterable<Uint8Array[]> full-string rows can materialize public strings without host TextDecoder; non-UTF-8 decoding still requires TextDecoder.",
       "evidence": [
-        "primarySyncByteBatchRequiresTextDecoder=true",
-        "primarySyncByteBatchRequiredGlobals=Uint8Array, TextDecoder",
+        "primarySyncByteBatchRequiresTextDecoder=false",
+        "primarySyncByteBatchRequiredGlobals=Uint8Array",
+        "utf8FallbackDecoder=true",
+        "nonUtf8RequiresTextDecoder=true",
+        "nativeTextDecoderPreferredWhenAvailable=true",
         "asciiPrimarySyncByteBatchRequiresTextDecoder=false",
         "asciiPrimarySyncByteBatchRequiredGlobals=Uint8Array"
       ]
@@ -127,7 +142,7 @@
     {
       "id": "stax-host-api-substitution-scope-guard",
       "classification": "SCOPE_GUARD",
-      "summary": "A js-shell polyfill or alternate decoder can be useful diagnostic evidence, but it is not unchanged StAX public-reader closure evidence.",
+      "summary": "A js-shell polyfill or alternate non-StAX decoder can be useful diagnostic evidence, but current UTF-8 byte-batch fallback keeps primary StAX materialization on the public reader path.",
       "evidence": [
         "directReadableStreamRequiresReadableStream=true",
         "stringInputRequiresTextEncoder=true",

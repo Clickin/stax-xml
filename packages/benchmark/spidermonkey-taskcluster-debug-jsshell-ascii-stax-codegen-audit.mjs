@@ -181,6 +181,11 @@ const bytes = new Uint8Array([
   116, 101, 120, 116,
   60, 47, 114, 111, 111, 116, 62,
 ]);
+const utf8Bytes = new Uint8Array([
+  60, 114, 111, 111, 116, 32, 97, 61, 34, 234, 176, 146, 34, 62,
+  235, 179, 184, 235, 172, 184, 240, 159, 140, 138,
+  60, 47, 114, 111, 111, 116, 62,
+]);
 const iterations = ${options.iterations};
 
 function mixChecksum(seed, value) {
@@ -194,8 +199,8 @@ function foldString(seed, value) {
   }
   return next;
 }
-function runOnce() {
-  const reader = new StreamReaderSync([[bytes]]);
+function runOnce(inputBytes) {
+  const reader = new StreamReaderSync([[inputBytes]]);
   const batch = reader.nextBatch();
   let checksum = 0;
   checksum = mixChecksum(checksum, batch.eventCount);
@@ -214,17 +219,25 @@ function runOnce() {
 }
 
 let first = null;
+let firstUtf8 = null;
 for (let index = 0; index < iterations; index++) {
-  const result = runOnce();
+  const result = runOnce(bytes);
   if (first !== null && (first.eventCount !== result.eventCount || first.checksum !== result.checksum)) {
     throw new Error('unstable ASCII StAX checksum');
   }
   first = first || result;
+  const utf8Result = runOnce(utf8Bytes);
+  if (firstUtf8 !== null && (firstUtf8.eventCount !== utf8Result.eventCount || firstUtf8.checksum !== utf8Result.checksum)) {
+    throw new Error('unstable UTF-8 StAX checksum');
+  }
+  firstUtf8 = firstUtf8 || utf8Result;
 }
 print('asciiStaxPayload=' + JSON.stringify({
   iterations,
   byteLength: bytes.length,
   result: first,
+  utf8ByteLength: utf8Bytes.length,
+  utf8Result: firstUtf8,
   globals: {
     TextDecoder: typeof globalThis.TextDecoder,
     TextEncoder: typeof globalThis.TextEncoder,
@@ -280,11 +293,16 @@ function createReport(options, shell) {
     && payload?.result?.attrName === 'a'
     && payload?.result?.attrValue === 'b'
     && payload?.result?.text === 'text';
+  const currentStaxUtf8PrimaryByteBatchRow = payload?.utf8Result?.eventCount === 4
+    && payload?.utf8Result?.name === 'root'
+    && payload?.utf8Result?.attrName === 'a'
+    && payload?.utf8Result?.attrValue === '값'
+    && payload?.utf8Result?.text === '본문🌊';
   const report = {
     generatedAt: new Date().toISOString(),
     objective: 'spidermonkey-taskcluster-debug-jsshell-ascii-stax-codegen-audit',
     contract: 'current-taskcluster-debug-spidermonkey-ascii-primary-stax-codegen-scope-guard',
-    note: 'Runs the current built StAX StreamReaderSync primary byte-batch API in a Taskcluster debug SpiderMonkey js-shell on an ASCII fixture and records JitSpew codegen output. This proves a current StAX API ASCII js-shell codegen surface after the TextDecoder lazy boundary, but it is not the broad full-string same-contract benchmark because non-ASCII/general materialization still requires TextDecoder and the selected row is not in same-contract-runtime-comparison.',
+    note: 'Runs the current built StAX StreamReaderSync primary byte-batch API in a Taskcluster debug SpiderMonkey js-shell on ASCII and UTF-8 fixtures and records JitSpew codegen output. This proves a current StAX API UTF-8 js-shell codegen surface after the internal UTF-8 fallback boundary, but it is not the broad 1 GiB same-contract benchmark because the selected row is not in same-contract-runtime-comparison.',
     environment: {
       platform: `${process.platform}-${process.arch}`,
     },
@@ -317,20 +335,37 @@ function createReport(options, shell) {
       },
       globals: payload?.globals ?? null,
     },
+    utf8StaxWorkload: {
+      sourceMode: 'current-stax-stream-reader-sync-utf8-primary-byte-batch',
+      byteLength: payload?.utf8ByteLength ?? null,
+      iterations: payload?.iterations ?? null,
+      eventCount: payload?.utf8Result?.eventCount ?? null,
+      checksum: payload?.utf8Result?.checksum ?? null,
+      materializedFields: {
+        name: payload?.utf8Result?.name ?? null,
+        attrName: payload?.utf8Result?.attrName ?? null,
+        attrValue: payload?.utf8Result?.attrValue ?? null,
+        text: payload?.utf8Result?.text ?? null,
+      },
+      globals: payload?.globals ?? null,
+    },
     outcome: {
       status: shell.status,
       hasJitExecutionStatus: null,
       hasIrDumpSurface: hasCodegenDumpOutput,
       hasCodegenDumpOutput,
       hasAsciiCurrentStaxCodegenOutput: hasCodegenDumpOutput,
+      hasUtf8CurrentStaxCodegenOutput: hasCodegenDumpOutput && currentStaxUtf8PrimaryByteBatchRow,
       hasNativeDisassemblySurface: hasCodegenDumpOutput,
       nativeDumpComplete: hasCodegenDumpOutput,
       scopeComparableToCurrentFirefox: true,
       currentStaxAsciiPrimaryByteBatchRow,
+      currentStaxUtf8PrimaryByteBatchRow,
       sameContractStaxRow: false,
       unchangedStaxBenchmark: false,
       canRunCurrentStaxFullStringBenchmark: false,
       canRunAsciiPrimaryByteBatchBenchmark: shell.apiProbe?.canRunAsciiPrimaryByteBatchBenchmark === true,
+      canRunUtf8PrimaryByteBatchBenchmark: currentStaxUtf8PrimaryByteBatchRow,
       evidenceClass: 'current-debug-ascii-stax-codegen-scope-guard',
       selectedRowIdentityStatus: 'not-claimed-ascii-stax-diagnostic',
       closesDiagnosticSurfaceObligation: hasCodegenDumpOutput,
@@ -361,12 +396,29 @@ function createFindings(report) {
       ],
     },
     {
+      id: 'taskcluster-debug-jsshell-utf8-stax-codegen-emitted',
+      classification: report.outcome.hasUtf8CurrentStaxCodegenOutput ? 'TRACE_FACT' : 'NEGATIVE_RESULT',
+      summary: report.outcome.hasUtf8CurrentStaxCodegenOutput
+        ? 'The current Taskcluster debug SpiderMonkey shell emits JitSpew codegen while running the built StAX StreamReaderSync UTF-8 primary byte-batch API without host TextDecoder.'
+        : 'The current Taskcluster debug SpiderMonkey shell did not prove UTF-8 StAX primary byte-batch codegen without host TextDecoder.',
+      evidence: [
+        `currentStaxUtf8PrimaryByteBatchRow=${report.outcome.currentStaxUtf8PrimaryByteBatchRow}`,
+        `canRunUtf8PrimaryByteBatchBenchmark=${report.outcome.canRunUtf8PrimaryByteBatchBenchmark}`,
+        `eventCount=${report.utf8StaxWorkload.eventCount ?? 'unknown'}`,
+        `checksum=${report.utf8StaxWorkload.checksum ?? 'unknown'}`,
+        `attrValue=${report.utf8StaxWorkload.materializedFields.attrValue ?? 'unknown'}`,
+        `text=${report.utf8StaxWorkload.materializedFields.text ?? 'unknown'}`,
+      ],
+    },
+    {
       id: 'taskcluster-debug-jsshell-ascii-stax-host-api-narrowing',
       classification: 'SCOPE_GUARD',
-      summary: 'The ASCII primary byte-batch StAX path can run without TextDecoder/TextEncoder, but this does not prove the general full-string benchmark.',
+      summary: 'The ASCII and UTF-8 primary byte-batch StAX paths can run without TextDecoder/TextEncoder, but this does not prove the selected 1 GiB same-contract benchmark.',
       evidence: [
         `currentStaxAsciiPrimaryByteBatchRow=${report.outcome.currentStaxAsciiPrimaryByteBatchRow}`,
+        `currentStaxUtf8PrimaryByteBatchRow=${report.outcome.currentStaxUtf8PrimaryByteBatchRow}`,
         `canRunAsciiPrimaryByteBatchBenchmark=${report.outcome.canRunAsciiPrimaryByteBatchBenchmark}`,
+        `canRunUtf8PrimaryByteBatchBenchmark=${report.outcome.canRunUtf8PrimaryByteBatchBenchmark}`,
         `missingGlobals=${(report.shell.apiProbe?.missingGlobals ?? []).join(', ') || 'none'}`,
         'sameContractStaxRow=false',
         'closesEmittedIrObligation=false',
@@ -394,9 +446,11 @@ function renderMarkdown(report) {
     `- Source revision: ${provenance.targetTxt?.sourceRevision ?? provenance.buildhub?.sourceRevision ?? 'not-recorded'}`,
     `- Codegen dump output emitted: ${report.outcome.hasCodegenDumpOutput}`,
     `- Current StAX ASCII primary byte-batch row: ${report.outcome.currentStaxAsciiPrimaryByteBatchRow}`,
+    `- Current StAX UTF-8 primary byte-batch row: ${report.outcome.currentStaxUtf8PrimaryByteBatchRow}`,
     `- Same-contract StAX row: ${report.outcome.sameContractStaxRow}`,
     `- Can run current StAX full-string benchmark: ${report.outcome.canRunCurrentStaxFullStringBenchmark}`,
     `- Can run ASCII primary byte-batch benchmark: ${report.outcome.canRunAsciiPrimaryByteBatchBenchmark}`,
+    `- Can run UTF-8 primary byte-batch benchmark: ${report.outcome.canRunUtf8PrimaryByteBatchBenchmark}`,
     `- Evidence class: ${report.outcome.evidenceClass}`,
     `- Closes diagnostic surface obligation: ${report.outcome.closesDiagnosticSurfaceObligation}`,
     `- Closes emitted IR obligation: ${report.outcome.closesEmittedIrObligation}`,
@@ -413,6 +467,12 @@ function renderMarkdown(report) {
     `- Event count: ${report.asciiStaxWorkload.eventCount ?? 'not-recorded'}`,
     `- Checksum: ${report.asciiStaxWorkload.checksum ?? 'not-recorded'}`,
     `- Materialized fields: ${JSON.stringify(report.asciiStaxWorkload.materializedFields)}`,
+    '',
+    '## UTF-8 StAX Probe',
+    '',
+    `- Event count: ${report.utf8StaxWorkload.eventCount ?? 'not-recorded'}`,
+    `- Checksum: ${report.utf8StaxWorkload.checksum ?? 'not-recorded'}`,
+    `- Materialized fields: ${JSON.stringify(report.utf8StaxWorkload.materializedFields)}`,
     '',
     '## Host API Probe',
     '',
@@ -488,6 +548,15 @@ function createSelfTestReport(options) {
           attrName: 'a',
           attrValue: 'b',
           text: 'text',
+        },
+        utf8ByteLength: 31,
+        utf8Result: {
+          eventCount: 4,
+          checksum: 67890,
+          name: 'root',
+          attrName: 'a',
+          attrValue: '값',
+          text: '본문🌊',
         },
         globals: {
           TextDecoder: 'undefined',

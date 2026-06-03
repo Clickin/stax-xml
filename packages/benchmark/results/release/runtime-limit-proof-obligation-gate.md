@@ -1,6 +1,6 @@
 # Runtime-Limit Proof Obligation Gate
 
-Generated: 2026-06-03T04:12:11.618Z
+Generated: 2026-06-03T05:04:25.291Z
 
 ## Scope
 
@@ -89,7 +89,7 @@ Disclosure-only guards: 3
 
 ## Coverage Snapshot
 
-- Coverage audit loaded: yes (2026-06-03T04:11:02.887Z)
+- Coverage audit loaded: yes (2026-06-03T05:02:39.621Z)
 - Active coverage obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Covered coverage obligations: firefox-browser-rows-open, allocation-profiles-open, non-v8-browser-coverage-open, independent-corpus-suite-open, counterexample-rule-present
 - SpiderMonkey diagnostics rows vs closure candidates: 12/18 (gap=6, closureQualified=0)
@@ -121,7 +121,7 @@ Disclosure-only guards: 3
 - Same-contract comparison contract: same-full-string-checksum-contract-not-same-object-shape; publicEventCase=eventObjectFull; objectShapeEquivalence=false; memoryEquivalence=false
 - Same-contract comparison rows: 289/289; largeFullJsRows=239
 - Same-contract comparison counterexamples: 0
-- Runtime counterexample scan loaded: yes (2026-06-03T04:11:26.383Z)
+- Runtime counterexample scan loaded: yes (2026-06-03T05:04:09.938Z)
 - Counterexample scan contract: threshold=200.00 MiB/s, minSizeGiB=1.00, parseErrors=0
 - Counterexample scan coverage shape: artifacts=229/229, measuredRows=1266/1266
 - Counterexample scan aggregate surface: aggregateRows=182, largeFullAggregateRows=142, measuredCounterexamples=0, aggregateCounterexamples=0
@@ -141,7 +141,7 @@ Disclosure-only guards: 3
 
 ## Handoff Snapshot
 
-- Handoff loaded: yes (2026-06-03T04:11:42.265Z)
+- Handoff loaded: yes (2026-06-03T05:03:01.223Z)
 - Handoff active obligations: safari-jsc-source-and-browser-rows-open, codegen-traces-open
 - Handoff IDs: safari-webkit-browser-row-handoff, spidermonkey-codegen-handoff
 
@@ -161,7 +161,7 @@ Disclosure-only guards: 3
 | `spidermonkey-structured-evidence-intake-contract` | yes | SpiderMonkey handoff must expose structured required artifacts, row fields, audit fields, and rejection rules for emitted-codegen intake. |
 | `spidermonkey-emitted-ir-required` | yes | SpiderMonkey closure checks must require emitted IR/codegen evidence and no missing IR surface. |
 | `spidermonkey-materialized-scope-not-enough` | yes | SpiderMonkey materialized js-shell codegen must require closureRequirementsBlocked=0 and closesCodegenObligation=true before closing. |
-| `spidermonkey-materialized-textdecoder-host-api-blocker` | yes | SpiderMonkey materialized js-shell codegen must preserve the TextDecoder host API blocker before treating ASCII materialized codegen as unchanged StAX closure. |
+| `spidermonkey-materialized-utf8-fallback-boundary` | yes | SpiderMonkey materialized js-shell codegen must preserve the UTF-8 fallback boundary before treating materialized codegen as unchanged StAX closure. |
 | `spidermonkey-unchanged-stax-required` | yes | SpiderMonkey closing artifacts must require sameContractStaxRow=true and canRunCurrentStaxFullStringBenchmark=true unless a browser-row artifact supplies closure. |
 | `spidermonkey-same-contract-comparison-required` | yes | SpiderMonkey closing artifacts must require the selected row id to match same-contract-runtime-comparison.json with event count and checksum parity. |
 | `spidermonkey-closing-metadata-required` | yes | SpiderMonkey closing artifacts must require runtime/build identity, diagnostic flags, row identity, checksum parity, and emitted IR or optimized-code dump metadata. |
@@ -180,8 +180,8 @@ Disclosure-only guards: 3
 
 ## Handoff Validation Snapshot
 
-- Handoff validation loaded: yes (2026-06-03T04:11:55.089Z)
-- Handoff validation target handoff generatedAt: 2026-06-03T04:11:42.265Z (current 2026-06-03T04:11:42.265Z)
+- Handoff validation loaded: yes (2026-06-03T05:03:26.093Z)
+- Handoff validation target handoff generatedAt: 2026-06-03T05:03:01.223Z (current 2026-06-03T05:03:01.223Z)
 - Handoff validation pass: yes
 - Commands checked: 15
 - Scripts referenced: 23
@@ -209,12 +209,12 @@ Disclosure-only guards: 3
 | `handoff-validation-required-handoffs-present` | yes | runtime-proof-handoff-validation.json must report required Safari and SpiderMonkey handoffs present. |
 | `handoff-validation-current-handoff` | yes | runtime-proof-handoff-validation.json must validate the currently loaded runtime-proof-gap-handoff.json generatedAt. |
 | `handoff-validation-no-unhandled-obligations` | yes | runtime-proof-handoff-validation.json must validate a handoff with zero unhandled obligations. |
-| `handoff-validation-spidermonkey-textdecoder-host-api-blocker` | yes | runtime-proof-handoff-validation.json must require the SpiderMonkey materialized TextDecoder host API blocker contract patterns. |
+| `handoff-validation-spidermonkey-utf8-fallback-boundary` | yes | runtime-proof-handoff-validation.json must require the SpiderMonkey UTF-8 fallback boundary contract patterns. |
 
 ## Source Audit Snapshot
 
-- Source audit loaded: yes (2026-06-03T04:11:12.958Z)
-- Source audit inputs: comparison=2026-06-02T20:08:45.362Z (current 2026-06-02T20:08:45.362Z), coverage=2026-06-03T04:11:02.887Z (current 2026-06-03T04:11:02.887Z)
+- Source audit loaded: yes (2026-06-03T05:04:06.043Z)
+- Source audit inputs: comparison=2026-06-02T20:08:45.362Z (current 2026-06-02T20:08:45.362Z), coverage=2026-06-03T05:02:39.621Z (current 2026-06-03T05:02:39.621Z)
 - Source audit status: classified
 - Primary parser input: synchronous Iterable<Uint8Array[]>
 - Primary source boundary: demand-driven StreamReaderSync parser pulls

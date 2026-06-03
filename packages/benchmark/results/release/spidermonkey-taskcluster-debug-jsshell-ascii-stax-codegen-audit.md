@@ -1,8 +1,8 @@
 # SpiderMonkey Taskcluster Debug JS Shell ASCII StAX Codegen Audit
 
-Generated: 2026-06-03T04:10:33.624Z
+Generated: 2026-06-03T04:25:29.271Z
 
-Runs the current built StAX StreamReaderSync primary byte-batch API in a Taskcluster debug SpiderMonkey js-shell on an ASCII fixture and records JitSpew codegen output. This proves a current StAX API ASCII js-shell codegen surface after the TextDecoder lazy boundary, but it is not the broad full-string same-contract benchmark because non-ASCII/general materialization still requires TextDecoder and the selected row is not in same-contract-runtime-comparison.
+Runs the current built StAX StreamReaderSync primary byte-batch API in a Taskcluster debug SpiderMonkey js-shell on ASCII and UTF-8 fixtures and records JitSpew codegen output. This proves a current StAX API UTF-8 js-shell codegen surface after the internal UTF-8 fallback boundary, but it is not the broad 1 GiB same-contract benchmark because the selected row is not in same-contract-runtime-comparison.
 
 ## Summary
 
@@ -14,9 +14,11 @@ Runs the current built StAX StreamReaderSync primary byte-batch API in a Taskclu
 - Source revision: e4f9cbec72268c8efc0137a1d593e24af3df0712
 - Codegen dump output emitted: true
 - Current StAX ASCII primary byte-batch row: true
+- Current StAX UTF-8 primary byte-batch row: true
 - Same-contract StAX row: false
 - Can run current StAX full-string benchmark: false
 - Can run ASCII primary byte-batch benchmark: true
+- Can run UTF-8 primary byte-batch benchmark: true
 - Evidence class: current-debug-ascii-stax-codegen-scope-guard
 - Closes diagnostic surface obligation: true
 - Closes emitted IR obligation: false
@@ -26,13 +28,19 @@ Runs the current built StAX StreamReaderSync primary byte-batch API in a Taskclu
 - Status: ascii-stax-codegen-output-emitted
 - Flags: codegen
 - Exit code: 0
-- Output bytes: 23083991
-- Codegen marker count: 527628
-- IonScript marker count: 251
-- Assembly mnemonic count: 190152
+- Output bytes: 26346382
+- Codegen marker count: 603868
+- IonScript marker count: 268
+- Assembly mnemonic count: 217637
 - Event count: 4
 - Checksum: 1418510204
 - Materialized fields: {"name":"root","attrName":"a","attrValue":"b","text":"text"}
+
+## UTF-8 StAX Probe
+
+- Event count: 4
+- Checksum: 544876941
+- Materialized fields: {"name":"root","attrName":"a","attrValue":"값","text":"본문🌊"}
 
 ## Host API Probe
 
@@ -42,7 +50,7 @@ Runs the current built StAX StreamReaderSync primary byte-batch API in a Taskclu
 ## Excerpt
 
 ```text
-asciiStaxPayload={"iterations":200,"byteLength":23,"result":{"eventCount":4,"checksum":1418510204,"name":"root","attrName":"a","attrValue":"b","text":"text"},"globals":{"TextDecoder":"undefined","TextEncoder":"undefined","ReadableStream":"undefined","fetch":"undefined","Uint8Array":"function"}}
+asciiStaxPayload={"iterations":200,"byteLength":23,"result":{"eventCount":4,"checksum":1418510204,"name":"root","attrName":"a","attrValue":"b","text":"text"},"utf8ByteLength":31,"utf8Result":{"eventCount":4,"checksum":544876941,"name":"root","attrName":"a","attrValue":"값","text":"본문🌊"},"globals":{"TextDecoder":"undefined","TextEncoder":"undefined","ReadableStream":"undefined","fetch":"undefined","Uint8Array":"function"}}
 found tag: codegen
 [Codegen] # Emitting bailout tail stub
 [Codegen] # BEGIN creators: JitRuntime::generateBailoutTailStub
@@ -102,12 +110,21 @@ found tag: codegen
   - buildId=20260602214419
   - sourceRevision=e4f9cbec72268c8efc0137a1d593e24af3df0712
   - status=ascii-stax-codegen-output-emitted
-  - codegenMarkers=527628
+  - codegenMarkers=603868
   - eventCount=4
   - checksum=1418510204
-- taskcluster-debug-jsshell-ascii-stax-host-api-narrowing (SCOPE_GUARD): The ASCII primary byte-batch StAX path can run without TextDecoder/TextEncoder, but this does not prove the general full-string benchmark.
+- taskcluster-debug-jsshell-utf8-stax-codegen-emitted (TRACE_FACT): The current Taskcluster debug SpiderMonkey shell emits JitSpew codegen while running the built StAX StreamReaderSync UTF-8 primary byte-batch API without host TextDecoder.
+  - currentStaxUtf8PrimaryByteBatchRow=true
+  - canRunUtf8PrimaryByteBatchBenchmark=true
+  - eventCount=4
+  - checksum=544876941
+  - attrValue=값
+  - text=본문🌊
+- taskcluster-debug-jsshell-ascii-stax-host-api-narrowing (SCOPE_GUARD): The ASCII and UTF-8 primary byte-batch StAX paths can run without TextDecoder/TextEncoder, but this does not prove the selected 1 GiB same-contract benchmark.
   - currentStaxAsciiPrimaryByteBatchRow=true
+  - currentStaxUtf8PrimaryByteBatchRow=true
   - canRunAsciiPrimaryByteBatchBenchmark=true
+  - canRunUtf8PrimaryByteBatchBenchmark=true
   - missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch
   - sameContractStaxRow=false
   - closesEmittedIrObligation=false

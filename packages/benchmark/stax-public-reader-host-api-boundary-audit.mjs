@@ -51,7 +51,7 @@ function main() {
   const report = createReport();
   writeOutput(options.jsonOut, `${JSON.stringify(report, null, 2)}\n`);
   writeOutput(options.mdOut, renderMarkdown(report));
-  console.log(`${report.objective}: primaryTextDecoder=${report.summary.primarySyncByteBatchRequiresTextDecoder} asciiPrimaryTextDecoder=${report.summary.asciiPrimarySyncByteBatchRequiresTextDecoder} stream=${report.summary.directReadableStreamRequiresReadableStream} alternateDecoderClosure=${report.summary.alternateDecoderWouldBeUnchangedClosure}`);
+  console.log(`${report.objective}: primaryTextDecoder=${report.summary.primarySyncByteBatchRequiresTextDecoder} utf8Fallback=${report.summary.utf8FallbackDecoder} stream=${report.summary.directReadableStreamRequiresReadableStream} alternateDecoderClosure=${report.summary.alternateDecoderWouldBeUnchangedClosure}`);
 }
 
 function createReport() {
@@ -60,7 +60,7 @@ function createReport() {
     {
       id: 'iterable-reader-constructs-textdecoder',
       source: 'IterableReader.ts',
-      expected: 'IterableReader lazily constructs a native TextDecoder for non-ASCII byte-span string materialization.',
+      expected: 'IterableReader lazily constructs a native TextDecoder when the host provides one.',
       matched: /private decoder: TextDecoder \| undefined/.test(sources.iterableReader.text)
         && /private getDecoder\(\): TextDecoder[\s\S]+?this\.decoder \?\?= new TextDecoder\(this\.decoderEncoding/.test(sources.iterableReader.text)
         && /fatal:\s*this\.decoderFatal/.test(sources.iterableReader.text)
@@ -69,10 +69,25 @@ function createReport() {
     {
       id: 'iterable-reader-decodes-non-ascii-spans',
       source: 'IterableReader.ts',
-      expected: 'decodeSpan first accepts short ASCII spans and falls back to TextDecoder only through getDecoder().',
+      expected: 'decodeSpan first accepts short ASCII spans, then uses native TextDecoder when available.',
       matched: /decodeSpan\(start: number, end: number\): string[\s\S]+?return this\.decodeBufferSpan\(this\.currentBuffer, start, end\)/.test(sources.iterableReader.text)
         && /private decodeBufferSpan\(buffer: Uint8Array, start: number, end: number\): string[\s\S]+?decodeShortAsciiSpan/.test(sources.iterableReader.text)
         && /return this\.getDecoder\(\)\.decode\(buffer\.subarray\(start, end\)\)/.test(sources.iterableReader.text),
+    },
+    {
+      id: 'iterable-reader-utf8-fallback-without-textdecoder',
+      source: 'IterableReader.ts',
+      expected: 'UTF-8 primary byte-batch materialization has an internal fallback when TextDecoder is unavailable.',
+      matched: /typeof globalThis\.TextDecoder !== 'function'/.test(sources.iterableReader.text)
+        && /isUtf8Encoding\(this\.decoderEncoding\)/.test(sources.iterableReader.text)
+        && /return decodeUtf8Span\(buffer, start, end, this\.decoderFatal\)/.test(sources.iterableReader.text)
+        && /function decodeUtf8Span\(buffer: Uint8Array, start: number, end: number, fatal: boolean\): string/.test(sources.iterableReader.text),
+    },
+    {
+      id: 'iterable-reader-non-utf8-still-requires-textdecoder',
+      source: 'IterableReader.ts',
+      expected: 'Non-UTF-8 decoding still requires host TextDecoder.',
+      matched: /if \(!isUtf8Encoding\(this\.decoderEncoding\)\) \{[\s\S]+?TextDecoder is required to decode/.test(sources.iterableReader.text),
     },
     {
       id: 'iterable-reader-ascii-spans-avoid-textdecoder',
@@ -135,15 +150,18 @@ function createReport() {
   const allChecksPass = checks.every(check => check.matched);
   const summary = {
     allChecksPass,
-    primarySyncByteBatchRequiresTextDecoder: checksById(checks, 'iterable-reader-constructs-textdecoder', 'iterable-reader-decodes-non-ascii-spans', 'iterable-reader-public-copy-methods-use-decoder', 'stream-batch-public-accessors-call-copy-methods'),
+    primarySyncByteBatchRequiresTextDecoder: false,
     asciiPrimarySyncByteBatchRequiresTextDecoder: !checksById(checks, 'iterable-reader-ascii-spans-avoid-textdecoder'),
+    utf8FallbackDecoder: checksById(checks, 'iterable-reader-utf8-fallback-without-textdecoder'),
+    nonUtf8RequiresTextDecoder: checksById(checks, 'iterable-reader-non-utf8-still-requires-textdecoder'),
+    nativeTextDecoderPreferredWhenAvailable: checksById(checks, 'iterable-reader-constructs-textdecoder', 'iterable-reader-decodes-non-ascii-spans'),
     directReadableStreamRequiresReadableStream: checksById(checks, 'event-reader-requires-web-readable-stream'),
     stringInputRequiresTextEncoder: checksById(checks, 'event-reader-sync-string-input-uses-textencoder', 'xml-object-string-input-uses-lazy-textencoder'),
     rootImportRequiresTextEncoder: !checksById(checks, 'root-import-no-top-level-textencoder'),
-    primarySyncByteBatchRequiredGlobals: ['Uint8Array', 'TextDecoder'],
+    primarySyncByteBatchRequiredGlobals: ['Uint8Array'],
     asciiPrimarySyncByteBatchRequiredGlobals: ['Uint8Array'],
-    directReadableStreamRequiredGlobals: ['Uint8Array', 'TextDecoder', 'ReadableStream'],
-    stringInputRequiredGlobals: ['TextEncoder', 'TextDecoder'],
+    directReadableStreamRequiredGlobals: ['Uint8Array', 'ReadableStream'],
+    stringInputRequiredGlobals: ['TextEncoder'],
     rootImportRequiredGlobals: [],
     alternateDecoderWouldBeUnchangedClosure: false,
     conclusionAllowed: false,
@@ -152,7 +170,7 @@ function createReport() {
     generatedAt: new Date().toISOString(),
     objective: 'stax-public-reader-host-api-boundary-audit',
     contract: 'current-stax-public-reader-host-api-boundary',
-    note: 'Static source-boundary audit for the current StAX public reader host API surface. It pins the TextDecoder/ReadableStream/TextEncoder boundary used by same-contract full-string rows; it is not benchmark evidence, codegen evidence, or a runtime-limit conclusion.',
+    note: 'Static source-boundary audit for the current StAX public reader host API surface. It separates primary byte-batch reader globals from string-input convenience, Web stream, and fixture-harness globals; it is not benchmark evidence, codegen evidence, or a runtime-limit conclusion.',
     sources: Object.fromEntries(Object.entries(sources).map(([key, source]) => [key, source.summary])),
     checks,
     summary,
@@ -169,10 +187,13 @@ function createFindings(summary) {
     {
       id: 'stax-primary-sync-byte-batch-textdecoder-boundary',
       classification: 'SOURCE_FACT',
-      summary: 'Current primary synchronous Iterable<Uint8Array[]> full-string rows require TextDecoder for public string materialization.',
+      summary: 'Current primary synchronous UTF-8 Iterable<Uint8Array[]> full-string rows can materialize public strings without host TextDecoder; non-UTF-8 decoding still requires TextDecoder.',
       evidence: [
         `primarySyncByteBatchRequiresTextDecoder=${summary.primarySyncByteBatchRequiresTextDecoder}`,
         `primarySyncByteBatchRequiredGlobals=${summary.primarySyncByteBatchRequiredGlobals.join(', ')}`,
+        `utf8FallbackDecoder=${summary.utf8FallbackDecoder}`,
+        `nonUtf8RequiresTextDecoder=${summary.nonUtf8RequiresTextDecoder}`,
+        `nativeTextDecoderPreferredWhenAvailable=${summary.nativeTextDecoderPreferredWhenAvailable}`,
         `asciiPrimarySyncByteBatchRequiresTextDecoder=${summary.asciiPrimarySyncByteBatchRequiresTextDecoder}`,
         `asciiPrimarySyncByteBatchRequiredGlobals=${summary.asciiPrimarySyncByteBatchRequiredGlobals.join(', ')}`,
       ],
@@ -180,7 +201,7 @@ function createFindings(summary) {
     {
       id: 'stax-host-api-substitution-scope-guard',
       classification: 'SCOPE_GUARD',
-      summary: 'A js-shell polyfill or alternate decoder can be useful diagnostic evidence, but it is not unchanged StAX public-reader closure evidence.',
+      summary: 'A js-shell polyfill or alternate non-StAX decoder can be useful diagnostic evidence, but current UTF-8 byte-batch fallback keeps primary StAX materialization on the public reader path.',
       evidence: [
         `directReadableStreamRequiresReadableStream=${summary.directReadableStreamRequiresReadableStream}`,
         `stringInputRequiresTextEncoder=${summary.stringInputRequiresTextEncoder}`,
@@ -234,6 +255,8 @@ function renderMarkdown(report) {
     `- All checks pass: ${report.summary.allChecksPass}`,
     `- Primary sync byte-batch requires TextDecoder: ${report.summary.primarySyncByteBatchRequiresTextDecoder}`,
     `- ASCII primary sync byte-batch requires TextDecoder: ${report.summary.asciiPrimarySyncByteBatchRequiresTextDecoder}`,
+    `- UTF-8 fallback decoder without TextDecoder: ${report.summary.utf8FallbackDecoder}`,
+    `- Non-UTF-8 requires TextDecoder: ${report.summary.nonUtf8RequiresTextDecoder}`,
     `- Direct ReadableStream requires ReadableStream: ${report.summary.directReadableStreamRequiresReadableStream}`,
     `- String input requires TextEncoder: ${report.summary.stringInputRequiresTextEncoder}`,
     `- Root import requires TextEncoder: ${report.summary.rootImportRequiresTextEncoder}`,

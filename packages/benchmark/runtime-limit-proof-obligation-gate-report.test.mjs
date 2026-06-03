@@ -346,7 +346,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-structured-evidence-intake-contract' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-emitted-ir-required' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-materialized-scope-not-enough' && item.satisfied));
-  assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-materialized-textdecoder-host-api-blocker' && item.satisfied));
+  assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-materialized-utf8-fallback-boundary' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-unchanged-stax-required' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-same-contract-comparison-required' && item.satisfied));
   assert.ok(report.handoffSnapshot.guards.some(item => item.id === 'spidermonkey-closing-metadata-required' && item.satisfied));
@@ -372,7 +372,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.equal(report.handoffValidationSnapshot.externalRunRequiredCount, 2);
   assert.equal(report.handoffValidationSnapshot.localRunnableCount, 0);
   assert.equal(report.handoffValidationSnapshot.unhandledObligationCount, 0);
-  assert.equal(report.handoffValidationSnapshot.spiderMonkeyTextDecoderHostApiValidationPinned, true);
+  assert.equal(report.handoffValidationSnapshot.spiderMonkeyUtf8FallbackBoundaryValidationPinned, true);
   assert.equal(report.handoffValidationSnapshot.validatedHandoffGeneratedAt, report.handoffSnapshot.generatedAt);
   assert.equal(report.handoffValidationSnapshot.currentHandoffGeneratedAt, report.handoffSnapshot.generatedAt);
   assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-loaded' && item.satisfied));
@@ -381,7 +381,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-command-and-path-safety' && item.satisfied));
   assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-external-run-status-pinned' && item.satisfied));
   assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-current-handoff' && item.satisfied));
-  assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-spidermonkey-textdecoder-host-api-blocker' && item.satisfied));
+  assert.ok(report.handoffValidationSnapshot.guards.some(item => item.id === 'handoff-validation-spidermonkey-utf8-fallback-boundary' && item.satisfied));
 
   const markdown = readFileSync(goodMdOut, 'utf8');
   assert.match(markdown, /# Runtime-Limit Proof Obligation Gate/);
@@ -434,7 +434,7 @@ test('runtime-limit proof-obligation gate permits only a conservative non-conclu
   assert.match(markdown, /safari-target-distance-recomputed-after-rows/);
   assert.match(markdown, /safari-local-availability-blocker/);
   assert.match(markdown, /spidermonkey-materialized-scope-not-enough/);
-  assert.match(markdown, /spidermonkey-materialized-textdecoder-host-api-blocker/);
+  assert.match(markdown, /spidermonkey-materialized-utf8-fallback-boundary/);
   assert.match(markdown, /spidermonkey-unchanged-stax-required/);
   assert.match(markdown, /spidermonkey-same-contract-comparison-required/);
   assert.match(markdown, /spidermonkey-closing-metadata-required/);
@@ -1905,7 +1905,7 @@ test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff omits ex
   assert.match(markdown, /spidermonkey-closing-artifact-schema-evidence/);
 });
 
-test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff omits TextDecoder host API blocker', () => {
+test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff omits UTF-8 fallback boundary', () => {
   resetTmp();
   writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
@@ -1934,14 +1934,14 @@ test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff omits Te
   const report = JSON.parse(readFileSync(badHandoffGateJsonOut, 'utf8'));
   assert.equal(report.gate.pass, false);
   assert.ok(report.handoffSnapshot.guards.some(item =>
-    item.id === 'spidermonkey-materialized-textdecoder-host-api-blocker'
+    item.id === 'spidermonkey-materialized-utf8-fallback-boundary'
     && !item.satisfied
   ));
-  assert.ok(report.gate.errors.some(error => /TextDecoder host API blocker/.test(error)));
+  assert.ok(report.gate.errors.some(error => /UTF-8 fallback boundary/.test(error)));
 
   const markdown = readFileSync(badHandoffGateMdOut, 'utf8');
   assert.match(markdown, /Gate pass: no/);
-  assert.match(markdown, /spidermonkey-materialized-textdecoder-host-api-blocker/);
+  assert.match(markdown, /spidermonkey-materialized-utf8-fallback-boundary/);
 });
 
 test('runtime-limit proof-obligation gate fails if SpiderMonkey handoff omits closure frontier blockers', () => {
@@ -2149,7 +2149,7 @@ test('runtime-limit proof-obligation gate fails if handoff validation does not p
   assert.match(markdown, /handoff-validation-contracts-present/);
 });
 
-test('runtime-limit proof-obligation gate fails if handoff validation omits SpiderMonkey TextDecoder host API blocker patterns', () => {
+test('runtime-limit proof-obligation gate fails if handoff validation omits SpiderMonkey UTF-8 fallback boundary patterns', () => {
   resetTmp();
   writeFileSync(goodLedger, createLedgerFixture('`HYPOTHESIS`'));
   const validation = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-handoff-validation.json'), 'utf8'));
@@ -2161,8 +2161,10 @@ test('runtime-limit proof-obligation gate fails if handoff validation omits Spid
       ...check,
       requiredContractPatterns: check.requiredContractPatterns.filter(pattern =>
         !/materialized scope-distance audit pins/.test(pattern)
-        && !/primarySyncByteBatchMissingGlobals=TextDecoder/.test(pattern)
+        && !/primarySyncByteBatchMissingGlobals=none/.test(pattern)
         && !/asciiTextDecoderEquivalent=true/.test(pattern)
+        && !/utf8FallbackDecoder=true/.test(pattern)
+        && !/nonUtf8RequiresTextDecoder=true/.test(pattern)
       ),
     };
   });
@@ -2187,16 +2189,16 @@ test('runtime-limit proof-obligation gate fails if handoff validation omits Spid
   assert.equal(result.status, 1, result.stderr || result.stdout);
   const report = JSON.parse(readFileSync(badHandoffValidationGateJsonOut, 'utf8'));
   assert.equal(report.gate.pass, false);
-  assert.equal(report.handoffValidationSnapshot.spiderMonkeyTextDecoderHostApiValidationPinned, false);
+  assert.equal(report.handoffValidationSnapshot.spiderMonkeyUtf8FallbackBoundaryValidationPinned, false);
   assert.ok(report.handoffValidationSnapshot.guards.some(item =>
-    item.id === 'handoff-validation-spidermonkey-textdecoder-host-api-blocker'
+    item.id === 'handoff-validation-spidermonkey-utf8-fallback-boundary'
     && !item.satisfied
   ));
-  assert.ok(report.gate.errors.some(error => /SpiderMonkey materialized TextDecoder host API blocker/.test(error)));
+  assert.ok(report.gate.errors.some(error => /SpiderMonkey UTF-8 fallback boundary/.test(error)));
 
   const markdown = readFileSync(badHandoffValidationGateMdOut, 'utf8');
   assert.match(markdown, /Gate pass: no/);
-  assert.match(markdown, /handoff-validation-spidermonkey-textdecoder-host-api-blocker/);
+  assert.match(markdown, /handoff-validation-spidermonkey-utf8-fallback-boundary/);
 });
 
 test('runtime-limit proof-obligation gate fails if handoff validation loses command or path safety', () => {

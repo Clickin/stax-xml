@@ -466,9 +466,11 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /release jsshell.*bytecode dump status is bytecode-output-emitted/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /nightly jsshell.*bytecode dump status is bytecode-output-emitted/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /js-shell StAX API gap audit pins the unchanged-harness blocker/.test(item)));
-  assert.ok(spiderMonkey.localClosure.blockers.some(item => /TextDecoder, TextEncoder, ReadableStream, fetch/.test(item)));
-  assert.ok(spiderMonkey.localClosure.blockers.some(item => /direct unchanged harness attempts blocked before StAX load: 10\/10/.test(item)));
-  assert.ok(spiderMonkey.localClosure.blockers.some(item => /StAX public reader host API boundary audit pins.*primarySyncByteBatchRequiresTextDecoder=true.*asciiPrimarySyncByteBatchRequiresTextDecoder=false.*rootImportRequiresTextEncoder=false/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /common missing globals: TextEncoder, ReadableStream, fetch/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /primary sync byte-batch missing globals: none/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /non-primary harness missing globals: TextEncoder, ReadableStream, fetch/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /direct unchanged harness attempts blocked before StAX load: 6\/10/.test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => /StAX public reader host API boundary audit pins.*primarySyncByteBatchRequiresTextDecoder=false.*utf8FallbackDecoder=true.*nonUtf8RequiresTextDecoder=true.*rootImportRequiresTextEncoder=false/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /alternateDecoderWouldBeUnchangedClosure=false/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /SpiderMonkey js-shell tokenizer headroom audit records partial parser-core headroom only/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0/.test(item)));
@@ -488,7 +490,7 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   });
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /selectedRowIdentityStatusCounts not-claimed=4, not-claimed-non-stax-diagnostic=8/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /ASCII scope-distance audit pins corpusFileCount=3, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, and reducesScopeDistance=true while closesCodegenObligation=false/.test(item)));
-  assert.ok(spiderMonkey.localClosure.blockers.some(item => new RegExp(`materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=2 and closureRequirementsBlocked=4; primarySyncByteBatchMissingGlobals=TextDecoder; asciiTextDecoderEquivalent=true; diagnosticThroughputMiBPerSec=${materializedScopeThroughputPattern}; throughputCountsAsTargetEvidence=false; closesCodegenObligation=false`).test(item)));
+  assert.ok(spiderMonkey.localClosure.blockers.some(item => new RegExp(`materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=3 and closureRequirementsBlocked=3; primarySyncByteBatchMissingGlobals=none; asciiTextDecoderEquivalent=true; utf8FallbackDecoder=true; nonUtf8RequiresTextDecoder=true; diagnosticThroughputMiBPerSec=${materializedScopeThroughputPattern}; throughputCountsAsTargetEvidence=false; closesCodegenObligation=false`).test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => new RegExp(`SpiderMonkey codegen closure audit checks 18 diagnostic/codegen candidates against same-contract comparison generatedAt=${comparisonGeneratedAtPattern}, comparisonRowCount=289, finds emittedCodegenSurfaceCount=7, sameContractStaxRowCount=0, profiledFullStringParityCount=1, unchangedRunnableCount=0, selectedRowMetadataCount=1, diagnosticWorkloadMetadataCount=3, nonComparableDiagnosticWorkloadMetadataCount=3, selectedRowComparisonMatchCount=0, selectedRowComparisonMismatchCount=1, selectedRowComparisonMissingCount=17, selectedRowMetadataMissingFieldCounts selectedChecksum=17, selectedEventCount=17, selectedRowId=17, closingMetadataMissingFieldCounts diagnosticFlags=12, emittedDumpMetadata=12, runtimeBuildIdentity=12, disallowedEvidenceClassCounts archival-codegen-scope-guard=1, availability-only=1, bytecode-diagnostic-only=2, current-debug-ascii-stax-codegen-scope-guard=1, current-debug-codegen-scope-guard=2, current-debug-materialized-codegen-scope-guard=2, current-debug-xml-codegen-scope-guard=1, diagnostic-flag-sweep-negative=1, gecko-profiler-scope-guard=1, host-api-surface-gap=1, materialized-headroom-only=1, negative-diagnostic-surface=1, parser-core-headroom-only=1, source-pin-only=1, unknown=1, selectedRowIdentityStatusCounts not-claimed-ascii-stax-diagnostic=1, not-claimed-non-stax-diagnostic=17, qualifiedClosureCount=0, contradictedClosureClaimCount=0, and conclusionAllowed=false`).test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /SpiderMonkey codegen closure frontier has closestBlockedCandidateCount=5, minimumBlockedRequirementCount=4, closestBlockedCandidates=`spidermonkey-taskcluster-debug-jsshell-codegen-audit\.json`, `spidermonkey-taskcluster-debug-jsshell-codegen-rerun\.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-audit\.json`, `spidermonkey-taskcluster-debug-jsshell-materialized-codegen-rerun\.json`, `spidermonkey-taskcluster-debug-jsshell-xml-codegen-audit\.json`, and closest-candidate common missing requirements sameContractStaxRow=5, selectedRowMetadata=5, unchangedRunnable=5, evidenceClassAllowed=5/.test(item)));
   assert.ok(spiderMonkey.localClosure.blockers.some(item => /SpiderMonkey codegen rerun stability audit compares 2 original\/rerun pairs/.test(item)));
@@ -684,9 +686,11 @@ test('runtime proof gap handoff tracks current open coverage obligations', () =>
   assert.match(markdown, /Official Firefox nightly jsshell is executable/);
   assert.match(markdown, /bytecode dump status is bytecode-output-emitted/);
   assert.match(markdown, /The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface/);
-  assert.match(markdown, /common missing globals: TextDecoder, TextEncoder, ReadableStream, fetch/);
-  assert.match(markdown, /direct unchanged harness attempts blocked before StAX load: 10\/10/);
-  assert.match(markdown, /StAX public reader host API boundary audit pins.*primarySyncByteBatchRequiresTextDecoder=true.*asciiPrimarySyncByteBatchRequiresTextDecoder=false.*rootImportRequiresTextEncoder=false/);
+  assert.match(markdown, /common missing globals: TextEncoder, ReadableStream, fetch/);
+  assert.match(markdown, /primary sync byte-batch missing globals: none/);
+  assert.match(markdown, /non-primary harness missing globals: TextEncoder, ReadableStream, fetch/);
+  assert.match(markdown, /direct unchanged harness attempts blocked before StAX load: 6\/10/);
+  assert.match(markdown, /StAX public reader host API boundary audit pins.*primarySyncByteBatchRequiresTextDecoder=false.*utf8FallbackDecoder=true.*nonUtf8RequiresTextDecoder=true.*rootImportRequiresTextEncoder=false/);
   assert.match(markdown, /alternateDecoderWouldBeUnchangedClosure=false/);
   assert.match(markdown, /stax-public-reader-host-api-boundary/);
   assert.match(markdown, /SpiderMonkey js-shell tokenizer headroom audit records partial parser-core headroom only/);

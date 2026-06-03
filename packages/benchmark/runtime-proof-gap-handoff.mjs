@@ -610,8 +610,10 @@ function createLocalClosure(activeObligations, audit, options = {}) {
     const nightlyBytecodeStatus = nightlyJsShell?.shell?.bytecodeDumpProbe?.status ?? 'unknown';
     const jsShellApiGapStatus = jsShellApiGap?.summary?.status ?? null;
     const jsShellApiGapPinned = jsShellApiGapStatus === 'blocked-by-host-api-surface';
-    const staxHostApiBoundaryPinned = staxHostApiBoundary?.summary?.primarySyncByteBatchRequiresTextDecoder === true
+    const staxHostApiBoundaryPinned = staxHostApiBoundary?.summary?.primarySyncByteBatchRequiresTextDecoder === false
       && staxHostApiBoundary?.summary?.asciiPrimarySyncByteBatchRequiresTextDecoder === false
+      && staxHostApiBoundary?.summary?.utf8FallbackDecoder === true
+      && staxHostApiBoundary?.summary?.nonUtf8RequiresTextDecoder === true
       && staxHostApiBoundary?.summary?.directReadableStreamRequiresReadableStream === true
       && staxHostApiBoundary?.summary?.stringInputRequiresTextEncoder === true
       && staxHostApiBoundary?.summary?.rootImportRequiresTextEncoder === false
@@ -697,6 +699,12 @@ function createLocalClosure(activeObligations, audit, options = {}) {
     const jsShellCommonMissing = Array.isArray(jsShellApiGap?.summary?.commonMissingGlobals)
       ? jsShellApiGap.summary.commonMissingGlobals.join(', ')
       : 'unknown';
+    const jsShellPrimarySyncByteBatchMissing = Array.isArray(jsShellApiGap?.summary?.primarySyncByteBatchMissingGlobals)
+      ? jsShellApiGap.summary.primarySyncByteBatchMissingGlobals.join(', ') || 'none'
+      : 'unknown';
+    const jsShellNonPrimaryHarnessMissing = Array.isArray(jsShellApiGap?.summary?.nonPrimaryHarnessMissingGlobals)
+      ? jsShellApiGap.summary.nonPrimaryHarnessMissingGlobals.join(', ') || 'none'
+      : 'unknown';
     const jsShellDirectAttemptsBlocked = typeof jsShellApiGap?.summary?.blockedDirectUnchangedHarnessAttemptCount === 'number'
       && typeof jsShellApiGap?.summary?.directUnchangedHarnessAttemptCount === 'number'
       ? `${jsShellApiGap.summary.blockedDirectUnchangedHarnessAttemptCount}/${jsShellApiGap.summary.directUnchangedHarnessAttemptCount}`
@@ -735,11 +743,11 @@ function createLocalClosure(activeObligations, audit, options = {}) {
           ? `Official Firefox nightly jsshell is executable and JIT status is observable, but it exposes no emitted IR/native dump surface, bytecode dump status is ${nightlyBytecodeStatus}, and it cannot run the current stax full-string benchmark unchanged.`
           : 'Official Firefox nightly jsshell diagnostic status is not pinned as available-without-IR.',
         jsShellApiGapPinned
-          ? `The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface, with common missing globals: ${jsShellCommonMissing}, and direct unchanged harness attempts blocked before StAX load: ${jsShellDirectAttemptsBlocked}.`
+          ? `The js-shell StAX API gap audit pins the unchanged-harness blocker as host API surface, with common missing globals: ${jsShellCommonMissing}, primary sync byte-batch missing globals: ${jsShellPrimarySyncByteBatchMissing}, non-primary harness missing globals: ${jsShellNonPrimaryHarnessMissing}, and direct unchanged harness attempts blocked before StAX load: ${jsShellDirectAttemptsBlocked}.`
           : 'The js-shell StAX API gap audit is missing or does not pin the unchanged-harness host API blocker.',
         staxHostApiBoundaryPinned
-          ? 'The StAX public reader host API boundary audit pins the current TextDecoder/ReadableStream/TextEncoder boundary: primarySyncByteBatchRequiresTextDecoder=true, asciiPrimarySyncByteBatchRequiresTextDecoder=false, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, rootImportRequiresTextEncoder=false, and alternateDecoderWouldBeUnchangedClosure=false.'
-          : 'The StAX public reader host API boundary audit is missing or does not pin the current TextDecoder/ReadableStream/TextEncoder boundary.',
+          ? 'The StAX public reader host API boundary audit pins the current UTF-8 fallback and host API boundary: primarySyncByteBatchRequiresTextDecoder=false, asciiPrimarySyncByteBatchRequiresTextDecoder=false, utf8FallbackDecoder=true, nonUtf8RequiresTextDecoder=true, directReadableStreamRequiresReadableStream=true, stringInputRequiresTextEncoder=true, rootImportRequiresTextEncoder=false, and alternateDecoderWouldBeUnchangedClosure=false.'
+          : 'The StAX public reader host API boundary audit is missing or does not pin the current UTF-8 fallback and host API boundary.',
         jsShellTokenizerHeadroomPinned
           ? `The SpiderMonkey js-shell tokenizer headroom audit records partial parser-core headroom only: fastest=${formatNumber(jsShellTokenizerHeadroomRaw.summary.fastest.mibPerSec)} MiB/s, fullStringParity=false, memoryProofRows=0, counterexamples200MiB=0.`
           : 'The SpiderMonkey js-shell tokenizer headroom audit is missing or does not pin non-StAX partial headroom as non-counterexample evidence.',
@@ -772,7 +780,7 @@ function createLocalClosure(activeObligations, audit, options = {}) {
           ? `The ASCII scope-distance audit pins corpusFileCount=${asciiScopeDistance.summary?.corpusFileCount ?? 'unknown'}, allCorpusFilesAscii=true, asciiByteToStringEquivalentToUtf8=true, semanticMaterializedWorkload=true, and reducesScopeDistance=true while closesCodegenObligation=false, so ASCII corpus equivalence narrows materialized js-shell scope but does not supply unchanged StAX closure evidence.`
           : 'No ASCII scope-distance audit pins corpus UTF-8 equivalence and materialized workload scope narrowing.',
         materializedScopeDistancePinned
-          ? `The materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=${materializedScopeDistance.summary?.closureRequirementsMet ?? 'unknown'} and closureRequirementsBlocked=${materializedScopeDistance.summary?.closureRequirementsBlocked ?? 'unknown'}; primarySyncByteBatchMissingGlobals=${(materializedScopeDistance.hostApiSurface?.primarySyncByteBatchMissingGlobals ?? []).join(', ') || 'unknown'}; asciiTextDecoderEquivalent=${materializedScopeDistance.asciiScopeDistance?.asciiByteToStringEquivalentToUtf8 ?? 'unknown'}; diagnosticThroughputMiBPerSec=${materializedScopeDistance.summary?.diagnosticThroughputMiBPerSec ?? 'unknown'}; throughputCountsAsTargetEvidence=${materializedScopeDistance.summary?.throughputCountsAsTargetEvidence ?? 'unknown'}; closesCodegenObligation=false, preventing the materialized js-shell artifact from being cited as unchanged StAX closure evidence.`
+          ? `The materialized scope-distance audit pins semanticEquivalentForAsciiFields=true while closureRequirementsMet=${materializedScopeDistance.summary?.closureRequirementsMet ?? 'unknown'} and closureRequirementsBlocked=${materializedScopeDistance.summary?.closureRequirementsBlocked ?? 'unknown'}; primarySyncByteBatchMissingGlobals=${(materializedScopeDistance.hostApiSurface?.primarySyncByteBatchMissingGlobals ?? []).join(', ') || 'none'}; asciiTextDecoderEquivalent=${materializedScopeDistance.asciiScopeDistance?.asciiByteToStringEquivalentToUtf8 ?? 'unknown'}; utf8FallbackDecoder=${staxHostApiBoundary?.summary?.utf8FallbackDecoder ?? 'unknown'}; nonUtf8RequiresTextDecoder=${staxHostApiBoundary?.summary?.nonUtf8RequiresTextDecoder ?? 'unknown'}; diagnosticThroughputMiBPerSec=${materializedScopeDistance.summary?.diagnosticThroughputMiBPerSec ?? 'unknown'}; throughputCountsAsTargetEvidence=${materializedScopeDistance.summary?.throughputCountsAsTargetEvidence ?? 'unknown'}; closesCodegenObligation=false, preventing the materialized js-shell artifact from being cited as unchanged StAX closure evidence.`
           : 'No materialized scope-distance audit pins the semantic-equivalence and closure boundary.',
         codegenClosureAuditPinned
           ? `The SpiderMonkey codegen closure audit checks ${codegenClosureAuditRaw.summary.candidateCount} diagnostic/codegen candidates against same-contract comparison generatedAt=${codegenClosureAuditRaw.inputs?.comparisonGeneratedAt ?? 'unknown'}, comparisonRowCount=${codegenClosureAuditRaw.inputs?.comparisonRowCount ?? 'unknown'}, finds emittedCodegenSurfaceCount=${codegenClosureAuditRaw.summary.emittedCodegenSurfaceCount}, sameContractStaxRowCount=${codegenClosureAuditRaw.summary.sameContractStaxRowCount}, profiledFullStringParityCount=${codegenClosureAuditRaw.summary.profiledFullStringParityCount ?? 'unknown'}, unchangedRunnableCount=${codegenClosureAuditRaw.summary.unchangedRunnableCount}, selectedRowMetadataCount=${codegenClosureAuditRaw.summary.selectedRowMetadataCount}, diagnosticWorkloadMetadataCount=${codegenClosureAuditRaw.summary.diagnosticWorkloadMetadataCount ?? 0}, nonComparableDiagnosticWorkloadMetadataCount=${codegenClosureAuditRaw.summary.nonComparableDiagnosticWorkloadMetadataCount ?? 0}, selectedRowComparisonMatchCount=${codegenClosureAuditRaw.summary.selectedRowComparisonMatchCount}, selectedRowComparisonMismatchCount=${codegenClosureAuditRaw.summary.selectedRowComparisonMismatchCount}, selectedRowComparisonMissingCount=${codegenClosureAuditRaw.summary.selectedRowComparisonMissingCount}, selectedRowMetadataMissingFieldCounts ${formatCountMap(codegenClosureAuditRaw.summary.selectedRowMetadataMissingFieldCounts)}, closingMetadataMissingFieldCounts ${formatCountMap(codegenClosureAuditRaw.summary.closingMetadataMissingFieldCounts)}, disallowedEvidenceClassCounts ${formatCountMap(codegenClosureAuditRaw.summary.disallowedEvidenceClassCounts)}, selectedRowIdentityStatusCounts ${formatCountMap(codegenClosureAuditRaw.summary.selectedRowIdentityStatusCounts)}, qualifiedClosureCount=0, contradictedClosureClaimCount=0, and conclusionAllowed=false.`
@@ -968,7 +976,7 @@ function createHandoffs(activeObligations, localClosure) {
         },
         {
           id: 'stax-public-reader-host-api-boundary',
-          purpose: 'Re-pin the current StAX public reader TextDecoder/ReadableStream/TextEncoder boundary before evaluating js-shell closure.',
+          purpose: 'Re-pin the current StAX public reader UTF-8 fallback and host API boundary before evaluating js-shell closure.',
           command: 'node packages/benchmark/stax-public-reader-host-api-boundary-audit.mjs --json-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.json --md-out packages/benchmark/results/release/stax-public-reader-host-api-boundary-audit.md',
         },
         {
@@ -1026,7 +1034,7 @@ function createHandoffs(activeObligations, localClosure) {
         rejectionRules: [
           'Reject jit-status-only and bytecode-diagnostic-only evidence classes.',
           'Reject source-pin, availability-only, profiler-only, and negative-diagnostic artifacts as closure evidence.',
-          'Reject materialized js-shell evidence while TextDecoder/ReadableStream/TextEncoder public-reader closure requirements remain blocked.',
+          'Reject materialized js-shell evidence while selected-row identity, unchanged benchmark status, or emitted-codegen closure metadata remains blocked.',
           'Reject rerun-stability evidence unless each compared artifact is itself same-contract StAX closure evidence.',
         ],
       },

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-02T23:12:36.066Z",
+  "generatedAt": "2026-06-03T04:56:17.989Z",
   "objective": "spidermonkey-materialized-scope-distance-audit",
   "contract": "materialized-js-shell-workload-equivalence-and-scope-distance",
   "note": "Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen artifact against the token-only codegen artifact, the js-shell StAX API gap, and the semantic materialization contract. This audit records exactly what the materialized js-shell workload proves and why it still cannot close the unchanged StAX codegen obligation.",
@@ -106,21 +106,18 @@
   },
   "hostApiSurface": {
     "commonMissingGlobals": [
-      "TextDecoder",
       "TextEncoder",
       "ReadableStream",
       "fetch"
     ],
     "primarySyncByteBatchSurfaceId": "sync-corpus-byte-batch-full-string",
-    "primarySyncByteBatchMissingGlobals": [
-      "TextDecoder"
-    ],
+    "primarySyncByteBatchMissingGlobals": [],
     "nonPrimaryHarnessMissingGlobals": [
       "TextEncoder",
       "ReadableStream",
       "fetch"
     ],
-    "interpretation": "For corpus-file synchronous Iterable<Uint8Array[]> StAX closure, the js-shell blocker narrows to TextDecoder; TextEncoder, ReadableStream, and fetch are generated-fixture, direct-stream, or browser-live-source harness blockers."
+    "interpretation": "For corpus-file synchronous Iterable<Uint8Array[]> UTF-8 StAX closure, the host-global blocker is removed by the internal UTF-8 fallback; remaining blockers are selected-row identity, unchanged benchmark status, emitted-codegen closure metadata, or non-primary harness globals."
   },
   "asciiScopeDistance": {
     "objective": "spidermonkey-ascii-scope-distance-audit",
@@ -151,15 +148,15 @@
     },
     {
       "id": "unchanged-stax-benchmark",
-      "required": "The benchmark harness is unchanged from the current TextDecoder/ReadableStream StAX row.",
+      "required": "The benchmark harness is unchanged from the current same-contract StAX row.",
       "observed": "unchangedStaxBenchmark=false",
       "status": "blocked"
     },
     {
       "id": "host-api-surface",
-      "required": "The js-shell can run the current full-string StAX harness without host API substitution.",
-      "observed": "canRunCurrentStaxFullStringBenchmark=false, missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=TextDecoder",
-      "status": "blocked"
+      "required": "The js-shell can run the current UTF-8 primary byte-batch StAX materialization path without host API substitution.",
+      "observed": "canRunCurrentStaxFullStringBenchmark=false, missingGlobals=TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=none",
+      "status": "met"
     },
     {
       "id": "closure-declared-by-source-artifact",
@@ -207,10 +204,11 @@
       ]
     },
     {
-      "id": "unchanged-stax-host-api-gap-remains",
+      "id": "unchanged-stax-non-primary-harness-gap-remains",
       "status": "pass",
       "evidence": [
-        "missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch",
+        "missingGlobals=TextEncoder, ReadableStream, fetch",
+        "primarySyncByteBatchMissingGlobals=none",
         "canRunCurrentStaxFullStringBenchmark=false"
       ]
     },
@@ -229,8 +227,8 @@
     "semanticEquivalentForAsciiFields": true,
     "materializesJsStringsAndObjects": true,
     "closesDiagnosticSurfaceObligation": true,
-    "closureRequirementsMet": 2,
-    "closureRequirementsBlocked": 4,
+    "closureRequirementsMet": 3,
+    "closureRequirementsBlocked": 3,
     "sourceArtifactDeclaresClosure": false,
     "closureClaimContradictedByScope": false,
     "closesCodegenObligation": false,

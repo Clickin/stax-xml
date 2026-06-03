@@ -79,4 +79,30 @@ describe('root import host API boundaries', () => {
       });
     }
   });
+
+  it('does not require TextDecoder for UTF-8 primary byte-batch sync strings', async () => {
+    const originalTextDecoder = globalThis.TextDecoder;
+    const globals = globalThis as typeof globalThis & { TextDecoder?: typeof TextDecoder };
+    const bytes = new TextEncoder().encode('<root a="값">본문🌊</root>');
+
+    Reflect.deleteProperty(globals, 'TextDecoder');
+
+    try {
+      const module = await import('../src/index.ts?without-textdecoder-utf8');
+      const reader = new module.StreamReaderSync([[bytes]]);
+      const batch = reader.nextBatch();
+
+      expect(batch).not.toBeNull();
+      expect(batch?.nameAt(1)).toBe('root');
+      expect(batch?.attributeNameAt(1, 0)).toBe('a');
+      expect(batch?.attributeValueAt(1, 0)).toBe('값');
+      expect(batch?.textAt(2)).toBe('본문🌊');
+    } finally {
+      Object.defineProperty(globalThis, 'TextDecoder', {
+        configurable: true,
+        writable: true,
+        value: originalTextDecoder,
+      });
+    }
+  });
 });

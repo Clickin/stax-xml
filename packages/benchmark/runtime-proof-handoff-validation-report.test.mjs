@@ -117,10 +117,12 @@ test('runtime proof handoff validation pins external runbook command and contrac
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('ASCII scope-distance audit pins')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('materialized scope-distance audit pins')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('direct unchanged harness attempts blocked before StAX load')));
-  assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('primarySyncByteBatchMissingGlobals=TextDecoder')));
+  assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('primarySyncByteBatchMissingGlobals=none')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('asciiTextDecoderEquivalent=true')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('stax-public-reader-host-api-boundary-audit')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('alternateDecoderWouldBeUnchangedClosure')));
+  assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('utf8FallbackDecoder=true')));
+  assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('nonUtf8RequiresTextDecoder=true')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('spidermonkey-jsshell-tokenizer-headroom')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('spidermonkey-jsshell-materialized-headroom')));
   assert.ok(spiderMonkey.requiredContractPatterns.some(pattern => pattern.includes('sameSemanticChecksumFields')));
@@ -533,7 +535,7 @@ test('runtime proof handoff validation fails if SpiderMonkey omits ASCII scope-d
   assert.match(markdown, /spidermonkey-codegen-handoff/);
 });
 
-test('runtime proof handoff validation fails if SpiderMonkey omits materialized TextDecoder host API blocker', () => {
+test('runtime proof handoff validation fails if SpiderMonkey omits materialized UTF-8 fallback boundary', () => {
   resetTmp();
   const handoff = JSON.parse(readFileSync(join(__dirname, 'results', 'release', 'runtime-proof-gap-handoff.json'), 'utf8'));
   const spiderMonkey = handoff.handoffs.find(row => row.id === 'spidermonkey-codegen-handoff');
@@ -563,8 +565,10 @@ test('runtime proof handoff validation fails if SpiderMonkey omits materialized 
   const spiderMonkeyCheck = report.handoffChecks.find(row => row.id === 'spidermonkey-codegen-handoff');
   assert.equal(spiderMonkeyCheck.contractsPresent, false);
   assert.ok(spiderMonkeyCheck.requiredContractPatterns.some(pattern => /materialized scope-distance audit pins/.test(pattern)));
-  assert.ok(spiderMonkeyCheck.requiredContractPatterns.some(pattern => /primarySyncByteBatchMissingGlobals=TextDecoder/.test(pattern)));
+  assert.ok(spiderMonkeyCheck.requiredContractPatterns.some(pattern => /primarySyncByteBatchMissingGlobals=none/.test(pattern)));
   assert.ok(spiderMonkeyCheck.requiredContractPatterns.some(pattern => /asciiTextDecoderEquivalent=true/.test(pattern)));
+  assert.ok(spiderMonkeyCheck.requiredContractPatterns.some(pattern => /utf8FallbackDecoder=true/.test(pattern)));
+  assert.ok(spiderMonkeyCheck.requiredContractPatterns.some(pattern => /nonUtf8RequiresTextDecoder=true/.test(pattern)));
 
   const markdown = readFileSync(badMdOut, 'utf8');
   assert.match(markdown, /Pass: no/);

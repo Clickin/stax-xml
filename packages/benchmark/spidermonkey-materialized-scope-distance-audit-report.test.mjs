@@ -37,8 +37,8 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
   assert.equal(report.summary.semanticEquivalentForAsciiFields, true);
   assert.equal(report.summary.materializesJsStringsAndObjects, true);
   assert.equal(report.summary.closesDiagnosticSurfaceObligation, true);
-  assert.equal(report.summary.closureRequirementsMet, 2);
-  assert.equal(report.summary.closureRequirementsBlocked, 4);
+  assert.equal(report.summary.closureRequirementsMet, 3);
+  assert.equal(report.summary.closureRequirementsBlocked, 3);
   assert.equal(report.summary.sourceArtifactDeclaresClosure, false);
   assert.equal(report.summary.closureClaimContradictedByScope, false);
   assert.equal(report.summary.closesCodegenObligation, false);
@@ -52,7 +52,7 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
   assert.equal(report.workloadComparison.materialized.throughputCountsAsTargetEvidence, false);
   assert.equal(report.workloadComparison.materialized.materializedStringCount, 61289);
   assert.equal(report.workloadComparison.materialized.materializedObjectCount, 55759);
-  assert.deepEqual(report.hostApiSurface.primarySyncByteBatchMissingGlobals, ['TextDecoder']);
+  assert.deepEqual(report.hostApiSurface.primarySyncByteBatchMissingGlobals, []);
   assert.deepEqual(report.hostApiSurface.nonPrimaryHarnessMissingGlobals, ['TextEncoder', 'ReadableStream', 'fetch']);
   assert.equal(report.asciiScopeDistance.reducesScopeDistance, true);
   assert.equal(report.asciiScopeDistance.materializedCorpusSeedAscii, true);
@@ -64,17 +64,17 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
       { id: 'full-string-semantic-materialization', status: 'met' },
       { id: 'same-contract-stax-row', status: 'blocked' },
       { id: 'unchanged-stax-benchmark', status: 'blocked' },
-      { id: 'host-api-surface', status: 'blocked' },
+      { id: 'host-api-surface', status: 'met' },
       { id: 'closure-declared-by-source-artifact', status: 'blocked' },
     ],
   );
   assert.match(
     report.closureMatrix.find(item => item.id === 'host-api-surface').observed,
-    /missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch/,
+    /missingGlobals=TextEncoder, ReadableStream, fetch/,
   );
   assert.match(
     report.closureMatrix.find(item => item.id === 'host-api-surface').observed,
-    /primarySyncByteBatchMissingGlobals=TextDecoder/,
+    /primarySyncByteBatchMissingGlobals=none/,
   );
   assert.ok(report.checks.every(check => check.status === 'pass'));
   assert.ok(report.findings.some(finding =>
@@ -102,22 +102,22 @@ test('SpiderMonkey materialized scope-distance audit records equivalence and clo
   const markdown = readFileSync(mdOut, 'utf8');
   assert.match(markdown, /SpiderMonkey Materialized Scope Distance Audit/);
   assert.match(markdown, /Semantic-equivalent for ASCII fields: true/);
-  assert.match(markdown, /Closure requirements met: 2/);
-  assert.match(markdown, /Closure requirements blocked: 4/);
+  assert.match(markdown, /Closure requirements met: 3/);
+  assert.match(markdown, /Closure requirements blocked: 3/);
   assert.match(markdown, /Source artifact declares emitted-IR closure: false/);
   assert.match(markdown, /Closure claim contradicted by scope: false/);
   assert.match(markdown, /Closes codegen obligation: false/);
   assert.match(markdown, /Diagnostic throughput MiB\/s: 0\.49/);
   assert.match(markdown, /Diagnostic throughput class: debug-jitspew-diagnostic-not-frontier/);
   assert.match(markdown, /Throughput counts as target evidence: false/);
-  assert.match(markdown, /Primary sync byte-batch missing globals: TextDecoder/);
+  assert.match(markdown, /Primary sync byte-batch missing globals: none/);
   assert.match(markdown, /Non-primary harness missing globals: TextEncoder, ReadableStream, fetch/);
   assert.match(markdown, /ASCII TextDecoder equivalence reduces scope distance: true/);
   assert.match(markdown, /Token workload: xml-token-boundary-no-string-materialization, fullStringParity=false/);
   assert.match(markdown, /Materialized workload: ascii-js-string-and-public-event-object-materialization, fullStringParity=true, diagnosticThroughputMiBPerSec=0\.49, throughputCountsAsTargetEvidence=false/);
   assert.match(markdown, /\| `same-contract-stax-row` \| blocked \| The emitted codegen corresponds to the unchanged same-contract StAX benchmark row\. \| sameContractStaxRow=false \|/);
-  assert.match(markdown, /\| `host-api-surface` \| blocked \| The js-shell can run the current full-string StAX harness without host API substitution\. \| canRunCurrentStaxFullStringBenchmark=false, missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=TextDecoder \|/);
-  assert.match(markdown, /unchanged-stax-host-api-gap-remains: pass/);
+  assert.match(markdown, /\| `host-api-surface` \| met \| The js-shell can run the current UTF-8 primary byte-batch StAX materialization path without host API substitution\. \| canRunCurrentStaxFullStringBenchmark=false, missingGlobals=TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=none \|/);
+  assert.match(markdown, /unchanged-stax-non-primary-harness-gap-remains: pass/);
 });
 
 test('SpiderMonkey materialized scope-distance audit rejects contradictory closure claims', () => {
@@ -144,8 +144,8 @@ test('SpiderMonkey materialized scope-distance audit rejects contradictory closu
 
   const report = JSON.parse(readFileSync(closureClaimJsonOut, 'utf8'));
   assert.equal(report.summary.sourceArtifactDeclaresClosure, true);
-  assert.equal(report.summary.closureRequirementsMet, 3);
-  assert.equal(report.summary.closureRequirementsBlocked, 3);
+  assert.equal(report.summary.closureRequirementsMet, 4);
+  assert.equal(report.summary.closureRequirementsBlocked, 2);
   assert.equal(report.summary.closureClaimContradictedByScope, true);
   assert.equal(report.summary.closesCodegenObligation, false);
   assert.ok(report.closureMatrix.some(item =>

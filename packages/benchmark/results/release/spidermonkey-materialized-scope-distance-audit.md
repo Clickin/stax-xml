@@ -1,6 +1,6 @@
 # SpiderMonkey Materialized Scope Distance Audit
 
-Generated: 2026-06-02T23:12:36.066Z
+Generated: 2026-06-03T04:56:17.989Z
 
 Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen artifact against the token-only codegen artifact, the js-shell StAX API gap, and the semantic materialization contract. This audit records exactly what the materialized js-shell workload proves and why it still cannot close the unchanged StAX codegen obligation.
 
@@ -10,8 +10,8 @@ Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen arti
 - Semantic-equivalent for ASCII fields: true
 - Materializes JS strings and objects: true
 - Closes diagnostic surface obligation: true
-- Closure requirements met: 2
-- Closure requirements blocked: 4
+- Closure requirements met: 3
+- Closure requirements blocked: 3
 - Source artifact declares emitted-IR closure: false
 - Closure claim contradicted by scope: false
 - Closes codegen obligation: false
@@ -20,7 +20,7 @@ Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen arti
 - Throughput counts as target evidence: false
 - Same-contract StAX row: false
 - Unchanged StAX benchmark: false
-- Primary sync byte-batch missing globals: TextDecoder
+- Primary sync byte-batch missing globals: none
 - Non-primary harness missing globals: TextEncoder, ReadableStream, fetch
 - ASCII TextDecoder equivalence reduces scope distance: true
 
@@ -36,8 +36,8 @@ Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen arti
 | `emitted-codegen-surface` | met | The diagnostic shell emits codegen/IR or optimized-code output for the tested workload. | codegenDump=true, nativeDumpComplete=true |
 | `full-string-semantic-materialization` | met | The workload materializes JS strings and public event objects for the checksum fields under test. | fullStringParity=true, materializedStringCount=61289, materializedObjectCount=55759 |
 | `same-contract-stax-row` | blocked | The emitted codegen corresponds to the unchanged same-contract StAX benchmark row. | sameContractStaxRow=false |
-| `unchanged-stax-benchmark` | blocked | The benchmark harness is unchanged from the current TextDecoder/ReadableStream StAX row. | unchangedStaxBenchmark=false |
-| `host-api-surface` | blocked | The js-shell can run the current full-string StAX harness without host API substitution. | canRunCurrentStaxFullStringBenchmark=false, missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=TextDecoder |
+| `unchanged-stax-benchmark` | blocked | The benchmark harness is unchanged from the current same-contract StAX row. | unchangedStaxBenchmark=false |
+| `host-api-surface` | met | The js-shell can run the current UTF-8 primary byte-batch StAX materialization path without host API substitution. | canRunCurrentStaxFullStringBenchmark=false, missingGlobals=TextEncoder, ReadableStream, fetch, primarySyncByteBatchMissingGlobals=none |
 | `closure-declared-by-source-artifact` | blocked | The source artifact declares that it closes the emitted-IR obligation. | closesEmittedIrObligation=false |
 
 ## Checks
@@ -59,8 +59,9 @@ Compares the current Taskcluster SpiderMonkey js-shell materialized-codegen arti
   - materializedFullStringParity=true
   - tokenChecksum=9292058
   - materializedChecksum=-553631888
-- unchanged-stax-host-api-gap-remains: pass
-  - missingGlobals=TextDecoder, TextEncoder, ReadableStream, fetch
+- unchanged-stax-non-primary-harness-gap-remains: pass
+  - missingGlobals=TextEncoder, ReadableStream, fetch
+  - primarySyncByteBatchMissingGlobals=none
   - canRunCurrentStaxFullStringBenchmark=false
 - unchanged-stax-closure-blocked: pass
   - sameContractStaxRow=false
