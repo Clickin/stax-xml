@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { x, type Infer } from '../../src/converter/index.js';
+import { x, type Infer } from '../../../stax-xml-converter/src/converter/index.js';
 
 describe('Converter Basic Tests', () => {
   describe('String Schema', () => {

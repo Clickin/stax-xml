@@ -1,20 +1,20 @@
 // @ts-nocheck
 import { x } from 'stax-xml/converter';
 
-const JS_CONVERTER_BACKEND = {
+const JS_CONVERTER_PATH = {
   id: 'js',
   label: 'JS',
   detail: 'Pure JavaScript converter path'
 };
 
-async function parseTextWithSelectedConverterBackend(schema, text, parseOptions, mode) {
+async function parseTextWithConverterPath(schema, text, parseOptions, mode) {
   const parseStart = performance.now();
   const result = mode === 'async'
     ? await schema.parse(text, parseOptions)
     : schema.parseSync(text, parseOptions);
   return {
     result,
-    backend: JS_CONVERTER_BACKEND,
+    path: JS_CONVERTER_PATH,
     timings: {
       jsParseMs: performance.now() - parseStart
     }
@@ -22,7 +22,7 @@ async function parseTextWithSelectedConverterBackend(schema, text, parseOptions,
 }
 
 const WORKER_STRING_PARSE_THRESHOLD = 25 * 1024 * 1024;
-const CONVERTER_BACKEND = JS_CONVERTER_BACKEND;
+const CONVERTER_PATH = JS_CONVERTER_PATH;
 
 function createXmlStream(xmlInput: string) {
   const encoder = new TextEncoder();
@@ -55,14 +55,14 @@ self.onmessage = async (event) => {
       parseMode = file ? 'file-text-sync' : 'inline-text-sync';
       const inputPrepMs = performance.now() - inputPrepStart;
       const parseStart = performance.now();
-      const backendResult = await parseTextWithSelectedConverterBackend(schema, text, parseOptions, 'sync');
-      result = backendResult.result;
+      const pathResult = await parseTextWithConverterPath(schema, text, parseOptions, 'sync');
+      result = pathResult.result;
       const parseMs = performance.now() - parseStart;
       self.postMessage({
         id,
         ok: true,
         result,
-        backend: backendResult.backend,
+        path: pathResult.path,
         xmlSize,
         timings: {
           parseMode,
@@ -70,7 +70,7 @@ self.onmessage = async (event) => {
           schemaCompileMs,
           inputPrepMs,
           parseMs,
-          ...backendResult.timings,
+          ...pathResult.timings,
           workerTotalMs: performance.now() - workerStart
         }
       });
@@ -78,30 +78,30 @@ self.onmessage = async (event) => {
     }
 
     if (requestedMode === 'async') {
-      const useTextBackend = !file || file.size <= WORKER_STRING_PARSE_THRESHOLD;
+      const useTextPath = !file || file.size <= WORKER_STRING_PARSE_THRESHOLD;
       parseMode = file
-        ? (useTextBackend ? 'file-text-js-async' : 'file-stream-js-async')
+        ? (useTextPath ? 'file-text-js-async' : 'file-stream-js-async')
         : 'inline-text-js-async';
-      const text = useTextBackend ? (file ? await file.text() : xmlInput) : undefined;
-      const input = useTextBackend ? undefined : (file ? file.stream() : createXmlStream(xmlInput));
+      const text = useTextPath ? (file ? await file.text() : xmlInput) : undefined;
+      const input = useTextPath ? undefined : (file ? file.stream() : createXmlStream(xmlInput));
       const inputPrepMs = performance.now() - inputPrepStart;
       const parseStart = performance.now();
-      const backendResult = text === undefined
+      const pathResult = text === undefined
         ? {
             result: await schema.parse(input, parseOptions),
-            backend: CONVERTER_BACKEND,
+            path: CONVERTER_PATH,
             timings: {
               fallbackReason: 'Large file streamed through JavaScript to avoid materializing the whole input as text.'
             }
           }
-        : await parseTextWithSelectedConverterBackend(schema, text, parseOptions, 'async');
-      result = backendResult.result;
+        : await parseTextWithConverterPath(schema, text, parseOptions, 'async');
+      result = pathResult.result;
       const parseMs = performance.now() - parseStart;
       self.postMessage({
         id,
         ok: true,
         result,
-        backend: backendResult.backend,
+        path: pathResult.path,
         xmlSize,
         timings: {
           parseMode,
@@ -109,7 +109,7 @@ self.onmessage = async (event) => {
           schemaCompileMs,
           inputPrepMs,
           parseMs,
-          ...backendResult.timings,
+          ...pathResult.timings,
           workerTotalMs: performance.now() - workerStart
         }
       });
@@ -121,14 +121,14 @@ self.onmessage = async (event) => {
       parseMode = 'file-text-sync';
       const inputPrepMs = performance.now() - inputPrepStart;
       const parseStart = performance.now();
-      const backendResult = await parseTextWithSelectedConverterBackend(schema, text, parseOptions, 'sync');
-      result = backendResult.result;
+      const pathResult = await parseTextWithConverterPath(schema, text, parseOptions, 'sync');
+      result = pathResult.result;
       const parseMs = performance.now() - parseStart;
       self.postMessage({
         id,
         ok: true,
         result,
-        backend: backendResult.backend,
+        path: pathResult.path,
         xmlSize,
         timings: {
           parseMode,
@@ -136,7 +136,7 @@ self.onmessage = async (event) => {
           schemaCompileMs,
           inputPrepMs,
           parseMs,
-          ...backendResult.timings,
+          ...pathResult.timings,
           workerTotalMs: performance.now() - workerStart
         }
       });
@@ -152,7 +152,7 @@ self.onmessage = async (event) => {
         id,
         ok: true,
         result,
-        backend: CONVERTER_BACKEND,
+        path: CONVERTER_PATH,
         xmlSize,
         timings: {
           parseMode,

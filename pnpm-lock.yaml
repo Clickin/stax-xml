@@ -110,9 +110,18 @@ importers:
 
   packages/stax-xml:
     devDependencies:
-      starlight-typedoc:
-        specifier: ^0.21.5
-        version: 0.21.5(@astrojs/starlight@0.38.4(astro@6.1.9(@types/node@24.12.2)(rollup@4.60.2)(tsx@4.21.0)(typescript@6.0.3)(yaml@2.8.3)))(typedoc-plugin-markdown@4.11.0(typedoc@0.28.19(typescript@6.0.3)))(typedoc@0.28.19(typescript@6.0.3))
+      stax-xml-async:
+        specifier: workspace:*
+        version: link:../stax-xml-async
+      stax-xml-converter:
+        specifier: workspace:*
+        version: link:../stax-xml-converter
+      stax-xml-core:
+        specifier: workspace:*
+        version: link:../stax-xml-core
+      stax-xml-sync:
+        specifier: workspace:*
+        version: link:../stax-xml-sync
       tsdown:
         specifier: ^0.21.9
         version: 0.21.10(typescript@6.0.3)
@@ -128,6 +137,63 @@ importers:
       vitest:
         specifier: ^4.1.4
         version: 4.1.5(@types/node@24.12.2)(@vitest/coverage-v8@4.1.5)(@vitest/ui@4.1.5)(vite@7.3.2(@types/node@24.12.2)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/stax-xml-async:
+    dependencies:
+      stax-xml-core:
+        specifier: workspace:*
+        version: link:../stax-xml-core
+    devDependencies:
+      tsdown:
+        specifier: ^0.21.9
+        version: 0.21.10(typescript@6.0.3)
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+
+  packages/stax-xml-converter:
+    dependencies:
+      stax-xml-async:
+        specifier: workspace:*
+        version: link:../stax-xml-async
+      stax-xml-core:
+        specifier: workspace:*
+        version: link:../stax-xml-core
+      stax-xml-sync:
+        specifier: workspace:*
+        version: link:../stax-xml-sync
+    devDependencies:
+      tsdown:
+        specifier: ^0.21.9
+        version: 0.21.10(typescript@6.0.3)
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+
+  packages/stax-xml-core:
+    devDependencies:
+      tsdown:
+        specifier: ^0.21.9
+        version: 0.21.10(typescript@6.0.3)
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: ^4.1.4
+        version: 4.1.5(@types/node@24.12.2)(@vitest/coverage-v8@4.1.5)(@vitest/ui@4.1.5)(vite@7.3.2(@types/node@24.12.2)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/stax-xml-sync:
+    dependencies:
+      stax-xml-core:
+        specifier: workspace:*
+        version: link:../stax-xml-core
+    devDependencies:
+      tsdown:
+        specifier: ^0.21.9
+        version: 0.21.10(typescript@6.0.3)
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
 
 packages:
 

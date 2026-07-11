@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Writer } from '../src/Writer';
+import { Writer } from 'stax-xml-async';
 
 // WritableStream을 메모리에서 구현하는 헬퍼 함수
 function createMemoryWritableStream(): { stream: WritableStream<Uint8Array>; getOutput: () => string } {
@@ -77,6 +77,20 @@ async function writeElementAsync(writer: Writer, element: any): Promise<void> {
 }
 
 describe('Writer Basic Functionality Tests', () => {
+  it('should expose close() as the async stream finalizer', async () => {
+    const { stream, getOutput } = createMemoryWritableStream();
+    const writer = new Writer(stream);
+
+    await writer.writeStartDocument('1.0', 'utf-8');
+    await writer.writeStartElement('catalog');
+    await writer.writeStartElement('book', { attributes: { id: 'b1' } });
+    await writer.writeCharacters('StAX & XML');
+    await writer.close();
+
+    expect(getOutput()).toContain('<book id="b1">StAX &amp; XML</book>');
+    await expect(writer.writeStartElement('late')).rejects.toThrow('Writer is closed');
+  });
+
   it('should write simple XML with elements and text', async () => {
     const { stream, getOutput } = createMemoryWritableStream();
     const writer = new Writer(stream, {

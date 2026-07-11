@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { EventReaderSync } from '../src/EventReaderSync';
-import { XmlEventType } from '../src/types';
+import { EventReaderSync } from 'stax-xml-sync';
+import { XmlEventType } from 'stax-xml-core';
 
 function newNamespaceAwareReader(
   xml: string,

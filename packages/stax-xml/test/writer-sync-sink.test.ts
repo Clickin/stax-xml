@@ -1,12 +1,13 @@
-import { mkdtempSync, openSync, readFileSync, rmSync } from 'node:fs';
+import { closeSync, mkdtempSync, openSync, readFileSync, readSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { describe, expect, it } from 'vitest';
-import { WriterSyncSink, type SyncTextSink } from '../src/WriterSync';
-import { createBunSyncTextSink } from '../src/adapters/bun';
-import { createNodeFileSyncTextSink, createNodeSyncTextSink } from '../src/adapters/node';
-import { createDenoSyncTextSink } from '../src/adapters/deno';
-import { x } from '../src/converter';
+import { WriterSyncSink, type SyncTextSink } from 'stax-xml-sync';
+import { CursorReaderSync, StreamEventType } from 'stax-xml-sync';
+import { bunFileByteBatchesSync, createBunSyncTextSink } from '../src/adapters/bun';
+import { createNodeFileSyncTextSink, createNodeSyncTextSink, nodeFileByteBatchesSync } from '../src/adapters/node';
+import { createDenoSyncTextSink, denoFileByteBatchesSync } from '../src/adapters/deno';
+import { x } from 'stax-xml-converter';
 
 function createMemorySink(): SyncTextSink & {
   chunks: string[];
@@ -197,6 +198,7 @@ describe('sync sink adapters', () => {
       sink.close?.();
       expect(readFileSync(filePath, 'utf8')).toBe('<open/>');
     } finally {
+      closeSync(fd);
       rmSync(tempDir, { recursive: true, force: true });
     }
   });
@@ -221,6 +223,41 @@ describe('sync sink adapters', () => {
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
     }
+  });
+
+  it('should expose node file byte batches as CursorReaderSync input', () => {
+    const tempDir = mkdtempSync(join(tmpdir(), 'stax-xml-node-byte-batches-'));
+    const filePath = join(tempDir, 'catalog.xml');
+    const xml = '<catalog><book id="b1">StAX</book><book id="b2">XML</book></catalog>';
+    writeFileSync(filePath, xml);
+
+    try {
+      const batches = Array.from(nodeFileByteBatchesSync(filePath, { chunkSize: 9, batchSize: 2 }));
+      const flattened = Buffer.concat(batches.flatMap((batch) => [...batch]));
+      expect(flattened.toString('utf8')).toBe(xml);
+      expect(batches.every((batch) => batch.length <= 2)).toBe(true);
+
+      const reader = new CursorReaderSync(nodeFileByteBatchesSync(filePath, { chunkSize: 9, batchSize: 2 }));
+      const books: string[] = [];
+      while (reader.next()) {
+        if (reader.eventType() === StreamEventType.CHARACTERS) {
+          books.push(reader.text() ?? '');
+        }
+      }
+
+      expect(books).toEqual(['StAX', 'XML']);
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it('should reject invalid node file byte batch options', () => {
+    expect(() => Array.from(nodeFileByteBatchesSync('/tmp/missing.xml', { chunkSize: 0 }))).toThrow(
+      'chunkSize must be a positive integer.'
+    );
+    expect(() => Array.from(nodeFileByteBatchesSync('/tmp/missing.xml', { batchSize: 1.5 }))).toThrow(
+      'batchSize must be a positive integer.'
+    );
   });
 
   it('should adapt bun targets with flush and close fallbacks', () => {
@@ -258,6 +295,26 @@ describe('sync sink adapters', () => {
 
     createBunSyncTextSink(endTarget).close?.();
     expect(endTarget.ended).toBe(1);
+  });
+
+  it('should expose bun file byte batches as CursorReaderSync input', () => {
+    const tempDir = mkdtempSync(join(tmpdir(), 'stax-xml-bun-byte-batches-'));
+    const filePath = join(tempDir, 'catalog.xml');
+    writeFileSync(filePath, '<catalog><book>Bun</book></catalog>');
+
+    try {
+      const reader = new CursorReaderSync(bunFileByteBatchesSync(filePath, { chunkSize: 5, batchSize: 2 }));
+      const text: string[] = [];
+      while (reader.next()) {
+        if (reader.eventType() === StreamEventType.CHARACTERS) {
+          text.push(reader.text() ?? '');
+        }
+      }
+
+      expect(text).toEqual(['Bun']);
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
   });
 
   it('should adapt deno sync targets and reject async-only targets', () => {
@@ -319,5 +376,46 @@ describe('sync sink adapters', () => {
     expect(() => createDenoSyncTextSink(asyncOnlyTarget as never).write('<bad/>')).toThrow(
       'Unsupported Deno sink: provide writeTextSync or writeSync'
     );
+  });
+
+  it('should expose deno file byte batches as CursorReaderSync input', () => {
+    const tempDir = mkdtempSync(join(tmpdir(), 'stax-xml-deno-byte-batches-'));
+    const filePath = join(tempDir, 'catalog.xml');
+    writeFileSync(filePath, '<catalog><book>Deno</book></catalog>');
+    const previousDeno = (globalThis as { Deno?: unknown }).Deno;
+
+    (globalThis as { Deno?: unknown }).Deno = {
+      openSync(path: string | URL) {
+        const fd = openSync(path, 'r');
+        return {
+          readSync(buffer: Uint8Array) {
+            const bytesRead = readSync(fd, buffer, 0, buffer.byteLength, null);
+            return bytesRead === 0 ? null : bytesRead;
+          },
+          close() {
+            closeSync(fd);
+          }
+        };
+      }
+    };
+
+    try {
+      const reader = new CursorReaderSync(denoFileByteBatchesSync(filePath, { chunkSize: 5, batchSize: 2 }));
+      const text: string[] = [];
+      while (reader.next()) {
+        if (reader.eventType() === StreamEventType.CHARACTERS) {
+          text.push(reader.text() ?? '');
+        }
+      }
+
+      expect(text).toEqual(['Deno']);
+    } finally {
+      if (previousDeno === undefined) {
+        delete (globalThis as { Deno?: unknown }).Deno;
+      } else {
+        (globalThis as { Deno?: unknown }).Deno = previousDeno;
+      }
+      rmSync(tempDir, { recursive: true, force: true });
+    }
   });
 });

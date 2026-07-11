@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import EventReader from '../src/EventReader';
-import WriterSync from '../src/WriterSync';
-import { XmlEventType } from '../src/types';
+import { EventReader } from 'stax-xml-async';
+import { WriterSync } from 'stax-xml-sync';
+import { XmlEventType } from 'stax-xml-core';
 
 // 웹 표준 API용 헬퍼 함수들
 function stringToReadableStream(str: string): ReadableStream<Uint8Array> {
@@ -150,7 +150,8 @@ describe('EventReader Streaming and Performance Tests', () => {
       expect(result.events.length).toBeGreaterThan(0);
 
       const startElement = result.events.find(e => e.type === XmlEventType.START_ELEMENT && (e as any).name === 'document');
-      expect((startElement as any).attributes.id).toBe((index + 1).toString());
+      expect((startElement as any).attributes.find((attribute: { name: string }) => attribute.name === 'id')?.value)
+        .toBe((index + 1).toString());
     });
   });
 
@@ -206,7 +207,10 @@ describe('EventReader Streaming and Performance Tests', () => {
       switch (event.type) {
         case XmlEventType.START_ELEMENT:
           if ((event as any).name === 'item') {
-            currentItem = { id: (event as any).attributes.id, content: '' };
+            currentItem = {
+              id: (event as any).attributes.find((attribute: { name: string }) => attribute.name === 'id')?.value,
+              content: '',
+            };
           }
           break;
         case XmlEventType.CHARACTERS:

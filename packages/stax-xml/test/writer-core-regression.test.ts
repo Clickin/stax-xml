@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import WriterSync from '../src/WriterSync';
-import { Writer } from '../src/Writer';
+import { WriterSync } from 'stax-xml-sync';
+import { Writer } from 'stax-xml-async';
 
 function createCountingWritableStream(): { stream: WritableStream<Uint8Array>; getBytesWritten: () => number } {
   let bytesWritten = 0;

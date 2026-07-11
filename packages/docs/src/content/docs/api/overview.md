@@ -22,57 +22,62 @@ head:
 
 ## API Reference
 
-The public package is a pure JavaScript StAX-style parser and writer.
+StAX-XML 1.0 has two ESM entry points:
 
-- [StreamReader](/stax-xml/api/main/#streamreader) - Async batch-first StAX core
-- [StreamReaderSync](/stax-xml/api/main/#streamreadersync) - Sync batch-first StAX core
-- [EventReader](/stax-xml/api-guides/event-reader/) - Asynchronous XML parsing
-- [EventReaderSync](/stax-xml/api-guides/event-reader-sync/) - Synchronous XML parsing
-- [Tree/Object helpers](/stax-xml/api-guides/event-reader/#unknown-xml-tree-and-object-helpers) - Unknown XML projection to an ElementTree-like tree or compact object
-- [Writer](/stax-xml/api-guides/writer/) - XML writing functionality
-- [WriterSync](/stax-xml/api-guides/writer-sync/) - Synchronous XML writing and sync sink adapters
-- [WriterSyncSink](/stax-xml/api/main/#writersyncsink) - Generated TypeDoc reference for sink-based sync writing
+- `stax-xml` — four pull readers and three writers.
+- `stax-xml/converter` — the schema-driven converter.
+
+There are no public runtime, adapter, backend-selection, tree, DOM, native, or
+Wasm subpaths.
 
 ## Public Surface Map
 
-Recommendation: use the converter API first when the target XML-to-object shape
-is known. If you need a low-overhead StAX core, start with `StreamReader` or
-`StreamReaderSync`; on large synchronous byte input, consume each batch with
-`eventCount` plus index accessors. If you want ergonomic event objects, use
-`EventReader` or `EventReaderSync`.
+| Surface | Input or output | Use it when |
+| --- | --- | --- |
+| `StreamReaderSync` | `string`, `Uint8Array`, or `Iterable<Uint8Array>` | You want the lowest-allocation synchronous current-token API. String input is scanned directly without re-encoding. |
+| `EventReaderSync` | Same synchronous inputs | You want stable event objects and normal synchronous iteration. |
+| `StreamReader` | `ReadableStream<Uint8Array>` or `AsyncIterable<Uint8Array>` | You want an asynchronous current-token API with input backpressure. |
+| `EventReader` | Same asynchronous inputs | You want stable event objects and `for await` iteration. |
+| Converter | `stax-xml/converter` | The XML shape is known and you want typed object projection without building a DOM. |
+| `WriterSync` | JavaScript string output | The complete output comfortably fits in memory. |
+| `WriterSyncSink` | Synchronous text sink | You need incremental synchronous output. |
+| `Writer` | `WritableStream<Uint8Array>` | You need incremental asynchronous UTF-8 output. |
 
-| Surface | Import path | Purpose | Implementation notes |
-| --- | --- | --- | --- |
-| `StreamReader` | `stax-xml` | Async batch-first StAX core for `ReadableStream<Uint8Array>`. | Uses the JavaScript byte reader and yields `StreamBatch` views. |
-| `StreamReaderSync` | `stax-xml` | Sync batch-first StAX core for `Uint8Array` or byte-batch iterables. | Uses the JavaScript byte reader. `eventCount` is batch-local, and views are invalidated by the next `nextBatch()` call. |
-| `EventReader` | `stax-xml` | Async event reader for `ReadableStream<Uint8Array>` input. | Preserves stream backpressure at the public boundary. |
-| `EventReaderSync` | `stax-xml` | Sync event reader for an in-memory XML string. | Materializes `AnyXmlEvent` values from the JavaScript reader stack. |
-| `Writer` | `stax-xml` | Async writer for `WritableStream<Uint8Array>`. | Emits encoded XML incrementally to a web writable stream. |
-| `WriterSync` | `stax-xml` | In-memory synchronous writer. | Builds and returns the XML string; the package default export remains `WriterSync`. |
-| `WriterSyncSink` | `stax-xml` | Synchronous sink writer for large output. | Writes incrementally to a `SyncTextSink` instead of retaining the full XML string. |
-| Tree/object helpers | `stax-xml` | `parseXmlTree*()` and `parseXmlObject*()` convenience APIs. | Project unknown XML into an order-preserving tree or compact object using the same reader stack. |
+All four readers use the same token core and emit `START_DOCUMENT` and
+`END_DOCUMENT`. `StreamReaderSync` and `StreamReader` expose the current token
+through methods such as `eventType()`, `name()`, `text()`,
+`attributeValue()`, and `namespaceURI()`. Event readers materialize stable
+`AnyXmlEvent` objects from those tokens.
 
-The package does not expose native, Wasm, or backend-selection modes. The
-public contract is pure JavaScript and the boundary cost of returning
-JavaScript strings and objects is part of the measured workload.
+## Imports
 
-## Type Definitions
+```ts
+import {
+  EventReader,
+  EventReaderSync,
+  StreamReader,
+  StreamReaderSync,
+  Writer,
+  WriterSync,
+  WriterSyncSink,
+  XmlEventType,
+} from 'stax-xml';
 
-The main types exported by StAX-XML are:
+import { x } from 'stax-xml/converter';
+```
 
-- `XmlEventType` - Enumeration of XML event types
-- `AnyXmlEvent` - Union type of all XML events
-- `StartElementEvent` - Start element events with attributes
-- `CharactersEvent` - Text content events
-- `ErrorEvent` - Parsing error events
-- `XmlAttribute` - XML attribute interface
-- `XmlTreeDocument` / `XmlTreeElement` - Order-preserving tree helper result types
-- `XmlObjectRecord` / `XmlObjectValue` - Compact object helper result types
-- `ParseXmlTreeOptions` / `ParseXmlObjectOptions` - Tree/object helper options
-- `SyncTextSink` - Custom synchronous sink target for `WriterSyncSink`
-- `EventReaderOptions` / `EventReaderSyncOptions` - Event reader options
-- `WriterOptions` / `WriterSyncOptions` - Async and sync writer options
-- `WriterSyncSinkOptions` - Sink-based sync writer options
+The package is ESM-only. The root has no default export.
 
-For detailed type information and method signatures, please refer to the
-individual API guides above.
+## Main Types
+
+- `AnyXmlEvent`, `EventAttribute`, and the exported event interfaces
+- `XmlEventType`
+- `EventReaderOptions` / `EventReaderSyncOptions`
+- `StreamReaderOptions` / `StreamReaderSyncOptions`
+- `StreamReaderSource` / `StreamReaderSyncInput`
+- `WriterOptions` / `WriterSyncOptions` / `WriterSyncSinkOptions`
+- `SyncTextSink`
+- `DocumentMode`
+
+See the reader and writer guides for lifecycle examples. The generated TypeDoc
+reference is rebuilt from the same package entry points before release.

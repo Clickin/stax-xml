@@ -1,0 +1,860 @@
+{
+  "generatedAt": "2026-06-12T15:00:29.375Z",
+  "runId": "2026-06-12T15-00-29-374Z",
+  "contract": {
+    "parser": "pure JavaScript public API surfaces",
+    "excludes": [
+      "native addons",
+      "Wasm parser modules",
+      "backend fallback rows"
+    ],
+    "includes": [
+      "parser fixture series",
+      "maintained Node npm XML parser comparison",
+      "CursorReader incremental size series from 1MiB to 4GiB",
+      "runtime matrix artifact",
+      "converter compiled batch-plan comparison",
+      "writer small/big/async/1GiB rows"
+    ]
+  },
+  "environment": {
+    "arch": "arm64-darwin",
+    "runtime": "node",
+    "version": "24.15.0",
+    "cpuName": "Apple M4",
+    "cpuGHz": 2.4,
+    "packageManager": "pnpm@10.33.2",
+    "packages": [
+      {
+        "name": "fast-xml-parser",
+        "declared": "^5.2.5",
+        "version": "5.7.2",
+        "source": "npm",
+        "status": "ok"
+      },
+      {
+        "name": "htmlparser2",
+        "declared": "^12.0.0",
+        "version": "12.0.0",
+        "source": "npm",
+        "status": "ok"
+      },
+      {
+        "name": "mitata",
+        "declared": "^1.0.34",
+        "version": "1.0.34",
+        "source": "npm",
+        "status": "ok"
+      },
+      {
+        "name": "sax",
+        "declared": "^1.4.1",
+        "version": "1.6.0",
+        "source": "npm",
+        "status": "ok"
+      },
+      {
+        "name": "saxes",
+        "declared": "^6.0.0",
+        "version": "6.0.0",
+        "source": "npm",
+        "status": "ok"
+      },
+      {
+        "name": "saxophone",
+        "declared": "^0.8.0",
+        "version": "0.8.0",
+        "source": "npm",
+        "status": "ok"
+      },
+      {
+        "name": "stax-xml",
+        "declared": "workspace:*",
+        "version": "1.0.0",
+        "source": "workspace",
+        "status": "ok"
+      },
+      {
+        "name": "txml",
+        "declared": "^5.1.1",
+        "version": "5.2.1",
+        "source": "npm",
+        "status": "ok"
+      },
+      {
+        "name": "xml-stream",
+        "declared": "^0.4.5",
+        "version": "0.4.5",
+        "source": "npm",
+        "status": "ok"
+      },
+      {
+        "name": "xml2js",
+        "declared": "^0.6.2",
+        "version": "0.6.2",
+        "source": "npm",
+        "status": "ok"
+      }
+    ],
+    "nodeComponents": [
+      {
+        "name": "acorn",
+        "version": "8.16.0"
+      },
+      {
+        "name": "ada",
+        "version": "3.4.4"
+      },
+      {
+        "name": "amaro",
+        "version": "1.1.8"
+      },
+      {
+        "name": "ares",
+        "version": "1.34.6"
+      },
+      {
+        "name": "brotli",
+        "version": "1.2.0"
+      },
+      {
+        "name": "cldr",
+        "version": "48.0"
+      },
+      {
+        "name": "icu",
+        "version": "78.2"
+      },
+      {
+        "name": "llhttp",
+        "version": "9.3.1"
+      },
+      {
+        "name": "merve",
+        "version": "1.2.2"
+      },
+      {
+        "name": "modules",
+        "version": "137"
+      },
+      {
+        "name": "napi",
+        "version": "10"
+      },
+      {
+        "name": "nbytes",
+        "version": "0.1.3"
+      },
+      {
+        "name": "ncrypto",
+        "version": "0.0.1"
+      },
+      {
+        "name": "nghttp2",
+        "version": "1.68.0"
+      },
+      {
+        "name": "node",
+        "version": "24.15.0"
+      },
+      {
+        "name": "openssl",
+        "version": "3.5.5"
+      },
+      {
+        "name": "simdjson",
+        "version": "4.5.0"
+      },
+      {
+        "name": "simdutf",
+        "version": "6.4.0"
+      },
+      {
+        "name": "sqlite",
+        "version": "3.51.3"
+      },
+      {
+        "name": "tz",
+        "version": "2026a"
+      },
+      {
+        "name": "undici",
+        "version": "7.24.4"
+      },
+      {
+        "name": "unicode",
+        "version": "17.0"
+      },
+      {
+        "name": "uv",
+        "version": "1.51.0"
+      },
+      {
+        "name": "uvwasi",
+        "version": "0.0.23"
+      },
+      {
+        "name": "v8",
+        "version": "13.6.233.17-node.48"
+      },
+      {
+        "name": "zlib",
+        "version": "1.3.1-e00f703"
+      },
+      {
+        "name": "zstd",
+        "version": "1.5.7"
+      }
+    ]
+  },
+  "artifacts": {
+    "runtimeMatrix": "packages/benchmark/results/release/runtime-matrix.json",
+    "streamReader4GiB": "packages/benchmark/results/release/stream-reader-4gb.json",
+    "converterCompiledBatchPlan": "packages/benchmark/results/release/converter-compiled-batch-plan.json",
+    "writer1GiB": "packages/benchmark/results/release/raw/writer-1gb.json"
+  },
+  "suites": {
+    "parser-2kb": {
+      "id": "parser-2kb",
+      "title": "Parser 2KB (complex.xml)",
+      "context": {
+        "arch": "arm64-darwin",
+        "runtime": "node",
+        "version": "24.15.0",
+        "cpuName": "Apple M4",
+        "cpuGHz": 3.71
+      },
+      "cases": [
+        {
+          "label": "stax-xml EventReaderSync (JS object)",
+          "avgNs": 89511.30496453647,
+          "minNs": 83041,
+          "p75Ns": 90041.00000047684,
+          "p99Ns": 127375,
+          "maxNs": 252000,
+          "heapAvgBytes": 27872.74647887324
+        },
+        {
+          "label": "stax-xml CursorReaderSync (JS object)",
+          "avgNs": 116597.82935779817,
+          "minNs": 103291,
+          "p75Ns": 114792,
+          "p99Ns": 224792,
+          "maxNs": 305458,
+          "heapAvgBytes": 23161.725776965264
+        },
+        {
+          "label": "stax-xml Converter API (JS object)",
+          "avgNs": 144476.55813953487,
+          "minNs": 123792,
+          "p75Ns": 144041,
+          "p99Ns": 291625,
+          "maxNs": 323750,
+          "heapAvgBytes": 46966.4375
+        }
+      ]
+    },
+    "parser-4kb": {
+      "id": "parser-4kb",
+      "title": "Parser 4KB (books.xml)",
+      "context": {
+        "arch": "arm64-darwin",
+        "runtime": "node",
+        "version": "24.15.0",
+        "cpuName": "Apple M4",
+        "cpuGHz": 3.67
+      },
+      "cases": [
+        {
+          "label": "stax-xml EventReaderSync (JS object)",
+          "avgNs": 144299.76727272727,
+          "minNs": 109708,
+          "p75Ns": 142500,
+          "p99Ns": 272208,
+          "maxNs": 298541,
+          "heapAvgBytes": 48257.938069216754
+        },
+        {
+          "label": "stax-xml CursorReaderSync (JS object)",
+          "avgNs": 182254.94237918215,
+          "minNs": 168458,
+          "p75Ns": 178792,
+          "p99Ns": 315459,
+          "maxNs": 339625,
+          "heapAvgBytes": 31882.898336414048
+        },
+        {
+          "label": "stax-xml Converter API (JS object)",
+          "avgNs": 229217.19348659003,
+          "minNs": 212875,
+          "p75Ns": 227333,
+          "p99Ns": 351125,
+          "maxNs": 382917,
+          "heapAvgBytes": 100993.86259541985
+        }
+      ]
+    },
+    "parser-13mb": {
+      "id": "parser-13mb",
+      "title": "Parser 13MB (midsize.xml)",
+      "context": {
+        "arch": "arm64-darwin",
+        "runtime": "node",
+        "version": "24.15.0",
+        "cpuName": "Apple M4",
+        "cpuGHz": 3.64
+      },
+      "cases": [
+        {
+          "label": "stax-xml EventReaderSync (JS object)",
+          "avgNs": 87999361,
+          "minNs": 83892084,
+          "p75Ns": 91007958,
+          "p99Ns": 92266958,
+          "maxNs": 94097583,
+          "heapAvgBytes": 59939928.5
+        },
+        {
+          "label": "stax-xml CursorReaderSync (JS object)",
+          "avgNs": 37234797,
+          "minNs": 35395666,
+          "p75Ns": 37564833,
+          "p99Ns": 38426542,
+          "maxNs": 38885250,
+          "heapAvgBytes": 8283755.657142857
+        },
+        {
+          "label": "stax-xml Converter API (JS object)",
+          "avgNs": 84332807.6923077,
+          "minNs": 82675417,
+          "p75Ns": 84514000,
+          "p99Ns": 85565958,
+          "maxNs": 86174042,
+          "heapAvgBytes": 53543247.52941176
+        }
+      ]
+    },
+    "parser-98mb": {
+      "id": "parser-98mb",
+      "title": "Parser 98MB (large.xml)",
+      "context": {
+        "arch": "arm64-darwin",
+        "runtime": "node",
+        "version": "24.15.0",
+        "cpuName": "Apple M4",
+        "cpuGHz": 3.87
+      },
+      "cases": [
+        {
+          "label": "stax-xml EventReaderSync (JS object)",
+          "avgNs": 638037864.5000004,
+          "minNs": 605685875,
+          "p75Ns": 649871250,
+          "p99Ns": 654303667,
+          "maxNs": 664887625,
+          "heapAvgBytes": 33743378
+        },
+        {
+          "label": "stax-xml CursorReaderSync (JS object)",
+          "avgNs": 231914649.5,
+          "minNs": 220068834,
+          "p75Ns": 234587291,
+          "p99Ns": 235013209,
+          "maxNs": 237785209,
+          "heapAvgBytes": 58800041.333333336
+        },
+        {
+          "label": "stax-xml Converter API (JS object)",
+          "avgNs": 574236618.1666666,
+          "minNs": 543041375,
+          "p75Ns": 584534417,
+          "p99Ns": 586186167,
+          "maxNs": 586889292,
+          "heapAvgBytes": 29159434.666666668
+        }
+      ]
+    },
+    "npm-xml-parsers": {
+      "id": "npm-xml-parsers",
+      "title": "Node npm XML parser comparison (books.xml)",
+      "context": {
+        "arch": "arm64-darwin",
+        "runtime": "node",
+        "version": "24.15.0",
+        "cpuName": "Apple M4",
+        "cpuGHz": 3.67
+      },
+      "cases": [
+        {
+          "label": "stax-xml EventReaderSync (JS event checksum)",
+          "avgNs": 165441.15384615384,
+          "minNs": 124917,
+          "p75Ns": 164459,
+          "p99Ns": 304000,
+          "maxNs": 354500,
+          "heapAvgBytes": 88286.95406360424
+        },
+        {
+          "label": "stax-xml CursorReaderSync (JS event checksum)",
+          "avgNs": 187698.5288966725,
+          "minNs": 176125,
+          "p75Ns": 185209,
+          "p99Ns": 286458,
+          "maxNs": 326000,
+          "heapAvgBytes": 31746.006968641115
+        },
+        {
+          "label": "fast-xml-parser XMLParser",
+          "avgNs": 410130.40215053764,
+          "minNs": 254958,
+          "p75Ns": 439500,
+          "p99Ns": 700750,
+          "maxNs": 1001750,
+          "heapAvgBytes": 790755.8801089919
+        },
+        {
+          "label": "txml parse",
+          "avgNs": 140795.50091407678,
+          "minNs": 69667,
+          "p75Ns": 147000,
+          "p99Ns": 223375,
+          "maxNs": 249750,
+          "heapAvgBytes": 108356.0655737705
+        },
+        {
+          "label": "xml2js parseString",
+          "avgNs": 618246.4039735099,
+          "minNs": 270500,
+          "p75Ns": 662667,
+          "p99Ns": 821250,
+          "maxNs": 854833,
+          "heapAvgBytes": 723977.5157894737
+        },
+        {
+          "label": "sax strict event parser",
+          "avgNs": 441788.63692946057,
+          "minNs": 121875,
+          "p75Ns": 485625,
+          "p99Ns": 642333,
+          "maxNs": 664625,
+          "heapAvgBytes": 414738.6538461539
+        },
+        {
+          "label": "saxes event parser",
+          "avgNs": 307429.3620689655,
+          "minNs": 99500,
+          "p75Ns": 363125,
+          "p99Ns": 492292,
+          "maxNs": 544625,
+          "heapAvgBytes": 191752.12727272726
+        },
+        {
+          "label": "htmlparser2 xmlMode parser",
+          "avgNs": 350902.6304347826,
+          "minNs": 78708,
+          "p75Ns": 481583,
+          "p99Ns": 584333,
+          "maxNs": 602375,
+          "heapAvgBytes": 387188.93176470586
+        }
+      ]
+    },
+    "stream-size": {
+      "id": "stream-size",
+      "title": "CursorReader iterable cursor size comparison",
+      "generatedAt": "2026-06-12T15:02:51.986Z",
+      "cases": [
+        {
+          "label": "CursorReader iterable cursor (1MiB generated chunks)",
+          "avgNs": 27095750.000000406,
+          "minNs": 26163625.000001047,
+          "p75Ns": 28378624.999997556,
+          "p99Ns": 28378624.999997556,
+          "maxNs": 28378624.999997556,
+          "heapAvgBytes": 25430474.666666668,
+          "rssDeltaBytes": 27306.666666666668,
+          "bytes": 1048620,
+          "events": 139818,
+          "checksum": 1978723028,
+          "throughputMiBs": 36.907705513591864
+        },
+        {
+          "label": "CursorReader iterable cursor (10MiB generated chunks)",
+          "avgNs": 216910027.66666985,
+          "minNs": 209130958.00000155,
+          "p75Ns": 232165583.0000018,
+          "p99Ns": 232165583.0000018,
+          "maxNs": 232165583.0000018,
+          "heapAvgBytes": 50785525.333333336,
+          "rssDeltaBytes": 5461.333333333333,
+          "bytes": 10485780,
+          "events": 1398106,
+          "checksum": 544702500,
+          "throughputMiBs": 46.102152035375546
+        },
+        {
+          "label": "CursorReader iterable cursor (100MiB generated chunks)",
+          "avgNs": 2240997457.999998,
+          "minNs": 2218091707.999993,
+          "p75Ns": 2255473207.9999957,
+          "p99Ns": 2255473207.9999957,
+          "maxNs": 2255473207.9999957,
+          "heapAvgBytes": 34341837.333333336,
+          "rssDeltaBytes": -50741248,
+          "bytes": 104857620,
+          "events": 13981018,
+          "checksum": 532119588,
+          "throughputMiBs": 44.62299531688555
+        },
+        {
+          "label": "CursorReader iterable cursor (1GiB generated chunks)",
+          "avgNs": 22776149972.333324,
+          "minNs": 22696920416.999985,
+          "p75Ns": 22838921499.999996,
+          "p99Ns": 22838921499.999996,
+          "maxNs": 22838921499.999996,
+          "heapAvgBytes": 5517474.666666667,
+          "rssDeltaBytes": -23429120,
+          "bytes": 1073741880,
+          "events": 143165586,
+          "checksum": 3324150730,
+          "throughputMiBs": 44.959312906247824
+        },
+        {
+          "label": "CursorReader iterable cursor (4GiB generated chunks)",
+          "avgNs": 83394410958.33333,
+          "minNs": 83184895167.00002,
+          "p75Ns": 83394410958.33333,
+          "p99Ns": 83514890749.99998,
+          "maxNs": 83514890749.99998,
+          "heapAvgBytes": null,
+          "rssDeltaBytes": 10807978.666666666,
+          "bytes": 4294967340,
+          "events": 572662314,
+          "checksum": -1788666544,
+          "throughputMiBs": 49.11600183863844
+        }
+      ]
+    },
+    "converter-parity": {
+      "id": "converter-parity",
+      "title": "Converter compiled batch-plan comparison",
+      "context": {
+        "name": "node",
+        "version": "24.15.0",
+        "platform": "darwin-arm64"
+      },
+      "cases": [
+        {
+          "label": "Manual CursorReaderSync projection",
+          "avgNs": 64619258.400000006,
+          "minNs": 62067167.00000004,
+          "p75Ns": 64619258.400000006,
+          "p99Ns": 69432415.99999999,
+          "maxNs": 69432415.99999999,
+          "heapAvgBytes": 48574590.4,
+          "rssDeltaBytes": 5636096,
+          "throughputMiBs": 247.60551688742623,
+          "books": 139458,
+          "checksum": -1845341048
+        },
+        {
+          "label": "Converter schema.parseSync(bytes)",
+          "avgNs": 211596341.60000002,
+          "minNs": 202469000.00000006,
+          "p75Ns": 211596341.60000002,
+          "p99Ns": 222725083.00000027,
+          "maxNs": 222725083.00000027,
+          "heapAvgBytes": 88751208,
+          "rssDeltaBytes": 3650355.2,
+          "throughputMiBs": 75.61607519311741,
+          "books": 139458,
+          "checksum": -1845341048
+        },
+        {
+          "label": "Converter schema.compile().parseSync(bytes)",
+          "avgNs": 228901100.00000012,
+          "minNs": 214139707.9999997,
+          "p75Ns": 228901100.00000012,
+          "p99Ns": 237807167.0000004,
+          "maxNs": 237807167.0000004,
+          "heapAvgBytes": 77910620.8,
+          "rssDeltaBytes": 3656908.8,
+          "throughputMiBs": 69.8995543359737,
+          "books": 139458,
+          "checksum": -1845341048
+        }
+      ]
+    },
+    "writer-small": {
+      "id": "writer-small",
+      "title": "Writer small documents",
+      "context": {
+        "arch": "arm64-darwin",
+        "runtime": "node",
+        "version": "24.15.0",
+        "cpuName": "Apple M4",
+        "cpuGHz": 3.69
+      },
+      "cases": [
+        {
+          "label": "fast-xml-parser builder",
+          "avgNs": 111158.50282485876,
+          "minNs": 99708,
+          "p75Ns": 109458,
+          "p99Ns": 249833,
+          "maxNs": 273250,
+          "heapAvgBytes": 82690.09345794392
+        },
+        {
+          "label": "stax-xml writer",
+          "avgNs": 152400.26464646464,
+          "minNs": 126583,
+          "p75Ns": 153292,
+          "p99Ns": 302958,
+          "maxNs": 371917,
+          "heapAvgBytes": 273914.82164328656
+        },
+        {
+          "label": "stax-xml writer sync",
+          "avgNs": 4111.740934952446,
+          "minNs": 3791.229248046875,
+          "p75Ns": 4247.751708984375,
+          "p99Ns": 4412.95361328125,
+          "maxNs": 4486.328125,
+          "heapAvgBytes": 13837.090860445205
+        },
+        {
+          "label": "stax-xml writer sync sink",
+          "avgNs": 6018.275802612305,
+          "minNs": 5630.0556640625,
+          "p75Ns": 6160.980224609375,
+          "p99Ns": 6532.450439453125,
+          "maxNs": 6673.7060546875,
+          "heapAvgBytes": 15252.094088040865
+        },
+        {
+          "label": "xml2js builder",
+          "avgNs": 176786.06720977597,
+          "minNs": 148125,
+          "p75Ns": 174042,
+          "p99Ns": 309083,
+          "maxNs": 338291,
+          "heapAvgBytes": 130263.72525252526
+        }
+      ]
+    },
+    "writer-big": {
+      "id": "writer-big",
+      "title": "Writer large documents",
+      "context": {
+        "arch": "arm64-darwin",
+        "runtime": "node",
+        "version": "24.15.0",
+        "cpuName": "Apple M4",
+        "cpuGHz": 3.69
+      },
+      "cases": [
+        {
+          "label": "fast-xml-parser builder (big.json)",
+          "avgNs": 18839320.431034483,
+          "minNs": 16098167,
+          "p75Ns": 19611208,
+          "p99Ns": 20350500,
+          "maxNs": 20960250,
+          "heapAvgBytes": 24048663.741935484
+        },
+        {
+          "label": "stax-xml writer sync (big.json)",
+          "avgNs": 3993726.638888889,
+          "minNs": 1999042,
+          "p75Ns": 6307250,
+          "p99Ns": 6757541,
+          "maxNs": 6829500,
+          "heapAvgBytes": 9559036.913043479
+        },
+        {
+          "label": "stax-xml writer sync sink (big.json)",
+          "avgNs": 6117642.410447761,
+          "minNs": 3018541,
+          "p75Ns": 8640833,
+          "p99Ns": 10185084,
+          "maxNs": 10504375,
+          "heapAvgBytes": 11237793.971014492
+        },
+        {
+          "label": "stax-xml writer (big.json)",
+          "avgNs": 31430882.972222224,
+          "minNs": 30414625,
+          "p75Ns": 31821167,
+          "p99Ns": 32401792,
+          "maxNs": 32429000,
+          "heapAvgBytes": 46223484
+        }
+      ]
+    },
+    "writer-async": {
+      "id": "writer-async",
+      "title": "Writer async vs sync",
+      "context": {
+        "arch": "arm64-darwin",
+        "runtime": "node",
+        "version": "24.15.0",
+        "cpuName": "Apple M4",
+        "cpuGHz": 3.77
+      },
+      "cases": [
+        {
+          "label": "async writer (1K elements)",
+          "avgNs": 3618526.7899543378,
+          "minNs": 2474375,
+          "p75Ns": 4057792,
+          "p99Ns": 4388000,
+          "maxNs": 4587292,
+          "heapAvgBytes": 15198723.802690582
+        },
+        {
+          "label": "sync writer (1K elements)",
+          "avgNs": 1257240.0576923077,
+          "minNs": 296375,
+          "p75Ns": 1484625,
+          "p99Ns": 1706625,
+          "maxNs": 1760917,
+          "heapAvgBytes": 1173473.652173913
+        },
+        {
+          "label": "sync writer sink in-memory (1K elements)",
+          "avgNs": 1171583.5409836066,
+          "minNs": 333125,
+          "p75Ns": 1649083,
+          "p99Ns": 2103750,
+          "maxNs": 2184791,
+          "heapAvgBytes": 1319932.172972973
+        },
+        {
+          "label": "async writer (5K elements)",
+          "avgNs": 14243037.493670886,
+          "minNs": 10892917,
+          "p75Ns": 15985875,
+          "p99Ns": 17175000,
+          "maxNs": 17387583,
+          "heapAvgBytes": 7621963.469879518
+        },
+        {
+          "label": "sync writer (5K elements)",
+          "avgNs": 3048260.0875,
+          "minNs": 1227541,
+          "p75Ns": 4070542,
+          "p99Ns": 5731791,
+          "maxNs": 5811125,
+          "heapAvgBytes": 5678445.31147541
+        },
+        {
+          "label": "sync writer sink in-memory (5K elements)",
+          "avgNs": 3621104.6313364054,
+          "minNs": 1619458,
+          "p75Ns": 4818250,
+          "p99Ns": 6159750,
+          "maxNs": 6497291,
+          "heapAvgBytes": 6277446.552036199
+        },
+        {
+          "label": "async writer (10K elements)",
+          "avgNs": 26679673.34090909,
+          "minNs": 25851792,
+          "p75Ns": 27105500,
+          "p99Ns": 27462792,
+          "maxNs": 27585334,
+          "heapAvgBytes": 14717432.5
+        },
+        {
+          "label": "sync writer (10K elements)",
+          "avgNs": 4292499.174358974,
+          "minNs": 2307542,
+          "p75Ns": 7095083,
+          "p99Ns": 8255125,
+          "maxNs": 8326375,
+          "heapAvgBytes": 11238761.889447236
+        },
+        {
+          "label": "sync writer sink in-memory (10K elements)",
+          "avgNs": 5711250.2767295595,
+          "minNs": 3429167,
+          "p75Ns": 7676875,
+          "p99Ns": 8469791,
+          "maxNs": 8532958,
+          "heapAvgBytes": 12688062.625766871
+        }
+      ]
+    },
+    "writer-1gb": {
+      "id": "writer-1gb",
+      "title": "Writer 1GiB async vs sync sink",
+      "context": {
+        "arch": "arm64-darwin",
+        "runtime": "node",
+        "version": "24.15.0",
+        "cpuName": "Apple M4",
+        "cpuGHz": 2.4
+      },
+      "cases": [
+        {
+          "label": "async writer memory WritableStream",
+          "avgNs": 11311542042,
+          "minNs": 11311542042,
+          "p75Ns": 11311542042,
+          "p99Ns": 11311542042,
+          "maxNs": 11311542042,
+          "heapAvgBytes": 111595184,
+          "rssPeakBytes": 255541248,
+          "bytesWritten": 1073787352,
+          "records": 1164225,
+          "throughputMiBs": 90.53084142568554,
+          "targetBytes": 1073741824
+        },
+        {
+          "label": "sync writer sink memory",
+          "avgNs": 2261280417.000002,
+          "minNs": 2261280417.000002,
+          "p75Ns": 2261280417.000002,
+          "p99Ns": 2261280417.000002,
+          "maxNs": 2261280417.000002,
+          "heapAvgBytes": 77542024,
+          "rssPeakBytes": 255688704,
+          "bytesWritten": 1073787352,
+          "records": 1164225,
+          "throughputMiBs": 452.8599863978199,
+          "targetBytes": 1073741824
+        },
+        {
+          "label": "async writer temp file",
+          "avgNs": 11934443457.999998,
+          "minNs": 11934443457.999998,
+          "p75Ns": 11934443457.999998,
+          "p99Ns": 11934443457.999998,
+          "maxNs": 11934443457.999998,
+          "heapAvgBytes": 64863888,
+          "rssPeakBytes": 256638976,
+          "bytesWritten": 1073787352,
+          "records": 1164225,
+          "throughputMiBs": 85.80571205419987,
+          "targetBytes": 1073741824
+        },
+        {
+          "label": "sync writer sink temp file",
+          "avgNs": 2392290792,
+          "minNs": 2392290792,
+          "p75Ns": 2392290792,
+          "p99Ns": 2392290792,
+          "maxNs": 2392290792,
+          "heapAvgBytes": 76652184,
+          "rssPeakBytes": 256884736,
+          "bytesWritten": 1073787352,
+          "records": 1164225,
+          "throughputMiBs": 428.05975858317703,
+          "targetBytes": 1073741824
+        }
+      ]
+    }
+  }
+}

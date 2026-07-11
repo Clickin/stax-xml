@@ -38,7 +38,7 @@ head:
       "name": "어떤 reader를 사용해야 하나요?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Ergonomic XML event object가 필요하면 EventReader 또는 EventReaderSync를 사용하세요. Byte input 위의 저오버헤드 batch access가 필요하면 StreamReader 또는 StreamReaderSync를 사용하세요."
+        "text": "Stable XML event object가 필요하면 EventReader 또는 EventReaderSync를 사용하세요. 낮은 allocation의 current-token 순회에는 StreamReader 또는 StreamReaderSync를 사용하세요."
       }
     },
     {
@@ -69,20 +69,18 @@ addon, Wasm parser module, backend selection mode를 사용하지 않습니다.
 인메모리 XML string에서 ergonomic event object가 필요하면 `EventReaderSync`를
 사용하세요.
 
-Byte input 위에서 더 낮은 overhead의 batch access가 필요하면 `StreamReader` 또는
-`StreamReaderSync`를 사용하세요. 대용량 동기 byte input에서는 wrapper event
-iteration보다 `eventCount`와 index accessor를 함께 쓰는 방식을 권장합니다.
+String 또는 byte input 위에서 더 낮은 overhead의 동기 순회가 필요하면
+`StreamReaderSync`를 사용하세요. Event마다 object를 만들지 않는 current-token
+pull loop를 제공합니다.
 
 ```ts
-import { StreamEventType, StreamReaderSync } from 'stax-xml';
+import { StreamReaderSync, XmlEventType } from 'stax-xml';
 
-const reader = new StreamReaderSync(byteBatches);
+const reader = new StreamReaderSync(byteChunks);
 
-for (const batch of reader) {
-  for (let index = 0; index < batch.eventCount; index++) {
-    if (batch.typeAt(index) === StreamEventType.START_ELEMENT) {
-      console.log(batch.nameAt(index));
-    }
+while (reader.next() !== null) {
+  if (reader.eventType() === XmlEventType.START_ELEMENT) {
+    console.log(reader.name());
   }
 }
 ```
@@ -100,22 +98,21 @@ JavaScript 문자열, attribute, event object, converter output object를 반환
 고정 schema가 없을 때는 tree/object helper를 사용하세요.
 
 ```ts
-import { parseXmlObjectSync, parseXmlTreeSync } from 'stax-xml';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
 
-const tree = parseXmlTreeSync(xml);
-const object = parseXmlObjectSync(xml);
+for (const event of new EventReaderSync(xml)) {
+  if (event.type === XmlEventType.START_ELEMENT) console.log(event.name);
+}
 ```
 
-element 순서와 mixed content가 중요하면 `parseXmlTreeSync()`를 사용하세요.
-attribute를 `@name` key로 담는 compact object가 필요하면 `parseXmlObjectSync()`를
-사용하세요.
+Allocation이 중요하면 `StreamReaderSync`, target object shape를 알고 있다면
+converter를 사용하세요.
 
 ### 대용량 파일은 어떻게 처리하나요?
 
-I/O boundary는 streaming으로 유지하고, 도착한 byte batch는 동기적으로
-파싱하세요. 읽기 쉬운 async API가 필요하면 `EventReader`를 사용하면 됩니다.
-호출자가 이미 byte를 batching할 수 있다면 `Iterable<Uint8Array[]>` 위의
-`StreamReaderSync`가 더 낮은 overhead의 sync batch API입니다.
+I/O boundary는 streaming으로 유지하세요. 읽기 쉬운 async API에는 `EventReader`,
+낮은 allocation의 current-token API에는 `StreamReader`를 사용합니다. 호출자가
+synchronous byte source를 이미 가지고 있다면 `StreamReaderSync`를 사용하세요.
 
 ### XML은 어떻게 작성하나요?
 

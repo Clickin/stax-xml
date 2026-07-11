@@ -338,7 +338,7 @@ const personSchema = x.object({
   )
 });
 
-const compiledSchema = x.object({
+const schema = x.object({
   datasetId: x.string().xpath('/dataset/@id'),
   title: x.string().xpath('/dataset/title/text()'),
   metadata: x.object({
@@ -347,9 +347,10 @@ const compiledSchema = x.object({
   }).xpath('/dataset/metadata'),
   labels: x.array(x.string(), '/dataset/labels/label'),
   people: x.array(personSchema, '//person')
-}).compile();
+});
 
-const result = compiledSchema.parseSync(xml);
+// Dispatch plan은 자동으로 compile되고 cache됩니다.
+const result = schema.parseSync(xml);
 ```
 
 `compile()`은 동일한 공개 API를 유지하지만, 가장 빠른 경로는 고정된 XML 이벤트 dispatch로 낮출 수 있는 스키마 형태에서만 사용됩니다.

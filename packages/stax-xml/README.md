@@ -50,12 +50,22 @@ for (const event of reader) {
 
 ## Public Surfaces
 
-- `EventReaderSync` / `EventReader`: ergonomic string event readers.
-- `StreamReaderSync` / `StreamReader`: batch-first pull readers for byte input.
-- `parseXmlTree*()` / `parseXmlObject*()`: convenience helpers for unknown XML.
-- `stax-xml/converter`: schema-driven XML-to-object parsing and XML writing.
+- `stax-xml`: `StreamReaderSync`, `EventReaderSync`, `StreamReader`,
+  `EventReader`, and the writers.
+- `stax-xml/converter`: recommended schema-driven XML-to-object parsing and XML writing.
+- `StreamReaderSync` / `StreamReader`: allocation-sensitive current-token readers.
+- `EventReaderSync` / `EventReader`: stable event-object readers built over the same token core.
 - `Writer`, `WriterSync`, `WriterSyncSink`: XML output APIs, including a sync
   sink path for large output.
+
+Both synchronous readers accept `string`, `Uint8Array`, or
+`Iterable<Uint8Array>`. Strings are scanned directly as JavaScript strings;
+they are never re-encoded to bytes. Both asynchronous readers accept
+`ReadableStream<Uint8Array>` or `AsyncIterable<Uint8Array>` and decode UTF-8
+incrementally. For known object output, start with the converter.
+
+These are the only public package entry points. The package has no default
+export, runtime adapters, tree/DOM helpers, or backend-selection API.
 
 ## Benchmarks
 
@@ -68,6 +78,18 @@ pnpm --dir packages/benchmark bench:runtime-matrix
 
 It compares the same JavaScript reader workload across Node, Bun, and Deno when
 those runtimes are installed.
+
+## Release Guides
+
+- [Migrating from v0.x](https://clickin.github.io/stax-xml/guide/migration-v0/)
+  maps older application code to the pure JavaScript 1.0 reader and writer
+  surfaces.
+- [Web Server Integration](https://clickin.github.io/stax-xml/guide/server-integration/)
+  shows request streaming patterns for Express, Fastify, Hono, Next.js, Bun,
+  Deno, and edge runtimes.
+- [Release Readiness](https://clickin.github.io/stax-xml/resources/release-readiness/)
+  records the packaging, benchmark, docs, and merge checklist used before
+  publishing.
 
 ## License
 

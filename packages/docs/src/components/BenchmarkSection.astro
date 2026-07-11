@@ -1,0 +1,388 @@
+---
+import latestSummary from '../../../benchmark/results/release/latest-summary.json';
+
+type Locale = 'en' | 'ko';
+type Section =
+  | 'environment'
+  | 'parser-2kb'
+  | 'parser-4kb'
+  | 'parser-13mb'
+  | 'parser-98mb'
+  | 'npm-xml-parsers'
+  | 'stream-size'
+  | 'converter'
+  | 'writer-small'
+  | 'writer-big'
+  | 'writer-async'
+  | 'writer-1gb';
+
+interface Props {
+  locale?: Locale;
+  section: Section;
+  version?: string;
+}
+
+const { locale = 'en', section, version } = Astro.props as Props;
+
+const benchmarkSnapshots = import.meta.glob('../data/benchmarks/*/latest-summary.json', {
+  eager: true,
+  import: 'default',
+}) as Record<string, typeof latestSummary>;
+
+function inferBenchmarkVersion(pathname: string) {
+  return pathname
+    .split('/')
+    .find((segment) => /^v\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/.test(segment));
+}
+
+function benchmarkSummaryForVersion(requestedVersion: string | undefined) {
+  if (!requestedVersion) return latestSummary;
+  return benchmarkSnapshots[`../data/benchmarks/${requestedVersion}/latest-summary.json`] ?? latestSummary;
+}
+
+const benchmarkVersion = version ?? inferBenchmarkVersion(Astro.url.pathname);
+const summary = benchmarkSummaryForVersion(benchmarkVersion) as any;
+const env = summary.environment as any;
+const githubBlobBase = `https://github.com/Clickin/stax-xml/blob/${benchmarkVersion ?? 'master'}/`;
+
+const sourceLinks: Record<Section, Array<[string, string]>> = {
+  environment: [['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+  'parser-2kb': [['parser-2kb.mjs', 'packages/benchmark/parser-2kb.mjs'], ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+  'parser-4kb': [['parser-4kb.mjs', 'packages/benchmark/parser-4kb.mjs'], ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+  'parser-13mb': [['parser-13mb.mjs', 'packages/benchmark/parser-13mb.mjs'], ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+  'parser-98mb': [['parser-98mb.mjs', 'packages/benchmark/parser-98mb.mjs'], ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+  'npm-xml-parsers': [['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs'], ['books fixture', 'packages/benchmark/assets/books.xml']],
+  'stream-size': [['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs'], ['4 GiB harness', 'packages/benchmark/stream-reader-4gb-consumption.mjs']],
+  converter: [['converter-compiled-batch-plan.mjs', 'packages/benchmark/converter-compiled-batch-plan.mjs'], ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+  'writer-small': [['writer release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+  'writer-big': [['writer release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+  'writer-async': [['writer release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+  'writer-1gb': [['writer-1gb.mjs', 'packages/benchmark/writer-1gb.mjs'], ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
+};
+
+function suiteCase(suiteId: string, label: string | string[]) {
+  const suite = summary.suites[suiteId];
+  if (!suite) throw new Error(`Missing benchmark suite: ${suiteId}`);
+  const labels = Array.isArray(label) ? label : [label];
+  const found = suite.cases.find((entry: any) => labels.includes(entry.label));
+  if (!found) throw new Error(`Missing benchmark case: ${suiteId} / ${labels.join(' | ')}`);
+  return found;
+}
+
+function formatDurationNs(ns: number | null | undefined) {
+  if (typeof ns !== 'number' || !Number.isFinite(ns)) return 'n/a';
+  if (ns >= 1e9) return `${(ns / 1e9).toFixed(2)} s`;
+  if (ns >= 1e6) return `${(ns / 1e6).toFixed(2)} ms`;
+  return `${(ns / 1e3).toFixed(2)} us`;
+}
+
+function formatMemory(bytes: number | null | undefined) {
+  if (typeof bytes !== 'number' || !Number.isFinite(bytes)) return 'n/a';
+  if (Math.abs(bytes) >= 1024 ** 3) return `${(bytes / 1024 ** 3).toFixed(2)} GiB`;
+  if (Math.abs(bytes) >= 1024 ** 2) return `${(bytes / 1024 ** 2).toFixed(1)} MiB`;
+  return `${(bytes / 1024).toFixed(1)} KiB`;
+}
+
+function formatOps(avgNs: number) {
+  return `${(1e9 / avgNs).toLocaleString('en-US', { maximumFractionDigits: avgNs < 1e6 ? 0 : 2 })} ops/sec`;
+}
+
+function formatNumber(value: number | null | undefined, digits = 2) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return 'n/a';
+  return Number(value).toLocaleString('en-US', {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  });
+}
+
+function formatInteger(value: number | null | undefined) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return 'n/a';
+  return Number(value).toLocaleString('en-US');
+}
+
+function parseLabel(label: string) {
+  if (locale === 'en') return label;
+  return label
+    .replace('Surface', 'Surface')
+    .replace('Library', '라이브러리')
+    .replace('Average Time', '평균 시간')
+    .replace('Average', '평균')
+    .replace('Operations/sec', '초당 작업 수')
+    .replace('Memory Usage', '메모리 사용량')
+    .replace('Heap', 'Heap')
+    .replace('Size', '크기')
+    .replace('Throughput', '처리량')
+    .replace('RSS delta', 'RSS delta')
+    .replace('Events', '이벤트 수')
+    .replace('Case', '항목')
+    .replace('Books', 'Books')
+    .replace('Checksum', 'Checksum')
+    .replace('Notes', '비고')
+    .replace('Element Count', 'Element Count')
+    .replace('Async Writer', 'Async Writer')
+    .replace('Sync Writer', 'Sync Writer')
+    .replace('Sync Sink', 'Sync Sink')
+    .replace('Performance Ratio', '성능 비율')
+    .replace('Target', '대상')
+    .replace('Peak RSS', 'Peak RSS')
+    .replace('Written', '기록량')
+    .replace('Records', 'Records');
+}
+
+type BenchmarkLabel = string | string[];
+
+type TableModel = {
+  headers: string[];
+  rows: string[][];
+};
+
+const parserSurfaces: Array<[BenchmarkLabel, string, string]> = [
+  ['stax-xml EventReaderSync (JS object)', '**EventReaderSync**', 'String event iterator building the same object shape manually'],
+  [
+    ['stax-xml CursorReaderSync (JS object)', 'stax-xml StreamReaderSync (JS object)'],
+    '**CursorReaderSync**',
+    'Cursor/accessor reader avoiding event object allocation',
+  ],
+  ['stax-xml Converter API (JS object)', '**Converter**', 'Declarative schema returning the same object shape'],
+];
+
+function parserRows(suiteId: string): TableModel {
+  return {
+    headers: ['Surface', 'Average Time', 'Operations/sec', 'Heap', 'Notes'],
+    rows: parserSurfaces.map(([label, display, note]) => {
+      const stats = suiteCase(suiteId, label);
+      return [display, formatDurationNs(stats.avgNs), formatOps(stats.avgNs), formatMemory(stats.heapAvgBytes), note];
+    }),
+  };
+}
+
+function buildTable(section: Section): TableModel | null {
+  switch (section) {
+    case 'parser-2kb':
+      return parserRows('parser-2kb');
+    case 'parser-4kb':
+      return parserRows('parser-4kb');
+    case 'parser-13mb':
+      return parserRows('parser-13mb');
+    case 'parser-98mb':
+      return parserRows('parser-98mb');
+    case 'npm-xml-parsers': {
+      const rows: Array<[BenchmarkLabel, string, string]> = [
+        ['stax-xml EventReaderSync (JS event checksum)', '**stax-xml EventReaderSync**', 'Public string event reader with checksum folding'],
+        [
+          ['stax-xml CursorReaderSync (JS event checksum)', 'stax-xml StreamReaderSync index-first (JS event checksum)'],
+          '**stax-xml CursorReaderSync**',
+          'Public cursor reader with accessor-based checksum folding',
+        ],
+        ['fast-xml-parser XMLParser', 'fast-xml-parser XMLParser', 'Object parser'],
+        ['txml parse', 'txml parse', 'Lightweight object parser'],
+        ['xml2js parseString', 'xml2js parseString', 'Callback object parser'],
+        ['sax strict event parser', 'sax strict event parser', 'Strict SAX event parser'],
+        ['saxes event parser', 'saxes event parser', 'Maintained SAX-style parser'],
+        ['htmlparser2 xmlMode parser', 'htmlparser2 xmlMode parser', 'HTML/XML event parser in xmlMode'],
+      ];
+      return {
+        headers: ['Library', 'Average Time', 'Operations/sec', 'Heap', 'Notes'],
+        rows: rows.map(([label, display, note]) => {
+          const stats = suiteCase('npm-xml-parsers', label);
+          return [display, formatDurationNs(stats.avgNs), formatOps(stats.avgNs), formatMemory(stats.heapAvgBytes), note];
+        }),
+      };
+    }
+    case 'stream-size':
+      return {
+        headers: ['Size', 'Throughput', 'Average', 'RSS delta', 'Events', 'Checksum'],
+        rows: summary.suites['stream-size'].cases.map((entry: any) => [
+          entry.label
+            .replace('CursorReader iterable cursor ', '')
+            .replace('StreamReaderSync index-first ', ''),
+          `${formatNumber(entry.throughputMiBs, 2)} MiB/s`,
+          formatDurationNs(entry.avgNs),
+          formatMemory(entry.rssDeltaBytes),
+          formatInteger(entry.events),
+          String(entry.checksum),
+        ]),
+      };
+    case 'converter': {
+      const rows: Array<[BenchmarkLabel, string]> = [
+        [['Manual CursorReaderSync projection', 'Manual StreamReaderSync projection'], 'Manual CursorReaderSync projection'],
+        ['Converter schema.parseSync(bytes)', 'Converter schema.parseSync(bytes)'],
+        ['Converter schema.compile().parseSync(bytes)', 'Converter schema.compile().parseSync(bytes)'],
+      ];
+      return {
+        headers: ['Case', 'Throughput', 'Average', 'Heap', 'RSS delta', 'Books', 'Checksum'],
+        rows: rows.map(([label, display]) => {
+          const stats = suiteCase('converter-parity', label);
+          return [
+            display,
+            `${formatNumber(stats.throughputMiBs, 2)} MiB/s`,
+            formatDurationNs(stats.avgNs),
+            formatMemory(stats.heapAvgBytes),
+            formatMemory(stats.rssDeltaBytes),
+            formatInteger(stats.books),
+            String(stats.checksum),
+          ];
+        }),
+      };
+    }
+    case 'writer-small': {
+      const rows: Array<[string, string]> = [
+        ['fast-xml-parser builder', 'fast-xml-parser builder'],
+        ['stax-xml writer', 'Writer API'],
+        ['stax-xml writer sync', 'Sync writer API'],
+        ['stax-xml writer sync sink', 'Sync streaming sink API'],
+        ['xml2js builder', 'xml2js builder'],
+      ];
+      return {
+        headers: ['Library', 'Average Time', 'Operations/sec', 'Heap', 'Notes'],
+        rows: rows.map(([label, note]) => {
+          const stats = suiteCase('writer-small', label);
+          const display = label.startsWith('stax-xml') ? `**${label}**` : label;
+          return [display, formatDurationNs(stats.avgNs), formatOps(stats.avgNs), formatMemory(stats.heapAvgBytes), note];
+        }),
+      };
+    }
+    case 'writer-big': {
+      const rows: Array<[string, string]> = [
+        ['fast-xml-parser builder (big.json)', 'fast-xml-parser builder'],
+        ['stax-xml writer sync (big.json)', 'Sync writer API'],
+        ['stax-xml writer sync sink (big.json)', 'Sync streaming sink API'],
+        ['stax-xml writer (big.json)', 'Writer API'],
+      ];
+      return {
+        headers: ['Library', 'Average Time', 'Operations/sec', 'Heap', 'Notes'],
+        rows: rows.map(([label, note]) => {
+          const stats = suiteCase('writer-big', label);
+          const display = label.startsWith('stax-xml') ? `**${label}**` : label;
+          return [display, formatDurationNs(stats.avgNs), formatOps(stats.avgNs), formatMemory(stats.heapAvgBytes), note];
+        }),
+      };
+    }
+    case 'writer-async': {
+      const elementCounts = [
+        ['1K elements', 'async writer (1K elements)', 'sync writer (1K elements)', 'sync writer sink in-memory (1K elements)'],
+        ['5K elements', 'async writer (5K elements)', 'sync writer (5K elements)', 'sync writer sink in-memory (5K elements)'],
+        ['10K elements', 'async writer (10K elements)', 'sync writer (10K elements)', 'sync writer sink in-memory (10K elements)'],
+      ];
+      return {
+        headers: ['Element Count', 'Async Writer', 'Sync Writer', 'Sync Sink', 'Performance Ratio'],
+        rows: elementCounts.map(([count, asyncLabel, syncLabel, sinkLabel]) => {
+          const asyncStats = suiteCase('writer-async', asyncLabel);
+          const syncStats = suiteCase('writer-async', syncLabel);
+          const sinkStats = suiteCase('writer-async', sinkLabel);
+          return [
+            count,
+            formatDurationNs(asyncStats.avgNs),
+            formatDurationNs(syncStats.avgNs),
+            formatDurationNs(sinkStats.avgNs),
+            `${(asyncStats.avgNs / sinkStats.avgNs).toFixed(2)}x ${locale === 'en' ? 'faster (sink)' : '빠름 (sink)'}`,
+          ];
+        }),
+      };
+    }
+    case 'writer-1gb': {
+      const rows: Array<[string, string]> = [
+        ['async writer memory WritableStream', 'Async writer + memory WritableStream'],
+        ['sync writer sink memory', 'Sync sink writer + memory sink'],
+        ['async writer temp file', 'Async writer + temp file'],
+        ['sync writer sink temp file', 'Sync sink writer + temp file'],
+      ];
+      return {
+        headers: ['Target', 'Average Time', 'Throughput', 'Heap', 'Peak RSS', 'Written', 'Records'],
+        rows: rows.map(([label, display]) => {
+          const stats = suiteCase('writer-1gb', label);
+          return [
+            label.includes('sync writer sink') ? `**${display}**` : display,
+            formatDurationNs(stats.avgNs),
+            `${formatNumber(stats.throughputMiBs, 2)} MiB/s`,
+            formatMemory(stats.heapAvgBytes),
+            formatMemory(stats.rssPeakBytes),
+            formatMemory(stats.bytesWritten),
+            formatInteger(stats.records),
+          ];
+        }),
+      };
+    }
+    default:
+      return null;
+  }
+}
+
+const table = buildTable(section);
+const currentSourceLinks = sourceLinks[section] ?? [];
+---
+
+{section === 'environment' && (
+  <>
+    <ul>
+      <li><strong>Generated:</strong> {summary.generatedAt}</li>
+      <li><strong>Run ID:</strong> <code>{summary.runId}</code></li>
+      <li><strong>CPU:</strong> {env.cpuName} (~{formatNumber(env.cpuGHz, 2)} GHz)</li>
+      <li><strong>{locale === 'en' ? 'Runtime' : '런타임'}:</strong> {env.runtime} {env.version} ({env.arch}) <code>--expose-gc</code></li>
+      <li><strong>{locale === 'en' ? 'Package manager' : '패키지 매니저'}:</strong> {env.packageManager ?? 'n/a'}</li>
+      <li><strong>Canonical Set:</strong> parser 2 KiB / 4 KiB / 13 MiB / 98 MiB, maintained Node XML parser comparison, CursorReaderSync 1 MiB to 4 GiB size series, runtime matrix, converter compiled batch plan, writer small / big / async / 1 GiB</li>
+      <li><strong>{locale === 'en' ? 'Source' : '소스'}:</strong> <a href={`${githubBlobBase}${sourceLinks.environment[0][1]}`}>{sourceLinks.environment[0][0]}</a></li>
+    </ul>
+    {(env.packages?.length || env.nodeComponents?.length) && (
+      <details>
+        <summary>{locale === 'en' ? 'Resolved package and runtime versions' : '해결된 패키지와 런타임 버전'}</summary>
+        {env.packages?.length && (
+          <table>
+            <thead>
+              <tr>
+                <th>{locale === 'en' ? 'Benchmark package' : 'Benchmark package'}</th>
+                <th>{locale === 'en' ? 'Resolved version' : 'Resolved version'}</th>
+                <th>{locale === 'en' ? 'Declared range' : 'Declared range'}</th>
+                <th>{locale === 'en' ? 'Source' : 'Source'}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {env.packages.map((entry: any) => (
+                <tr>
+                  <td><code>{entry.name}</code></td>
+                  <td>{entry.version ?? 'n/a'}</td>
+                  <td><code>{entry.declared}</code></td>
+                  <td>{entry.source}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </details>
+    )}
+  </>
+)}
+
+{table && (
+  <>
+    {currentSourceLinks.length > 0 && (
+      <p>
+        <strong>{locale === 'en' ? 'Benchmark source' : '벤치마크 소스'}:</strong>{' '}
+        {currentSourceLinks.map(([label, path], index) => (
+          <>
+            {index > 0 && ', '}
+            <a href={`${githubBlobBase}${path}`}>{label}</a>
+          </>
+        ))}
+      </p>
+    )}
+    <table>
+      <thead>
+        <tr>
+          {table.headers.map((header) => <th>{parseLabel(header)}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {table.rows.map((row) => (
+          <tr>
+            {row.map((cell, index) => (
+              index === 0 && cell.startsWith('**') && cell.endsWith('**')
+                ? <td><strong>{cell.slice(2, -2)}</strong></td>
+                : <td>{cell}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </>
+)}

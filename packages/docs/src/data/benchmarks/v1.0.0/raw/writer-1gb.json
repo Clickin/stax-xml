@@ -1,0 +1,131 @@
+{
+  "generatedAt": "2026-07-09T04:14:45.862Z",
+  "context": {
+    "arch": "arm64-darwin",
+    "runtime": "node",
+    "version": "24.15.0",
+    "cpuName": "Apple M4",
+    "cpuGHz": 2.4
+  },
+  "targetBytes": 1073741824,
+  "prettyPrint": true,
+  "probeEvery": 2048,
+  "results": [
+    {
+      "label": "async writer memory WritableStream",
+      "kind": "async",
+      "records": 1164225,
+      "bytesWritten": 1073787352,
+      "elapsedMs": 10745.368333,
+      "throughputMiBs": 95.30091357960687,
+      "memoryBefore": {
+        "rss": 52035584,
+        "heapTotal": 7323648,
+        "heapUsed": 4505256,
+        "external": 1926180,
+        "arrayBuffers": 23023
+      },
+      "memoryAfter": {
+        "rss": 255377408,
+        "heapTotal": 147308544,
+        "heapUsed": 40569456,
+        "external": 2707856,
+        "arrayBuffers": 743919
+      },
+      "memoryPeak": {
+        "rss": 255377408,
+        "heapTotal": 181649408,
+        "heapUsed": 112303424,
+        "external": 17715600,
+        "arrayBuffers": 15751663
+      }
+    },
+    {
+      "label": "sync writer sink memory",
+      "kind": "sync-sink",
+      "records": 1164225,
+      "bytesWritten": 1073787352,
+      "elapsedMs": 2199.7418749999997,
+      "throughputMiBs": 465.52890160545655,
+      "memoryBefore": {
+        "rss": 255377408,
+        "heapTotal": 144949248,
+        "heapUsed": 4859336,
+        "external": 2707856,
+        "arrayBuffers": 23023
+      },
+      "memoryAfter": {
+        "rss": 256049152,
+        "heapTotal": 145735680,
+        "heapUsed": 68824192,
+        "external": 1986960,
+        "arrayBuffers": 23023
+      },
+      "memoryPeak": {
+        "rss": 256049152,
+        "heapTotal": 145735680,
+        "heapUsed": 77568544,
+        "external": 2707856,
+        "arrayBuffers": 23023
+      }
+    },
+    {
+      "label": "async writer temp file",
+      "kind": "async",
+      "records": 1164225,
+      "bytesWritten": 1073787352,
+      "elapsedMs": 11327.839458,
+      "throughputMiBs": 90.40059427758509,
+      "memoryBefore": {
+        "rss": 256049152,
+        "heapTotal": 145211392,
+        "heapUsed": 4863328,
+        "external": 1986960,
+        "arrayBuffers": 23023
+      },
+      "memoryAfter": {
+        "rss": 256983040,
+        "heapTotal": 148094976,
+        "heapUsed": 10665576,
+        "external": 2377709,
+        "arrayBuffers": 416239
+      },
+      "memoryPeak": {
+        "rss": 256901120,
+        "heapTotal": 149667840,
+        "heapUsed": 64810184,
+        "external": 3232144,
+        "arrayBuffers": 1268207
+      }
+    },
+    {
+      "label": "sync writer sink temp file",
+      "kind": "sync-sink",
+      "records": 1164225,
+      "bytesWritten": 1073787352,
+      "elapsedMs": 2267.6854590000003,
+      "throughputMiBs": 451.58089047140516,
+      "memoryBefore": {
+        "rss": 256999424,
+        "heapTotal": 144949248,
+        "heapUsed": 4104776,
+        "external": 2377709,
+        "arrayBuffers": 88559
+      },
+      "memoryAfter": {
+        "rss": 257114112,
+        "heapTotal": 145473536,
+        "heapUsed": 73238200,
+        "external": 2050029,
+        "arrayBuffers": 88559
+      },
+      "memoryPeak": {
+        "rss": 257114112,
+        "heapTotal": 145473536,
+        "heapUsed": 76601744,
+        "external": 2377709,
+        "arrayBuffers": 88559
+      }
+    }
+  ]
+}

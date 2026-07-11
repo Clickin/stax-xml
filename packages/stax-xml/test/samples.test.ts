@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import EventReader from '../src/EventReader';
-import { XmlEventType } from '../src/types';
+import { EventReader } from 'stax-xml-async';
+import { XmlEventType } from 'stax-xml-core';
 
 // 웹 표준 API용 헬퍼 함수
 function stringToReadableStream(str: string): ReadableStream<Uint8Array> {

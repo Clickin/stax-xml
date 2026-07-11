@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { x } from '../../src/converter/index.js';
+import { x } from '../../../stax-xml-converter/src/converter/index.js';
 
 describe('Parser Internal Helper Methods Coverage', () => {
   describe('decodeText with trimText option', () => {
@@ -16,8 +16,7 @@ describe('Parser Internal Helper Methods Coverage', () => {
       const schema = x.string().xpath('/root/text');
 
       const result = schema.parseSync(xml, { trimText: false });
-      // Note: Parser may still trim in certain contexts
-      expect(result.includes('spaced')).toBe(true);
+      expect(result).toBe('  spaced  ');
     });
 
     it('should trim multiline text when trimText is true', () => {

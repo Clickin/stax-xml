@@ -1,6 +1,6 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "entryPoints": ["./src/converter/index.ts"],
+  "entryPoints": ["./src/converter.ts"],
   "out": "../docs/src/content/docs/api/converter",
   "plugin": ["./node_modules/typedoc-plugin-markdown/dist/index.js"],
   "readme": "none",

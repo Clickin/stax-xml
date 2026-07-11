@@ -1,0 +1,11 @@
+// stax-xml-async: private workspace package
+// Async StAX reader (ReadableStream byte-batch ingress) and async writer
+// over stax-xml-core.
+
+export { EventReader } from './EventReader.js';
+export type { EventReaderOptions } from './EventReader.js';
+
+export { Writer } from './Writer.js';
+export type { WriterOptions } from './Writer.js';
+export { StreamReader } from './StreamReader.js';
+export type { StreamReaderOptions, StreamReaderSource } from './StreamReader.js';

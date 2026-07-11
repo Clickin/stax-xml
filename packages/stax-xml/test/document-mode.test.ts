@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { EventReader } from '../src/EventReader';
-import { EventReaderSync } from '../src/EventReaderSync';
-import { XmlEventType } from '../src/types';
-import { x } from '../src/converter';
+import { EventReader } from 'stax-xml-async';
+import { EventReaderSync } from 'stax-xml-sync';
+import { XmlEventType } from 'stax-xml-core';
+import { x } from 'stax-xml-converter';
 
 function streamFrom(input: string): ReadableStream<Uint8Array> {
   const bytes = new TextEncoder().encode(input);

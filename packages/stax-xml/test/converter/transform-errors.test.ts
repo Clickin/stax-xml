@@ -1,54 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { x } from '../../src/converter/index.js';
-import { XmlTransformSchema } from '../../src/converter/XmlTransformSchema.js';
-import { XmlSchemaBase } from '../../src/converter/base.js';
-import { SchemaType } from '../../src/converter/types.js';
+import { x } from '../../../stax-xml-converter/src/converter/index.js';
+import { XmlTransformSchema } from '../../../stax-xml-converter/src/converter/XmlTransformSchema.js';
+import { XmlSchemaBase } from '../../../stax-xml-converter/src/converter/base.js';
+import { SchemaType } from '../../../stax-xml-converter/src/converter/types.js';
 
 describe('Transform Schema Error Paths', () => {
   describe('Missing Method Errors', () => {
-    it('should throw error when base schema lacks _parseFromPosition', () => {
-      // Create a minimal schema without _parseFromPosition
-      class MinimalSchema extends XmlSchemaBase<string, string> {
-        readonly schemaType = SchemaType.STRING;
-        _parse(): string {
-          return 'test';
-        }
-        async _parseAsync(): Promise<string> {
-          return 'test';
-        }
-        // _parseFromPosition is intentionally not implemented
-      }
-
-      const baseSchema = new MinimalSchema();
-      const transformSchema = new XmlTransformSchema(baseSchema, (val: string) => val.toUpperCase());
-
-      // Create a mock iterator and event
-      const mockIterator = {
-        next: () => ({ done: true, value: undefined })
-      } as Iterator<any>;
-
-      const mockStartEvent = {
-        type: 'start-element' as const,
-        name: 'test',
-        attributes: {},
-        depth: 0
-      };
-
-      expect(() => {
-        (transformSchema as any)._parseFromPosition(mockIterator, mockStartEvent, 0);
-      }).toThrow('Transform schema requires base schema with _parseFromPosition');
-    });
-
     it('should throw error when base schema lacks _parseText', () => {
       // Create a minimal schema without _parseText
       class MinimalSchema extends XmlSchemaBase<string, string> {
         readonly schemaType = SchemaType.STRING;
-        _parse(): string {
-          return 'test';
-        }
-        async _parseAsync(): Promise<string> {
-          return 'test';
-        }
         // _parseText is intentionally not implemented
       }
 

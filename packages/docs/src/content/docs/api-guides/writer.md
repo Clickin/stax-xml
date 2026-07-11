@@ -227,7 +227,7 @@ class Writer {
   constructor(stream: WritableStream<Uint8Array>, options?: WriterOptions)
 
   // Document Level Methods
-  writeStartDocument(version?: string, encoding?: string): Promise<this>
+  writeStartDocument(version?: string, encoding?: string): Promise<this> // UTF-8 only
   writeEndDocument(): Promise<void>
 
   // Element Writing Methods
@@ -246,18 +246,20 @@ class Writer {
 }
 
 interface WriterOptions {
-  encoding?: string; // Default: 'utf-8'
+  encoding?: string; // Default: 'utf-8'; other encodings are rejected
   prettyPrint?: boolean; // Default: false
   indentString?: string; // Default: '  '
   addEntities?: { entity: string, value: string }[];
   autoEncodeEntities?: boolean; // Default: true
-  namespaces?: NamespaceDeclaration[];
   bufferSize?: number; // Default: 16384
-  highWaterMark?: number; // Default: 65536
   flushThreshold?: number; // Default: 0.8
   enableAutoFlush?: boolean; // Default: true
 }
 ```
+
+`Writer` always emits UTF-8 bytes because the web platform `TextEncoder` is
+UTF-8-only. The constructor and `writeStartDocument()` reject any other
+encoding instead of writing bytes that disagree with the XML declaration.
 
 #### Interfaces
 
@@ -276,10 +278,6 @@ interface AttributeInfo {
   uri?: string;
 }
 
-interface NamespaceDeclaration {
-  prefix?: string;
-  uri: string;
-}
 ```
 
 ### 🚀 When to Use Writer

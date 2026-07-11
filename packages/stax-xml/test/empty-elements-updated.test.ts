@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import EventReader from "../src/EventReader";
+import { EventReader } from "stax-xml-async";
 
 function stringToReadableStream(str: string): ReadableStream<Uint8Array> {
   const encoder = new TextEncoder();
@@ -12,7 +12,7 @@ function stringToReadableStream(str: string): ReadableStream<Uint8Array> {
     }
   });
 }
-import { CharactersEvent, XmlEventType } from "../src/types";
+import { CharactersEvent, XmlEventType } from "stax-xml-core";
 
 describe("Empty Elements and Self-Closing Tags - CharactersEvent Suppression (Updated)", () => {
   test("should not emit CharactersEvent for self-closing tags", async () => {

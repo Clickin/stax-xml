@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { x } from '../../src/converter/index.js';
+import { x } from '../../../stax-xml-converter/src/converter/index.js';
 
 describe('Parser Collector Coverage', () => {
   describe('createCollectorForSchema - all schema types', () => {

@@ -1,7 +1,15 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
+    include: [
+      'test/v1-reader-contract.test.ts',
+      'test/converter/**/*.test.ts',
+      'test/writer.test.ts',
+      'test/writer-async.test.ts',
+      'test/writer-core-regression.test.ts',
+      'test/writeoptions.test.ts',
+    ],
     globals: true,
     environment: 'node',
     pool: 'threads',
@@ -27,4 +35,4 @@ export default defineConfig({
       ],
     },
   },
-});
+})

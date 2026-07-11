@@ -1,0 +1,33 @@
+---
+title: v0.7.0 legacy API snapshot
+description: Historical API and migration notes for users upgrading from StAX-XML v0.7.0.
+slug: v0.7.0
+---
+
+# v0.7.0 legacy API snapshot
+
+This page is a historical migration reference for users upgrading from
+`stax-xml@0.7.0`. It is not the current API documentation. Use the
+[v1.0.0 documentation](/stax-xml/v1.0.0/) for new code.
+
+The original v0.7.0 source and package metadata remain available at the
+[v0.7.0 Git tag](https://github.com/Clickin/stax-xml/tree/v0.7.0).
+
+## Main API names in v0.7.0
+
+v0.7.0 exposed the older parser family, including `StaxXmlParser`,
+`StaxXmlParserSync`, `StaxXmlCursorReader`, `StaxXmlWriter`, and
+`StaxXmlWriterSync`. Those names are not the v1 public surface.
+
+## v1 migration direction
+
+- Use `EventReader`/`EventReaderSync` for materialized event iteration.
+- Use `StreamReader`/`StreamReaderSync` for current-token streaming access.
+- Use the v1 `Writer` and `WriterSync` APIs for output.
+- Recheck converter and XPath imports against the v1 converter documentation;
+  the old parser-specific helpers and cursor types were redesigned.
+- Native addon, Wasm tokenizer, and backend-selection paths are not part of the
+  v1 package contract.
+
+The v0.7.0 snapshot is retained to explain the API transition; it should not
+be treated as a supported compatibility layer.

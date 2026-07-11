@@ -180,10 +180,13 @@ if (result.success) {
 - You want a declarative API
 - You need to extract structured data
 
-**Use the low-level EventReader or StreamReader when:**
+**Use an event reader or current-token stream reader when:**
 - You need maximum performance and control
 - XML structure is dynamic or unknown
 - You want event-driven processing
+
+Choose `EventReaderSync` or `StreamReaderSync` for synchronous string/byte
+input, and `EventReader` or `StreamReader` for asynchronous byte input.
 - You're building streaming applications
 
 ## Schema Builder (x)

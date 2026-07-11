@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import EventReader from '../src/EventReader';
-import WriterSync from '../src/WriterSync';
-import { EndElementEvent, StartElementEvent, XmlEventType } from '../src/types';
+import { EventReader } from 'stax-xml-async';
+import { WriterSync } from 'stax-xml-sync';
+import { EndElementEvent, StartElementEvent, XmlEventType } from 'stax-xml-core';
 
 // 웹 표준 API용 헬퍼 함수
 function stringToReadableStream(str: string): ReadableStream<Uint8Array> {
@@ -50,22 +50,21 @@ describe('Namespace XML Parsing and Writing Tests', () => {
       const rootElement = startElements.find(e => e.name === 'root');
       expect(rootElement).toBeDefined();
       expect(rootElement!.localName).toBe('root');
-      expect(rootElement!.prefix).toBeUndefined();
+      expect(rootElement!.prefix).toBe('');
 
       // h:table 요소 확인 (HTML 네임스페이스)
       const hTableElement = startElements.find(e => e.name === 'h:table');
       expect(hTableElement).toBeDefined();
       expect(hTableElement!.localName).toBe('table');
       expect(hTableElement!.prefix).toBe('h');
-      expect(hTableElement!.uri).toBe('http://www.w3.org/TR/html4/');
-      expect(hTableElement!.attributes['xmlns:h']).toBe('http://www.w3.org/TR/html4/');
+      expect(hTableElement!.namespaceURI).toBe('http://www.w3.org/TR/html4/');
 
       // h:tr 요소 확인
       const hTrElement = startElements.find(e => e.name === 'h:tr');
       expect(hTrElement).toBeDefined();
       expect(hTrElement!.localName).toBe('tr');
       expect(hTrElement!.prefix).toBe('h');
-      expect(hTrElement!.uri).toBe('http://www.w3.org/TR/html4/');
+      expect(hTrElement!.namespaceURI).toBe('http://www.w3.org/TR/html4/');
 
       // h:td 요소들 확인
       const hTdElements = startElements.filter(e => e.name === 'h:td');
@@ -73,7 +72,7 @@ describe('Namespace XML Parsing and Writing Tests', () => {
       hTdElements.forEach(element => {
         expect(element.localName).toBe('td');
         expect(element.prefix).toBe('h');
-        expect(element.uri).toBe('http://www.w3.org/TR/html4/');
+        expect(element.namespaceURI).toBe('http://www.w3.org/TR/html4/');
       });
 
       // f:table 요소 확인 (Furniture 네임스페이스)
@@ -81,27 +80,26 @@ describe('Namespace XML Parsing and Writing Tests', () => {
       expect(fTableElement).toBeDefined();
       expect(fTableElement!.localName).toBe('table');
       expect(fTableElement!.prefix).toBe('f');
-      expect(fTableElement!.uri).toBe('https://www.w3schools.com/furniture');
-      expect(fTableElement!.attributes['xmlns:f']).toBe('https://www.w3schools.com/furniture');
+      expect(fTableElement!.namespaceURI).toBe('https://www.w3schools.com/furniture');
 
       // f:name, f:width, f:length 요소들 확인
       const fNameElement = startElements.find(e => e.name === 'f:name');
       expect(fNameElement).toBeDefined();
       expect(fNameElement!.localName).toBe('name');
       expect(fNameElement!.prefix).toBe('f');
-      expect(fNameElement!.uri).toBe('https://www.w3schools.com/furniture');
+      expect(fNameElement!.namespaceURI).toBe('https://www.w3schools.com/furniture');
 
       const fWidthElement = startElements.find(e => e.name === 'f:width');
       expect(fWidthElement).toBeDefined();
       expect(fWidthElement!.localName).toBe('width');
       expect(fWidthElement!.prefix).toBe('f');
-      expect(fWidthElement!.uri).toBe('https://www.w3schools.com/furniture');
+      expect(fWidthElement!.namespaceURI).toBe('https://www.w3schools.com/furniture');
 
       const fLengthElement = startElements.find(e => e.name === 'f:length');
       expect(fLengthElement).toBeDefined();
       expect(fLengthElement!.localName).toBe('length');
       expect(fLengthElement!.prefix).toBe('f');
-      expect(fLengthElement!.uri).toBe('https://www.w3schools.com/furniture');
+      expect(fLengthElement!.namespaceURI).toBe('https://www.w3schools.com/furniture');
     });
 
     it('should distinguish between h:table and f:table elements', async () => {
@@ -130,8 +128,8 @@ describe('Namespace XML Parsing and Writing Tests', () => {
       // 하지만 다른 prefix와 URI를 가짐
       expect(hTableElement!.prefix).toBe('h');
       expect(fTableElement!.prefix).toBe('f');
-      expect(hTableElement!.uri).toBe('http://www.w3.org/TR/html4/');
-      expect(fTableElement!.uri).toBe('https://www.w3schools.com/furniture');
+      expect(hTableElement!.namespaceURI).toBe('http://www.w3.org/TR/html4/');
+      expect(fTableElement!.namespaceURI).toBe('https://www.w3schools.com/furniture');
 
       // 전체 이름(QName)은 다름
       expect(hTableElement!.name).toBe('h:table');
@@ -177,14 +175,14 @@ describe('Namespace XML Parsing and Writing Tests', () => {
       expect(hTableEndElement).toBeDefined();
       expect(hTableEndElement!.localName).toBe('table');
       expect(hTableEndElement!.prefix).toBe('h');
-      expect(hTableEndElement!.uri).toBe('http://www.w3.org/TR/html4/');
+      expect(hTableEndElement!.namespaceURI).toBe('http://www.w3.org/TR/html4/');
 
       // f:table 종료 요소 확인
       const fTableEndElement = endElements.find(e => e.name === 'f:table');
       expect(fTableEndElement).toBeDefined();
       expect(fTableEndElement!.localName).toBe('table');
       expect(fTableEndElement!.prefix).toBe('f');
-      expect(fTableEndElement!.uri).toBe('https://www.w3schools.com/furniture');
+      expect(fTableEndElement!.namespaceURI).toBe('https://www.w3schools.com/furniture');
     });
   });
 
@@ -339,9 +337,9 @@ describe('Namespace XML Parsing and Writing Tests', () => {
 
       expect(hTableElement).toBeDefined();
       expect(hTableElement!.prefix).toBe('h');
-      expect(hTableElement!.uri).toBe('http://www.w3.org/TR/html4/');
+      expect(hTableElement!.namespaceURI).toBe('http://www.w3.org/TR/html4/');
       expect(fTableElement!.prefix).toBe('f');
-      expect(fTableElement!.uri).toBe('https://www.w3schools.com/furniture');
+      expect(fTableElement!.namespaceURI).toBe('https://www.w3schools.com/furniture');
     });
 
     it('should handle round-trip parsing and writing correctly', async () => {
@@ -365,10 +363,10 @@ describe('Namespace XML Parsing and Writing Tests', () => {
             break;
           case XmlEventType.START_ELEMENT:
             const startEvent = event as StartElementEvent;
-            if (startEvent.prefix && startEvent.uri) {
-              writer.writeStartElement(startEvent.localName || startEvent.name, { prefix: startEvent.prefix, uri: startEvent.uri });
+            if (startEvent.prefix && startEvent.namespaceURI) {
+              writer.writeStartElement(startEvent.localName, { prefix: startEvent.prefix, uri: startEvent.namespaceURI });
             } else {
-              writer.writeStartElement(startEvent.localName || startEvent.name);
+              writer.writeStartElement(startEvent.localName);
             }
             elementStack.push({ name: startEvent.name, prefix: startEvent.prefix });
             break;
@@ -405,11 +403,11 @@ describe('Namespace XML Parsing and Writing Tests', () => {
 
       expect(hTableElement).toBeDefined();
       expect(hTableElement!.prefix).toBe('h');
-      expect(hTableElement!.uri).toBe('http://www.w3.org/TR/html4/');
+      expect(hTableElement!.namespaceURI).toBe('http://www.w3.org/TR/html4/');
 
       expect(fTableElement).toBeDefined();
       expect(fTableElement!.prefix).toBe('f');
-      expect(fTableElement!.uri).toBe('https://www.w3schools.com/furniture');
+      expect(fTableElement!.namespaceURI).toBe('https://www.w3schools.com/furniture');
     });
   });
 });

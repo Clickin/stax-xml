@@ -20,249 +20,80 @@ head:
       content: https://clickin.github.io/stax-xml/og/api-guides/event-reader-sync.png
 ---
 
-## EventReaderSync - Synchronous XML Parsing
+## EventReaderSync
 
-`EventReaderSync` is a high-performance, pull-based XML parser for JavaScript/TypeScript designed for synchronous processing of XML strings. It is ideal for environments where the entire XML document is already in memory, such as in web servers handling small to medium-sized XML payloads. It avoids the overhead of asynchronous streams.
+`EventReaderSync` is the synchronous stable-event API. It accepts a JavaScript
+string, one `Uint8Array`, or an `Iterable<Uint8Array>`.
 
-### 🔧 Quick Start
-
-#### Parsing XML String
-
-```typescript
+```ts
 import { EventReaderSync, XmlEventType } from 'stax-xml';
 
-const xmlContent = `
-  <catalog>
-    <product id="P001">
-      <name>Laptop</name>
-      <price>1200</price>
-    </product>
-    <product id="P002">
-      <name>Mouse</name>
-      <price>25</price>
-    </product>
-  </catalog>
-`;
+const xml = '<catalog><book id="b1">StAX</book></catalog>';
 
-const parser = new EventReaderSync(xmlContent);
-const products = [];
-let currentProduct = null;
-let currentText = '';
-
-for (const event of parser) { // Use for...of for synchronous iteration
-  switch (event.type) {
-    case XmlEventType.START_ELEMENT:
-      if (event.name === 'product') {
-        currentProduct = { id: event.attributes?.id || '', name: '', price: 0 };
-      } else if (event.name === 'name' || event.name === 'price') {
-        currentText = ''; // Reset text buffer for new element
-      }
-      break;
-      
-    case XmlEventType.CHARACTERS:
-      currentText += event.value; // Use event.value for synchronous parser
-      break;
-      
-    case XmlEventType.END_ELEMENT:
-      if (currentProduct) {
-        if (event.name === 'name') {
-          currentProduct.name = currentText.trim();
-        } else if (event.name === 'price') {
-          currentProduct.price = parseFloat(currentText.trim());
-        } else if (event.name === 'product') {
-          products.push(currentProduct);
-          currentProduct = null;
-        }
-      }
-      break;
-  }
-}
-
-console.log(products);
-// Output: [
-//   { id: "P001", name: "Laptop", price: 1200 },
-//   { id: "P002", name: "Mouse", price: 25 }
-// ]
-```
-
-### 🛡️ Type Guard Functions
-
-Type guard functions provide runtime type checking and TypeScript type narrowing for XML events. These functions work with both asynchronous and synchronous parsers, providing the same type safety benefits for `EventReaderSync`.
-
-#### Using Type Guards with Synchronous Parser
-
-```typescript
-import { EventReaderSync, isStartElement, isEndElement, isCharacters, isError } from 'stax-xml';
-
-const xmlContent = `
-  <products>
-    <product id="P001" category="electronics">
-      <name>Laptop</name>
-      <price>1200</price>
-      <description><![CDATA[High-performance laptop for developers]]></description>
-    </product>
-    <product id="P002" category="accessories">
-      <name>Mouse</name>
-      <price>25</price>
-    </product>
-  </products>
-`;
-
-const parser = new EventReaderSync(xmlContent);
-const products = [];
-let currentProduct = null;
-let currentElement = '';
-let textBuffer = '';
-
-for (const event of parser) {
-  // Type guards work the same way with synchronous parser
-  if (isStartElement(event)) {
-    currentElement = event.name;
-    textBuffer = '';
-
-    if (event.name === 'product') {
-      currentProduct = {
-        id: event.attributes?.id || '',
-        category: event.attributes?.category || '',
-        name: '',
-        price: 0,
-        description: ''
-      };
-    }
-  } else if (isCharacters(event)) {
-    // Type guard ensures safe access to 'value' property
-    textBuffer += event.value;
-  } else if (isEndElement(event)) {
-    const trimmedText = textBuffer.trim();
-
-    if (currentProduct && event.name !== 'product') {
-      switch (event.name) {
-        case 'name':
-          currentProduct.name = trimmedText;
-          break;
-        case 'price':
-          currentProduct.price = parseFloat(trimmedText);
-          break;
-        case 'description':
-          currentProduct.description = trimmedText;
-          break;
-      }
-    } else if (event.name === 'product' && currentProduct) {
-      products.push(currentProduct);
-      currentProduct = null;
-    }
-
-    textBuffer = '';
-  } else if (isError(event)) {
-    // Safe error handling with type guard
-    console.error('Parse error:', event.error.message);
-    break;
-  }
-}
-
-console.log(products);
-```
-
-#### Synchronous Error Handling with Type Guards
-
-```typescript
-import { EventReaderSync, isStartElement, isCharacters, isError } from 'stax-xml';
-
-function parseProductsSafely(xmlString: string) {
-  try {
-    const parser = new EventReaderSync(xmlString);
-    const result = { products: [], errors: [] };
-
-    for (const event of parser) {
-      if (isError(event)) {
-        // Type guard provides safe access to error details
-        result.errors.push({
-          message: event.error.message,
-          timestamp: new Date().toISOString()
-        });
-        break; // Stop parsing on error
-      } else if (isStartElement(event) && event.name === 'product') {
-        // Type guard ensures 'attributes' property is available
-        result.products.push({
-          id: event.attributes?.id || 'unknown',
-          category: event.attributes?.category || 'uncategorized'
-        });
-      }
-    }
-
-    return result;
-  } catch (error) {
-    return { products: [], errors: [{ message: error.message, timestamp: new Date().toISOString() }] };
-  }
-}
-
-// Usage
-const result = parseProductsSafely(xmlContent);
-if (result.errors.length > 0) {
-  console.error('Parsing errors:', result.errors);
-} else {
-  console.log('Parsed products:', result.products);
-}
-```
-
-#### Type Guard Function Reference for Synchronous Parser
-
-All type guard functions work identically with both `EventReader` and `EventReaderSync`:
-
-| Function | Purpose | Usage with Sync Parser |
-|----------|---------|------------------------|
-| `isStartDocument(event)` | Document start | Check for document beginning |
-| `isEndDocument(event)` | Document end | Check for document completion |
-| `isStartElement(event)` | Opening tags | Access element name and attributes safely |
-| `isEndElement(event)` | Closing tags | Safely process element endings |
-| `isCharacters(event)` | Text content | Safe access to text values |
-| `isCdata(event)` | CDATA sections | Safe access to CDATA content |
-| `isError(event)` | Parse errors | Handle parsing errors gracefully |
-
-#### Benefits for Synchronous Parsing
-
-1. **Consistent API**: Same type guard functions work with both async and sync parsers
-2. **Type Safety**: Prevents accessing undefined properties on events
-3. **Better Error Handling**: Safely distinguish between parse errors and content events
-4. **Improved Maintainability**: More readable code compared to manual type checking
-
-#### Comparison: Manual Type Checking vs Type Guards
-
-**Manual Type Checking (Not Recommended):**
-```typescript
-for (const event of parser) {
-  if (event.type === 'START_ELEMENT') {
-    // No type safety - TypeScript doesn't know about 'attributes'
-    console.log(event.attributes?.id); // Potential runtime error
+for (const event of new EventReaderSync(xml)) {
+  if (event.type === XmlEventType.START_ELEMENT) {
+    const id = event.attributes.find((attribute) => attribute.name === 'id')?.value;
+    console.log(event.name, id);
   }
 }
 ```
 
-**Type Guards (Recommended):**
-```typescript
-for (const event of parser) {
-  if (isStartElement(event)) {
-    // Full type safety - TypeScript knows this is StartElementEvent
-    console.log(event.attributes.id); // Safe access, no warnings
-  }
-}
-```
+String input is scanned directly as a JavaScript string. It is not encoded to a
+`Uint8Array` first. Byte inputs are decoded incrementally as fatal UTF-8.
 
-### 📚 API Reference
+## Input
 
-```typescript
-class EventReaderSync {
-  constructor(
-    xmlString: string,
-    options?: EventReaderSyncOptions
-  )
-}
+```ts
+type StreamReaderSyncInput =
+  | string
+  | Uint8Array
+  | Iterable<Uint8Array>;
 
 interface EventReaderSyncOptions {
-  autoDecodeEntities?: boolean; // Default: true
-  addEntities?: { entity: string, value: string }[];
-  namespaceAware?: boolean; // Default: false; opt in to localName/prefix/uri metadata
-  eventFilter?: ParserEventFilter;
-  documentMode?: 'fragment' | 'document';
+  documentMode?: 'document' | 'fragment';
 }
 ```
+
+The reader emits `START_DOCUMENT` first and `END_DOCUMENT` last. It implements
+both `Iterable<AnyXmlEvent>` and `Iterator<AnyXmlEvent>`. Breaking from a
+`for...of` loop invokes `return()` and releases the input iterator. In a manual
+loop, call `reader.return()` when stopping early.
+
+Every returned event and attribute is stable after the reader advances.
+
+## Current-Token Alternative
+
+Use `StreamReaderSync` to avoid stable event-object allocation:
+
+```ts
+import { StreamReaderSync, XmlEventType } from 'stax-xml';
+
+const reader = new StreamReaderSync(xml);
+try {
+  while (reader.next() !== null) {
+    if (reader.eventType() === XmlEventType.START_ELEMENT) {
+      console.log(reader.name(), reader.attributeValue('id'));
+    }
+  }
+} finally {
+  reader.close();
+}
+```
+
+Accessors include `eventType()`, `name()`, `text()`, `localName()`, `prefix()`,
+`namespaceURI()`, indexed attribute metadata, `attributeValue(indexOrName)`,
+`attributeValue(namespaceURI, localName)`,
+and `namespaceURIForPrefix()`. They describe only the current token.
+
+## Event Shapes and Errors
+
+`AnyXmlEvent` covers document, start/end element, characters, CDATA, comment,
+processing-instruction, and DTD events. Start-element attributes are an
+`EventAttribute[]`; namespace declarations are not included as attributes.
+
+Malformed XML, unsupported named entity references, and invalid UTF-8 throw an
+error. DTD declarations are emitted as events but are not interpreted. The
+reader decodes only the five predefined XML entities and numeric character
+references; it never resolves custom or external entities or performs external
+I/O. Use exported type guards such as `isStartElement()` and `isCharacters()`
+for TypeScript narrowing.

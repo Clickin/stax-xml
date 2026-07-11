@@ -85,8 +85,9 @@ for (const event of reader) {
 }
 ```
 
-For large byte-oriented workloads, use `StreamReader` or `StreamReaderSync` and
-consume each `StreamBatch` with `eventCount` plus index accessors.
+For known XML-to-object output, prefer `stax-xml/converter`. For manual
+allocation-sensitive traversal, use `StreamReaderSync` for synchronous
+string/byte input or `StreamReader` for asynchronous byte input.
 
 ## Next Steps
 

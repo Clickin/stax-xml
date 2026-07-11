@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import EventReader from '../src/EventReader';
-import { XmlEventType, type AnyXmlEvent, type StartElementEvent } from '../src/types';
+import { EventReader } from 'stax-xml-async';
+import { XmlEventType, type AnyXmlEvent, type StartElementEvent } from 'stax-xml-core';
 
 function stringToReadableStream(xml: string, chunkSizes: number[] = [xml.length]): ReadableStream<Uint8Array> {
   const bytes = new TextEncoder().encode(xml);
@@ -47,15 +47,14 @@ describe('EventReader async regressions', () => {
     );
 
     expect(root).toBeDefined();
-    expect(root!.attributes).toMatchObject({
-      'xmlns:h': 'http://www.w3.org/TR/html4/',
-      'h:id': 'bk101',
-      category: 'Computer',
-    });
+    expect(root!.attributes).toEqual([
+      { name: 'h:id', localName: 'id', prefix: 'h', namespaceURI: 'http://www.w3.org/TR/html4/', value: 'bk101' },
+      { name: 'category', localName: 'category', prefix: '', namespaceURI: '', value: 'Computer' },
+    ]);
     expect(item).toBeDefined();
     expect(item!.prefix).toBe('h');
     expect(item!.localName).toBe('item');
-    expect(item!.uri).toBe('http://www.w3.org/TR/html4/');
+    expect(item!.namespaceURI).toBe('http://www.w3.org/TR/html4/');
   });
 
   it('does not treat quoted > as the end of a start tag', async () => {
@@ -72,8 +71,8 @@ describe('EventReader async regressions', () => {
     );
 
     expect(root).toBeDefined();
-    expect(root!.attributes.note).toBe('a > b');
+    expect(root!.attributes.find(attribute => attribute.name === 'note')?.value).toBe('a > b');
     expect(child).toBeDefined();
-    expect(child!.attributes.value).toBe('x');
+    expect(child!.attributes.find(attribute => attribute.name === 'value')?.value).toBe('x');
   });
 });

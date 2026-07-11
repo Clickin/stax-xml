@@ -94,8 +94,11 @@ for (const event of reader) {
 
 ## Unknown XML 파싱
 
+XML shape를 미리 알 수 없다면 tree를 materialize하지 않고 event stream을
+검사하세요.
+
 ```typescript
-import { parseXmlObjectSync, parseXmlTreeSync } from 'stax-xml';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
 
 const xmlString = `
 <bookstore>
@@ -112,20 +115,17 @@ const xmlString = `
 </bookstore>
 `;
 
-const tree = parseXmlTreeSync(xmlString);
-console.log(tree.children[0]);
-
-const object = parseXmlObjectSync(xmlString);
-console.log(object.bookstore);
-// {
-//   book: [
-//     { '@id': '1', title: '위대한 개츠비', author: 'F. 스콧 피츠제럴드', price: '12.99' },
-//     { '@id': '2', title: '앵무새 죽이기', author: '하퍼 리', price: '14.99' }
-//   ]
-// }
+for (const event of new EventReaderSync(xmlString)) {
+  if (event.type === XmlEventType.START_ELEMENT) {
+    console.log('start', event.name, event.attributes);
+  } else if (event.type === XmlEventType.CHARACTERS) {
+    console.log('text', event.value);
+  }
+}
 ```
 
-element 순서와 mixed content가 중요하면 `parseXmlTreeSync()`를 사용하세요. attribute가 `@id` 같은 key로 들어가는 compact object가 필요하면 `parseXmlObjectSync()`를 사용하세요. typed domain object가 필요하다면 converter API 또는 custom event loop를 사용하세요.
+Event object allocation이 중요하면 `StreamReaderSync`를 사용하세요. 알려진 shape의
+typed domain object에는 converter API를 사용합니다.
 
 ## 오류 처리
 

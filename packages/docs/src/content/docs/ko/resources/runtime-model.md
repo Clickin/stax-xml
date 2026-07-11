@@ -19,10 +19,6 @@ Parser를 JavaScript 안에 두면 다음 기준이 명확해집니다.
 - 대용량 XML 처리에서 문서 전체를 하나의 문자열로 만들지 않아도 됩니다.
 - DOM 상태를 들고 있지 않고 pull 방식 reader로 event를 순차적으로 받을 수 있습니다.
 
-할당 비용을 낮추고 싶다면 `StreamReader` 또는 `StreamReaderSync`를 사용하고,
-각 batch를 `eventCount`와 index accessor로 소비하세요. 애플리케이션 코드에서
-읽기 쉬운 API가 필요하면 `EventReader`, `EventReaderSync`, converter schema를
-사용하면 됩니다.
-
-V8 같은 runtime 내부 구현에 대한 자세한 분석은 package docs의 범위를 넘습니다.
-공개 문서는 사용자가 의존할 수 있는 배포 형태와 API 기준만 설명합니다.
+할당 비용을 낮추고 싶다면 current-token pull loop인 `StreamReaderSync` 또는
+`StreamReader`를 사용하세요. 애플리케이션 코드에서 읽기 쉬운 API가 필요하면
+`EventReader`, `EventReaderSync`, converter schema를 사용하면 됩니다.

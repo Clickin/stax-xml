@@ -1,0 +1,103 @@
+{
+  "label": "converter-compiled-batch-plan",
+  "fixture": {
+    "source": "buffer",
+    "sourceFile": null,
+    "sizeGiB": 0.01562508288770914,
+    "actualBytes": 16777305,
+    "rowPreview": null,
+    "rowPreviewTruncated": false
+  },
+  "variants": {
+    "manual-cursor-reader-sync": {
+      "id": "manual-cursor-reader-sync",
+      "family": "converter",
+      "implementation": "manual CursorReaderSync object projection",
+      "contractScope": "catalog-records",
+      "instrumentation": "materialization-counters-enabled",
+      "eventCountKind": "parsed-elements",
+      "fullStringParity": true,
+      "avgMs": 79.10304180000003,
+      "minMs": 78.35037499999999,
+      "maxMs": 80.22325000000001,
+      "mibPerSec": 202.26889526534183,
+      "eventCount": 139458,
+      "checksum": -1845341048,
+      "samplesMs": [
+        80.22325000000001,
+        78.91937499999995,
+        78.82658400000014,
+        78.35037499999999,
+        79.19562500000006
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 57227876.8,
+        "avgHeapTotalDeltaBytes": 3905945.6,
+        "avgRssDeltaBytes": 3827302.4
+      },
+      "materializationCounters": null
+    },
+    "converter-auto-compiled-batch-plan": {
+      "id": "converter-auto-compiled-batch-plan",
+      "family": "converter",
+      "implementation": "converter parseSync (auto-compiled)",
+      "contractScope": "catalog-records",
+      "instrumentation": "materialization-counters-enabled",
+      "eventCountKind": "parsed-elements",
+      "fullStringParity": true,
+      "avgMs": 254.90960000000004,
+      "minMs": 253.64308400000004,
+      "maxMs": 256.3595409999998,
+      "mibPerSec": 62.767682649120154,
+      "eventCount": 139458,
+      "checksum": -1845341048,
+      "samplesMs": [
+        254.86562500000014,
+        253.64308400000004,
+        254.35404199999994,
+        256.3595409999998,
+        255.3257080000003
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 42682648,
+        "avgHeapTotalDeltaBytes": 28635955.2,
+        "avgRssDeltaBytes": 3548774.4
+      },
+      "materializationCounters": null
+    },
+    "converter-explicit-compiled-batch-plan": {
+      "id": "converter-explicit-compiled-batch-plan",
+      "family": "converter",
+      "implementation": "converter compiled parseSync (explicit)",
+      "contractScope": "catalog-records",
+      "instrumentation": "materialization-counters-enabled",
+      "eventCountKind": "parsed-elements",
+      "fullStringParity": true,
+      "avgMs": 256.2196414,
+      "minMs": 253.97191599999996,
+      "maxMs": 258.28833299999997,
+      "mibPerSec": 62.44675384599208,
+      "eventCount": 139458,
+      "checksum": -1845341048,
+      "samplesMs": [
+        253.97191599999996,
+        258.28833299999997,
+        255.9509579999999,
+        257.3635409999997,
+        255.52345900000046
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 42327625.6,
+        "avgHeapTotalDeltaBytes": 25752371.2,
+        "avgRssDeltaBytes": 3545497.6
+      },
+      "materializationCounters": null
+    }
+  },
+  "metadata": {
+    "nodeVersion": "24.15.0",
+    "v8Version": "13.6.233.17-node.48",
+    "collectedAt": "2026-07-09T04:14:10.784Z",
+    "startedAt": 1783570450784
+  }
+}

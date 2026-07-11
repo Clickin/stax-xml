@@ -180,10 +180,13 @@ if (result.success) {
 - 선언적 API를 원할 때
 - 구조화된 데이터 추출이 필요할 때
 
-**저수준 EventReader 또는 StreamReader 사용:**
+**Event reader 또는 current-token stream reader 사용:**
 - 최대 성능과 제어가 필요할 때
 - XML 구조가 동적이거나 알 수 없을 때
 - 이벤트 기반 처리를 원할 때
+
+동기 string/byte input에는 `EventReaderSync` 또는 `StreamReaderSync`, 비동기 byte
+input에는 `EventReader` 또는 `StreamReader`를 선택하세요.
 - 스트리밍 애플리케이션을 구축할 때
 
 ## 스키마 빌더 (x)

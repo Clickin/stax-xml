@@ -83,8 +83,9 @@ for (const event of reader) {
 }
 ```
 
-대용량 byte-oriented workload에서는 `StreamReader` 또는 `StreamReaderSync`를
-사용하고, 각 `StreamBatch`를 `eventCount`와 index accessor로 소비하세요.
+알려진 XML-to-object output에는 `stax-xml/converter`를 우선 사용하세요.
+Allocation-sensitive traversal에는 동기 string/byte input용 `StreamReaderSync`
+또는 비동기 byte input용 `StreamReader`를 사용합니다.
 
 ## 다음 단계
 

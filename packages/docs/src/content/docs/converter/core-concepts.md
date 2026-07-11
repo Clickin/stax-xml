@@ -476,7 +476,7 @@ const personSchema = x.object({
   )
 });
 
-const compiledSchema = x.object({
+const schema = x.object({
   datasetId: x.string().xpath('/dataset/@id'),
   title: x.string().xpath('/dataset/title/text()'),
   metadata: x.object({
@@ -485,9 +485,10 @@ const compiledSchema = x.object({
   }).xpath('/dataset/metadata'),
   labels: x.array(x.string(), '/dataset/labels/label'),
   people: x.array(personSchema, '//person')
-}).compile();
+});
 
-const result = compiledSchema.parseSync(xml);
+// Dispatch plans are compiled and cached automatically.
+const result = schema.parseSync(xml);
 ```
 
 `compile()` keeps the same public API, but the fastest path is available only for schema shapes that can be lowered to fixed XML event dispatch.

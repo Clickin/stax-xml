@@ -1,0 +1,31 @@
+---
+title: v0.7.0 레거시 API 스냅샷
+description: StAX-XML v0.7.0에서 업그레이드하는 사용자를 위한 과거 API 및 마이그레이션 안내입니다.
+slug: ko/v0.7.0
+---
+
+# v0.7.0 레거시 API 스냅샷
+
+이 페이지는 `stax-xml@0.7.0`에서 업그레이드하는 사용자를 위한 과거 API
+참고 자료입니다. 현재 API 문서가 아니므로 새 코드는
+[v1.0.0 문서](/stax-xml/ko/v1.0.0/)를 사용하세요.
+
+원본 소스와 패키지 정보는 [v0.7.0 Git tag](https://github.com/Clickin/stax-xml/tree/v0.7.0)에서
+확인할 수 있습니다.
+
+## v0.7.0 주요 API 이름
+
+v0.7.0은 `StaxXmlParser`, `StaxXmlParserSync`, `StaxXmlCursorReader`,
+`StaxXmlWriter`, `StaxXmlWriterSync`를 포함한 이전 parser family를
+공개했습니다. 이 이름들은 v1 public surface가 아닙니다.
+
+## v1 마이그레이션 방향
+
+- materialized event iteration에는 `EventReader`/`EventReaderSync`를 사용합니다.
+- current-token streaming에는 `StreamReader`/`StreamReaderSync`를 사용합니다.
+- 출력에는 v1 `Writer`와 `WriterSync`를 사용합니다.
+- converter와 XPath import는 v1 문서 기준으로 다시 확인합니다.
+- native addon, Wasm tokenizer, backend selection 경로는 v1 계약에 포함되지 않습니다.
+
+이 스냅샷은 API 전환을 설명하기 위한 것이며, v0.7.0 호환 계층을
+지원한다는 의미가 아닙니다.

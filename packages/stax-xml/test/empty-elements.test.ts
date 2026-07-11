@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import EventReader from "../src/EventReader";
-import { CharactersEvent, EndElementEvent, StartElementEvent, XmlEventType } from "../src/types";
+import { EventReader } from "stax-xml-async";
+import { CharactersEvent, EndElementEvent, StartElementEvent, XmlEventType } from "stax-xml-core";
 
 describe("Empty Elements and Self-Closing Tags - CharactersEvent Suppression (Updated)", () => {
   test("should not emit CharactersEvent for self-closing tags", async () => {

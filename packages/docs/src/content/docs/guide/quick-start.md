@@ -94,8 +94,11 @@ for (const event of reader) {
 
 ## Parsing Unknown XML
 
+When the XML shape is not known in advance, inspect the event stream without
+materializing a tree:
+
 ```typescript
-import { parseXmlObjectSync, parseXmlTreeSync } from 'stax-xml';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
 
 const xmlString = `
 <bookstore>
@@ -112,20 +115,17 @@ const xmlString = `
 </bookstore>
 `;
 
-const tree = parseXmlTreeSync(xmlString);
-console.log(tree.children[0]);
-
-const object = parseXmlObjectSync(xmlString);
-console.log(object.bookstore);
-// {
-//   book: [
-//     { '@id': '1', title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', price: '12.99' },
-//     { '@id': '2', title: 'To Kill a Mockingbird', author: 'Harper Lee', price: '14.99' }
-//   ]
-// }
+for (const event of new EventReaderSync(xmlString)) {
+  if (event.type === XmlEventType.START_ELEMENT) {
+    console.log('start', event.name, event.attributes);
+  } else if (event.type === XmlEventType.CHARACTERS) {
+    console.log('text', event.value);
+  }
+}
 ```
 
-Use `parseXmlTreeSync()` when element order and mixed content matter. Use `parseXmlObjectSync()` when you want a compact object shape with attributes under `@id`-style keys. For typed domain objects, use the converter API or a custom event loop.
+Use `StreamReaderSync` instead when event-object allocation matters. For typed
+domain objects with a known shape, use the converter API.
 
 ## Error Handling
 

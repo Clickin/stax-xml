@@ -175,6 +175,58 @@ describe('core branch coverage guards', () => {
         XmlEventType.END_DOCUMENT
       ]);
     });
+
+    it('should consume direct ReadableStream batches on demand', async () => {
+      const encoder = new TextEncoder();
+      const chunks = [
+        '<root',
+        '><a/>',
+        ...Array.from({ length: 64 }, () => '<a/>'),
+        '</root>'
+      ].map(chunk => encoder.encode(chunk));
+      let pulls = 0;
+      const parser = new EventReader(new ReadableStream<Uint8Array>({
+        pull(controller) {
+          const chunk = chunks[pulls++];
+          if (chunk) {
+            controller.enqueue(chunk);
+          } else {
+            controller.close();
+          }
+        }
+      }), { batchSize: 1 });
+
+      const firstBatch = await parser.nextBatch();
+
+      expect(firstBatch?.[0]?.type).toBe(XmlEventType.START_DOCUMENT);
+      expect(firstBatch?.map(event => event.type)).not.toContain(XmlEventType.END_DOCUMENT);
+      expect(pulls).toBeLessThan(chunks.length);
+      await parser.return();
+    });
+
+    it('should split oversized ReadableStream chunks inside the direct source', async () => {
+      const encoder = new TextEncoder();
+      const parser = new EventReader(new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(encoder.encode('<root><a/></root>'));
+          controller.close();
+        }
+      }), { batchSize: 2, maxChunkBytes: 3 });
+      const events: AnyXmlEvent[] = [];
+
+      for await (const batch of parser.batchedIterator()) {
+        events.push(...batch);
+      }
+
+      expect(events.map(event => event.type)).toEqual([
+        XmlEventType.START_DOCUMENT,
+        XmlEventType.START_ELEMENT,
+        XmlEventType.START_ELEMENT,
+        XmlEventType.END_ELEMENT,
+        XmlEventType.END_ELEMENT,
+        XmlEventType.END_DOCUMENT
+      ]);
+    });
   });
 
   describe('sync parser branches', () => {

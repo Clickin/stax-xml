@@ -38,7 +38,7 @@ head:
       "name": "Which reader should I use?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Use EventReader or EventReaderSync for ergonomic XML event objects. Use StreamReader or StreamReaderSync when you need lower-overhead batch access over byte input."
+        "text": "Use EventReader or EventReaderSync for stable XML event objects. Use StreamReader or StreamReaderSync for lower-allocation current-token traversal."
       }
     },
     {
@@ -69,21 +69,18 @@ want ergonomic event objects.
 Use `EventReaderSync` for in-memory XML strings when ergonomic event objects are
 more important than the lowest possible allocation count.
 
-Use `StreamReader` or `StreamReaderSync` when you want lower-overhead batch
-access over byte input. For large synchronous byte input, prefer
-`StreamReaderSync` with `eventCount` plus index accessors rather than wrapper
-event iteration.
+Use `StreamReaderSync` for lower-overhead synchronous traversal over strings or
+byte input. It exposes a current-token pull loop without allocating one event
+object per XML event.
 
 ```ts
-import { StreamEventType, StreamReaderSync } from 'stax-xml';
+import { StreamReaderSync, XmlEventType } from 'stax-xml';
 
-const reader = new StreamReaderSync(byteBatches);
+const reader = new StreamReaderSync(byteChunks);
 
-for (const batch of reader) {
-  for (let index = 0; index < batch.eventCount; index++) {
-    if (batch.typeAt(index) === StreamEventType.START_ELEMENT) {
-      console.log(batch.nameAt(index));
-    }
+while (reader.next() !== null) {
+  if (reader.eventType() === XmlEventType.START_ELEMENT) {
+    console.log(reader.name());
   }
 }
 ```
@@ -99,25 +96,24 @@ the rationale.
 
 ### How do I parse unknown XML?
 
-Use the tree/object helpers when you do not have a fixed schema:
+Use an event reader when you do not have a fixed schema:
 
 ```ts
-import { parseXmlObjectSync, parseXmlTreeSync } from 'stax-xml';
+import { EventReaderSync, XmlEventType } from 'stax-xml';
 
-const tree = parseXmlTreeSync(xml);
-const object = parseXmlObjectSync(xml);
+for (const event of new EventReaderSync(xml)) {
+  if (event.type === XmlEventType.START_ELEMENT) console.log(event.name);
+}
 ```
 
-Use `parseXmlTreeSync()` when element order and mixed content matter. Use
-`parseXmlObjectSync()` when you want a compact object shape with attributes
-stored under `@name` keys.
+Use `StreamReaderSync` when allocation matters, or the converter when the target
+object shape is known.
 
 ### How do I handle large files?
 
-Keep I/O streaming at the boundary and parse received byte batches
-synchronously. `EventReader` is the ergonomic async surface. `StreamReaderSync`
-over `Iterable<Uint8Array[]>` is the lower-overhead sync batch surface when your
-caller already batches bytes.
+Keep I/O streaming at the boundary. `EventReader` is the ergonomic async
+surface and `StreamReader` is its lower-allocation current-token counterpart.
+Use `StreamReaderSync` when your caller already owns a synchronous byte source.
 
 ### How do I write XML?
 

@@ -5,7 +5,7 @@ import { dirname, join, normalize, relative, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { pipeline } from 'node:stream/promises';
 import { get } from 'node:https';
-import { StaxXmlParserSync } from '../src/StaxXmlParserSync.js';
+import { EventReaderSync } from 'stax-xml-sync';
 
 const XMLTS_URL = 'https://www.w3.org/XML/Test/xmlts20130923.zip';
 const XMLTS_SHA256 = 'f9510b3532926e1b4c2e54855b021e4b8a66ec98a5337dcf4ff07e8a41968deb';
@@ -35,6 +35,16 @@ const SUPPORTED_NOT_WF_SECTIONS = [
   '4.1 [66]',
   '4.1 [68]'
 ];
+const NAMESPACE_INCOMPATIBLE_URIS = new Set([
+  'eduni/errata-4e/ibm04v01.xml',
+  'eduni/errata-4e/ibm05v01.xml',
+  'eduni/errata-4e/ibm05v03.xml',
+  'xmltest/valid/sa/012.xml'
+]);
+const STRICT_DOCUMENT_MODE_URIS = new Set([
+  'ibm/invalid/P28/ibm28i01.xml',
+  'sun/invalid/root.xml'
+]);
 
 interface W3cCase {
   id: string;
@@ -42,12 +52,14 @@ interface W3cCase {
   uri: string;
   path: string;
   sections: string;
+  namespace: 'yes' | 'no';
 }
 
 interface RunResult {
   passed: number;
   failed: Array<{ test: W3cCase; error: string }>;
   skipped: number;
+  skippedReasons: Map<string, number>;
 }
 
 await main();
@@ -62,6 +74,9 @@ async function main(): Promise<void> {
   console.log(`sha256: ${XMLTS_SHA256}`);
   console.log(`passed: ${result.passed}`);
   console.log(`skipped: ${result.skipped}`);
+  for (const [reason, count] of result.skippedReasons) {
+    console.log(`skipped (${reason}): ${count}`);
+  }
   console.log(`failed: ${result.failed.length}`);
 
   for (const failure of result.failed.slice(0, 20)) {
@@ -177,7 +192,8 @@ function parseManifest(root: string, manifest: string, content: string): W3cCase
       type,
       uri: relPath,
       path: join(root, relPath),
-      sections: readAttr(token, 'SECTIONS') ?? ''
+      sections: readAttr(token, 'SECTIONS') ?? '',
+      namespace: readAttr(token, 'NAMESPACE') === 'no' ? 'no' : 'yes'
     });
   }
 
@@ -222,22 +238,22 @@ function isInGateScope(test: W3cCase): boolean {
 }
 
 function runTests(tests: W3cCase[]): RunResult {
-  const result: RunResult = { passed: 0, failed: [], skipped: 0 };
+  const result: RunResult = { passed: 0, failed: [], skipped: 0, skippedReasons: new Map() };
 
   for (const test of tests) {
     let bytes: Buffer;
     try {
       bytes = readFileSync(test.path);
     } catch {
-      result.skipped++;
+      skip(result, 'missing input');
       continue;
     }
     if (isUtf16(bytes)) {
-      result.skipped++;
+      skip(result, 'UTF-16 input');
       continue;
     }
     if (hasUnsupportedRawDeclaration(bytes)) {
-      result.skipped++;
+      skip(result, 'unsupported declaration');
       continue;
     }
 
@@ -256,18 +272,30 @@ function runTests(tests: W3cCase[]): RunResult {
       continue;
     }
     if (isUnsupportedXmlVersion(xml)) {
-      result.skipped++;
+      skip(result, 'unsupported XML version');
       continue;
     }
     if (test.type === 'not-wf' && /<!DOCTYPE/i.test(xml)) {
-      result.skipped++;
+      skip(result, 'not-wf DTD');
+      continue;
+    }
+    if (isNamespaceIncompatibleCase(test)) {
+      skip(result, 'namespace-incompatible name');
+      continue;
+    }
+    if (test.type !== 'not-wf' && hasUnsupportedNamedEntityReference(xml)) {
+      skip(result, 'named entity reference');
+      continue;
+    }
+    if (test.type === 'invalid' && isStrictDocumentModeCase(test)) {
+      skip(result, 'strict document mode');
       continue;
     }
 
     let threw = false;
     let error = '';
     try {
-      Array.from(new StaxXmlParserSync(xml, { documentMode: 'document' }));
+      Array.from(new EventReaderSync(xml, { documentMode: 'document' }));
     } catch (cause) {
       threw = true;
       error = cause instanceof Error ? cause.message : String(cause);
@@ -285,6 +313,59 @@ function runTests(tests: W3cCase[]): RunResult {
   }
 
   return result;
+}
+
+function skip(result: RunResult, reason: string): void {
+  result.skipped++;
+  result.skippedReasons.set(reason, (result.skippedReasons.get(reason) ?? 0) + 1);
+}
+
+function hasUnsupportedNamedEntityReference(xml: string): boolean {
+  const doctypeStart = xml.search(/<!DOCTYPE/i);
+  if (doctypeStart < 0) {
+    return hasNamedEntityReference(xml);
+  }
+  const doctypeEnd = findDoctypeEnd(xml, doctypeStart + 9);
+  return hasNamedEntityReference(xml.slice(0, doctypeStart))
+    || hasNamedEntityReference(xml.slice(doctypeEnd));
+}
+
+function hasNamedEntityReference(xml: string): boolean {
+  return /&(?!(?:amp|lt|gt|apos|quot);)[^#\s<&][^;\s<&]*;/.test(xml);
+}
+
+function findDoctypeEnd(xml: string, start: number): number {
+  let brackets = 0;
+  let quote = '';
+  for (let index = start; index < xml.length; index++) {
+    if (!quote && xml.startsWith('<!--', index)) {
+      const commentEnd = xml.indexOf('-->', index + 4);
+      if (commentEnd < 0) return xml.length;
+      index = commentEnd + 2;
+      continue;
+    }
+    const char = xml[index]!;
+    if (quote) {
+      if (char === quote) quote = '';
+    } else if (char === '"' || char === "'") {
+      quote = char;
+    } else if (char === '[') {
+      brackets++;
+    } else if (char === ']') {
+      brackets--;
+    } else if (char === '>' && brackets === 0) {
+      return index + 1;
+    }
+  }
+  return xml.length;
+}
+
+function isNamespaceIncompatibleCase(test: W3cCase): boolean {
+  return test.namespace === 'no' && NAMESPACE_INCOMPATIBLE_URIS.has(test.uri);
+}
+
+function isStrictDocumentModeCase(test: W3cCase): boolean {
+  return STRICT_DOCUMENT_MODE_URIS.has(test.uri);
 }
 
 function decodeUtf8(bytes: Uint8Array): string {

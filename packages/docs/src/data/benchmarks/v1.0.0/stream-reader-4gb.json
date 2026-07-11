@@ -1,0 +1,158 @@
+{
+  "generatedAt": "2026-07-09T04:13:55.186Z",
+  "objective": "stream-reader-large-shape",
+  "contract": "generated-byte-chunk-full-string",
+  "packageVersion": "1.0.0",
+  "runtime": {
+    "id": "node",
+    "version": "24.15.0",
+    "v8": "13.6.233.17-node.48",
+    "platform": "darwin-arm64"
+  },
+  "fixture": {
+    "generated": true,
+    "shape": "repeated-person",
+    "rowXml": "<person id=\"123\"><name>Jane Doe</name><age>42</age></person>",
+    "rowBytes": 60,
+    "rowCycleSize": 1,
+    "minRowBytes": 60,
+    "maxRowBytes": 60,
+    "averageRowBytes": 60,
+    "targetBytes": 4294967296,
+    "actualBytes": 4294967340,
+    "sizeGiB": 4.000000040978193
+  },
+  "options": {
+    "warmups": 0,
+    "runs": 3,
+    "style": "iterable-cursor",
+    "boundedRssMiB": 512
+  },
+  "allocationSampling": {
+    "enabled": false,
+    "samplingInterval": 65536,
+    "rawArtifacts": {
+      "outputDir": "/Users/senghyunjo/github/stax-xml/packages/benchmark/results/v8-allocation/stream-reader-large-shape",
+      "committed": false,
+      "profiles": []
+    },
+    "note": "Disabled for this run."
+  },
+  "parity": {
+    "status": "ok",
+    "events": 572662314,
+    "checksum": -1788666544
+  },
+  "results": [
+    {
+      "style": "iterable-cursor",
+      "events": 572662314,
+      "checksum": -1788666544,
+      "materialization": {
+        "stringFieldReads": 715827890,
+        "nameStringReads": 429496734,
+        "textStringReads": 143165578,
+        "attrNameStringReads": 71582789,
+        "attrValueStringReads": 71582789,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0
+      },
+      "avgMs": 80273.624486,
+      "minMs": 79575.47770799999,
+      "maxMs": 81472.122583,
+      "avgMiBs": 51.02547777291439,
+      "mibPerSec": 51.02547777291439,
+      "fullStringParity": true,
+      "contractScope": "full-string-materialization",
+      "sourceMode": "generated-sync-iterable-byte-chunks",
+      "boundedMemory": true,
+      "memory": {
+        "avgRssDeltaBytes": 10698752,
+        "avgHeapUsedDeltaBytes": 3374749.3333333335,
+        "avgHeapTotalDeltaBytes": 5417642.666666667,
+        "avgExternalDeltaBytes": 313009.3333333333,
+        "avgArrayBuffersDeltaBytes": 874922.6666666666,
+        "maxRssBytes": 84901888,
+        "maxHeapUsedBytes": 10225576,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 52805632,
+              "heapUsedBytes": 4628008,
+              "heapTotalBytes": 7323648,
+              "externalBytes": 2104936,
+              "arrayBuffersBytes": 23087
+            },
+            "after": {
+              "rssBytes": 72073216,
+              "heapUsedBytes": 6978488,
+              "heapTotalBytes": 14925824,
+              "externalBytes": 3043964,
+              "arrayBuffersBytes": 1072943
+            },
+            "delta": {
+              "rssBytes": 19267584,
+              "heapUsedBytes": 2350480,
+              "heapTotalBytes": 7602176,
+              "externalBytes": 939028,
+              "arrayBuffersBytes": 1049856
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 72056832,
+              "heapUsedBytes": 4846616,
+              "heapTotalBytes": 14139392,
+              "externalBytes": 3043964,
+              "arrayBuffersBytes": 547887
+            },
+            "after": {
+              "rssBytes": 74514432,
+              "heapUsedBytes": 7223888,
+              "heapTotalBytes": 14401536,
+              "externalBytes": 3043964,
+              "arrayBuffersBytes": 1072943
+            },
+            "delta": {
+              "rssBytes": 2457600,
+              "heapUsedBytes": 2377272,
+              "heapTotalBytes": 262144,
+              "externalBytes": 0,
+              "arrayBuffersBytes": 525056
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 74530816,
+              "heapUsedBytes": 4829080,
+              "heapTotalBytes": 14401536,
+              "externalBytes": 3043964,
+              "arrayBuffersBytes": 23087
+            },
+            "after": {
+              "rssBytes": 84901888,
+              "heapUsedBytes": 10225576,
+              "heapTotalBytes": 22790144,
+              "externalBytes": 3043964,
+              "arrayBuffersBytes": 1072943
+            },
+            "delta": {
+              "rssBytes": 10371072,
+              "heapUsedBytes": 5396496,
+              "heapTotalBytes": 8388608,
+              "externalBytes": 0,
+              "arrayBuffersBytes": 1049856
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

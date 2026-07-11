@@ -1,6 +1,6 @@
 ---
 title: WriterSync - Synchronous XML Generation
-description: Synchronous XML writer for generating XML documents programmatically with in-memory string building
+description: Synchronous XML writer for in-memory strings and sink-based large output
 head:
   - tag: meta
     attrs:
@@ -22,7 +22,7 @@ head:
 
 ## WriterSync - Synchronous XML Generation
 
-StAX-XML includes a synchronous XML writer that generates XML documents programmatically. `WriterSync` builds the XML string in memory for small and medium documents, while `WriterSyncSink` writes incrementally to a sink for large documents.
+StAX-XML includes a synchronous XML writer that generates XML documents programmatically. `WriterSync` builds a complete XML string in memory. `WriterSyncSink` uses the same synchronous writer model but writes incrementally to a sink, so large output can keep high throughput without retaining the whole XML string.
 
 For large file output, prefer the sink path. The 1GiB writer benchmark shows `WriterSyncSink` has the best write throughput while peak RSS stays in the same range as async writing.
 
@@ -198,19 +198,19 @@ export default app;
 
 ##### Sink-Based Incremental Writing
 
-`WriterSync` can write directly to any custom sync target through `WriterSyncSink`. Use this path for large XML output.
-Use runtime-specific adapters for Node.js, Bun, or Deno so the browser-compatible default import stays unchanged.
+`WriterSyncSink` writes to any object implementing the small `SyncTextSink`
+interface. Use the runtime standard library to build the target you need.
 
 ```typescript
-import { openSync } from 'fs';
+import { closeSync, openSync, writeSync } from 'node:fs';
 import { WriterSyncSink } from 'stax-xml';
-import { createNodeFileSyncTextSink } from 'stax-xml/adapters/node';
-import { createBunSyncTextSink } from 'stax-xml/adapters/bun';
-import { createDenoSyncTextSink } from 'stax-xml/adapters/deno';
 
 const fd = openSync('./catalog.xml', 'w');
 const writer = new WriterSyncSink(
-  createNodeFileSyncTextSink(fd),
+  {
+    write(chunk) { writeSync(fd, chunk); },
+    close() { closeSync(fd); }
+  },
   {
     bufferSize: 4096,
     enableAutoFlush: true,
@@ -226,14 +226,7 @@ writer.writeCharacters('Laptop Computer');
 writer.writeEndElement();
 writer.writeEndElement(); // product
 writer.writeEndElement(); // catalog
-writer.writeEndDocument();
-writer.flush();     // manual flush (optional when auto-flush is enabled)
-writer.close();     // flush + close adapter target
-
-// Bun example:
-// const bunWriter = new WriterSyncSink(createBunSyncTextSink(Bun.stdout));
-// Deno example:
-// const denoWriter = new WriterSyncSink(createDenoSyncTextSink(Deno.stdout));
+writer.close();
 ```
 
 `writer.flush()` drains buffered chunks and calls `sink.flush()` when available.
@@ -400,7 +393,7 @@ class WriterSync {
   )
 
   // Document Level Methods
-  writeStartDocument(version?: string, encoding?: string): this
+  writeStartDocument(version?: string, encoding?: string): this // UTF-8 only
   writeEndDocument(): void
 
   // Element Writing Methods
@@ -426,12 +419,11 @@ class WriterSync {
 }
 
 interface WriterSyncOptions {
-  encoding?: string; // Default: 'utf-8'
+  encoding?: string; // Default: 'utf-8'; other encodings are rejected
   prettyPrint?: boolean; // Default: false
   indentString?: string; // Default: '  '
   addEntities?: { entity: string, value: string }[];
   autoEncodeEntities?: boolean; // Default: true
-  namespaces?: NamespaceDeclaration[];
 }
 
 interface SyncTextSink {
@@ -465,16 +457,16 @@ interface XmlAttribute {
   uri?: string;
 }
 
-interface NamespaceDeclaration {
-  prefix?: string;
-  uri: string;
-}
 ```
+
+`WriterSync` and `WriterSyncSink` produce JavaScript text rather than encoded
+bytes. Their encoding option controls XML declaration metadata only and is
+restricted to UTF-8 so it stays consistent with the asynchronous writer.
 
 ### 🚀 Key Features
 
-- **Synchronous Operation**: Builds XML string in memory for immediate access
-- **High Performance**: Optimized for smaller to medium-sized documents
+- **Synchronous Operation**: Use `WriterSync` when you need the complete XML string immediately
+- **Sink-Based Large Output**: Use `WriterSyncSink` when performance and memory both matter
 - **Pretty Printing**: Configurable indentation and formatting
 - **Namespace Support**: Full XML namespace handling with prefix management
 - **Entity Encoding**: Automatic or custom entity encoding
@@ -484,12 +476,12 @@ interface NamespaceDeclaration {
 
 ### 💡 When to Use WriterSync
 
-Use `WriterSync` when:
+Use `WriterSync` / `WriterSyncSink` when:
 - You need the complete XML document in memory immediately
-- Working with smaller to medium-sized XML documents
+- You want direct synchronous writes to a custom sink through `WriterSyncSink`
 - Building XML responses for web APIs
 - Generating configuration files or data exports
 - Working in synchronous workflows where blocking is acceptable
 - Memory usage is not a primary concern
 
-For large documents or streaming scenarios, consider using the async `Writer` instead.
+For Web `WritableStream` response workflows, use the async `Writer`. For large synchronous file or response writes, use `WriterSyncSink`.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import WriterSync from '../src/WriterSync';
+import { WriterSync } from 'stax-xml-sync';
 
 // 웹 표준 API용 헬퍼 함수들
 

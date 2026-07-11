@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { x } from '../../src/converter/index.js';
+import { x } from '../../../stax-xml-converter/src/converter/index.js';
 
 describe('Writer Tests', () => {
   describe('Basic String Writing', () => {

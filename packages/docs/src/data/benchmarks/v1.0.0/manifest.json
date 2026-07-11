@@ -1,0 +1,28 @@
+{
+  "version": "v1.0.0",
+  "createdAt": "2026-07-11T14:31:22.019Z",
+  "gitCommit": "aacb9e16c4a0ba66898388bcbfcb1789fe51a387",
+  "sourceDir": "packages/benchmark/results/release",
+  "files": [
+    {
+      "source": "packages/benchmark/results/release/latest-summary.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.0.0/latest-summary.json"
+    },
+    {
+      "source": "packages/benchmark/results/release/runtime-matrix.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.0.0/runtime-matrix.json"
+    },
+    {
+      "source": "packages/benchmark/results/release/stream-reader-4gb.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.0.0/stream-reader-4gb.json"
+    },
+    {
+      "source": "packages/benchmark/results/release/converter-compiled-batch-plan.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.0.0/converter-compiled-batch-plan.json"
+    },
+    {
+      "source": "packages/benchmark/results/release/raw/writer-1gb.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.0.0/raw/writer-1gb.json"
+    }
+  ]
+}

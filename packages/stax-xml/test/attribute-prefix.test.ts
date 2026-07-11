@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import EventReader from '../src/EventReader';
-import WriterSync from '../src/WriterSync';
-import { StartElementEvent, XmlEventType } from '../src/types';
+import { EventReader } from 'stax-xml-async';
+import { WriterSync } from 'stax-xml-sync';
+import { StartElementEvent, XmlEventType } from 'stax-xml-core';
 
 // 헬퍼 함수들
 function stringToReadableStream(str: string): ReadableStream<Uint8Array> {

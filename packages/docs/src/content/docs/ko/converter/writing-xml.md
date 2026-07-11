@@ -86,7 +86,7 @@ schema.writeSync('책 제목');
 
 ```typescript
 const schema = x.number().writer({
-  attribute: 'id'
+  asAttribute: 'id'
 });
 
 // 참고: 속성에는 컨테이너 요소가 필요
@@ -114,7 +114,7 @@ schema.writeSync('Text with <tags> & special chars');
 
 ```typescript
 const bookSchema = x.object({
-  id: x.number().xpath('/book/@id').writer({ attribute: 'id' }),
+  id: x.number().xpath('/book/@id').writer({ asAttribute: 'id' }),
   title: x.string().xpath('/book/title').writer({ element: 'title' }),
   author: x.string().xpath('/book/author').writer({ element: 'author' }),
   price: x.number().xpath('/book/price').writer({ element: 'price' })
@@ -152,8 +152,8 @@ const personSchema = x.object({
 
 ```typescript
 const productSchema = x.object({
-  id: x.number().xpath('./@id').writer({ attribute: 'id' }),
-  sku: x.string().xpath('./@sku').writer({ attribute: 'sku' }),
+  id: x.number().xpath('./@id').writer({ asAttribute: 'id' }),
+  sku: x.string().xpath('./@sku').writer({ asAttribute: 'sku' }),
   name: x.string().xpath('./name').writer({ element: 'name' }),
   price: x.number().xpath('./price').writer({ element: 'price' }),
   description: x.string().xpath('./description').writer({
@@ -225,22 +225,23 @@ interface XmlWriteOptions {
 
 ```typescript
 import { x } from 'stax-xml/converter';
-import { openSync } from 'fs';
+import { closeSync, openSync, writeSync } from 'node:fs';
 import {
-  WriterSyncSink,
-  WriterSync
+  WriterSyncSink
 } from 'stax-xml';
-import { createNodeFileSyncTextSink } from 'stax-xml/adapters/node';
 
 const schema = x.object({
-  id: x.number().xpath('/book/@id').writer({ attribute: 'id' }),
+  id: x.number().xpath('/book/@id').writer({ asAttribute: 'id' }),
   title: x.string().xpath('/book/title').writer({ element: 'title' }),
   price: x.number().xpath('/book/price').writer({ element: 'price' })
 });
 
 const fd = openSync('./catalog.xml', 'w');
 const sink = new WriterSyncSink(
-  createNodeFileSyncTextSink(fd),
+  {
+    write(chunk) { writeSync(fd, chunk); },
+    close() { closeSync(fd); }
+  },
   { flushThreshold: 0.8, enableAutoFlush: true }
 );
 
@@ -260,6 +261,111 @@ schema.writeSync(data, {
 // writeSync의 반환값은 빈 문자열입니다.
 sink.flush();
 sink.close();
+```
+
+### HTTP response streaming
+
+Node response 객체처럼 동기 `write(string)`을 받는 대상은 `WriterSyncSink`로 감싸서 사용할 수 있습니다. 이 방식은 converter output을 전체 문자열로 만들지 않고 response로 증분 출력합니다.
+
+```typescript
+import express from 'express';
+import { x } from 'stax-xml/converter';
+import { WriterSyncSink } from 'stax-xml';
+
+const catalogSchema = x.object({
+  title: x.string().writer({ element: 'title' }),
+  price: x.number().writer({ element: 'price' })
+});
+
+const loadCatalog = () => ({
+  title: '고성능 XML',
+  price: 12345
+});
+
+const app = express();
+
+app.get('/catalog.xml', (req, res) => {
+  res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+
+  const writer = new WriterSyncSink({
+    write(chunk) { res.write(chunk); },
+    close() { res.end(); }
+  });
+
+  catalogSchema.writeSync(loadCatalog(), {
+    rootElement: 'catalog',
+    writer
+  });
+
+  writer.close();
+});
+```
+
+Web `WritableStream` 기반 framework에서는 `writeToStream()`을 사용합니다.
+
+```typescript
+import { stream } from 'hono/streaming';
+import { x } from 'stax-xml/converter';
+
+const catalogSchema = x.object({
+  title: x.string().writer({ element: 'title' }),
+  price: x.number().writer({ element: 'price' })
+});
+
+const loadCatalog = () => ({
+  title: '고성능 XML',
+  price: 12345
+});
+
+app.get('/catalog.xml', (c) => {
+  c.header('Content-Type', 'application/xml; charset=utf-8');
+
+  return stream(c, async (out) => {
+    const writable = new WritableStream<Uint8Array>({
+      write(chunk) {
+        return out.write(chunk);
+      }
+    });
+
+    await catalogSchema.writeToStream(loadCatalog(), writable, {
+      rootElement: 'catalog'
+    });
+  });
+});
+```
+
+Elysia에서는 `TransformStream`으로 만든 Web `Response`를 반환할 수 있습니다.
+
+```typescript
+import { Elysia } from 'elysia';
+import { x } from 'stax-xml/converter';
+
+const catalogSchema = x.object({
+  title: x.string().writer({ element: 'title' }),
+  price: x.number().writer({ element: 'price' })
+});
+
+const loadCatalog = () => ({
+  title: '고성능 XML',
+  price: 12345
+});
+
+new Elysia()
+  .get('/catalog.xml', () => {
+    const { readable, writable } = new TransformStream<Uint8Array>();
+
+    void catalogSchema.writeToStream(loadCatalog(), writable, {
+      rootElement: 'catalog'
+    }).catch((error) => {
+      void writable.abort(error);
+    });
+
+    return new Response(readable, {
+      headers: {
+        'Content-Type': 'application/xml; charset=utf-8'
+      }
+    });
+  });
 ```
 
 ### Pretty Printing
@@ -321,12 +427,12 @@ const xml = schema.writeSync(data, { rootElement: 'root' });
 
 ```typescript
 const userSchema = x.object({
-  id: x.number().xpath('/user/@id').writer({ attribute: 'id' }),
+  id: x.number().xpath('/user/@id').writer({ asAttribute: 'id' }),
   username: x.string().xpath('/user/username').writer({ element: 'username' }),
   email: x.string().xpath('/user/email').writer({ element: 'email' }),
   active: x.string()
     .xpath('/user/@active')
-    .writer({ attribute: 'active' })
+    .writer({ asAttribute: 'active' })
     .transform(v => v === 'true')  // 파싱: 문자열 -> 불린
 });
 
@@ -374,7 +480,7 @@ const xml = schema.writeSync('Text with <tags> & "quotes"', { rootElement: 'root
 ```typescript
 // ✅ 양방향으로 작동하는 스키마
 const schema = x.object({
-  id: x.number().xpath('/@id').writer({ attribute: 'id' }),
+  id: x.number().xpath('/@id').writer({ asAttribute: 'id' }),
   name: x.string().xpath('/name').writer({ element: 'name' })
 });
 ```

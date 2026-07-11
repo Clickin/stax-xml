@@ -227,7 +227,7 @@ class Writer {
   constructor(stream: WritableStream<Uint8Array>, options?: WriterOptions)
 
   // 문서 레벨 메서드
-  writeStartDocument(version?: string, encoding?: string): Promise<this>
+  writeStartDocument(version?: string, encoding?: string): Promise<this> // UTF-8 only
   writeEndDocument(): Promise<void>
 
   // 엘리먼트 작성 메서드
@@ -246,18 +246,20 @@ class Writer {
 }
 
 interface WriterOptions {
-  encoding?: string; // 기본값: 'utf-8'
+  encoding?: string; // 기본값: 'utf-8'; 다른 encoding은 reject
   prettyPrint?: boolean; // 기본값: false
   indentString?: string; // 기본값: '  '
   addEntities?: { entity: string, value: string }[];
   autoEncodeEntities?: boolean; // 기본값: true
-  namespaces?: NamespaceDeclaration[];
   bufferSize?: number; // 기본값: 16384
-  highWaterMark?: number; // 기본값: 65536
   flushThreshold?: number; // 기본값: 0.8
   enableAutoFlush?: boolean; // 기본값: true
 }
 ```
+
+Web platform `TextEncoder`는 UTF-8-only이므로 `Writer`는 항상 UTF-8 byte를
+출력합니다. Constructor와 `writeStartDocument()`는 XML declaration과 실제 byte가
+불일치하지 않도록 다른 encoding을 reject합니다.
 
 #### 인터페이스
 
@@ -276,10 +278,6 @@ interface AttributeInfo {
   uri?: string;
 }
 
-interface NamespaceDeclaration {
-  prefix?: string;
-  uri: string;
-}
 ```
 
 ### 🚀 Writer를 언제 사용해야 할까요?
