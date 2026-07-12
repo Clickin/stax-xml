@@ -1,18 +1,5 @@
 import { defineConfig } from 'tsdown';
 
-// Bundle private workspace packages into the public dist so the packed
-// output contains zero runtime imports from stax-xml-core/sync/async/converter.
-const bundleWorkspace = {
-  deps: {
-    alwaysBundle: [
-      'stax-xml-core',
-      'stax-xml-sync',
-      'stax-xml-async',
-      'stax-xml-converter',
-    ],
-  },
-};
-
 export default defineConfig([
   // Build main index separately to prevent chunk splitting
   {
@@ -23,7 +10,6 @@ export default defineConfig([
     outDir: 'dist',
     logLevel: 'error',
     minify: true,
-    ...bundleWorkspace,
   },
   // Build the converter subpath separately to prevent chunk splitting.
   {
@@ -37,6 +23,5 @@ export default defineConfig([
     platform: "neutral",
     logLevel: 'error',
     minify: true,
-    ...bundleWorkspace,
   }
 ]);

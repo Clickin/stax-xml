@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { x } from '../../../stax-xml-converter/src/converter/index.js';
+import { x } from '../../src/converter/converter/index.js';
 
 describe('Object Schema Position and Write Tests', () => {
   describe('_parseText Method', () => {

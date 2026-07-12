@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { x } from '../../../stax-xml-converter/src/index.js';
+import { x } from '../../src/converter/index.js';
 import { XmlEventType, type AnyXmlEvent } from 'stax-xml-core';
 
 describe('streaming-only converter', () => {

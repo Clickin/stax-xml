@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { x } from '../../../stax-xml-converter/src/converter/index.js';
+import { x } from '../../src/converter/converter/index.js';
 
 describe('Parser Internal Helper Methods Coverage', () => {
   describe('decodeText with trimText option', () => {

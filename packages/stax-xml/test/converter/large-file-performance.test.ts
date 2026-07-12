@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { x } from '../../../stax-xml-converter/src/converter/index.js';
+import { x } from '../../src/converter/converter/index.js';
 
 describe('Large File Performance Benchmarks', () => {
   it('should maintain performance with various data sizes', () => {

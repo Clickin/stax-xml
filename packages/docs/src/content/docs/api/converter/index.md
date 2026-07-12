@@ -13,7 +13,7 @@ description: API reference for stax-xml
 
 ### XmlParseError
 
-Defined in: index.d.ts:11
+Defined in: errors.ts:6
 
 XML parse error with detailed issue information
 
@@ -27,7 +27,7 @@ XML parse error with detailed issue information
 
 > **new XmlParseError**(`issues`): [`XmlParseError`](#xmlparseerror)
 
-Defined in: index.d.ts:20
+Defined in: errors.ts:16
 
 ###### Parameters
 
@@ -49,7 +49,7 @@ Defined in: index.d.ts:20
 
 > **issues**: `object`[]
 
-Defined in: index.d.ts:15
+Defined in: errors.ts:10
 
 List of validation issues
 
@@ -69,7 +69,7 @@ List of validation issues
 
 ### ParseOptions
 
-Defined in: index.d.ts:201
+Defined in: types.ts:10
 
 Parse options for XML converter
 
@@ -79,7 +79,7 @@ Parse options for XML converter
 
 > `optional` **trimText?**: `boolean`
 
-Defined in: index.d.ts:206
+Defined in: types.ts:15
 
 Whether to trim whitespace from text content
 
@@ -93,7 +93,7 @@ true
 
 > `optional` **documentMode?**: `DocumentMode`
 
-Defined in: index.d.ts:212
+Defined in: types.ts:22
 
 XML document conformance mode.
 
@@ -107,7 +107,7 @@ XML document conformance mode.
 
 > `optional` **maxDepth?**: `number`
 
-Defined in: index.d.ts:217
+Defined in: types.ts:28
 
 Maximum XML depth
 
@@ -121,7 +121,7 @@ Infinity
 
 > `optional` **maxEvents?**: `number`
 
-Defined in: index.d.ts:222
+Defined in: types.ts:34
 
 Maximum number of events to process
 
@@ -135,7 +135,7 @@ Infinity
 
 ### XmlStringOptions
 
-Defined in: index.d.ts:229
+Defined in: types.ts:43
 
 Options for string schema
 
@@ -145,7 +145,7 @@ Options for string schema
 
 > `optional` **xpath?**: `string`
 
-Defined in: index.d.ts:233
+Defined in: types.ts:47
 
 XPath expression to locate the element
 
@@ -153,7 +153,7 @@ XPath expression to locate the element
 
 ### XmlNumberOptions
 
-Defined in: index.d.ts:240
+Defined in: types.ts:56
 
 Options for number schema
 
@@ -163,7 +163,7 @@ Options for number schema
 
 > `optional` **xpath?**: `string`
 
-Defined in: index.d.ts:244
+Defined in: types.ts:60
 
 XPath expression to locate the element
 
@@ -171,7 +171,7 @@ XPath expression to locate the element
 
 > `optional` **min?**: `number`
 
-Defined in: index.d.ts:248
+Defined in: types.ts:65
 
 Minimum value
 
@@ -179,7 +179,7 @@ Minimum value
 
 > `optional` **max?**: `number`
 
-Defined in: index.d.ts:252
+Defined in: types.ts:70
 
 Maximum value
 
@@ -187,7 +187,7 @@ Maximum value
 
 > `optional` **int?**: `boolean`
 
-Defined in: index.d.ts:257
+Defined in: types.ts:76
 
 Whether the number must be an integer
 
@@ -201,7 +201,7 @@ false
 
 ### XmlObjectOptions
 
-Defined in: index.d.ts:264
+Defined in: types.ts:84
 
 Options for object schema
 
@@ -211,7 +211,7 @@ Options for object schema
 
 > `optional` **xpath?**: `string`
 
-Defined in: index.d.ts:268
+Defined in: types.ts:88
 
 XPath expression to locate the element
 
@@ -219,7 +219,7 @@ XPath expression to locate the element
 
 ### XmlElementWriteConfig
 
-Defined in: index.d.ts:275
+Defined in: types.ts:97
 
 Writer configuration for XML element
 
@@ -229,7 +229,7 @@ Writer configuration for XML element
 
 > **element**: `string`
 
-Defined in: index.d.ts:279
+Defined in: types.ts:101
 
 Element name (required)
 
@@ -237,7 +237,7 @@ Element name (required)
 
 > `optional` **asAttribute?**: `string`
 
-Defined in: index.d.ts:284
+Defined in: types.ts:107
 
 Write as attribute instead of element
 Value is the attribute name
@@ -246,7 +246,7 @@ Value is the attribute name
 
 > `optional` **namespace?**: `object`
 
-Defined in: index.d.ts:288
+Defined in: types.ts:112
 
 Namespace configuration
 
@@ -266,7 +266,7 @@ Namespace URI (e.g., 'http://purl.org/dc/elements/1.1/')
 
 > `optional` **cdata?**: `boolean`
 
-Defined in: index.d.ts:302
+Defined in: types.ts:128
 
 Wrap content in CDATA section
 
@@ -280,7 +280,7 @@ false
 
 > `optional` **selfClosing?**: `boolean`
 
-Defined in: index.d.ts:307
+Defined in: types.ts:134
 
 Use self-closing tag for empty elements
 
@@ -294,7 +294,7 @@ false
 
 > `optional` **comment?**: `string`
 
-Defined in: index.d.ts:311
+Defined in: types.ts:139
 
 Add XML comment before element
 
@@ -302,7 +302,7 @@ Add XML comment before element
 
 ### XmlWriteOptions
 
-Defined in: index.d.ts:318
+Defined in: types.ts:147
 
 Options for XML writer
 
@@ -312,7 +312,7 @@ Options for XML writer
 
 > `optional` **prettyPrint?**: `boolean`
 
-Defined in: index.d.ts:323
+Defined in: types.ts:152
 
 Format output with indentation
 
@@ -326,7 +326,7 @@ false
 
 > `optional` **indentString?**: `string`
 
-Defined in: index.d.ts:328
+Defined in: types.ts:158
 
 Indentation string
 
@@ -340,7 +340,7 @@ Indentation string
 
 > `optional` **encoding?**: `"utf-8"` \| `"UTF-8"`
 
-Defined in: index.d.ts:333
+Defined in: types.ts:164
 
 Text encoding for output
 
@@ -354,7 +354,7 @@ Text encoding for output
 
 > `optional` **rootElement?**: `string`
 
-Defined in: index.d.ts:338
+Defined in: types.ts:170
 
 Root element name
 If not provided, no root element wrapper is added
@@ -363,7 +363,7 @@ If not provided, no root element wrapper is added
 
 > `optional` **includeDeclaration?**: `boolean`
 
-Defined in: index.d.ts:343
+Defined in: types.ts:176
 
 Include XML declaration
 
@@ -377,7 +377,7 @@ true
 
 > `optional` **xmlVersion?**: `string`
 
-Defined in: index.d.ts:348
+Defined in: types.ts:182
 
 XML version for declaration
 
@@ -389,9 +389,9 @@ XML version for declaration
 
 ##### writer?
 
-> `optional` **writer?**: `WriterSync` \| `WriterSyncSink` \| `Writer`
+> `optional` **writer?**: `Writer` \| `WriterSync` \| `WriterSyncSink`
 
-Defined in: index.d.ts:355
+Defined in: types.ts:190
 
 Custom writer instance
 - WriterSync: for writeSync() method
@@ -400,11 +400,21 @@ Custom writer instance
 
 ## Type Aliases
 
+### ParseInput
+
+> **ParseInput** = `string` \| `Uint8Array` \| `Iterable`\<`Uint8Array`\> \| `Iterable`\<readonly `Uint8Array`[]\> \| `Iterable`\<`AnyXmlEvent`\> \| `AsyncIterable`\<`Uint8Array`\> \| `AsyncIterable`\<readonly `Uint8Array`[]\> \| `AsyncIterable`\<`AnyXmlEvent`\> \| `ReadableStream`\<`Uint8Array`\>
+
+Defined in: base.ts:11
+
+Parse input type for XML text, byte chunks, or materialized StAX events.
+
+***
+
 ### ParseResult
 
 > **ParseResult**\<`T`\> = \{ `success`: `true`; `data`: `T`; \} \| \{ `success`: `false`; `error`: [`XmlParseError`](#xmlparseerror); \}
 
-Defined in: index.d.ts:31
+Defined in: errors.ts:28
 
 Parse result type for safe parsing operations
 
@@ -416,21 +426,11 @@ Parse result type for safe parsing operations
 
 ***
 
-### ParseInput
-
-> **ParseInput** = `string` \| `Uint8Array` \| `Iterable`\<`Uint8Array`\> \| `Iterable`\<readonly `Uint8Array`[]\> \| `Iterable`\<`AnyXmlEvent`\> \| `AsyncIterable`\<`Uint8Array`\> \| `AsyncIterable`\<readonly `Uint8Array`[]\> \| `AsyncIterable`\<`AnyXmlEvent`\> \| `ReadableStream`\<`Uint8Array`\>
-
-Defined in: index.d.ts:383
-
-Parse input type for XML text, byte chunks, or materialized StAX events.
-
-***
-
 ### Infer
 
 > **Infer**\<`T`\> = `T`\[`"_output"`\]
 
-Defined in: index.d.ts:565
+Defined in: index.ts:58
 
 #### Type Parameters
 
@@ -444,6 +444,6 @@ Defined in: index.d.ts:565
 
 > `const` **x**: `XmlBuilder`
 
-Defined in: index.d.ts:562
+Defined in: XmlBuilder.ts:58
 
 Singleton builder instance

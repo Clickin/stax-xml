@@ -5,7 +5,7 @@ import { dirname, join, normalize, relative, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { pipeline } from 'node:stream/promises';
 import { get } from 'node:https';
-import { EventReaderSync } from 'stax-xml-sync';
+import { EventReaderSync } from '../src/sync/index.js';
 
 const XMLTS_URL = 'https://www.w3.org/XML/Test/xmlts20130923.zip';
 const XMLTS_SHA256 = 'f9510b3532926e1b4c2e54855b021e4b8a66ec98a5337dcf4ff07e8a41968deb';

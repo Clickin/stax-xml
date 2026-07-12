@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { x } from '../../../stax-xml-converter/src/converter/index.js';
-import { XmlParseError } from '../../../stax-xml-converter/src/converter/errors.js';
+import { x } from '../../src/converter/converter/index.js';
+import { XmlParseError } from '../../src/converter/converter/errors.js';
 
 describe('Number Schema Validation', () => {
   describe('Empty Content Validation', () => {

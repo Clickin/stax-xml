@@ -30,7 +30,7 @@
     "@types/node": "^24.12.2",
     "@vitest/coverage-v8": "^4.1.4",
     "@vitest/ui": "^4.1.4",
-    "tsdown": "^0.21.9",
+    "tsdown": "^0.22.5",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.4"

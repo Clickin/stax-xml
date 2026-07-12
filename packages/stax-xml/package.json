@@ -7,11 +7,7 @@
     "url": "https://github.com/Clickin/stax-xml"
   },
   "devDependencies": {
-    "stax-xml-core": "workspace:*",
-    "stax-xml-sync": "workspace:*",
-    "stax-xml-async": "workspace:*",
-    "stax-xml-converter": "workspace:*",
-    "tsdown": "^0.21.9",
+    "tsdown": "^0.22.5",
     "typedoc": "^0.28.19",
     "typedoc-plugin-markdown": "^4.11.0",
     "typescript": "^6.0.3",

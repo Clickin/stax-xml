@@ -3,6 +3,10 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
+    "paths": {
+      "@stax-xml/converter": ["./src/converter/index.ts"],
+      "@stax-xml/*": ["./src/*"]
+    },
     "types": ["node"],
     "noEmit": false
   },

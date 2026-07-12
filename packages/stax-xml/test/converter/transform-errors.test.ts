@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { x } from '../../../stax-xml-converter/src/converter/index.js';
-import { XmlTransformSchema } from '../../../stax-xml-converter/src/converter/XmlTransformSchema.js';
-import { XmlSchemaBase } from '../../../stax-xml-converter/src/converter/base.js';
-import { SchemaType } from '../../../stax-xml-converter/src/converter/types.js';
+import { x } from '../../src/converter/converter/index.js';
+import { XmlTransformSchema } from '../../src/converter/converter/XmlTransformSchema.js';
+import { XmlSchemaBase } from '../../src/converter/converter/base.js';
+import { SchemaType } from '../../src/converter/converter/types.js';
 
 describe('Transform Schema Error Paths', () => {
   describe('Missing Method Errors', () => {
