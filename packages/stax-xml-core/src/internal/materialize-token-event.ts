@@ -1,26 +1,45 @@
 import { TokenCursor } from '../TokenCursor.js';
 import { XmlEventType, type AnyXmlEvent, type EventAttribute, type XmlEventType as XmlEventTypeValue } from '../types.js';
 
+function eventShape(
+  type: XmlEventTypeValue,
+  name: string | undefined = undefined,
+  localName: string | undefined = undefined,
+  prefix: string | undefined = undefined,
+  namespaceURI: string | undefined = undefined,
+  attributes: EventAttribute[] | undefined = undefined,
+  value: string | undefined = undefined,
+  target: string | undefined = undefined,
+  data: string | undefined = undefined,
+): AnyXmlEvent {
+  // Keep one runtime shape for all EventReader events. The public TypeScript
+  // discriminated union remains precise; this cast is intentionally internal.
+  return {
+    type,
+    name,
+    localName,
+    prefix,
+    namespaceURI,
+    attributes,
+    value,
+    target,
+    data,
+  } as unknown as AnyXmlEvent;
+}
+
 /** @internal Materialize one stable event from the cursor's current token. */
 export function materializeTokenEvent(cursor: TokenCursor, type: XmlEventTypeValue = cursor.eventType()): AnyXmlEvent {
   if (type === XmlEventType.START_ELEMENT) {
     const count = cursor.attributeCount();
     const attributes = new Array<EventAttribute>(count);
     for (let index = 0; index < count; index++) attributes[index] = cursor.attribute(index)!;
-    return {
-      type,
-      name: cursor.name()!,
-      localName: cursor.localName()!,
-      prefix: cursor.prefix(),
-      namespaceURI: cursor.namespaceURI(),
-      attributes,
-    };
+    return eventShape(type, cursor.name()!, cursor.localName()!, cursor.prefix(), cursor.namespaceURI(), attributes);
   }
   if (type === XmlEventType.END_ELEMENT) {
-    return { type, name: cursor.name()!, localName: cursor.localName()!, prefix: cursor.prefix(), namespaceURI: cursor.namespaceURI() };
+    return eventShape(type, cursor.name()!, cursor.localName()!, cursor.prefix(), cursor.namespaceURI());
   }
-  if (type === XmlEventType.CHARACTERS || type === XmlEventType.CDATA) return { type, value: cursor.text()! };
-  if (type === XmlEventType.COMMENT || type === XmlEventType.DTD) return { type, value: cursor.text()! };
-  if (type === XmlEventType.PROCESSING_INSTRUCTION) return { type, target: cursor.name()!, data: cursor.text()! };
-  return { type };
+  if (type === XmlEventType.CHARACTERS || type === XmlEventType.CDATA) return eventShape(type, undefined, undefined, undefined, undefined, undefined, cursor.text()!);
+  if (type === XmlEventType.COMMENT || type === XmlEventType.DTD) return eventShape(type, undefined, undefined, undefined, undefined, undefined, cursor.text()!);
+  if (type === XmlEventType.PROCESSING_INSTRUCTION) return eventShape(type, undefined, undefined, undefined, undefined, undefined, undefined, cursor.name()!, cursor.text()!);
+  return eventShape(type);
 }
