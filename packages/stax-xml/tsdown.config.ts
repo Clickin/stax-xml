@@ -18,7 +18,7 @@ export default defineConfig([
   {
     entry: ['src/index.ts'],
     format: ['esm'],
-    dts: true,
+    dts: { eager: true },
     platform: "neutral",
     outDir: 'dist',
     logLevel: 'error',
@@ -31,7 +31,7 @@ export default defineConfig([
       converter: 'src/converter.ts',
     },
     format: ['esm'],
-    dts: true,
+    dts: { eager: true },
     outDir: 'dist',
     clean: false, // Don't clean to preserve index.* files
     platform: "neutral",

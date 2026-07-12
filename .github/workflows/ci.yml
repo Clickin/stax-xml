@@ -35,6 +35,9 @@ jobs:
       - id: install-deps
         name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - id: build
+        name: Build packages
+        run: pnpm build
       - id: test
         name: Run test
         run: pnpm test
