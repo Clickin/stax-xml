@@ -1,12 +1,18 @@
 {
-  "generatedAt": "2026-05-05T01:35:27.589Z",
+  "generatedAt": "2026-07-12T02:32:08.827Z",
   "environment": {
-    "cpuName": "13th Gen Intel(R) Core(TM) i5-13600K",
-    "platform": "win32-x64",
-    "node": "v24.15.0"
+    "cpuName": "Apple M4",
+    "platform": "darwin-arm64",
+    "node": "v24.15.0",
+    "baselineMachine": {
+      "label": "Apple M4 Apple Silicon",
+      "cpuNamePattern": "Apple M4",
+      "platform": "darwin-arm64"
+    },
+    "matchesBaseline": true
   },
   "fixture": {
-    "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\runtime-comparison-16mib.xml",
+    "path": "/Users/senghyunjo/github/stax-xml/packages/benchmark/test-data/runtime-comparison-16mib.xml",
     "sizeBytes": 16777038,
     "sizeMiB": 15.99983024597168
   },
@@ -26,7 +32,7 @@
         "version": "24.15.0"
       },
       "file": {
-        "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\runtime-comparison-16mib.xml",
+        "path": "/Users/senghyunjo/github/stax-xml/packages/benchmark/test-data/runtime-comparison-16mib.xml",
         "sizeBytes": 16777038,
         "sizeMiB": 15.99983024597168
       },
@@ -38,69 +44,69 @@
         {
           "id": "public-sync-full-string",
           "status": "ok",
-          "avgMs": 166.50373333333332,
-          "minMs": 162.86579999999992,
-          "maxMs": 171.34670000000003,
-          "mibPerSec": 96.09292191629545,
-          "eventCount": 967967,
-          "checksum": -746772258,
-          "peakRssBytes": 100085760,
-          "peakHeapUsedBytes": 25773024,
+          "avgMs": 136.63540266666666,
+          "minMs": 135.96770800000002,
+          "maxMs": 137.89166699999998,
+          "mibPerSec": 117.09871624563208,
+          "eventCount": 1024909,
+          "checksum": -26688828,
+          "peakRssBytes": 120766464,
+          "peakHeapUsedBytes": 22386328,
           "samplesMs": [
-            171.34670000000003,
-            162.86579999999992,
-            165.29869999999994
+            137.89166699999998,
+            136.046833,
+            135.96770800000002
           ]
         },
         {
-          "id": "stream-sync-index-full-string",
+          "id": "cursor-sync-full-string",
           "status": "ok",
-          "avgMs": 151.6603999999999,
-          "minMs": 147.2616999999998,
-          "maxMs": 159.09619999999995,
-          "mibPerSec": 105.49774526489243,
-          "eventCount": 967967,
-          "checksum": -746772258,
-          "peakRssBytes": 140820480,
-          "peakHeapUsedBytes": 24391072,
+          "avgMs": 156.14583333333334,
+          "minMs": 155.84349999999995,
+          "maxMs": 156.36400000000003,
+          "mibPerSec": 102.46722505759047,
+          "eventCount": 1024909,
+          "checksum": 113372214,
+          "peakRssBytes": 134299648,
+          "peakHeapUsedBytes": 24990472,
           "samplesMs": [
-            159.09619999999995,
-            148.62329999999997,
-            147.2616999999998
+            156.36400000000003,
+            155.84349999999995,
+            156.23000000000002
           ]
         },
         {
           "id": "event-count-only",
           "status": "ok",
-          "avgMs": 133.0887999999999,
-          "minMs": 131.88099999999986,
-          "maxMs": 134.46839999999997,
-          "mibPerSec": 120.21920887386236,
-          "eventCount": 967967,
-          "checksum": 2078515073,
-          "peakRssBytes": 100827136,
-          "peakHeapUsedBytes": 21487168,
+          "avgMs": 131.57569400000003,
+          "minMs": 116.32466599999998,
+          "maxMs": 151.877166,
+          "mibPerSec": 121.60171654478735,
+          "eventCount": 1024909,
+          "checksum": 1485326873,
+          "peakRssBytes": 134955008,
+          "peakHeapUsedBytes": 29329848,
           "samplesMs": [
-            131.88099999999986,
-            134.46839999999997,
-            132.91699999999992
+            151.877166,
+            126.52525000000014,
+            116.32466599999998
           ]
         },
         {
           "id": "event-full-string",
           "status": "ok",
-          "avgMs": 186.60176666666675,
-          "minMs": 185.0662000000002,
-          "maxMs": 189.3518999999999,
-          "mibPerSec": 85.7431873866057,
-          "eventCount": 967967,
-          "checksum": 1007437756,
-          "peakRssBytes": 101036032,
-          "peakHeapUsedBytes": 24150008,
+          "avgMs": 145.88112533333333,
+          "minMs": 143.41204200000016,
+          "maxMs": 150.79445899999996,
+          "mibPerSec": 109.67717865770928,
+          "eventCount": 1024909,
+          "checksum": 1078379828,
+          "peakRssBytes": 135036928,
+          "peakHeapUsedBytes": 24792304,
           "samplesMs": [
-            189.3518999999999,
-            185.38720000000012,
-            185.0662000000002
+            150.79445899999996,
+            143.41204200000016,
+            143.43687499999987
           ]
         }
       ],
@@ -112,7 +118,7 @@
         "version": "1.3.13"
       },
       "file": {
-        "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\runtime-comparison-16mib.xml",
+        "path": "/Users/senghyunjo/github/stax-xml/packages/benchmark/test-data/runtime-comparison-16mib.xml",
         "sizeBytes": 16777038,
         "sizeMiB": 15.99983024597168
       },
@@ -124,69 +130,69 @@
         {
           "id": "public-sync-full-string",
           "status": "ok",
-          "avgMs": 231.1164666666667,
-          "minMs": 223.16090000000003,
-          "maxMs": 242.2654,
-          "mibPerSec": 69.22843048240185,
-          "eventCount": 967967,
-          "checksum": -746772258,
-          "peakRssBytes": 268947456,
-          "peakHeapUsedBytes": 17589551,
+          "avgMs": 149.877805,
+          "minMs": 140.87091600000002,
+          "maxMs": 160.661833,
+          "mibPerSec": 106.75249911734215,
+          "eventCount": 1024909,
+          "checksum": -26688828,
+          "peakRssBytes": 175030272,
+          "peakHeapUsedBytes": 17685976,
           "samplesMs": [
-            223.16090000000003,
-            227.92310000000003,
-            242.2654
+            140.87091600000002,
+            160.661833,
+            148.100666
           ]
         },
         {
-          "id": "stream-sync-index-full-string",
+          "id": "cursor-sync-full-string",
           "status": "ok",
-          "avgMs": 115.36023333333333,
-          "minMs": 108.68309999999997,
-          "maxMs": 123.56189999999992,
-          "mibPerSec": 138.6945031546545,
-          "eventCount": 967967,
-          "checksum": -746772258,
-          "peakRssBytes": 373207040,
-          "peakHeapUsedBytes": 70512743,
+          "avgMs": 114.97331966666668,
+          "minMs": 103.39379100000008,
+          "maxMs": 136.46608400000002,
+          "mibPerSec": 139.16124447270687,
+          "eventCount": 1024909,
+          "checksum": 113372214,
+          "peakRssBytes": 231342080,
+          "peakHeapUsedBytes": 34645186,
           "samplesMs": [
-            123.56189999999992,
-            108.68309999999997,
-            113.83570000000009
+            136.46608400000002,
+            105.06008399999996,
+            103.39379100000008
           ]
         },
         {
           "id": "event-count-only",
           "status": "ok",
-          "avgMs": 193.80106666666657,
-          "minMs": 189.5346999999997,
-          "maxMs": 198.2691000000002,
-          "mibPerSec": 82.55800920585759,
-          "eventCount": 967967,
-          "checksum": 2078515073,
-          "peakRssBytes": 359911424,
-          "peakHeapUsedBytes": 18077888,
+          "avgMs": 99.10531966666674,
+          "minMs": 97.96629200000007,
+          "maxMs": 99.97583400000008,
+          "mibPerSec": 161.4426985330949,
+          "eventCount": 1024909,
+          "checksum": 1485326873,
+          "peakRssBytes": 267206656,
+          "peakHeapUsedBytes": 40238449,
           "samplesMs": [
-            193.59939999999983,
-            198.2691000000002,
-            189.5346999999997
+            99.97583400000008,
+            97.96629200000007,
+            99.3738330000001
           ]
         },
         {
           "id": "event-full-string",
           "status": "ok",
-          "avgMs": 327.3844666666666,
-          "minMs": 308.06849999999986,
-          "maxMs": 338.10019999999986,
-          "mibPerSec": 48.87168413601689,
-          "eventCount": 967967,
-          "checksum": 1007437756,
-          "peakRssBytes": 269512704,
-          "peakHeapUsedBytes": 18066500,
+          "avgMs": 200.54855533333344,
+          "minMs": 200.12579100000016,
+          "maxMs": 200.8972920000001,
+          "mibPerSec": 79.78033159789273,
+          "eventCount": 1024909,
+          "checksum": 1078379828,
+          "peakRssBytes": 267206656,
+          "peakHeapUsedBytes": 17846034,
           "samplesMs": [
-            308.06849999999986,
-            338.10019999999986,
-            335.9847
+            200.62258300000008,
+            200.12579100000016,
+            200.8972920000001
           ]
         }
       ],
@@ -195,10 +201,10 @@
     {
       "runtime": {
         "id": "deno",
-        "version": "2.7.13 (v8 14.7.173.20-rusty)"
+        "version": "2.7.14 (v8 14.7.173.20-rusty)"
       },
       "file": {
-        "path": "G:\\programming\\stax-xml\\packages\\benchmark\\test-data\\runtime-comparison-16mib.xml",
+        "path": "/Users/senghyunjo/github/stax-xml/packages/benchmark/test-data/runtime-comparison-16mib.xml",
         "sizeBytes": 16777038,
         "sizeMiB": 15.99983024597168
       },
@@ -210,73 +216,255 @@
         {
           "id": "public-sync-full-string",
           "status": "ok",
-          "avgMs": 171.50803333333332,
-          "minMs": 160.29430000000002,
-          "maxMs": 190.71889999999996,
-          "mibPerSec": 93.28910101181859,
-          "eventCount": 967967,
-          "checksum": -746772258,
-          "peakRssBytes": 99872768,
-          "peakHeapUsedBytes": 28791096,
+          "avgMs": 140.28094466666667,
+          "minMs": 128.28120900000002,
+          "maxMs": 164.17933299999999,
+          "mibPerSec": 114.05562091123795,
+          "eventCount": 1024909,
+          "checksum": -26688828,
+          "peakRssBytes": 134332416,
+          "peakHeapUsedBytes": 29169136,
           "samplesMs": [
-            163.51090000000002,
-            160.29430000000002,
-            190.71889999999996
+            128.28120900000002,
+            128.382292,
+            164.17933299999999
           ]
         },
         {
-          "id": "stream-sync-index-full-string",
+          "id": "cursor-sync-full-string",
           "status": "ok",
-          "avgMs": 143.94023333333334,
-          "minMs": 128.32410000000004,
-          "maxMs": 159.4858999999999,
-          "mibPerSec": 111.15606717768517,
-          "eventCount": 967967,
-          "checksum": -746772258,
-          "peakRssBytes": 160813056,
-          "peakHeapUsedBytes": 29117568,
+          "avgMs": 138.11976366666667,
+          "minMs": 125.63858299999993,
+          "maxMs": 158.58995800000002,
+          "mibPerSec": 115.84026660069519,
+          "eventCount": 1024909,
+          "checksum": 113372214,
+          "peakRssBytes": 148471808,
+          "peakHeapUsedBytes": 36674064,
           "samplesMs": [
-            144.01070000000004,
-            128.32410000000004,
-            159.4858999999999
+            130.13075000000003,
+            125.63858299999993,
+            158.58995800000002
           ]
         },
         {
           "id": "event-count-only",
           "status": "ok",
-          "avgMs": 132.1870333333333,
-          "minMs": 129.4706000000001,
-          "maxMs": 133.83359999999993,
-          "mibPerSec": 121.03933224392169,
-          "eventCount": 967967,
-          "checksum": 2078515073,
-          "peakRssBytes": 161259520,
-          "peakHeapUsedBytes": 28944608,
+          "avgMs": 100.40751399999992,
+          "minMs": 96.31891700000006,
+          "maxMs": 107.92854199999988,
+          "mibPerSec": 159.34893324788115,
+          "eventCount": 1024909,
+          "checksum": 1485326873,
+          "peakRssBytes": 148619264,
+          "peakHeapUsedBytes": 34730816,
           "samplesMs": [
-            129.4706000000001,
-            133.25689999999986,
-            133.83359999999993
+            96.97508299999981,
+            96.31891700000006,
+            107.92854199999988
           ]
         },
         {
           "id": "event-full-string",
           "status": "ok",
-          "avgMs": 160.52686666666645,
-          "minMs": 158.04239999999982,
-          "maxMs": 163.5881999999997,
-          "mibPerSec": 99.67073162397966,
-          "eventCount": 967967,
-          "checksum": 1007437756,
-          "peakRssBytes": 161267712,
-          "peakHeapUsedBytes": 28988368,
+          "avgMs": 126.22426366666666,
+          "minMs": 125.28108300000008,
+          "maxMs": 127.86595800000009,
+          "mibPerSec": 126.75716840166379,
+          "eventCount": 1024909,
+          "checksum": 1078379828,
+          "peakRssBytes": 148783104,
+          "peakHeapUsedBytes": 36379192,
           "samplesMs": [
-            158.04239999999982,
-            163.5881999999997,
-            159.94999999999982
+            127.86595800000009,
+            125.52574999999979,
+            125.28108300000008
           ]
         }
       ],
       "status": "ok"
+    }
+  ],
+  "comparisons": [
+    {
+      "workload": "public-sync-full-string",
+      "baselineRuntime": "node",
+      "parity": {
+        "status": "ok",
+        "eventCount": 1024909,
+        "checksum": -26688828,
+        "mismatches": []
+      },
+      "runtimes": [
+        {
+          "runtime": "node",
+          "version": "24.15.0",
+          "status": "ok",
+          "mibPerSec": 117.09871624563208,
+          "avgMs": 136.63540266666666,
+          "eventCount": 1024909,
+          "checksum": -26688828,
+          "peakHeapUsedBytes": 22386328,
+          "relativeToBaseline": 1
+        },
+        {
+          "runtime": "bun",
+          "version": "1.3.13",
+          "status": "ok",
+          "mibPerSec": 106.75249911734215,
+          "avgMs": 149.877805,
+          "eventCount": 1024909,
+          "checksum": -26688828,
+          "peakHeapUsedBytes": 17685976,
+          "relativeToBaseline": 0.911645341127505
+        },
+        {
+          "runtime": "deno",
+          "version": "2.7.14 (v8 14.7.173.20-rusty)",
+          "status": "ok",
+          "mibPerSec": 114.05562091123795,
+          "avgMs": 140.28094466666667,
+          "eventCount": 1024909,
+          "checksum": -26688828,
+          "peakHeapUsedBytes": 29169136,
+          "relativeToBaseline": 0.9740125645100091
+        }
+      ]
+    },
+    {
+      "workload": "cursor-sync-full-string",
+      "baselineRuntime": "node",
+      "parity": {
+        "status": "ok",
+        "eventCount": 1024909,
+        "checksum": 113372214,
+        "mismatches": []
+      },
+      "runtimes": [
+        {
+          "runtime": "node",
+          "version": "24.15.0",
+          "status": "ok",
+          "mibPerSec": 102.46722505759047,
+          "avgMs": 156.14583333333334,
+          "eventCount": 1024909,
+          "checksum": 113372214,
+          "peakHeapUsedBytes": 24990472,
+          "relativeToBaseline": 1
+        },
+        {
+          "runtime": "bun",
+          "version": "1.3.13",
+          "status": "ok",
+          "mibPerSec": 139.16124447270687,
+          "avgMs": 114.97331966666668,
+          "eventCount": 1024909,
+          "checksum": 113372214,
+          "peakHeapUsedBytes": 34645186,
+          "relativeToBaseline": 1.35810493935493
+        },
+        {
+          "runtime": "deno",
+          "version": "2.7.14 (v8 14.7.173.20-rusty)",
+          "status": "ok",
+          "mibPerSec": 115.84026660069519,
+          "avgMs": 138.11976366666667,
+          "eventCount": 1024909,
+          "checksum": 113372214,
+          "peakHeapUsedBytes": 36674064,
+          "relativeToBaseline": 1.1305104294137815
+        }
+      ]
+    },
+    {
+      "workload": "event-count-only",
+      "baselineRuntime": "node",
+      "parity": {
+        "status": "ok",
+        "eventCount": 1024909,
+        "checksum": 1485326873,
+        "mismatches": []
+      },
+      "runtimes": [
+        {
+          "runtime": "node",
+          "version": "24.15.0",
+          "status": "ok",
+          "mibPerSec": 121.60171654478735,
+          "avgMs": 131.57569400000003,
+          "eventCount": 1024909,
+          "checksum": 1485326873,
+          "peakHeapUsedBytes": 29329848,
+          "relativeToBaseline": 1
+        },
+        {
+          "runtime": "bun",
+          "version": "1.3.13",
+          "status": "ok",
+          "mibPerSec": 161.4426985330949,
+          "avgMs": 99.10531966666674,
+          "eventCount": 1024909,
+          "checksum": 1485326873,
+          "peakHeapUsedBytes": 40238449,
+          "relativeToBaseline": 1.3276350295074464
+        },
+        {
+          "runtime": "deno",
+          "version": "2.7.14 (v8 14.7.173.20-rusty)",
+          "status": "ok",
+          "mibPerSec": 159.34893324788115,
+          "avgMs": 100.40751399999992,
+          "eventCount": 1024909,
+          "checksum": 1485326873,
+          "peakHeapUsedBytes": 34730816,
+          "relativeToBaseline": 1.310416808048849
+        }
+      ]
+    },
+    {
+      "workload": "event-full-string",
+      "baselineRuntime": "node",
+      "parity": {
+        "status": "ok",
+        "eventCount": 1024909,
+        "checksum": 1078379828,
+        "mismatches": []
+      },
+      "runtimes": [
+        {
+          "runtime": "node",
+          "version": "24.15.0",
+          "status": "ok",
+          "mibPerSec": 109.67717865770928,
+          "avgMs": 145.88112533333333,
+          "eventCount": 1024909,
+          "checksum": 1078379828,
+          "peakHeapUsedBytes": 24792304,
+          "relativeToBaseline": 1
+        },
+        {
+          "runtime": "bun",
+          "version": "1.3.13",
+          "status": "ok",
+          "mibPerSec": 79.78033159789273,
+          "avgMs": 200.54855533333344,
+          "eventCount": 1024909,
+          "checksum": 1078379828,
+          "peakHeapUsedBytes": 17846034,
+          "relativeToBaseline": 0.7274105021143787
+        },
+        {
+          "runtime": "deno",
+          "version": "2.7.14 (v8 14.7.173.20-rusty)",
+          "status": "ok",
+          "mibPerSec": 126.75716840166379,
+          "avgMs": 126.22426366666666,
+          "eventCount": 1024909,
+          "checksum": 1078379828,
+          "peakHeapUsedBytes": 36379192,
+          "relativeToBaseline": 1.155729660016687
+        }
+      ]
     }
   ]
 }

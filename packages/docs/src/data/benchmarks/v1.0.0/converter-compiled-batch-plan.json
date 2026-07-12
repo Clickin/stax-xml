@@ -12,28 +12,28 @@
     "manual-cursor-reader-sync": {
       "id": "manual-cursor-reader-sync",
       "family": "converter",
-      "implementation": "manual CursorReaderSync object projection",
+      "implementation": "manual StreamReaderSync object projection",
       "contractScope": "catalog-records",
       "instrumentation": "materialization-counters-enabled",
       "eventCountKind": "parsed-elements",
       "fullStringParity": true,
-      "avgMs": 79.10304180000003,
-      "minMs": 78.35037499999999,
-      "maxMs": 80.22325000000001,
-      "mibPerSec": 202.26889526534183,
+      "avgMs": 133.7552747999999,
+      "minMs": 131.54274999999984,
+      "maxMs": 137.03491699999995,
+      "mibPerSec": 119.62208519206878,
       "eventCount": 139458,
       "checksum": -1845341048,
       "samplesMs": [
-        80.22325000000001,
-        78.91937499999995,
-        78.82658400000014,
-        78.35037499999999,
-        79.19562500000006
+        133.78841599999987,
+        131.54274999999984,
+        133.23366600000008,
+        133.17662499999983,
+        137.03491699999995
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 57227876.8,
-        "avgHeapTotalDeltaBytes": 3905945.6,
-        "avgRssDeltaBytes": 3827302.4
+        "avgHeapUsedDeltaBytes": 68542147.2,
+        "avgHeapTotalDeltaBytes": 4253286.4,
+        "avgRssDeltaBytes": 2313420.8
       },
       "materializationCounters": null
     },
@@ -45,23 +45,23 @@
       "instrumentation": "materialization-counters-enabled",
       "eventCountKind": "parsed-elements",
       "fullStringParity": true,
-      "avgMs": 254.90960000000004,
-      "minMs": 253.64308400000004,
-      "maxMs": 256.3595409999998,
-      "mibPerSec": 62.767682649120154,
+      "avgMs": 221.92579980000005,
+      "minMs": 219.67620800000032,
+      "maxMs": 223.85291700000016,
+      "mibPerSec": 72.09655160163202,
       "eventCount": 139458,
       "checksum": -1845341048,
       "samplesMs": [
-        254.86562500000014,
-        253.64308400000004,
-        254.35404199999994,
-        256.3595409999998,
-        255.3257080000003
+        222.63049999999998,
+        219.67620800000032,
+        221.6697909999998,
+        223.85291700000016,
+        221.79958299999998
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 42682648,
-        "avgHeapTotalDeltaBytes": 28635955.2,
-        "avgRssDeltaBytes": 3548774.4
+        "avgHeapUsedDeltaBytes": 87891324.8,
+        "avgHeapTotalDeltaBytes": 14375321.6,
+        "avgRssDeltaBytes": 3584819.2
       },
       "materializationCounters": null
     },
@@ -73,23 +73,23 @@
       "instrumentation": "materialization-counters-enabled",
       "eventCountKind": "parsed-elements",
       "fullStringParity": true,
-      "avgMs": 256.2196414,
-      "minMs": 253.97191599999996,
-      "maxMs": 258.28833299999997,
-      "mibPerSec": 62.44675384599208,
+      "avgMs": 224.52302500000013,
+      "minMs": 222.15237500000012,
+      "maxMs": 230.15504199999987,
+      "mibPerSec": 71.26255704515896,
       "eventCount": 139458,
       "checksum": -1845341048,
       "samplesMs": [
-        253.97191599999996,
-        258.28833299999997,
-        255.9509579999999,
-        257.3635409999997,
-        255.52345900000046
+        223.85466600000018,
+        223.7531670000003,
+        222.15237500000012,
+        230.15504199999987,
+        222.69987500000025
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 42327625.6,
-        "avgHeapTotalDeltaBytes": 25752371.2,
-        "avgRssDeltaBytes": 3545497.6
+        "avgHeapUsedDeltaBytes": 87301833.6,
+        "avgHeapTotalDeltaBytes": 11806310.4,
+        "avgRssDeltaBytes": 3561881.6
       },
       "materializationCounters": null
     }
@@ -97,7 +97,7 @@
   "metadata": {
     "nodeVersion": "24.15.0",
     "v8Version": "13.6.233.17-node.48",
-    "collectedAt": "2026-07-09T04:14:10.784Z",
-    "startedAt": 1783570450784
+    "collectedAt": "2026-07-12T02:36:24.937Z",
+    "startedAt": 1783823784937
   }
 }

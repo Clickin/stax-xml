@@ -1,68 +1,103 @@
 {
-  "generatedAt": "2026-05-05T02:23:55.933Z",
-  "package": "stax-xml",
-  "runtime": {
-    "name": "node",
-    "version": "24.15.0",
-    "platform": "win32-x64"
-  },
+  "label": "converter-compiled-batch-plan",
   "fixture": {
-    "bytes": 16777305,
-    "bookCount": 139458
+    "source": "buffer",
+    "sourceFile": null,
+    "sizeGiB": 0.01562508288770914,
+    "actualBytes": 16777305,
+    "rowPreview": null,
+    "rowPreviewTruncated": false
   },
-  "contract": {
-    "parser": "pure JavaScript StreamReaderSync batch path",
-    "manual": "manual object projection over StreamReaderSync eventCount plus index accessors",
-    "converterAuto": "converter schema parseSync(bytes), auto-lowered to compiled dispatch batch plan",
-    "converterCompiled": "converter schema compile().parseSync(bytes), explicit compiled dispatch batch plan",
-    "maxEvents": 20000000,
-    "native": false,
-    "wasm": false
-  },
-  "warmups": 1,
-  "runs": 5,
-  "results": [
-    {
-      "name": "manual-streamreader-sync",
-      "averageMs": 199.57768000000002,
-      "throughputMiBs": 80.16971074628265,
-      "minMs": 190.92219999999998,
-      "maxMs": 208.28870000000006,
-      "averageHeapDeltaBytes": 58678446.4,
-      "averageRssDeltaBytes": 13780582.4,
-      "summary": {
-        "books": 139458,
-        "firstTitle": "Compiled Batch Plan 0",
-        "checksum": -1845341048
-      }
+  "variants": {
+    "manual-cursor-reader-sync": {
+      "id": "manual-cursor-reader-sync",
+      "family": "converter",
+      "implementation": "manual StreamReaderSync object projection",
+      "contractScope": "catalog-records",
+      "instrumentation": "materialization-counters-enabled",
+      "eventCountKind": "parsed-elements",
+      "fullStringParity": true,
+      "avgMs": 133.7552747999999,
+      "minMs": 131.54274999999984,
+      "maxMs": 137.03491699999995,
+      "mibPerSec": 119.62208519206878,
+      "eventCount": 139458,
+      "checksum": -1845341048,
+      "samplesMs": [
+        133.78841599999987,
+        131.54274999999984,
+        133.23366600000008,
+        133.17662499999983,
+        137.03491699999995
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 68542147.2,
+        "avgHeapTotalDeltaBytes": 4253286.4,
+        "avgRssDeltaBytes": 2313420.8
+      },
+      "materializationCounters": null
     },
-    {
-      "name": "converter-auto-compiled-batch-plan",
-      "averageMs": 339.63238,
-      "throughputMiBs": 47.11001017339442,
-      "minMs": 325.5229999999997,
-      "maxMs": 347.4250000000002,
-      "averageHeapDeltaBytes": 50074126.4,
-      "averageRssDeltaBytes": 16403660.8,
-      "summary": {
-        "books": 139458,
-        "firstTitle": "Compiled Batch Plan 0",
-        "checksum": -1845341048
-      }
+    "converter-auto-compiled-batch-plan": {
+      "id": "converter-auto-compiled-batch-plan",
+      "family": "converter",
+      "implementation": "converter parseSync (auto-compiled)",
+      "contractScope": "catalog-records",
+      "instrumentation": "materialization-counters-enabled",
+      "eventCountKind": "parsed-elements",
+      "fullStringParity": true,
+      "avgMs": 221.92579980000005,
+      "minMs": 219.67620800000032,
+      "maxMs": 223.85291700000016,
+      "mibPerSec": 72.09655160163202,
+      "eventCount": 139458,
+      "checksum": -1845341048,
+      "samplesMs": [
+        222.63049999999998,
+        219.67620800000032,
+        221.6697909999998,
+        223.85291700000016,
+        221.79958299999998
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 87891324.8,
+        "avgHeapTotalDeltaBytes": 14375321.6,
+        "avgRssDeltaBytes": 3584819.2
+      },
+      "materializationCounters": null
     },
-    {
-      "name": "converter-explicit-compiled-batch-plan",
-      "averageMs": 347.6071,
-      "throughputMiBs": 46.02922344513147,
-      "minMs": 342.23189999999977,
-      "maxMs": 354.0738000000001,
-      "averageHeapDeltaBytes": 50119736,
-      "averageRssDeltaBytes": 14125465.6,
-      "summary": {
-        "books": 139458,
-        "firstTitle": "Compiled Batch Plan 0",
-        "checksum": -1845341048
-      }
+    "converter-explicit-compiled-batch-plan": {
+      "id": "converter-explicit-compiled-batch-plan",
+      "family": "converter",
+      "implementation": "converter compiled parseSync (explicit)",
+      "contractScope": "catalog-records",
+      "instrumentation": "materialization-counters-enabled",
+      "eventCountKind": "parsed-elements",
+      "fullStringParity": true,
+      "avgMs": 224.52302500000013,
+      "minMs": 222.15237500000012,
+      "maxMs": 230.15504199999987,
+      "mibPerSec": 71.26255704515896,
+      "eventCount": 139458,
+      "checksum": -1845341048,
+      "samplesMs": [
+        223.85466600000018,
+        223.7531670000003,
+        222.15237500000012,
+        230.15504199999987,
+        222.69987500000025
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 87301833.6,
+        "avgHeapTotalDeltaBytes": 11806310.4,
+        "avgRssDeltaBytes": 3561881.6
+      },
+      "materializationCounters": null
     }
-  ]
+  },
+  "metadata": {
+    "nodeVersion": "24.15.0",
+    "v8Version": "13.6.233.17-node.48",
+    "collectedAt": "2026-07-12T02:36:24.937Z",
+    "startedAt": 1783823784937
+  }
 }

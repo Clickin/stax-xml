@@ -11,7 +11,7 @@
     "includes": [
       "parser fixture series",
       "maintained Node npm XML parser comparison",
-      "CursorReader incremental size series from 1MiB to 4GiB",
+      "StreamReaderSync incremental size series from 1MiB to 4GiB",
       "runtime matrix artifact",
       "converter compiled batch-plan comparison",
       "writer small/big/async/1GiB rows"
@@ -235,7 +235,7 @@
           "heapAvgBytes": 27872.74647887324
         },
         {
-          "label": "stax-xml CursorReaderSync (JS object)",
+          "label": "stax-xml StreamReaderSync (JS object)",
           "avgNs": 116597.82935779817,
           "minNs": 103291,
           "p75Ns": 114792,
@@ -275,7 +275,7 @@
           "heapAvgBytes": 48257.938069216754
         },
         {
-          "label": "stax-xml CursorReaderSync (JS object)",
+          "label": "stax-xml StreamReaderSync (JS object)",
           "avgNs": 182254.94237918215,
           "minNs": 168458,
           "p75Ns": 178792,
@@ -315,7 +315,7 @@
           "heapAvgBytes": 59939928.5
         },
         {
-          "label": "stax-xml CursorReaderSync (JS object)",
+          "label": "stax-xml StreamReaderSync (JS object)",
           "avgNs": 37234797,
           "minNs": 35395666,
           "p75Ns": 37564833,
@@ -355,7 +355,7 @@
           "heapAvgBytes": 33743378
         },
         {
-          "label": "stax-xml CursorReaderSync (JS object)",
+          "label": "stax-xml StreamReaderSync (JS object)",
           "avgNs": 231914649.5,
           "minNs": 220068834,
           "p75Ns": 234587291,
@@ -395,7 +395,7 @@
           "heapAvgBytes": 88286.95406360424
         },
         {
-          "label": "stax-xml CursorReaderSync (JS event checksum)",
+          "label": "stax-xml StreamReaderSync (JS event checksum)",
           "avgNs": 187698.5288966725,
           "minNs": 176125,
           "p75Ns": 185209,
@@ -461,11 +461,11 @@
     },
     "stream-size": {
       "id": "stream-size",
-      "title": "CursorReader iterable cursor size comparison",
+      "title": "StreamReaderSync iterable chunks size comparison",
       "generatedAt": "2026-06-12T15:02:51.986Z",
       "cases": [
         {
-          "label": "CursorReader iterable cursor (1MiB generated chunks)",
+          "label": "StreamReaderSync iterable chunks (1MiB generated chunks)",
           "avgNs": 27095750.000000406,
           "minNs": 26163625.000001047,
           "p75Ns": 28378624.999997556,
@@ -479,7 +479,7 @@
           "throughputMiBs": 36.907705513591864
         },
         {
-          "label": "CursorReader iterable cursor (10MiB generated chunks)",
+          "label": "StreamReaderSync iterable chunks (10MiB generated chunks)",
           "avgNs": 216910027.66666985,
           "minNs": 209130958.00000155,
           "p75Ns": 232165583.0000018,
@@ -493,7 +493,7 @@
           "throughputMiBs": 46.102152035375546
         },
         {
-          "label": "CursorReader iterable cursor (100MiB generated chunks)",
+          "label": "StreamReaderSync iterable chunks (100MiB generated chunks)",
           "avgNs": 2240997457.999998,
           "minNs": 2218091707.999993,
           "p75Ns": 2255473207.9999957,
@@ -507,7 +507,7 @@
           "throughputMiBs": 44.62299531688555
         },
         {
-          "label": "CursorReader iterable cursor (1GiB generated chunks)",
+          "label": "StreamReaderSync iterable chunks (1GiB generated chunks)",
           "avgNs": 22776149972.333324,
           "minNs": 22696920416.999985,
           "p75Ns": 22838921499.999996,
@@ -521,7 +521,7 @@
           "throughputMiBs": 44.959312906247824
         },
         {
-          "label": "CursorReader iterable cursor (4GiB generated chunks)",
+          "label": "StreamReaderSync iterable chunks (4GiB generated chunks)",
           "avgNs": 83394410958.33333,
           "minNs": 83184895167.00002,
           "p75Ns": 83394410958.33333,
@@ -546,7 +546,7 @@
       },
       "cases": [
         {
-          "label": "Manual CursorReaderSync projection",
+          "label": "Manual StreamReaderSync projection",
           "avgNs": 64619258.400000006,
           "minNs": 62067167.00000004,
           "p75Ns": 64619258.400000006,

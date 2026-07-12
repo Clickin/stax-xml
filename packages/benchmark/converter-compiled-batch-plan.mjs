@@ -1,230 +1,139 @@
+#!/usr/bin/env node
+/**
+ * Converter compiled batch-plan benchmark.
+ *
+ * Rewritten to use the shared benchmark harness.
+ * Run: node --expose-gc converter-compiled-batch-plan.mjs [options]
+ *
+ * Equivalent to original. Cases extracted to harness/cases/converter-catalog.mjs.
+ *
+ * Options:
+ *   --size-mib=<n>   Target buffer size in MiB (default 16)
+ *   --runs=<n>       Measurement iterations (default 5)
+ *   --warmups=<n>    Warmup iterations (default 1)
+ *   --max-events=<n> Max events for converter parseSync (default 20000000)
+ *   --json-out=<path>
+ *   --md-out=<path>
+ */
+
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { StreamReaderSync, XmlEventType } from 'stax-xml';
 import { dirname, resolve } from 'node:path';
-import { performance } from 'node:perf_hooks';
-import { StreamEventType, StreamReaderSync } from 'stax-xml';
-import { x } from 'stax-xml/converter';
+import { runBenchmark } from './harness/run.mjs';
+import {
+  createCatalogFixture,
+  createConverterCases,
+  summarize,
+  sameSummary,
+  catalogSchema,
+  compiledCatalogSchema,
+} from './harness/cases/converter-catalog.mjs';
 
 const MIB = 1024 * 1024;
-const textEncoder = new TextEncoder();
-
-const bookSchema = x.object({
-  id: x.string().xpath('./@id'),
-  title: x.string().xpath('./title'),
-  author: x.string().xpath('./author'),
-  price: x.number().xpath('./price'),
-  featured: x.string().xpath('./featured').optional(),
-});
-
-const catalogSchema = x.object({
-  books: x.array(bookSchema, '/catalog/book'),
-  firstTitle: x.string().xpath('/catalog/book/title').optional(),
-});
-const compiledCatalogSchema = catalogSchema.compile();
 
 const args = parseArgs();
-const fixture = createCatalogFixture(args.targetBytes);
+const targetBytes = args.targetBytes;
+const fixture = createCatalogFixture(targetBytes);
 const parseOptions = { maxEvents: args.maxEvents };
 
 console.log('Converter compiled batch-plan benchmark');
 console.log(`target=${formatBytes(fixture.bytes.byteLength)}, books=${fixture.bookCount}, warmups=${args.warmups}, runs=${args.runs}, maxEvents=${args.maxEvents}`);
 
-const parity = {
-  manual: consumeManualStreamReader(fixture.bytes),
-  converterAuto: catalogSchema.parseSync(fixture.bytes, parseOptions),
-  converterCompiled: compiledCatalogSchema.parseSync(fixture.bytes, parseOptions),
-};
-const manualSummary = summarize(parity.manual);
-const autoSummary = summarize(parity.converterAuto);
-const compiledSummary = summarize(parity.converterCompiled);
+// ── Parity check (cross-variant, before measurement) ────────────
+{
+  const manualResult = consumeManualCursorReader(fixture.bytes);
+  const manualSummary = summarize(manualResult);
+  const autoSummary = summarize(catalogSchema.parseSync(fixture.bytes, parseOptions));
+  const compiledSummary = summarize(compiledCatalogSchema.parseSync(fixture.bytes, parseOptions));
 
-if (!sameSummary(manualSummary, autoSummary) || !sameSummary(manualSummary, compiledSummary)) {
-  throw new Error(`Converter parity mismatch: ${JSON.stringify({ manualSummary, autoSummary, compiledSummary })}`);
+  if (!sameSummary(manualSummary, autoSummary) || !sameSummary(manualSummary, compiledSummary)) {
+    throw new Error(`Converter parity mismatch: ${JSON.stringify({ manualSummary, autoSummary, compiledSummary })}`);
+  }
 }
 
-const cases = [
-  ['manual-streamreader-sync', () => consumeManualStreamReader(fixture.bytes)],
-  ['converter-auto-compiled-batch-plan', () => catalogSchema.parseSync(fixture.bytes, parseOptions)],
-  ['converter-explicit-compiled-batch-plan', () => compiledCatalogSchema.parseSync(fixture.bytes, parseOptions)],
-];
-
-const results = [];
-for (const [name, fn] of cases) {
-  for (let index = 0; index < args.warmups; index++) {
-    fn();
-  }
-  const samples = [];
-  for (let index = 0; index < args.runs; index++) {
-    globalThis.gc?.();
-    const before = process.memoryUsage();
-    const start = performance.now();
-    const value = fn();
-    const elapsedMs = performance.now() - start;
-    const after = process.memoryUsage();
-    samples.push({
-      elapsedMs,
-      summary: summarize(value),
-      heapDeltaBytes: after.heapUsed - before.heapUsed,
-      rssDeltaBytes: after.rss - before.rss,
-    });
-  }
-  const averageMs = average(samples.map((sample) => sample.elapsedMs));
-  results.push({
-    name,
-    averageMs,
-    throughputMiBs: fixture.bytes.byteLength / MIB / (averageMs / 1000),
-    minMs: Math.min(...samples.map((sample) => sample.elapsedMs)),
-    maxMs: Math.max(...samples.map((sample) => sample.elapsedMs)),
-    averageHeapDeltaBytes: average(samples.map((sample) => sample.heapDeltaBytes)),
-    averageRssDeltaBytes: average(samples.map((sample) => sample.rssDeltaBytes)),
-    summary: samples[0].summary,
+// ── Benchmark via harness ───────────────────────────────────────
+async function main() {
+  const result = await runBenchmark({
+    label: 'converter-compiled-batch-plan',
+    fixture: { kind: 'buffer', buffer: fixture.bytes },
+    runs: args.runs,
+    warmups: args.warmups,
+    parityCheck: true,
+    cases: createConverterCases(fixture.bytes),
   });
+
+  // Print table (same format as original)
+  for (const [id, v] of Object.entries(result.variants)) {
+    console.log(`${id.padEnd(39)} avg=${formatMs(v.avgMs)} throughput=${v.mibPerSec.toFixed(2)} MiB/s events=${v.eventCount} checksum=${v.checksum}`);
+  }
+
+  // Write output
+  if (args.jsonOut) {
+    writeOutput(args.jsonOut, JSON.stringify(result, null, 2) + '\n');
+    console.log(`Wrote ${resolve(process.cwd(), args.jsonOut)}`);
+  }
+  if (args.mdOut) {
+    writeOutput(args.mdOut, formatMarkdown(result));
+    console.log(`Wrote ${resolve(process.cwd(), args.mdOut)}`);
+  }
 }
 
-const output = {
-  generatedAt: new Date().toISOString(),
-  package: 'stax-xml',
-  runtime: {
-    name: 'node',
-    version: process.version.slice(1),
-    platform: `${process.platform}-${process.arch}`,
-  },
-  fixture: {
-    bytes: fixture.bytes.byteLength,
-    bookCount: fixture.bookCount,
-  },
-  contract: {
-    parser: 'pure JavaScript StreamReaderSync batch path',
-    manual: 'manual object projection over StreamReaderSync eventCount plus index accessors',
-    converterAuto: 'converter schema parseSync(bytes), auto-lowered to compiled dispatch batch plan',
-    converterCompiled: 'converter schema compile().parseSync(bytes), explicit compiled dispatch batch plan',
-    maxEvents: args.maxEvents,
-    native: false,
-    wasm: false,
-  },
-  warmups: args.warmups,
-  runs: args.runs,
-  results,
-};
+main().catch((err) => { console.error(err); process.exit(1); });
 
-printTable(output);
+// ── Manual consumer (parity reference) ──────────────────────────
 
-if (args.jsonOut) {
-  writeOutput(args.jsonOut, `${JSON.stringify(output, null, 2)}\n`);
-  console.log(`Wrote ${resolve(process.cwd(), args.jsonOut)}`);
-}
-if (args.mdOut) {
-  writeOutput(args.mdOut, formatMarkdown(output));
-  console.log(`Wrote ${resolve(process.cwd(), args.mdOut)}`);
-}
-
-function consumeManualStreamReader(bytes) {
+function consumeManualCursorReader(bytes) {
   const result = { books: [], firstTitle: undefined };
   let currentBook;
   let currentElement = '';
+  const reader = new StreamReaderSync(bytes);
 
-  for (const batch of new StreamReaderSync(bytes)) {
-    for (let index = 0; index < batch.eventCount; index++) {
-      const type = batch.typeAt(index);
-      if (type === StreamEventType.START_ELEMENT) {
-        const name = batch.nameAt(index);
-        if (name === 'book') {
-          currentBook = {
-            id: batch.attributeValueAt(index, 'id') ?? '',
-            title: '',
-            author: '',
-            price: 0,
-          };
-        } else if (currentBook) {
-          currentElement = name ?? '';
-        }
-        continue;
+  while (reader.next()) {
+    const type = reader.eventType();
+    if (type === XmlEventType.START_ELEMENT) {
+      const name = reader.name();
+      if (name === 'book') {
+        currentBook = {
+          id: reader.attributeValue('id') ?? '',
+          title: '',
+          author: '',
+          price: 0,
+          featured: undefined,
+        };
+      } else if (currentBook) {
+        currentElement = name ?? '';
       }
-      if (type === StreamEventType.CHARACTERS && currentBook) {
-        const text = batch.textAt(index)?.trim();
-        if (!text) continue;
-        if (currentElement === 'title') {
-          currentBook.title += text;
-          result.firstTitle ??= currentBook.title;
-        } else if (currentElement === 'author') {
-          currentBook.author += text;
-        } else if (currentElement === 'price') {
-          currentBook.price = Number(text);
-        } else if (currentElement === 'featured') {
-          currentBook.featured = text;
-        }
-        continue;
+      continue;
+    }
+    if (type === XmlEventType.CHARACTERS && currentBook) {
+      const text = reader.text()?.trim();
+      if (!text) continue;
+      if (currentElement === 'title') {
+        currentBook.title += text;
+        result.firstTitle ??= currentBook.title;
+      } else if (currentElement === 'author') {
+        currentBook.author += text;
+      } else if (currentElement === 'price') {
+        currentBook.price = Number(text);
+      } else if (currentElement === 'featured') {
+        currentBook.featured = text;
       }
-      if (type === StreamEventType.END_ELEMENT) {
-        const name = batch.nameAt(index);
-        if (name === 'book' && currentBook) {
-          result.books.push(currentBook);
-          currentBook = undefined;
-        }
-        currentElement = '';
+      continue;
+    }
+    if (type === XmlEventType.END_ELEMENT) {
+      const name = reader.name();
+      if (name === 'book' && currentBook) {
+        result.books.push(currentBook);
+        currentBook = undefined;
       }
+      currentElement = '';
     }
   }
 
   return result;
 }
 
-function createCatalogFixture(targetBytes) {
-  const rows = [];
-  let byteLength = '<catalog></catalog>'.length;
-  let index = 0;
-  while (byteLength < targetBytes) {
-    const row = [
-      `<book id="book-${index}">`,
-      `<title>Compiled Batch Plan ${index}</title>`,
-      `<author>Author ${index % 97}</author>`,
-      `<price>${(10 + (index % 500) / 10).toFixed(2)}</price>`,
-      index % 5 === 0 ? `<featured>true</featured>` : '',
-      '</book>',
-    ].join('');
-    rows.push(row);
-    byteLength += row.length;
-    index++;
-  }
-  const xml = `<catalog>${rows.join('')}</catalog>`;
-  return {
-    bytes: textEncoder.encode(xml),
-    bookCount: rows.length,
-  };
-}
-
-function summarize(value) {
-  let checksum = 0;
-  for (const book of value.books) {
-    checksum = fold(checksum, book.id);
-    checksum = fold(checksum, book.title);
-    checksum = fold(checksum, book.author);
-    checksum = fold(checksum, String(book.price));
-    checksum = fold(checksum, book.featured ?? '');
-  }
-  return {
-    books: value.books.length,
-    firstTitle: value.firstTitle,
-    checksum,
-  };
-}
-
-function fold(seed, value) {
-  let hash = seed | 0;
-  for (let index = 0; index < value.length; index++) {
-    hash = Math.imul(hash ^ value.charCodeAt(index), 16777619);
-  }
-  return hash | 0;
-}
-
-function sameSummary(left, right) {
-  return left.books === right.books
-    && left.firstTitle === right.firstTitle
-    && left.checksum === right.checksum;
-}
-
-function average(values) {
-  return values.reduce((sum, value) => sum + value, 0) / values.length;
-}
+// ── CLI arg parsing ─────────────────────────────────────────────
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = {
@@ -261,27 +170,21 @@ function formatMs(ms) {
   return ms >= 1000 ? `${(ms / 1000).toFixed(2)} s` : `${ms.toFixed(2)} ms`;
 }
 
-function printTable(output) {
-  for (const result of output.results) {
-    console.log(`${result.name.padEnd(39)} avg=${formatMs(result.averageMs)} throughput=${result.throughputMiBs.toFixed(2)} MiB/s books=${result.summary.books} checksum=${result.summary.checksum}`);
-  }
-}
-
-function formatMarkdown(output) {
+function formatMarkdown(result) {
+  const variants = Object.values(result.variants);
   const lines = [
     '# Converter Compiled Batch-Plan Benchmark',
     '',
-    `Generated: ${output.generatedAt}`,
+    `Generated: ${result.metadata.collectedAt}`,
     '',
-    'This benchmark compares a manual `StreamReaderSync` projection with converter schemas that are auto-lowered or explicitly lowered to the compiled batch dispatch plan.',
-    'It measures the pure JavaScript path and does not use native addons, Wasm modules, or backend selection.',
+    'This benchmark compares a manual `CursorReaderSync` projection with converter schemas that are auto-lowered or explicitly lowered to the compiled cursor dispatch plan.',
     '',
     '## Results',
     '',
-    '| Case | Throughput | Average | Min | Max | Books | Checksum |',
+    '| Case | Throughput | Average | Min | Max | Events | Checksum |',
     '| --- | ---: | ---: | ---: | ---: | ---: | ---: |',
-    ...output.results.map((result) =>
-      `| ${result.name} | ${result.throughputMiBs.toFixed(2)} MiB/s | ${formatMs(result.averageMs)} | ${formatMs(result.minMs)} | ${formatMs(result.maxMs)} | ${result.summary.books} | ${result.summary.checksum} |`
+    ...variants.map((v) =>
+      `| ${v.id} | ${v.mibPerSec.toFixed(2)} MiB/s | ${formatMs(v.avgMs)} | ${formatMs(v.minMs)} | ${formatMs(v.maxMs)} | ${v.eventCount} | ${v.checksum} |`
     ),
     '',
   ];

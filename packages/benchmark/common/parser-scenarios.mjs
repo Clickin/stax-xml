@@ -1,4 +1,4 @@
-import { EventReaderSync, StreamEventType, StreamReaderSync, XmlEventType } from 'stax-xml';
+import { EventReaderSync, StreamReaderSync, XmlEventType } from 'stax-xml';
 import { x } from 'stax-xml/converter';
 import { ASSET_PATHS } from './utils.mjs';
 
@@ -11,17 +11,7 @@ export const STAX_PARSER_SURFACE_SCENARIOS = [
   {
     label: 'stax-xml StreamReaderSync (JS object)',
     display: '**StreamReaderSync**',
-    notes: 'Public byte-stream pull reader building the same object shape manually',
-  },
-  {
-    label: 'stax-xml StreamReaderSync index-for (JS object)',
-    display: '**StreamReaderSync index-first**',
-    notes: 'Public byte-stream pull reader using batch-local eventCount and index accessors',
-  },
-  {
-    label: 'stax-xml StreamReaderSync while-index (JS object)',
-    display: '**StreamReaderSync while-index**',
-    notes: 'Same index-first access pattern with explicit nextBatch() consumption',
+    notes: 'Current-token byte-buffer reader building the same object shape manually',
   },
   {
     label: 'stax-xml Converter API (JS object)',
@@ -90,14 +80,6 @@ export function createStaxParserSurfaceRunners({ assetPath, xmlString, inputBuff
       run: () => parseWithStreamReader(inputBuffer, contract),
     },
     {
-      label: 'stax-xml StreamReaderSync index-for (JS object)',
-      run: () => parseWithStreamReaderIndexFor(inputBuffer, contract),
-    },
-    {
-      label: 'stax-xml StreamReaderSync while-index (JS object)',
-      run: () => parseWithStreamReaderWhileIndex(inputBuffer, contract),
-    },
-    {
       label: 'stax-xml Converter API (JS object)',
       run: () => parseWithConverter(inputBuffer, contract),
     },
@@ -109,8 +91,6 @@ export function assertStaxParserSurfaceParity({ assetPath, xmlString, inputBuffe
   const reference = parseWithEventReader(xmlString, contract);
   const candidates = [
     ['StreamReaderSync', parseWithStreamReader(inputBuffer, contract)],
-    ['StreamReaderSync index-for', parseWithStreamReaderIndexFor(inputBuffer, contract)],
-    ['StreamReaderSync while-index', parseWithStreamReaderWhileIndex(inputBuffer, contract)],
     ['Converter', parseWithConverter(inputBuffer, contract)],
   ];
 
@@ -150,7 +130,7 @@ function createFixtureContract({ itemName, rootXPath, fields, outputDescription 
     elementFields,
     attributeFields,
     elementFieldByName,
-    converterSchema: x.array(x.object(converterShape), rootXPath).compile(),
+    converterSchema: x.array(x.object(converterShape), rootXPath),
   };
 }
 
@@ -226,160 +206,45 @@ function parseWithStreamReader(inputBuffer, contract) {
   const elementStack = [];
   let currentRow = null;
 
-  for (const batch of parser) {
-    for (const event of batch) {
-      switch (event.type) {
-        case StreamEventType.START_ELEMENT: {
-          const name = event.name();
-          elementStack.push(name);
-          if (name === contract.itemName) {
-            currentRow = createEmptyRow(contract);
-            const attrCount = event.getAttributeCount();
-            for (let index = 0; index < attrCount; index++) {
-              const attrName = event.getAttributeName(index);
-              const field = contract.attributeFields.find((candidate) => candidate.sourceName === attrName);
-              if (field) {
-                currentRow[field.outputName] = event.getAttributeValue(index) ?? '';
-              }
+  while (parser.next()) {
+    switch (parser.eventType()) {
+      case XmlEventType.START_ELEMENT: {
+        const name = parser.name();
+        elementStack.push(name);
+        if (name === contract.itemName) {
+          currentRow = createEmptyRow(contract);
+          const attrCount = parser.attributeCount();
+          for (let index = 0; index < attrCount; index++) {
+            const attrName = parser.attributeName(index);
+            const field = contract.attributeFields.find((candidate) => candidate.sourceName === attrName);
+            if (field) {
+              currentRow[field.outputName] = parser.attributeValue(index) ?? '';
             }
           }
-          break;
         }
-        case StreamEventType.CHARACTERS:
-        case StreamEventType.CDATA: {
-          if (!currentRow) break;
-          const currentElement = elementStack[elementStack.length - 1];
-          const parentElement = elementStack[elementStack.length - 2];
-          if (parentElement !== contract.itemName) break;
-          const field = contract.elementFieldByName.get(currentElement);
-          if (!field) break;
-          appendFieldText(currentRow, field.outputName, event.text()?.trim());
-          break;
-        }
-        case StreamEventType.END_ELEMENT: {
-          const name = elementStack.pop();
-          if (name === contract.itemName && currentRow) {
-            rows.push(currentRow);
-            currentRow = null;
-          }
-          break;
-        }
-        default:
-          break;
+        break;
       }
-    }
-  }
-
-  return rows;
-}
-
-function parseWithStreamReaderIndexFor(inputBuffer, contract) {
-  const parser = new StreamReaderSync(inputBuffer);
-  const rows = [];
-  const elementStack = [];
-  let currentRow = null;
-
-  for (const batch of parser) {
-    const eventCount = batch.eventCount;
-    for (let index = 0; index < eventCount; index++) {
-      switch (batch.typeAt(index)) {
-        case StreamEventType.START_ELEMENT: {
-          const name = batch.nameAt(index);
-          elementStack.push(name);
-          if (name === contract.itemName) {
-            currentRow = createEmptyRow(contract);
-            const attrCount = batch.attributeCountAt(index);
-            for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
-              const attrName = batch.attributeNameAt(index, attrIndex);
-              const field = contract.attributeFields.find((candidate) => candidate.sourceName === attrName);
-              if (field) {
-                currentRow[field.outputName] = batch.attributeValueAt(index, attrIndex) ?? '';
-              }
-            }
-          }
-          break;
-        }
-        case StreamEventType.CHARACTERS:
-        case StreamEventType.CDATA: {
-          if (!currentRow) break;
-          const currentElement = elementStack[elementStack.length - 1];
-          const parentElement = elementStack[elementStack.length - 2];
-          if (parentElement !== contract.itemName) break;
-          const field = contract.elementFieldByName.get(currentElement);
-          if (!field) break;
-          appendFieldText(currentRow, field.outputName, batch.textAt(index)?.trim());
-          break;
-        }
-        case StreamEventType.END_ELEMENT: {
-          const name = elementStack.pop();
-          if (name === contract.itemName && currentRow) {
-            rows.push(currentRow);
-            currentRow = null;
-          }
-          break;
-        }
-        default:
-          break;
+      case XmlEventType.CHARACTERS:
+      case XmlEventType.CDATA: {
+        if (!currentRow) break;
+        const currentElement = elementStack[elementStack.length - 1];
+        const parentElement = elementStack[elementStack.length - 2];
+        if (parentElement !== contract.itemName) break;
+        const field = contract.elementFieldByName.get(currentElement);
+        if (!field) break;
+        appendFieldText(currentRow, field.outputName, parser.text()?.trim());
+        break;
       }
-    }
-  }
-
-  return rows;
-}
-
-function parseWithStreamReaderWhileIndex(inputBuffer, contract) {
-  const parser = new StreamReaderSync(inputBuffer);
-  const rows = [];
-  const elementStack = [];
-  let currentRow = null;
-  let batch;
-
-  while ((batch = parser.nextBatch()) !== null) {
-    let index = 0;
-    const eventCount = batch.eventCount;
-    while (index < eventCount) {
-      switch (batch.typeAt(index)) {
-        case StreamEventType.START_ELEMENT: {
-          const name = batch.nameAt(index);
-          elementStack.push(name);
-          if (name === contract.itemName) {
-            currentRow = createEmptyRow(contract);
-            const attrCount = batch.attributeCountAt(index);
-            let attrIndex = 0;
-            while (attrIndex < attrCount) {
-              const attrName = batch.attributeNameAt(index, attrIndex);
-              const field = contract.attributeFields.find((candidate) => candidate.sourceName === attrName);
-              if (field) {
-                currentRow[field.outputName] = batch.attributeValueAt(index, attrIndex) ?? '';
-              }
-              attrIndex++;
-            }
-          }
-          break;
+      case XmlEventType.END_ELEMENT: {
+        const name = elementStack.pop();
+        if (name === contract.itemName && currentRow) {
+          rows.push(currentRow);
+          currentRow = null;
         }
-        case StreamEventType.CHARACTERS:
-        case StreamEventType.CDATA: {
-          if (!currentRow) break;
-          const currentElement = elementStack[elementStack.length - 1];
-          const parentElement = elementStack[elementStack.length - 2];
-          if (parentElement !== contract.itemName) break;
-          const field = contract.elementFieldByName.get(currentElement);
-          if (!field) break;
-          appendFieldText(currentRow, field.outputName, batch.textAt(index)?.trim());
-          break;
-        }
-        case StreamEventType.END_ELEMENT: {
-          const name = elementStack.pop();
-          if (name === contract.itemName && currentRow) {
-            rows.push(currentRow);
-            currentRow = null;
-          }
-          break;
-        }
-        default:
-          break;
+        break;
       }
-      index++;
+      default:
+        break;
     }
   }
 

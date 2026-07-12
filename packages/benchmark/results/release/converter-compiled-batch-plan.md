@@ -1,14 +1,13 @@
 # Converter Compiled Batch-Plan Benchmark
 
-Generated: 2026-05-05T02:23:55.933Z
+Generated: 2026-07-12T02:36:24.937Z
 
-This benchmark compares a manual `StreamReaderSync` projection with converter schemas that are auto-lowered or explicitly lowered to the compiled batch dispatch plan.
-It measures the pure JavaScript path and does not use native addons, Wasm modules, or backend selection.
+This benchmark compares a manual `StreamReaderSync` projection with converter schemas that are auto-lowered or explicitly lowered to the compiled cursor dispatch plan.
 
 ## Results
 
-| Case | Throughput | Average | Min | Max | Books | Checksum |
+| Case | Throughput | Average | Min | Max | Events | Checksum |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| manual-streamreader-sync | 80.17 MiB/s | 199.58 ms | 190.92 ms | 208.29 ms | 139458 | -1845341048 |
-| converter-auto-compiled-batch-plan | 47.11 MiB/s | 339.63 ms | 325.52 ms | 347.43 ms | 139458 | -1845341048 |
-| converter-explicit-compiled-batch-plan | 46.03 MiB/s | 347.61 ms | 342.23 ms | 354.07 ms | 139458 | -1845341048 |
+| manual-cursor-reader-sync | 119.62 MiB/s | 133.76 ms | 131.54 ms | 137.03 ms | 139458 | -1845341048 |
+| converter-auto-compiled-batch-plan | 72.10 MiB/s | 221.93 ms | 219.68 ms | 223.85 ms | 139458 | -1845341048 |
+| converter-explicit-compiled-batch-plan | 71.26 MiB/s | 224.52 ms | 222.15 ms | 230.16 ms | 139458 | -1845341048 |

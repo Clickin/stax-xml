@@ -1,15 +1,23 @@
 {
-  "generatedAt": "2026-05-05T01:37:38.211Z",
-  "packageVersion": "1.0.0-rc3",
+  "generatedAt": "2026-07-12T02:35:13.484Z",
+  "objective": "stream-reader-large-shape",
+  "contract": "generated-byte-chunk-full-string",
+  "packageVersion": "1.0.0",
   "runtime": {
     "id": "node",
     "version": "24.15.0",
-    "platform": "win32-x64"
+    "v8": "13.6.233.17-node.48",
+    "platform": "darwin-arm64"
   },
   "fixture": {
     "generated": true,
+    "shape": "repeated-person",
     "rowXml": "<person id=\"123\"><name>Jane Doe</name><age>42</age></person>",
     "rowBytes": 60,
+    "rowCycleSize": 1,
+    "minRowBytes": 60,
+    "maxRowBytes": 60,
+    "averageRowBytes": 60,
     "targetBytes": 4294967296,
     "actualBytes": 4294967340,
     "sizeGiB": 4.000000040978193
@@ -17,18 +25,134 @@
   "options": {
     "warmups": 0,
     "runs": 3,
-    "style": "index-for"
+    "style": "iterable-cursor",
+    "boundedRssMiB": 512
+  },
+  "allocationSampling": {
+    "enabled": false,
+    "samplingInterval": 65536,
+    "rawArtifacts": {
+      "outputDir": "/Users/senghyunjo/github/stax-xml/packages/benchmark/results/v8-allocation/stream-reader-large-shape",
+      "committed": false,
+      "profiles": []
+    },
+    "note": "Disabled for this run."
+  },
+  "parity": {
+    "status": "ok",
+    "events": 572662314,
+    "checksum": 659690454
   },
   "results": [
     {
-      "style": "index-for",
+      "style": "iterable-cursor",
       "events": 572662314,
-      "checksum": -1788666544,
-      "avgMs": 43438.40936666667,
-      "minMs": 41904.5417,
-      "maxMs": 44221.24339999999,
-      "avgMiBs": 94.29442978418122,
-      "avgRssDelta": 4242090.666666667
+      "checksum": 659690454,
+      "materialization": {
+        "stringFieldReads": 715827890,
+        "nameStringReads": 429496734,
+        "textStringReads": 143165578,
+        "attrNameStringReads": 71582789,
+        "attrValueStringReads": 71582789,
+        "rawSpanMaterializations": 0,
+        "rawNameSpanMaterializations": 0,
+        "rawTextSpanMaterializations": 0,
+        "rawAttrNameSpanMaterializations": 0,
+        "rawAttrValueSpanMaterializations": 0,
+        "rawNameCacheHits": 0,
+        "rawNameCacheMisses": 0,
+        "implicitAttrValueReads": 0,
+        "eventObjects": 0
+      },
+      "avgMs": 52227.60059733334,
+      "minMs": 49562.916833,
+      "maxMs": 56018.28858400001,
+      "avgMiBs": 78.4259662537667,
+      "mibPerSec": 78.4259662537667,
+      "fullStringParity": true,
+      "contractScope": "full-string-materialization",
+      "sourceMode": "generated-sync-iterable-byte-chunks",
+      "boundedMemory": true,
+      "memory": {
+        "avgRssDeltaBytes": 10633216,
+        "avgHeapUsedDeltaBytes": 3936928,
+        "avgHeapTotalDeltaBytes": 5242880,
+        "avgExternalDeltaBytes": -23633.666666666668,
+        "avgArrayBuffersDeltaBytes": 0,
+        "maxRssBytes": 84295680,
+        "maxHeapUsedBytes": 10874464,
+        "samples": [
+          {
+            "before": {
+              "rssBytes": 52330496,
+              "heapUsedBytes": 4523488,
+              "heapTotalBytes": 7323648,
+              "externalBytes": 2064753,
+              "arrayBuffersBytes": 22831
+            },
+            "after": {
+              "rssBytes": 73072640,
+              "heapUsedBytes": 5965392,
+              "heapTotalBytes": 14401536,
+              "externalBytes": 1993852,
+              "arrayBuffersBytes": 22831
+            },
+            "delta": {
+              "rssBytes": 20742144,
+              "heapUsedBytes": 1441904,
+              "heapTotalBytes": 7077888,
+              "externalBytes": -70901,
+              "arrayBuffersBytes": 0
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 73138176,
+              "heapUsedBytes": 4757272,
+              "heapTotalBytes": 14139392,
+              "externalBytes": 1993852,
+              "arrayBuffersBytes": 22831
+            },
+            "after": {
+              "rssBytes": 83165184,
+              "heapUsedBytes": 9014048,
+              "heapTotalBytes": 22790144,
+              "externalBytes": 1993852,
+              "arrayBuffersBytes": 22831
+            },
+            "delta": {
+              "rssBytes": 10027008,
+              "heapUsedBytes": 4256776,
+              "heapTotalBytes": 8650752,
+              "externalBytes": 0,
+              "arrayBuffersBytes": 0
+            }
+          },
+          {
+            "before": {
+              "rssBytes": 83165184,
+              "heapUsedBytes": 4762360,
+              "heapTotalBytes": 22790144,
+              "externalBytes": 1993852,
+              "arrayBuffersBytes": 22831
+            },
+            "after": {
+              "rssBytes": 84295680,
+              "heapUsedBytes": 10874464,
+              "heapTotalBytes": 22790144,
+              "externalBytes": 1993852,
+              "arrayBuffersBytes": 22831
+            },
+            "delta": {
+              "rssBytes": 1130496,
+              "heapUsedBytes": 6112104,
+              "heapTotalBytes": 0,
+              "externalBytes": 0,
+              "arrayBuffersBytes": 0
+            }
+          }
+        ]
+      }
     }
   ]
 }

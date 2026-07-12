@@ -1,7 +1,6 @@
 import {
-  EventReaderSync,
-  StreamEventType,
   StreamReaderSync,
+  EventReaderSync,
   XmlEventType,
 } from '../stax-xml/dist/index.js';
 
@@ -226,30 +225,28 @@ function consumeEventTier(xml, tier) {
   return { eventCount, checksum };
 }
 
-function consumeStreamReaderIndex(bytes) {
+function consumeCursorReader(bytes) {
   let eventCount = 0;
   let checksum = 0;
+  const reader = new StreamReaderSync(bytes);
 
-  for (const batch of new StreamReaderSync(bytes)) {
-    const count = batch.eventCount;
-    for (let index = 0; index < count; index++) {
-      const type = batch.typeAt(index);
-      eventCount++;
-      checksum = mixChecksum(checksum, type);
+  while (reader.next()) {
+    const type = reader.eventType();
+    eventCount++;
+    checksum = mixChecksum(checksum, type);
 
-      if (type === StreamEventType.START_ELEMENT || type === StreamEventType.END_ELEMENT) {
-        checksum = foldString(checksum, batch.nameAt(index));
-      }
-      if (type === StreamEventType.CHARACTERS || type === StreamEventType.CDATA) {
-        checksum = foldString(checksum, batch.textAt(index)?.trim());
-      }
-      if (type === StreamEventType.START_ELEMENT) {
-        const attrCount = batch.attributeCountAt(index);
-        checksum = mixChecksum(checksum, attrCount);
-        for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
-          checksum = foldString(checksum, batch.attributeNameAt(index, attrIndex));
-          checksum = foldString(checksum, batch.attributeValueAt(index, attrIndex));
-        }
+    if (type === XmlEventType.START_ELEMENT || type === XmlEventType.END_ELEMENT) {
+      checksum = foldString(checksum, reader.name());
+    }
+    if (type === XmlEventType.CHARACTERS || type === XmlEventType.CDATA) {
+      checksum = foldString(checksum, reader.text()?.trim());
+    }
+    if (type === XmlEventType.START_ELEMENT) {
+      const attrCount = reader.attributeCount();
+      checksum = mixChecksum(checksum, attrCount);
+      for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+        checksum = foldString(checksum, reader.attributeName(attrIndex));
+        checksum = foldString(checksum, reader.attributeValue(attrIndex));
       }
     }
   }
@@ -324,7 +321,7 @@ async function main() {
     },
     scenarios: [
       measure('public-sync-full-string', () => consumePublicSync(xml), fileSizeMiB, options),
-      measure('stream-sync-index-full-string', () => consumeStreamReaderIndex(bytes), fileSizeMiB, options),
+      measure('cursor-sync-full-string', () => consumeCursorReader(bytes), fileSizeMiB, options),
       measure('event-count-only', () => consumeEventTier(xml, 'count-only'), fileSizeMiB, options),
       measure('event-full-string', () => consumeEventTier(xml, 'full-string'), fileSizeMiB, options),
     ],
