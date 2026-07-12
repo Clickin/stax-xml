@@ -89,8 +89,6 @@ Release-facing docs must cover:
   packaging decision;
 - [Migrating from v0.x](/stax-xml/guide/migration-v0/) for import, reader, and
   large-file changes;
-- [v0.7.0 legacy API snapshot](/stax-xml/v0.7.0/) for the last pre-v1 public
-  surface;
 - [Web Server Integration](/stax-xml/guide/server-integration/) for request
   stream handling in common server frameworks;
 - [Benchmarks](/stax-xml/resources/benchmarks/) for reproducible performance

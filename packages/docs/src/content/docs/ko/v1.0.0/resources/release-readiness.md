@@ -86,7 +86,6 @@ Release-facing docs는 다음 항목을 포함해야 합니다.
 
 - Pure JavaScript packaging 결정을 설명하는 [실행 모델](/stax-xml/ko/resources/runtime-model/).
 - Import, reader, 큰 파일 변경을 설명하는 [v0.x 마이그레이션](/stax-xml/ko/guide/migration-v0/).
-- v1 이전 public surface를 확인하는 [v0.7.0 레거시 API 스냅샷](/stax-xml/ko/v0.7.0/).
 - 주요 server framework의 request stream 처리법을 설명하는 [Web Server 연동](/stax-xml/ko/guide/server-integration/).
 - 재현 가능한 성능 command와 생성된 release 결과를 담은 [벤치마크](/stax-xml/ko/resources/benchmarks/).
 

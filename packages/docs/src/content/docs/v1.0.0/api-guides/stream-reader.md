@@ -1,21 +1,43 @@
 ---
 title: StreamReader - Asynchronous Current-Token XML Parsing
 description: Low-allocation asynchronous XML stream reader for JavaScript and TypeScript
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/api-guides/stream-reader.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/api-guides/stream-reader.png
 slug: v1.0.0/api-guides/stream-reader
 ---
 
-`StreamReader` is the low-allocation asynchronous reader for
-`ReadableStream<Uint8Array>` and `AsyncIterable<Uint8Array>` sources. It
-returns the current `XmlEventType`; use accessors before calling `next()` again.
+## StreamReader
+
+`StreamReader` is the low-allocation asynchronous XML reader. It accepts a
+`ReadableStream<Uint8Array>` or an `AsyncIterable<Uint8Array>` and exposes the
+current token through accessor methods instead of allocating a stable event
+object for every token.
 
 ```ts
 import { StreamReader, XmlEventType } from 'stax-xml';
 
-const reader = new StreamReader(source);
+const reader = new StreamReader(response.body!);
 try {
   while (await reader.next() !== null) {
     if (reader.eventType() === XmlEventType.START_ELEMENT) {
       console.log(reader.name(), reader.attributeValue('id'));
+    } else if (reader.eventType() === XmlEventType.CHARACTERS) {
+      console.log(reader.text());
     }
   }
 } finally {
@@ -23,25 +45,63 @@ try {
 }
 ```
 
+Use `StreamReader` when parsing throughput and allocation rate matter more than
+retaining event objects. Accessors describe the current token and must be read
+before the next successful `next()` call.
+
+## Input and options
+
 ```ts
+type StreamReaderSource =
+  | ReadableStream<Uint8Array>
+  | AsyncIterable<Uint8Array>;
+
 interface StreamReaderOptions {
   documentMode?: 'document' | 'fragment';
 }
 ```
 
-The reader decodes UTF-8 incrementally and recognizes only the five predefined
-XML entities and numeric character references. Invalid UTF-8, malformed XML,
-and unsupported named entities reject `next()`. Custom or external entities
-are not resolved.
+Input bytes are decoded incrementally as fatal UTF-8. Invalid UTF-8, malformed
+XML, and unsupported named entities reject `next()`. The reader recognizes the
+five predefined XML entities and numeric character references; custom and
+external entities are not resolved and no external I/O is performed.
 
-Available current-token accessors are `eventType()`, `name()`, `text()`,
-`localName()`, `prefix()`, `namespaceURI()`, `attributeCount()`,
-`attributeName()`, `attributeLocalName()`, `attributePrefix()`,
-`attributeNamespaceURI()`, `attributeValue()`, and
-`namespaceURIForPrefix()`. `attributeValue()` accepts an index, qualified name,
-or `(namespaceURI, localName)` pair.
+Node.js `Readable` streams can be passed directly because they are async
+iterables and their `Buffer` chunks are `Uint8Array` values.
 
-Call `await reader.close()` when stopping early. It is idempotent, closes the
-underlying iterator, and cancels a `ReadableStream`. Concurrent `next()` calls
-are rejected. Use [`EventReader`](/stax-xml/api-guides/event-reader) when
-stable event objects are more convenient.
+## Current-token accessors
+
+The reader emits `START_DOCUMENT` first and `END_DOCUMENT` last. The accessor
+surface is:
+
+```ts
+reader.eventType();
+reader.name();
+reader.text();
+reader.localName();
+reader.prefix();
+reader.namespaceURI();
+reader.attributeCount();
+reader.attributeName(index);
+reader.attributeLocalName(index);
+reader.attributePrefix(index);
+reader.attributeNamespaceURI(index);
+reader.attributeValue(indexOrName);
+reader.attributeValue(namespaceURI, localName);
+reader.namespaceURIForPrefix(prefix);
+```
+
+`attributeValue()` accepts an attribute index, a qualified name, or a
+`(namespaceURI, localName)` pair. Attribute accessors return `undefined` when
+the requested attribute does not exist.
+
+## Lifecycle and concurrency
+
+Call `await reader.close()` when stopping early. Closing is idempotent and
+returns the underlying async iterator or cancels a `ReadableStream`. A source
+error also closes the reader before rethrowing the original error. Concurrent
+`next()` calls are rejected; await each call before advancing again.
+
+For stable event objects, use [`EventReader`](/stax-xml/api-guides/event-reader)
+instead. For complete XML already held as a JavaScript string, use
+[`StreamReaderSync`](/stax-xml/api-guides/stream-reader-sync).
