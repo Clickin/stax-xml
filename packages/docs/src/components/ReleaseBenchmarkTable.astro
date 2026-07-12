@@ -2,7 +2,7 @@
 import runtimeMatrixV100 from '../data/benchmarks/v1.0.0/runtime-matrix.json';
 import streamReader4GiBV100 from '../data/benchmarks/v1.0.0/stream-reader-4gb.json';
 
-type Kind = 'runtime' | 'stream4gib' | 'converter';
+type Kind = 'runtime' | 'stream4gib';
 type Locale = 'en' | 'ko';
 type BenchmarkVersion = keyof typeof benchmarkData;
 
@@ -24,12 +24,10 @@ const headings = {
   en: {
     runtime: ['Runtime', 'Workload', 'Throughput', 'Average', 'Heap'],
     stream4gib: ['Workload', 'Average', 'Throughput', 'Events', 'Average RSS delta'],
-    converter: ['Case', 'Throughput', 'Average', 'Books', 'Checksum'],
   },
   ko: {
     runtime: ['Runtime', 'Workload', 'Throughput', 'Average', 'Heap'],
     stream4gib: ['Workload', 'Average', 'Throughput', 'Events', 'Average RSS delta'],
-    converter: ['Case', 'Throughput', 'Average', 'Books', 'Checksum'],
   },
 } as const;
 
@@ -58,17 +56,6 @@ const streamRows = streamReader4GiB.results.map((result) => ({
     1,
   )} MiB`,
 }));
-
-const converterLabels = {
-  en: {
-    'manual-streamreader-sync': 'Manual StreamReaderSync projection',
-    'converter-auto-compiled-batch-plan': 'Converter schema.parseSync(bytes)',
-  },
-  ko: {
-    'manual-streamreader-sync': '수동 StreamReaderSync 변환',
-    'converter-auto-compiled-batch-plan': 'Converter schema.parseSync(bytes)',
-  },
-} as const;
 
 
 function formatNumber(value: number, digits: number): string {
