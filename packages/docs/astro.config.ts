@@ -261,6 +261,8 @@ export default defineConfig({
           items: [
             { label: 'EventReader', slug: 'api-guides/event-reader' },
             { label: 'EventReaderSync', slug: 'api-guides/event-reader-sync' },
+            { label: 'StreamReader', slug: 'api-guides/stream-reader' },
+            { label: 'StreamReaderSync', slug: 'api-guides/stream-reader-sync' },
             { label: 'Writer', slug: 'api-guides/writer' },
             { label: 'WriterSync', slug: 'api-guides/writer-sync' },
           ],
