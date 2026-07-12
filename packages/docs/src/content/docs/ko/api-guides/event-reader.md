@@ -51,6 +51,7 @@ type StreamReaderSource =
 
 interface EventReaderOptions {
   documentMode?: 'document' | 'fragment';
+  namespaceAware?: boolean; // 기본값: true
 }
 ```
 

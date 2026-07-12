@@ -3,7 +3,10 @@ import { XmlEventType, type DocumentMode, type XmlEventType as XmlEventTypeValue
 export const NEED_INPUT = Symbol('stax-xml.need-input');
 export type TokenCursorResult = XmlEventTypeValue | typeof NEED_INPUT | null;
 
-export interface TokenCursorOptions { documentMode?: DocumentMode }
+export interface TokenCursorOptions {
+  documentMode?: DocumentMode;
+  namespaceAware?: boolean;
+}
 export interface TokenAttribute { name: string; value: string; localName: string; prefix: string; namespaceURI: string }
 
 interface ElementFrame { name: string; localName: string; prefix: string; namespaceURI: string; namespaceUndoStart: number }
@@ -67,11 +70,13 @@ export class TokenCursor {
   private duplicateTable: DuplicateTable | undefined;
   private currentEvent = 0;
   private readonly documentMode: DocumentMode;
+  private readonly namespaceAware: boolean;
 
   constructor(input = '', final = false, options: TokenCursorOptions = {}) {
     this.buffer = input;
     this.final = final;
     this.documentMode = options.documentMode ?? 'fragment';
+    this.namespaceAware = options.namespaceAware ?? true;
   }
 
   push(text: string, final = false): void {
@@ -193,7 +198,9 @@ export class TokenCursor {
     }
     return undefined;
   }
-  namespaceURIForPrefix(prefix: string): string { return this.currentFrame ? (this.namespaces.get(prefix) ?? '') : ''; }
+  namespaceURIForPrefix(prefix: string): string {
+    return this.namespaceAware && this.currentFrame ? (this.namespaces.get(prefix) ?? '') : '';
+  }
 
   /** @internal Release input and parser state after an early stop. */
   dispose(): void {
@@ -431,6 +438,26 @@ export class TokenCursor {
     let localName: string;
     let namespaceURI: string;
     let publicCount = 0;
+    if (!this.namespaceAware) {
+      // Namespace processing disabled: report raw qualified names and expose
+      // xmlns attributes as ordinary attributes. Mirrors quick-xml's plain Reader
+      // and Woodstox's isNamespaceAware(false).
+      name = this.buffer.slice(nameStart, nameEnd);
+      prefix = nameColon < 0 ? '' : this.buffer.slice(nameStart, nameColon);
+      localName = nameColon < 0 ? name : this.buffer.slice(nameColon + 1, nameEnd);
+      namespaceURI = '';
+      for (let index = 0; index < rawCount; index++) {
+        if (publicCount !== index) this.copyAttributeSpan(index, publicCount);
+        this.attributeNamespaceURIs[publicCount] = '';
+        publicCount++;
+      }
+      if (!this.stack.length) {
+        this.xmlDeclarationAllowed = false;
+        if (this.doctypeRootName !== undefined && this.doctypeRootName !== name) throw new Error(`DOCTYPE root ${this.doctypeRootName} does not match root element ${name}.`);
+        this.roots++;
+        if (this.documentMode === 'document' && (this.roots > 1 || this.seenNonWhitespaceOutsideRoot)) throw new Error('XML document must contain exactly one root element.');
+      }
+    } else {
     try {
       for (let index = 0; index < rawCount; index++) {
         const start = this.attributeNameStarts[index]!;
@@ -497,6 +524,7 @@ export class TokenCursor {
     } catch (error) {
       this.restoreNamespaces(namespaceUndoStart);
       throw error;
+    }
     }
     const frame = {
       name,
@@ -687,6 +715,10 @@ export class TokenCursor {
       if (end >= 0 || this.final) validateEntitiesSpan(this.buffer, start, end < 0 ? this.buffer.length : end);
       return end;
     }
+    // The first '<' terminates this text node. Entity references such as
+    // '&lt;' contain no literal '<', so this single lookup is the real boundary.
+    // Reusing it below avoids an O(n^2) per-entity forward scan.
+    const boundary = this.buffer.indexOf('<', start);
     for (let index = start; index < this.buffer.length; index++) {
       const code = this.buffer.charCodeAt(index);
       if (code === 60) return index;
@@ -707,7 +739,7 @@ export class TokenCursor {
         continue;
       }
       const semi = this.buffer.indexOf(';', index + 1);
-      const lt = this.buffer.indexOf('<', index + 1);
+      const lt = boundary;
       if (lt >= 0 && (semi < 0 || semi > lt)) throw new Error('Unterminated entity reference.');
       if (semi < 0) break;
       decodeEntity(this.buffer.slice(index + 1, semi));

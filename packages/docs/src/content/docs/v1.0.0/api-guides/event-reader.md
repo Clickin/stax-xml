@@ -53,6 +53,7 @@ type StreamReaderSource =
 
 interface EventReaderOptions {
   documentMode?: 'document' | 'fragment';
+  namespaceAware?: boolean; // default: true
 }
 ```
 

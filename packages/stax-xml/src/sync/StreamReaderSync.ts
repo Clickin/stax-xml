@@ -1,7 +1,11 @@
 import { NEED_INPUT, TokenCursor, type DocumentMode, type XmlEventType } from '@stax-xml/core';
 
 export type StreamReaderSyncInput = string | Uint8Array | Iterable<Uint8Array>;
-export interface StreamReaderSyncOptions { documentMode?: DocumentMode }
+export interface StreamReaderSyncOptions {
+  documentMode?: DocumentMode;
+  /** Resolve namespaces and omit xmlns declarations from attributes. @defaultValue true */
+  namespaceAware?: boolean;
+}
 const BYTE_CHUNK_SIZE = 64 * 1024;
 
 /** Synchronous current-token reader. Strings are scanned directly without encoding. */
@@ -20,7 +24,11 @@ export class StreamReaderSync {
       this.decoder = new TextDecoder('utf-8', { fatal: true });
     } else {
       this.cursor = new TokenCursor('', false, options);
-      this.iterator = input[Symbol.iterator]();
+      // Re-batch caller-supplied byte chunks up to BYTE_CHUNK_SIZE before decoding.
+      // Tiny chunks (e.g. per-row iterables, small stream frames) otherwise pay a
+      // full TextDecoder + cursor.push round-trip per few bytes; batching recovers
+      // that overhead. Same fatal/stream contract as the single-Uint8Array path.
+      this.iterator = batchByteChunks(input[Symbol.iterator](), BYTE_CHUNK_SIZE);
       this.decoder = new TextDecoder('utf-8', { fatal: true });
     }
   }
@@ -69,6 +77,49 @@ export class StreamReaderSync {
       : this.cursor.attribute(indexOrNameOrNamespace, localName)?.value;
   }
   namespaceURIForPrefix(prefix: string): string { return this.cursor.namespaceURIForPrefix(prefix); }
+}
+
+/** Coalesce small caller-supplied Uint8Array chunks into ~size-byte batches.
+ *  Reuses one backing buffer; returned views stay valid only until the next call,
+ *  which matches StreamReaderSync's decode-then-refill consumption order. */
+function batchByteChunks(source: Iterator<Uint8Array>, size: number): Iterator<Uint8Array> {
+  let buffer = new Uint8Array(size);
+  let length = 0;
+  let done = false;
+  return {
+    next(): IteratorResult<Uint8Array> {
+      if (done) return { value: undefined, done: true };
+      while (length < size) {
+        const part = source.next();
+        if (part.done) { done = true; break; }
+        const value = part.value;
+        if (value.byteLength === 0) continue;
+        if (length + value.byteLength > buffer.byteLength) {
+          const grown = new Uint8Array(Math.max(length + value.byteLength, buffer.byteLength * 2));
+          grown.set(buffer.subarray(0, length));
+          buffer = grown;
+        }
+        buffer.set(value, length);
+        length += value.byteLength;
+        if (length >= size) {
+          const out = buffer.subarray(0, length);
+          length = 0;
+          return { value: out, done: false };
+        }
+      }
+      if (length > 0) {
+        const out = buffer.subarray(0, length);
+        length = 0;
+        return { value: out, done: false };
+      }
+      return { value: undefined, done: true };
+    },
+    return(): IteratorResult<Uint8Array> {
+      done = true;
+      source.return?.();
+      return { value: undefined, done: true };
+    },
+  };
 }
 
 function fixedByteChunks(input: Uint8Array): Iterator<Uint8Array> {

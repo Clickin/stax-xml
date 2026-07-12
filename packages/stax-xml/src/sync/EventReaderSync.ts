@@ -1,7 +1,11 @@
 import { materializeTokenEvent, type AnyXmlEvent, type DocumentMode } from '@stax-xml/core';
 import { StreamReaderSync, tokenCursorOf, type StreamReaderSyncInput } from './StreamReaderSync.js';
 
-export interface EventReaderSyncOptions { documentMode?: DocumentMode }
+export interface EventReaderSyncOptions {
+  documentMode?: DocumentMode;
+  /** Resolve namespaces and omit xmlns declarations from attributes. @defaultValue true */
+  namespaceAware?: boolean;
+}
 
 export class EventReaderSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEvent> {
   private readonly reader: StreamReaderSync;

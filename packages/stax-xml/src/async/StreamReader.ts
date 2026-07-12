@@ -1,7 +1,11 @@
 import { NEED_INPUT, TokenCursor, materializeTokenEvent, type AnyXmlEvent, type DocumentMode, type XmlEventType } from '@stax-xml/core';
 
 export type StreamReaderSource = AsyncIterable<Uint8Array> | ReadableStream<Uint8Array>;
-export interface StreamReaderOptions { documentMode?: DocumentMode }
+export interface StreamReaderOptions {
+  documentMode?: DocumentMode;
+  /** Resolve namespaces and omit xmlns declarations from attributes. @defaultValue true */
+  namespaceAware?: boolean;
+}
 
 export class StreamReader {
   private readonly cursor: TokenCursor;

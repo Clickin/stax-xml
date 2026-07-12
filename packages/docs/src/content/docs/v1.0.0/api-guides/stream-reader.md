@@ -58,8 +58,11 @@ type StreamReaderSource =
 
 interface StreamReaderOptions {
   documentMode?: 'document' | 'fragment';
+  namespaceAware?: boolean; // default: true
 }
 ```
+
+`namespaceAware` defaults to `true`. Set it to `false` when consumers need raw qualified names only: namespace URIs are `''`, `xmlns` declarations are ordinary attributes, and undeclared prefixes are not rejected.
 
 Input bytes are decoded incrementally as fatal UTF-8. Invalid UTF-8, malformed
 XML, and unsupported named entities reject `next()`. The reader recognizes the

@@ -52,8 +52,11 @@ type StreamReaderSyncInput =
 
 interface StreamReaderSyncOptions {
   documentMode?: 'document' | 'fragment';
+  namespaceAware?: boolean; // default: true
 }
 ```
+
+`namespaceAware` defaults to `true`. Set it to `false` when consumers need raw qualified names only: namespace URIs are `''`, `xmlns` declarations are ordinary attributes, and undeclared prefixes are not rejected.
 
 The reader emits `START_DOCUMENT` first and `END_DOCUMENT` last. Accessors
 include `eventType()`, `name()`, `text()`, `localName()`, `prefix()`,

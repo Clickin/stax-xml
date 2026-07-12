@@ -99,14 +99,19 @@ function eventToken(event: AnyXmlEvent): unknown[] {
   return [event.type];
 }
 
-function collectSync(input: string | Uint8Array | Iterable<Uint8Array>, options?: { documentMode?: 'document' | 'fragment' }): unknown[][] {
+interface ReaderOptions {
+  documentMode?: 'document' | 'fragment';
+  namespaceAware?: boolean;
+}
+
+function collectSync(input: string | Uint8Array | Iterable<Uint8Array>, options?: ReaderOptions): unknown[][] {
   const reader = new StreamReaderSync(input, options);
   const result: unknown[][] = [];
   while (reader.next() !== null) result.push(currentToken(reader));
   return result;
 }
 
-async function collectAsync(input: AsyncIterable<Uint8Array>, options?: { documentMode?: 'document' | 'fragment' }): Promise<unknown[][]> {
+async function collectAsync(input: AsyncIterable<Uint8Array>, options?: ReaderOptions): Promise<unknown[][]> {
   const reader = new StreamReader(input, options);
   const result: unknown[][] = [];
   while (await reader.next() !== null) result.push(currentToken(reader));
@@ -173,6 +178,42 @@ describe('v1 current-token reader contract', () => {
       return;
     }
     throw new Error('missing p:item start element');
+  });
+
+  it('can disable namespace processing for raw qualified-name workloads', async () => {
+    const xml = '<r xmlns="urn:default" xmlns:p="urn:p"><p:item id="1" p:id="2"/></r>';
+    const options = { namespaceAware: false };
+    const expected = [
+      [XmlEventType.START_DOCUMENT],
+      [XmlEventType.START_ELEMENT, 'r', 'r', '', '', [
+        ['xmlns', 'xmlns', '', '', 'urn:default'],
+        ['xmlns:p', 'p', 'xmlns', '', 'urn:p'],
+      ]],
+      [XmlEventType.START_ELEMENT, 'p:item', 'item', 'p', '', [
+        ['id', 'id', '', '', '1'],
+        ['p:id', 'id', 'p', '', '2'],
+      ]],
+      [XmlEventType.END_ELEMENT, 'p:item', 'item', 'p', ''],
+      [XmlEventType.END_ELEMENT, 'r', 'r', '', ''],
+      [XmlEventType.END_DOCUMENT],
+    ];
+
+    expect(collectSync(xml, options)).toEqual(expected);
+    expect(await collectAsync(asyncChunks(xml), options)).toEqual(expected);
+    expect([...new EventReaderSync(xml, options)].map(eventToken)).toEqual(expected);
+
+    const asyncEvents: unknown[][] = [];
+    for await (const event of new EventReader(asyncChunks(xml), options)) asyncEvents.push(eventToken(event));
+    expect(asyncEvents).toEqual(expected);
+
+    const reader = new StreamReaderSync(xml, options);
+    while (reader.next() !== XmlEventType.START_ELEMENT || reader.name() !== 'p:item') { /* advance */ }
+    expect(reader.namespaceURIForPrefix('p')).toBe('');
+    expect(reader.namespaceURIForPrefix('xml')).toBe('');
+    expect(collectSync('<p:raw/>', options)).toContainEqual([
+      XmlEventType.START_ELEMENT, 'p:raw', 'raw', 'p', '', [],
+    ]);
+    expect(() => collectSync('<p:raw/>')).toThrow(/undeclared namespace prefix/i);
   });
 
   it('decodes predefined and numeric character references', () => {

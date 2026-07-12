@@ -55,8 +55,11 @@ type StreamReaderSource =
 
 interface StreamReaderOptions {
   documentMode?: 'document' | 'fragment';
+  namespaceAware?: boolean; // 기본값: true
 }
 ```
+
+`namespaceAware`의 기본값은 `true`입니다. raw qualified name만 필요하면 `false`로 설정하세요. namespace URI는 `''`가 되고, `xmlns` 선언은 일반 attribute로 노출되며, 선언되지 않은 prefix도 거부하지 않습니다.
 
 Byte input은 fatal UTF-8로 incremental decoding합니다. Invalid UTF-8, malformed
 XML, unsupported named entity는 `next()`를 reject합니다. XML 기본 entity 5개와

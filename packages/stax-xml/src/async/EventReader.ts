@@ -1,7 +1,11 @@
 import { type AnyXmlEvent, type DocumentMode } from '@stax-xml/core';
 import { StreamReader, nextMaterialized, type StreamReaderSource } from './StreamReader.js';
 
-export interface EventReaderOptions { documentMode?: DocumentMode }
+export interface EventReaderOptions {
+  documentMode?: DocumentMode;
+  /** Resolve namespaces and omit xmlns declarations from attributes. @defaultValue true */
+  namespaceAware?: boolean;
+}
 export class EventReader implements AsyncIterable<AnyXmlEvent>, AsyncIterator<AnyXmlEvent> {
   private readonly reader: StreamReader;
   constructor(input: StreamReaderSource, options: EventReaderOptions = {}) { this.reader = new StreamReader(input, options); }

@@ -51,6 +51,7 @@ type StreamReaderSyncInput =
 
 interface EventReaderSyncOptions {
   documentMode?: 'document' | 'fragment';
+  namespaceAware?: boolean; // default: true
 }
 ```
 
