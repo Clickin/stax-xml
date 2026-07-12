@@ -24,9 +24,6 @@ const catalogSchema = x.object({
   books: x.array(bookSchema, '/catalog/book'),
   firstTitle: x.string().xpath('/catalog/book/title').optional(),
 });
-// v1 compiles schemas lazily on the first parse; retain one shared schema for
-// the explicit-plan compatibility row without exposing an obsolete compile API.
-const compiledCatalogSchema = catalogSchema;
 
 // ── Fixture generator ───────────────────────────────────────────
 
@@ -94,13 +91,13 @@ export function sameSummary(left, right) {
 // ── Variant runners ─────────────────────────────────────────────
 
 /**
- * Create the three converter benchmark cases.
+ * Create the public converter benchmark cases.
  *
  * @param {Uint8Array} bytes  — the catalog XML
  * @returns {import('../run.js').BenchmarkCase[]}
  */
 export function createConverterCases(bytes) {
-  const parseOptions = { maxEvents: 20_000_000 };
+  const parseOptions = { documentMode: 'fragment', maxEvents: 20_000_000 };
 
   function wrap(rawFn) {
     return () => {
@@ -131,19 +128,10 @@ export function createConverterCases(bytes) {
       eventCountKind: 'parsed-elements',
       run: wrap(() => catalogSchema.parseSync(bytes, parseOptions)),
     },
-    {
-      id: 'converter-explicit-compiled-batch-plan',
-      family: 'converter',
-      implementation: 'converter compiled parseSync (explicit)',
-      contractScope: 'catalog-records',
-      fullStringParity: true,
-      eventCountKind: 'parsed-elements',
-      run: wrap(() => compiledCatalogSchema.parseSync(bytes, parseOptions)),
-    },
   ];
 }
 
-export { compiledCatalogSchema, catalogSchema };
+export { catalogSchema };
 
 // ── Manual consumer (parity reference) ──────────────────────────
 
@@ -151,7 +139,7 @@ function consumeManualCursorReader(bytes) {
   const result = { books: [], firstTitle: undefined };
   let currentBook;
   let currentElement = '';
-  const reader = new StreamReaderSync(bytes);
+  const reader = new StreamReaderSync(bytes, { documentMode: 'fragment' });
 
   while (reader.next()) {
     const type = reader.eventType();

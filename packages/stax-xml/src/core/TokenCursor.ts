@@ -71,7 +71,7 @@ export class TokenCursor {
   constructor(input = '', final = false, options: TokenCursorOptions = {}) {
     this.buffer = input;
     this.final = final;
-    this.documentMode = options.documentMode ?? 'document';
+    this.documentMode = options.documentMode ?? 'fragment';
   }
 
   push(text: string, final = false): void {

@@ -19,14 +19,13 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { StreamReaderSync, XmlEventType } from 'stax-xml';
 import { dirname, resolve } from 'node:path';
-import { runBenchmark } from './harness/run.mjs';
+import { performance } from 'node:perf_hooks';
 import {
   createCatalogFixture,
   createConverterCases,
   summarize,
   sameSummary,
   catalogSchema,
-  compiledCatalogSchema,
 } from './harness/cases/converter-catalog.mjs';
 
 const MIB = 1024 * 1024;
@@ -34,7 +33,7 @@ const MIB = 1024 * 1024;
 const args = parseArgs();
 const targetBytes = args.targetBytes;
 const fixture = createCatalogFixture(targetBytes);
-const parseOptions = { maxEvents: args.maxEvents };
+const parseOptions = { documentMode: 'fragment', maxEvents: args.maxEvents };
 
 console.log('Converter compiled batch-plan benchmark');
 console.log(`target=${formatBytes(fixture.bytes.byteLength)}, books=${fixture.bookCount}, warmups=${args.warmups}, runs=${args.runs}, maxEvents=${args.maxEvents}`);
@@ -44,23 +43,15 @@ console.log(`target=${formatBytes(fixture.bytes.byteLength)}, books=${fixture.bo
   const manualResult = consumeManualCursorReader(fixture.bytes);
   const manualSummary = summarize(manualResult);
   const autoSummary = summarize(catalogSchema.parseSync(fixture.bytes, parseOptions));
-  const compiledSummary = summarize(compiledCatalogSchema.parseSync(fixture.bytes, parseOptions));
 
-  if (!sameSummary(manualSummary, autoSummary) || !sameSummary(manualSummary, compiledSummary)) {
-    throw new Error(`Converter parity mismatch: ${JSON.stringify({ manualSummary, autoSummary, compiledSummary })}`);
+  if (!sameSummary(manualSummary, autoSummary)) {
+    throw new Error(`Converter parity mismatch: ${JSON.stringify({ manualSummary, autoSummary })}`);
   }
 }
 
 // ── Benchmark via harness ───────────────────────────────────────
 async function main() {
-  const result = await runBenchmark({
-    label: 'converter-compiled-batch-plan',
-    fixture: { kind: 'buffer', buffer: fixture.bytes },
-    runs: args.runs,
-    warmups: args.warmups,
-    parityCheck: true,
-    cases: createConverterCases(fixture.bytes),
-  });
+  const result = runBenchmark(fixture, args);
 
   // Print table (same format as original)
   for (const [id, v] of Object.entries(result.variants)) {
@@ -78,6 +69,56 @@ async function main() {
   }
 }
 
+function runBenchmark(fixture, options) {
+  const variants = {};
+  for (const benchmarkCase of createConverterCases(fixture.bytes)) {
+    for (let index = 0; index < options.warmups; index++) benchmarkCase.run();
+
+    const samplesMs = [];
+    const heapDeltas = [];
+    const rssDeltas = [];
+    let last;
+    for (let index = 0; index < options.runs; index++) {
+      globalThis.gc?.();
+      const before = process.memoryUsage();
+      const startedAt = performance.now();
+      last = benchmarkCase.run();
+      samplesMs.push(performance.now() - startedAt);
+      const after = process.memoryUsage();
+      heapDeltas.push(after.heapUsed - before.heapUsed);
+      rssDeltas.push(after.rss - before.rss);
+    }
+
+    const avgMs = average(samplesMs);
+    variants[benchmarkCase.id] = {
+      ...benchmarkCase,
+      avgMs,
+      minMs: Math.min(...samplesMs),
+      maxMs: Math.max(...samplesMs),
+      mibPerSec: (fixture.bytes.byteLength / MIB) / (avgMs / 1000),
+      eventCount: last.eventCount,
+      checksum: last.checksum,
+      samplesMs,
+      memory: {
+        avgHeapUsedDeltaBytes: average(heapDeltas),
+        avgRssDeltaBytes: average(rssDeltas),
+      },
+    };
+    delete variants[benchmarkCase.id].run;
+  }
+
+  return {
+    label: 'converter-compiled-batch-plan',
+    fixture: { source: 'buffer', actualBytes: fixture.bytes.byteLength, sizeGiB: fixture.bytes.byteLength / (1024 ** 3) },
+    variants,
+    metadata: { nodeVersion: process.versions.node, v8Version: process.versions.v8, collectedAt: new Date().toISOString() },
+  };
+}
+
+function average(values) {
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
 main().catch((err) => { console.error(err); process.exit(1); });
 
 // ── Manual consumer (parity reference) ──────────────────────────
@@ -86,7 +127,7 @@ function consumeManualCursorReader(bytes) {
   const result = { books: [], firstTitle: undefined };
   let currentBook;
   let currentElement = '';
-  const reader = new StreamReaderSync(bytes);
+  const reader = new StreamReaderSync(bytes, { documentMode: 'fragment' });
 
   while (reader.next()) {
     const type = reader.eventType();
@@ -177,7 +218,7 @@ function formatMarkdown(result) {
     '',
     `Generated: ${result.metadata.collectedAt}`,
     '',
-    'This benchmark compares a manual `CursorReaderSync` projection with converter schemas that are auto-lowered or explicitly lowered to the compiled cursor dispatch plan.',
+    'This benchmark compares a manual `StreamReaderSync` projection with the public converter schema.parseSync path.',
     '',
     '## Results',
     '',

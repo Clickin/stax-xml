@@ -247,7 +247,7 @@ async function registerNpmXmlParserSuite() {
 function consumeStaxEventReader(xmlString) {
   let checksum = 2166136261;
   let events = 0;
-  for (const event of new EventReaderSync(xmlString, { autoDecodeEntities: false })) {
+  for (const event of new EventReaderSync(xmlString, { autoDecodeEntities: false, documentMode: 'fragment' })) {
     events++;
     checksum = mixChecksum(checksum, event.type);
     if (event.type === XmlEventType.START_ELEMENT || event.type === XmlEventType.END_ELEMENT) {
@@ -257,9 +257,9 @@ function consumeStaxEventReader(xmlString) {
       checksum = foldString(checksum, event.value ?? '');
     }
     if (event.type === XmlEventType.START_ELEMENT) {
-      for (const [name, value] of Object.entries(event.attributes ?? {})) {
-        checksum = foldString(checksum, name);
-        checksum = foldString(checksum, value);
+      for (const attribute of event.attributes ?? []) {
+        checksum = foldString(checksum, attribute.name);
+        checksum = foldString(checksum, attribute.value);
       }
     }
   }
@@ -267,7 +267,7 @@ function consumeStaxEventReader(xmlString) {
 }
 
 function consumeStaxStreamReader(inputBuffer) {
-  const reader = new StreamReaderSync(inputBuffer);
+  const reader = new StreamReaderSync(inputBuffer, { documentMode: 'fragment' });
   let checksum = 2166136261;
   let events = 0;
 
@@ -440,7 +440,7 @@ function measureStreamSizeCase(fixtureCase) {
 }
 
 function consumeCursorSize(row, targetBytes) {
-    const reader = new StreamReaderSync(byteChunks(row, targetBytes));
+  const reader = new StreamReaderSync(byteChunks(row, targetBytes), { documentMode: 'fragment' });
   let events = 0;
   let checksum = 2166136261;
 
@@ -505,25 +505,24 @@ function normalizeConverterSuiteFromFile(filePath) {
   const labels = {
     'manual-cursor-reader-sync': 'Manual StreamReaderSync projection',
     'converter-auto-compiled-batch-plan': 'Converter schema.parseSync(bytes)',
-    'converter-explicit-compiled-batch-plan': 'Converter schema.compile().parseSync(bytes)',
   };
 
   return {
     id: 'converter-parity',
     title: 'Converter compiled batch-plan comparison',
-    context: raw.runtime,
-    cases: raw.results.map((entry) => ({
-      label: labels[entry.name] ?? entry.name,
-      avgNs: entry.averageMs * 1e6,
+    context: raw.metadata,
+    cases: Object.values(raw.variants).map((entry) => ({
+      label: labels[entry.id] ?? entry.id,
+      avgNs: entry.avgMs * 1e6,
       minNs: entry.minMs * 1e6,
-      p75Ns: entry.averageMs * 1e6,
+      p75Ns: entry.avgMs * 1e6,
       p99Ns: entry.maxMs * 1e6,
       maxNs: entry.maxMs * 1e6,
-      heapAvgBytes: entry.averageHeapDeltaBytes,
-      rssDeltaBytes: entry.averageRssDeltaBytes,
-      throughputMiBs: entry.throughputMiBs,
-      books: entry.summary.books,
-      checksum: entry.summary.checksum,
+      heapAvgBytes: entry.memory.avgHeapUsedDeltaBytes,
+      rssDeltaBytes: entry.memory.avgRssDeltaBytes,
+      throughputMiBs: entry.mibPerSec,
+      books: entry.eventCount,
+      checksum: entry.checksum,
     })),
   };
 }

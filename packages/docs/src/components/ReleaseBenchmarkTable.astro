@@ -1,7 +1,6 @@
 ---
 import runtimeMatrixV100 from '../data/benchmarks/v1.0.0/runtime-matrix.json';
 import streamReader4GiBV100 from '../data/benchmarks/v1.0.0/stream-reader-4gb.json';
-import converterBatchV100 from '../data/benchmarks/v1.0.0/converter-compiled-batch-plan.json';
 
 type Kind = 'runtime' | 'stream4gib' | 'converter';
 type Locale = 'en' | 'ko';
@@ -11,7 +10,6 @@ const benchmarkData = {
   'v1.0.0': {
     runtimeMatrix: runtimeMatrixV100,
     streamReader4GiB: streamReader4GiBV100,
-    converterBatch: converterBatchV100,
   },
 } as const;
 
@@ -20,7 +18,7 @@ const { kind, locale = 'en', version = 'v1.0.0' } = Astro.props as {
   locale?: Locale;
   version?: BenchmarkVersion;
 };
-const { runtimeMatrix, streamReader4GiB, converterBatch } = benchmarkData[version] ?? benchmarkData['v1.0.0'];
+const { runtimeMatrix, streamReader4GiB } = benchmarkData[version] ?? benchmarkData['v1.0.0'];
 
 const headings = {
   en: {
@@ -65,22 +63,13 @@ const converterLabels = {
   en: {
     'manual-streamreader-sync': 'Manual StreamReaderSync projection',
     'converter-auto-compiled-batch-plan': 'Converter schema.parseSync(bytes)',
-    'converter-explicit-compiled-batch-plan': 'Converter schema.compile().parseSync(bytes)',
   },
   ko: {
     'manual-streamreader-sync': '수동 StreamReaderSync 변환',
     'converter-auto-compiled-batch-plan': 'Converter schema.parseSync(bytes)',
-    'converter-explicit-compiled-batch-plan': 'Converter schema.compile().parseSync(bytes)',
   },
 } as const;
 
-const converterRows = Object.values(converterBatch.variants).map((result) => ({
-  caseName: converterLabels[locale][result.id as keyof typeof converterLabels.en] ?? result.id,
-  throughput: `${formatNumber(result.mibPerSec, 2)} MiB/s`,
-  average: `${formatNumber(result.avgMs, 2)} ms`,
-  books: formatInteger(result.eventCount),
-  checksum: String(result.checksum),
-}));
 
 function formatNumber(value: number, digits: number): string {
   return value.toLocaleString('en-US', {
@@ -138,31 +127,6 @@ function formatInteger(value: number): string {
           <td>{row.throughput}</td>
           <td>{row.events}</td>
           <td>{row.rss}</td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-)}
-
-{kind === 'converter' && (
-  <table>
-    <thead>
-      <tr>
-        <th>{headings[locale].converter[0]}</th>
-        <th>{headings[locale].converter[1]}</th>
-        <th>{headings[locale].converter[2]}</th>
-        <th>{headings[locale].converter[3]}</th>
-        <th>{headings[locale].converter[4]}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {converterRows.map((row) => (
-        <tr>
-          <td>{row.caseName}</td>
-          <td>{row.throughput}</td>
-          <td>{row.average}</td>
-          <td>{row.books}</td>
-          <td>{row.checksum}</td>
         </tr>
       ))}
     </tbody>

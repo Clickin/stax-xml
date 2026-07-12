@@ -174,9 +174,9 @@ describe('streaming-only converter', () => {
     expect(x.string('/root').parseSync(events)).toBe('value');
   });
 
-  it('defaults to document conformance and only enforces explicit resource caps', () => {
-    expect(() => x.array(x.string(), '//item').parseSync('<item>A</item><item>B</item>'))
-      .toThrow('exactly one root element');
+  it('defaults to fragment mode and only enforces explicit resource caps', () => {
+    expect(x.array(x.string(), '//item').parseSync('<item>A</item><item>B</item>'))
+      .toEqual(['A', 'B']);
 
     const deepXml = '<x>'.repeat(1_100) + 'value' + '</x>'.repeat(1_100);
     expect(x.string().parseSync(deepXml)).toBe('value');

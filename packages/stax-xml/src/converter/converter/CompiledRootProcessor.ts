@@ -208,7 +208,7 @@ export class CompiledRootProcessor {
 
   private processString(runtime: RuntimeState, input: string): void {
     const cursor = new TokenCursor(input, true, {
-      documentMode: runtime.options?.documentMode ?? 'document',
+      documentMode: runtime.options?.documentMode ?? 'fragment',
     });
     while (cursor.next() !== null) this.processTokenCursorEvent(runtime, cursor);
   }
@@ -222,7 +222,7 @@ export class CompiledRootProcessor {
 
   private createIncrementalCursor(runtime: RuntimeState): TokenCursor {
     return new TokenCursor('', false, {
-      documentMode: runtime.options?.documentMode ?? 'document',
+      documentMode: runtime.options?.documentMode ?? 'fragment',
     });
   }
 

@@ -2,11 +2,8 @@
   "label": "converter-compiled-batch-plan",
   "fixture": {
     "source": "buffer",
-    "sourceFile": null,
-    "sizeGiB": 0.01562508288770914,
     "actualBytes": 16777305,
-    "rowPreview": null,
-    "rowPreviewTruncated": false
+    "sizeGiB": 0.01562508288770914
   },
   "variants": {
     "manual-cursor-reader-sync": {
@@ -14,90 +11,55 @@
       "family": "converter",
       "implementation": "manual StreamReaderSync object projection",
       "contractScope": "catalog-records",
-      "instrumentation": "materialization-counters-enabled",
-      "eventCountKind": "parsed-elements",
       "fullStringParity": true,
-      "avgMs": 133.7552747999999,
-      "minMs": 131.54274999999984,
-      "maxMs": 137.03491699999995,
-      "mibPerSec": 119.62208519206878,
+      "eventCountKind": "parsed-elements",
+      "avgMs": 132.2885918,
+      "minMs": 130.02174999999988,
+      "maxMs": 135.16333400000008,
+      "mibPerSec": 120.94833469241118,
       "eventCount": 139458,
       "checksum": -1845341048,
       "samplesMs": [
-        133.78841599999987,
-        131.54274999999984,
-        133.23366600000008,
-        133.17662499999983,
-        137.03491699999995
+        134.97362500000008,
+        131.08062500000005,
+        130.203625,
+        130.02174999999988,
+        135.16333400000008
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 68542147.2,
-        "avgHeapTotalDeltaBytes": 4253286.4,
-        "avgRssDeltaBytes": 2313420.8
-      },
-      "materializationCounters": null
+        "avgHeapUsedDeltaBytes": 68076185.6,
+        "avgRssDeltaBytes": 2254438.4
+      }
     },
     "converter-auto-compiled-batch-plan": {
       "id": "converter-auto-compiled-batch-plan",
       "family": "converter",
       "implementation": "converter parseSync (auto-compiled)",
       "contractScope": "catalog-records",
-      "instrumentation": "materialization-counters-enabled",
-      "eventCountKind": "parsed-elements",
       "fullStringParity": true,
-      "avgMs": 221.92579980000005,
-      "minMs": 219.67620800000032,
-      "maxMs": 223.85291700000016,
-      "mibPerSec": 72.09655160163202,
+      "eventCountKind": "parsed-elements",
+      "avgMs": 209.89427499999996,
+      "minMs": 206.426917,
+      "maxMs": 213.13020800000004,
+      "mibPerSec": 76.22925816825715,
       "eventCount": 139458,
       "checksum": -1845341048,
       "samplesMs": [
-        222.63049999999998,
-        219.67620800000032,
-        221.6697909999998,
-        223.85291700000016,
-        221.79958299999998
+        207.7712919999999,
+        206.426917,
+        211.70849999999973,
+        210.43445800000018,
+        213.13020800000004
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 87891324.8,
-        "avgHeapTotalDeltaBytes": 14375321.6,
-        "avgRssDeltaBytes": 3584819.2
-      },
-      "materializationCounters": null
-    },
-    "converter-explicit-compiled-batch-plan": {
-      "id": "converter-explicit-compiled-batch-plan",
-      "family": "converter",
-      "implementation": "converter compiled parseSync (explicit)",
-      "contractScope": "catalog-records",
-      "instrumentation": "materialization-counters-enabled",
-      "eventCountKind": "parsed-elements",
-      "fullStringParity": true,
-      "avgMs": 224.52302500000013,
-      "minMs": 222.15237500000012,
-      "maxMs": 230.15504199999987,
-      "mibPerSec": 71.26255704515896,
-      "eventCount": 139458,
-      "checksum": -1845341048,
-      "samplesMs": [
-        223.85466600000018,
-        223.7531670000003,
-        222.15237500000012,
-        230.15504199999987,
-        222.69987500000025
-      ],
-      "memory": {
-        "avgHeapUsedDeltaBytes": 87301833.6,
-        "avgHeapTotalDeltaBytes": 11806310.4,
-        "avgRssDeltaBytes": 3561881.6
-      },
-      "materializationCounters": null
+        "avgHeapUsedDeltaBytes": 85877299.2,
+        "avgRssDeltaBytes": 3728998.4
+      }
     }
   },
   "metadata": {
     "nodeVersion": "24.15.0",
     "v8Version": "13.6.233.17-node.48",
-    "collectedAt": "2026-07-12T02:36:24.937Z",
-    "startedAt": 1783823784937
+    "collectedAt": "2026-07-12T07:53:13.620Z"
   }
 }

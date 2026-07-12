@@ -32,23 +32,24 @@ const BOOK_FIELDS = [
   { outputName: 'author', sourceKind: 'element', sourceName: 'author' },
   { outputName: 'price', sourceKind: 'element', sourceName: 'price' },
 ];
+const BENCHMARK_PARSE_OPTIONS = { documentMode: 'fragment' };
 
 const FIXTURE_CONTRACTS = new Map([
   [ASSET_PATHS.complex, createFixtureContract({
     itemName: 'person',
-    rootXPath: '/any_name/person',
+    rootXPath: '//person',
     outputDescription: 'Array<{ id, name, age }>',
     fields: PERSON_FIELDS,
   })],
   [ASSET_PATHS.midsize, createFixtureContract({
     itemName: 'person',
-    rootXPath: '/any_name/person',
+    rootXPath: '//person',
     outputDescription: 'Array<{ id, name, age }>',
     fields: PERSON_FIELDS,
   })],
   [ASSET_PATHS.large, createFixtureContract({
     itemName: 'person',
-    rootXPath: '/root/any_name/person',
+    rootXPath: '//person',
     outputDescription: 'Array<{ id, name, age }>',
     fields: PERSON_FIELDS,
   })],
@@ -146,7 +147,7 @@ function appendFieldText(target, fieldName, text) {
 function parseWithEventReader(xmlString, contract) {
   const parser = new EventReaderSync(
     xmlString,
-    { autoDecodeEntities: false },
+    { autoDecodeEntities: false, ...BENCHMARK_PARSE_OPTIONS },
   );
   const rows = [];
   const elementStack = [];
@@ -174,7 +175,7 @@ function parseWithEventReader(xmlString, contract) {
         if (name === contract.itemName) {
           currentRow = createEmptyRow(contract);
           for (const field of contract.attributeFields) {
-            currentRow[field.outputName] = event.attributes?.[field.sourceName] ?? '';
+            currentRow[field.outputName] = event.attributes?.find((attribute) => attribute.name === field.sourceName)?.value ?? '';
           }
         }
         break;
@@ -201,7 +202,7 @@ function parseWithEventReader(xmlString, contract) {
 }
 
 function parseWithStreamReader(inputBuffer, contract) {
-  const parser = new StreamReaderSync(inputBuffer);
+  const parser = new StreamReaderSync(inputBuffer, BENCHMARK_PARSE_OPTIONS);
   const rows = [];
   const elementStack = [];
   let currentRow = null;
@@ -253,6 +254,7 @@ function parseWithStreamReader(inputBuffer, contract) {
 
 function parseWithConverter(inputBuffer, contract) {
   return contract.converterSchema.parseSync(inputBuffer, {
+    ...BENCHMARK_PARSE_OPTIONS,
     maxEvents: 20_000_000,
   });
 }

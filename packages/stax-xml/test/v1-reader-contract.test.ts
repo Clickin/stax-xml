@@ -189,13 +189,13 @@ describe('v1 current-token reader contract', () => {
     expect(() => collectSync('<r>&unknown;</r>')).toThrow(/unknown|entity/i);
   });
 
-  it('enforces document mode and permits multiple roots only in fragment mode', () => {
-    expect(() => collectSync('<a/><b/>')).toThrow();
-    expect(() => collectSync('<a/>tail')).toThrow();
-    expect(collectSync('<a/>tail<b/>', { documentMode: 'fragment' })).toContainEqual([
+  it('defaults to fragment mode and enforces document mode when requested', () => {
+    expect(collectSync('<a/>tail<b/>')).toContainEqual([
       XmlEventType.CHARACTERS,
       'tail',
     ]);
+    expect(() => collectSync('<a/><b/>', { documentMode: 'document' })).toThrow();
+    expect(() => collectSync('<a/>tail', { documentMode: 'document' })).toThrow();
   });
 
   it('produces the same tokens for strings, bytes, and every-byte chunking', () => {

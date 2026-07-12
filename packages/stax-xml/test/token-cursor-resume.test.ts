@@ -110,8 +110,12 @@ describe('TokenCursor XML character checks', () => {
   });
 
   it('allows only literal XML whitespace outside the document element', () => {
-    expect(() => collect(' \t\r\n<r/>')).not.toThrow();
-    expect(() => collect('&#x20;<r/>')).toThrow(/outside the root element/i);
-    expect(() => collect('<r/>&#xA;')).toThrow(/outside the root element/i);
+    const collectDocument = (xml: string) => {
+      const cursor = new TokenCursor(xml, true, { documentMode: 'document' });
+      while (cursor.next() !== null) { /* consume */ }
+    };
+    expect(() => collectDocument(' \t\r\n<r/>')).not.toThrow();
+    expect(() => collectDocument('&#x20;<r/>')).toThrow(/outside the root element/i);
+    expect(() => collectDocument('<r/>&#xA;')).toThrow(/outside the root element/i);
   });
 });

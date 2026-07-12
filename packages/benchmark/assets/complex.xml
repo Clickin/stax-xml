@@ -30,14 +30,14 @@
         <name>Boris</name>
         <phone>+122233344554</phone>
         <age>34</age>
-        <married ns:firstTime="Yes"><![CDATA[<some>Jack</some>]]><![CDATA[Jack]]></married>
+        <married firstTime="Yes"><![CDATA[<some>Jack</some>]]><![CDATA[Jack]]></married>
         <birthday>Mon, 31 Aug 1970 02:03:04 +0300</birthday>
-        <ns:address>
+        <address>
             <city><![CDATA[<some>Jack</some>]]></city>
             <street>Kahovka</street>
             <buildingNo>1</buildingNo>
             <flatNo>2</flatNo>
-        </ns:address>
+        </address>
         <address>
             <city>Tula</city>
             <street>Lenina</street>

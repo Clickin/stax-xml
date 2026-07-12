@@ -207,7 +207,6 @@ function buildTable(section: Section): TableModel | null {
       const rows: Array<[BenchmarkLabel, string]> = [
         ['Manual StreamReaderSync projection', 'Manual StreamReaderSync projection'],
         ['Converter schema.parseSync(bytes)', 'Converter schema.parseSync(bytes)'],
-        ['Converter schema.compile().parseSync(bytes)', 'Converter schema.compile().parseSync(bytes)'],
       ];
       return {
         headers: ['Case', 'Throughput', 'Average', 'Heap', 'RSS delta', 'Books', 'Checksum'],
