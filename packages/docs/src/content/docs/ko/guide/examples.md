@@ -44,7 +44,7 @@ const reader = new EventReaderSync(xmlWithNamespaces);
 for (const event of reader) {
   if (event.type === XmlEventType.START_ELEMENT) {
     console.log(`Element: ${event.name}`);
-    console.log(`Namespace URI: ${event.uri || 'default'}`);
+    console.log(`Namespace URI: ${event.namespaceURI || 'default'}`);
     console.log(`Local name: ${event.localName}`);
     if (event.prefix) {
       console.log(`Prefix: ${event.prefix}`);

@@ -7,13 +7,12 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release tag to publish, for example v1.0.0-rc3'
+        description: 'Release tag to publish, for example v1.0.0'
         required: true
-        default: 'v1.0.0-rc3'
   workflow_call:
     inputs:
       version:
-        description: 'Release tag to publish, for example v1.0.0-rc3'
+        description: 'Release tag to publish, for example v1.0.0'
         required: true
         type: string
 
@@ -46,6 +45,9 @@ jobs:
       - name: Build package
         run: pnpm build
 
+      - name: Validate pure-JS package contents
+        run: node scripts/validate-prerelease.mjs "${{ github.event_name == 'push' && github.ref_name || inputs.version }}" --pack
+
   publish:
     runs-on: ubuntu-24.04
     needs:
@@ -76,6 +78,9 @@ jobs:
 
       - name: Build facade package
         run: pnpm build
+
+      - name: Validate pure-JS package contents
+        run: node scripts/validate-prerelease.mjs "${{ github.event_name == 'push' && github.ref_name || inputs.version }}" --pack
 
       - name: Resolve npm dist-tag
         id: npm-dist-tag

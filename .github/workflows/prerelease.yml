@@ -4,9 +4,8 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Prerelease tag to create, for example v1.0.0-rc3'
+        description: 'Prerelease tag to create, for example v1.0.0-rc4'
         required: true
-        default: 'v1.0.0-rc3'
       npm_tag:
         description: 'Expected npm dist-tag used by release.yml for prereleases'
         required: true
@@ -38,7 +37,7 @@ jobs:
         run: |
           set -euo pipefail
           if [[ ! "${{ inputs.version }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-[0-9A-Za-z.-]+$ ]]; then
-            echo "version must be a prerelease tag like v1.0.0-rc3" >&2
+            echo "version must be a prerelease tag like v1.0.0-rc4" >&2
             exit 1
           fi
           if [[ "${{ inputs.npm_tag }}" != "next" ]]; then
@@ -70,7 +69,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Validate package versions
+      - name: Validate pure-JS package manifest
         run: node scripts/validate-prerelease.mjs "${{ inputs.version }}"
 
       - name: Validate docs snapshot
@@ -78,6 +77,9 @@ jobs:
 
       - name: Build package
         run: pnpm --filter=stax-xml build
+
+      - name: Validate pure-JS package contents
+        run: node scripts/validate-prerelease.mjs "${{ inputs.version }}" --pack
 
       - name: Build docs
         run: pnpm docs:build

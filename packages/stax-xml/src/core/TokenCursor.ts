@@ -1026,7 +1026,7 @@ function findValidatedAttributeEnd(text: string, start: number, quote: number): 
 }
 
 function isXmlWhitespace(code: number): boolean { return code === 32 || code === 9 || code === 10 || code === 13; }
-function isAsciiLetter(code: number): boolean { return (code >= 65 && code <= 90) || (code >= 97 && code <= 122); }
+function isAsciiLetter(code: number): boolean { const lower = code | 32; return lower >= 97 && lower <= 122; }
 function isNameStart(code: number): boolean { return isAsciiLetter(code) || code === 95 || code === 58 || (code >= 0xc0 && code <= 0xffff); }
 function isNamePart(code: number): boolean {
   return isNameStart(code) || (code >= 48 && code <= 57) || code === 46 || code === 45 || (code >= 0xb7 && code <= 0xffff);

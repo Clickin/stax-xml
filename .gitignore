@@ -4,6 +4,8 @@ GEMINI.md
 CLAUDE.md
 .gemini/
 .claude/
+.agents/
+.codex/
 .specify/
 .planning/
 .omx/
@@ -22,8 +24,12 @@ packages/*/coverage
 packages/*/.cache
 packages/*/node_modules
 packages/benchmark/*.log
+packages/benchmark/results/machine-code-comparison/
+packages/benchmark/results/bun-jsc-cpu-profile/
+packages/benchmark/results/woodstox-jfr/
 packages/benchmark/native/
 packages/benchmark/external/*/target/
+packages/benchmark/external/woodstox/dependency-reduced-pom.xml
 packages/native-*/stax_xml_native.node
 coverage/
 directions
