@@ -63,13 +63,11 @@ const streamRows = streamReader4GiB.results.map((result) => ({
 
 const converterLabels = {
   en: {
-    'manual-cursor-reader-sync': 'Manual CursorReaderSync projection',
     'manual-streamreader-sync': 'Manual StreamReaderSync projection',
     'converter-auto-compiled-batch-plan': 'Converter schema.parseSync(bytes)',
     'converter-explicit-compiled-batch-plan': 'Converter schema.compile().parseSync(bytes)',
   },
   ko: {
-    'manual-cursor-reader-sync': '수동 CursorReaderSync 변환',
     'manual-streamreader-sync': '수동 StreamReaderSync 변환',
     'converter-auto-compiled-batch-plan': 'Converter schema.parseSync(bytes)',
     'converter-explicit-compiled-batch-plan': 'Converter schema.compile().parseSync(bytes)',

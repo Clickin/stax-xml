@@ -139,9 +139,9 @@ type TableModel = {
 const parserSurfaces: Array<[BenchmarkLabel, string, string]> = [
   ['stax-xml EventReaderSync (JS object)', '**EventReaderSync**', 'String event iterator building the same object shape manually'],
   [
-    ['stax-xml CursorReaderSync (JS object)', 'stax-xml StreamReaderSync (JS object)'],
-    '**CursorReaderSync**',
-    'Cursor/accessor reader avoiding event object allocation',
+    'stax-xml StreamReaderSync (JS object)',
+    '**StreamReaderSync**',
+    'Current-token reader avoiding event object allocation',
   ],
   ['stax-xml Converter API (JS object)', '**Converter**', 'Declarative schema returning the same object shape'],
 ];
@@ -170,9 +170,9 @@ function buildTable(section: Section): TableModel | null {
       const rows: Array<[BenchmarkLabel, string, string]> = [
         ['stax-xml EventReaderSync (JS event checksum)', '**stax-xml EventReaderSync**', 'Public string event reader with checksum folding'],
         [
-          ['stax-xml CursorReaderSync (JS event checksum)', 'stax-xml StreamReaderSync index-first (JS event checksum)'],
-          '**stax-xml CursorReaderSync**',
-          'Public cursor reader with accessor-based checksum folding',
+          'stax-xml StreamReaderSync (JS event checksum)',
+          '**stax-xml StreamReaderSync**',
+          'Public current-token reader with accessor-based checksum folding',
         ],
         ['fast-xml-parser XMLParser', 'fast-xml-parser XMLParser', 'Object parser'],
         ['txml parse', 'txml parse', 'Lightweight object parser'],
@@ -194,7 +194,7 @@ function buildTable(section: Section): TableModel | null {
         headers: ['Size', 'Throughput', 'Average', 'RSS delta', 'Events', 'Checksum'],
         rows: summary.suites['stream-size'].cases.map((entry: any) => [
           entry.label
-            .replace('CursorReader iterable cursor ', '')
+            .replace('StreamReaderSync iterable chunks ', '')
             .replace('StreamReaderSync index-first ', ''),
           `${formatNumber(entry.throughputMiBs, 2)} MiB/s`,
           formatDurationNs(entry.avgNs),
@@ -205,7 +205,7 @@ function buildTable(section: Section): TableModel | null {
       };
     case 'converter': {
       const rows: Array<[BenchmarkLabel, string]> = [
-        [['Manual CursorReaderSync projection', 'Manual StreamReaderSync projection'], 'Manual CursorReaderSync projection'],
+        ['Manual StreamReaderSync projection', 'Manual StreamReaderSync projection'],
         ['Converter schema.parseSync(bytes)', 'Converter schema.parseSync(bytes)'],
         ['Converter schema.compile().parseSync(bytes)', 'Converter schema.compile().parseSync(bytes)'],
       ];
@@ -320,7 +320,7 @@ const currentSourceLinks = sourceLinks[section] ?? [];
       <li><strong>CPU:</strong> {env.cpuName} (~{formatNumber(env.cpuGHz, 2)} GHz)</li>
       <li><strong>{locale === 'en' ? 'Runtime' : '런타임'}:</strong> {env.runtime} {env.version} ({env.arch}) <code>--expose-gc</code></li>
       <li><strong>{locale === 'en' ? 'Package manager' : '패키지 매니저'}:</strong> {env.packageManager ?? 'n/a'}</li>
-      <li><strong>Canonical Set:</strong> parser 2 KiB / 4 KiB / 13 MiB / 98 MiB, maintained Node XML parser comparison, CursorReaderSync 1 MiB to 4 GiB size series, runtime matrix, converter compiled batch plan, writer small / big / async / 1 GiB</li>
+      <li><strong>Canonical Set:</strong> parser 2 KiB / 4 KiB / 13 MiB / 98 MiB, maintained Node XML parser comparison, StreamReaderSync 1 MiB to 4 GiB size series, runtime matrix, converter compiled batch plan, writer small / big / async / 1 GiB</li>
       <li><strong>{locale === 'en' ? 'Source' : '소스'}:</strong> <a href={`${githubBlobBase}${sourceLinks.environment[0][1]}`}>{sourceLinks.environment[0][0]}</a></li>
     </ul>
     {(env.packages?.length || env.nodeComponents?.length) && (
