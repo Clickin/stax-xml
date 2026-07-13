@@ -78,8 +78,10 @@ abstract class AbstractWriterSync {
   protected state: number = WriterState.INITIAL;
   protected elementStack: string[] = [];
   protected hasTextContentStack: boolean[] = [];
-  protected namespaceStack: Map<string, string>[] = [];
-  protected namespaceOwnedStack: boolean[] = [];
+  protected readonly namespaces = new Map<string, string>();
+  protected namespaceUndoStarts: number[] = [];
+  protected namespaceUndoPrefixes: string[] = [];
+  protected namespaceUndoPrevious: Array<string | undefined> = [];
   protected readonly options: Required<WriterSyncOptions>;
   protected currentIndentLevel: number = 0;
   protected needsIndent: boolean = false;
@@ -99,10 +101,6 @@ abstract class AbstractWriterSync {
       ...options,
       encoding,
     };
-
-    // Initialize namespace stack (root namespace context)
-    this.namespaceStack = [new Map<string, string>()];
-    this.namespaceOwnedStack = [true];
 
     // OPTIMIZATION 1: Build custom entity map and regex at construction time
     if (this.options.addEntities && this.options.addEntities.length > 0) {
@@ -182,17 +180,11 @@ abstract class AbstractWriterSync {
     const qualifiedName = prefix ? `${prefix}:${localName}` : localName;
     this._write(`<${qualifiedName}`);
 
-    const parentNamespaces = this.namespaceStack[this.namespaceStack.length - 1]!;
-    let currentNamespaces = parentNamespaces;
-    let ownsNamespaces = false;
+    const undoStart = this.namespaceUndoPrefixes.length;
 
     if (prefix && uri) {
       this._write(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
-      if (parentNamespaces.get(prefix) !== uri) {
-        currentNamespaces = new Map(parentNamespaces);
-        currentNamespaces.set(prefix, uri);
-        ownsNamespaces = true;
-      }
+      this._bindNamespace(prefix, uri);
     }
 
     if (attributes) {
@@ -209,7 +201,7 @@ abstract class AbstractWriterSync {
           const attrValue = value.value;
 
           if (attrPrefix) {
-            if (!currentNamespaces.has(attrPrefix)) {
+            if (!this.namespaces.has(attrPrefix)) {
               throw new Error(`Namespace prefix '${attrPrefix}' is not defined for attribute '${key}'`);
             }
             attrString += ` ${attrPrefix}:${key}="${this._escapeXml(attrValue)}"`;
@@ -225,6 +217,7 @@ abstract class AbstractWriterSync {
 
     if (selfClosing) {
       this._write('/>');
+      this._restoreNamespaces(undoStart);
       this.state = WriterState.AFTER_ELEMENT;
       this._writeNewline();
       return this;
@@ -232,8 +225,7 @@ abstract class AbstractWriterSync {
 
     this.elementStack.push(qualifiedName);
     this.hasTextContentStack.push(false);
-    this.namespaceStack.push(currentNamespaces);
-    this.namespaceOwnedStack.push(ownsNamespaces);
+    this.namespaceUndoStarts.push(undoStart);
     this.state = WriterState.START_ELEMENT_OPEN;
     this.currentIndentLevel++;
     return this;
@@ -254,14 +246,12 @@ abstract class AbstractWriterSync {
       throw new Error('writeNamespace can only be called after writeStartElement.');
     }
 
-    const currentNamespaces = this._ensureMutableNamespaceContext();
-
     if (prefix) {
       this._write(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
-      currentNamespaces.set(prefix, uri);
+      this._bindNamespace(prefix, uri);
     } else {
       this._write(` xmlns="${this._escapeXml(uri)}"`);
-      currentNamespaces.set('', uri);
+      this._bindNamespace('', uri);
     }
     return this;
   }
@@ -361,8 +351,7 @@ abstract class AbstractWriterSync {
     this._closeStartElementTag();
 
     const closingTagName = this.elementStack.pop()!;
-    this.namespaceStack.pop();
-    this.namespaceOwnedStack.pop();
+    this._restoreNamespaces(this.namespaceUndoStarts.pop()!);
     this._write(`</${closingTagName}>`);
 
     this.state = WriterState.AFTER_ELEMENT;
@@ -398,15 +387,21 @@ abstract class AbstractWriterSync {
     this._emit(chunk);
   }
 
-  private _ensureMutableNamespaceContext(): Map<string, string> {
-    const index = this.namespaceStack.length - 1;
-    let namespaces = this.namespaceStack[index]!;
-    if (!this.namespaceOwnedStack[index]) {
-      namespaces = new Map(namespaces);
-      this.namespaceStack[index] = namespaces;
-      this.namespaceOwnedStack[index] = true;
+  private _bindNamespace(prefix: string, uri: string): void {
+    const previous = this.namespaces.get(prefix);
+    if (previous === uri) return;
+    this.namespaceUndoPrefixes.push(prefix);
+    this.namespaceUndoPrevious.push(previous);
+    this.namespaces.set(prefix, uri);
+  }
+
+  private _restoreNamespaces(start: number): void {
+    while (this.namespaceUndoPrefixes.length > start) {
+      const prefix = this.namespaceUndoPrefixes.pop()!;
+      const previous = this.namespaceUndoPrevious.pop();
+      if (previous === undefined) this.namespaces.delete(prefix);
+      else this.namespaces.set(prefix, previous);
     }
-    return namespaces;
   }
 
   protected _closeStartElementTag(): void {

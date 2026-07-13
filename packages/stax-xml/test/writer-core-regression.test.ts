@@ -73,6 +73,28 @@ describe('Writer hot-path regression coverage', () => {
     })).rejects.toThrow("Namespace prefix 'local' is not defined");
   });
 
+  it('restores a shadowed namespace binding for sync and async siblings', async () => {
+    const sync = new WriterSync();
+    sync.writeStartElement('root', { prefix: 'p', uri: 'urn:root' });
+    sync.writeStartElement('inner', { prefix: 'p', uri: 'urn:inner' });
+    sync.writeEndElement();
+    sync.writeStartElement('sibling', { attributes: { id: { value: '1', prefix: 'p' } } });
+    sync.writeEndElement();
+    sync.writeEndElement();
+    expect(sync.getXmlString()).toContain('<sibling p:id="1"></sibling>');
+
+    const chunks: Uint8Array[] = [];
+    const async = new Writer(new WritableStream<Uint8Array>({ write: chunk => chunks.push(chunk) }));
+    await async.writeStartElement('root', { prefix: 'p', uri: 'urn:root' });
+    await async.writeStartElement('inner', { prefix: 'p', uri: 'urn:inner' });
+    await async.writeEndElement();
+    await async.writeStartElement('sibling', { attributes: { id: { value: '1', prefix: 'p' } } });
+    await async.writeEndElement();
+    await async.writeEndElement();
+    await async.writeEndDocument();
+    expect(new TextDecoder().decode(concat(chunks))).toContain('<sibling p:id="1"></sibling>');
+  });
+
   it('should flush async output without dropping bytes on a tiny buffer boundary', async () => {
     const { stream, getBytesWritten } = createCountingWritableStream();
     const writer = new Writer(stream, {
@@ -91,3 +113,14 @@ describe('Writer hot-path regression coverage', () => {
     expect(writer.getMetrics().flushCount).toBeGreaterThan(1);
   });
 });
+
+function concat(chunks: Uint8Array[]): Uint8Array {
+  const length = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+  const result = new Uint8Array(length);
+  let offset = 0;
+  for (const chunk of chunks) {
+    result.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return result;
+}

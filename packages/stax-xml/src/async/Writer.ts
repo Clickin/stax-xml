@@ -136,8 +136,10 @@ export class Writer {
   private state: WriterState = WriterState.INITIAL;
   private elementStack: string[] = [];
   private hasTextContentStack: boolean[] = [];
-  private namespaceStack: Map<string, string>[] = [];
-  private namespaceOwnedStack: boolean[] = [];
+  private readonly namespaces = new Map<string, string>();
+  private namespaceUndoStarts: number[] = [];
+  private namespaceUndoPrefixes: string[] = [];
+  private namespaceUndoPrevious: Array<string | undefined> = [];
 
   private readonly options: Required<WriterOptions>;
   private currentIndentLevel: number = 0;
@@ -182,10 +184,6 @@ export class Writer {
     this.writer = stream.getWriter();
     this.encoder = new TextEncoder();
     this.buffer = new Uint8Array(this.options.bufferSize);
-
-    // Initialize namespace stack
-    this.namespaceStack = [new Map<string, string>()];
-    this.namespaceOwnedStack = [true];
 
     // OPTIMIZATION 1: Build custom entity map and regex at construction time
     if (this.options.addEntities && this.options.addEntities.length > 0) {
@@ -352,18 +350,11 @@ export class Writer {
     const qualifiedName = prefix ? `${prefix}:${localName}` : localName;
     await this._writeToBuffer(`<${qualifiedName}`);
 
-    // Namespace processing
-    const parentNamespaces = this.namespaceStack[this.namespaceStack.length - 1]!;
-    let currentNamespaces = parentNamespaces;
-    let ownsNamespaces = false;
+    const undoStart = this.namespaceUndoPrefixes.length;
 
     if (prefix && uri) {
       await this._writeToBuffer(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
-      if (parentNamespaces.get(prefix) !== uri) {
-        currentNamespaces = new Map(parentNamespaces);
-        currentNamespaces.set(prefix, uri);
-        ownsNamespaces = true;
-      }
+      this._bindNamespace(prefix, uri);
     }
 
     // OPTIMIZATION 2: Attribute string batching
@@ -385,7 +376,7 @@ export class Writer {
 
           if (attrPrefix) {
             // Check if prefix is defined in namespace
-            if (!currentNamespaces.has(attrPrefix)) {
+            if (!this.namespaces.has(attrPrefix)) {
               throw new Error(`Namespace prefix '${attrPrefix}' is not defined for attribute '${key}'`);
             }
             attrString += ` ${attrPrefix}:${key}="${this._escapeXml(attrValue)}"`;
@@ -401,6 +392,7 @@ export class Writer {
 
     if (selfClosing) {
       await this._writeToBuffer('/>');
+      this._restoreNamespaces(undoStart);
       this.state = WriterState.AFTER_ELEMENT;
       if (this.options.prettyPrint) {
         await this._writeNewline();
@@ -410,8 +402,7 @@ export class Writer {
 
     this.elementStack.push(qualifiedName);
     this.hasTextContentStack.push(false);
-    this.namespaceStack.push(currentNamespaces);
-    this.namespaceOwnedStack.push(ownsNamespaces);
+    this.namespaceUndoStarts.push(undoStart);
     this.state = WriterState.START_ELEMENT_OPEN;
     this.currentIndentLevel++;
 
@@ -437,8 +428,7 @@ export class Writer {
     await this._closeStartElementTag();
 
     const closingTagName = this.elementStack.pop()!;
-    this.namespaceStack.pop();
-    this.namespaceOwnedStack.pop();
+    this._restoreNamespaces(this.namespaceUndoStarts.pop()!);
 
     await this._writeToBuffer(`</${closingTagName}>`);
 
@@ -630,6 +620,23 @@ export class Writer {
     const indent = this.options.indentString.repeat(level);
     this.indentCache[level] = indent;
     return indent;
+  }
+
+  private _bindNamespace(prefix: string, uri: string): void {
+    const previous = this.namespaces.get(prefix);
+    if (previous === uri) return;
+    this.namespaceUndoPrefixes.push(prefix);
+    this.namespaceUndoPrevious.push(previous);
+    this.namespaces.set(prefix, uri);
+  }
+
+  private _restoreNamespaces(start: number): void {
+    while (this.namespaceUndoPrefixes.length > start) {
+      const prefix = this.namespaceUndoPrefixes.pop()!;
+      const previous = this.namespaceUndoPrevious.pop();
+      if (previous === undefined) this.namespaces.delete(prefix);
+      else this.namespaces.set(prefix, previous);
+    }
   }
 }
 
