@@ -52,8 +52,8 @@ const catalog = x.object({
 const value = catalog.parseSync(xml);
 ```
 
-Selectors are compiled and cached automatically. There is no public
-`.compile()` step.
+Selectors are compiled and cached automatically. Call `.precompile()` only to
+warm that work before the first parse; there is no public `.compile()` step.
 
 ## Namespaces
 

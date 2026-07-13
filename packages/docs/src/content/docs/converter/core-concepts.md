@@ -118,7 +118,7 @@ const result = schema.safeParseSync('<age>150</age>');
 if (result.success) {
   console.log(result.data);  // number
 } else {
-  console.log(result.issues);  // Array of error objects
+  console.log(result.error.issues);  // Array of error objects
 }
 
 // Safe async parsing
@@ -129,7 +129,7 @@ const result = await schema.safeParse('<age>150</age>');
 ```typescript
 type ParseResult<T> =
   | { success: true; data: T }
-  | { success: false; issues: Array<{ message: string; path?: string }> };
+  | { success: false; error: { issues: Array<{ message: string; path?: string }> } };
 ```
 
 **When to use:**

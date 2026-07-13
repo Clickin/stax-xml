@@ -40,7 +40,8 @@ const catalog = x.object({
 const value = catalog.parseSync(xml);
 ```
 
-Selector는 자동으로 compile되고 cache됩니다. Public `.compile()` 단계는 없습니다.
+Selector는 자동으로 compile되고 cache됩니다. 첫 parse 전에 warmup하려면 `.precompile()`을
+호출할 수 있으며, public `.compile()` 단계는 없습니다.
 
 ## Namespace
 

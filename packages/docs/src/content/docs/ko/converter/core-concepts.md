@@ -90,7 +90,7 @@ const result = schema.safeParseSync('<age>150</age>');
 if (result.success) {
   console.log(result.data);  // number
 } else {
-  console.log(result.issues);  // 에러 객체 배열
+  console.log(result.error.issues);  // 에러 객체 배열
 }
 ```
 

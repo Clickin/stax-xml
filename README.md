@@ -64,34 +64,13 @@ for (const event of reader) {
 
 - `stax-xml/converter`: recommended schema-driven XML-to-object parsing and XML writing.
 - `EventReaderSync` / `EventReader`: ergonomic event readers for applications that inspect events directly.
-- `CursorReaderSync`: low-level synchronous cursor reader for allocation-sensitive byte input, including generated or file-backed byte batches.
-- `parseXmlTree*()` / `parseXmlObject*()`: convenience helpers for unknown XML.
+- `StreamReaderSync` / `StreamReader`: allocation-sensitive current-token readers.
 - `Writer`, `WriterSync`, `WriterSyncSink`: XML output APIs, including a sync
   sink path for large output.
 
-Source shape is not a separate reader family: use strings, `Uint8Array`,
-`Iterable<readonly Uint8Array[]>`, `ReadableStream<Uint8Array>`, or async byte
-sources through the API that matches the result you want. For known object
-output, start with the converter; use `CursorReaderSync` only when manually
-controlling the pull loop is worth the extra API surface.
-
-Runtime-specific file input lives under adapter subpaths, keeping the main
-browser-compatible entry free of runtime file-system imports:
-
-```ts
-import { CursorReaderSync } from 'stax-xml';
-import { nodeFileByteBatchesSync } from 'stax-xml/adapters/node';
-
-const reader = new CursorReaderSync(
-  nodeFileByteBatchesSync('./large.xml', { chunkSize: 64 * 1024, batchSize: 16 })
-);
-```
-
-Use `bunFileByteBatchesSync` from `stax-xml/adapters/bun` on Bun and
-`denoFileByteBatchesSync` from `stax-xml/adapters/deno` on Deno. These helpers
-read lazily and do not preload the whole file. Pass the iterable directly to a
-reader for large XML; collecting it with `Array.from()` or spread syntax loads
-the whole file in user code.
+For known object output, start with the converter. The package exposes only
+`stax-xml` and `stax-xml/converter`; it has no adapter, tree/DOM, or backend
+selection subpaths.
 
 ### Release Guides
 
@@ -177,33 +156,13 @@ for (const event of reader) {
 
 - `stax-xml/converter`: 권장 schema 기반 XML-to-object parsing 및 XML writing.
 - `EventReaderSync` / `EventReader`: event를 직접 검사하는 애플리케이션용 reader.
-- `CursorReaderSync`: generated/file-backed byte batch까지 다루는 allocation-sensitive 저수준 동기 cursor reader.
-- `parseXmlTree*()` / `parseXmlObject*()`: unknown XML을 위한 convenience helper.
+- `StreamReaderSync` / `StreamReader`: allocation-sensitive current-token reader.
 - `Writer`, `WriterSync`, `WriterSyncSink`: 큰 출력에 적합한 sync sink path를 포함한
   XML output API.
 
-입력 형태는 별도의 reader family가 아닙니다. 원하는 결과 API에 `string`,
-`Uint8Array`, `Iterable<readonly Uint8Array[]>`, `ReadableStream<Uint8Array>`,
-async byte source를 전달하세요. object output이 정해져 있으면 converter부터
-사용하고, pull loop를 직접 제어할 이유가 있을 때만 `CursorReaderSync`를 사용합니다.
-
-Runtime별 파일 입력은 adapter subpath에 있습니다. 따라서 기본 browser-compatible
-entry에는 runtime file-system import가 섞이지 않습니다.
-
-```ts
-import { CursorReaderSync } from 'stax-xml';
-import { nodeFileByteBatchesSync } from 'stax-xml/adapters/node';
-
-const reader = new CursorReaderSync(
-  nodeFileByteBatchesSync('./large.xml', { chunkSize: 64 * 1024, batchSize: 16 })
-);
-```
-
-Bun에서는 `stax-xml/adapters/bun`의 `bunFileByteBatchesSync`, Deno에서는
-`stax-xml/adapters/deno`의 `denoFileByteBatchesSync`를 사용하세요. 이 helper들은
-파일 전체를 미리 올리지 않고 bounded chunk를 lazy하게 읽습니다. 큰 XML에서는
-iterable을 reader에 바로 넘기세요. `Array.from()`이나 spread syntax로 수집하면
-호출자 코드가 전체 파일을 메모리에 올리게 됩니다.
+object output이 정해져 있으면 converter부터 사용하세요. package entry point는
+`stax-xml`과 `stax-xml/converter`뿐이며 adapter, tree/DOM, backend selection
+subpath는 제공하지 않습니다.
 
 ### 릴리스 가이드
 

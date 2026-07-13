@@ -168,7 +168,7 @@ const result = schema.safeParseSync(xmlString);
 if (result.success) {
   console.log(result.data);
 } else {
-  console.error(result.issues);
+  console.error(result.error.issues);
 }
 ```
 
