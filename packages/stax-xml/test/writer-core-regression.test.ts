@@ -110,6 +110,16 @@ describe('Writer hot-path regression coverage', () => {
     await expect(async.writeCharacters('\u0000')).rejects.toThrow(/invalid XML character/i);
   });
 
+  it('preserves sink failures and rejects subsequent writes', async () => {
+    const sync = new (class extends WriterSync { protected _emit(): void { throw new Error('sync sink failed'); } })();
+    expect(() => sync.writeCharacters('x')).toThrow('sync sink failed');
+    expect(() => sync.writeStartElement('root')).toThrow(/closed or in error/i);
+
+    const async = new Writer(new WritableStream<Uint8Array>({ write() { throw new Error('async sink failed'); } }), { bufferSize: 1 });
+    await expect(async.writeCharacters('x')).rejects.toThrow('async sink failed');
+    await expect(async.writeStartElement('root')).rejects.toThrow(/closed or in error/i);
+  });
+
   it('should flush async output without dropping bytes on a tiny buffer boundary', async () => {
     const { stream, getBytesWritten } = createCountingWritableStream();
     const writer = new Writer(stream, {

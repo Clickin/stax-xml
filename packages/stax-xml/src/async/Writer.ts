@@ -235,7 +235,7 @@ export class Writer {
         await this._flushBuffer();
         const codePoint = Array.from(source)[0]!;
         const encoded = this.encoder.encode(codePoint);
-        await this.writer.write(encoded);
+        await this._writeChunk(encoded);
         this.metrics.totalBytesWritten += encoded.byteLength;
         this.metrics.flushCount++;
         this.metrics.lastFlushTime = Date.now();
@@ -266,7 +266,7 @@ export class Writer {
     this.buffer = new Uint8Array(this.options.bufferSize);
     this.bufferPosition = 0;
 
-    await this.writer.write(chunk);
+    await this._writeChunk(chunk);
 
     this.metrics.totalBytesWritten += bytesWritten;
     this.metrics.flushCount++;
@@ -571,6 +571,15 @@ export class Writer {
       if (this.options.prettyPrint) {
         this.needsIndent = true;
       }
+    }
+  }
+
+  private async _writeChunk(chunk: Uint8Array): Promise<void> {
+    try {
+      await this.writer.write(chunk);
+    } catch (error) {
+      this.state = WriterState.ERROR;
+      throw error;
     }
   }
 

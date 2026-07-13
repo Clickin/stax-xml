@@ -418,7 +418,12 @@ abstract class AbstractWriterSync {
 
   private _write(chunk: string): void {
     if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) return;
-    this._emit(chunk);
+    try {
+      this._emit(chunk);
+    } catch (error) {
+      this.state = WriterState.ERROR;
+      throw error;
+    }
   }
 
   private _bindNamespace(prefix: string, uri: string): void {
