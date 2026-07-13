@@ -182,11 +182,10 @@ function consumePublicSync(xml) {
       checksum = foldString(checksum, event.value?.trim());
     }
     if (event.type === XmlEventType.START_ELEMENT) {
-      const entries = Object.entries(event.attributes);
-      checksum = mixChecksum(checksum, entries.length);
-      for (const [name, value] of entries) {
-        checksum = foldString(checksum, name);
-        checksum = foldString(checksum, value);
+      checksum = mixChecksum(checksum, event.attributes.length);
+      for (const attribute of event.attributes) {
+        checksum = foldString(checksum, attribute.name);
+        checksum = foldString(checksum, attribute.value);
       }
     }
   }
@@ -200,7 +199,7 @@ function consumeEventTier(xml, tier) {
 
   for (const event of new EventReaderSync(xml)) {
     const type = publicEventTypeCode(event.type);
-    const attrs = event.type === XmlEventType.START_ELEMENT ? Object.entries(event.attributes) : [];
+    const attrs = event.type === XmlEventType.START_ELEMENT ? event.attributes : [];
     eventCount++;
     checksum = mixChecksum(checksum, type);
 
@@ -215,10 +214,12 @@ function consumeEventTier(xml, tier) {
     if (event.type === XmlEventType.CHARACTERS || event.type === XmlEventType.CDATA) {
       checksum = foldString(checksum, event.value?.trim());
     }
-    checksum = mixChecksum(checksum, attrs.length);
-    for (const [name, value] of attrs) {
-      checksum = foldString(checksum, name);
-      checksum = foldString(checksum, value);
+    if (event.type === XmlEventType.START_ELEMENT) {
+      checksum = mixChecksum(checksum, attrs.length);
+      for (const attribute of attrs) {
+        checksum = foldString(checksum, attribute.name);
+        checksum = foldString(checksum, attribute.value);
+      }
     }
   }
 
@@ -233,7 +234,7 @@ function consumeCursorReader(bytes) {
   while (reader.next()) {
     const type = reader.eventType();
     eventCount++;
-    checksum = mixChecksum(checksum, type);
+    checksum = mixChecksum(checksum, publicEventTypeCode(type));
 
     if (type === XmlEventType.START_ELEMENT || type === XmlEventType.END_ELEMENT) {
       checksum = foldString(checksum, reader.name());
@@ -305,6 +306,18 @@ async function main() {
   const bytes = new TextEncoder().encode(xml);
   const fileSizeMiB = bytes.byteLength / 1024 / 1024;
 
+  const scenarios = [
+    measure('public-sync-full-string', () => consumePublicSync(xml), fileSizeMiB, options),
+    measure('cursor-sync-full-string', () => consumeCursorReader(bytes), fileSizeMiB, options),
+    measure('event-count-only', () => consumeEventTier(xml, 'count-only'), fileSizeMiB, options),
+    measure('event-full-string', () => consumeEventTier(xml, 'full-string'), fileSizeMiB, options),
+  ];
+  const [publicFull, cursorFull, , eventFull] = scenarios;
+  if (publicFull.eventCount !== cursorFull.eventCount || publicFull.checksum !== cursorFull.checksum
+    || publicFull.eventCount !== eventFull.eventCount || publicFull.checksum !== eventFull.checksum) {
+    throw new Error('Full runtime scenarios must produce identical event counts and checksums.');
+  }
+
   const report = {
     runtime: {
       id: options.runtimeId,
@@ -319,12 +332,7 @@ async function main() {
       runs: options.runs,
       warmups: options.warmups,
     },
-    scenarios: [
-      measure('public-sync-full-string', () => consumePublicSync(xml), fileSizeMiB, options),
-      measure('cursor-sync-full-string', () => consumeCursorReader(bytes), fileSizeMiB, options),
-      measure('event-count-only', () => consumeEventTier(xml, 'count-only'), fileSizeMiB, options),
-      measure('event-full-string', () => consumeEventTier(xml, 'full-string'), fileSizeMiB, options),
-    ],
+    scenarios,
   };
 
   console.log(JSON.stringify(report));
