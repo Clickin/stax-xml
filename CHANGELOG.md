@@ -5,15 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - 2026-05-22
+## [1.0.0] - Unreleased
 
 ### Changed
 
-- Promoted the pure JavaScript rc3 package contract to the stable v1.0.0
-  release line without adding native addon or Wasm parser runtime dependencies.
-- Kept the large-file reader direction on byte input plus span-level string
-  materialization, with the final release docs centered on `StreamReaderSync`,
-  `EventReader`, converter, and writer surfaces.
+- Finalized the pure JavaScript package contract without native addon or Wasm
+  parser runtime dependencies.
+- Reduced public package entrypoints to `stax-xml` and `stax-xml/converter`.
+  The rc3 adapter, tree/object helper, and retired cursor subpaths are not part
+  of the 1.0 API; migrate to `StreamReaderSync`/`StreamReader`, event readers,
+  or the converter.
+- Centered the release documentation on `StreamReaderSync`, `EventReader`,
+  converter, and writer surfaces.
 - Split release benchmark table data by release version so archived rc3 docs
   continue to render rc3 data while the latest docs render the v1.0.0 snapshot.
 
