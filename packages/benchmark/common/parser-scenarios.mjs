@@ -1,5 +1,8 @@
 import { EventReaderSync, StreamReaderSync, XmlEventType } from 'stax-xml';
 import { x } from 'stax-xml/converter';
+import { XMLParser } from 'fast-xml-parser';
+import * as txml from 'txml';
+import xml2js from 'xml2js';
 import { ASSET_PATHS } from './utils.mjs';
 
 export const STAX_PARSER_SURFACE_SCENARIOS = [
@@ -84,7 +87,28 @@ export function createStaxParserSurfaceRunners({ assetPath, xmlString, inputBuff
       label: 'stax-xml Converter API (JS object)',
       run: () => parseWithConverter(inputBuffer, contract),
     },
+    {
+      label: 'fast-xml-parser XMLParser',
+      run: () => new XMLParser({ ignoreAttributes: false }).parse(xmlString),
+    },
+    {
+      label: 'txml parse',
+      run: () => txml.parse(xmlString),
+    },
+    {
+      label: 'xml2js parseString',
+      run: () => parseWithXml2js(xmlString),
+    },
   ];
+}
+
+function parseWithXml2js(xmlString) {
+  return new Promise((resolve, reject) => {
+    xml2js.parseString(xmlString, (error, result) => {
+      if (error) reject(error);
+      else resolve(result);
+    });
+  });
 }
 
 export function assertStaxParserSurfaceParity({ assetPath, xmlString, inputBuffer }) {

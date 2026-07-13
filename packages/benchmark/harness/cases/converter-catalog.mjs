@@ -122,7 +122,7 @@ export function createConverterCases(bytes) {
     {
       id: 'converter-auto-compiled-batch-plan',
       family: 'converter',
-      implementation: 'converter parseSync (auto-compiled)',
+      implementation: 'converter parseSync (IR JIT)',
       contractScope: 'catalog-records',
       fullStringParity: true,
       eventCountKind: 'parsed-elements',

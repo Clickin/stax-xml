@@ -4,7 +4,7 @@ import { cpus } from 'node:os';
 import { dirname, join, parse, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 import { Parser as HtmlParser } from 'htmlparser2';
 import { barplot, bench, run, summary as mitataSummary } from 'mitata';
@@ -24,7 +24,6 @@ import {
 import {
   assertStaxParserSurfaceParity,
   createStaxParserSurfaceRunners,
-  STAX_PARSER_SURFACE_SCENARIOS,
 } from './common/parser-scenarios.mjs';
 import {
   normalizeFxpWriterTree,
@@ -762,17 +761,37 @@ function renderTable(headers, rows) {
 }
 
 function renderParserTable(summary, suiteId) {
+  const fixtureBytes = {
+    'parser-2kb': statSync(ASSET_PATHS.complex).size,
+    'parser-4kb': statSync(ASSET_PATHS.books).size,
+    'parser-13mb': statSync(ASSET_PATHS.midsize).size,
+    'parser-98mb': statSync(ASSET_PATHS.large).size,
+  }[suiteId];
+  const cases = summary.suites[suiteId]?.cases ?? [];
   return renderTable(
-    ['Surface', 'Average', 'Ops/sec', 'Heap'],
-    STAX_PARSER_SURFACE_SCENARIOS.map((scenario) => {
-      const stats = findCase(summary, suiteId, scenario.label);
+    ['Library', 'Average', 'MB/s', 'Ops/sec', 'Heap'],
+    cases.map((stats) => {
       return [
-        scenario.display.replaceAll('**', ''),
-        formatDuration(stats?.avgNs),
-        stats ? formatOps(stats.avgNs) : 'n/a',
+        stats.label,
+        formatDuration(stats.avgNs),
+        stats.avgNs ? `${((fixtureBytes / 1e6) / (stats.avgNs / 1e9)).toFixed(2)} MB/s` : 'n/a',
+        formatOps(stats.avgNs),
         formatMemory(stats?.heapAvgBytes),
       ];
     }),
+  );
+}
+
+function renderConverterTable(summary) {
+  const suite = summary.suites['converter-parity'];
+  return renderTable(
+    ['Projection', 'Throughput', 'Average', 'Checksum'],
+    suite.cases.map((entry) => [
+      entry.label,
+      `${entry.throughputMiBs.toFixed(2)} MiB/s`,
+      formatDuration(entry.avgNs),
+      String(entry.checksum),
+    ]),
   );
 }
 
@@ -838,6 +857,14 @@ function renderBenchmarkMarkdown(summary) {
     '',
     renderTable(['Size', 'Throughput', 'Average', 'RSS delta'], streamRows),
     '',
+    '## Converter IR Projection',
+    '',
+    `Converter section generated: ${summary.suites['converter-parity'].context.collectedAt}`,
+    '',
+    renderConverterTable(summary),
+    '',
+    'The converter row uses `schema.parseSync(bytes)`: schema is lowered to IR, then executed by generated code when runtime code generation is available. It is compared only with the equivalent manual object projection on this catalog fixture.',
+    '',
     '### Reader/Writer Throughput Asymmetry',
     '',
     'The 1 GiB rows are intentionally different workloads. `WriterSyncSink` writing to a temp file is mostly deterministic append work: the caller already knows each element name, attribute, and text value, so the writer validates its own state, encodes known JavaScript strings, and flushes large sequential chunks to the file descriptor. It does not search arbitrary XML for delimiters, recover tokens across chunk boundaries, or discover names, text, and attributes from incoming bytes.',
@@ -856,7 +883,20 @@ function renderBenchmarkMarkdown(summary) {
   ].join('\n');
 }
 
+function updateConverterSection() {
+  const summary = readRequiredJson(summaryPath, 'pnpm --filter benchmark run release:expanded');
+  summary.suites['converter-parity'] = normalizeConverterSuiteFromFile(converterBatchPlanPath);
+  writeJson(summaryPath, summary);
+  writeFileSync(benchmarkMarkdownPath, renderBenchmarkMarkdown(summary), 'utf8');
+  console.log(`Updated converter section in ${summaryPath}`);
+  console.log(`Updated converter section in ${benchmarkMarkdownPath}`);
+}
+
 async function main() {
+  if (process.argv.includes('--converter-only')) {
+    updateConverterSection();
+    return;
+  }
   mkdirSync(rawDir, { recursive: true });
   const runId = createReleaseRunId();
   const generatedAt = new Date().toISOString();

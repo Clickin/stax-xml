@@ -218,7 +218,7 @@ function formatMarkdown(result) {
     '',
     `Generated: ${result.metadata.collectedAt}`,
     '',
-    'This benchmark compares a manual `StreamReaderSync` projection with the public converter schema.parseSync path.',
+    'This benchmark compares a manual `StreamReaderSync` projection with the public IR JIT converter `schema.parseSync` path.',
     '',
     '## Results',
     '',
