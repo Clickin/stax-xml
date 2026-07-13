@@ -236,6 +236,18 @@ describe('streaming-only converter', () => {
     expect(value).toEqual({ ['__proto__']: 'safe' });
   });
 
+  it('applies a root array transform once, after the array is finalized', () => {
+    let calls = 0;
+    const schema = x.array(x.object({ value: x.string('./value') }), '//item').transform(items => {
+      calls++;
+      if (items.length === 0) throw new Error('root transform ran before items were collected');
+      return items;
+    });
+
+    expect(schema.parseSync('<r><item><value>A</value></item></r>')).toEqual([{ value: 'A' }]);
+    expect(calls).toBe(1);
+  });
+
   it('parses fragment and document strings without runtime UTF-8 encoding', async () => {
     const fragment = x.array(x.string(), '//item');
     const document = x.object({ id: x.string('/book/@id') });
