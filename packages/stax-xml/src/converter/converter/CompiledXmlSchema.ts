@@ -168,7 +168,16 @@ function compileIrProgram(root: DispatchValuePlan): DispatchIrProgram {
   ): void => {
     if (seenSlots.has(value.id)) return;
     seenSlots.add(value.id);
-    const entry = { slot: value.id, value, parentSlot, fieldName, binding, children: [] };
+    const entry = {
+      slot: value.id,
+      value,
+      globalActive: false,
+      depthActive: false,
+      parentSlot,
+      fieldName,
+      binding,
+      children: []
+    };
     slots.push(entry);
     slotsById[value.id] = entry;
     if (parentSlot !== undefined) {
@@ -186,6 +195,12 @@ function compileIrProgram(root: DispatchValuePlan): DispatchIrProgram {
     pathsBySelector.set(selector, path);
     return path;
   };
+  const markActiveLookup = (slot: number, selector: DispatchSelector): void => {
+    const entry = slotsById[slot];
+    if (!entry) throw new Error(`Missing converter IR active slot: ${slot}`);
+    if (selector.mode === 'relative') entry.depthActive = true;
+    else entry.globalActive = true;
+  };
 
   const visit = (
     value: DispatchValuePlan,
@@ -200,6 +215,7 @@ function compileIrProgram(root: DispatchValuePlan): DispatchIrProgram {
       const path = addPath(value.itemSelector)!;
       const name = value.itemSelector.lastElementName;
       if (name) {
+        markActiveLookup(value.id, value.itemSelector);
         bucket(name).actions.push({ op: 'start-array-item', slot: value.id, path });
       }
       visit(value.element, value.id, undefined, 'array-item', name);
@@ -224,6 +240,7 @@ function compileIrProgram(root: DispatchValuePlan): DispatchIrProgram {
       const name = child.selector?.lastElementName;
       if (name) {
         const path = addPath(child.selector)!;
+        markActiveLookup(value.id, child.selector!);
         bucket(name).actions.push({
           op: 'start-field',
           objectSlot: value.id,

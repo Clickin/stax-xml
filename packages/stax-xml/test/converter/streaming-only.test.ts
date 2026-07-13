@@ -76,6 +76,9 @@ describe('streaming-only converter', () => {
       id: x.string().xpath('./@id'),
       values: x.array(x.object({ value: x.string().xpath('.') }), './values/value')
     }), '/root/row');
+    const sharedDepthSchema = x.array(x.object({
+      detail: x.object({ value: x.string('./value') }).xpath('//detail')
+    }), '//item');
     const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'Function');
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     Object.defineProperty(globalThis, 'Function', {
@@ -92,6 +95,9 @@ describe('streaming-only converter', () => {
       expect(nestedArraySchema.parseSync(
         '<root><row id="3"><values><value>A</value><value>B</value></values></row></root>'
       )).toEqual([{ id: '3', values: [{ value: 'A' }, { value: 'B' }] }]);
+      expect(sharedDepthSchema.parseSync(
+        '<root><item><item><detail><value>X</value></detail></item></item></root>'
+      )).toEqual([{ detail: { value: 'X' } }, { detail: { value: 'X' } }]);
       expect(warn).toHaveBeenCalledWith(
         '[stax-xml] Runtime code generation is unavailable; using the slower compiled-plan executor.'
       );
@@ -199,6 +205,20 @@ describe('streaming-only converter', () => {
 
     expect(schema.parseSync(xml)).toEqual(expected);
     expect(schema.parseSync(new TextEncoder().encode(xml))).toEqual(expected);
+  });
+
+  it('keeps same-slot owners that share an exact depth', () => {
+    const schema = x.array(x.object({
+      label: x.string('./label'),
+      detail: x.object({ value: x.string('./value') }).xpath('//detail')
+    }), '//item');
+    const xml = '<root><item><label>outer</label><item><label>inner</label>' +
+      '<detail><value>X</value></detail></item></item></root>';
+
+    expect(schema.parseSync(xml)).toEqual([
+      { label: 'outer', detail: { value: 'X' } },
+      { label: 'inner', detail: { value: 'X' } }
+    ]);
   });
 
   it('scopes position predicates to same-name siblings', () => {

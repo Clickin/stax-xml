@@ -65,6 +65,8 @@ type CaptureState = {
   parent: ParentBinding;
 };
 
+type DepthActive<T> = Array<T | T[] | undefined>;
+
 type RuntimeState = {
   plan: DispatchCompiledPlan;
   options?: ParseOptions;
@@ -83,8 +85,8 @@ type RuntimeState = {
   objectsByPlan: ObjectState[][];
   arrays: ArrayState[];
   arraysByPlan: ArrayState[][];
-  objectsByPlanDepth: Array<Map<number, ObjectState[]>>;
-  arraysByPlanDepth: Array<Map<number, ArrayState[]>>;
+  objectsByPlanDepth: Array<DepthActive<ObjectState> | undefined>;
+  arraysByPlanDepth: Array<DepthActive<ArrayState> | undefined>;
   captures: CaptureState[];
   positionScopes?: Array<Map<string, number>>;
   currentAttributes?: Record<string, string>;
@@ -455,13 +457,20 @@ export class CompiledRootProcessor {
   /** @internal Called by a schema-generated start executor. */
   executeArrayStart(runtime: RuntimeState, plan: DispatchArrayPlan): void {
     const selector = plan.itemSelector;
-    const arrays = selector.mode === 'relative'
-      ? runtime.arraysByPlanDepth[plan.id]?.get(runtime.depth - selector.segments.length)
-      : runtime.arraysByPlan[plan.id];
-    if (!arrays) return;
-    for (let index = 0, length = arrays.length; index < length; index++) {
-      const array = arrays[index]!;
-      if (matchesSelector(plan.itemSelector, runtime, array.contextDepth)) {
+    if (selector.mode === 'relative') {
+      const active = runtime.arraysByPlanDepth[plan.id]?.[runtime.depth - selector.segments.length];
+      if (!active) return;
+      if (Array.isArray(active)) {
+        for (const array of active) {
+          if (matchesSelector(selector, runtime, array.contextDepth)) this.startArrayItem(runtime, array);
+        }
+      } else if (matchesSelector(selector, runtime, active.contextDepth)) {
+        this.startArrayItem(runtime, active);
+      }
+      return;
+    }
+    for (const array of runtime.arraysByPlan[plan.id] ?? []) {
+      if (matchesSelector(selector, runtime, array.contextDepth)) {
         this.startArrayItem(runtime, array);
       }
     }
@@ -475,12 +484,19 @@ export class CompiledRootProcessor {
   /** @internal Called by a schema-generated start executor. */
   executeFieldStart(runtime: RuntimeState, action: DispatchFieldAction): void {
     const selector = action.field.value.selector!;
-    const objects = selector.mode === 'relative'
-      ? runtime.objectsByPlanDepth[action.objectPlanId]?.get(runtime.depth - selector.segments.length)
-      : runtime.objectsByPlan[action.objectPlanId];
-    if (!objects) return;
-    for (let index = 0, length = objects.length; index < length; index++) {
-      this.processObjectFieldStart(runtime, objects[index]!, action.field);
+    if (selector.mode === 'relative') {
+      const active = runtime.objectsByPlanDepth[action.objectPlanId]
+        ?.[runtime.depth - selector.segments.length];
+      if (!active) return;
+      if (Array.isArray(active)) {
+        for (const object of active) this.processObjectFieldStart(runtime, object, action.field);
+      } else {
+        this.processObjectFieldStart(runtime, active, action.field);
+      }
+      return;
+    }
+    for (const object of runtime.objectsByPlan[action.objectPlanId] ?? []) {
+      this.processObjectFieldStart(runtime, object, action.field);
     }
   }
 
@@ -704,8 +720,8 @@ export class CompiledRootProcessor {
     };
 
     runtime.objects.push(object);
-    (runtime.objectsByPlan[object.slot] ??= []).push(object);
-    addDepthActive(runtime.objectsByPlanDepth, object.slot, depth, object);
+    if (slot.globalActive) (runtime.objectsByPlan[object.slot] ??= []).push(object);
+    if (slot.depthActive) addDepthActive(runtime.objectsByPlanDepth, object.slot, depth, object);
 
     for (const childSlot of slot.children) {
       const child = irSlot(runtime, childSlot);
@@ -750,8 +766,8 @@ export class CompiledRootProcessor {
       closed: false
     };
     runtime.arrays.push(array);
-    (runtime.arraysByPlan[array.slot] ??= []).push(array);
-    addDepthActive(runtime.arraysByPlanDepth, array.slot, contextDepth, array);
+    if (slot.globalActive) (runtime.arraysByPlan[array.slot] ??= []).push(array);
+    if (slot.depthActive) addDepthActive(runtime.arraysByPlanDepth, array.slot, contextDepth, array);
     if (runtime.processingStart && !plan.itemSelector.lastElementName
       && matchesSelector(plan.itemSelector, runtime, contextDepth)) {
       this.startArrayItem(runtime, array);
@@ -811,8 +827,9 @@ export class CompiledRootProcessor {
 
     this.assignValue(runtime, value, object.parent, object.plan);
     object.closed = true;
-    removeActive(runtime.objectsByPlan[object.slot]!, object);
-    removeDepthActive(runtime.objectsByPlanDepth[object.slot], object.depth, object);
+    const slot = irSlot(runtime, object.slot);
+    if (slot.globalActive) removeActive(runtime.objectsByPlan[object.slot]!, object);
+    if (slot.depthActive) removeDepthActive(runtime.objectsByPlanDepth[object.slot], object.depth, object);
     runtime.objects.length = Math.min(runtime.objects.length, object.runtimeStart);
     return value;
   }
@@ -827,8 +844,9 @@ export class CompiledRootProcessor {
 
     this.assignValue(runtime, value, array.parent, array.plan);
     array.closed = true;
-    removeActive(runtime.arraysByPlan[array.slot]!, array);
-    removeDepthActive(runtime.arraysByPlanDepth[array.slot], array.contextDepth, array);
+    const slot = irSlot(runtime, array.slot);
+    if (slot.globalActive) removeActive(runtime.arraysByPlan[array.slot]!, array);
+    if (slot.depthActive) removeDepthActive(runtime.arraysByPlanDepth[array.slot], array.contextDepth, array);
     runtime.arrays.length = Math.min(runtime.arrays.length, array.runtimeStart);
     return value;
   }
@@ -975,25 +993,43 @@ function compileGeneratedStartExecutor(program: DispatchIrProgram): StartExecuto
       } else if (resolved.op === 'start-array-item') {
         const constant = constants.push(resolved.array) - 1;
         const state = `a${constant}`;
-        const arrays = resolved.selector.mode === 'relative'
-          ? `runtime.arraysByPlanDepth[constants[${constant}].id]?.get(runtime.depth-${resolved.selector.segments.length})`
-          : `runtime.arraysByPlan[constants[${constant}].id]`;
-        statements.push(
-          `{const ${state}=${arrays};if(${state})for(let i=0;i<${state}.length;i++){` +
-          `const value=${state}[i];if(${emitPathMatch(resolved.selector, 'value.contextDepth')})` +
-          `processor.executeMatchedArrayStart(runtime,value);}}`
-        );
+        const match = emitPathMatch(resolved.selector, 'value.contextDepth');
+        if (resolved.selector.mode === 'relative') {
+          const active = `runtime.arraysByPlanDepth[constants[${constant}].id]?.[runtime.depth-${resolved.selector.segments.length}]`;
+          statements.push(
+            `{const ${state}=${active};if(${state}){if(Array.isArray(${state})){` +
+            `for(let i=0;i<${state}.length;i++){const value=${state}[i];if(${match})` +
+            `processor.executeMatchedArrayStart(runtime,value);}}else{const value=${state};if(${match})` +
+            `processor.executeMatchedArrayStart(runtime,value);}}}`
+          );
+        } else {
+          const arrays = `runtime.arraysByPlan[constants[${constant}].id]`;
+          statements.push(
+            `{const ${state}=${arrays};if(${state})for(let i=0;i<${state}.length;i++){` +
+            `const value=${state}[i];if(${match})processor.executeMatchedArrayStart(runtime,value);}}`
+          );
+        }
       } else {
         const constant = constants.push(resolved.field) - 1;
         const state = `o${constant}`;
-        const objects = resolved.selector.mode === 'relative'
-          ? `runtime.objectsByPlanDepth[constants[${constant}].objectPlanId]?.get(runtime.depth-${resolved.selector.segments.length})`
-          : `runtime.objectsByPlan[constants[${constant}].objectPlanId]`;
-        statements.push(
-          `{const ${state}=${objects};if(${state})for(let i=0;i<${state}.length;i++){` +
-          `const value=${state}[i];if(${emitPathMatch(resolved.selector, 'value.depth')})` +
-          `processor.executeMatchedFieldStart(runtime,value,constants[${constant}]);}}`
-        );
+        const match = emitPathMatch(resolved.selector, 'value.depth');
+        if (resolved.selector.mode === 'relative') {
+          const active = `runtime.objectsByPlanDepth[constants[${constant}].objectPlanId]?.[runtime.depth-${resolved.selector.segments.length}]`;
+          statements.push(
+            `{const ${state}=${active};if(${state}){if(Array.isArray(${state})){` +
+            `for(let i=0;i<${state}.length;i++){const value=${state}[i];if(${match})` +
+            `processor.executeMatchedFieldStart(runtime,value,constants[${constant}]);}}` +
+            `else{const value=${state};if(${match})` +
+            `processor.executeMatchedFieldStart(runtime,value,constants[${constant}]);}}}`
+          );
+        } else {
+          const objects = `runtime.objectsByPlan[constants[${constant}].objectPlanId]`;
+          statements.push(
+            `{const ${state}=${objects};if(${state})for(let i=0;i<${state}.length;i++){` +
+            `const value=${state}[i];if(${match})` +
+            `processor.executeMatchedFieldStart(runtime,value,constants[${constant}]);}}`
+          );
+        }
       }
     }
     cases.push(`case ${JSON.stringify(name)}:${statements.join('')}return;`);
@@ -1303,26 +1339,34 @@ function setOwn(target: Record<string, unknown>, key: string, value: unknown): v
 }
 
 function addDepthActive<T>(
-  indexes: Array<Map<number, T[]>>,
+  indexes: Array<DepthActive<T> | undefined>,
   slot: number,
   depth: number | undefined,
   value: T
 ): void {
   if (depth === undefined) return;
-  const byDepth = indexes[slot] ??= new Map();
-  (byDepth.get(depth) ?? (byDepth.set(depth, []), byDepth.get(depth)!)).push(value);
+  const byDepth = indexes[slot] ??= [];
+  const active = byDepth[depth];
+  if (!active) byDepth[depth] = value;
+  else if (Array.isArray(active)) active.push(value);
+  else byDepth[depth] = [active, value];
 }
 
 function removeDepthActive<T>(
-  byDepth: Map<number, T[]> | undefined,
+  byDepth: DepthActive<T> | undefined,
   depth: number | undefined,
   value: T
 ): void {
   if (depth === undefined || !byDepth) return;
-  const values = byDepth.get(depth);
-  if (!values) return;
-  removeActive(values, value);
-  if (values.length === 0) byDepth.delete(depth);
+  const active = byDepth[depth];
+  if (!active) return;
+  if (!Array.isArray(active)) {
+    if (active === value) byDepth[depth] = undefined;
+    return;
+  }
+  removeActive(active, value);
+  if (active.length === 1) byDepth[depth] = active[0];
+  else if (active.length === 0) byDepth[depth] = undefined;
 }
 
 function removeActive<T>(values: T[], value: T): void {

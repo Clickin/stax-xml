@@ -81,6 +81,8 @@ export interface DispatchEndBucket {
 export interface DispatchIrSlot {
   slot: number;
   value: DispatchValuePlan;
+  globalActive: boolean;
+  depthActive: boolean;
   parentSlot?: number;
   fieldName?: string;
   binding: 'root' | 'field' | 'array-item';
