@@ -45,7 +45,6 @@ export interface DispatchObjectPlan extends DispatchBasePlan {
   kind: 'object';
   fields: DispatchFieldPlan[];
   inline: boolean;
-  contextFields?: DispatchFieldPlan[];
 }
 
 export interface DispatchArrayPlan extends DispatchBasePlan {
@@ -58,29 +57,6 @@ export type DispatchValuePlan =
   | DispatchScalarPlan
   | DispatchObjectPlan
   | DispatchArrayPlan;
-
-export interface DispatchRecordArrayPlan {
-  field: DispatchFieldPlan;
-  array: DispatchArrayPlan;
-  item: DispatchObjectPlan;
-}
-
-export interface DispatchRecordProjectionPlan {
-  root: DispatchObjectPlan;
-  arrays: DispatchRecordArrayPlan[];
-  ir: DispatchIrProgram;
-  includeCharacters: boolean;
-  includeCdata: boolean;
-}
-
-export interface DispatchArrayProjectionPlan {
-  root: DispatchArrayPlan;
-  item: DispatchObjectPlan;
-  arrays: DispatchRecordArrayPlan[];
-  ir: DispatchIrProgram;
-  includeCharacters: boolean;
-  includeCdata: boolean;
-}
 
 export type DispatchStartAction =
   | { op: 'start-root'; slot: number; path: number }
@@ -129,6 +105,7 @@ export interface DispatchIrProgram {
   captures: DispatchIrCapture[];
   byElement: Record<string, DispatchStartBucket>;
   byEndElement: Record<string, DispatchEndBucket>;
+  onOpen: Array<DispatchFieldAction[] | undefined>;
   onText: DispatchTextAction[];
   onEnd: DispatchEndAction[];
 }
@@ -138,6 +115,4 @@ export interface DispatchCompiledPlan {
   root: DispatchValuePlan;
   eventFilter: ParserEventFilter;
   ir: DispatchIrProgram;
-  recordProjection?: DispatchRecordProjectionPlan;
-  arrayProjection?: DispatchArrayProjectionPlan;
 }

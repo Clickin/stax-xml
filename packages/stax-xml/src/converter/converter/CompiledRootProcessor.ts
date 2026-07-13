@@ -28,7 +28,7 @@ const DECODE_CHUNK_BYTES = 64 * 1024;
 type ParentBinding =
   | { kind: 'root' }
   | { kind: 'field'; object: ObjectState; field: DispatchFieldPlan }
-  | { kind: 'array'; array: ArrayState };
+  | { kind: 'array'; array: ArrayState; index: number };
 
 type ObjectState = {
   slot: number;
@@ -37,10 +37,14 @@ type ObjectState = {
   values: Record<string, unknown>;
   completedFieldBits: number;
   completedFields?: Set<number>;
+  activeFieldBits: number;
+  activeFields?: Set<number>;
+  closed: boolean;
   childObjects: ObjectState[];
   childArrays: ArrayState[];
   runtimeStart: number;
   parent: ParentBinding;
+  closed: boolean;
 };
 
 type ArrayState = {
@@ -72,15 +76,21 @@ type RuntimeState = {
   positionStack: number[];
   rootValue: unknown;
   rootDone: boolean;
+  rootActive: boolean;
   rootObject?: ObjectState;
   rootArray?: ArrayState;
   objects: ObjectState[];
   objectsByPlan: ObjectState[][];
   arrays: ArrayState[];
   arraysByPlan: ArrayState[][];
+  objectsByPlanDepth: Array<Map<number, ObjectState[]>>;
+  arraysByPlanDepth: Array<Map<number, ArrayState[]>>;
   captures: CaptureState[];
+  positionScopes?: Array<Map<string, number>>;
   currentAttributes?: Record<string, string>;
   currentTokenCursor?: TokenCursor;
+  attributeLookupCount: number;
+  attributeLookupCache?: Record<string, string | undefined>;
   processingStart?: boolean;
 };
 
@@ -196,13 +206,18 @@ export class CompiledRootProcessor {
       maxEvents: options?.maxEvents ?? Infinity,
       elementStack: [],
       positionStack: [],
-      rootValue: isUnselectedRootScalar(plan.root) ? undefined : defaultValue(plan.root, true, 'root'),
+      rootValue: undefined,
       rootDone: false,
+      rootActive: false,
       objects: [],
       objectsByPlan: [],
       arrays: [],
       arraysByPlan: [],
-      captures: []
+      objectsByPlanDepth: [],
+      arraysByPlanDepth: [],
+      captures: [],
+      attributeLookupCount: 0,
+      positionScopes: plan.ir.paths.some(path => path.selector.positionFilters) ? [] : undefined
     };
 
     if (plan.root.kind === 'object' && !plan.root.selector) {
@@ -224,6 +239,8 @@ export class CompiledRootProcessor {
       runtime.currentAttributes = runtime.plan.eventFilter.includeAttributes
         ? Object.fromEntries(event.attributes.map((attribute) => [attribute.name, attribute.value]))
         : undefined;
+      runtime.attributeLookupCount = 0;
+      runtime.attributeLookupCache = undefined;
       this.checkDepthLimit(runtime);
       runtime.processingStart = true;
       try {
@@ -232,13 +249,14 @@ export class CompiledRootProcessor {
         runtime.processingStart = false;
       }
       runtime.currentAttributes = undefined;
+      runtime.attributeLookupCache = undefined;
     } else if (isCharacters(event) || isCdata(event)) {
       this.processText(runtime, event.value);
     } else if (isEndElement(event)) {
-      popCompletedChildPositionScope(runtime);
       this.processEnd(runtime);
       runtime.elementStack.pop();
       runtime.depth--;
+      popCompletedChildPositionScope(runtime);
     }
   }
 
@@ -301,6 +319,8 @@ export class CompiledRootProcessor {
       runtime.elementStack.push(cursor.name()!);
       recordElementPosition(runtime);
       runtime.currentTokenCursor = cursor;
+      runtime.attributeLookupCount = 0;
+      runtime.attributeLookupCache = undefined;
       runtime.processingStart = true;
       try {
         this.checkDepthLimit(runtime);
@@ -308,6 +328,7 @@ export class CompiledRootProcessor {
       } finally {
         runtime.processingStart = false;
         runtime.currentTokenCursor = undefined;
+        runtime.attributeLookupCache = undefined;
       }
       return;
     }
@@ -316,10 +337,10 @@ export class CompiledRootProcessor {
       return;
     }
     if (type === XmlEventType.END_ELEMENT) {
-      popCompletedChildPositionScope(runtime);
       this.processEnd(runtime);
       runtime.elementStack.pop();
       runtime.depth--;
+      popCompletedChildPositionScope(runtime);
     }
   }
 
@@ -407,7 +428,7 @@ export class CompiledRootProcessor {
 
   private processStart(runtime: RuntimeState): void {
     const root = runtime.plan.root;
-    if (!runtime.rootDone && !root.selector && root.kind !== 'array' && root.kind !== 'object') {
+    if (!runtime.rootDone && !runtime.rootActive && !root.selector && root.kind !== 'array' && root.kind !== 'object') {
       this.tryStartValue(runtime, root, undefined, { kind: 'root' });
     }
 
@@ -416,22 +437,27 @@ export class CompiledRootProcessor {
 
   /** @internal Called by a schema-generated start executor. */
   executeRootStart(runtime: RuntimeState, plan: DispatchValuePlan): void {
-    if (!runtime.rootDone) this.tryStartValue(runtime, plan, undefined, { kind: 'root' });
+    if (!runtime.rootDone && !runtime.rootActive) this.tryStartValue(runtime, plan, undefined, { kind: 'root' });
   }
 
   /** @internal Called by a schema-generated executor after its path check. */
   executeMatchedRootStart(runtime: RuntimeState, plan: DispatchValuePlan): void {
-    if (runtime.rootDone) return;
+    if (runtime.rootDone || runtime.rootActive) return;
     if (plan.kind === 'string' || plan.kind === 'number') {
+      runtime.rootActive = true;
       this.startMatchedScalar(runtime, plan, { kind: 'root' });
     } else if (plan.kind === 'object') {
+      runtime.rootActive = true;
       this.createObjectState(runtime, plan, runtime.depth, { kind: 'root' });
     }
   }
 
   /** @internal Called by a schema-generated start executor. */
   executeArrayStart(runtime: RuntimeState, plan: DispatchArrayPlan): void {
-    const arrays = runtime.arraysByPlan[plan.id];
+    const selector = plan.itemSelector;
+    const arrays = selector.mode === 'relative'
+      ? runtime.arraysByPlanDepth[plan.id]?.get(runtime.depth - selector.segments.length)
+      : runtime.arraysByPlan[plan.id];
     if (!arrays) return;
     for (let index = 0, length = arrays.length; index < length; index++) {
       const array = arrays[index]!;
@@ -448,7 +474,10 @@ export class CompiledRootProcessor {
 
   /** @internal Called by a schema-generated start executor. */
   executeFieldStart(runtime: RuntimeState, action: DispatchFieldAction): void {
-    const objects = runtime.objectsByPlan[action.objectPlanId];
+    const selector = action.field.value.selector!;
+    const objects = selector.mode === 'relative'
+      ? runtime.objectsByPlanDepth[action.objectPlanId]?.get(runtime.depth - selector.segments.length)
+      : runtime.objectsByPlan[action.objectPlanId];
     if (!objects) return;
     for (let index = 0, length = objects.length; index < length; index++) {
       this.processObjectFieldStart(runtime, objects[index]!, action.field);
@@ -470,7 +499,7 @@ export class CompiledRootProcessor {
     field: DispatchFieldPlan
   ): void {
     const value = field.value;
-    if (value.kind === 'array' || hasCompletedField(object, value.id)) return;
+    if (value.kind === 'array' || hasStartedField(object, value.id)) return;
 
     if (value.kind === 'object') {
       if (value.selector && matchesSelector(value.selector, runtime, object.depth)) {
@@ -490,8 +519,9 @@ export class CompiledRootProcessor {
     field: DispatchFieldPlan
   ): void {
     const value = field.value;
-    if (value.kind === 'array' || hasCompletedField(object, value.id)) return;
+    if (value.kind === 'array' || hasStartedField(object, value.id)) return;
     if (value.kind === 'object') {
+      markObjectFieldActive(object, value.id);
       this.createObjectState(runtime, value, runtime.depth, { kind: 'field', object, field });
       return;
     }
@@ -511,6 +541,8 @@ export class CompiledRootProcessor {
 
     const object = value as DispatchObjectPlan;
     if (object.selector && matchesSelector(object.selector, runtime, contextDepth)) {
+      if (parent.kind === 'root') runtime.rootActive = true;
+      else if (parent.kind === 'field') markObjectFieldActive(parent.object, value.id);
       this.createObjectState(runtime, object, runtime.depth, parent);
     }
   }
@@ -524,6 +556,7 @@ export class CompiledRootProcessor {
     const selector = plan.selector;
     if (!selector) {
       if (parent.kind === 'root' && runtime.depth === 1) {
+        runtime.rootActive = true;
         runtime.captures.push({ slot: plan.id, plan, depth: 1, buffer: '', textMode: 'subtree', parent });
       }
       return;
@@ -541,15 +574,17 @@ export class CompiledRootProcessor {
     parent: ParentBinding
   ): void {
     const selector = plan.selector!;
+    if (parent.kind === 'root') runtime.rootActive = true;
     if (selector.terminal === 'attribute') {
       const value = currentAttributeValue(runtime, selector.attributeName!);
       if (value !== undefined) {
+        markActive(parent, plan);
         this.assignScalar(runtime, plan, value, parent);
-      } else {
-        markCompleted(parent, plan);
       }
       return;
     }
+
+    markActive(parent, plan);
 
     runtime.captures.push({
       slot: plan.id,
@@ -573,8 +608,10 @@ export class CompiledRootProcessor {
       return;
     }
 
+    const index = array.items.length;
+    array.items.push(undefined);
     if (element.kind === 'object') {
-      this.createObjectState(runtime, element, runtime.depth, { kind: 'array', array });
+      this.createObjectState(runtime, element, runtime.depth, { kind: 'array', array, index });
       return;
     }
 
@@ -584,7 +621,7 @@ export class CompiledRootProcessor {
       depth: runtime.depth,
       buffer: '',
       textMode: itemSelector.textMode,
-      parent: { kind: 'array', array }
+      parent: { kind: 'array', array, index }
     });
   }
 
@@ -658,11 +695,17 @@ export class CompiledRootProcessor {
       depth,
       values: compileObjectFactory(plan, false)(),
       completedFieldBits: 0,
+      activeFieldBits: 0,
       childObjects: [],
       childArrays: [],
       runtimeStart,
-      parent
+      parent,
+      closed: false
     };
+
+    runtime.objects.push(object);
+    (runtime.objectsByPlan[object.slot] ??= []).push(object);
+    addDepthActive(runtime.objectsByPlanDepth, object.slot, depth, object);
 
     for (const childSlot of slot.children) {
       const child = irSlot(runtime, childSlot);
@@ -680,13 +723,12 @@ export class CompiledRootProcessor {
         object.childObjects.push(child);
         continue;
       }
-      object.values[field.fieldName] = defaultValue(value, true, 'field');
     }
 
-    runtime.objects.push(object);
-    (runtime.objectsByPlan[object.slot] ??= []).push(object);
-    if (runtime.processingStart && plan.contextFields) {
-      for (const field of plan.contextFields) this.processObjectFieldStart(runtime, object, field);
+    if (runtime.processingStart) {
+      for (const action of runtime.plan.ir.onOpen[object.slot] ?? []) {
+        this.processObjectFieldStart(runtime, object, action.field);
+      }
     }
     return object;
   }
@@ -704,10 +746,12 @@ export class CompiledRootProcessor {
       contextDepth,
       items: [],
       runtimeStart: runtime.arrays.length,
-      parent
+      parent,
+      closed: false
     };
     runtime.arrays.push(array);
     (runtime.arraysByPlan[array.slot] ??= []).push(array);
+    addDepthActive(runtime.arraysByPlanDepth, array.slot, contextDepth, array);
     if (runtime.processingStart && !plan.itemSelector.lastElementName
       && matchesSelector(plan.itemSelector, runtime, contextDepth)) {
       this.startArrayItem(runtime, array);
@@ -734,22 +778,31 @@ export class CompiledRootProcessor {
     if (parent.kind === 'root') {
       runtime.rootValue = value;
       runtime.rootDone = true;
+      runtime.rootActive = false;
       return;
     }
 
     if (parent.kind === 'array') {
-      parent.array.items.push(value);
+      parent.array.items[parent.index] = value;
       return;
     }
 
-    parent.object.values[parent.field.fieldName] = value;
+    setOwn(parent.object.values, parent.field.fieldName, value);
     markObjectFieldCompleted(parent.object, plan.id);
   }
 
   private finalizeObject(runtime: RuntimeState, object: ObjectState): unknown {
+    if (object.closed) return object.values;
     for (const child of object.childObjects) this.finalizeObject(runtime, child);
 
     for (const array of object.childArrays) this.finalizeArray(runtime, array);
+
+    for (const field of object.plan.fields) {
+      if (!hasCompletedField(object, field.value.id)) {
+        setOwn(object.values, field.fieldName, defaultValue(field.value, true, 'field'));
+        markObjectFieldCompleted(object, field.value.id);
+      }
+    }
 
     let value: unknown = object.values;
     for (const transformFn of object.plan.transforms) {
@@ -757,12 +810,15 @@ export class CompiledRootProcessor {
     }
 
     this.assignValue(runtime, value, object.parent, object.plan);
-    runtime.objectsByPlan[object.slot]!.pop();
+    object.closed = true;
+    removeActive(runtime.objectsByPlan[object.slot]!, object);
+    removeDepthActive(runtime.objectsByPlanDepth[object.slot], object.depth, object);
     runtime.objects.length = Math.min(runtime.objects.length, object.runtimeStart);
     return value;
   }
 
   private finalizeArray(runtime: RuntimeState, array: ArrayState): unknown {
+    if (array.closed) return array.items;
     const missingOptional = array.plan.optional && array.items.length === 0;
     let value: unknown = missingOptional && array.parent.kind !== 'root' ? undefined : array.items;
     if (!missingOptional || array.plan.transforms.length > 0) {
@@ -770,7 +826,9 @@ export class CompiledRootProcessor {
     }
 
     this.assignValue(runtime, value, array.parent, array.plan);
-    runtime.arraysByPlan[array.slot]!.pop();
+    array.closed = true;
+    removeActive(runtime.arraysByPlan[array.slot]!, array);
+    removeDepthActive(runtime.arraysByPlanDepth[array.slot], array.contextDepth, array);
     runtime.arrays.length = Math.min(runtime.arrays.length, array.runtimeStart);
     return value;
   }
@@ -781,6 +839,10 @@ export class CompiledRootProcessor {
     }
     if (runtime.rootArray) {
       this.finalizeArray(runtime, runtime.rootArray);
+    }
+    if (!runtime.rootDone) {
+      runtime.rootValue = defaultValue(runtime.plan.root, true, 'root');
+      runtime.rootDone = true;
     }
     return runtime.rootValue as T;
   }
@@ -913,16 +975,22 @@ function compileGeneratedStartExecutor(program: DispatchIrProgram): StartExecuto
       } else if (resolved.op === 'start-array-item') {
         const constant = constants.push(resolved.array) - 1;
         const state = `a${constant}`;
+        const arrays = resolved.selector.mode === 'relative'
+          ? `runtime.arraysByPlanDepth[constants[${constant}].id]?.get(runtime.depth-${resolved.selector.segments.length})`
+          : `runtime.arraysByPlan[constants[${constant}].id]`;
         statements.push(
-          `{const ${state}=runtime.arraysByPlan[constants[${constant}].id];if(${state})for(let i=0;i<${state}.length;i++){` +
+          `{const ${state}=${arrays};if(${state})for(let i=0;i<${state}.length;i++){` +
           `const value=${state}[i];if(${emitPathMatch(resolved.selector, 'value.contextDepth')})` +
           `processor.executeMatchedArrayStart(runtime,value);}}`
         );
       } else {
         const constant = constants.push(resolved.field) - 1;
         const state = `o${constant}`;
+        const objects = resolved.selector.mode === 'relative'
+          ? `runtime.objectsByPlanDepth[constants[${constant}].objectPlanId]?.get(runtime.depth-${resolved.selector.segments.length})`
+          : `runtime.objectsByPlan[constants[${constant}].objectPlanId]`;
         statements.push(
-          `{const ${state}=runtime.objectsByPlan[constants[${constant}].objectPlanId];if(${state})for(let i=0;i<${state}.length;i++){` +
+          `{const ${state}=${objects};if(${state})for(let i=0;i<${state}.length;i++){` +
           `const value=${state}[i];if(${emitPathMatch(resolved.selector, 'value.depth')})` +
           `processor.executeMatchedFieldStart(runtime,value,constants[${constant}]);}}`
         );
@@ -961,7 +1029,7 @@ function resolveStartAction(
   action: DispatchStartAction
 ): ResolvedStartAction {
   const value = (slot: number): DispatchValuePlan => {
-    const resolved = program.slots.find(entry => entry.slot === slot)?.value;
+    const resolved = program.slotsById[slot]?.value;
     if (!resolved) throw new Error(`Invalid converter IR slot: ${slot}`);
     return resolved;
   };
@@ -1085,17 +1153,21 @@ function matchesPositionFilters(selector: DispatchSelector, runtime: RuntimeStat
 }
 
 function recordElementPosition(runtime: RuntimeState): void {
-  if (runtime.positionStack.length < runtime.depth) {
-    runtime.positionStack.push(1);
-    return;
-  }
-  runtime.positionStack[runtime.depth - 1]++;
+  const scopes = runtime.positionScopes;
+  if (!scopes) return;
+  const parentDepth = runtime.depth - 1;
+  const parentScope = scopes[parentDepth] ??= new Map();
+  const name = runtime.elementStack[parentDepth]!;
+  const position = (parentScope.get(name) ?? 0) + 1;
+  parentScope.set(name, position);
+  runtime.positionStack[parentDepth] = position;
+  scopes[runtime.depth] = new Map();
 }
 
 function popCompletedChildPositionScope(runtime: RuntimeState): void {
-  if (runtime.positionStack.length > runtime.depth) {
-    runtime.positionStack.pop();
-  }
+  if (!runtime.positionScopes) return;
+  runtime.positionStack.length = runtime.depth;
+  runtime.positionScopes.length = runtime.depth + 1;
 }
 
 export function parseScalar(plan: DispatchScalarPlan, rawValue: string, preserveEmptyOptional: boolean): unknown {
@@ -1139,7 +1211,7 @@ export function defaultValue(
     const result: Record<string, unknown> = {};
     const objectPlan = plan as DispatchObjectPlan;
     for (const field of objectPlan.fields) {
-      result[field.fieldName] = defaultValue(field.value, true, 'field');
+      setOwn(result, field.fieldName, defaultValue(field.value, true, 'field'));
     }
     value = result;
   }
@@ -1164,7 +1236,7 @@ export function compileObjectFactory(plan: DispatchObjectPlan, includeDefaults =
       } else {
         expression = 'undefined';
       }
-      return `${JSON.stringify(field.fieldName)}:${expression}`;
+      return `[${JSON.stringify(field.fieldName)}]:${expression}`;
     });
     const create = Function(
       'defaultValue',
@@ -1181,7 +1253,7 @@ export function compileObjectFactory(plan: DispatchObjectPlan, includeDefaults =
   const factory = (): Record<string, unknown> => {
     const values: Record<string, unknown> = {};
     for (const field of fields) {
-      values[field.fieldName] = includeDefaults ? defaultValue(field.value, true, 'field') : undefined;
+      setOwn(values, field.fieldName, includeDefaults ? defaultValue(field.value, true, 'field') : undefined);
     }
     return values;
   };
@@ -1197,10 +1269,6 @@ export function applyTransforms(plan: DispatchValuePlan, value: unknown): unknow
   return result;
 }
 
-function isUnselectedRootScalar(plan: DispatchValuePlan): boolean {
-  return (plan.kind === 'string' || plan.kind === 'number') && !plan.selector;
-}
-
 function irSlot(runtime: RuntimeState, slot: number) {
   const resolved = runtime.plan.ir.slotsById[slot];
   if (!resolved) throw new Error(`Missing converter IR slot: ${slot}`);
@@ -1209,14 +1277,62 @@ function irSlot(runtime: RuntimeState, slot: number) {
 
 function currentAttributeValue(runtime: RuntimeState, name: string): string | undefined {
   const tokenCursor = runtime.currentTokenCursor;
-  if (tokenCursor) return tokenCursor.attribute(name)?.value;
+  if (tokenCursor) {
+    const cache = runtime.attributeLookupCache;
+    if (cache) return cache[name];
+    if (++runtime.attributeLookupCount > 1) {
+      const indexed: Record<string, string | undefined> = Object.create(null);
+      for (let index = 0; index < tokenCursor.attributeCount(); index++) {
+        const attribute = tokenCursor.attribute(index)!;
+        indexed[attribute.name] = attribute.value;
+      }
+      runtime.attributeLookupCache = indexed;
+      return indexed[name];
+    }
+    return tokenCursor.attribute(name)?.value;
+  }
   return runtime.currentAttributes?.[name];
 }
 
-function markCompleted(parent: ParentBinding, plan: DispatchScalarPlan): void {
-  if (parent.kind === 'field') {
-    markObjectFieldCompleted(parent.object, plan.id);
+function setOwn(target: Record<string, unknown>, key: string, value: unknown): void {
+  if (key === '__proto__') {
+    Object.defineProperty(target, key, { configurable: true, enumerable: true, value, writable: true });
+    return;
   }
+  target[key] = value;
+}
+
+function addDepthActive<T>(
+  indexes: Array<Map<number, T[]>>,
+  slot: number,
+  depth: number | undefined,
+  value: T
+): void {
+  if (depth === undefined) return;
+  const byDepth = indexes[slot] ??= new Map();
+  (byDepth.get(depth) ?? (byDepth.set(depth, []), byDepth.get(depth)!)).push(value);
+}
+
+function removeDepthActive<T>(
+  byDepth: Map<number, T[]> | undefined,
+  depth: number | undefined,
+  value: T
+): void {
+  if (depth === undefined || !byDepth) return;
+  const values = byDepth.get(depth);
+  if (!values) return;
+  removeActive(values, value);
+  if (values.length === 0) byDepth.delete(depth);
+}
+
+function removeActive<T>(values: T[], value: T): void {
+  const index = values.indexOf(value);
+  if (index >= 0) values.splice(index, 1);
+}
+
+function markActive(parent: ParentBinding, plan: DispatchValuePlan): void {
+  if (parent.kind === 'root') return;
+  if (parent.kind === 'field') markObjectFieldActive(parent.object, plan.id);
 }
 
 function hasCompletedField(object: ObjectState, id: number): boolean {
@@ -1226,9 +1342,24 @@ function hasCompletedField(object: ObjectState, id: number): boolean {
   return object.completedFields?.has(id) ?? false;
 }
 
+function hasStartedField(object: ObjectState, id: number): boolean {
+  if (hasCompletedField(object, id)) return true;
+  if (id < 31) return (object.activeFieldBits & (1 << id)) !== 0;
+  return object.activeFields?.has(id) ?? false;
+}
+
+function markObjectFieldActive(object: ObjectState, id: number): void {
+  if (id < 31) {
+    object.activeFieldBits |= 1 << id;
+    return;
+  }
+  (object.activeFields ??= new Set()).add(id);
+}
+
 function markObjectFieldCompleted(object: ObjectState, id: number): void {
   if (id < 31) {
     object.completedFieldBits |= 1 << id;
+    object.activeFieldBits &= ~(1 << id);
     return;
   }
   let completedFields = object.completedFields;
@@ -1237,6 +1368,7 @@ function markObjectFieldCompleted(object: ObjectState, id: number): void {
     object.completedFields = completedFields;
   }
   completedFields.add(id);
+  object.activeFields?.delete(id);
 }
 
 function normalizeOptions(options: ParseOptions | unknown): ParseOptions | undefined {

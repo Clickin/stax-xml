@@ -2,16 +2,11 @@ import type { AnyXmlEvent, ParserEventFilter } from '@stax-xml/core';
 import type { ParseInput } from './base.js';
 import { XmlSchemaBase } from './base.js';
 import { CompiledRootProcessor } from './CompiledRootProcessor.js';
-import { CompiledRecordProjection } from './CompiledRecordProjection.js';
-import { CompiledArrayProjection } from './CompiledArrayProjection.js';
 import type {
   DispatchArrayPlan,
-  DispatchArrayProjectionPlan,
   DispatchCompiledPlan,
   DispatchFieldPlan,
   DispatchObjectPlan,
-  DispatchRecordArrayPlan,
-  DispatchRecordProjectionPlan,
   DispatchScalarPlan,
   DispatchSelector,
   DispatchStartBucket,
@@ -62,15 +57,6 @@ export function tryParseWithCompiledPlan<Output, Input>(
     throw new Error('Input cannot be evaluated by the synchronous streaming converter');
   }
 
-  if (plan.recordProjection && (typeof input === 'string' || input instanceof Uint8Array)) {
-    const compiled = CompiledRecordProjection.create(plan.recordProjection, options);
-    if (compiled) return compiled.parseSync<Output>(input);
-  }
-  if (plan.arrayProjection && (typeof input === 'string' || input instanceof Uint8Array)) {
-    const compiled = CompiledArrayProjection.create(plan.arrayProjection, options);
-    if (compiled) return compiled.parseSync<Output>(input);
-  }
-
   return new CompiledRootProcessor(plan, options).parseSync<Output>(input);
 }
 
@@ -79,17 +65,7 @@ export function precompileWithCompiledPlan<Output, Input>(
   options?: ParseOptions
 ): void {
   const plan = tryBuildDispatchPlan(schema);
-  if (plan.recordProjection) {
-    if (!CompiledRecordProjection.create(plan.recordProjection, options)) {
-      new CompiledRootProcessor(plan, options);
-    }
-  } else if (plan.arrayProjection) {
-    if (!CompiledArrayProjection.precompile(plan.arrayProjection)) {
-      new CompiledRootProcessor(plan, options);
-    }
-  } else {
-    new CompiledRootProcessor(plan, options);
-  }
+  new CompiledRootProcessor(plan, options);
 }
 
 function isCompiledSyncInput(input: unknown): input is ParseInput {
@@ -111,14 +87,6 @@ export async function tryParseAsyncWithCompiledPlan<Output, Input>(
   options?: ParseOptions
 ): Promise<Output> {
   const plan = tryBuildDispatchPlan(schema);
-  if (plan.recordProjection && (typeof input === 'string' || input instanceof Uint8Array)) {
-    const compiled = CompiledRecordProjection.create(plan.recordProjection, options);
-    if (compiled) return compiled.parseSync<Output>(input);
-  }
-  if (plan.arrayProjection && (typeof input === 'string' || input instanceof Uint8Array)) {
-    const compiled = CompiledArrayProjection.create(plan.arrayProjection, options);
-    if (compiled) return compiled.parseSync<Output>(input);
-  }
   return new CompiledRootProcessor(plan, options).parse<Output>(input);
 }
 
@@ -171,39 +139,11 @@ function buildCompiledPlan(
     : buildValuePlan(schema, rootXPath ? compileSelector(rootXPath, context) : undefined, false, context, Boolean(rootXPath));
 
   const ir = compileIrProgram(root);
-  const plan: DispatchCompiledPlan = {
+  return {
     kind: 'dispatch',
     root,
     eventFilter: normalizeEventFilter(context.eventFilter),
     ir
-  };
-  plan.recordProjection = compileRecordProjection(root, context.eventFilter, ir);
-  plan.arrayProjection = compileArrayProjection(root, context.eventFilter, ir);
-  return plan;
-}
-
-function compileArrayProjection(
-  root: DispatchValuePlan,
-  eventFilter: ParserEventFilter,
-  ir: DispatchIrProgram
-): DispatchArrayProjectionPlan | undefined {
-  if (root.kind !== 'array' || root.itemSelector.terminal !== 'element'
-    || root.itemSelector.positionFilters || root.element.kind !== 'object') return undefined;
-  const arrays: DispatchRecordArrayPlan[] = [];
-  if (!validateRecordFields(root.element.fields, arrays, true, true, true)) return undefined;
-  for (const field of root.element.fields) {
-    if (field.value.kind !== 'array' && field.value.selector?.mode !== 'relative') return undefined;
-  }
-  for (const array of arrays) {
-    if (array.array.itemSelector.mode !== 'relative') return undefined;
-  }
-  return {
-    root,
-    item: root.element,
-    arrays,
-    ir,
-    includeCharacters: eventFilter.includeCharacters,
-    includeCdata: eventFilter.includeCdata
   };
 }
 
@@ -214,8 +154,9 @@ function compileIrProgram(root: DispatchValuePlan): DispatchIrProgram {
   const slotsById: DispatchIrProgram['slotsById'] = [];
   const paths: DispatchIrProgram['paths'] = [];
   const captures: DispatchIrProgram['captures'] = [];
+  const onOpen: DispatchIrProgram['onOpen'] = [];
   const seenSlots = new Set<number>();
-  const seenPaths = new Set<DispatchSelector>();
+  const pathsBySelector = new Map<DispatchSelector, number>();
   const seenCaptures = new Set<number>();
   const bucket = (name: string): DispatchStartBucket => byElement[name] ??= { actions: [] };
   const endBucket = (name: string) => byEndElement[name] ??= { actions: [] };
@@ -232,17 +173,18 @@ function compileIrProgram(root: DispatchValuePlan): DispatchIrProgram {
     slots.push(entry);
     slotsById[value.id] = entry;
     if (parentSlot !== undefined) {
-      const parent = slots.find(entry => entry.slot === parentSlot);
+      const parent = slotsById[parentSlot];
       if (!parent) throw new Error(`Missing parent converter IR slot: ${parentSlot}`);
       parent.children.push(value.id);
     }
   };
   const addPath = (selector: DispatchSelector | undefined): number | undefined => {
     if (!selector) return undefined;
-    if (seenPaths.has(selector)) return paths.find(path => path.selector === selector)!.path;
-    seenPaths.add(selector);
+    const existing = pathsBySelector.get(selector);
+    if (existing !== undefined) return existing;
     const path = paths.length;
     paths.push({ path, selector });
+    pathsBySelector.set(selector, path);
     return path;
   };
 
@@ -267,7 +209,6 @@ function compileIrProgram(root: DispatchValuePlan): DispatchIrProgram {
     }
     if (value.kind !== 'object') return;
 
-    const contextFields: DispatchFieldPlan[] = [];
     for (const field of value.fields) {
       const child = field.value;
       addSlot(child, value.id, field.fieldName, 'field');
@@ -305,7 +246,7 @@ function compileIrProgram(root: DispatchValuePlan): DispatchIrProgram {
           }
         }
       } else {
-        contextFields.push(field);
+        (onOpen[value.id] ??= []).push({ objectPlanId: value.id, field });
         if (
           (child.kind === 'string' || child.kind === 'number')
           && child.selector?.terminal === 'element'
@@ -328,7 +269,6 @@ function compileIrProgram(root: DispatchValuePlan): DispatchIrProgram {
       }
       if (child.kind === 'object') visit(child);
     }
-    value.contextFields = contextFields.length > 0 ? contextFields : undefined;
   };
 
   if (root.kind === 'array') {
@@ -347,65 +287,10 @@ function compileIrProgram(root: DispatchValuePlan): DispatchIrProgram {
     captures,
     byElement,
     byEndElement,
+    onOpen,
     onText: [{ op: 'append-captures' }],
     onEnd: [{ op: 'finish-captures' }, { op: 'finalize-values' }]
   };
-}
-
-function compileRecordProjection(
-  root: DispatchValuePlan,
-  eventFilter: ParserEventFilter,
-  ir: DispatchIrProgram
-): DispatchRecordProjectionPlan | undefined {
-  if (root.kind !== 'object' || root.selector) return undefined;
-
-  const arrays: DispatchRecordArrayPlan[] = [];
-  if (!validateRecordFields(root.fields, arrays, true) || arrays.length === 0) return undefined;
-
-  return {
-    root,
-    arrays,
-    ir,
-    includeCharacters: eventFilter.includeCharacters,
-    includeCdata: eventFilter.includeCdata
-  };
-}
-
-function validateRecordFields(
-  fields: DispatchFieldPlan[],
-  arrays: DispatchRecordArrayPlan[],
-  allowArrays: boolean,
-  allowPositionFields = false,
-  allowContextFields = false
-): boolean {
-  for (const field of fields) {
-    const value = field.value;
-    if (value.kind === 'array') {
-      if (
-        !allowArrays
-        || value.itemSelector.terminal !== 'element'
-        || value.itemSelector.mode === 'descendant'
-        || value.itemSelector.positionFilters
-        || value.element.kind !== 'object'
-      ) {
-        return false;
-      }
-      if (!validateRecordFields(value.element.fields, [], false, allowPositionFields, allowContextFields)) return false;
-      arrays.push({
-        field,
-        array: value,
-        item: value.element
-      });
-      continue;
-    }
-    if (value.kind !== 'string' && value.kind !== 'number') return false;
-
-    const selector = value.selector;
-    if (!selector || (!allowPositionFields && selector.positionFilters)) return false;
-    if (!allowArrays && selector.mode !== 'relative') return false;
-    if (allowArrays && !allowContextFields && !selector.lastElementName) return false;
-  }
-  return true;
 }
 
 function normalizeEventFilter(eventFilter: ParserEventFilter): ParserEventFilter {

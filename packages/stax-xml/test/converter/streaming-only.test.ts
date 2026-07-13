@@ -189,7 +189,51 @@ describe('streaming-only converter', () => {
     expect(schema.parseSync(
       '<root><group><entry id="1">A</entry><entry id="2">B</entry></group></root>'
     )).toEqual([{ id: '2', text: 'B' }]);
-    expect(assignments).toEqual(['id:', 'text:', 'id:2', 'text:B']);
+    expect(assignments).toEqual(['id:2', 'text:B']);
+  });
+
+  it('keeps nested descendant array items in document order across inputs', () => {
+    const schema = x.array(x.object({ value: x.string('./value') }), '//item');
+    const xml = '<root><item><value>0</value><item><value>1</value></item></item></root>';
+    const expected = [{ value: '0' }, { value: '1' }];
+
+    expect(schema.parseSync(xml)).toEqual(expected);
+    expect(schema.parseSync(new TextEncoder().encode(xml))).toEqual(expected);
+  });
+
+  it('scopes position predicates to same-name siblings', () => {
+    const schema = x.array(x.object({
+      first: x.string('./item[1]'),
+      second: x.string('./item[2]')
+    }), '//group');
+
+    expect(schema.parseSync('<r><group><noise/><item>A</item><item>B</item></group></r>'))
+      .toEqual([{ first: 'A', second: 'B' }]);
+  });
+
+  it('does not lock a scalar field after a missing attribute candidate', () => {
+    const schema = x.object({
+      rows: x.array(x.object({ v: x.string('./@v') }), '/r/seed'),
+      id: x.string('//item/@id')
+    });
+
+    expect(schema.parseSync('<r><seed v="x"/><item/><item id="ok"/></r>'))
+      .toEqual({ rows: [{ v: 'x' }], id: 'ok' });
+  });
+
+  it('captures current-context fields in array objects', () => {
+    const schema = x.object({ self: x.array(x.object({ same: x.string('.') }), '.') }).xpath('/r');
+
+    expect(schema.parseSync('<r>A<v>B</v>C</r>')).toEqual({ self: [{ same: 'ABC' }] });
+  });
+
+  it('creates __proto__ as an own data property', () => {
+    const schema = x.object({ ['__proto__']: x.string('/r/value') });
+    const value = schema.parseSync('<r><value>safe</value></r>');
+
+    expect(Object.getPrototypeOf(value)).toBe(Object.prototype);
+    expect(Object.prototype.hasOwnProperty.call(value, '__proto__')).toBe(true);
+    expect(value).toEqual({ ['__proto__']: 'safe' });
   });
 
   it('parses fragment and document strings without runtime UTF-8 encoding', async () => {
