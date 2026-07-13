@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { x } from '../../src/converter/index.js';
 import { XmlEventType, type AnyXmlEvent } from 'stax-xml-core';
 
@@ -13,6 +13,112 @@ describe('streaming-only converter', () => {
       title: 'XML',
       id: '7'
     });
+  });
+
+  it('precompiles the IR backend before parsing', () => {
+    const schema = x.array(x.object({
+      id: x.string().xpath('./@id'),
+      values: x.array(x.object({ value: x.string().xpath('.') }), './values/value')
+    }), '/root/row');
+
+    expect(schema.precompile()).toBe(schema);
+    expect(schema.parseSync(
+      '<root><row id="1"><values><value>A</value></values></row></root>'
+    )).toEqual([{ id: '1', values: [{ value: 'A' }] }]);
+  });
+
+  it('compiles fixed-path record projections from the schema shape', async () => {
+    const schema = x.object({
+      users: x.array(x.object({
+        id: x.string().xpath('./@id'),
+        name: x.string().xpath('./name'),
+        score: x.number().xpath('./score').transform(value => value * 2),
+        note: x.string().xpath('./note').optional()
+      }), '/root/users/user'),
+      codes: x.array(x.object({
+        value: x.string().xpath('./@value'),
+        label: x.string().xpath('./label')
+      }), '/root/codes/code'),
+      firstName: x.string().xpath('//user/name').optional()
+    });
+
+    const xml = '<root><users><user id="1"><name>A</name><score>4</score></user>' +
+      '<user id="2"><name>B</name><score>5</score><note>ok</note></user></users>' +
+      '<codes><code value="x"><label>X</label></code></codes></root>';
+    const expected = {
+      users: [
+        { id: '1', name: 'A', score: 8, note: undefined },
+        { id: '2', name: 'B', score: 10, note: 'ok' }
+      ],
+      codes: [{ value: 'x', label: 'X' }],
+      firstName: 'A'
+    };
+
+    expect(schema.parseSync(xml)).toEqual(expected);
+    await expect(schema.parse(xml)).resolves.toEqual(expected);
+  });
+
+  it('warns and falls back when runtime source generation is unavailable', () => {
+    const schema = x.object({
+      rows: x.array(x.object({
+        id: x.string().xpath('./@id'),
+        second: x.string().xpath('./value[2]'),
+        nested: x.object({ detail: x.string().xpath('./detail') })
+      }), '/root/row')
+    });
+    const flatSchema = x.object({
+      rows: x.array(x.object({
+        id: x.string().xpath('./@id'),
+        value: x.string().xpath('./value')
+      }), '/root/row')
+    });
+    const nestedArraySchema = x.array(x.object({
+      id: x.string().xpath('./@id'),
+      values: x.array(x.object({ value: x.string().xpath('.') }), './values/value')
+    }), '/root/row');
+    const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'Function');
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    Object.defineProperty(globalThis, 'Function', {
+      configurable: true,
+      value: () => { throw new EvalError('code generation disabled'); }
+    });
+    try {
+      expect(nestedArraySchema.precompile()).toBe(nestedArraySchema);
+      expect(schema.parseSync(
+        '<root><row id="1"><value>A</value><value>B</value><detail>D</detail></row></root>'
+      )).toEqual({ rows: [{ id: '1', second: 'B', nested: { detail: 'D' } }] });
+      expect(flatSchema.parseSync('<root><row id="2"><value>V</value></row></root>'))
+        .toEqual({ rows: [{ id: '2', value: 'V' }] });
+      expect(nestedArraySchema.parseSync(
+        '<root><row id="3"><values><value>A</value><value>B</value></values></row></root>'
+      )).toEqual([{ id: '3', values: [{ value: 'A' }, { value: 'B' }] }]);
+      expect(warn).toHaveBeenCalledWith(
+        '[stax-xml] Runtime code generation is unavailable; using the slower compiled-plan executor.'
+      );
+    } finally {
+      warn.mockRestore();
+      if (descriptor) Object.defineProperty(globalThis, 'Function', descriptor);
+    }
+  });
+
+  it('preserves event limits in compiled record projections', () => {
+    const textSchema = x.object({
+      rows: x.array(x.object({ value: x.string().xpath('./value') }), '/root/row')
+    });
+    const textXml = '<root><row><value>A</value></row></root>';
+    expect(() => textSchema.parseSync(textXml, { maxEvents: 8 }))
+      .toThrow('XML event limit exceeded: 8');
+    expect(textSchema.parseSync(textXml, { maxEvents: 9 }))
+      .toEqual({ rows: [{ value: 'A' }] });
+
+    const attributeSchema = x.object({
+      rows: x.array(x.object({ id: x.string().xpath('./@id') }), '/root/row')
+    });
+    const attributeXml = '<root><row id="1">ignored</row></root>';
+    expect(() => attributeSchema.parseSync(attributeXml, { maxEvents: 6 }))
+      .toThrow('XML event limit exceeded: 6');
+    expect(attributeSchema.parseSync(attributeXml, { maxEvents: 7 }))
+      .toEqual({ rows: [{ id: '1' }] });
   });
 
   it('rejects selectors that require a tree evaluator', () => {

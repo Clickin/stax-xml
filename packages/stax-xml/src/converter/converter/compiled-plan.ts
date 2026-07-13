@@ -36,10 +36,16 @@ export interface DispatchFieldPlan {
   value: DispatchValuePlan;
 }
 
+export interface DispatchFieldAction {
+  objectPlanId: number;
+  field: DispatchFieldPlan;
+}
+
 export interface DispatchObjectPlan extends DispatchBasePlan {
   kind: 'object';
   fields: DispatchFieldPlan[];
   inline: boolean;
+  contextFields?: DispatchFieldPlan[];
 }
 
 export interface DispatchArrayPlan extends DispatchBasePlan {
@@ -53,8 +59,85 @@ export type DispatchValuePlan =
   | DispatchObjectPlan
   | DispatchArrayPlan;
 
+export interface DispatchRecordArrayPlan {
+  field: DispatchFieldPlan;
+  array: DispatchArrayPlan;
+  item: DispatchObjectPlan;
+}
+
+export interface DispatchRecordProjectionPlan {
+  root: DispatchObjectPlan;
+  arrays: DispatchRecordArrayPlan[];
+  ir: DispatchIrProgram;
+  includeCharacters: boolean;
+  includeCdata: boolean;
+}
+
+export interface DispatchArrayProjectionPlan {
+  root: DispatchArrayPlan;
+  item: DispatchObjectPlan;
+  arrays: DispatchRecordArrayPlan[];
+  ir: DispatchIrProgram;
+  includeCharacters: boolean;
+  includeCdata: boolean;
+}
+
+export type DispatchStartAction =
+  | { op: 'start-root'; slot: number; path: number }
+  | { op: 'start-array-item'; slot: number; path: number }
+  | { op: 'start-field'; objectSlot: number; slot: number; fieldName: string; path: number };
+
+export interface DispatchStartBucket {
+  actions: DispatchStartAction[];
+}
+
+export type DispatchTextAction = { op: 'append-captures' };
+export type DispatchEndAction = { op: 'finish-captures' } | { op: 'finalize-values' };
+
+export type DispatchEndElementAction =
+  | { op: 'finish-field'; objectSlot: number; slot: number; fieldName: string; path: number }
+  | { op: 'finish-array-item'; slot: number; path: number };
+
+export interface DispatchEndBucket {
+  actions: DispatchEndElementAction[];
+}
+
+export interface DispatchIrSlot {
+  slot: number;
+  value: DispatchValuePlan;
+  parentSlot?: number;
+  fieldName?: string;
+  binding: 'root' | 'field' | 'array-item';
+  children: number[];
+}
+
+export interface DispatchIrPath {
+  path: number;
+  selector: DispatchSelector;
+}
+
+export interface DispatchIrCapture {
+  slot: number;
+  path: number;
+  textMode: DispatchTextMode;
+}
+
+export interface DispatchIrProgram {
+  slots: DispatchIrSlot[];
+  slotsById: Array<DispatchIrSlot | undefined>;
+  paths: DispatchIrPath[];
+  captures: DispatchIrCapture[];
+  byElement: Record<string, DispatchStartBucket>;
+  byEndElement: Record<string, DispatchEndBucket>;
+  onText: DispatchTextAction[];
+  onEnd: DispatchEndAction[];
+}
+
 export interface DispatchCompiledPlan {
   kind: 'dispatch';
   root: DispatchValuePlan;
   eventFilter: ParserEventFilter;
+  ir: DispatchIrProgram;
+  recordProjection?: DispatchRecordProjectionPlan;
+  arrayProjection?: DispatchArrayProjectionPlan;
 }

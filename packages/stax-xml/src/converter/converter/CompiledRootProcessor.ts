@@ -9,10 +9,15 @@ import {
 import type {
   DispatchArrayPlan,
   DispatchCompiledPlan,
+  DispatchFieldAction,
   DispatchFieldPlan,
   DispatchObjectPlan,
   DispatchScalarPlan,
   DispatchSelector,
+  DispatchEndAction,
+  DispatchStartAction,
+  DispatchIrProgram,
+  DispatchTextAction,
   DispatchValuePlan
 } from './compiled-plan.js';
 import type { ParseInput } from './XmlSchema.js';
@@ -26,9 +31,9 @@ type ParentBinding =
   | { kind: 'array'; array: ArrayState };
 
 type ObjectState = {
+  slot: number;
   plan: DispatchObjectPlan;
   depth: number;
-  active?: boolean;
   values: Record<string, unknown>;
   completedFieldBits: number;
   completedFields?: Set<number>;
@@ -39,6 +44,7 @@ type ObjectState = {
 };
 
 type ArrayState = {
+  slot: number;
   plan: DispatchArrayPlan;
   contextDepth?: number;
   items: unknown[];
@@ -47,6 +53,7 @@ type ArrayState = {
 };
 
 type CaptureState = {
+  slot: number;
   plan: DispatchScalarPlan;
   depth: number;
   buffer: string;
@@ -68,37 +75,60 @@ type RuntimeState = {
   rootObject?: ObjectState;
   rootArray?: ArrayState;
   objects: ObjectState[];
-  objectsByDepth?: ObjectState[][];
+  objectsByPlan: ObjectState[][];
   arrays: ArrayState[];
+  arraysByPlan: ArrayState[][];
   captures: CaptureState[];
   currentAttributes?: Record<string, string>;
   currentTokenCursor?: TokenCursor;
+  processingStart?: boolean;
 };
 
-type RelativeObjectFieldIndex = WeakMap<
-  DispatchObjectPlan,
-  Map<number, Map<string, DispatchFieldPlan[]>>
->;
-type RelativeObjectDispatch = { fields: RelativeObjectFieldIndex; offsets: number[] };
-const relativeObjectDispatchCache = new WeakMap<DispatchValuePlan, RelativeObjectDispatch | null>();
+type StartExecutor = (processor: CompiledRootProcessor, runtime: RuntimeState) => void;
+type TextExecutor = (processor: CompiledRootProcessor, runtime: RuntimeState, text: string) => void;
+type EndExecutor = (processor: CompiledRootProcessor, runtime: RuntimeState) => void;
+type StartConstant = DispatchValuePlan | DispatchArrayPlan | DispatchFieldAction;
+type ObjectFactory = () => Record<string, unknown>;
+const startExecutorCache = new WeakMap<DispatchIrProgram, StartExecutor>();
+const textExecutorCache = new WeakMap<DispatchIrProgram, TextExecutor>();
+const endExecutorCache = new WeakMap<DispatchIrProgram, EndExecutor>();
+const objectFactoryCache = new WeakMap<DispatchObjectPlan, ObjectFactory>();
+const objectTemplateFactoryCache = new WeakMap<DispatchObjectPlan, ObjectFactory>();
+let warnedCodeGenerationFallback = false;
+
+export function warnCodeGenerationFallback(): void {
+  if (warnedCodeGenerationFallback) return;
+  warnedCodeGenerationFallback = true;
+  console.warn('[stax-xml] Runtime code generation is unavailable; using the slower compiled-plan executor.');
+}
 
 export class CompiledRootProcessor {
-  private readonly relativeObjectFields?: RelativeObjectFieldIndex;
-  private readonly relativeObjectOffsets?: number[];
+  private readonly startExecutor: StartExecutor;
+  private readonly textExecutor: TextExecutor;
+  private readonly endExecutor: EndExecutor;
 
   constructor(
     private readonly plan: DispatchCompiledPlan,
     private readonly options?: ParseOptions
   ) {
-    let dispatch = relativeObjectDispatchCache.get(plan.root);
-    if (dispatch === undefined) {
-      dispatch = buildRelativeObjectFieldIndex(plan.root) ?? null;
-      relativeObjectDispatchCache.set(plan.root, dispatch);
+    let executor = startExecutorCache.get(plan.ir);
+    if (!executor) {
+      executor = compileStartExecutor(plan.ir);
+      startExecutorCache.set(plan.ir, executor);
     }
-    if (dispatch) {
-      this.relativeObjectFields = dispatch.fields;
-      this.relativeObjectOffsets = dispatch.offsets;
+    this.startExecutor = executor;
+    let textExecutor = textExecutorCache.get(plan.ir);
+    if (!textExecutor) {
+      textExecutor = compileTextExecutor(plan.ir);
+      textExecutorCache.set(plan.ir, textExecutor);
     }
+    this.textExecutor = textExecutor;
+    let endExecutor = endExecutorCache.get(plan.ir);
+    if (!endExecutor) {
+      endExecutor = compileEndExecutor(plan.ir);
+      endExecutorCache.set(plan.ir, endExecutor);
+    }
+    this.endExecutor = endExecutor;
   }
 
   parseSync<T>(input: ParseInput, options?: ParseOptions | unknown): T {
@@ -169,8 +199,9 @@ export class CompiledRootProcessor {
       rootValue: isUnselectedRootScalar(plan.root) ? undefined : defaultValue(plan.root, true, 'root'),
       rootDone: false,
       objects: [],
-      objectsByDepth: this.relativeObjectFields ? [] : undefined,
+      objectsByPlan: [],
       arrays: [],
+      arraysByPlan: [],
       captures: []
     };
 
@@ -194,7 +225,12 @@ export class CompiledRootProcessor {
         ? Object.fromEntries(event.attributes.map((attribute) => [attribute.name, attribute.value]))
         : undefined;
       this.checkDepthLimit(runtime);
-      this.processStart(runtime);
+      runtime.processingStart = true;
+      try {
+        this.processStart(runtime);
+      } finally {
+        runtime.processingStart = false;
+      }
       runtime.currentAttributes = undefined;
     } else if (isCharacters(event) || isCdata(event)) {
       this.processText(runtime, event.value);
@@ -265,10 +301,12 @@ export class CompiledRootProcessor {
       runtime.elementStack.push(cursor.name()!);
       recordElementPosition(runtime);
       runtime.currentTokenCursor = cursor;
+      runtime.processingStart = true;
       try {
         this.checkDepthLimit(runtime);
         this.processStart(runtime);
       } finally {
+        runtime.processingStart = false;
         runtime.currentTokenCursor = undefined;
       }
       return;
@@ -369,51 +407,61 @@ export class CompiledRootProcessor {
 
   private processStart(runtime: RuntimeState): void {
     const root = runtime.plan.root;
-    if (!runtime.rootDone && root.kind !== 'array' && !(root.kind === 'object' && !root.selector)) {
+    if (!runtime.rootDone && !root.selector && root.kind !== 'array' && root.kind !== 'object') {
       this.tryStartValue(runtime, root, undefined, { kind: 'root' });
     }
 
-    for (let index = 0; index < runtime.arrays.length; index++) {
-      const array = runtime.arrays[index];
-      if (!matchesSelector(array.plan.itemSelector, runtime, array.contextDepth)) {
-        continue;
-      }
-      this.startArrayItem(runtime, array);
-    }
+    this.startExecutor(this, runtime);
+  }
 
-    if (this.relativeObjectFields) {
-      this.processIndexedObjectStarts(runtime);
-    } else {
-      for (let index = 0; index < runtime.objects.length; index++) {
-        this.processObjectStart(runtime, runtime.objects[index]);
+  /** @internal Called by a schema-generated start executor. */
+  executeRootStart(runtime: RuntimeState, plan: DispatchValuePlan): void {
+    if (!runtime.rootDone) this.tryStartValue(runtime, plan, undefined, { kind: 'root' });
+  }
+
+  /** @internal Called by a schema-generated executor after its path check. */
+  executeMatchedRootStart(runtime: RuntimeState, plan: DispatchValuePlan): void {
+    if (runtime.rootDone) return;
+    if (plan.kind === 'string' || plan.kind === 'number') {
+      this.startMatchedScalar(runtime, plan, { kind: 'root' });
+    } else if (plan.kind === 'object') {
+      this.createObjectState(runtime, plan, runtime.depth, { kind: 'root' });
+    }
+  }
+
+  /** @internal Called by a schema-generated start executor. */
+  executeArrayStart(runtime: RuntimeState, plan: DispatchArrayPlan): void {
+    const arrays = runtime.arraysByPlan[plan.id];
+    if (!arrays) return;
+    for (let index = 0, length = arrays.length; index < length; index++) {
+      const array = arrays[index]!;
+      if (matchesSelector(plan.itemSelector, runtime, array.contextDepth)) {
+        this.startArrayItem(runtime, array);
       }
     }
   }
 
-  private processIndexedObjectStarts(runtime: RuntimeState): void {
-    const elementName = runtime.elementStack[runtime.depth - 1]!;
-    for (const offset of this.relativeObjectOffsets!) {
-      const contextDepth = runtime.depth - offset;
-      if (contextDepth < 0) continue;
-      const objects = runtime.objectsByDepth![contextDepth];
-      if (!objects) continue;
+  /** @internal Called by a schema-generated executor after its path check. */
+  executeMatchedArrayStart(runtime: RuntimeState, array: ArrayState): void {
+    this.startArrayItem(runtime, array);
+  }
 
-      for (let index = 0; index < objects.length; index++) {
-        const object = objects[index]!;
-        const fields = this.relativeObjectFields!
-          .get(object.plan)
-          ?.get(offset)
-          ?.get(elementName);
-        if (!fields) continue;
-        for (const field of fields) this.processObjectFieldStart(runtime, object, field);
-      }
+  /** @internal Called by a schema-generated start executor. */
+  executeFieldStart(runtime: RuntimeState, action: DispatchFieldAction): void {
+    const objects = runtime.objectsByPlan[action.objectPlanId];
+    if (!objects) return;
+    for (let index = 0, length = objects.length; index < length; index++) {
+      this.processObjectFieldStart(runtime, objects[index]!, action.field);
     }
   }
 
-  private processObjectStart(runtime: RuntimeState, object: ObjectState): void {
-    for (const field of object.plan.fields) {
-      this.processObjectFieldStart(runtime, object, field);
-    }
+  /** @internal Called by a schema-generated executor after its path check. */
+  executeMatchedFieldStart(
+    runtime: RuntimeState,
+    object: ObjectState,
+    field: DispatchFieldAction
+  ): void {
+    this.processMatchedObjectFieldStart(runtime, object, field.field);
   }
 
   private processObjectFieldStart(
@@ -426,12 +474,28 @@ export class CompiledRootProcessor {
 
     if (value.kind === 'object') {
       if (value.selector && matchesSelector(value.selector, runtime, object.depth)) {
-        this.createObjectState(runtime, value, runtime.depth, { kind: 'field', object, field });
+        this.processMatchedObjectFieldStart(runtime, object, field);
       }
       return;
     }
 
-    this.tryStartScalar(runtime, value, object.depth, { kind: 'field', object, field });
+    if (matchesSelector(value.selector!, runtime, object.depth)) {
+      this.processMatchedObjectFieldStart(runtime, object, field);
+    }
+  }
+
+  private processMatchedObjectFieldStart(
+    runtime: RuntimeState,
+    object: ObjectState,
+    field: DispatchFieldPlan
+  ): void {
+    const value = field.value;
+    if (value.kind === 'array' || hasCompletedField(object, value.id)) return;
+    if (value.kind === 'object') {
+      this.createObjectState(runtime, value, runtime.depth, { kind: 'field', object, field });
+      return;
+    }
+    this.startMatchedScalar(runtime, value, { kind: 'field', object, field });
   }
 
   private tryStartValue(
@@ -460,7 +524,7 @@ export class CompiledRootProcessor {
     const selector = plan.selector;
     if (!selector) {
       if (parent.kind === 'root' && runtime.depth === 1) {
-        runtime.captures.push({ plan, depth: 1, buffer: '', textMode: 'subtree', parent });
+        runtime.captures.push({ slot: plan.id, plan, depth: 1, buffer: '', textMode: 'subtree', parent });
       }
       return;
     }
@@ -468,6 +532,15 @@ export class CompiledRootProcessor {
       return;
     }
 
+    this.startMatchedScalar(runtime, plan, parent);
+  }
+
+  private startMatchedScalar(
+    runtime: RuntimeState,
+    plan: DispatchScalarPlan,
+    parent: ParentBinding
+  ): void {
+    const selector = plan.selector!;
     if (selector.terminal === 'attribute') {
       const value = currentAttributeValue(runtime, selector.attributeName!);
       if (value !== undefined) {
@@ -479,6 +552,7 @@ export class CompiledRootProcessor {
     }
 
     runtime.captures.push({
+      slot: plan.id,
       plan,
       depth: runtime.depth,
       buffer: '',
@@ -505,6 +579,7 @@ export class CompiledRootProcessor {
     }
 
     runtime.captures.push({
+      slot: element.id,
       plan: element as DispatchScalarPlan,
       depth: runtime.depth,
       buffer: '',
@@ -514,6 +589,11 @@ export class CompiledRootProcessor {
   }
 
   private processText(runtime: RuntimeState, text: string): void {
+    this.textExecutor(this, runtime, text);
+  }
+
+  /** @internal Called by the IR text executor. */
+  executeAppendCaptures(runtime: RuntimeState, text: string): void {
     for (const capture of runtime.captures) {
       if (capture.textMode === 'direct') {
         if (runtime.depth === capture.depth) {
@@ -526,6 +606,11 @@ export class CompiledRootProcessor {
   }
 
   private processEnd(runtime: RuntimeState): void {
+    this.endExecutor(this, runtime);
+  }
+
+  /** @internal Called by the IR end executor. */
+  executeFinishCaptures(runtime: RuntimeState): void {
     const captureEnd = runtime.captures.length;
     if (captureEnd === 1) {
       const capture = runtime.captures[0]!;
@@ -544,6 +629,10 @@ export class CompiledRootProcessor {
       else runtime.captures.length = captureStart;
     }
 
+  }
+
+  /** @internal Called by the IR end executor. */
+  executeFinalizeValues(runtime: RuntimeState): void {
     while (true) {
       const object = runtime.objects[runtime.objects.length - 1];
       if (!object || object.depth !== runtime.depth) break;
@@ -561,11 +650,13 @@ export class CompiledRootProcessor {
     depth: number,
     parent: ParentBinding
   ): ObjectState {
+    const slot = irSlot(runtime, plan.id);
     const runtimeStart = runtime.objects.length;
     const object: ObjectState = {
+      slot: slot.slot,
       plan,
       depth,
-      values: {},
+      values: compileObjectFactory(plan, false)(),
       completedFieldBits: 0,
       childObjects: [],
       childArrays: [],
@@ -573,12 +664,14 @@ export class CompiledRootProcessor {
       parent
     };
 
-    for (const field of plan.fields) {
-      const value = field.value;
+    for (const childSlot of slot.children) {
+      const child = irSlot(runtime, childSlot);
+      if (!child.fieldName) throw new Error(`Missing converter IR field binding for slot: ${child.slot}`);
+      const field: DispatchFieldPlan = { fieldName: child.fieldName, value: child.value };
+      const value = child.value;
       if (value.kind === 'array') {
         const array = this.createArrayState(runtime, value, depth, { kind: 'field', object, field });
         object.childArrays.push(array);
-        object.values[field.fieldName] = defaultValue(value, true, 'field');
         continue;
       }
 
@@ -587,15 +680,14 @@ export class CompiledRootProcessor {
         object.childObjects.push(child);
         continue;
       }
-
       object.values[field.fieldName] = defaultValue(value, true, 'field');
     }
 
-    if (runtime.objectsByDepth) {
-      object.active = true;
-      (runtime.objectsByDepth[depth] ??= []).push(object);
-    }
     runtime.objects.push(object);
+    (runtime.objectsByPlan[object.slot] ??= []).push(object);
+    if (runtime.processingStart && plan.contextFields) {
+      for (const field of plan.contextFields) this.processObjectFieldStart(runtime, object, field);
+    }
     return object;
   }
 
@@ -605,7 +697,9 @@ export class CompiledRootProcessor {
     contextDepth: number | undefined,
     parent: ParentBinding
   ): ArrayState {
+    const slot = irSlot(runtime, plan.id);
     const array: ArrayState = {
+      slot: slot.slot,
       plan,
       contextDepth,
       items: [],
@@ -613,6 +707,11 @@ export class CompiledRootProcessor {
       parent
     };
     runtime.arrays.push(array);
+    (runtime.arraysByPlan[array.slot] ??= []).push(array);
+    if (runtime.processingStart && !plan.itemSelector.lastElementName
+      && matchesSelector(plan.itemSelector, runtime, contextDepth)) {
+      this.startArrayItem(runtime, array);
+    }
     return array;
   }
 
@@ -647,8 +746,8 @@ export class CompiledRootProcessor {
     markObjectFieldCompleted(parent.object, plan.id);
   }
 
-  private finalizeObject(runtime: RuntimeState, object: ObjectState, compactDepth = true): unknown {
-    for (const child of object.childObjects) this.finalizeObject(runtime, child, false);
+  private finalizeObject(runtime: RuntimeState, object: ObjectState): unknown {
+    for (const child of object.childObjects) this.finalizeObject(runtime, child);
 
     for (const array of object.childArrays) this.finalizeArray(runtime, array);
 
@@ -658,9 +757,8 @@ export class CompiledRootProcessor {
     }
 
     this.assignValue(runtime, value, object.parent, object.plan);
-    if (runtime.objectsByDepth) object.active = false;
+    runtime.objectsByPlan[object.slot]!.pop();
     runtime.objects.length = Math.min(runtime.objects.length, object.runtimeStart);
-    if (compactDepth && runtime.objectsByDepth) compactObjectDepth(runtime.objectsByDepth[object.depth]);
     return value;
   }
 
@@ -672,6 +770,7 @@ export class CompiledRootProcessor {
     }
 
     this.assignValue(runtime, value, array.parent, array.plan);
+    runtime.arraysByPlan[array.slot]!.pop();
     runtime.arrays.length = Math.min(runtime.arrays.length, array.runtimeStart);
     return value;
   }
@@ -726,67 +825,212 @@ export class CompiledRootProcessor {
 
 }
 
-function buildRelativeObjectFieldIndex(
-  root: DispatchValuePlan
-): RelativeObjectDispatch | undefined {
-  const fields: RelativeObjectFieldIndex = new WeakMap();
-  const offsets = new Set<number>();
-  const visited = new Set<DispatchValuePlan>();
-  let fieldCount = 0;
-
-  const visit = (value: DispatchValuePlan): boolean => {
-    if (visited.has(value)) return true;
-    visited.add(value);
-
-    if (value.kind === 'array') return visit(value.element);
-    if (value.kind !== 'object') return true;
-
-    const byOffset = new Map<number, Map<string, DispatchFieldPlan[]>>();
-    fields.set(value, byOffset);
-    for (const field of value.fields) {
-      const child = field.value;
-      if (child.kind === 'array') {
-        if (!visit(child.element)) return false;
-        continue;
-      }
-      if (child.kind === 'object' && !child.selector) {
-        if (!visit(child)) return false;
-        continue;
-      }
-
-      const selector = child.selector;
-      if (selector?.mode !== 'relative' || !selector.lastElementName) return false;
-      const offset = selector.segments.length;
-      let byName = byOffset.get(offset);
-      if (!byName) {
-        byName = new Map();
-        byOffset.set(offset, byName);
-      }
-      let matchingFields = byName.get(selector.lastElementName);
-      if (!matchingFields) {
-        matchingFields = [];
-        byName.set(selector.lastElementName, matchingFields);
-      }
-      matchingFields.push(field);
-      offsets.add(offset);
-      fieldCount++;
-
-      if (!visit(child)) return false;
-    }
-    return true;
-  };
-
-  if (!visit(root) || fieldCount < 16) return undefined;
-  return { fields, offsets: [...offsets].sort((left, right) => right - left) };
+function compileStartExecutor(program: DispatchIrProgram): StartExecutor {
+  try {
+    return compileGeneratedStartExecutor(program);
+  } catch {
+    warnCodeGenerationFallback();
+    return compileFallbackStartExecutor(program);
+  }
 }
 
-function compactObjectDepth(objects: ObjectState[] | undefined): void {
-  if (!objects) return;
-  let write = 0;
-  for (const object of objects) {
-    if (object.active) objects[write++] = object;
+function compileTextExecutor(program: DispatchIrProgram): TextExecutor {
+  try {
+    const statements = program.onText.map(action => {
+      if (action.op === 'append-captures') return 'append(processor,runtime,text);';
+      return '';
+    }).join('');
+    const create = Function(
+      'append',
+      `return function(processor,runtime,text){${statements}}`
+    ) as (
+      append: (processor: CompiledRootProcessor, runtime: RuntimeState, text: string) => void
+    ) => TextExecutor;
+    return create((processor, runtime, text) => processor.executeAppendCaptures(runtime, text));
+  } catch {
+    warnCodeGenerationFallback();
   }
-  objects.length = write;
+  const actions = program.onText.map(compileTextAction);
+  return (processor, runtime, text) => {
+    for (const action of actions) action(processor, runtime, text);
+  };
+}
+
+function compileTextAction(action: DispatchTextAction): TextExecutor {
+  return (processor, runtime, text) => {
+    if (action.op === 'append-captures') processor.executeAppendCaptures(runtime, text);
+  };
+}
+
+function compileEndExecutor(program: DispatchIrProgram): EndExecutor {
+  try {
+    const statements = program.onEnd.map(action => action.op === 'finish-captures'
+      ? 'finish(processor,runtime);'
+      : 'finalize(processor,runtime);'
+    ).join('');
+    const create = Function(
+      'finish', 'finalize',
+      `return function(processor,runtime){${statements}}`
+    ) as (
+      finish: (processor: CompiledRootProcessor, runtime: RuntimeState) => void,
+      finalize: (processor: CompiledRootProcessor, runtime: RuntimeState) => void
+    ) => EndExecutor;
+    return create(
+      (processor, runtime) => processor.executeFinishCaptures(runtime),
+      (processor, runtime) => processor.executeFinalizeValues(runtime)
+    );
+  } catch {
+    warnCodeGenerationFallback();
+  }
+  const actions = program.onEnd.map(compileEndAction);
+  return (processor, runtime) => {
+    for (const action of actions) action(processor, runtime);
+  };
+}
+
+function compileEndAction(action: DispatchEndAction): EndExecutor {
+  return (processor, runtime) => {
+    if (action.op === 'finish-captures') {
+      processor.executeFinishCaptures(runtime);
+    } else {
+      processor.executeFinalizeValues(runtime);
+    }
+  };
+}
+
+function compileGeneratedStartExecutor(program: DispatchIrProgram): StartExecutor {
+  const constants: StartConstant[] = [];
+  const cases: string[] = [];
+  for (const [name, bucket] of Object.entries(program.byElement)) {
+    const statements: string[] = [];
+    for (const action of bucket.actions) {
+      const resolved = resolveStartAction(program, action);
+      if (resolved.op === 'start-root') {
+        const constant = constants.push(resolved.value) - 1;
+        statements.push(
+          `if(${emitPathMatch(resolved.selector, '0')})processor.executeMatchedRootStart(runtime,constants[${constant}]);`
+        );
+      } else if (resolved.op === 'start-array-item') {
+        const constant = constants.push(resolved.array) - 1;
+        const state = `a${constant}`;
+        statements.push(
+          `{const ${state}=runtime.arraysByPlan[constants[${constant}].id];if(${state})for(let i=0;i<${state}.length;i++){` +
+          `const value=${state}[i];if(${emitPathMatch(resolved.selector, 'value.contextDepth')})` +
+          `processor.executeMatchedArrayStart(runtime,value);}}`
+        );
+      } else {
+        const constant = constants.push(resolved.field) - 1;
+        const state = `o${constant}`;
+        statements.push(
+          `{const ${state}=runtime.objectsByPlan[constants[${constant}].objectPlanId];if(${state})for(let i=0;i<${state}.length;i++){` +
+          `const value=${state}[i];if(${emitPathMatch(resolved.selector, 'value.depth')})` +
+          `processor.executeMatchedFieldStart(runtime,value,constants[${constant}]);}}`
+        );
+      }
+    }
+    cases.push(`case ${JSON.stringify(name)}:${statements.join('')}return;`);
+  }
+  const create = Function(
+    'constants',
+    `return function(processor,runtime){switch(runtime.elementStack[runtime.depth-1]){${cases.join('')}}}`
+  ) as (values: StartConstant[]) => StartExecutor;
+  return create(constants);
+}
+
+function compileFallbackStartExecutor(program: DispatchIrProgram): StartExecutor {
+  const handlers: Record<string, StartExecutor> = Object.create(null);
+  for (const [name, bucket] of Object.entries(program.byElement)) {
+    const actions: StartExecutor[] = [];
+    for (const action of bucket.actions) {
+      actions.push(compileFallbackStartAction(resolveStartAction(program, action)));
+    }
+    handlers[name] = chain(actions);
+  }
+  return (processor, runtime) => {
+    handlers[runtime.elementStack[runtime.depth - 1]!]?.(processor, runtime);
+  };
+}
+
+type ResolvedStartAction =
+  | { op: 'start-root'; value: DispatchValuePlan; selector: DispatchSelector }
+  | { op: 'start-array-item'; array: DispatchArrayPlan; selector: DispatchSelector }
+  | { op: 'start-field'; field: DispatchFieldAction; selector: DispatchSelector };
+
+function resolveStartAction(
+  program: DispatchIrProgram,
+  action: DispatchStartAction
+): ResolvedStartAction {
+  const value = (slot: number): DispatchValuePlan => {
+    const resolved = program.slots.find(entry => entry.slot === slot)?.value;
+    if (!resolved) throw new Error(`Invalid converter IR slot: ${slot}`);
+    return resolved;
+  };
+  const selector = (path: number): DispatchSelector => {
+    const resolved = program.paths[path]?.selector;
+    if (!resolved) throw new Error(`Invalid converter IR path: ${path}`);
+    return resolved;
+  };
+  if (action.op === 'start-root') {
+    return { op: action.op, value: value(action.slot), selector: selector(action.path) };
+  }
+  if (action.op === 'start-array-item') {
+    const array = value(action.slot);
+    if (array.kind !== 'array') throw new Error(`Converter IR slot ${action.slot} is not an array`);
+    return { op: action.op, array, selector: selector(action.path) };
+  }
+  const object = value(action.objectSlot);
+  if (object.kind !== 'object') throw new Error(`Converter IR slot ${action.objectSlot} is not an object`);
+  const field = object.fields.find(candidate => candidate.fieldName === action.fieldName);
+  if (!field || field.value.id !== action.slot) {
+    throw new Error(`Invalid converter IR field binding: ${action.fieldName}`);
+  }
+  return { op: action.op, field: { objectPlanId: object.id, field }, selector: selector(action.path) };
+}
+
+function emitPathMatch(selector: DispatchSelector, contextDepth: string): string {
+  const segments = selector.segments;
+  const offset = selector.mode === 'absolute'
+    ? '0'
+    : selector.mode === 'descendant'
+      ? `runtime.depth-${segments.length}`
+      : contextDepth;
+  const checks: string[] = [selector.mode === 'absolute'
+    ? `runtime.depth===${segments.length}`
+    : selector.mode === 'descendant'
+      ? `runtime.depth>=${segments.length}`
+      : `runtime.depth===${contextDepth}+${segments.length}`];
+  const compareLength = segments.length - (selector.lastElementName ? 1 : 0);
+  for (let index = 0; index < compareLength; index++) {
+    checks.push(`runtime.elementStack[${offset}+${index}]===${JSON.stringify(segments[index])}`);
+  }
+  for (let index = 0; index < (selector.positionFilters?.length ?? 0); index++) {
+    const expected = selector.positionFilters![index];
+    if (expected !== undefined) checks.push(`runtime.positionStack[${offset}+${index}]===${expected}`);
+  }
+  return checks.join('&&');
+}
+
+function compileFallbackStartAction(action: ResolvedStartAction): StartExecutor {
+  if (action.op === 'start-root') {
+    return (processor, runtime) => processor.executeRootStart(runtime, action.value);
+  }
+  if (action.op === 'start-array-item') {
+    return (processor, runtime) => processor.executeArrayStart(runtime, action.array);
+  }
+  return (processor, runtime) => processor.executeFieldStart(runtime, action.field);
+}
+
+function chain(actions: StartExecutor[]): StartExecutor {
+  let handler: StartExecutor = () => undefined;
+  for (let index = actions.length - 1; index >= 0; index--) {
+    const action = actions[index]!;
+    const next = handler;
+    handler = (processor, runtime) => {
+      action(processor, runtime);
+      next(processor, runtime);
+    };
+  }
+  return handler;
 }
 
 function matchesSelector(
@@ -854,7 +1098,7 @@ function popCompletedChildPositionScope(runtime: RuntimeState): void {
   }
 }
 
-function parseScalar(plan: DispatchScalarPlan, rawValue: string, preserveEmptyOptional: boolean): unknown {
+export function parseScalar(plan: DispatchScalarPlan, rawValue: string, preserveEmptyOptional: boolean): unknown {
   if (!(plan.optional && rawValue === '' && preserveEmptyOptional) && plan.schema._parseText) {
     return plan.schema._parseText(rawValue);
   }
@@ -872,7 +1116,7 @@ function parseScalar(plan: DispatchScalarPlan, rawValue: string, preserveEmptyOp
   return applyTransforms(plan, value);
 }
 
-function defaultValue(
+export function defaultValue(
   plan: DispatchValuePlan,
   missingSelectableObject: boolean,
   context: 'root' | 'field'
@@ -902,7 +1146,50 @@ function defaultValue(
   return applyTransforms(plan, value);
 }
 
-function applyTransforms(plan: DispatchValuePlan, value: unknown): unknown {
+export function compileObjectFactory(plan: DispatchObjectPlan, includeDefaults = true): ObjectFactory {
+  const cache = includeDefaults ? objectFactoryCache : objectTemplateFactoryCache;
+  const cached = cache.get(plan);
+  if (cached) return cached;
+  try {
+    const dynamicPlans: DispatchValuePlan[] = [];
+    const properties = plan.fields.map(field => {
+      const value = field.value;
+      let expression: string;
+      if (!value.optional && value.transforms.length === 0 && value.kind === 'string') {
+        expression = "''";
+      } else if (!value.optional && value.transforms.length === 0 && value.kind === 'number') {
+        expression = 'NaN';
+      } else if (includeDefaults) {
+        expression = `defaultValue(plans[${dynamicPlans.push(value) - 1}],true,'field')`;
+      } else {
+        expression = 'undefined';
+      }
+      return `${JSON.stringify(field.fieldName)}:${expression}`;
+    });
+    const create = Function(
+      'defaultValue',
+      'plans',
+      `return function(){return {${properties.join(',')}}}`
+    ) as (defaultValueFn: typeof defaultValue, plans: DispatchValuePlan[]) => ObjectFactory;
+    const factory = create(defaultValue, dynamicPlans);
+    cache.set(plan, factory);
+    return factory;
+  } catch {
+    warnCodeGenerationFallback();
+  }
+  const fields = plan.fields;
+  const factory = (): Record<string, unknown> => {
+    const values: Record<string, unknown> = {};
+    for (const field of fields) {
+      values[field.fieldName] = includeDefaults ? defaultValue(field.value, true, 'field') : undefined;
+    }
+    return values;
+  };
+  cache.set(plan, factory);
+  return factory;
+}
+
+export function applyTransforms(plan: DispatchValuePlan, value: unknown): unknown {
   let result = value;
   for (const transformFn of plan.transforms) {
     result = transformFn(result);
@@ -912,6 +1199,12 @@ function applyTransforms(plan: DispatchValuePlan, value: unknown): unknown {
 
 function isUnselectedRootScalar(plan: DispatchValuePlan): boolean {
   return (plan.kind === 'string' || plan.kind === 'number') && !plan.selector;
+}
+
+function irSlot(runtime: RuntimeState, slot: number) {
+  const resolved = runtime.plan.ir.slotsById[slot];
+  if (!resolved) throw new Error(`Missing converter IR slot: ${slot}`);
+  return resolved;
 }
 
 function currentAttributeValue(runtime: RuntimeState, name: string): string | undefined {

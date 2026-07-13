@@ -100,6 +100,14 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
     return autoParse(this, input, options);
   }
 
+  /** Build and cache the schema-specific converter program before parsing. */
+  precompile(options?: ParseOptions): this {
+    const compile = XmlSchemaBase._precompileWithCompiledPlan;
+    if (!compile) throw new Error('Converter parser is not initialized');
+    compile(this, options);
+    return this;
+  }
+
   /**
    * Parse XML asynchronously with error handling
    * @param input - XML string, stream, or async iterator
@@ -243,5 +251,10 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
     input: ParseInput,
     options?: ParseOptions
   ) => Promise<Output>;
+  /** @internal */
+  static _precompileWithCompiledPlan?: <Output, Input>(
+    schema: XmlSchemaBase<Output, Input>,
+    options?: ParseOptions
+  ) => void;
 
 }

@@ -31,6 +31,7 @@ import { XmlOptionalSchema } from './XmlOptionalSchema.js';
 import { XmlArraySchema } from './XmlArraySchema.js';
 import { XmlSchema } from './XmlSchema.js';
 import {
+  precompileWithCompiledPlan,
   tryParseAsyncWithCompiledPlan,
   tryParseWithCompiledPlan
 } from './CompiledXmlSchema.js';
@@ -41,6 +42,7 @@ XmlSchemaBase._createOptional = (schema) => new XmlOptionalSchema(schema);
 XmlSchemaBase._createArray = (schema, xpath) => new XmlArraySchema(schema, xpath);
 XmlSchemaBase._tryParseWithCompiledPlan = tryParseWithCompiledPlan;
 XmlSchemaBase._tryParseAsyncWithCompiledPlan = tryParseAsyncWithCompiledPlan;
+XmlSchemaBase._precompileWithCompiledPlan = precompileWithCompiledPlan;
 
 
 export { x } from './XmlBuilder.js';
