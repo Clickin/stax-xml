@@ -61,12 +61,6 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
     super();
   }
 
-  _parseText(text: string): InferObjectOutput<T> {
-    // Objects cannot be parsed from plain text
-    // Return empty object as default behavior
-    return {} as InferObjectOutput<T>;
-  }
-
   /**
    * Set XPath expression for locating the object
    * @param path - XPath expression

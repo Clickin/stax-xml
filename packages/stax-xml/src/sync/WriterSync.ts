@@ -5,8 +5,11 @@ import { assertXmlChars, assertXmlName, WriteElementOptions } from '@stax-xml/co
  * Sink interface for custom sync targets.
  */
 export interface SyncTextSink {
+  /** Accept a serialized XML text chunk. */
   write(chunk: string): void;
+  /** Flush buffered sink data, when supported. */
   flush?(): void;
+  /** Close the sink, when supported. */
   close?(): void;
 }
 
@@ -159,6 +162,7 @@ abstract class AbstractWriterSync {
     this.state = WriterState.CLOSED;
   }
 
+  /** Start an element and leave its start tag open for attributes. */
   public writeStartElement(localName: string, options?: WriteElementOptions): this {
     if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
       throw new Error('Cannot writeStartElement: Writer is closed or in error state.');
@@ -248,6 +252,7 @@ abstract class AbstractWriterSync {
     return this;
   }
 
+  /** Add an attribute to the currently open start tag. */
   public writeAttribute(localName: string, value: string, prefix?: string): this {
     if (this.state !== WriterState.START_ELEMENT_OPEN) {
       throw new Error('writeAttribute can only be called after writeStartElement.');
@@ -265,6 +270,7 @@ abstract class AbstractWriterSync {
     return this;
   }
 
+  /** Declare a namespace on the currently open start tag. */
   public writeNamespace(prefix: string, uri: string): this {
     if (this.state !== WriterState.START_ELEMENT_OPEN) {
       throw new Error('writeNamespace can only be called after writeStartElement.');
@@ -283,6 +289,7 @@ abstract class AbstractWriterSync {
     return this;
   }
 
+  /** Write escaped character data. */
   public writeCharacters(text: string): this {
     if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
       throw new Error('Cannot writeCharacters: Writer is closed or in error state.');
@@ -298,6 +305,7 @@ abstract class AbstractWriterSync {
     return this;
   }
 
+  /** Write a CDATA section. */
   public writeCData(cdata: string): this {
     if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
       throw new Error('Cannot writeCData: Writer is closed or in error state.');
@@ -316,6 +324,7 @@ abstract class AbstractWriterSync {
     return this;
   }
 
+  /** Write an XML comment. */
   public writeComment(comment: string): this {
     if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
       throw new Error('Cannot writeComment: Writer is closed or in error state.');
@@ -332,6 +341,7 @@ abstract class AbstractWriterSync {
     return this;
   }
 
+  /** Write a processing instruction. */
   public writeProcessingInstruction(target: string, data?: string): this {
     if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
       throw new Error('Cannot writeProcessingInstruction: Writer is closed or in error state.');
@@ -357,12 +367,14 @@ abstract class AbstractWriterSync {
     return this;
   }
 
+  /** Write trusted XML verbatim without validation or escaping. */
   public writeRaw(xml: string): this {
     this._closeStartElementTag();
     this._write(xml);
     return this;
   }
 
+  /** Close the most recently opened element. */
   public writeEndElement(): this {
     if (this.elementStack.length === 0) {
       throw new Error('No open element to close.');
@@ -395,21 +407,25 @@ abstract class AbstractWriterSync {
     return this;
   }
 
+  /** Enable or disable indentation for subsequent output. */
   public setPrettyPrint(enabled: boolean): this {
     this.options.prettyPrint = enabled;
     return this;
   }
 
+  /** Set the indentation unit used by pretty printing. */
   public setIndentString(indentString: string): this {
     this.options.indentString = indentString;
     this.indentCache = [''];
     return this;
   }
 
+  /** Return whether pretty printing is enabled. */
   public isPrettyPrintEnabled(): boolean {
     return this.options.prettyPrint;
   }
 
+  /** Return the current indentation unit. */
   public getIndentString(): string {
     return this.options.indentString;
   }
@@ -529,6 +545,7 @@ export class WriterSync extends AbstractWriterSync {
     super(options);
   }
 
+  /** Return all XML serialized so far. */
   public getXmlString(): string {
     return this.xmlString;
   }
@@ -614,6 +631,7 @@ export class WriterSyncSink extends AbstractWriterSync {
     }
   }
 
+  /** Emit buffered text and invoke the sink's optional `flush()` hook. */
   public flush(): void {
     this.flushBuffer();
     if (this.sink.flush) {
@@ -621,6 +639,7 @@ export class WriterSyncSink extends AbstractWriterSync {
     }
   }
 
+  /** Finalize the document, emit buffered text, and close the sink. */
   public close(): void {
     if (this.state !== WriterState.CLOSED && this.state !== WriterState.ERROR) {
       super.writeEndDocument();

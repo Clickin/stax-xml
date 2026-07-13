@@ -44,7 +44,6 @@ export interface DispatchFieldAction {
 export interface DispatchObjectPlan extends DispatchBasePlan {
   kind: 'object';
   fields: DispatchFieldPlan[];
-  inline: boolean;
 }
 
 export interface DispatchArrayPlan extends DispatchBasePlan {
@@ -70,50 +69,29 @@ export interface DispatchStartBucket {
 export type DispatchTextAction = { op: 'append-captures' };
 export type DispatchEndAction = { op: 'finish-captures' } | { op: 'finalize-values' };
 
-export type DispatchEndElementAction =
-  | { op: 'finish-field'; objectSlot: number; slot: number; fieldName: string; path: number }
-  | { op: 'finish-array-item'; slot: number; path: number };
-
-export interface DispatchEndBucket {
-  actions: DispatchEndElementAction[];
-}
-
 export interface DispatchIrSlot {
   slot: number;
   value: DispatchValuePlan;
   globalActive: boolean;
   depthActive: boolean;
-  parentSlot?: number;
   fieldName?: string;
-  binding: 'root' | 'field' | 'array-item';
   children: number[];
 }
 
 export interface DispatchIrPath {
-  path: number;
   selector: DispatchSelector;
 }
 
-export interface DispatchIrCapture {
-  slot: number;
-  path: number;
-  textMode: DispatchTextMode;
-}
-
 export interface DispatchIrProgram {
-  slots: DispatchIrSlot[];
   slotsById: Array<DispatchIrSlot | undefined>;
   paths: DispatchIrPath[];
-  captures: DispatchIrCapture[];
   byElement: Record<string, DispatchStartBucket>;
-  byEndElement: Record<string, DispatchEndBucket>;
   onOpen: Array<DispatchFieldAction[] | undefined>;
   onText: DispatchTextAction[];
   onEnd: DispatchEndAction[];
 }
 
 export interface DispatchCompiledPlan {
-  kind: 'dispatch';
   root: DispatchValuePlan;
   eventFilter: ParserEventFilter;
   ir: DispatchIrProgram;

@@ -19,12 +19,6 @@ export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends X
     super();
   }
 
-  _parseText(text: string): T['_output'][] {
-    // Arrays cannot be parsed from plain text
-    // Return empty array as default behavior
-    return [];
-  }
-
   /**
    * Write array data to XML synchronously
    * @internal

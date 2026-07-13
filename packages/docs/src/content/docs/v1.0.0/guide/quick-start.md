@@ -130,18 +130,18 @@ domain objects with a known shape, use the converter API.
 
 ## Error Handling
 
-StAX-XML provides error events for malformed XML:
+Malformed XML throws from the reader. Wrap iteration in `try`/`catch`:
 
 ```typescript
 import { EventReaderSync, XmlEventType } from 'stax-xml';
 
 const malformedXml = '<root><unclosed>';
-const reader = new EventReaderSync(malformedXml);
-
-for (const event of reader) {
-  if (event.type === XmlEventType.ERROR) {
-    console.error('XML parsing error:', event.error.message);
+try {
+  for (const event of new EventReaderSync(malformedXml)) {
+    // Process events.
   }
+} catch (error) {
+  console.error('XML parsing error:', error);
 }
 ```
 

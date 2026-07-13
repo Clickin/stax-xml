@@ -1,6 +1,8 @@
 import { NEED_INPUT, TokenCursor, type DocumentMode, type XmlEventType } from '@stax-xml/core';
 
+/** Inputs accepted by `StreamReaderSync`. */
 export type StreamReaderSyncInput = string | Uint8Array | Iterable<Uint8Array>;
+/** Options for synchronous current-token parsing. */
 export interface StreamReaderSyncOptions {
   documentMode?: DocumentMode;
   /** Resolve namespaces and omit xmlns declarations from attributes. @defaultValue true */
@@ -8,7 +10,10 @@ export interface StreamReaderSyncOptions {
 }
 const BYTE_CHUNK_SIZE = 64 * 1024;
 
-/** Synchronous current-token reader. Strings are scanned directly without encoding. */
+/**
+ * Synchronous current-token reader. Strings are scanned directly without
+ * encoding; byte inputs are decoded as fatal UTF-8.
+ */
 export class StreamReaderSync {
   private readonly cursor: TokenCursor;
   private iterator: Iterator<Uint8Array> | undefined;
@@ -33,6 +38,7 @@ export class StreamReaderSync {
     }
   }
 
+  /** Advance to the next token, or return `null` at end of input. */
   next(): XmlEventType | null {
     if (this.closed) return null;
     try {
@@ -52,6 +58,7 @@ export class StreamReaderSync {
       throw error;
     }
   }
+  /** Stop parsing and release the underlying input iterator. */
   close(): void {
     if (this.closed) return;
     this.closed = true;
@@ -60,22 +67,35 @@ export class StreamReaderSync {
     this.iterator = undefined;
     iterator?.return?.();
   }
+  /** Return the current token type. */
   eventType(): XmlEventType { return this.cursor.eventType(); }
+  /** Return the current element's qualified name. */
   name(): string | undefined { return this.cursor.name(); }
+  /** Return text carried by the current text-like token. */
   text(): string | undefined { return this.cursor.text(); }
+  /** Return the current element's local name. */
   localName(): string | undefined { return this.cursor.localName(); }
+  /** Return the current element's namespace prefix, or an empty string. */
   prefix(): string { return this.cursor.prefix(); }
+  /** Return the namespace URI resolved for the current element. */
   namespaceURI(): string { return this.cursor.namespaceURI(); }
+  /** Return the number of attributes on the current start element. */
   attributeCount(): number { return this.cursor.attributeCount(); }
+  /** Return an attribute's qualified name by zero-based index. */
   attributeName(index: number): string | undefined { return this.cursor.attribute(index)?.name; }
+  /** Return an attribute's local name by zero-based index. */
   attributeLocalName(index: number): string | undefined { return this.cursor.attributeLocalName(index); }
+  /** Return an attribute's namespace prefix by zero-based index. */
   attributePrefix(index: number): string | undefined { return this.cursor.attribute(index)?.prefix; }
+  /** Return an attribute's namespace URI by zero-based index. */
   attributeNamespaceURI(index: number): string | undefined { return this.cursor.attribute(index)?.namespaceURI; }
+  /** Return an attribute value by index, qualified name, or namespace URI plus local name. */
   attributeValue(indexOrNameOrNamespace: number | string, localName?: string): string | undefined {
     return typeof indexOrNameOrNamespace === 'number' && localName === undefined
       ? this.cursor.attributeValue(indexOrNameOrNamespace)
       : this.cursor.attribute(indexOrNameOrNamespace, localName)?.value;
   }
+  /** Resolve a namespace prefix in the current element scope. */
   namespaceURIForPrefix(prefix: string): string { return this.cursor.namespaceURIForPrefix(prefix); }
 }
 

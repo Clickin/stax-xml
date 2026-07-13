@@ -60,11 +60,10 @@ export function tryParseWithCompiledPlan<Output, Input>(
 }
 
 export function precompileWithCompiledPlan<Output, Input>(
-  schema: XmlSchemaBase<Output, Input>,
-  options?: ParseOptions
+  schema: XmlSchemaBase<Output, Input>
 ): void {
   const plan = tryBuildDispatchPlan(schema);
-  new CompiledRootProcessor(plan, options);
+  new CompiledRootProcessor(plan);
 }
 
 function isCompiledSyncInput(input: unknown): input is ParseInput {
@@ -139,7 +138,6 @@ function buildCompiledPlan(
 
   const ir = compileIrProgram(root);
   return {
-    kind: 'dispatch',
     root,
     eventFilter: normalizeEventFilter(context.eventFilter),
     ir
@@ -148,23 +146,17 @@ function buildCompiledPlan(
 
 function compileIrProgram(root: DispatchValuePlan): DispatchIrProgram {
   const byElement: Record<string, DispatchStartBucket> = Object.create(null);
-  const byEndElement: DispatchIrProgram['byEndElement'] = Object.create(null);
-  const slots: DispatchIrProgram['slots'] = [];
   const slotsById: DispatchIrProgram['slotsById'] = [];
   const paths: DispatchIrProgram['paths'] = [];
-  const captures: DispatchIrProgram['captures'] = [];
   const onOpen: DispatchIrProgram['onOpen'] = [];
   const seenSlots = new Set<number>();
   const pathsBySelector = new Map<DispatchSelector, number>();
-  const seenCaptures = new Set<number>();
   const bucket = (name: string): DispatchStartBucket => byElement[name] ??= { actions: [] };
-  const endBucket = (name: string) => byEndElement[name] ??= { actions: [] };
 
   const addSlot = (
     value: DispatchValuePlan,
     parentSlot?: number,
-    fieldName?: string,
-    binding: 'root' | 'field' | 'array-item' = 'root'
+    fieldName?: string
   ): void => {
     if (seenSlots.has(value.id)) return;
     seenSlots.add(value.id);
@@ -173,12 +165,9 @@ function compileIrProgram(root: DispatchValuePlan): DispatchIrProgram {
       value,
       globalActive: false,
       depthActive: false,
-      parentSlot,
       fieldName,
-      binding,
       children: []
     };
-    slots.push(entry);
     slotsById[value.id] = entry;
     if (parentSlot !== undefined) {
       const parent = slotsById[parentSlot];
@@ -191,7 +180,7 @@ function compileIrProgram(root: DispatchValuePlan): DispatchIrProgram {
     const existing = pathsBySelector.get(selector);
     if (existing !== undefined) return existing;
     const path = paths.length;
-    paths.push({ path, selector });
+    paths.push({ selector });
     pathsBySelector.set(selector, path);
     return path;
   };
@@ -205,11 +194,9 @@ function compileIrProgram(root: DispatchValuePlan): DispatchIrProgram {
   const visit = (
     value: DispatchValuePlan,
     parentSlot?: number,
-    fieldName?: string,
-    binding: 'root' | 'field' | 'array-item' = 'root',
-    contextElementName?: string
+    fieldName?: string
   ): void => {
-    addSlot(value, parentSlot, fieldName, binding);
+    addSlot(value, parentSlot, fieldName);
     addPath(value.selector);
     if (value.kind === 'array') {
       const path = addPath(value.itemSelector)!;
@@ -218,22 +205,21 @@ function compileIrProgram(root: DispatchValuePlan): DispatchIrProgram {
         markActiveLookup(value.id, value.itemSelector);
         bucket(name).actions.push({ op: 'start-array-item', slot: value.id, path });
       }
-      visit(value.element, value.id, undefined, 'array-item', name);
-      if (name) endBucket(name).actions.push({ op: 'finish-array-item', slot: value.id, path });
+      visit(value.element, value.id);
       return;
     }
     if (value.kind !== 'object') return;
 
     for (const field of value.fields) {
       const child = field.value;
-      addSlot(child, value.id, field.fieldName, 'field');
+      addSlot(child, value.id, field.fieldName);
       addPath(child.selector);
       if (child.kind === 'array') {
-        visit(child, value.id, field.fieldName, 'field', contextElementName);
+        visit(child, value.id, field.fieldName);
         continue;
       }
       if (child.kind === 'object' && !child.selector) {
-        visit(child, value.id, field.fieldName, 'field', contextElementName);
+        visit(child, value.id, field.fieldName);
         continue;
       }
 
@@ -248,40 +234,8 @@ function compileIrProgram(root: DispatchValuePlan): DispatchIrProgram {
           fieldName: field.fieldName,
           path
         });
-        if (child.selector!.terminal === 'element') {
-          endBucket(name).actions.push({
-            op: 'finish-field',
-            objectSlot: value.id,
-            slot: child.id,
-            fieldName: field.fieldName,
-            path
-          });
-          if (!seenCaptures.has(child.id)) {
-            seenCaptures.add(child.id);
-            captures.push({ slot: child.id, path, textMode: child.selector!.textMode });
-          }
-        }
       } else {
         (onOpen[value.id] ??= []).push({ objectPlanId: value.id, field });
-        if (
-          (child.kind === 'string' || child.kind === 'number')
-          && child.selector?.terminal === 'element'
-        ) {
-          const path = addPath(child.selector)!;
-          if (!seenCaptures.has(child.id)) {
-            seenCaptures.add(child.id);
-            captures.push({ slot: child.id, path, textMode: child.selector.textMode });
-          }
-          if (contextElementName) {
-            endBucket(contextElementName).actions.push({
-              op: 'finish-field',
-              objectSlot: value.id,
-              slot: child.id,
-              fieldName: field.fieldName,
-              path
-            });
-          }
-        }
       }
       if (child.kind === 'object') visit(child);
     }
@@ -297,12 +251,9 @@ function compileIrProgram(root: DispatchValuePlan): DispatchIrProgram {
     if (root.kind === 'object') visit(root);
   }
   return {
-    slots,
     slotsById,
     paths,
-    captures,
     byElement,
-    byEndElement,
     onOpen,
     onText: [{ op: 'append-captures' }],
     onEnd: [{ op: 'finish-captures' }, { op: 'finalize-values' }]
@@ -427,8 +378,7 @@ function buildObjectPlan(
     optional: effects.optional,
     transforms: effects.transforms,
     selector: objectSelector,
-    fields,
-    inline: !objectSelector
+    fields
   };
 }
 

@@ -246,10 +246,7 @@ function parseWithErrorHandling(xmlString: string) {
 
   try {
     for (const event of reader) {
-      if (event.type === XmlEventType.ERROR) {
-        isValid = false;
-        errors.push(`XML parsing error: ${event.error.message}`);
-      } else if (event.type === XmlEventType.START_ELEMENT) {
+      if (event.type === XmlEventType.START_ELEMENT) {
         console.log(`Processing element: ${event.name}`);
       }
     }

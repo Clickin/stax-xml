@@ -130,18 +130,19 @@ typed domain object에는 converter API를 사용합니다.
 
 ## 오류 처리
 
-StAX-XML은 잘못된 형식의 XML에 대한 오류 이벤트를 제공합니다:
+잘못된 XML을 만나면 reader가 예외를 throw합니다. Iteration을 `try`/`catch`로
+감싸세요.
 
 ```typescript
 import { EventReaderSync, XmlEventType } from 'stax-xml';
 
 const malformedXml = '<root><unclosed>';
-const reader = new EventReaderSync(malformedXml);
-
-for (const event of reader) {
-  if (event.type === XmlEventType.ERROR) {
-    console.error('XML 파싱 오류:', event.error.message);
+try {
+  for (const event of new EventReaderSync(malformedXml)) {
+    // Event를 처리합니다.
   }
+} catch (error) {
+  console.error('XML 파싱 오류:', error);
 }
 ```
 

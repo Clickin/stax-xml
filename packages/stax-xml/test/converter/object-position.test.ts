@@ -2,17 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { x } from '../../src/converter/converter/index.js';
 
 describe('Object Schema Position and Write Tests', () => {
-  describe('_parseText Method', () => {
-    it('should return empty object when parsing from text', () => {
-      const schema = x.object({
-        name: x.string().xpath('./name')
-      });
-      const result = (schema as any)._parseText('some text');
-
-      expect(result).toEqual({});
-    });
-  });
-
   describe('XPath Validation', () => {
     it('should throw error when XPath is empty string', () => {
       const schema = x.object({

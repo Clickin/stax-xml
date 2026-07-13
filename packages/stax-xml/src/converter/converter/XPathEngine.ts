@@ -199,8 +199,4 @@ export class XPathCompiler {
 
     return { name, predicates, isWildcard, isAttribute: false, isTextNode: false };
   }
-
-  static clearCache(): void {
-    this.cache.clear();
-  }
 }

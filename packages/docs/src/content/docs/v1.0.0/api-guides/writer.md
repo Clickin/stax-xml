@@ -144,9 +144,10 @@ app.get('/api/catalog', (c) => {
         uri: 'http://example.com/catalog',
         attributes: { version: '2.0' }
       });
-      await writer.writeNamespace('meta', 'http://example.com/metadata');
-
-      await writer.writeStartElement('header', { prefix: 'meta' });
+      await writer.writeStartElement('header', {
+        prefix: 'meta',
+        uri: 'http://example.com/metadata'
+      });
       await writer.writeStartElement('title');
       await writer.writeCharacters('Product Catalog');
       await writer.writeEndElement();

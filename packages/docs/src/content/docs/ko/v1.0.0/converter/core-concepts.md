@@ -91,7 +91,7 @@ const result = schema.safeParseSync('<age>150</age>');
 if (result.success) {
   console.log(result.data);  // number
 } else {
-  console.log(result.issues);  // 에러 객체 배열
+  console.log(result.error.issues);  // 에러 객체 배열
 }
 ```
 
@@ -310,9 +310,11 @@ const schema = x.object({
 }).xpath('/root');
 ```
 
-### 컴파일된 스키마
+### 자동 IR dispatch와 선택적 warm-up
 
-같은 스키마로 여러 문서를 반복 파싱할 때는 `compile()`을 사용하세요:
+Schema는 처음 사용할 때 IR dispatch program을 자동으로 만들고 cache합니다. Public
+`compile()` 단계는 없습니다. 일회성 비용을 server 또는 worker startup으로 옮길 때만
+`precompile()`을 사용하세요.
 
 ```typescript
 const personSchema = x.object({
@@ -348,13 +350,16 @@ const schema = x.object({
   }).xpath('/dataset/metadata'),
   labels: x.array(x.string(), '/dataset/labels/label'),
   people: x.array(personSchema, '//person')
-});
+}).precompile();
 
-// Dispatch plan은 자동으로 compile되고 cache됩니다.
+// 요청 시점에는 warm-up된 program을 재사용합니다.
 const result = schema.parseSync(xml);
 ```
 
-`compile()`은 동일한 공개 API를 유지하지만, 가장 빠른 경로는 고정된 XML 이벤트 dispatch로 낮출 수 있는 스키마 형태에서만 사용됩니다.
+`precompile()`은 선택 사항입니다. 호출하지 않아도 `parse()`와 `parseSync()`가 같은
+작업을 자동 수행하고 cache된 program을 재사용합니다. Warm-up은 최초 요청 latency의
+발생 시점만 바꾸며 steady-state throughput을 높이지 않습니다. 지원되는 public selector
+중 고정 XML event dispatch로 lowering할 수 있는 형태는 fast path를 사용합니다.
 
 위 스키마는 주요 fast-path shape를 하나의 compiled schema 안에 조합한 예시입니다. 절대 element/attribute selector, 직접 `text()` selector, `//person` descendant 배열 경계, person item 내부의 상대 selector, 중첩 객체, scalar 배열, 객체 배열, optional 필드, transform을 모두 포함합니다. `.int()` 같은 숫자 검증은 텍스트 추출 후 그대로 적용됩니다.
 
@@ -371,7 +376,7 @@ const result = schema.parseSync(xml);
 | scalar 또는 객체 배열 | `x.array(x.string(), '/tags/tag')`, `x.array(bookSchema, '/catalog/book')` |
 | 중첩 객체, optional 필드, transform | `x.object({...}).optional().transform(...)` |
 
-**일반 converter 경로로 fallback 되는 형태:**
+**지원하지 않는 streaming selector 또는 schema 형태:**
 
 | 형태 | 예시 |
 |------|------|
@@ -382,7 +387,9 @@ const result = schema.parseSync(xml);
 | 배열 XPath와 element XPath를 동시에 지정한 배열 | `x.array(x.string().xpath('./title'), '/book')` |
 | custom 또는 미지원 스키마 wrapper | 사용자 정의 schema subclass |
 
-fallback은 동작 호환성을 유지하므로 이런 스키마도 `compile()` 후 정상 파싱됩니다. 다만 dispatch fast path의 성능 이점은 받지 않습니다.
+지원하지 않는 XPath expression은 document-tree evaluator로 조용히 전환하지 않고
+명시적으로 실패합니다. 전체 selector 범위는 [XPath contract](./xpath-guide/)를
+확인하세요.
 
 ### 스키마 재사용
 

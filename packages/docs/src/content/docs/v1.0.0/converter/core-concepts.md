@@ -119,7 +119,7 @@ const result = schema.safeParseSync('<age>150</age>');
 if (result.success) {
   console.log(result.data);  // number
 } else {
-  console.log(result.issues);  // Array of error objects
+  console.log(result.error.issues);  // Array of error objects
 }
 
 // Safe async parsing
@@ -448,9 +448,11 @@ const schema = x.object({
 }).xpath('/root');
 ```
 
-### Compiled Schemas
+### Automatic IR Dispatch and Optional Warm-up
 
-Use `compile()` when you parse many documents with the same schema:
+Schemas automatically build and cache their IR dispatch program on first use.
+There is no public `compile()` step. Use `precompile()` only when you want to
+move that one-time work into server or worker startup:
 
 ```typescript
 const personSchema = x.object({
@@ -486,13 +488,16 @@ const schema = x.object({
   }).xpath('/dataset/metadata'),
   labels: x.array(x.string(), '/dataset/labels/label'),
   people: x.array(personSchema, '//person')
-});
+}).precompile();
 
-// Dispatch plans are compiled and cached automatically.
+// Request-time parsing uses the already-warmed program.
 const result = schema.parseSync(xml);
 ```
 
-`compile()` keeps the same public API, but the fastest path is available only for schema shapes that can be lowered to fixed XML event dispatch.
+Calling `precompile()` is optional: `parse()` and `parseSync()` perform the same
+work automatically and reuse the cached program. Warm-up changes first-request
+latency, not steady-state throughput. The fastest path is available for every
+supported public selector shape that can be lowered to fixed XML event dispatch.
 
 The schema above combines the common fast-path shapes in one compiled schema: absolute element and attribute selectors, direct `text()` selectors, a descendant array boundary with `//person`, relative selectors inside each person item, nested objects, scalar arrays, object arrays, optional fields, and transforms. Numeric validation like `.int()` is still applied after text extraction.
 
@@ -509,7 +514,7 @@ The schema above combines the common fast-path shapes in one compiled schema: ab
 | Arrays of scalars or objects | `x.array(x.string(), '/tags/tag')`, `x.array(bookSchema, '/catalog/book')` |
 | Nested objects, optional fields, transforms | `x.object({...}).optional().transform(...)` |
 
-**Shapes that fall back to the normal converter path:**
+**Unsupported streaming selector or schema shapes:**
 
 | Shape | Example |
 |-------|---------|
@@ -520,7 +525,9 @@ The schema above combines the common fast-path shapes in one compiled schema: ab
 | Arrays that define both an array XPath and an element XPath | `x.array(x.string().xpath('./title'), '/book')` |
 | Custom or unsupported schema wrappers | User-defined schema subclasses |
 
-Fallback preserves behavior, so these schemas still parse correctly after `compile()`. They just do not get the dispatch fast path.
+Unsupported XPath expressions fail explicitly instead of silently switching to
+a document-tree evaluator. See the [XPath contract](./xpath-guide/) for the
+full supported selector set.
 
 ### Schema Reuse
 

@@ -42,6 +42,21 @@ const value = catalog.parseSync(xml);
 ```
 
 Selector는 자동으로 compile되고 cache됩니다. Public `.compile()` 단계는 없습니다.
+첫 parse의 일회성 IR lowering과 executor 생성 비용을 앞당기고 싶을 때만
+`.precompile()`을 호출하세요. 예를 들어 server startup module에서 공유 schema를
+warm-up할 수 있습니다.
+
+```ts
+export const catalogSchema = x.object({
+  title: x.string('/catalog/title'),
+}).precompile();
+
+const catalog = catalogSchema.parseSync(requestBody);
+```
+
+Warm-up은 first-request latency만 옮기며 steady-state throughput은 바꾸지 않습니다.
+동일 schema instance를 재사용하세요. Parse option은 warm-up 대상이 아니라 각 parse
+호출에 적용되는 설정입니다.
 
 ## Namespace
 

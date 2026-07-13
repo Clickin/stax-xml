@@ -221,33 +221,6 @@ import type { XmlOptionalSchema } from './XmlOptionalSchema.js';
 import type { XmlSchemaBase } from './base.js';
 
 /**
- * Core schema types (non-wrapper schemas)
- *
- * @public
- */
-export type XmlCoreSchema =
-  | XmlStringSchema
-  | XmlNumberSchema
-  | XmlArraySchema<XmlSchemaBase<unknown, unknown>>
-  | XmlObjectSchema<XmlObjectShape>;
-
-/**
- * Wrapper schema types (transform and optional)
- *
- * @public
- */
-export type XmlWrappedSchema =
-  | XmlTransformSchema<unknown, unknown>
-  | XmlOptionalSchema<XmlSchemaBase<unknown, unknown>>;
-
-/**
- * Any XML schema type
- *
- * @public
- */
-export type AnyXmlSchema = XmlCoreSchema | XmlWrappedSchema;
-
-/**
  * Type guard for string schema
  *
  * @public

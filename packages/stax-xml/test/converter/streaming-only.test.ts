@@ -9,6 +9,7 @@ describe('streaming-only converter', () => {
       id: x.string().xpath('/book/@id')
     });
 
+    expect('compile' in schema).toBe(false);
     expect(schema.parseSync('<book id="7"><title>XML</title></book>')).toEqual({
       title: 'XML',
       id: '7'

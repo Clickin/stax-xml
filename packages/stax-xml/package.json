@@ -50,7 +50,7 @@
     "coverage:branch-gate": "node ./scripts/branch-coverage-report.mjs --fail",
     "performance": "node --expose-gc ./performance/large-file.ts",
     "prepublishOnly": "pnpm build",
-    "typedoc": "typedoc",
+    "typedoc": "pnpm typedoc:converter && pnpm typedoc:main",
     "typedoc:main": "typedoc --options typedoc.main.json",
     "typedoc:converter": "typedoc --options typedoc.converter.json"
   },

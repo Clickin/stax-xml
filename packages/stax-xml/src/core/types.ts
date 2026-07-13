@@ -49,8 +49,10 @@ export interface StartElementEvent {
   attributes: EventAttribute[];
 }
 
+/** Materialized attribute attached to a start-element event. */
 export interface EventAttribute { name: string; localName: string; prefix: string; namespaceURI: string; value: string }
 
+/** Event emitted when an XML element ends. */
 export interface EndElementEvent {
   type: typeof XmlEventType.END_ELEMENT;
   name: string;
@@ -59,18 +61,23 @@ export interface EndElementEvent {
   namespaceURI: string;
 }
 
+/** Event containing ordinary character data. */
 export interface CharactersEvent {
   type: typeof XmlEventType.CHARACTERS;
   value: string;
 }
 
+/** Event containing CDATA content. */
 export interface CdataEvent {
   type: typeof XmlEventType.CDATA;
   value: string;
 }
 
+/** Event containing an XML comment. */
 export interface CommentEvent { type: typeof XmlEventType.COMMENT; value: string }
+/** Event containing an XML processing instruction. */
 export interface ProcessingInstructionEvent { type: typeof XmlEventType.PROCESSING_INSTRUCTION; target: string; data: string }
+/** Event containing a document type declaration. */
 export interface DtdEvent { type: typeof XmlEventType.DTD; value: string }
 
 /**

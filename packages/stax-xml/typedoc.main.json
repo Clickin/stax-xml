@@ -13,7 +13,15 @@
   ],
   "excludeExternals": true,
   "excludeInternal": true,
+  "excludeProtected": true,
+  "validation": {
+    "notExported": true,
+    "invalidLink": true,
+    "notDocumented": true
+  },
+  "requiredToBeDocumented": ["Class", "Interface", "Function", "TypeAlias", "Variable", "Method"],
   "skipErrorChecking": false,
+  "treatWarningsAsErrors": true,
   "cleanOutputDir": true,
   "gitRevision": "master",
   "outputFileStrategy": "modules",

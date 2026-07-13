@@ -72,7 +72,7 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
    * @returns Parsed output
    * @internal
    */
-  abstract _parseText?(text: string): Output;
+  _parseText?(text: string): Output;
 
   /**
    * Parse XML asynchronously (public API)
@@ -100,11 +100,21 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
     return autoParse(this, input, options);
   }
 
-  /** Build and cache the schema-specific converter program before parsing. */
-  precompile(options?: ParseOptions): this {
+  /**
+   * Build and cache the schema-specific IR program before parsing.
+   *
+   * Normal `parse()` and `parseSync()` calls do this automatically. Call
+   * `precompile()` during server or worker startup only when the one-time
+   * lowering and executor creation cost should happen before the first request.
+   * The returned schema is the same instance, so startup code can precompile a
+   * shared schema and request handlers can use it normally.
+   *
+   * @returns This schema instance
+   */
+  precompile(): this {
     const compile = XmlSchemaBase._precompileWithCompiledPlan;
     if (!compile) throw new Error('Converter parser is not initialized');
-    compile(this, options);
+    compile(this);
     return this;
   }
 
@@ -253,8 +263,7 @@ export abstract class XmlSchemaBase<Output, Input = Output> {
   ) => Promise<Output>;
   /** @internal */
   static _precompileWithCompiledPlan?: <Output, Input>(
-    schema: XmlSchemaBase<Output, Input>,
-    options?: ParseOptions
+    schema: XmlSchemaBase<Output, Input>
   ) => void;
 
 }

@@ -55,6 +55,23 @@ const value = catalog.parseSync(xml);
 Selectors are compiled and cached automatically. Call `.precompile()` only to
 warm that work before the first parse; there is no public `.compile()` step.
 
+For example, a server can move the one-time IR lowering and executor creation
+out of its first request by warming shared schemas in its startup module:
+
+```ts
+export const catalogSchema = x.object({
+  title: x.string('/catalog/title'),
+}).precompile();
+
+// Request handlers still call the normal API.
+const catalog = catalogSchema.parseSync(requestBody);
+```
+
+This is a latency-placement choice, not a faster steady-state mode. Skip it
+unless first-request latency matters, and reuse the schema instance rather than
+rebuilding it per request. Parse options remain per-parse settings and are not
+part of warm-up.
+
 ## Namespaces
 
 Names are matched as the qualified names present in the XML stream. A selector

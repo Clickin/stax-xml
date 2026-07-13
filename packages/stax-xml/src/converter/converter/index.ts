@@ -46,6 +46,17 @@ XmlSchemaBase._precompileWithCompiledPlan = precompileWithCompiledPlan;
 
 
 export { x } from './XmlBuilder.js';
+// Type-only exports make every schema reachable from the fluent `x` API visible
+// to API extractors without adding constructor exports to the runtime surface.
+export type { XmlBuilder } from './XmlBuilder.js';
+export type { XmlSchemaBase } from './base.js';
+export type { XmlSchema } from './XmlSchema.js';
+export type { XmlStringSchema } from './XmlStringSchema.js';
+export type { XmlNumberSchema } from './XmlNumberSchema.js';
+export type { XmlObjectSchema, XmlObjectShape, InferObjectOutput } from './XmlObjectSchema.js';
+export type { XmlArraySchema } from './XmlArraySchema.js';
+export type { XmlOptionalSchema } from './XmlOptionalSchema.js';
+export type { XmlTransformSchema } from './XmlTransformSchema.js';
 export type {
   XmlElementWriteConfig,
   XmlWriteOptions,
@@ -57,4 +68,5 @@ export type {
 export { XmlParseError, type ParseResult } from './errors.js';
 export type { ParseInput } from './base.js';
 
+/** Infer the parsed output type of a converter schema. */
 export type Infer<T extends XmlSchema<unknown, unknown>> = T['_output'];
