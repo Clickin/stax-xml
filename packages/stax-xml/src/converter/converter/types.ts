@@ -17,7 +17,7 @@ export interface ParseOptions {
   /**
    * XML document conformance mode.
    *
-   * @defaultValue 'document'
+   * @defaultValue 'fragment'
    */
   documentMode?: DocumentMode;
 
