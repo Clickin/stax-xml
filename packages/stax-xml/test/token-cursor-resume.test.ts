@@ -123,4 +123,13 @@ describe('TokenCursor XML character checks', () => {
     expect(() => collectDocument('&#x20;<r/>')).toThrow(/outside the root element/i);
     expect(() => collectDocument('<r/>&#xA;')).toThrow(/outside the root element/i);
   });
+
+  it.each(['<\u0333/>', '<\u00d7/>', '<\u{f0000}/>', '<\ud800/>', '<\ufffe/>'])('rejects XML 1.0 invalid name start: %s', (xml) => {
+    expect(() => collect(xml)).toThrow(/invalid XML name/i);
+  });
+
+  it('accepts XML 1.0 astral NameStartChar', () => {
+    const xml = '<\ud800\udc00 a\ud800\udc00="ok"/>';
+    expect(collect(xml)).toContainEqual([XmlEventType.START_ELEMENT, '\ud800\udc00', [['a\ud800\udc00', 'ok']]]);
+  });
 });

@@ -330,11 +330,12 @@ export class TokenCursor {
     while (cursor < length) {
       const code = this.buffer.charCodeAt(cursor);
       if (isXmlWhitespace(code) || code === 47 || code === 62) break;
-      if (cursor === nameStart ? !isNameStart(code) : !isNamePart(code)) {
+      const width = xmlNameCharWidth(this.buffer, cursor, cursor === nameStart);
+      if (width === 0) {
         throw new Error(`Invalid XML name: ${scanInvalidName(this.buffer, nameStart)}`);
       }
       if (code === 58) { nameColon = cursor; colonCount++; }
-      cursor++;
+      cursor += width;
     }
     if (cursor === length) return this.waitForStartTag('start tag');
     const nameEnd = cursor;
@@ -367,12 +368,14 @@ export class TokenCursor {
       while (cursor < length) {
         const attrCode = this.buffer.charCodeAt(cursor);
         if (isXmlWhitespace(attrCode) || attrCode === 61 || attrCode === 47 || attrCode === 62) break;
-        if (cursor === attrStart ? !isNameStart(attrCode) : !isNamePart(attrCode)) {
+        const width = xmlNameCharWidth(this.buffer, cursor, cursor === attrStart);
+        if (width === 0) {
           throw new Error(`Invalid XML name: ${scanInvalidName(this.buffer, attrStart)}`);
         }
         if (attrCode === 58) { attrColon = cursor; attrColons++; }
         attrHash = hashCode(attrHash, attrCode);
-        cursor++;
+        if (width === 2) attrHash = hashCode(attrHash, this.buffer.charCodeAt(cursor + 1));
+        cursor += width;
       }
       if (cursor === length) return this.waitForStartTag('start tag');
       const attrEnd = cursor;
@@ -1052,14 +1055,46 @@ function validateCharDataSpan(text: string, start: number, end: number): void {
 
 function isXmlWhitespace(code: number): boolean { return code === 32 || code === 9 || code === 10 || code === 13; }
 function isAsciiLetter(code: number): boolean { const lower = code | 32; return lower >= 97 && lower <= 122; }
-function isNameStart(code: number): boolean { return isAsciiLetter(code) || code === 95 || code === 58 || (code >= 0xc0 && code <= 0xffff); }
-function isNamePart(code: number): boolean {
-  return isNameStart(code) || (code >= 48 && code <= 57) || code === 46 || code === 45 || (code >= 0xb7 && code <= 0xffff);
-}
 function isValidName(value: string): boolean {
-  if (value.length === 0 || !isNameStart(value.charCodeAt(0))) return false;
-  for (let index = 1; index < value.length; index++) if (!isNamePart(value.charCodeAt(index))) return false;
+  let index = 0;
+  while (index < value.length) {
+    const width = xmlNameCharWidth(value, index, index === 0);
+    if (width === 0) return false;
+    index += width;
+  }
+  if (index === 0) return false;
   return true;
+}
+
+function xmlNameCharWidth(value: string, index: number, start: boolean): 0 | 1 | 2 {
+  const first = value.charCodeAt(index);
+  let codePoint = first;
+  let width: 1 | 2 = 1;
+  if (first >= 0xd800 && first <= 0xdbff) {
+    const low = value.charCodeAt(index + 1);
+    if (low < 0xdc00 || low > 0xdfff) return 0;
+    codePoint = 0x10000 + ((first - 0xd800) << 10) + low - 0xdc00;
+    width = 2;
+  } else if (first >= 0xdc00 && first <= 0xdfff) {
+    return 0;
+  }
+  if (isXmlNameStartCodePoint(codePoint) || (!start && isXmlNamePartCodePoint(codePoint))) return width;
+  return 0;
+}
+
+function isXmlNameStartCodePoint(code: number): boolean {
+  return code === 58 || code === 95 || isAsciiLetter(code)
+    || (code >= 0xc0 && code <= 0xd6) || (code >= 0xd8 && code <= 0xf6)
+    || (code >= 0xf8 && code <= 0x2ff) || (code >= 0x370 && code <= 0x37d)
+    || (code >= 0x37f && code <= 0x1fff) || (code >= 0x200c && code <= 0x200d)
+    || (code >= 0x2070 && code <= 0x218f) || (code >= 0x2c00 && code <= 0x2fef)
+    || (code >= 0x3001 && code <= 0xd7ff) || (code >= 0xf900 && code <= 0xfdcf)
+    || (code >= 0xfdf0 && code <= 0xfffd) || (code >= 0x10000 && code <= 0xeffff);
+}
+
+function isXmlNamePartCodePoint(code: number): boolean {
+  return (code >= 48 && code <= 57) || code === 45 || code === 46 || code === 0xb7
+    || (code >= 0x300 && code <= 0x36f) || (code >= 0x203f && code <= 0x2040);
 }
 function isValidXmlDeclaration(value: string): boolean {
   return /^\s+version\s*=\s*(?:"1\.[01]"|'1\.[01]')(?:\s+encoding\s*=\s*(?:"[A-Za-z][A-Za-z0-9._-]*"|'[A-Za-z][A-Za-z0-9._-]*'))?(?:\s+standalone\s*=\s*(?:"(?:yes|no)"|'(?:yes|no)'))?\s*$/.test(value);
