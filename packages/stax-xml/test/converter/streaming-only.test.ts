@@ -227,6 +227,18 @@ describe('streaming-only converter', () => {
     expect(schema.parseSync('<r>A<v>B</v>C</r>')).toEqual({ self: [{ same: 'ABC' }] });
   });
 
+  it('keeps an outer descendant scalar capture active through nested matches', () => {
+    const schema = x.object({
+      rows: x.array(x.object({ id: x.string('./@id') }), '/r/row'),
+      value: x.string('//item')
+    });
+    const xml = '<r><row id="1"/><item>A<item>B</item>C</item></r>';
+    const expected = { rows: [{ id: '1' }], value: 'ABC' };
+
+    expect(schema.parseSync(xml)).toEqual(expected);
+    expect(schema.parseSync(new TextEncoder().encode(xml))).toEqual(expected);
+  });
+
   it('creates __proto__ as an own data property', () => {
     const schema = x.object({ ['__proto__']: x.string('/r/value') });
     const value = schema.parseSync('<r><value>safe</value></r>');
