@@ -90,6 +90,11 @@ describe('TokenCursor resumable token scans', () => {
       expect(() => collect(invalid, 1)).toThrow(/entity/i);
     }
   });
+
+  it.each(['<r a="1"b="2"/>', '<r / >', '<r>]]></r>'])('rejects malformed XML in complete and chunked input: %s', (xml) => {
+    expect(() => collect(xml)).toThrow();
+    expect(() => collect(xml, 1)).toThrow();
+  });
 });
 
 describe('TokenCursor XML character checks', () => {

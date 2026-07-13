@@ -353,7 +353,6 @@ export class TokenCursor {
       if (code === 47) {
         selfClosing = true;
         cursor++;
-        while (cursor < length && isXmlWhitespace(this.buffer.charCodeAt(cursor))) cursor++;
         if (cursor === length) return this.waitForStartTag('start tag');
         if (this.buffer.charCodeAt(cursor) !== 62) throw new Error('Invalid start tag.');
         tagEnd = cursor;
@@ -393,6 +392,10 @@ export class TokenCursor {
       const valueEnd = findValidatedAttributeEnd(this.buffer, cursor, quote);
       if (valueEnd < 0) return this.waitForStartTag(`attribute ${this.buffer.slice(attrStart, attrEnd)}`);
       cursor = valueEnd + 1;
+      if (cursor < length && !isXmlWhitespace(this.buffer.charCodeAt(cursor))
+        && this.buffer.charCodeAt(cursor) !== 47 && this.buffer.charCodeAt(cursor) !== 62) {
+        throw new Error('Attributes must be separated by whitespace.');
+      }
 
       if (rawCount < DUPLICATE_TABLE_THRESHOLD) {
         for (let previous = 0; previous < rawCount; previous++) {
@@ -712,13 +715,17 @@ export class TokenCursor {
   private findTextEndValidated(start: number): number {
     if (this.resumeKind === ResumeKind.TEXT) {
       const end = this.findDelimiter(ResumeKind.TEXT, '<', start);
-      if (end >= 0 || this.final) validateEntitiesSpan(this.buffer, start, end < 0 ? this.buffer.length : end);
+      if (end >= 0 || this.final) validateCharDataSpan(this.buffer, start, end < 0 ? this.buffer.length : end);
       return end;
     }
     // The first '<' terminates this text node. Entity references such as
     // '&lt;' contain no literal '<', so this single lookup is the real boundary.
     // Reusing it below avoids an O(n^2) per-entity forward scan.
     const boundary = this.buffer.indexOf('<', start);
+    const forbidden = this.buffer.indexOf(']]>', start);
+    if (forbidden >= 0 && (boundary < 0 || forbidden < boundary)) {
+      throw new Error('Character data cannot contain ]]>');
+    }
     for (let index = start; index < this.buffer.length; index++) {
       const code = this.buffer.charCodeAt(index);
       if (code === 60) return index;
@@ -745,7 +752,10 @@ export class TokenCursor {
       decodeEntity(this.buffer.slice(index + 1, semi));
       index = semi;
     }
-    if (this.final) return -1;
+    if (this.final) {
+      validateCharDataSpan(this.buffer, start, this.buffer.length);
+      return -1;
+    }
     this.resumeKind = ResumeKind.TEXT;
     this.resumeOffset = this.buffer.length;
     return -1;
@@ -1027,34 +1037,17 @@ function validateXmlCharsSpan(text: string, start: number, end: number): void {
 }
 
 function findValidatedAttributeEnd(text: string, start: number, quote: number): number {
-  for (let index = start; index < text.length; index++) {
-    const code = text.charCodeAt(index);
-    if (code === quote) return index;
-    if (code >= 32 && code < 0xd800) {
-      if (code === 60) throw new Error('Attribute values cannot contain <.');
-      if (code !== 38) continue;
-    } else if (code < 32) {
-      if (code !== 9 && code !== 10 && code !== 13) throw new Error('Invalid XML character.');
-      continue;
-    } else if (code >= 0xd800 && code <= 0xdfff) {
-      if (code > 0xdbff || index + 1 >= text.length) throw new Error('Invalid XML character.');
-      const low = text.charCodeAt(index + 1);
-      if (low < 0xdc00 || low > 0xdfff) throw new Error('Invalid XML character.');
-      index++;
-      continue;
-    } else if (code === 0xfffe || code === 0xffff) {
-      throw new Error('Invalid XML character.');
-    } else {
-      continue;
-    }
-    const semi = text.indexOf(';', index + 1);
-    const closing = text.indexOf(String.fromCharCode(quote), index + 1);
-    if (closing >= 0 && (semi < 0 || semi > closing)) throw new Error('Unterminated entity reference.');
-    if (semi < 0) return -1;
-    decodeEntity(text.slice(index + 1, semi));
-    index = semi;
+  const end = text.indexOf(String.fromCharCode(quote), start);
+  if (end < 0) return -1;
+  validateEntitiesSpan(text, start, end, true);
+  return end;
+}
+
+function validateCharDataSpan(text: string, start: number, end: number): void {
+  validateEntitiesSpan(text, start, end);
+  if (text.indexOf(']]>', start) >= 0 && text.indexOf(']]>', start) < end) {
+    throw new Error('Character data cannot contain ]]>');
   }
-  return -1;
 }
 
 function isXmlWhitespace(code: number): boolean { return code === 32 || code === 9 || code === 10 || code === 13; }
