@@ -44,7 +44,6 @@ type ObjectState = {
   childArrays: ArrayState[];
   runtimeStart: number;
   parent: ParentBinding;
-  closed: boolean;
 };
 
 type ArrayState = {
@@ -54,6 +53,7 @@ type ArrayState = {
   items: unknown[];
   runtimeStart: number;
   parent: ParentBinding;
+  closed: boolean;
 };
 
 type CaptureState = {

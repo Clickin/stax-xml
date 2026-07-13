@@ -5,7 +5,6 @@ import { CompiledRootProcessor } from './CompiledRootProcessor.js';
 import type {
   DispatchArrayPlan,
   DispatchCompiledPlan,
-  DispatchFieldPlan,
   DispatchObjectPlan,
   DispatchScalarPlan,
   DispatchSelector,

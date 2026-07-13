@@ -1,1 +1,1 @@
-export * from '@stax-xml/converter';
+export * from './converter/index.js';

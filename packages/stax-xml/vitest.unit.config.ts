@@ -15,6 +15,11 @@ export default defineConfig({
     include: [
       'test/v1-reader-contract.test.ts',
       'test/token-cursor-resume.test.ts',
+      'test/namespace.test.ts',
+      'test/parser-async-regression.test.ts',
+      'test/root-import-host-api.test.ts',
+      'test/selfclosing.test.ts',
+      'test/writer-options-contract.test.ts',
       'test/converter/**/*.test.ts',
       'test/writer.test.ts',
       'test/writer-async.test.ts',

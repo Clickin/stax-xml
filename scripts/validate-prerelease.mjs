@@ -181,7 +181,9 @@ async function checkPackedFiles(errors) {
   const files = packed[0]?.files?.map((file) => file.path) ?? [];
   const fileSet = new Set(files);
 
-  for (const required of ['package.json', 'README.md', 'dist/index.js', 'dist/index.d.ts']) {
+  for (const required of [
+    'package.json', 'README.md', 'dist/index.js', 'dist/index.d.ts', 'dist/converter.js', 'dist/converter.d.ts'
+  ]) {
     if (!fileSet.has(required)) {
       errors.push(`npm pack: missing required publish artifact ${required}`);
     }

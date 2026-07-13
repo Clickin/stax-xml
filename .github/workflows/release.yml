@@ -42,8 +42,17 @@ jobs:
       - name: Run tests
         run: pnpm test
 
+      - name: Type check package
+        run: pnpm --filter=stax-xml exec tsc -p tsconfig.json --noEmit
+
+      - name: Run W3C conformance subset
+        run: pnpm test:w3c
+
       - name: Build package
         run: pnpm build
+
+      - name: Verify release surfaces
+        run: pnpm verify:release-surfaces
 
       - name: Validate pure-JS package contents
         run: node scripts/validate-prerelease.mjs "${{ github.event_name == 'push' && github.ref_name || inputs.version }}" --pack
@@ -130,6 +139,7 @@ jobs:
 
           node --input-type=module <<'NODE'
           import { EventReaderSync, XmlEventType } from 'stax-xml';
+          import { x } from 'stax-xml/converter';
 
           let events = 0;
           let startElements = 0;
@@ -141,6 +151,10 @@ jobs:
           }
           if (events <= 0 || startElements !== 2) {
             throw new Error(`Unexpected parse result: events=${events}, startElements=${startElements}`);
+          }
+          const projection = x.object({ id: x.string('/root/item/@id') });
+          if (projection.parseSync('<root><item id="1"/></root>').id !== '1') {
+            throw new Error('Converter subpath smoke failed.');
           }
           console.log(JSON.stringify({ events, startElements }, null, 2));
           NODE

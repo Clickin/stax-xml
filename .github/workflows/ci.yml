@@ -41,3 +41,5 @@ jobs:
       - id: test
         name: Run test
         run: pnpm test
+      - name: Verify release surfaces
+        run: pnpm verify:release-surfaces
