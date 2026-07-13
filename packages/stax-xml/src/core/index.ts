@@ -3,4 +3,5 @@
 
 export * from './types.js';
 export * from './TokenCursor.js';
+export * from './xml-validation.js';
 export { materializeTokenEvent } from './internal/materialize-token-event.js';

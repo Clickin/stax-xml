@@ -1,5 +1,5 @@
 // Writer.ts - Optimized version with real performance improvements
-import { WriteElementOptions } from '@stax-xml/core';
+import { assertXmlChars, assertXmlName, WriteElementOptions } from '@stax-xml/core';
 
 /**
  * Sink interface for custom sync targets.
@@ -82,6 +82,7 @@ abstract class AbstractWriterSync {
   protected namespaceUndoStarts: number[] = [];
   protected namespaceUndoPrefixes: string[] = [];
   protected namespaceUndoPrevious: Array<string | undefined> = [];
+  protected attributeNames: Array<Set<string>> = [];
   protected readonly options: Required<WriterSyncOptions>;
   protected currentIndentLevel: number = 0;
   protected needsIndent: boolean = false;
@@ -169,6 +170,12 @@ abstract class AbstractWriterSync {
     const attributes = options?.attributes;
     const selfClosing = options?.selfClosing ?? false;
     const comment = options?.comment;
+    assertXmlName(localName, 'element name');
+    if (prefix) assertXmlName(prefix, 'prefix');
+    if (comment !== undefined) {
+      assertXmlChars(comment, 'comment');
+      if (comment.includes('--')) throw new Error('XML comment cannot contain "--" sequence.');
+    }
 
     if (comment) {
       this._writeIndent();
@@ -178,11 +185,13 @@ abstract class AbstractWriterSync {
 
     this._writeIndent();
     const qualifiedName = prefix ? `${prefix}:${localName}` : localName;
+    const attributeNames = new Set<string>();
     this._write(`<${qualifiedName}`);
 
     const undoStart = this.namespaceUndoPrefixes.length;
 
     if (prefix && uri) {
+      reserveAttribute(attributeNames, `xmlns:${prefix}`);
       this._write(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
       this._bindNamespace(prefix, uri);
     }
@@ -195,10 +204,17 @@ abstract class AbstractWriterSync {
           continue;
         }
         if (typeof value === 'string') {
+          assertXmlName(key, 'attribute name');
+          reserveAttribute(attributeNames, key);
+          assertXmlChars(value, 'attribute value');
           attrString += ` ${key}="${this._escapeXml(value)}"`;
         } else {
           const attrPrefix = value.prefix;
           const attrValue = value.value;
+          assertXmlName(key, 'attribute name');
+          if (attrPrefix) assertXmlName(attrPrefix, 'attribute prefix');
+          reserveAttribute(attributeNames, attrPrefix ? `${attrPrefix}:${key}` : key);
+          assertXmlChars(attrValue, 'attribute value');
 
           if (attrPrefix) {
             if (!this.namespaces.has(attrPrefix)) {
@@ -225,6 +241,7 @@ abstract class AbstractWriterSync {
 
     this.elementStack.push(qualifiedName);
     this.hasTextContentStack.push(false);
+    this.attributeNames.push(attributeNames);
     this.namespaceUndoStarts.push(undoStart);
     this.state = WriterState.START_ELEMENT_OPEN;
     this.currentIndentLevel++;
@@ -235,7 +252,14 @@ abstract class AbstractWriterSync {
     if (this.state !== WriterState.START_ELEMENT_OPEN) {
       throw new Error('writeAttribute can only be called after writeStartElement.');
     }
-    let attrName = prefix ? `${prefix}:${localName}` : localName;
+    assertXmlName(localName, 'attribute name');
+    if (prefix) {
+      assertXmlName(prefix, 'attribute prefix');
+      if (!this.namespaces.has(prefix)) throw new Error(`Namespace prefix '${prefix}' is not defined for attribute '${localName}'`);
+    }
+    assertXmlChars(value, 'attribute value');
+    const attrName = prefix ? `${prefix}:${localName}` : localName;
+    reserveAttribute(this.attributeNames[this.attributeNames.length - 1]!, attrName);
     const attr = ` ${attrName}="${this._escapeXml(value)}"`;
     this._write(attr);
     return this;
@@ -247,9 +271,12 @@ abstract class AbstractWriterSync {
     }
 
     if (prefix) {
+      assertXmlName(prefix, 'prefix');
+      reserveAttribute(this.attributeNames[this.attributeNames.length - 1]!, `xmlns:${prefix}`);
       this._write(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
       this._bindNamespace(prefix, uri);
     } else {
+      reserveAttribute(this.attributeNames[this.attributeNames.length - 1]!, 'xmlns');
       this._write(` xmlns="${this._escapeXml(uri)}"`);
       this._bindNamespace('', uri);
     }
@@ -261,6 +288,7 @@ abstract class AbstractWriterSync {
       throw new Error('Cannot writeCharacters: Writer is closed or in error state.');
     }
     this._closeStartElementTag();
+    assertXmlChars(text, 'character data');
     this._write(this._escapeXml(text));
     this.state = WriterState.IN_ELEMENT;
     if (this.hasTextContentStack.length > 0) {
@@ -275,6 +303,7 @@ abstract class AbstractWriterSync {
       throw new Error('Cannot writeCData: Writer is closed or in error state.');
     }
     this._closeStartElementTag();
+    assertXmlChars(cdata, 'CDATA');
     if (cdata.includes(']]>')) {
       throw new Error('CDATA section cannot contain "]]>" sequence.');
     }
@@ -292,6 +321,7 @@ abstract class AbstractWriterSync {
       throw new Error('Cannot writeComment: Writer is closed or in error state.');
     }
     this._closeStartElementTag();
+    assertXmlChars(comment, 'comment');
     if (comment.includes('--')) {
       throw new Error('XML comment cannot contain "--" sequence.');
     }
@@ -307,6 +337,9 @@ abstract class AbstractWriterSync {
       throw new Error('Cannot writeProcessingInstruction: Writer is closed or in error state.');
     }
     this._closeStartElementTag();
+    assertXmlName(target, 'processing instruction target');
+    if (target.toLowerCase() === 'xml') throw new Error('XML processing instruction target is reserved.');
+    if (data !== undefined) assertXmlChars(data, 'processing instruction data');
     let pi = `<?${target}`;
     if (data) {
       if (data.includes('?>')) {
@@ -351,6 +384,7 @@ abstract class AbstractWriterSync {
     this._closeStartElementTag();
 
     const closingTagName = this.elementStack.pop()!;
+    this.attributeNames.pop();
     this._restoreNamespaces(this.namespaceUndoStarts.pop()!);
     this._write(`</${closingTagName}>`);
 
@@ -473,6 +507,11 @@ abstract class AbstractWriterSync {
     /* v8 ignore next -- regex only matches keys present in fullEntityMap */
     return text.replace(this.customEntityRegex, (match) => this.fullEntityMap![match]!);
   }
+}
+
+function reserveAttribute(names: Set<string>, name: string): void {
+  if (names.has(name)) throw new Error(`Duplicate attribute: ${name}`);
+  names.add(name);
 }
 
 /**

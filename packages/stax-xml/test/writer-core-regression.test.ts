@@ -95,6 +95,21 @@ describe('Writer hot-path regression coverage', () => {
     expect(new TextDecoder().decode(concat(chunks))).toContain('<sibling p:id="1"></sibling>');
   });
 
+  it('rejects malformed structured names, characters, duplicate attributes, and undeclared prefixes', async () => {
+    const sync = new WriterSync();
+    expect(() => sync.writeStartElement('bad name')).toThrow(/invalid XML element name/i);
+    sync.writeStartElement('root');
+    expect(() => sync.writeAttribute('id', '1').writeAttribute('id', '2')).toThrow(/duplicate attribute/i);
+    expect(() => sync.writeAttribute('id', '1', 'missing')).toThrow(/not defined/i);
+    expect(() => sync.writeCharacters('\u0000')).toThrow(/invalid XML character/i);
+
+    const async = new Writer(new WritableStream<Uint8Array>({ write() {} }));
+    await expect(async.writeStartElement('bad name')).rejects.toThrow(/invalid XML element name/i);
+    await expect(async.writeStartElement('root', { attributes: { ['bad name']: '1' } }))
+      .rejects.toThrow(/invalid XML attribute name/i);
+    await expect(async.writeCharacters('\u0000')).rejects.toThrow(/invalid XML character/i);
+  });
+
   it('should flush async output without dropping bytes on a tiny buffer boundary', async () => {
     const { stream, getBytesWritten } = createCountingWritableStream();
     const writer = new Writer(stream, {

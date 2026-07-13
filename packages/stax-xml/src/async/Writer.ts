@@ -1,5 +1,5 @@
 // WriterAsync.ts
-import { WriteElementOptions } from '@stax-xml/core';
+import { assertXmlChars, assertXmlName, WriteElementOptions } from '@stax-xml/core';
 
 const WriterState = {
   INITIAL: 0,
@@ -140,6 +140,7 @@ export class Writer {
   private namespaceUndoStarts: number[] = [];
   private namespaceUndoPrefixes: string[] = [];
   private namespaceUndoPrevious: Array<string | undefined> = [];
+  private attributeNames: Array<Set<string>> = [];
 
   private readonly options: Required<WriterOptions>;
   private currentIndentLevel: number = 0;
@@ -337,10 +338,22 @@ export class Writer {
 
     await this._closeStartElementTag();
 
+    if (options?.comment) {
+      await this._writeIndent();
+      await this._writeToBuffer(`<!-- ${options.comment} -->`);
+      await this._writeNewline();
+    }
+
     const prefix = options?.prefix;
     const uri = options?.uri;
     const attributes = options?.attributes;
     const selfClosing = options?.selfClosing ?? false;
+    assertXmlName(localName, 'element name');
+    if (prefix) assertXmlName(prefix, 'prefix');
+    if (options?.comment !== undefined) {
+      assertXmlChars(options.comment, 'comment');
+      if (options.comment.includes('--')) throw new Error('XML comment cannot contain "--" sequence');
+    }
 
     // Indentation
     if (this.options.prettyPrint && this.needsIndent) {
@@ -348,11 +361,13 @@ export class Writer {
     }
 
     const qualifiedName = prefix ? `${prefix}:${localName}` : localName;
+    const attributeNames = new Set<string>();
     await this._writeToBuffer(`<${qualifiedName}`);
 
     const undoStart = this.namespaceUndoPrefixes.length;
 
     if (prefix && uri) {
+      reserveAttribute(attributeNames, `xmlns:${prefix}`);
       await this._writeToBuffer(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
       this._bindNamespace(prefix, uri);
     }
@@ -367,12 +382,19 @@ export class Writer {
           continue;
         }
         if (typeof value === 'string') {
+          assertXmlName(key, 'attribute name');
+          reserveAttribute(attributeNames, key);
+          assertXmlChars(value, 'attribute value');
           // Simple string attribute
           attrString += ` ${key}="${this._escapeXml(value)}"`;
         } else {
           // AttributeInfo object - attribute with prefix
           const attrPrefix = value.prefix;
           const attrValue = value.value;
+          assertXmlName(key, 'attribute name');
+          if (attrPrefix) assertXmlName(attrPrefix, 'attribute prefix');
+          reserveAttribute(attributeNames, attrPrefix ? `${attrPrefix}:${key}` : key);
+          assertXmlChars(attrValue, 'attribute value');
 
           if (attrPrefix) {
             // Check if prefix is defined in namespace
@@ -402,6 +424,7 @@ export class Writer {
 
     this.elementStack.push(qualifiedName);
     this.hasTextContentStack.push(false);
+    this.attributeNames.push(attributeNames);
     this.namespaceUndoStarts.push(undoStart);
     this.state = WriterState.START_ELEMENT_OPEN;
     this.currentIndentLevel++;
@@ -428,6 +451,7 @@ export class Writer {
     await this._closeStartElementTag();
 
     const closingTagName = this.elementStack.pop()!;
+    this.attributeNames.pop();
     this._restoreNamespaces(this.namespaceUndoStarts.pop()!);
 
     await this._writeToBuffer(`</${closingTagName}>`);
@@ -450,6 +474,7 @@ export class Writer {
     }
 
     await this._closeStartElementTag();
+    assertXmlChars(text, 'character data');
     await this._writeToBuffer(this._escapeXml(text));
 
     this.state = WriterState.IN_ELEMENT;
@@ -467,6 +492,7 @@ export class Writer {
    * Write CDATA section
    */
   public async writeCData(cdata: string): Promise<this> {
+    assertXmlChars(cdata, 'CDATA');
     if (cdata.includes(']]>')) {
       throw new Error('CDATA section cannot contain "]]>" sequence');
     }
@@ -487,6 +513,7 @@ export class Writer {
    * Write comment
    */
   public async writeComment(comment: string): Promise<this> {
+    assertXmlChars(comment, 'comment');
     if (comment.includes('--')) {
       throw new Error('XML comment cannot contain "--" sequence');
     }
@@ -638,6 +665,11 @@ export class Writer {
       else this.namespaces.set(prefix, previous);
     }
   }
+}
+
+function reserveAttribute(names: Set<string>, name: string): void {
+  if (names.has(name)) throw new Error(`Duplicate attribute: ${name}`);
+  names.add(name);
 }
 
 function utf8Encoding(value = 'utf-8'): 'UTF-8' {
