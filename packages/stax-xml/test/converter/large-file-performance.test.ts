@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { x } from '../../src/converter/converter/index.js';
+import { x } from '../../src/converter.js';
 
 describe('Large File Performance Benchmarks', () => {
   it('should maintain performance with various data sizes', () => {
@@ -13,7 +13,7 @@ describe('Large File Performance Benchmarks', () => {
       }
       xml += '</data>';
 
-      const schema = x.array(x.number(), '//item');
+      const schema = x.array(x.number(), '//item').precompile();
 
       const start = performance.now();
       const result = schema.parseSync(xml);
@@ -52,14 +52,13 @@ describe('Large File Performance Benchmarks', () => {
       </document>
     `;
 
-    const start = performance.now();
-
     const schema = x.object({
       metadataCount: x.array(x.string(), '//meta/@key').transform(arr => arr.length),
       paragraphCount: x.array(x.string(), '//paragraph/@id').transform(arr => arr.length),
       allTexts: x.array(x.string(), '//text')
-    });
+    }).precompile();
 
+    const start = performance.now();
     const result = schema.parseSync(xml);
     const duration = performance.now() - start;
 

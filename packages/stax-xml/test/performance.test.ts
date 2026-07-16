@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { EventReader } from 'stax-xml-async';
-import { WriterSync } from 'stax-xml-sync';
-import { XmlEventType } from 'stax-xml-core';
+import { EventReader, WriterSync, XmlEventType } from '../src/index.js';
 
 // 웹 표준 API용 헬퍼 함수들
 function stringToReadableStream(str: string): ReadableStream<Uint8Array> {
@@ -74,7 +72,7 @@ describe('EventReader Streaming and Performance Tests', () => {
     const endElements = events.filter(e => e.type === XmlEventType.END_ELEMENT);
 
     expect(startElements.length).toBe(endElements.length);
-    expect(startElements.map((e: any) => e.name)).toEqual(['books', 'book', 'title', 'author', 'book', 'title', 'author']);
+    expect(startElements.map(event => event.name)).toEqual(['books', 'book', 'title', 'author', 'book', 'title', 'author']);
   });
 
   it('should handle large XML documents efficiently', async () => {
@@ -102,7 +100,7 @@ describe('EventReader Streaming and Performance Tests', () => {
 
     for await (const event of reader) {
       eventCount++;
-      if (event.type === XmlEventType.START_ELEMENT && (event as any).name === 'book') {
+      if (event.type === XmlEventType.START_ELEMENT && event.name === 'book') {
         bookCount++;
       }
     }
@@ -149,8 +147,8 @@ describe('EventReader Streaming and Performance Tests', () => {
       expect(result.id).toBe(index + 1);
       expect(result.events.length).toBeGreaterThan(0);
 
-      const startElement = result.events.find(e => e.type === XmlEventType.START_ELEMENT && (e as any).name === 'document');
-      expect((startElement as any).attributes.find((attribute: { name: string }) => attribute.name === 'id')?.value)
+      const startElement = result.events.find(event => event.type === XmlEventType.START_ELEMENT && event.name === 'document');
+      expect(startElement?.attributes.find(attribute => attribute.name === 'id')?.value)
         .toBe((index + 1).toString());
     });
   });
@@ -183,9 +181,9 @@ describe('EventReader Streaming and Performance Tests', () => {
     expect(textEvents.length).toBeGreaterThan(0);
 
     // preformatted 텍스트의 공백이 보존되는지 확인
-    const preText = textEvents.find((e: any) => e.value.includes('Preformatted'));
-    expect((preText as any).value).toContain('    Preformatted');
-    expect((preText as any).value).toContain('        indentation');
+    const preText = textEvents.find(event => event.value.includes('Preformatted'));
+    expect(preText?.value).toContain('    Preformatted');
+    expect(preText?.value).toContain('        indentation');
   });
 
   it('should handle incremental parsing correctly', async () => {
@@ -200,26 +198,26 @@ describe('EventReader Streaming and Performance Tests', () => {
     const inputStream = createChunkedStream(xml, 5);
     const reader = new EventReader(inputStream);
 
-    const items = [];
-    let currentItem: any = null;
+    const items: Array<{ id: string | undefined; content: string }> = [];
+    let currentItem: { id: string | undefined; content: string } | null = null;
 
     for await (const event of reader) {
       switch (event.type) {
         case XmlEventType.START_ELEMENT:
-          if ((event as any).name === 'item') {
+          if (event.name === 'item') {
             currentItem = {
-              id: (event as any).attributes.find((attribute: { name: string }) => attribute.name === 'id')?.value,
+              id: event.attributes.find(attribute => attribute.name === 'id')?.value,
               content: '',
             };
           }
           break;
         case XmlEventType.CHARACTERS:
           if (currentItem) {
-            currentItem.content += (event as any).value;
+            currentItem.content += event.value;
           }
           break;
         case XmlEventType.END_ELEMENT:
-          if ((event as any).name === 'item' && currentItem) {
+          if (event.name === 'item' && currentItem) {
             items.push(currentItem);
             currentItem = null;
           }
