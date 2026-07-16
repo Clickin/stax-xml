@@ -69,8 +69,10 @@ Release set에는 다음 결과가 포함되어야 합니다.
 - `WriterSyncSink`와 async writer row를 포함한 1 GiB writer evidence.
 
 4 GiB stream reader 결과는 큰 byte input을 하나의 JavaScript string으로 만들지 않고
-파싱할 수 있다는 핵심 evidence입니다. `packages/benchmark/results/release/**` 아래의
-생성 파일과 docs benchmark snapshot을 맞춰 두세요.
+파싱할 수 있다는 핵심 evidence입니다. 원본 생성 report는 경로와 읽는 순서를 적은 작은
+index 또는 README와 함께 `evidence/release-reports-YYYY-MM-DD` 같은 evidence branch에
+보관하세요. 원본 report를 `master`나 release branch에 commit하지 않습니다. docs benchmark
+snapshot에는 evidence branch와 commit을 가리키는 curated summary만 둡니다.
 
 ## 4. 문서
 

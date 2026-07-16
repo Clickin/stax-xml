@@ -71,8 +71,11 @@ The release set must include:
 
 The 4 GiB stream reader result is the primary evidence that large byte input can
 be parsed without materializing the whole XML document as one JavaScript string.
-Keep the generated files under `packages/benchmark/results/release/**` in sync
-with the docs benchmark snapshot.
+Keep raw generated reports on an evidence branch such as
+`evidence/release-reports-YYYY-MM-DD`, with a small index or README that records
+their paths and reading order. Do not commit those raw reports to `master` or a
+release branch. The docs benchmark snapshot may retain a curated summary that
+cites the evidence branch and commit.
 
 ## 4. Documentation
 
