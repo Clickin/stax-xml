@@ -19,6 +19,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: release-${{ github.event_name == 'push' && github.ref_name || inputs.version }}
+  cancel-in-progress: false
+
 jobs:
   test:
     runs-on: ubuntu-24.04
@@ -42,6 +46,12 @@ jobs:
       - name: Run tests
         run: pnpm test
 
+      - name: Run v1 performance tests
+        run: pnpm --filter=stax-xml test:perf
+
+      - name: Collect runtime retention evidence
+        run: pnpm --filter=benchmark run dev:runtime-retention
+
       - name: Type check package
         run: pnpm --filter=stax-xml exec tsc -p tsconfig.json --noEmit
 
@@ -56,6 +66,15 @@ jobs:
 
       - name: Validate pure-JS package contents
         run: node scripts/validate-prerelease.mjs "${{ github.event_name == 'push' && github.ref_name || inputs.version }}" --pack
+
+      - name: Generate API documentation
+        run: pnpm --filter=stax-xml-docs typedoc
+
+      - name: Build documentation
+        run: pnpm docs:build
+
+      - name: Validate release documentation snapshot
+        run: pnpm docs:snapshot:release "${{ github.event_name == 'push' && github.ref_name || inputs.version }}" --dry-run
 
   publish:
     runs-on: ubuntu-24.04
