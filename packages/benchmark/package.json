@@ -11,7 +11,7 @@
     "dev:builder:small": "node --expose-gc ./builder-small.mjs",
     "dev:builder:big": "node --expose-gc ./builder-big.mjs",
     "dev:async:parser": "node --expose-gc ./async-parser.mjs",
-    "dev:stream-reader-consumption": "node --expose-gc ./stream-reader-consumption.mjs",
+    "dev:runtime-retention": "pnpm --filter stax-xml build && node --expose-gc ./runtime-stax-runner.mjs --file ./assets/books.xml --warmups=1 --runs=3 --retention-runs=30",
     "dev:stream-reader:4gb": "node --expose-gc ./stream-reader-4gb-consumption.mjs",
     "dev:stream-reader:4gb:release": "node --expose-gc ./stream-reader-4gb-consumption.mjs --size-gib=4 --style=index-for --runs=3 --warmups=0 --json-out=results/release/stream-reader-4gb.json --md-out=results/release/stream-reader-4gb.md",
     "dev:converter:compiled-batch": "node --expose-gc ./converter-compiled-batch-plan.mjs",

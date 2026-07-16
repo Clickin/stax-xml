@@ -16,6 +16,7 @@ function parseArgs(args = argv()) {
     file: undefined,
     runs: 3,
     warmups: 1,
+    retentionRuns: 0,
     runtimeId: detectRuntimeId(),
   };
 
@@ -43,6 +44,9 @@ function parseArgs(args = argv()) {
         break;
       case '--warmups':
         options.warmups = parseNonNegativeInteger(readValue(), '--warmups');
+        break;
+      case '--retention-runs':
+        options.retentionRuns = parseNonNegativeInteger(readValue(), '--retention-runs');
         break;
       case '--runtime-id':
         options.runtimeId = readValue();
@@ -132,6 +136,10 @@ function gcNow() {
   }
 }
 
+function hasExplicitGc() {
+  return typeof globalThis.gc === 'function' || typeof globalThis.Bun?.gc === 'function';
+}
+
 function mixChecksum(seed, value) {
   return Math.imul((seed ^ value) | 0, 16777619) | 0;
 }
@@ -147,44 +155,35 @@ function foldString(seed, value) {
   return next;
 }
 
-function publicEventTypeCode(type) {
-  switch (type) {
-    case XmlEventType.START_DOCUMENT:
-      return 0;
-    case XmlEventType.END_DOCUMENT:
-      return 1;
-    case XmlEventType.START_ELEMENT:
-      return 2;
-    case XmlEventType.END_ELEMENT:
-      return 3;
-    case XmlEventType.CHARACTERS:
-      return 4;
-    case XmlEventType.CDATA:
-      return 5;
-    default:
-      return 6;
-  }
-}
-
-function consumePublicSync(xml) {
+function consumeEventReaderFull(xml) {
   let eventCount = 0;
   let checksum = 0;
 
   for (const event of new EventReaderSync(xml)) {
-    const typeCode = publicEventTypeCode(event.type);
     eventCount++;
-    checksum = mixChecksum(checksum, typeCode);
+    checksum = foldString(checksum, event.type);
 
     if (event.type === XmlEventType.START_ELEMENT || event.type === XmlEventType.END_ELEMENT) {
       checksum = foldString(checksum, event.name);
+      checksum = foldString(checksum, event.localName);
+      checksum = foldString(checksum, event.prefix);
+      checksum = foldString(checksum, event.namespaceURI);
     }
-    if (event.type === XmlEventType.CHARACTERS || event.type === XmlEventType.CDATA) {
+    if (event.type === XmlEventType.CHARACTERS || event.type === XmlEventType.CDATA
+      || event.type === XmlEventType.COMMENT || event.type === XmlEventType.DTD) {
       checksum = foldString(checksum, event.value?.trim());
+    }
+    if (event.type === XmlEventType.PROCESSING_INSTRUCTION) {
+      checksum = foldString(checksum, event.target);
+      checksum = foldString(checksum, event.data);
     }
     if (event.type === XmlEventType.START_ELEMENT) {
       checksum = mixChecksum(checksum, event.attributes.length);
       for (const attribute of event.attributes) {
         checksum = foldString(checksum, attribute.name);
+        checksum = foldString(checksum, attribute.localName);
+        checksum = foldString(checksum, attribute.prefix);
+        checksum = foldString(checksum, attribute.namespaceURI);
         checksum = foldString(checksum, attribute.value);
       }
     }
@@ -193,60 +192,44 @@ function consumePublicSync(xml) {
   return { eventCount, checksum };
 }
 
-function consumeEventTier(xml, tier) {
-  let eventCount = 0;
-  let checksum = 0;
-
-  for (const event of new EventReaderSync(xml)) {
-    const type = publicEventTypeCode(event.type);
-    const attrs = event.type === XmlEventType.START_ELEMENT ? event.attributes : [];
-    eventCount++;
-    checksum = mixChecksum(checksum, type);
-
-    if (tier === 'count-only') {
-      checksum = mixChecksum(checksum, attrs.length);
-      continue;
-    }
-
-    if (event.type === XmlEventType.START_ELEMENT || event.type === XmlEventType.END_ELEMENT) {
-      checksum = foldString(checksum, event.name);
-    }
-    if (event.type === XmlEventType.CHARACTERS || event.type === XmlEventType.CDATA) {
-      checksum = foldString(checksum, event.value?.trim());
-    }
-    if (event.type === XmlEventType.START_ELEMENT) {
-      checksum = mixChecksum(checksum, attrs.length);
-      for (const attribute of attrs) {
-        checksum = foldString(checksum, attribute.name);
-        checksum = foldString(checksum, attribute.value);
-      }
-    }
-  }
-
-  return { eventCount, checksum };
-}
-
-function consumeCursorReader(bytes) {
+function consumeStreamReader(bytes, tier) {
   let eventCount = 0;
   let checksum = 0;
   const reader = new StreamReaderSync(bytes);
 
-  while (reader.next()) {
+  while (reader.next() !== null) {
     const type = reader.eventType();
     eventCount++;
-    checksum = mixChecksum(checksum, publicEventTypeCode(type));
+    checksum = foldString(checksum, type);
+
+    if (tier === 'type-only') {
+      continue;
+    }
 
     if (type === XmlEventType.START_ELEMENT || type === XmlEventType.END_ELEMENT) {
       checksum = foldString(checksum, reader.name());
     }
-    if (type === XmlEventType.CHARACTERS || type === XmlEventType.CDATA) {
+    if (type === XmlEventType.CHARACTERS || type === XmlEventType.CDATA
+      || type === XmlEventType.COMMENT || type === XmlEventType.DTD) {
       checksum = foldString(checksum, reader.text()?.trim());
     }
-    if (type === XmlEventType.START_ELEMENT) {
+    if (type === XmlEventType.PROCESSING_INSTRUCTION) {
+      checksum = foldString(checksum, reader.name());
+      checksum = foldString(checksum, reader.text());
+    }
+    if (tier === 'full' && (type === XmlEventType.START_ELEMENT || type === XmlEventType.END_ELEMENT)) {
+      checksum = foldString(checksum, reader.localName());
+      checksum = foldString(checksum, reader.prefix());
+      checksum = foldString(checksum, reader.namespaceURI());
+    }
+    if (tier === 'full' && type === XmlEventType.START_ELEMENT) {
       const attrCount = reader.attributeCount();
       checksum = mixChecksum(checksum, attrCount);
       for (let attrIndex = 0; attrIndex < attrCount; attrIndex++) {
         checksum = foldString(checksum, reader.attributeName(attrIndex));
+        checksum = foldString(checksum, reader.attributeLocalName(attrIndex));
+        checksum = foldString(checksum, reader.attributePrefix(attrIndex));
+        checksum = foldString(checksum, reader.attributeNamespaceURI(attrIndex));
         checksum = foldString(checksum, reader.attributeValue(attrIndex));
       }
     }
@@ -300,6 +283,97 @@ function measure(id, run, fileSizeMiB, options) {
   };
 }
 
+function measureRetention(id, run, runs) {
+  const heapValues = new Array(runs).fill(0);
+  run();
+  gcNow();
+  const baselineHeapUsedBytes = memoryUsage().heapUsedBytes;
+  if (baselineHeapUsedBytes === null) {
+    throw new Error(`${id} cannot sample retained heap on this runtime.`);
+  }
+
+  let eventCount = 0;
+  let checksum = 0;
+  for (let index = 0; index < runs; index++) {
+    const result = run();
+    if (index > 0 && (result.eventCount !== eventCount || result.checksum !== checksum)) {
+      throw new Error(`${id} retention run produced unstable event count or checksum.`);
+    }
+    eventCount = result.eventCount;
+    checksum = result.checksum;
+    gcNow();
+    const heapUsedBytes = memoryUsage().heapUsedBytes;
+    if (heapUsedBytes === null) {
+      throw new Error(`${id} lost retained-heap sampling support.`);
+    }
+    heapValues[index] = heapUsedBytes;
+  }
+
+  return {
+    id,
+    eventCount,
+    checksum,
+    baselineHeapUsedBytes,
+    minHeapUsedBytes: Math.min(...heapValues),
+    maxHeapUsedBytes: Math.max(...heapValues),
+    heapUsedRangeBytes: Math.max(...heapValues) - Math.min(...heapValues),
+    leastSquaresSlopeBytesPerRun: leastSquaresSlope(heapValues),
+    samples: heapValues.map((heapUsedBytes, index) => ({
+      run: index + 1,
+      heapUsedBytes,
+      retainedDeltaBytes: heapUsedBytes - baselineHeapUsedBytes,
+    })),
+  };
+}
+
+function leastSquaresSlope(values) {
+  const count = values.length;
+  const meanX = (count + 1) / 2;
+  const meanY = values.reduce((sum, value) => sum + value, 0) / count;
+  let numerator = 0;
+  let denominator = 0;
+  for (let index = 0; index < count; index++) {
+    const xDelta = index + 1 - meanX;
+    numerator += xDelta * (values[index] - meanY);
+    denominator += xDelta * xDelta;
+  }
+  return denominator === 0 ? 0 : numerator / denominator;
+}
+
+function collectRetentionEvidence(xml, bytes, runs) {
+  if (runs === 0) {
+    return { status: 'disabled', requestedRuns: 0, evidenceOnly: true, scenarios: [] };
+  }
+  if (!hasExplicitGc()) {
+    return {
+      status: 'unavailable',
+      requestedRuns: runs,
+      evidenceOnly: true,
+      reason: 'Explicit GC is unavailable; run Node with --expose-gc or use a runtime GC hook.',
+      scenarios: [],
+    };
+  }
+  if (memoryUsage().heapUsedBytes === null) {
+    return {
+      status: 'unavailable',
+      requestedRuns: runs,
+      evidenceOnly: true,
+      reason: 'Heap usage sampling is unavailable on this runtime.',
+      scenarios: [],
+    };
+  }
+
+  const scenarios = [
+    measureRetention('stream-sync-full', () => consumeStreamReader(bytes, 'full'), runs),
+    measureRetention('event-sync-full', () => consumeEventReaderFull(xml), runs),
+  ];
+  const [streamFull, eventFull] = scenarios;
+  if (streamFull.eventCount !== eventFull.eventCount || streamFull.checksum !== eventFull.checksum) {
+    throw new Error('Retention scenarios must preserve full StreamReaderSync/EventReaderSync parity.');
+  }
+  return { status: 'ok', requestedRuns: runs, evidenceOnly: true, scenarios };
+}
+
 async function main() {
   const options = parseArgs();
   const xml = await readTextFile(options.file);
@@ -307,16 +381,19 @@ async function main() {
   const fileSizeMiB = bytes.byteLength / 1024 / 1024;
 
   const scenarios = [
-    measure('public-sync-full-string', () => consumePublicSync(xml), fileSizeMiB, options),
-    measure('cursor-sync-full-string', () => consumeCursorReader(bytes), fileSizeMiB, options),
-    measure('event-count-only', () => consumeEventTier(xml, 'count-only'), fileSizeMiB, options),
-    measure('event-full-string', () => consumeEventTier(xml, 'full-string'), fileSizeMiB, options),
+    measure('stream-sync-type-only', () => consumeStreamReader(bytes, 'type-only'), fileSizeMiB, options),
+    measure('stream-sync-name-text', () => consumeStreamReader(bytes, 'name-text'), fileSizeMiB, options),
+    measure('stream-sync-full', () => consumeStreamReader(bytes, 'full'), fileSizeMiB, options),
+    measure('event-sync-full', () => consumeEventReaderFull(xml), fileSizeMiB, options),
   ];
-  const [publicFull, cursorFull, , eventFull] = scenarios;
-  if (publicFull.eventCount !== cursorFull.eventCount || publicFull.checksum !== cursorFull.checksum
-    || publicFull.eventCount !== eventFull.eventCount || publicFull.checksum !== eventFull.checksum) {
-    throw new Error('Full runtime scenarios must produce identical event counts and checksums.');
+  const [typeOnly, , streamFull, eventFull] = scenarios;
+  if (scenarios.some((scenario) => scenario.eventCount !== typeOnly.eventCount)) {
+    throw new Error('All runtime accessor tiers must produce identical event counts.');
   }
+  if (streamFull.checksum !== eventFull.checksum) {
+    throw new Error('Full StreamReaderSync and EventReaderSync scenarios must produce identical checksums.');
+  }
+  const retention = collectRetentionEvidence(xml, bytes, options.retentionRuns);
 
   const report = {
     runtime: {
@@ -331,8 +408,10 @@ async function main() {
     options: {
       runs: options.runs,
       warmups: options.warmups,
+      retentionRuns: options.retentionRuns,
     },
     scenarios,
+    retention,
   };
 
   console.log(JSON.stringify(report));

@@ -257,9 +257,9 @@ function createScenarioDetails(report) {
     '',
     '~~~text',
     'runtime-result = {',
-    '  scenario: "public-sync-full-string" | "stream-sync-index-full-string" | "event-count-only" | "event-full-string",',
+    '  scenario: "stream-sync-type-only" | "stream-sync-name-text" | "stream-sync-full" | "event-sync-full",',
     '  eventCount: number,',
-    '  checksum: fold(event type, names, text, attr names, attr values),',
+    '  checksum: fold(the fields touched by that accessor tier),',
     '  peakHeapUsedBytes: number',
     '}',
     '~~~',
@@ -269,9 +269,10 @@ function createScenarioDetails(report) {
     '- Node reads text with `fs.readFileSync`, then runs the built package through `node --expose-gc`.',
     '- Bun reads text with `Bun.file(path).text()`, then runs the same built JavaScript package.',
     '- Deno reads text with `Deno.readTextFile` under `--allow-read --allow-env`, then runs the same built JavaScript package.',
-    '- `public-sync-full-string` uses `EventReaderSync` over one string.',
-    '- `stream-sync-index-full-string` uses `StreamReaderSync` over bytes and consumes each `StreamBatch` with `eventCount` plus index accessors.',
-    '- `event-count-only` and `event-full-string` use public event reader checksum tiers; they are not async parser rows.',
+    '- `stream-sync-type-only` advances `StreamReaderSync` and reads only each token type.',
+    '- `stream-sync-name-text` additionally reads element/PI names and text payloads.',
+    '- `stream-sync-full` additionally reads namespace and complete attribute fields.',
+    '- `event-sync-full` materializes `EventReaderSync` events and folds the same full checksum.',
     '- This matrix measures only the public pure JavaScript reader path.',
     '',
     '</details>',
@@ -321,11 +322,9 @@ function createMarkdown(report) {
   lines.push('');
   lines.push('## Contract');
   lines.push('');
-  lines.push('- `public-sync-full-string` uses `EventReaderSync` and folds element names, text, attribute names, and attribute values into a checksum.');
-  lines.push('- `stream-sync-index-full-string` uses `StreamReaderSync` and folds the same full-string checksum through batch-local index accessors.');
-  lines.push('- `event-count-only` uses the public event reader without string field folding beyond event counts and attribute counts.');
-  lines.push('- `event-full-string` uses the same public event reader and materializes the full string checksum workload.');
-  lines.push('- All runtime rows must preserve event count and checksum for the same scenario.');
+  lines.push('- `stream-sync-type-only`, `stream-sync-name-text`, and `stream-sync-full` isolate incremental public accessor cost.');
+  lines.push('- `event-sync-full` is the fully materialized event-object reference workload.');
+  lines.push('- All tiers must preserve event count; the two full tiers must also preserve the complete checksum.');
 
   return `${lines.join('\n')}\n`;
 }

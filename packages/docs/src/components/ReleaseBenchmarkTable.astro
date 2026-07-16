@@ -36,6 +36,8 @@ const runtimeRows = runtimeMatrix.results.flatMap((runtime) =>
     .filter((scenario) =>
       scenario.id === 'public-sync-full-string'
       || scenario.id === 'stream-sync-index-full-string'
+      || scenario.id === 'event-sync-full'
+      || scenario.id === 'stream-sync-full'
     )
     .map((scenario) => ({
       runtime: `${runtime.runtime.id === 'node' ? 'Node' : runtime.runtime.id === 'bun' ? 'Bun' : 'Deno'} ${runtime.runtime.version}`,
