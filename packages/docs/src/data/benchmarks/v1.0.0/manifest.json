@@ -1,7 +1,7 @@
 {
   "version": "v1.0.0",
-  "createdAt": "2026-07-12T07:58:10.964Z",
-  "gitCommit": "55170630fd697029ba5e00e264c7b8d7c2501790",
+  "createdAt": "2026-07-18T14:50:57.290Z",
+  "gitCommit": "f1b54716024dad41e7778d60b526fb69e8bcf00a",
   "sourceDir": "packages/benchmark/results/release",
   "files": [
     {
@@ -11,6 +11,10 @@
     {
       "source": "packages/benchmark/results/release/runtime-matrix.json",
       "destination": "packages/docs/src/data/benchmarks/v1.0.0/runtime-matrix.json"
+    },
+    {
+      "source": "packages/benchmark/results/release/reader-cross-runtime.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.0.0/reader-cross-runtime.json"
     },
     {
       "source": "packages/benchmark/results/release/stream-reader-4gb.json",
@@ -23,6 +27,10 @@
     {
       "source": "packages/benchmark/results/release/raw/writer-1gb.json",
       "destination": "packages/docs/src/data/benchmarks/v1.0.0/raw/writer-1gb.json"
+    },
+    {
+      "source": "packages/benchmark/results/release/writer-cross-runtime.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.0.0/writer-cross-runtime.json"
     }
   ]
 }

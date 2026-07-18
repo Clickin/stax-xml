@@ -1,0 +1,81 @@
+{
+  "generatedAt": "2026-07-18T13:42:06.596Z",
+  "fixture": {
+    "path": "/Users/senghyunjo/github/stax-xml/packages/benchmark/test-data/runtime-comparison-16mib.xml",
+    "sizeBytes": 16777038,
+    "contract": "full pull-reader materialization after file I/O"
+  },
+  "options": {
+    "warmups": 1,
+    "runs": 3
+  },
+  "environment": {
+    "node": "v26.5.0",
+    "java": "25.0.2",
+    "woodstox": "6.7.0",
+    "rust": "1.95.0",
+    "quickXml": "0.40.1"
+  },
+  "cases": {
+    "stax-xml": [
+      {
+        "events": 967965,
+        "checksum": 36104832,
+        "seconds": 0.16181254199999967,
+        "throughputMiBs": 98.87880165662135
+      },
+      {
+        "events": 967965,
+        "checksum": 36104832,
+        "seconds": 0.16108287500000007,
+        "throughputMiBs": 99.32669904216493
+      },
+      {
+        "events": 967965,
+        "checksum": 36104832,
+        "seconds": 0.16263999999999987,
+        "throughputMiBs": 98.37573933824208
+      }
+    ],
+    "woodstox": [
+      {
+        "events": 967965,
+        "checksum": 36104832,
+        "seconds": 0.052721167,
+        "throughputMiBs": 303.4801988729058
+      },
+      {
+        "events": 967965,
+        "checksum": 36104832,
+        "seconds": 0.056551125,
+        "throughputMiBs": 282.92682499192864
+      },
+      {
+        "events": 967965,
+        "checksum": 36104832,
+        "seconds": 0.049049208,
+        "throughputMiBs": 326.19956362948164
+      }
+    ],
+    "quick-xml": [
+      {
+        "events": 967965,
+        "checksum": 36104832,
+        "seconds": 0.0295945,
+        "throughputMiBs": 540.6352614834406
+      },
+      {
+        "events": 967965,
+        "checksum": 36104832,
+        "seconds": 0.024785917,
+        "throughputMiBs": 645.5210128385276
+      },
+      {
+        "events": 967965,
+        "checksum": 36104832,
+        "seconds": 0.024950875,
+        "throughputMiBs": 641.2532725193677
+      }
+    ]
+  }
+}

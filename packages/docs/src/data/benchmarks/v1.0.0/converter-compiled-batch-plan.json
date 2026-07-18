@@ -13,53 +13,53 @@
       "contractScope": "catalog-records",
       "fullStringParity": true,
       "eventCountKind": "parsed-elements",
-      "avgMs": 132.2885918,
-      "minMs": 130.02174999999988,
-      "maxMs": 135.16333400000008,
-      "mibPerSec": 120.94833469241118,
+      "avgMs": 146.5859752,
+      "minMs": 137.2132919999999,
+      "maxMs": 160.57275000000004,
+      "mibPerSec": 109.15153960113751,
       "eventCount": 139458,
       "checksum": -1845341048,
       "samplesMs": [
-        134.97362500000008,
-        131.08062500000005,
-        130.203625,
-        130.02174999999988,
-        135.16333400000008
+        160.57275000000004,
+        156.58354199999997,
+        139.2158750000001,
+        137.2132919999999,
+        139.34441700000002
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 68076185.6,
-        "avgRssDeltaBytes": 2254438.4
+        "avgHeapUsedDeltaBytes": 60310694.4,
+        "avgRssDeltaBytes": 3427532.8
       }
     },
     "converter-auto-compiled-batch-plan": {
       "id": "converter-auto-compiled-batch-plan",
       "family": "converter",
-      "implementation": "converter parseSync (auto-compiled)",
+      "implementation": "converter parseSync (IR JIT)",
       "contractScope": "catalog-records",
       "fullStringParity": true,
       "eventCountKind": "parsed-elements",
-      "avgMs": 209.89427499999996,
-      "minMs": 206.426917,
-      "maxMs": 213.13020800000004,
-      "mibPerSec": 76.22925816825715,
+      "avgMs": 186.5984836,
+      "minMs": 183.99479199999996,
+      "maxMs": 188.03349999999978,
+      "mibPerSec": 85.74606056988429,
       "eventCount": 139458,
       "checksum": -1845341048,
       "samplesMs": [
-        207.7712919999999,
-        206.426917,
-        211.70849999999973,
-        210.43445800000018,
-        213.13020800000004
+        187.64266700000007,
+        185.83466700000008,
+        188.03349999999978,
+        183.99479199999996,
+        187.48679200000015
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 85877299.2,
-        "avgRssDeltaBytes": 3728998.4
+        "avgHeapUsedDeltaBytes": 63634168,
+        "avgRssDeltaBytes": 3810918.4
       }
     }
   },
   "metadata": {
-    "nodeVersion": "24.15.0",
-    "v8Version": "13.6.233.17-node.48",
-    "collectedAt": "2026-07-12T07:53:13.620Z"
+    "nodeVersion": "26.5.0",
+    "v8Version": "14.6.202.34-node.24",
+    "collectedAt": "2026-07-18T13:44:29.624Z"
   }
 }

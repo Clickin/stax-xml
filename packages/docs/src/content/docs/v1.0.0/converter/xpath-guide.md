@@ -53,24 +53,25 @@ const catalog = x.object({
 const value = catalog.parseSync(xml);
 ```
 
-Selectors are compiled and cached automatically. There is no public
-`.compile()` step.
+Selectors are compiled and cached automatically. Call `.precompile()` only to
+warm that work before the first parse; there is no public `.compile()` step.
 
-Call `.precompile()` only to move the one-time IR lowering and executor creation
-before the first parse. For example, a server can warm a shared schema in its
-startup module:
+For example, a server can move the one-time IR lowering and executor creation
+out of its first request by warming shared schemas in its startup module:
 
 ```ts
 export const catalogSchema = x.object({
   title: x.string('/catalog/title'),
 }).precompile();
 
+// Request handlers still call the normal API.
 const catalog = catalogSchema.parseSync(requestBody);
 ```
 
-Warm-up changes first-request latency, not steady-state throughput. Reuse the
-same schema instance. Parse options remain per-parse settings and are not part
-of warm-up.
+This is a latency-placement choice, not a faster steady-state mode. Skip it
+unless first-request latency matters, and reuse the schema instance rather than
+rebuilding it per request. Parse options remain per-parse settings and are not
+part of warm-up.
 
 ## Namespaces
 

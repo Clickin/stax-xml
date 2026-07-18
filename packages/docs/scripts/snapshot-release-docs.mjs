@@ -18,9 +18,11 @@ const versionSlugRegex = /^v\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/;
 const benchmarkFiles = [
   'latest-summary.json',
   'runtime-matrix.json',
+  'reader-cross-runtime.json',
   'stream-reader-4gb.json',
   'converter-compiled-batch-plan.json',
   'raw/writer-1gb.json',
+  'writer-cross-runtime.json',
 ];
 
 function usage() {

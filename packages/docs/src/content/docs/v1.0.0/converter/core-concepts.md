@@ -130,7 +130,7 @@ const result = await schema.safeParse('<age>150</age>');
 ```typescript
 type ParseResult<T> =
   | { success: true; data: T }
-  | { success: false; issues: Array<{ message: string; path?: string }> };
+  | { success: false; error: { issues: Array<{ message: string; path?: string }> } };
 ```
 
 **When to use:**

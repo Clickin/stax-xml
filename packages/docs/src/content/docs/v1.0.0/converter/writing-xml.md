@@ -1,6 +1,6 @@
 ---
 title: Converter - Writing XML
-description: Serialize JavaScript values with the v1 converter writer API
+description: Serialize JavaScript values with the public converter writer API
 head:
   - tag: meta
     attrs:
@@ -9,14 +9,37 @@ head:
 slug: v1.0.0/converter/writing-xml
 ---
 
-Converter writing is a public v1 feature. Configure XML names with `.writer()`,
-then call `.writeSync()`, `.write()`, or `.writeToStream()`.
+Converter schemas are bidirectional where a parsed value has an unambiguous XML
+representation. Configure element and attribute names with `.writer()`, then use
+`.writeSync()`, `.write()`, or `.writeToStream()`.
+
+## Object output
 
 ```ts
 import { x } from 'stax-xml/converter';
 
-const catalog = x.object({
+const book = x.object({
   id: x.string('./@id').writer({ asAttribute: 'id' }),
+  title: x.string('./title').writer({ element: 'title' }),
+  price: x.number('./price').writer({ element: 'price' }),
+  note: x.string('./note').optional().writer({ element: 'note' }),
+});
+
+const xml = book.writeSync(
+  { id: 'b1', title: 'XML & Streams', price: 29.5, note: undefined },
+  { rootElement: 'book', includeDeclaration: false },
+);
+// <book id="b1"><title>XML &amp; Streams</title><price>29.5</price></book>
+```
+
+`undefined` and `null` object fields are omitted. Attribute fields are written
+on the containing object element. If an element field omits `element`, its
+object key is used as the element name.
+
+## Nested objects and arrays
+
+```ts
+const catalog = x.object({
   owner: x.object({
     name: x.string('./name').writer({ element: 'name' }),
   }).writer({ element: 'owner' }),
@@ -27,35 +50,63 @@ const catalog = x.object({
   ).writer({ element: 'books' }),
 });
 
-const data = {
-  id: 'c1',
-  owner: { name: 'Ada' },
-  books: [{ title: 'One' }, { title: 'Two' }],
-};
-
-const xml = catalog.writeSync(data, {
-  rootElement: 'catalog',
-  includeDeclaration: false,
-});
-// <catalog id="c1"><owner><name>Ada</name></owner><books><book><title>One</title></book><book><title>Two</title></book></books></catalog>
+const xml = await catalog.write(
+  { owner: { name: 'Ada' }, books: [{ title: 'One' }, { title: 'Two' }] },
+  { rootElement: 'catalog', includeDeclaration: false },
+);
+// <catalog><owner><name>Ada</name></owner><books><book><title>One</title></book><book><title>Two</title></book></books></catalog>
 ```
 
-`undefined` and `null` object fields are omitted. Attribute fields attach to the
-containing object element. An element field without `element` uses its field
-key. Array element schemas must name their item element for non-empty output.
-`rootElement` is an optional outer wrapper; a top-level schema's own `element`
-is retained inside it.
+The array schema's `element` names the collection element when the array is an
+object field. The array's element schema must provide its item element name.
+Non-empty arrays without an item element name are rejected.
+
+`rootElement` is an optional outer wrapper. A top-level schema configured with
+its own `element` keeps that element inside the wrapper; omit `rootElement` to
+use the schema element itself as the document element.
+
+## Writer configuration
 
 ```ts
 interface XmlElementWriteConfig {
   element?: string;
   asAttribute?: string;
-  namespace?: { prefix?: string; uri: string };
+  namespace?: {
+    prefix?: string;
+    uri: string;
+  };
   cdata?: boolean;
   selfClosing?: boolean;
   comment?: string;
 }
+```
 
+- `element` names an element. Object fields may use the field key instead.
+- `asAttribute` writes the field on its containing object element.
+- `namespace` declares a namespace using XML Namespaces rules. An omitted
+  prefix declares the default namespace.
+- `cdata` writes scalar string content as CDATA. Content containing `]]>` is
+  rejected.
+- `selfClosing` emits `/>` only when the configured element is empty.
+- `comment` writes a validated XML comment before the element.
+
+```ts
+const value = x.string().writer({
+  element: 'value',
+  namespace: { prefix: 'm', uri: 'urn:metrics' },
+});
+
+value.writeSync('42', { rootElement: 'root', includeDeclaration: false });
+// <root><m:value xmlns:m="urn:metrics">42</m:value></root>
+```
+
+Namespace prefixes and local names are validated as XML NCNames. Reserved
+`xml` / `xmlns` bindings, undeclared prefixes, and duplicate expanded
+attributes are rejected.
+
+## Output options
+
+```ts
 interface XmlWriteOptions {
   prettyPrint?: boolean;
   indentString?: string;
@@ -67,20 +118,23 @@ interface XmlWriteOptions {
 }
 ```
 
-An omitted namespace prefix declares the default namespace. Prefixed elements
-and attributes declare and use their URI according to XML Namespaces rules.
-Reserved bindings, undeclared prefixes, invalid NCNames, and duplicate expanded
-attributes are rejected.
-
-`cdata` applies to string scalar content. `selfClosing` emits `/>` only for an
-empty configured element. String content is escaped once and all structured
-writer inputs reject XML 1.0 forbidden characters.
-
-The v1 parser and writers support XML 1.0. Reader byte input can select a
+The v1 parser and writers implement XML 1.0. Reader byte input can select a
 host-supported `TextDecoder` encoding. Built-in string and byte writer targets
 use UTF-8; an injected `AsyncTextSink` or encoded `WriterSyncSink` can declare
-its external encoding. Mismatched encodings and XML 1.1 declarations are rejected. Sync and async
-converter writers have the same structure and validation semantics.
+its external encoding. Mismatched encodings and XML 1.1 declarations are rejected.
+Element text, attributes, comments, CDATA, namespace URIs, and
+processing-instruction data reject characters forbidden by XML 1.0.
+
+Synchronous and asynchronous converter writers have the same output semantics:
+
+```ts
+const options = { rootElement: 'book', includeDeclaration: false } as const;
+const syncXml = book.writeSync(data, options);
+const asyncXml = await book.write(data, options);
+// syncXml === asyncXml
+```
+
+For large output, stream directly instead of collecting a string:
 
 ```ts
 await catalog.writeToStream(data, writableStream, {
@@ -89,7 +143,14 @@ await catalog.writeToStream(data, writableStream, {
 });
 ```
 
-Transform schemas are not writable because transforms are not necessarily
-reversible. Number writers reject `NaN` and infinities. Low-level `writeRaw()`
-accepts trusted XML only; converter scalar writers use validated character or
-CDATA methods.
+## Unsupported output
+
+- Transform schemas cannot be written because a transform is not necessarily
+  reversible; write with the underlying schema or define an explicit inverse.
+- `NaN` and infinities are rejected by number writers.
+- Attribute fields require a containing object element.
+- `writeRaw()` belongs to the low-level writers and accepts trusted XML only;
+  converter scalar writers use validated character or CDATA methods.
+
+See [Schema Types](./schemas/) for parsing and [Writer](../api-guides/writer/)
+for the lower-level streaming writer.

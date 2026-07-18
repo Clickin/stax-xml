@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-17T13:54:00.429Z",
+  "generatedAt": "2026-07-18T13:45:07.465Z",
   "workload": {
     "records": 12798,
     "outputBytes": 10775015,
@@ -7,7 +7,7 @@
     "generator": "writer-cross-runtime.mjs"
   },
   "environment": {
-    "node": "v24.15.0",
+    "node": "v26.5.0",
     "platform": "darwin",
     "arch": "arm64",
     "cpu": "Apple M4",
@@ -21,60 +21,60 @@
       {
         "records": 12798,
         "bytes": 10775015,
-        "seconds": 0.047035542,
-        "throughputMiBs": 218.47000432974897
+        "seconds": 0.056596749999999994,
+        "throughputMiBs": 181.56263503455747
       },
       {
         "records": 12798,
         "bytes": 10775015,
-        "seconds": 0.04308641700000001,
-        "throughputMiBs": 238.4940726074319
+        "seconds": 0.04969820800000001,
+        "throughputMiBs": 206.7651023632902
       },
       {
         "records": 12798,
         "bytes": 10775015,
-        "seconds": 0.043270540999999996,
-        "throughputMiBs": 237.47923707244823
+        "seconds": 0.05017837500000002,
+        "throughputMiBs": 204.78652535862483
       }
     ],
     "woodstox": [
       {
         "records": 12798,
         "bytes": 10775015,
-        "seconds": 0.083688209,
-        "throughputMiBs": 122.78737
+        "seconds": 0.082698042,
+        "throughputMiBs": 124.257538
       },
       {
         "records": 12798,
         "bytes": 10775015,
-        "seconds": 0.085515541,
-        "throughputMiBs": 120.163598
+        "seconds": 0.079122916,
+        "throughputMiBs": 129.872047
       },
       {
         "records": 12798,
         "bytes": 10775015,
-        "seconds": 0.088728084,
-        "throughputMiBs": 115.812881
+        "seconds": 0.0810565,
+        "throughputMiBs": 126.773979
       }
     ],
     "quick-xml": [
       {
         "records": 12798,
         "bytes": 10775015,
-        "seconds": 0.020650042,
-        "throughputMiBs": 497.619088
+        "seconds": 0.049237,
+        "throughputMiBs": 208.701892
       },
       {
         "records": 12798,
         "bytes": 10775015,
-        "seconds": 0.020443916,
-        "throughputMiBs": 502.636338
+        "seconds": 0.048464916,
+        "throughputMiBs": 212.026676
       },
       {
         "records": 12798,
         "bytes": 10775015,
-        "seconds": 0.020249208,
-        "throughputMiBs": 507.469481
+        "seconds": 0.047696916,
+        "throughputMiBs": 215.44066
       }
     ]
   }
