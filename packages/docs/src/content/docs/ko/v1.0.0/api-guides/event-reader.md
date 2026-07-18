@@ -32,7 +32,7 @@ import { EventReader, XmlEventType } from 'stax-xml';
 
 for await (const event of new EventReader(response.body!)) {
   if (event.type === XmlEventType.START_ELEMENT) {
-    const id = event.attributes.find((attribute) => attribute.name === 'id')?.value;
+    const id = event.attributes.get('id')?.value;
     console.log(event.name, id);
   } else if (event.type === XmlEventType.CHARACTERS) {
     console.log(event.value);
@@ -53,6 +53,8 @@ type StreamReaderSource =
 interface EventReaderOptions {
   documentMode?: 'document' | 'fragment';
   namespaceAware?: boolean; // 기본값: true
+  autoDecodeEntities?: boolean; // 기본값: true
+  addEntities?: { entity: string; value: string }[];
   encoding?: string; // 기본값: 'utf-8'
 }
 ```
@@ -61,8 +63,13 @@ Byte input은 fatal `TextDecoder`로 incremental decoding합니다. `encoding`�
 기본이며 host decoder가 지원하는 label을 받을 수 있습니다. XML declaration에서 label을
 자동 추론하지 않습니다. Invalid byte sequence 또는
 malformed XML은 `next()`를 reject하고 source를 반환합니다. DTD declaration을 해석하거나
-custom/external entity를 resolve하지 않고, 외부 I/O를 수행하지 않습니다.
-XML predefined entity 5개와 numeric character reference만 decoding합니다.
+external entity를 resolve하지 않고, 외부 I/O를 수행하지 않습니다.
+
+`autoDecodeEntities` 기본값은 `true`이며 predefined, numeric, configured custom
+entity를 single-pass decode합니다. `false`이면 validation을 유지하면서 반환하는
+text와 attribute의 reference 표기를 보존합니다. CDATA는 항상 literal입니다.
+`addEntities`는 DTD processing 없이 trusted internal definition을 제공하며 recursive
+expansion이나 predefined entity override를 허용하지 않습니다.
 
 Node.js `Readable`은 async iterable이고 `Buffer` chunk가 `Uint8Array`이므로 직접
 전달할 수 있습니다.
@@ -109,7 +116,10 @@ Current-token accessor는 다음 성공한 `next()` 호출 전까지만 유효�
 
 `AnyXmlEvent`는 document, start/end element, characters, CDATA, comment,
 processing-instruction, DTD event를 포함합니다. Start-element attribute는
-`EventAttribute[]`이며 namespace declaration은 attribute에 포함되지 않습니다.
+`EventAttributes`는 qualified name을 key로 사용하는 읽기 전용 Map입니다. value에는
+`name`, `localName`, `prefix`, `namespaceURI`, `value`가 유지되고 source 순서대로
+순회합니다. `JSON.stringify()` 결과는 `{}`가 아니라 JSON object입니다. namespace
+declaration은 attribute에 포함되지 않습니다.
 TypeScript narrowing에는 `isStartElement()`, `isCharacters()` 같은 type guard를
 사용하세요.
 

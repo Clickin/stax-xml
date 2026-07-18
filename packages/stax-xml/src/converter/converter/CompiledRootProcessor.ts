@@ -259,7 +259,7 @@ export class CompiledRootProcessor {
       runtime.elementStack.push(event.name);
       recordElementPosition(runtime);
       runtime.currentAttributes = runtime.plan.eventFilter.includeAttributes
-        ? Object.fromEntries(event.attributes.map((attribute) => [attribute.name, attribute.value]))
+        ? Object.fromEntries(Array.from(event.attributes, ([name, attribute]) => [name, attribute.value]))
         : undefined;
       runtime.attributeLookupCount = 0;
       runtime.attributeLookupCache = undefined;

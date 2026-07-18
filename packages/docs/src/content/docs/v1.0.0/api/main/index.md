@@ -2143,7 +2143,7 @@ Defined in: [core/types.ts:48](https://github.com/Clickin/stax-xml/blob/master/p
 
 ##### attributes
 
-> **attributes**: [`EventAttribute`](#eventattribute)[]
+> **attributes**: [`EventAttributes`](#eventattributes)
 
 Defined in: [core/types.ts:49](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L49)
 
@@ -2186,6 +2186,35 @@ Defined in: [core/types.ts:53](https://github.com/Clickin/stax-xml/blob/master/p
 > **value**: `string`
 
 Defined in: [core/types.ts:53](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L53)
+
+***
+
+### EventAttributes
+
+Defined in: [core/types.ts:62](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L62)
+
+Attribute lookup table keyed by qualified XML name.
+
+#### Remarks
+
+Iteration follows source order. `JSON.stringify()` emits the same object
+shape as a record while reserved JavaScript property names remain safe.
+
+#### Extends
+
+- `ReadonlyMap`\<`string`, [`EventAttribute`](#eventattribute)\>
+
+#### Methods
+
+##### toJSON()
+
+> **toJSON**(): `Record`\<`string`, [`EventAttribute`](#eventattribute)\>
+
+Return a qualified-name record for JSON serialization.
+
+###### Returns
+
+`Record`\<`string`, [`EventAttribute`](#eventattribute)\>
 
 ***
 

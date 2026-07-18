@@ -148,7 +148,7 @@ describe('EventReader Streaming and Performance Tests', () => {
       expect(result.events.length).toBeGreaterThan(0);
 
       const startElement = result.events.find(event => event.type === XmlEventType.START_ELEMENT && event.name === 'document');
-      expect(startElement?.attributes.find(attribute => attribute.name === 'id')?.value)
+      expect(startElement?.attributes.get('id')?.value)
         .toBe((index + 1).toString());
     });
   });
@@ -206,7 +206,7 @@ describe('EventReader Streaming and Performance Tests', () => {
         case XmlEventType.START_ELEMENT:
           if (event.name === 'item') {
             currentItem = {
-              id: event.attributes.find(attribute => attribute.name === 'id')?.value,
+              id: event.attributes.get('id')?.value,
               content: '',
             };
           }

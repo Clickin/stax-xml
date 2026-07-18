@@ -46,11 +46,23 @@ export interface StartElementEvent {
   localName: string;
   prefix: string;
   namespaceURI: string;
-  attributes: EventAttribute[];
+  attributes: EventAttributes;
 }
 
 /** Materialized attribute attached to a start-element event. */
 export interface EventAttribute { name: string; localName: string; prefix: string; namespaceURI: string; value: string }
+
+/**
+ * Attribute lookup table keyed by qualified XML name.
+ *
+ * @remarks
+ * Iteration follows source order. `JSON.stringify()` emits the same object
+ * shape as a record while reserved JavaScript property names remain safe.
+ */
+export interface EventAttributes extends ReadonlyMap<string, EventAttribute> {
+  /** Return a qualified-name record for JSON serialization. */
+  toJSON(): Record<string, EventAttribute>;
+}
 
 /** Event emitted when an XML element ends. */
 export interface EndElementEvent {

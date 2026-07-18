@@ -7,6 +7,7 @@ import {
   StreamReaderSync,
   XmlEventType,
   type AnyXmlEvent,
+  type EventAttribute,
 } from 'stax-xml';
 
 const encoder = new TextEncoder();
@@ -75,7 +76,7 @@ function eventToken(event: AnyXmlEvent): unknown[] {
       event.localName,
       event.prefix,
       event.namespaceURI,
-      event.attributes.map((attribute) => [
+      Array.from(event.attributes.values(), (attribute) => [
         attribute.name,
         attribute.localName,
         attribute.prefix,
@@ -102,6 +103,8 @@ function eventToken(event: AnyXmlEvent): unknown[] {
 interface ReaderOptions {
   documentMode?: 'document' | 'fragment';
   namespaceAware?: boolean;
+  autoDecodeEntities?: boolean;
+  addEntities?: { entity: string; value: string }[];
   encoding?: string;
 }
 
@@ -265,6 +268,89 @@ describe('v1 current-token reader contract', () => {
     const reader = new StreamReaderSync('<r a="&quot;&#65;&#x42;"/>');
     while (reader.next() !== XmlEventType.START_ELEMENT) { /* advance */ }
     expect(reader.attributeValue(0)).toBe('"AB');
+  });
+
+  it('decodes numeric references once and leaves CDATA literal', () => {
+    expect(collectSync('<mi>&#x398;&#920;&amp;#x398;<![CDATA[&#x398;]]></mi>')).toEqual([
+      [XmlEventType.START_DOCUMENT],
+      [XmlEventType.START_ELEMENT, 'mi', 'mi', '', '', []],
+      [XmlEventType.CHARACTERS, 'ΘΘ&#x398;'],
+      [XmlEventType.CDATA, '&#x398;'],
+      [XmlEventType.END_ELEMENT, 'mi', 'mi', '', ''],
+      [XmlEventType.END_DOCUMENT],
+    ]);
+
+    const reader = new StreamReaderSync('<root title="&#x398;"/>');
+    while (reader.next() !== XmlEventType.START_ELEMENT) { /* advance */ }
+    expect(reader.attributeValue('title')).toBe('Θ');
+  });
+
+  it('can preserve raw entity spelling while still validating references', async () => {
+    const xml = '<r a="&#x398;&product;">&#920;&product;&amp;product;<![CDATA[&product;]]></r>';
+    const options = {
+      autoDecodeEntities: false,
+      addEntities: [{ entity: 'product', value: 'StAX-XML' }],
+    };
+    const expected = [
+      [XmlEventType.START_DOCUMENT],
+      [XmlEventType.START_ELEMENT, 'r', 'r', '', '', [
+        ['a', 'a', '', '', '&#x398;&product;'],
+      ]],
+      [XmlEventType.CHARACTERS, '&#920;&product;&amp;product;'],
+      [XmlEventType.CDATA, '&product;'],
+      [XmlEventType.END_ELEMENT, 'r', 'r', '', ''],
+      [XmlEventType.END_DOCUMENT],
+    ];
+
+    expect(collectSync(xml, options)).toEqual(expected);
+    await expect(collectAsync(asyncChunks(xml), options)).resolves.toEqual(expected);
+    expect(collectSync('<r xmlns:p="urn:&product;"><p:x/></r>', options)).toContainEqual([
+      XmlEventType.START_ELEMENT, 'p:x', 'x', 'p', 'urn:StAX-XML', [],
+    ]);
+    expect(collectSync('<r xmlns:p="urn:&product;"/>', { ...options, namespaceAware: false }))
+      .toContainEqual([
+        XmlEventType.START_ELEMENT, 'r', 'r', '', '', [
+          ['xmlns:p', 'p', 'xmlns', '', 'urn:&product;'],
+        ],
+      ]);
+    expect(() => collectSync('<r>&unknown;</r>', { autoDecodeEntities: false })).toThrow(/unknown|entity/i);
+    expect(() => collectSync('<r>&#0;</r>', { autoDecodeEntities: false })).toThrow(/unknown|invalid|entity/i);
+  });
+
+  it('uses trusted custom entities without recursive expansion or DTD processing', async () => {
+    const xml = '<r a="&product;">&product;&amp;product;<![CDATA[&product;]]></r>';
+    const options = { addEntities: [{ entity: '&product;', value: 'StAX & XML' }] };
+    const expected = [
+      [XmlEventType.START_DOCUMENT],
+      [XmlEventType.START_ELEMENT, 'r', 'r', '', '', [
+        ['a', 'a', '', '', 'StAX & XML'],
+      ]],
+      [XmlEventType.CHARACTERS, 'StAX & XML&product;'],
+      [XmlEventType.CDATA, '&product;'],
+      [XmlEventType.END_ELEMENT, 'r', 'r', '', ''],
+      [XmlEventType.END_DOCUMENT],
+    ];
+
+    expect(collectSync(xml, options)).toEqual(expected);
+    await expect(collectAsync(asyncChunks(xml), options)).resolves.toEqual(expected);
+  });
+
+  it('validates custom entity definitions eagerly', () => {
+    expect(() => new StreamReaderSync('<r/>', {
+      addEntities: [{ entity: 'bad name', value: 'x' }],
+    })).toThrow(/invalid custom entity name/i);
+    expect(() => new StreamReaderSync('<r/>', {
+      addEntities: [{ entity: 'amp', value: 'override' }],
+    })).toThrow(/predefined/i);
+    expect(() => new StreamReaderSync('<r/>', {
+      addEntities: [{ entity: 'copy', value: '©' }, { entity: '&copy;', value: 'duplicate' }],
+    })).toThrow(/duplicate/i);
+    expect(() => new StreamReaderSync('<r/>', {
+      addEntities: [{ entity: 'bad', value: '\0' }],
+    })).toThrow(/invalid XML character/i);
+    expect(() => collectSync('<r a="&markup;"/>', {
+      addEntities: [{ entity: 'markup', value: '<' }],
+    })).toThrow(/attribute/i);
   });
 
   it('rejects unknown entities instead of performing external I/O', () => {
@@ -669,9 +755,25 @@ describe('v1 event reader contract', () => {
       type: XmlEventType.START_ELEMENT,
       name: 'item',
       localName: 'item',
-      attributes: [{ name: 'id', localName: 'id', value: '1' }],
     });
+    if (firstItem?.type !== XmlEventType.START_ELEMENT) throw new Error('expected start element');
+    expect(firstItem.attributes.get('id')).toMatchObject({ name: 'id', localName: 'id', value: '1' });
     expect(firstText).toMatchObject({ type: XmlEventType.CHARACTERS, value: 'one' });
+  });
+
+  it('indexes materialized attributes safely and serializes them as JSON objects', () => {
+    const event = Array.from(new EventReaderSync('<root first="1" __proto__="safe" constructor="safe-too"/>'))
+      .find(candidate => candidate.type === XmlEventType.START_ELEMENT);
+    if (event?.type !== XmlEventType.START_ELEMENT) throw new Error('expected start element');
+
+    expect(Array.from(event.attributes.keys())).toEqual(['first', '__proto__', 'constructor']);
+    expect(event.attributes.get('__proto__')?.value).toBe('safe');
+    expect(event.attributes.get('constructor')?.value).toBe('safe-too');
+
+    const json = JSON.parse(JSON.stringify(event)) as { attributes: Record<string, EventAttribute> };
+    expect(Object.hasOwn(json.attributes, '__proto__')).toBe(true);
+    expect(json.attributes.__proto__?.value).toBe('safe');
+    expect(json.attributes.constructor?.value).toBe('safe-too');
   });
 
   it('materializes comment, processing-instruction, and DTD payloads', () => {
@@ -792,11 +894,11 @@ describe('v1 event reader contract', () => {
     const event = saved.value;
     if (event.type !== XmlEventType.START_ELEMENT) throw new Error('expected start element');
     const attributes = event.attributes;
-    const attribute = attributes[0];
+    const attribute = attributes.get('id');
 
     while (!(await reader.next()).done) { /* exhaust */ }
 
-    expect(saved).toEqual({
+    expect(saved).toMatchObject({
       done: false,
       value: {
         type: XmlEventType.START_ELEMENT,
@@ -804,10 +906,10 @@ describe('v1 event reader contract', () => {
         localName: 'item',
         prefix: '',
         namespaceURI: '',
-        attributes: [{ name: 'id', localName: 'id', prefix: '', namespaceURI: '', value: '1' }],
       },
     });
     expect(event.attributes).toBe(attributes);
-    expect(event.attributes[0]).toBe(attribute);
+    expect(event.attributes.get('id')).toBe(attribute);
+    expect(attribute).toEqual({ name: 'id', localName: 'id', prefix: '', namespaceURI: '', value: '1' });
   });
 });

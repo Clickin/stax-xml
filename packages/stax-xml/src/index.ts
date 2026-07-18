@@ -19,6 +19,7 @@ export type {
   EndDocumentEvent,
   EndElementEvent,
   EventAttribute,
+  EventAttributes,
   ProcessingInstructionEvent,
   StartDocumentEvent,
   StartElementEvent,

@@ -56,6 +56,8 @@ type StreamReaderSyncInput =
 interface StreamReaderSyncOptions {
   documentMode?: 'document' | 'fragment';
   namespaceAware?: boolean; // default: true
+  autoDecodeEntities?: boolean; // default: true
+  addEntities?: { entity: string; value: string }[];
   encoding?: string; // byte input only; default: 'utf-8'
 }
 ```
@@ -69,9 +71,11 @@ include `eventType()`, `name()`, `text()`, `localName()`, `prefix()`,
 `namespaceURIForPrefix()`. They describe only the current token.
 
 Malformed XML, unsupported named entities, and invalid byte sequences for the
-selected encoding throw an error.
-Only the five predefined XML entities and numeric character references are
-decoded; custom and external entities are not resolved.
+selected encoding throw an error. `autoDecodeEntities` defaults to `true` and
+single-pass decodes predefined, numeric, and configured custom entities. Set it
+to `false` to return raw reference spelling while retaining validation. CDATA
+is always literal. `addEntities` supplies trusted, non-recursive internal
+definitions without DTD processing or external I/O.
 
 Call `reader.close()` when stopping early. It is idempotent and closes an
 underlying byte iterator. Use [`EventReaderSync`](/stax-xml/api-guides/event-reader-sync)

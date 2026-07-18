@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { x } from '../../src/converter/index.js';
-import { XmlEventType, type AnyXmlEvent } from 'stax-xml-core';
+import { XmlEventType, type AnyXmlEvent, type EventAttributes } from 'stax-xml-core';
 
 function utf16le(text: string): Uint8Array {
   const bytes = new Uint8Array(2 + text.length * 2);
@@ -414,9 +414,9 @@ describe('streaming-only converter', () => {
 
     const twoRoots = [
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'a', attributes: [] },
+      { type: XmlEventType.START_ELEMENT, name: 'a', attributes: new Map() as unknown as EventAttributes },
       { type: XmlEventType.END_ELEMENT, name: 'a' },
-      { type: XmlEventType.START_ELEMENT, name: 'b', attributes: [] },
+      { type: XmlEventType.START_ELEMENT, name: 'b', attributes: new Map() as unknown as EventAttributes },
       { type: XmlEventType.END_ELEMENT, name: 'b' },
       { type: XmlEventType.END_DOCUMENT }
     ] as AnyXmlEvent[];
@@ -425,7 +425,7 @@ describe('streaming-only converter', () => {
 
     const mismatched = [
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'a', attributes: [] },
+      { type: XmlEventType.START_ELEMENT, name: 'a', attributes: new Map() as unknown as EventAttributes },
       { type: XmlEventType.END_ELEMENT, name: 'b' },
       { type: XmlEventType.END_DOCUMENT }
     ] as AnyXmlEvent[];

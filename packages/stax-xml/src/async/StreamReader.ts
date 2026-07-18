@@ -7,6 +7,10 @@ export interface StreamReaderOptions {
   documentMode?: DocumentMode;
   /** Resolve namespaces and omit xmlns declarations from attributes. @defaultValue true */
   namespaceAware?: boolean;
+  /** Decode predefined, numeric, and configured custom entities. @defaultValue true */
+  autoDecodeEntities?: boolean;
+  /** Trusted internal entity replacements available without parsing a DTD. */
+  addEntities?: { entity: string; value: string }[];
   /** TextDecoder encoding label for byte input. @defaultValue 'utf-8' */
   encoding?: string;
 }
