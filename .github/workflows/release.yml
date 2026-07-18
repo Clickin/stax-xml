@@ -190,14 +190,16 @@ jobs:
           npm init -y >/dev/null
           npm pkg set type=module >/dev/null
 
-          for attempt in 1 2 3 4 5; do
-            if npm install --omit=dev --ignore-scripts --loglevel=error "stax-xml@${{ steps.npm-dist-tag.outputs.version }}"; then
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            if npm install --omit=dev --ignore-scripts --prefer-online --loglevel=error \
+              --cache "$temp_dir/npm-cache-$attempt" \
+              "stax-xml@${{ steps.npm-dist-tag.outputs.version }}"; then
               break
             fi
-            if [ "$attempt" = 5 ]; then
+            if [ "$attempt" = 10 ]; then
               exit 1
             fi
-            echo "npm install attempt $attempt/5 failed; retrying after registry propagation delay..."
+            echo "npm install attempt $attempt/10 failed; retrying after registry propagation delay..."
             sleep 15
           done
 
