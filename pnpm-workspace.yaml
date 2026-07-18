@@ -15,8 +15,8 @@ supportedArchitectures:
     - glibc
     - musl
 
-ignoredBuiltDependencies:
-  - sharp
-
-onlyBuiltDependencies:
-  - esbuild
+allowBuilds:
+  esbuild: true
+  iconv: false
+  node-expat: false
+  sharp: false
