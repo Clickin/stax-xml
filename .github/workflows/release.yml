@@ -225,6 +225,6 @@ jobs:
 
       - name: Generate changelog
         if: ${{ !contains(steps.npm-dist-tag.outputs.version, '-') }}
-        run: pnpm dlx changelogithub
+        run: pnpm dlx changelogithub@14.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
