@@ -1,5 +1,11 @@
 import { TokenCursor } from '../TokenCursor.js';
-import { XmlEventType, type AnyXmlEvent, type EventAttribute, type XmlEventType as XmlEventTypeValue } from '../types.js';
+import { XmlEventType, type AnyXmlEvent, type EventAttribute, type EventAttributes, type XmlEventType as XmlEventTypeValue } from '../types.js';
+
+class MaterializedEventAttributes extends Map<string, EventAttribute> implements EventAttributes {
+  toJSON(): Record<string, EventAttribute> {
+    return Object.fromEntries(this);
+  }
+}
 
 function eventShape(
   type: XmlEventTypeValue,
@@ -7,7 +13,7 @@ function eventShape(
   localName: string | undefined = undefined,
   prefix: string | undefined = undefined,
   namespaceURI: string | undefined = undefined,
-  attributes: EventAttribute[] | undefined = undefined,
+  attributes: EventAttributes | undefined = undefined,
   value: string | undefined = undefined,
   target: string | undefined = undefined,
   data: string | undefined = undefined,
@@ -31,8 +37,11 @@ function eventShape(
 export function materializeTokenEvent(cursor: TokenCursor, type: XmlEventTypeValue = cursor.eventType()): AnyXmlEvent {
   if (type === XmlEventType.START_ELEMENT) {
     const count = cursor.attributeCount();
-    const attributes = new Array<EventAttribute>(count);
-    for (let index = 0; index < count; index++) attributes[index] = cursor.attribute(index)!;
+    const attributes = new MaterializedEventAttributes();
+    for (let index = 0; index < count; index++) {
+      const attribute = cursor.attribute(index)!;
+      attributes.set(attribute.name, attribute);
+    }
     return eventShape(type, cursor.name()!, cursor.localName()!, cursor.prefix(), cursor.namespaceURI(), attributes);
   }
   if (type === XmlEventType.END_ELEMENT) {

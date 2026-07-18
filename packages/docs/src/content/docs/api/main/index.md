@@ -2210,7 +2210,7 @@ Defined in: [core/types.ts:48](https://github.com/Clickin/stax-xml/blob/master/p
 
 ##### attributes
 
-> **attributes**: [`EventAttribute`](#eventattribute)[]
+> **attributes**: [`EventAttributes`](#eventattributes)
 
 Defined in: [core/types.ts:49](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L49)
 
@@ -2256,9 +2256,40 @@ Defined in: [core/types.ts:53](https://github.com/Clickin/stax-xml/blob/master/p
 
 ***
 
+### EventAttributes
+
+Defined in: [core/types.ts:62](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L62)
+
+Attribute lookup table keyed by qualified XML name.
+
+#### Remarks
+
+Iteration follows source order. `JSON.stringify()` emits the same object
+shape as a record while reserved JavaScript property names remain safe.
+
+#### Extends
+
+- `ReadonlyMap`\<`string`, [`EventAttribute`](#eventattribute)\>
+
+#### Methods
+
+##### toJSON()
+
+> **toJSON**(): `Record`\<`string`, [`EventAttribute`](#eventattribute)\>
+
+Defined in: [core/types.ts:64](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L64)
+
+Return a qualified-name record for JSON serialization.
+
+###### Returns
+
+`Record`\<`string`, [`EventAttribute`](#eventattribute)\>
+
+***
+
 ### EndElementEvent
 
-Defined in: [core/types.ts:56](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L56)
+Defined in: [core/types.ts:68](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L68)
 
 Event emitted when an XML element ends.
 
@@ -2268,37 +2299,37 @@ Event emitted when an XML element ends.
 
 > **type**: `"END_ELEMENT"`
 
-Defined in: [core/types.ts:57](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L57)
+Defined in: [core/types.ts:69](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L69)
 
 ##### name
 
 > **name**: `string`
 
-Defined in: [core/types.ts:58](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L58)
+Defined in: [core/types.ts:70](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L70)
 
 ##### localName
 
 > **localName**: `string`
 
-Defined in: [core/types.ts:59](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L59)
+Defined in: [core/types.ts:71](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L71)
 
 ##### prefix
 
 > **prefix**: `string`
 
-Defined in: [core/types.ts:60](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L60)
+Defined in: [core/types.ts:72](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L72)
 
 ##### namespaceURI
 
 > **namespaceURI**: `string`
 
-Defined in: [core/types.ts:61](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L61)
+Defined in: [core/types.ts:73](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L73)
 
 ***
 
 ### CharactersEvent
 
-Defined in: [core/types.ts:65](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L65)
+Defined in: [core/types.ts:77](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L77)
 
 Event containing ordinary character data.
 
@@ -2308,19 +2339,19 @@ Event containing ordinary character data.
 
 > **type**: `"CHARACTERS"`
 
-Defined in: [core/types.ts:66](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L66)
+Defined in: [core/types.ts:78](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L78)
 
 ##### value
 
 > **value**: `string`
 
-Defined in: [core/types.ts:67](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L67)
+Defined in: [core/types.ts:79](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L79)
 
 ***
 
 ### CdataEvent
 
-Defined in: [core/types.ts:71](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L71)
+Defined in: [core/types.ts:83](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L83)
 
 Event containing CDATA content.
 
@@ -2330,19 +2361,19 @@ Event containing CDATA content.
 
 > **type**: `"CDATA"`
 
-Defined in: [core/types.ts:72](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L72)
+Defined in: [core/types.ts:84](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L84)
 
 ##### value
 
 > **value**: `string`
 
-Defined in: [core/types.ts:73](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L73)
+Defined in: [core/types.ts:85](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L85)
 
 ***
 
 ### CommentEvent
 
-Defined in: [core/types.ts:77](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L77)
+Defined in: [core/types.ts:89](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L89)
 
 Event containing an XML comment.
 
@@ -2352,19 +2383,19 @@ Event containing an XML comment.
 
 > **type**: `"COMMENT"`
 
-Defined in: [core/types.ts:77](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L77)
+Defined in: [core/types.ts:89](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L89)
 
 ##### value
 
 > **value**: `string`
 
-Defined in: [core/types.ts:77](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L77)
+Defined in: [core/types.ts:89](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L89)
 
 ***
 
 ### ProcessingInstructionEvent
 
-Defined in: [core/types.ts:79](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L79)
+Defined in: [core/types.ts:91](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L91)
 
 Event containing an XML processing instruction.
 
@@ -2374,25 +2405,25 @@ Event containing an XML processing instruction.
 
 > **type**: `"PROCESSING_INSTRUCTION"`
 
-Defined in: [core/types.ts:79](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L79)
+Defined in: [core/types.ts:91](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L91)
 
 ##### target
 
 > **target**: `string`
 
-Defined in: [core/types.ts:79](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L79)
+Defined in: [core/types.ts:91](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L91)
 
 ##### data
 
 > **data**: `string`
 
-Defined in: [core/types.ts:79](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L79)
+Defined in: [core/types.ts:91](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L91)
 
 ***
 
 ### DtdEvent
 
-Defined in: [core/types.ts:81](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L81)
+Defined in: [core/types.ts:93](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L93)
 
 Event containing a document type declaration.
 
@@ -2402,19 +2433,19 @@ Event containing a document type declaration.
 
 > **type**: `"DTD"`
 
-Defined in: [core/types.ts:81](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L81)
+Defined in: [core/types.ts:93](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L93)
 
 ##### value
 
 > **value**: `string`
 
-Defined in: [core/types.ts:81](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L81)
+Defined in: [core/types.ts:93](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L93)
 
 ***
 
 ### AttributeInfo
 
-Defined in: [core/types.ts:100](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L100)
+Defined in: [core/types.ts:112](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L112)
 
 Attribute information interface
 
@@ -2424,25 +2455,25 @@ Attribute information interface
 
 > **value**: `string`
 
-Defined in: [core/types.ts:101](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L101)
+Defined in: [core/types.ts:113](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L113)
 
 ##### prefix?
 
 > `optional` **prefix?**: `string`
 
-Defined in: [core/types.ts:102](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L102)
+Defined in: [core/types.ts:114](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L114)
 
 ##### uri?
 
 > `optional` **uri?**: `string`
 
-Defined in: [core/types.ts:103](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L103)
+Defined in: [core/types.ts:115](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L115)
 
 ***
 
 ### WriteElementOptions
 
-Defined in: [core/types.ts:170](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L170)
+Defined in: [core/types.ts:182](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L182)
 
 Element writing options interface (for Writer)
 
@@ -2452,31 +2483,31 @@ Element writing options interface (for Writer)
 
 > `optional` **prefix?**: `string`
 
-Defined in: [core/types.ts:171](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L171)
+Defined in: [core/types.ts:183](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L183)
 
 ##### uri?
 
 > `optional` **uri?**: `string`
 
-Defined in: [core/types.ts:172](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L172)
+Defined in: [core/types.ts:184](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L184)
 
 ##### attributes?
 
 > `optional` **attributes?**: `Record`\<`string`, `string` \| [`AttributeInfo`](#attributeinfo)\>
 
-Defined in: [core/types.ts:173](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L173)
+Defined in: [core/types.ts:185](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L185)
 
 ##### selfClosing?
 
 > `optional` **selfClosing?**: `boolean`
 
-Defined in: [core/types.ts:174](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L174)
+Defined in: [core/types.ts:186](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L186)
 
 ##### comment?
 
 > `optional` **comment?**: `string`
 
-Defined in: [core/types.ts:175](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L175)
+Defined in: [core/types.ts:187](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L187)
 
 ***
 
@@ -2927,7 +2958,7 @@ Enumeration of XML stream event types used by the StAX parser
 
 > **AnyXmlEvent** = [`StartDocumentEvent`](#startdocumentevent) \| [`EndDocumentEvent`](#enddocumentevent) \| [`StartElementEvent`](#startelementevent) \| [`EndElementEvent`](#endelementevent) \| [`CharactersEvent`](#charactersevent) \| [`CdataEvent`](#cdataevent) \| [`CommentEvent`](#commentevent) \| [`ProcessingInstructionEvent`](#processinginstructionevent) \| [`DtdEvent`](#dtdevent)
 
-Defined in: [core/types.ts:86](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L86)
+Defined in: [core/types.ts:98](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L98)
 
 Discriminated Union type for developer use
 
@@ -2937,7 +2968,7 @@ Discriminated Union type for developer use
 
 > **DocumentMode** = `"fragment"` \| `"document"`
 
-Defined in: [core/types.ts:189](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L189)
+Defined in: [core/types.ts:201](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L201)
 
 XML document conformance mode.
 
@@ -3005,7 +3036,7 @@ Enumeration of XML stream event types used by the StAX parser
 
 > **isStartElement**(`event`): `event is StartElementEvent`
 
-Defined in: [core/types.ts:116](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L116)
+Defined in: [core/types.ts:128](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L128)
 
 Type guard function - Check if the event is a START_ELEMENT event
 
@@ -3029,7 +3060,7 @@ true if the event is a START_ELEMENT event, false otherwise
 
 > **isEndElement**(`event`): `event is EndElementEvent`
 
-Defined in: [core/types.ts:125](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L125)
+Defined in: [core/types.ts:137](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L137)
 
 Type guard function - Check if the event is an END_ELEMENT event
 
@@ -3053,7 +3084,7 @@ true if the event is an END_ELEMENT event, false otherwise
 
 > **isCharacters**(`event`): `event is CharactersEvent`
 
-Defined in: [core/types.ts:134](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L134)
+Defined in: [core/types.ts:146](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L146)
 
 Type guard function - Check if the event is a CHARACTERS event
 
@@ -3077,7 +3108,7 @@ true if the event is a CHARACTERS event, false otherwise
 
 > **isCdata**(`event`): `event is CdataEvent`
 
-Defined in: [core/types.ts:142](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L142)
+Defined in: [core/types.ts:154](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L154)
 
 Type guard function - Check if the event is a CDATA event
 
@@ -3101,7 +3132,7 @@ true if the event is a CDATA event, false otherwise
 
 > **isStartDocument**(`event`): `event is StartDocumentEvent`
 
-Defined in: [core/types.ts:155](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L155)
+Defined in: [core/types.ts:167](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L167)
 
 Type guard function - Check if the event is a START_DOCUMENT event
 
@@ -3125,7 +3156,7 @@ true if the event is a START_DOCUMENT event, false otherwise
 
 > **isEndDocument**(`event`): `event is EndDocumentEvent`
 
-Defined in: [core/types.ts:163](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L163)
+Defined in: [core/types.ts:175](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L175)
 
 Type guard function - Check if the event is an END_DOCUMENT event
 

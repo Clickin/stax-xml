@@ -200,10 +200,10 @@ function parseProducts(xml: string): Product[] {
       case XmlEventType.START_ELEMENT:
         if (event.name === 'product' && event.attributes) {
           currentProduct = {
-            id: event.attributes.id,
-            category: event.attributes.category,
-            price: parseFloat(event.attributes.price),
-            inStock: event.attributes.inStock === 'true'
+            id: event.attributes.get('id')?.value,
+            category: event.attributes.get('category')?.value,
+            price: parseFloat(event.attributes.get('price')?.value ?? ''),
+            inStock: event.attributes.get('inStock')?.value === 'true'
           };
         }
         currentElement = event.name;
@@ -371,7 +371,7 @@ function optimizedParsing(xmlString: string) {
         // Use Set for O(1) lookup instead of array includes
         if (ELEMENT_NAMES.has(event.name)) {
           if (event.name === 'book') {
-            currentBook = { id: event.attributes?.id };
+            currentBook = { id: event.attributes.get('id')?.value };
           }
           currentElement = event.name;
         }

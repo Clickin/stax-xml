@@ -32,7 +32,7 @@ const xml = '<catalog><book id="b1">StAX</book></catalog>';
 
 for (const event of new EventReaderSync(xml)) {
   if (event.type === XmlEventType.START_ELEMENT) {
-    const id = event.attributes.find((attribute) => attribute.name === 'id')?.value;
+    const id = event.attributes.get('id')?.value;
     console.log(event.name, id);
   }
 }
@@ -95,7 +95,10 @@ Accessor에는 `eventType()`, `name()`, `text()`, `localName()`, `prefix()`,
 
 `AnyXmlEvent`는 document, start/end element, characters, CDATA, comment,
 processing-instruction, DTD event를 포함합니다. Start-element attribute는
-`EventAttribute[]`이며 namespace declaration은 attribute에 포함되지 않습니다.
+`EventAttributes`는 qualified name을 key로 사용하는 읽기 전용 Map입니다. value에는
+`name`, `localName`, `prefix`, `namespaceURI`, `value`가 유지되고 source 순서대로
+순회합니다. `JSON.stringify()` 결과는 `{}`가 아니라 JSON object입니다. namespace
+declaration은 attribute에 포함되지 않습니다.
 
 Malformed XML, 지원하지 않는 named entity reference, 선택한 encoding의 invalid byte sequence는 error를
 throw합니다. DTD declaration은 event로 노출하지만 해석하지 않으며 external entity를

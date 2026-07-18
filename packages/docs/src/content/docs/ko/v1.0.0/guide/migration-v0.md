@@ -49,7 +49,7 @@ reader를 선택하세요.
 
 | v0.x API | 1.0 대체 API | 계약 변경 |
 | --- | --- | --- |
-| `StaxXmlParserSync` | `EventReaderSync` | 동기 iterable은 유지되지만 start-element attribute가 record에서 array로 바뀌니다. |
+| `StaxXmlParserSync` | `EventReaderSync` | 동기 iterable은 유지되며 start-element attribute는 record 대신 읽기 전용 Map입니다. |
 | `StaxXmlParserSync` | `StreamReaderSync` | Stable event object가 필요 없을 때 선택합니다. `next()` 후 getter로 current token을 읽습니다. |
 | `StaxXmlParser` | `EventReader` 또는 `StreamReader` | `ReadableStream<Uint8Array>`와 `AsyncIterable<Uint8Array>`를 받으며 concurrent `next()`는 거부합니다. |
 | `StaxXmlCursorReader` | `StreamReaderSync` | `next()`가 `boolean` 대신 `XmlEventType` 또는 `null`을 반환하고 getter의 `get` prefix가 사라집니다. |
@@ -58,7 +58,7 @@ reader를 선택하세요.
 | `StaxXmlWriterSyncSink` | `WriterSyncSink` | 계속 caller가 `SyncTextSink`를 제공합니다. |
 | `StaxXmlWriter` | `Writer` | `WritableStream<Uint8Array>` 또는 `AsyncTextSink`를 제공합니다. |
 | `XmlEventType.ERROR`, `ErrorEvent`, `isError` | 대체 event 없음 | Parse/decode 실패는 동기 reader에서 throw되고 비동기 read를 reject합니다. |
-| `attributes: Record<string, string>` / `attributesWithPrefix` | `attributes: EventAttribute[]` | 각 항목이 `name`, `localName`, `prefix`, `namespaceURI`, `value`를 가집니다. |
+| `attributes: Record<string, string>` / `attributesWithPrefix` | `attributes: EventAttributes` | qualified name을 key로 쓰는 읽기 전용 Map이며 각 value가 `name`, `localName`, `prefix`, `namespaceURI`, `value`를 가집니다. |
 | Element `uri` | `namespaceURI` | Prefix와 namespace URI가 없을 때는 빈 string을 사용합니다. |
 | `stax-xml/cursor` / platform adapter subpath | Root reader/writer export | Export되는 package path는 `stax-xml`과 `stax-xml/converter`뿐입니다. |
 
@@ -100,7 +100,7 @@ const addEntities = [{ entity: 'theta', value: 'Θ' }];
 
 for (const event of new EventReaderSync(xml, { addEntities })) {
   if (event.type === XmlEventType.START_ELEMENT) {
-    console.log(event.attributes.find(({ name }) => name === 'title')?.value);
+    console.log(event.attributes.get('title')?.value);
     // Θ
   }
   if (event.type === XmlEventType.CHARACTERS) console.log(event.value);
@@ -136,13 +136,16 @@ for (const event of new StaxXmlParserSync(xml, {
 for (const event of new EventReaderSync(xml)) {
   if (event.type === XmlEventType.CDATA) continue;
   if (event.type === XmlEventType.START_ELEMENT) {
-    const title = event.attributes.find(({ name }) => name === 'title')?.value;
+    const title = event.attributes.get('title')?.value;
     console.log(event.namespaceURI, title);
   }
 }
 ```
 
-Attribute array 할당 없이 자주 lookup해야 한다면 current-token API를 사용하세요.
+Materialized event는 qualified name을 O(1)로 조회하고, 순회할 때 source 순서를
+유지하며, attribute를 JSON object로 직렬화합니다. `__proto__`, `constructor` 같은
+JavaScript 예약 key도 일반 Map key로 안전하게 처리합니다. allocation을 최소화하려면
+current-token API를 사용하세요.
 
 ```ts
 const reader = new StreamReaderSync(xml);

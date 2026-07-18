@@ -7,6 +7,7 @@ import {
   StreamReaderSync,
   XmlEventType,
   type AnyXmlEvent,
+  type EventAttribute,
 } from 'stax-xml';
 
 const encoder = new TextEncoder();
@@ -75,7 +76,7 @@ function eventToken(event: AnyXmlEvent): unknown[] {
       event.localName,
       event.prefix,
       event.namespaceURI,
-      event.attributes.map((attribute) => [
+      Array.from(event.attributes.values(), (attribute) => [
         attribute.name,
         attribute.localName,
         attribute.prefix,
@@ -754,9 +755,25 @@ describe('v1 event reader contract', () => {
       type: XmlEventType.START_ELEMENT,
       name: 'item',
       localName: 'item',
-      attributes: [{ name: 'id', localName: 'id', value: '1' }],
     });
+    if (firstItem?.type !== XmlEventType.START_ELEMENT) throw new Error('expected start element');
+    expect(firstItem.attributes.get('id')).toMatchObject({ name: 'id', localName: 'id', value: '1' });
     expect(firstText).toMatchObject({ type: XmlEventType.CHARACTERS, value: 'one' });
+  });
+
+  it('indexes materialized attributes safely and serializes them as JSON objects', () => {
+    const event = Array.from(new EventReaderSync('<root first="1" __proto__="safe" constructor="safe-too"/>'))
+      .find(candidate => candidate.type === XmlEventType.START_ELEMENT);
+    if (event?.type !== XmlEventType.START_ELEMENT) throw new Error('expected start element');
+
+    expect(Array.from(event.attributes.keys())).toEqual(['first', '__proto__', 'constructor']);
+    expect(event.attributes.get('__proto__')?.value).toBe('safe');
+    expect(event.attributes.get('constructor')?.value).toBe('safe-too');
+
+    const json = JSON.parse(JSON.stringify(event)) as { attributes: Record<string, EventAttribute> };
+    expect(Object.hasOwn(json.attributes, '__proto__')).toBe(true);
+    expect(json.attributes.__proto__?.value).toBe('safe');
+    expect(json.attributes.constructor?.value).toBe('safe-too');
   });
 
   it('materializes comment, processing-instruction, and DTD payloads', () => {
@@ -877,11 +894,11 @@ describe('v1 event reader contract', () => {
     const event = saved.value;
     if (event.type !== XmlEventType.START_ELEMENT) throw new Error('expected start element');
     const attributes = event.attributes;
-    const attribute = attributes[0];
+    const attribute = attributes.get('id');
 
     while (!(await reader.next()).done) { /* exhaust */ }
 
-    expect(saved).toEqual({
+    expect(saved).toMatchObject({
       done: false,
       value: {
         type: XmlEventType.START_ELEMENT,
@@ -889,10 +906,10 @@ describe('v1 event reader contract', () => {
         localName: 'item',
         prefix: '',
         namespaceURI: '',
-        attributes: [{ name: 'id', localName: 'id', prefix: '', namespaceURI: '', value: '1' }],
       },
     });
     expect(event.attributes).toBe(attributes);
-    expect(event.attributes[0]).toBe(attribute);
+    expect(event.attributes.get('id')).toBe(attribute);
+    expect(attribute).toEqual({ name: 'id', localName: 'id', prefix: '', namespaceURI: '', value: '1' });
   });
 });

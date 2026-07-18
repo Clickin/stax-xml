@@ -33,7 +33,7 @@ const xml = '<catalog><book id="b1">StAX</book></catalog>';
 
 for (const event of new EventReaderSync(xml)) {
   if (event.type === XmlEventType.START_ELEMENT) {
-    const id = event.attributes.find((attribute) => attribute.name === 'id')?.value;
+    const id = event.attributes.get('id')?.value;
     console.log(event.name, id);
   }
 }
@@ -96,7 +96,10 @@ and `namespaceURIForPrefix()`. They describe only the current token.
 
 `AnyXmlEvent` covers document, start/end element, characters, CDATA, comment,
 processing-instruction, and DTD events. Start-element attributes are an
-`EventAttribute[]`; namespace declarations are not included as attributes.
+`EventAttributes` is a read-only Map keyed by qualified name. Values retain
+`name`, `localName`, `prefix`, `namespaceURI`, and `value`; iteration follows
+source order. `JSON.stringify()` emits a JSON object rather than `{}`.
+Namespace declarations are not included as attributes.
 
 Malformed XML, unsupported named entity references, and invalid byte sequences
 for the selected encoding throw an error. DTD declarations are emitted as

@@ -48,7 +48,7 @@ a reusable current-token view.
 
 | v0.x API | 1.0 replacement | Contract change |
 | --- | --- | --- |
-| `StaxXmlParserSync` | `EventReaderSync` | Still a synchronous iterable, but start-element attributes are an array rather than a record. |
+| `StaxXmlParserSync` | `EventReaderSync` | Still a synchronous iterable; start-element attributes are now a read-only Map rather than a record. |
 | `StaxXmlParserSync` | `StreamReaderSync` | Use this instead when stable event objects are unnecessary. Call `next()`, then read the current token through getters. |
 | `StaxXmlParser` | `EventReader` or `StreamReader` | Accepts `ReadableStream<Uint8Array>` or `AsyncIterable<Uint8Array>`. Concurrent `next()` calls are rejected. |
 | `StaxXmlCursorReader` | `StreamReaderSync` | `next()` now returns an `XmlEventType` or `null`, not `boolean`; getter names no longer start with `get`. |
@@ -57,7 +57,7 @@ a reusable current-token view.
 | `StaxXmlWriterSyncSink` | `WriterSyncSink` | The caller still supplies a `SyncTextSink`. |
 | `StaxXmlWriter` | `Writer` | Supply a `WritableStream<Uint8Array>` or `AsyncTextSink`. |
 | `XmlEventType.ERROR`, `ErrorEvent`, `isError` | None | Parse and decode failures throw from sync readers and reject async reads. |
-| `attributes: Record<string, string>` and `attributesWithPrefix` | `attributes: EventAttribute[]` | Each item carries `name`, `localName`, `prefix`, `namespaceURI`, and `value`. |
+| `attributes: Record<string, string>` and `attributesWithPrefix` | `attributes: EventAttributes` | A read-only Map keyed by qualified name; each value carries `name`, `localName`, `prefix`, `namespaceURI`, and `value`. |
 | element `uri` | `namespaceURI` | Missing prefixes and namespace URIs are represented by an empty string. |
 | `stax-xml/cursor` and platform adapter subpaths | Root reader/writer exports | Only `stax-xml` and `stax-xml/converter` are exported package paths. |
 
@@ -101,7 +101,7 @@ const addEntities = [{ entity: 'theta', value: 'Θ' }];
 
 for (const event of new EventReaderSync(xml, { addEntities })) {
   if (event.type === XmlEventType.START_ELEMENT) {
-    console.log(event.attributes.find(({ name }) => name === 'title')?.value);
+    console.log(event.attributes.get('title')?.value);
     // Θ
   }
   if (event.type === XmlEventType.CHARACTERS) console.log(event.value);
@@ -137,14 +137,16 @@ for (const event of new StaxXmlParserSync(xml, {
 for (const event of new EventReaderSync(xml)) {
   if (event.type === XmlEventType.CDATA) continue;
   if (event.type === XmlEventType.START_ELEMENT) {
-    const title = event.attributes.find(({ name }) => name === 'title')?.value;
+    const title = event.attributes.get('title')?.value;
     console.log(event.namespaceURI, title);
   }
 }
 ```
 
-For frequent attribute lookup without allocating an attribute array, use the
-current-token API:
+Materialized events provide O(1) qualified-name lookup, preserve source order
+when iterated, and serialize attributes as a JSON object. Reserved JavaScript
+keys such as `__proto__` and `constructor` are ordinary Map keys. For the lowest
+allocation path, use the current-token API:
 
 ```ts
 const reader = new StreamReaderSync(xml);

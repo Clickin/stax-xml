@@ -47,7 +47,7 @@ describe('EventReader async regressions', () => {
     );
 
     expect(root).toBeDefined();
-    expect(root!.attributes).toEqual([
+    expect(Array.from(root!.attributes.values())).toEqual([
       { name: 'h:id', localName: 'id', prefix: 'h', namespaceURI: 'http://www.w3.org/TR/html4/', value: 'bk101' },
       { name: 'category', localName: 'category', prefix: '', namespaceURI: '', value: 'Computer' },
     ]);
@@ -71,8 +71,8 @@ describe('EventReader async regressions', () => {
     );
 
     expect(root).toBeDefined();
-    expect(root!.attributes.find(attribute => attribute.name === 'note')?.value).toBe('a > b');
+    expect(root!.attributes.get('note')?.value).toBe('a > b');
     expect(child).toBeDefined();
-    expect(child!.attributes.find(attribute => attribute.name === 'value')?.value).toBe('x');
+    expect(child!.attributes.get('value')?.value).toBe('x');
   });
 });

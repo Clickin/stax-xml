@@ -32,7 +32,7 @@ import { EventReader, XmlEventType } from 'stax-xml';
 
 for await (const event of new EventReader(response.body!)) {
   if (event.type === XmlEventType.START_ELEMENT) {
-    const id = event.attributes.find((attribute) => attribute.name === 'id')?.value;
+    const id = event.attributes.get('id')?.value;
     console.log(event.name, id);
   } else if (event.type === XmlEventType.CHARACTERS) {
     console.log(event.value);
@@ -119,7 +119,10 @@ Current-token accessors are valid until the next successful `next()` call.
 
 `AnyXmlEvent` covers document, start/end element, characters, CDATA, comment,
 processing-instruction, and DTD events. Start-element attributes are an
-`EventAttribute[]`; namespace declarations are not included as attributes.
+`EventAttributes` is a read-only Map keyed by qualified name. Values retain
+`name`, `localName`, `prefix`, `namespaceURI`, and `value`; iteration follows
+source order. `JSON.stringify()` emits a JSON object rather than `{}`.
+Namespace declarations are not included as attributes.
 Use the exported type guards such as `isStartElement()` and `isCharacters()`
 for TypeScript narrowing.
 
