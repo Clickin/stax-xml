@@ -1,0 +1,43 @@
+---
+import benchmark from '../data/benchmarks/v1.0.0/writer-cross-runtime.json';
+
+const labels = {
+  'stax-xml': 'stax-xml WriterSyncSink (Node.js 24.15.0)',
+  woodstox: 'Woodstox 6.7.0 (Java 25.0.2)',
+  'quick-xml': 'quick-xml 0.40.1 (Rust 1.95.0)',
+};
+
+function median(values: number[]) {
+  const sorted = [...values].sort((a, b) => a - b);
+  return sorted[Math.floor(sorted.length / 2)];
+}
+
+const rows = Object.entries(benchmark.cases).map(([name, runs]) => ({
+  name,
+  label: labels[name as keyof typeof labels],
+  throughput: median(runs.map((run) => run.throughputMiBs)),
+}));
+---
+
+<p>
+  동일한 generator로 12,798개 레코드를 compact XML로 만들고 실제 파일에 기록했습니다.
+  결과 파일은 10.28 MiB이며 각 행은 3회 실행의 중앙값입니다. Node.js는
+  {benchmark.environment.node}, Java는 {benchmark.environment.java}, Rust는
+  {benchmark.environment.rust}를 사용했습니다.
+</p>
+
+<table>
+  <thead>
+    <tr><th>Writer</th><th>중앙 처리량</th></tr>
+  </thead>
+  <tbody>
+    {rows.map((row) => <tr><td>{row.label}</td><td>{row.throughput.toFixed(1)} MiB/s</td></tr>)}
+  </tbody>
+</table>
+
+<p>
+  이 비교에서 stax-xml은 Woodstox보다 빨랐지만 quick-xml의 Rust buffered writer보다는
+  느렸습니다. 이는 1 GiB Node 전용 측정에서 확인한 WriterSyncSink의 411.6 MiB/s와
+  모순되지 않습니다. 입력 크기, warm-up, sink와 fixture가 다르므로 숫자는 서로 다른
+  benchmark suite로 읽어야 합니다.
+</p>

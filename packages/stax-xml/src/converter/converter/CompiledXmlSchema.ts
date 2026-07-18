@@ -166,13 +166,17 @@ function compileIrProgram(root: DispatchValuePlan): DispatchIrProgram {
       globalActive: false,
       depthActive: false,
       fieldName,
-      children: []
+      children: [],
+      stateChildren: []
     };
     slotsById[value.id] = entry;
     if (parentSlot !== undefined) {
       const parent = slotsById[parentSlot];
       if (!parent) throw new Error(`Missing parent converter IR slot: ${parentSlot}`);
       parent.children.push(value.id);
+      if (value.kind === 'array' || (value.kind === 'object' && !value.selector)) {
+        parent.stateChildren.push(value.id);
+      }
     }
   };
   const addPath = (selector: DispatchSelector | undefined): number | undefined => {

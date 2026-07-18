@@ -65,6 +65,9 @@ type CaptureState = {
   parent: ParentBinding;
 };
 
+const EMPTY_OBJECT_STATES: ObjectState[] = [];
+const EMPTY_ARRAY_STATES: ArrayState[] = [];
+
 type DepthActive<T> = Array<T | T[] | undefined>;
 
 type RuntimeState = {
@@ -96,14 +99,20 @@ type RuntimeState = {
   processingStart?: boolean;
 };
 
-type StartExecutor = (processor: CompiledRootProcessor, runtime: RuntimeState) => void;
+type StartExecutor = (processor: CompiledRootProcessor, runtime: RuntimeState, currentName: string) => void;
 type TextExecutor = (processor: CompiledRootProcessor, runtime: RuntimeState, text: string) => void;
 type EndExecutor = (processor: CompiledRootProcessor, runtime: RuntimeState) => void;
+type CursorExecutor = (
+  processor: CompiledRootProcessor,
+  runtime: RuntimeState,
+  cursor: TokenCursor
+) => void;
 type StartConstant = DispatchValuePlan | DispatchArrayPlan | DispatchFieldAction;
 type ObjectFactory = () => Record<string, unknown>;
 const startExecutorCache = new WeakMap<DispatchIrProgram, StartExecutor>();
 const textExecutorCache = new WeakMap<DispatchIrProgram, TextExecutor>();
 const endExecutorCache = new WeakMap<DispatchIrProgram, EndExecutor>();
+const cursorExecutorCache = new WeakMap<DispatchIrProgram, CursorExecutor>();
 const objectFactoryCache = new WeakMap<DispatchObjectPlan, ObjectFactory>();
 const objectTemplateFactoryCache = new WeakMap<DispatchObjectPlan, ObjectFactory>();
 let warnedCodeGenerationFallback = false;
@@ -118,6 +127,7 @@ export class CompiledRootProcessor {
   private readonly startExecutor: StartExecutor;
   private readonly textExecutor: TextExecutor;
   private readonly endExecutor: EndExecutor;
+  private readonly cursorExecutor: CursorExecutor;
 
   constructor(
     private readonly plan: DispatchCompiledPlan,
@@ -141,6 +151,16 @@ export class CompiledRootProcessor {
       endExecutorCache.set(plan.ir, endExecutor);
     }
     this.endExecutor = endExecutor;
+    let cursorExecutor = cursorExecutorCache.get(plan.ir);
+    if (!cursorExecutor) {
+      cursorExecutor = compileCursorExecutor(
+        plan.ir,
+        this.startExecutor,
+        (processor, runtime, cursor) => processor.processCursor(runtime, cursor)
+      );
+      cursorExecutorCache.set(plan.ir, cursorExecutor);
+    }
+    this.cursorExecutor = cursorExecutor;
   }
 
   parseSync<T>(input: ParseInput, options?: ParseOptions | unknown): T {
@@ -246,7 +266,7 @@ export class CompiledRootProcessor {
       this.checkDepthLimit(runtime);
       runtime.processingStart = true;
       try {
-        this.processStart(runtime);
+        this.processStart(runtime, event.name);
       } finally {
         runtime.processingStart = false;
       }
@@ -266,7 +286,7 @@ export class CompiledRootProcessor {
     const cursor = new TokenCursor(input, true, {
       documentMode: runtime.options?.documentMode ?? 'fragment',
     });
-    while (cursor.next() !== null) this.processTokenCursorEvent(runtime, cursor);
+    this.cursorExecutor(this, runtime, cursor);
   }
 
   private processBytes(runtime: RuntimeState, bytes: Uint8Array): void {
@@ -303,22 +323,26 @@ export class CompiledRootProcessor {
   }
 
   private drainIncrementalCursor(runtime: RuntimeState, cursor: TokenCursor): void {
+    this.cursorExecutor(this, runtime, cursor);
+  }
+
+  private processCursor(runtime: RuntimeState, cursor: TokenCursor): void {
     while (true) {
       const type = cursor.next();
       if (type === NEED_INPUT || type === null) return;
-      this.processTokenCursorEvent(runtime, cursor);
+      this.processTokenCursorEvent(runtime, cursor, type);
     }
   }
 
-  private processTokenCursorEvent(runtime: RuntimeState, cursor: TokenCursor): void {
-    const type = cursor.eventType();
+  private processTokenCursorEvent(runtime: RuntimeState, cursor: TokenCursor, type: XmlEventType): void {
     if (type === XmlEventType.CHARACTERS && !runtime.plan.eventFilter.includeCharacters) return;
     if (type === XmlEventType.CDATA && !runtime.plan.eventFilter.includeCdata) return;
 
     this.checkEventLimit(runtime);
     if (type === XmlEventType.START_ELEMENT) {
       runtime.depth++;
-      runtime.elementStack.push(cursor.name()!);
+      const currentName = cursor.name()!;
+      runtime.elementStack.push(currentName);
       recordElementPosition(runtime);
       runtime.currentTokenCursor = cursor;
       runtime.attributeLookupCount = 0;
@@ -326,7 +350,7 @@ export class CompiledRootProcessor {
       runtime.processingStart = true;
       try {
         this.checkDepthLimit(runtime);
-        this.processStart(runtime);
+        this.processStart(runtime, currentName);
       } finally {
         runtime.processingStart = false;
         runtime.currentTokenCursor = undefined;
@@ -428,13 +452,13 @@ export class CompiledRootProcessor {
     for (const bytes of item) this.processByteChunk(runtime, cursor, decoder, bytes);
   }
 
-  private processStart(runtime: RuntimeState): void {
+  private processStart(runtime: RuntimeState, currentName: string): void {
     const root = runtime.plan.root;
     if (!runtime.rootDone && !runtime.rootActive && !root.selector && root.kind !== 'array' && root.kind !== 'object') {
       this.tryStartValue(runtime, root, undefined, { kind: 'root' });
     }
 
-    this.startExecutor(this, runtime);
+    this.startExecutor(this, runtime, currentName);
   }
 
   /** @internal Called by a schema-generated start executor. */
@@ -506,6 +530,13 @@ export class CompiledRootProcessor {
     object: ObjectState,
     field: DispatchFieldAction
   ): void {
+    const value = field.field.value;
+    if (value.kind === 'array' || hasStartedField(object, value.id)) return;
+    if (value.kind === 'object') {
+      markObjectFieldActive(object, value.id);
+      this.createObjectState(runtime, value, runtime.depth, { kind: 'field', object, field: field.field });
+      return;
+    }
     this.processMatchedObjectFieldStart(runtime, object, field.field);
   }
 
@@ -601,7 +632,6 @@ export class CompiledRootProcessor {
     }
 
     markActive(parent, plan);
-
     runtime.captures.push({
       slot: plan.id,
       plan,
@@ -712,8 +742,8 @@ export class CompiledRootProcessor {
       values: compileObjectFactory(plan, false)(),
       completedFieldBits: 0,
       activeFieldBits: 0,
-      childObjects: [],
-      childArrays: [],
+      childArrays: EMPTY_ARRAY_STATES,
+      childObjects: EMPTY_OBJECT_STATES,
       runtimeStart,
       parent,
       closed: false
@@ -723,20 +753,29 @@ export class CompiledRootProcessor {
     if (slot.globalActive) (runtime.objectsByPlan[object.slot] ??= []).push(object);
     if (slot.depthActive) addDepthActive(runtime.objectsByPlanDepth, object.slot, depth, object);
 
-    for (const childSlot of slot.children) {
+    for (const childSlot of slot.stateChildren) {
       const child = irSlot(runtime, childSlot);
       if (!child.fieldName) throw new Error(`Missing converter IR field binding for slot: ${child.slot}`);
-      const field: DispatchFieldPlan = { fieldName: child.fieldName, value: child.value };
       const value = child.value;
       if (value.kind === 'array') {
-        const array = this.createArrayState(runtime, value, depth, { kind: 'field', object, field });
-        object.childArrays.push(array);
+        const array = this.createArrayState(runtime, value, depth, {
+          kind: 'field',
+          object,
+          field: child as unknown as DispatchFieldPlan
+        });
+        if (object.childArrays === EMPTY_ARRAY_STATES) object.childArrays = [array];
+        else object.childArrays.push(array);
         continue;
       }
 
       if (value.kind === 'object' && !value.selector) {
-        const child = this.createObjectState(runtime, value, depth, { kind: 'field', object, field });
-        object.childObjects.push(child);
+        const childObject = this.createObjectState(runtime, value, depth, {
+          kind: 'field',
+          object,
+          field: child as unknown as DispatchFieldPlan
+        });
+        if (object.childObjects === EMPTY_OBJECT_STATES) object.childObjects = [childObject];
+        else object.childObjects.push(childObject);
         continue;
       }
     }
@@ -978,6 +1017,125 @@ function compileEndAction(action: DispatchEndAction): EndExecutor {
   };
 }
 
+function compileCursorExecutor(
+  program: DispatchIrProgram,
+  start: StartExecutor,
+  fallback: CursorExecutor
+): CursorExecutor {
+  try {
+    const tracksPositions = program.paths.some(path => path.selector.positionFilters !== undefined);
+    const recordPositionStatement = tracksPositions ? 'recordPosition(runtime);' : '';
+    const popPositionStatement = tracksPositions ? 'popPosition(runtime);' : '';
+    const textStatements = program.onText.map(action => {
+      if (action.op === 'append-captures') {
+        return 'const value=cursor.text();for(let i=0,length=runtime.captures.length;i<length;i++){const capture=runtime.captures[i];if(capture.textMode===\'direct\'){if(runtime.depth===capture.depth)capture.buffer+=value;}else capture.buffer+=value;}';
+      }
+      return '';
+    }).join('');
+    const finishCapturesStatement = `const captureEnd=runtime.captures.length;
+      if(captureEnd===1){
+        const capture=runtime.captures[0];
+        if(capture.depth===runtime.depth){
+          processor.assignScalar(runtime,capture.plan,runtime.options?.trimText===false?capture.buffer:capture.buffer.trim(),capture.parent);
+          runtime.captures=[];
+        }
+      }else if(captureEnd>1){
+        let captureStart=captureEnd;
+        while(captureStart>0&&runtime.captures[captureStart-1].depth===runtime.depth)captureStart--;
+        for(let index=captureStart;index<captureEnd;index++){
+          const capture=runtime.captures[index];
+          processor.assignScalar(runtime,capture.plan,runtime.options?.trimText===false?capture.buffer:capture.buffer.trim(),capture.parent);
+        }
+        if(captureStart===0)runtime.captures=[];else runtime.captures.length=captureStart;
+      }`;
+    const finalizeValuesStatement = `while(true){
+      const object=runtime.objects[runtime.objects.length-1];
+      if(!object||object.depth!==runtime.depth)break;
+      processor.finalizeObject(runtime,object);
+    }`;
+    const endStatements = program.onEnd.map(action => {
+      if (action.op === 'finish-captures') return finishCapturesStatement;
+      if (action.op === 'finalize-values') return finalizeValuesStatement;
+      return '';
+    }).join('');
+    const create = Function(
+      'start',
+      'needInput',
+      'startElement',
+      'characters',
+      'cdata',
+      'endElement',
+      'recordPosition',
+      'popPosition',
+      `return function(processor,runtime,cursor){
+        while(true){
+          const type=cursor.next();
+          if(type===needInput||type===null)return;
+          if(type===characters&&!runtime.plan.eventFilter.includeCharacters)continue;
+          if(type===cdata&&!runtime.plan.eventFilter.includeCdata)continue;
+          if(runtime.eventCount>=runtime.maxEvents)throw new Error('XML event limit exceeded: '+runtime.maxEvents);
+          runtime.eventCount++;
+          if(type===startElement){
+            runtime.depth++;
+            const currentName=cursor.name();
+            runtime.elementStack.push(currentName);
+            ${recordPositionStatement}
+            runtime.currentTokenCursor=cursor;
+            runtime.attributeLookupCount=0;
+            runtime.attributeLookupCache=undefined;
+            runtime.processingStart=true;
+            try{
+              if(runtime.depth>runtime.maxDepth)throw new Error('XML depth limit exceeded: '+runtime.maxDepth);
+              if(!runtime.rootDone&&!runtime.rootActive&&!runtime.plan.root.selector&&runtime.plan.root.kind!=='array'&&runtime.plan.root.kind!=='object'){
+                processor.processStart(runtime,currentName);
+              }else{
+                start(processor,runtime,currentName);
+              }
+            }finally{
+              runtime.processingStart=false;
+              runtime.currentTokenCursor=undefined;
+              runtime.attributeLookupCache=undefined;
+            }
+            continue;
+          }
+          if(type===characters||type===cdata){
+            if(runtime.captures.length!==0){${textStatements}}
+            continue;
+          }
+          if(type===endElement){
+            ${endStatements}
+            runtime.elementStack.pop();
+            runtime.depth--;
+            ${popPositionStatement}
+          }
+        }
+      }`
+    ) as (
+      start: StartExecutor,
+      needInput: typeof NEED_INPUT,
+      startElement: XmlEventType,
+      characters: XmlEventType,
+      cdata: XmlEventType,
+      endElement: XmlEventType,
+      recordPosition: (runtime: RuntimeState) => void,
+      popPosition: (runtime: RuntimeState) => void
+    ) => CursorExecutor;
+    return create(
+      start,
+      NEED_INPUT,
+      XmlEventType.START_ELEMENT,
+      XmlEventType.CHARACTERS,
+      XmlEventType.CDATA,
+      XmlEventType.END_ELEMENT,
+      recordElementPosition,
+      popCompletedChildPositionScope
+    );
+  } catch {
+    warnCodeGenerationFallback();
+    return fallback;
+  }
+}
+
 function compileGeneratedStartExecutor(program: DispatchIrProgram): StartExecutor {
   const constants: StartConstant[] = [];
   const cases: string[] = [];
@@ -1036,7 +1194,7 @@ function compileGeneratedStartExecutor(program: DispatchIrProgram): StartExecuto
   }
   const create = Function(
     'constants',
-    `return function(processor,runtime){switch(runtime.elementStack[runtime.depth-1]){${cases.join('')}}}`
+    `return function(processor,runtime,currentName){switch(currentName){${cases.join('')}}}`
   ) as (values: StartConstant[]) => StartExecutor;
   return create(constants);
 }
@@ -1050,8 +1208,8 @@ function compileFallbackStartExecutor(program: DispatchIrProgram): StartExecutor
     }
     handlers[name] = chain(actions);
   }
-  return (processor, runtime) => {
-    handlers[runtime.elementStack[runtime.depth - 1]!]?.(processor, runtime);
+  return (processor, runtime, currentName) => {
+    handlers[currentName]?.(processor, runtime, currentName);
   };
 }
 
@@ -1129,9 +1287,9 @@ function chain(actions: StartExecutor[]): StartExecutor {
   for (let index = actions.length - 1; index >= 0; index--) {
     const action = actions[index]!;
     const next = handler;
-    handler = (processor, runtime) => {
-      action(processor, runtime);
-      next(processor, runtime);
+    handler = (processor, runtime, currentName) => {
+      action(processor, runtime, currentName);
+      next(processor, runtime, currentName);
     };
   }
   return handler;

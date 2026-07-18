@@ -8,11 +8,18 @@ const sizeMiB = Number(arg('size-mib') ?? 4);
 const runs = Number(arg('runs') ?? 10);
 const warmups = Number(arg('warmups') ?? 3);
 const minimumRatio = arg('min-ratio');
+const diagnostic = arg('diagnostic');
 const target = sizeMiB * mib;
 const options = { documentMode: 'fragment', maxEvents: 20_000_000 };
 const encoder = new TextEncoder();
+const cursorOnlySchema = x.object({});
 
-const cases = [flatRecords(), multipleArrays(), nestedArray(), positionedFields(), descendantRecords()];
+const allCases = [flatRecords(), multipleArrays(), nestedArray(), positionedFields(), descendantRecords()];
+const selectedShape = arg('shape');
+const cases = selectedShape
+  ? allCases.filter(item => item.name === selectedShape)
+  : allCases;
+if (cases.length === 0) throw new Error(`Unknown converter benchmark shape: ${selectedShape}`);
 for (const item of cases) {
   const manualExpected = item.summary(item.manual(item.bytes));
   const converterExpected = item.summary(item.schema.parseSync(item.bytes, options));
@@ -22,6 +29,10 @@ for (const item of cases) {
 }
 
 console.log(`Converter schema-shape benchmark (${sizeMiB} MiB target, ${warmups} warmups, ${runs} runs)`);
+if (diagnostic) {
+  runDiagnostic(diagnostic);
+  process.exit(0);
+}
 console.log('shape'.padEnd(24), 'manual'.padStart(12), 'converter'.padStart(12), 'ratio'.padStart(8));
 const results = [];
 for (const item of cases) {
@@ -59,6 +70,86 @@ function measure(run) {
   return samples[Math.floor(samples.length / 2)];
 }
 
+function runDiagnostic(mode) {
+  if (mode === 'waterfall') {
+    runDiagnosticWaterfall();
+    return;
+  }
+  if (!['reader-only', 'cursor-only', 'state-only', 'converter-only', 'event-loop', 'text-loop', 'attribute-loop', 'position-loop'].includes(mode)) {
+    throw new Error(`Unknown converter diagnostic: ${mode}`);
+  }
+  console.log(`diagnostic=${mode}`);
+  console.log('shape'.padEnd(24), 'median'.padStart(12));
+  for (const item of cases) {
+    const elapsed = measure(() => {
+      if (mode === 'reader-only') {
+        const reader = new StreamReaderSync(item.bytes, options);
+        while (reader.next() !== null) {}
+        return;
+      }
+      if (mode === 'cursor-only') {
+        cursorOnlySchema.parseSync(item.bytes, options);
+        return;
+      }
+      if (mode === 'state-only') item.stateSchema.parseSync(item.bytes, options);
+      else if (mode === 'converter-only') item.schema.parseSync(item.bytes, options);
+      else runReaderDiagnostic(item.bytes, mode);
+    });
+    console.log(item.name.padEnd(24), `${elapsed.toFixed(3)} ms`.padStart(12));
+  }
+}
+
+function runReaderDiagnostic(bytes, mode) {
+  const reader = new StreamReaderSync(bytes, options);
+  const stack = [];
+  const scopes = mode === 'position-loop' ? [] : undefined;
+  while (true) {
+    const type = reader.next();
+    if (type === null) return;
+    if (type === XmlEventType.START_ELEMENT) {
+      const name = reader.name() ?? '';
+      const depth = stack.length;
+      if (scopes) {
+        const scope = scopes[depth] ??= new Map();
+        scope.set(name, (scope.get(name) ?? 0) + 1);
+        scopes.length = depth + 2;
+      }
+      stack.push(name);
+      if (mode === 'attribute-loop' && reader.attributeCount() > 0) reader.attributeValue(0);
+    } else if (type === XmlEventType.CHARACTERS || type === XmlEventType.CDATA) {
+      if (mode === 'text-loop') reader.text();
+    } else if (type === XmlEventType.END_ELEMENT) {
+      stack.pop();
+      if (scopes) scopes.length = stack.length + 1;
+    }
+  }
+}
+
+function runDiagnosticWaterfall() {
+  console.log('diagnostic=waterfall');
+  console.log('shape'.padEnd(24), 'manual'.padStart(12), 'converter'.padStart(12), 'reader'.padStart(12), 'event'.padStart(12), 'position'.padStart(12), 'state'.padStart(12));
+  for (const item of cases) {
+    const manual = measure(() => item.manual(item.bytes));
+    const converter = measure(() => item.schema.parseSync(item.bytes, options));
+    const reader = measure(() => {
+      const event = new StreamReaderSync(item.bytes, options);
+      while (event.next() !== null) {}
+    });
+    const eventLoop = measure(() => runReaderDiagnostic(item.bytes, 'event-loop'));
+    const positionLoop = measure(() => runReaderDiagnostic(item.bytes, 'position-loop'));
+    const state = measure(() => item.stateSchema.parseSync(item.bytes, options));
+    console.log(
+      item.name.padEnd(24),
+      manual.toFixed(3).padStart(12),
+      converter.toFixed(3).padStart(12),
+      reader.toFixed(3).padStart(12),
+      eventLoop.toFixed(3).padStart(12),
+      positionLoop.toFixed(3).padStart(12),
+      state.toFixed(3).padStart(12)
+    );
+  }
+}
+
 function fixture(open, close, row) {
   const rows = [];
   let length = open.length + close.length;
@@ -85,6 +176,7 @@ function flatRecords() {
   );
   return {
     name: 'flat-records', schema, bytes,
+    stateSchema: x.array(x.object({}), '/root/row'),
     manual: input => manualFlat(input),
     summary: value => [value.rows.length, value.firstName, value.rows.at(-1)?.id]
   };
@@ -109,6 +201,10 @@ function multipleArrays() {
   );
   return {
     name: 'multiple-arrays', schema, bytes,
+    stateSchema: x.object({
+      users: x.array(x.object({}), '/root/users/user'),
+      codes: x.array(x.object({}), '/root/codes/code')
+    }),
     manual: input => manualMultiple(input),
     summary: value => [value.users.length, value.codes.length, value.firstName, value.users.at(-1)?.score]
   };
@@ -130,6 +226,9 @@ function nestedArray() {
   );
   return {
     name: 'nested-child-array', schema, bytes,
+    stateSchema: x.array(x.object({
+      chapters: x.array(x.object({}), './chapters/chapter')
+    }), '/root/book'),
     manual: input => manualNested(input),
     summary: value => [value.length, value[0]?.chapters.length, value.at(-1)?.chapters[1]?.text]
   };
@@ -145,6 +244,7 @@ function positionedFields() {
   );
   return {
     name: 'position-selector', schema, bytes,
+    stateSchema: x.array(x.object({}), '/root/group'),
     manual: input => manualPosition(input),
     summary: value => [value.length, value[0]?.id, value.at(-1)?.text]
   };
@@ -160,6 +260,7 @@ function descendantRecords() {
   );
   return {
     name: 'descendant-records', schema, bytes,
+    stateSchema: x.array(x.object({}), '//item'),
     manual: input => manualDescendant(input),
     summary: value => [value.length, value[0]?.key, value.at(-1)?.value]
   };

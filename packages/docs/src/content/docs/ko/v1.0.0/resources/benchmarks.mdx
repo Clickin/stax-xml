@@ -22,6 +22,7 @@ slug: ko/v1.0.0/resources/benchmarks
 ---
 
 import BenchmarkSection from '../../../../../components/BenchmarkSection.astro';
+import CrossRuntimeWriterTable from '../../../../../components/CrossRuntimeWriterTable.astro';
 import ReleaseBenchmarkTable from '../../../../../components/ReleaseBenchmarkTable.astro';
 
 StAX-XML 벤치마크는 순수 JavaScript 파서를 기준으로 합니다. `latest` 문서와
@@ -195,6 +196,17 @@ Writer benchmark는 builder-friendly input normalization을 timed region 밖에
 ### 1 GiB Writer 비교
 
 <BenchmarkSection section="writer-1gb" locale="ko" />
+
+### 다른 런타임 writer와의 비교
+
+Node 전용 1 GiB 측정과 별도로, 같은 입력 generator와 같은 파일 sink를 사용해
+다른 언어의 대표적인 XML writer와 비교했습니다. 이 측정은 각 라이브러리의 공개
+writer API가 실제 파일에 출력하는 end-to-end 경로를 대상으로 합니다.
+
+<CrossRuntimeWriterTable />
+
+스크립트와 원시 결과는 [`writer-cross-runtime.mjs`](https://github.com/Clickin/stax-xml/blob/v1.0.0/packages/benchmark/writer-cross-runtime.mjs)와
+[`writer-cross-runtime.json`](https://github.com/Clickin/stax-xml/blob/v1.0.0/packages/docs/src/data/benchmarks/v1.0.0/writer-cross-runtime.json)에서 확인할 수 있습니다.
 
 ## Current-Token Reader 소비 방식
 

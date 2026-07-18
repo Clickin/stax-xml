@@ -26,6 +26,7 @@
     "dev:writer:core": "node --expose-gc ./writer-core.mjs",
     "dev:writer:1gb": "node --expose-gc ./writer-1gb.mjs --quick",
     "dev:writer:1gb:json": "node --expose-gc ./writer-1gb.mjs --quick --json-out results/release/raw/writer-1gb.json",
+    "bench:writer:cross-runtime": "node --expose-gc ./writer-cross-runtime.mjs",
     "release:runtime-matrix": "node --expose-gc ./runtime-matrix.mjs",
     "release:stream-reader:4gb": "node --expose-gc ./stream-reader-4gb-consumption.mjs --size-gib=4 --style=iterable-cursor --runs=3 --warmups=0 --json-out=results/release/stream-reader-4gb.json --md-out=results/release/stream-reader-4gb.md",
     "release:converter:compiled-batch": "pnpm --filter stax-xml build && node --expose-gc ./converter-compiled-batch-plan.mjs --size-mib=16 --runs=5 --warmups=1 --json-out=results/release/converter-compiled-batch-plan.json --md-out=results/release/converter-compiled-batch-plan.md && node ./update-release-benchmarks.mjs --converter-only",

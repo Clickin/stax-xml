@@ -1,0 +1,81 @@
+{
+  "generatedAt": "2026-07-17T13:54:00.429Z",
+  "workload": {
+    "records": 12798,
+    "outputBytes": 10775015,
+    "compact": true,
+    "generator": "writer-cross-runtime.mjs"
+  },
+  "environment": {
+    "node": "v24.15.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "cpu": "Apple M4",
+    "java": "25.0.2",
+    "woodstox": "6.7.0",
+    "rust": "1.95.0",
+    "quickXml": "0.40.1"
+  },
+  "cases": {
+    "stax-xml": [
+      {
+        "records": 12798,
+        "bytes": 10775015,
+        "seconds": 0.047035542,
+        "throughputMiBs": 218.47000432974897
+      },
+      {
+        "records": 12798,
+        "bytes": 10775015,
+        "seconds": 0.04308641700000001,
+        "throughputMiBs": 238.4940726074319
+      },
+      {
+        "records": 12798,
+        "bytes": 10775015,
+        "seconds": 0.043270540999999996,
+        "throughputMiBs": 237.47923707244823
+      }
+    ],
+    "woodstox": [
+      {
+        "records": 12798,
+        "bytes": 10775015,
+        "seconds": 0.083688209,
+        "throughputMiBs": 122.78737
+      },
+      {
+        "records": 12798,
+        "bytes": 10775015,
+        "seconds": 0.085515541,
+        "throughputMiBs": 120.163598
+      },
+      {
+        "records": 12798,
+        "bytes": 10775015,
+        "seconds": 0.088728084,
+        "throughputMiBs": 115.812881
+      }
+    ],
+    "quick-xml": [
+      {
+        "records": 12798,
+        "bytes": 10775015,
+        "seconds": 0.020650042,
+        "throughputMiBs": 497.619088
+      },
+      {
+        "records": 12798,
+        "bytes": 10775015,
+        "seconds": 0.020443916,
+        "throughputMiBs": 502.636338
+      },
+      {
+        "records": 12798,
+        "bytes": 10775015,
+        "seconds": 0.020249208,
+        "throughputMiBs": 507.469481
+      }
+    ]
+  }
+}

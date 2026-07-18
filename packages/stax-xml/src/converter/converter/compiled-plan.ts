@@ -76,6 +76,7 @@ export interface DispatchIrSlot {
   depthActive: boolean;
   fieldName?: string;
   children: number[];
+  stateChildren: number[];
 }
 
 export interface DispatchIrPath {
