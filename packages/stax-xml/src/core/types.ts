@@ -99,7 +99,6 @@ export type AnyXmlEvent =
  */
 export interface AttributeInfo {
   value: string;
-  localName: string;
   prefix?: string;
   uri?: string;
 }

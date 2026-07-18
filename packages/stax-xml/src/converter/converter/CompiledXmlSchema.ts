@@ -480,9 +480,9 @@ function compileSelector(xpath: string, context: LoweringContext): DispatchSelec
   try {
     compiled = XPathCompiler.compile(xpath);
     assertSupportedCompiledXPath(xpath, compiled);
-  } catch {
+  } catch (error) {
     throw new UnsupportedDispatchPlan(
-      `XPath requires the runtime XPath 1.0 evaluator: ${xpath}`
+      `Unsupported XPath '${xpath}': ${error instanceof Error ? error.message : String(error)}`
     );
   }
 

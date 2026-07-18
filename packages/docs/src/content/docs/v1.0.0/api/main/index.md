@@ -401,7 +401,9 @@ const writableStream = new WritableStream({
 
 const writer = new Writer(writableStream);
 await writer.writeStartElement('root');
-await writer.writeElement('item', { id: '1' }, 'Hello World');
+await writer.writeStartElement('item', { attributes: { id: '1' } });
+await writer.writeCharacters('Hello World');
+await writer.writeEndElement();
 await writer.writeEndElement();
 await writer.close();
 ```
@@ -420,15 +422,15 @@ const writer = new Writer(writableStream, options);
 
 ##### Constructor
 
-> **new Writer**(`stream`, `options?`): [`Writer`](#writer)
+> **new Writer**(`output`, `options?`): [`Writer`](#writer)
 
 Defined in: [async/Writer.ts:162](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L162)
 
 ###### Parameters
 
-###### stream
+###### output
 
-`WritableStream`\<`Uint8Array`\<`ArrayBufferLike`\>\>
+[`AsyncTextSink`](#asynctextsink) \| `WritableStream`\<`Uint8Array`\<`ArrayBufferLike`\>\>
 
 ###### options?
 
@@ -452,7 +454,7 @@ Write XML declaration
 
 ###### version?
 
-`string` = `'1.0'`
+`"1.0"` = `'1.0'`
 
 ###### encoding?
 
@@ -744,7 +746,7 @@ Stop parsing and release the underlying input iterator.
 Defined in: [sync/StreamReaderSync.ts:17](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L17)
 
 Synchronous current-token reader. Strings are scanned directly without
-encoding; byte inputs are decoded as fatal UTF-8.
+decoding; byte inputs use the configured fatal TextDecoder.
 
 #### Constructors
 
@@ -1038,7 +1040,7 @@ Writes the XML declaration (e.g., <?xml version="1.0" encoding="UTF-8"?>).
 
 ###### version?
 
-`string` = `'1.0'`
+`"1.0"` = `'1.0'`
 
 ###### encoding?
 
@@ -1420,7 +1422,7 @@ Writes the XML declaration (e.g., <?xml version="1.0" encoding="UTF-8"?>).
 
 ###### version?
 
-`string` = `'1.0'`
+`"1.0"` = `'1.0'`
 
 ###### encoding?
 
@@ -1770,19 +1772,27 @@ Defined in: [async/EventReader.ts:5](https://github.com/Clickin/stax-xml/blob/ma
 
 Options for the asynchronous materialized-event reader.
 
+#### Extends
+
+- [`StreamReaderOptions`](#streamreaderoptions)
+
 #### Properties
 
 ##### documentMode?
 
 > `optional` **documentMode?**: [`DocumentMode`](#documentmode-2)
 
-Defined in: [async/EventReader.ts:6](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/EventReader.ts#L6)
+Defined in: [async/StreamReader.ts:7](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L7)
+
+###### Inherited from
+
+[`StreamReaderOptions`](#streamreaderoptions).[`documentMode`](#documentmode-1)
 
 ##### namespaceAware?
 
 > `optional` **namespaceAware?**: `boolean`
 
-Defined in: [async/EventReader.ts:8](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/EventReader.ts#L8)
+Defined in: [async/StreamReader.ts:9](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L9)
 
 Resolve namespaces and omit xmlns declarations from attributes.
 
@@ -1792,6 +1802,28 @@ Resolve namespaces and omit xmlns declarations from attributes.
 true
 ```
 
+###### Inherited from
+
+[`StreamReaderOptions`](#streamreaderoptions).[`namespaceAware`](#namespaceaware-1)
+
+##### encoding?
+
+> `optional` **encoding?**: `string`
+
+Defined in: [async/StreamReader.ts:11](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L11)
+
+TextDecoder encoding label for byte input.
+
+###### Default Value
+
+```ts
+'utf-8'
+```
+
+###### Inherited from
+
+[`StreamReaderOptions`](#streamreaderoptions).[`encoding`](#encoding-1)
+
 ***
 
 ### StreamReaderOptions
@@ -1799,6 +1831,10 @@ true
 Defined in: [async/StreamReader.ts:6](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L6)
 
 Options for asynchronous current-token parsing.
+
+#### Extended by
+
+- [`EventReaderOptions`](#eventreaderoptions)
 
 #### Properties
 
@@ -1822,6 +1858,20 @@ Resolve namespaces and omit xmlns declarations from attributes.
 true
 ```
 
+##### encoding?
+
+> `optional` **encoding?**: `string`
+
+Defined in: [async/StreamReader.ts:11](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L11)
+
+TextDecoder encoding label for byte input.
+
+###### Default Value
+
+```ts
+'utf-8'
+```
+
 ***
 
 ### WriterOptions
@@ -1838,8 +1888,8 @@ Configuration options for the Writer
 
 Defined in: [async/Writer.ts:26](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L26)
 
-XML declaration encoding. Writer output is always UTF-8.
-Values other than UTF-8 are rejected.
+XML declaration encoding. Byte-stream output is always UTF-8. For an
+AsyncTextSink, this value must match the sink encoding.
 
 ###### Default Value
 
@@ -1952,6 +2002,60 @@ Whether to enable automatic flushing
 ```ts
 true
 ```
+
+***
+
+### AsyncTextSink
+
+Defined in: [async/Writer.ts:79](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L79)
+
+Text output boundary for caller-provided streaming encoders.
+
+#### Properties
+
+##### encoding
+
+> `readonly` **encoding**: `string`
+
+Encoding produced after this text sink's external encoding stage.
+
+#### Methods
+
+##### write()
+
+> **write**(`chunk`): `void` \| `Promise`\<`void`\>
+
+Accept a serialized XML text chunk.
+
+###### Parameters
+
+###### chunk
+
+`string`
+
+###### Returns
+
+`void` \| `Promise`\<`void`\>
+
+##### flush()?
+
+> `optional` **flush**(): `void` \| `Promise`\<`void`\>
+
+Flush the external encoding/output chain, when supported.
+
+###### Returns
+
+`void` \| `Promise`\<`void`\>
+
+##### close()?
+
+> `optional` **close**(): `void` \| `Promise`\<`void`\>
+
+Close the external encoding/output chain, when supported.
+
+###### Returns
+
+`void` \| `Promise`\<`void`\>
 
 ***
 
@@ -2243,12 +2347,6 @@ Attribute information interface
 
 Defined in: [core/types.ts:101](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L101)
 
-##### localName
-
-> **localName**: `string`
-
-Defined in: [core/types.ts:102](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L102)
-
 ##### prefix?
 
 > `optional` **prefix?**: `string`
@@ -2309,19 +2407,27 @@ Defined in: [sync/EventReaderSync.ts:5](https://github.com/Clickin/stax-xml/blob
 
 Options for the synchronous materialized-event reader.
 
+#### Extends
+
+- [`StreamReaderSyncOptions`](#streamreadersyncoptions)
+
 #### Properties
 
 ##### documentMode?
 
 > `optional` **documentMode?**: [`DocumentMode`](#documentmode-2)
 
-Defined in: [sync/EventReaderSync.ts:6](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/EventReaderSync.ts#L6)
+Defined in: [sync/StreamReaderSync.ts:7](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L7)
+
+###### Inherited from
+
+[`StreamReaderSyncOptions`](#streamreadersyncoptions).[`documentMode`](#documentmode-4)
 
 ##### namespaceAware?
 
 > `optional` **namespaceAware?**: `boolean`
 
-Defined in: [sync/EventReaderSync.ts:8](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/EventReaderSync.ts#L8)
+Defined in: [sync/StreamReaderSync.ts:9](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L9)
 
 Resolve namespaces and omit xmlns declarations from attributes.
 
@@ -2331,6 +2437,28 @@ Resolve namespaces and omit xmlns declarations from attributes.
 true
 ```
 
+###### Inherited from
+
+[`StreamReaderSyncOptions`](#streamreadersyncoptions).[`namespaceAware`](#namespaceaware-3)
+
+##### encoding?
+
+> `optional` **encoding?**: `string`
+
+Defined in: [sync/StreamReaderSync.ts:11](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L11)
+
+TextDecoder encoding label for byte input.
+
+###### Default Value
+
+```ts
+'utf-8'
+```
+
+###### Inherited from
+
+[`StreamReaderSyncOptions`](#streamreadersyncoptions).[`encoding`](#encoding-4)
+
 ***
 
 ### StreamReaderSyncOptions
@@ -2338,6 +2466,10 @@ true
 Defined in: [sync/StreamReaderSync.ts:6](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L6)
 
 Options for synchronous current-token parsing.
+
+#### Extended by
+
+- [`EventReaderSyncOptions`](#eventreadersyncoptions)
 
 #### Properties
 
@@ -2361,6 +2493,20 @@ Resolve namespaces and omit xmlns declarations from attributes.
 true
 ```
 
+##### encoding?
+
+> `optional` **encoding?**: `string`
+
+Defined in: [sync/StreamReaderSync.ts:11](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L11)
+
+TextDecoder encoding label for byte input.
+
+###### Default Value
+
+```ts
+'utf-8'
+```
+
 ***
 
 ### SyncTextSink
@@ -2368,6 +2514,14 @@ true
 Defined in: [sync/WriterSync.ts:7](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L7)
 
 Sink interface for custom sync targets.
+
+#### Properties
+
+##### encoding?
+
+> `readonly` `optional` **encoding?**: `string`
+
+Encoding produced after this sink's external encoding stage. Defaults to UTF-8.
 
 #### Methods
 
@@ -2433,7 +2587,7 @@ Writer output options shared by string and sink variants.
 
 Defined in: [sync/WriterSync.ts:21](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L21)
 
-XML declaration encoding. String output is not byte-encoded; only UTF-8 is accepted.
+XML declaration encoding. WriterSync accepts UTF-8; WriterSyncSink requires it to match the sink encoding.
 
 ##### prettyPrint?
 
@@ -2487,7 +2641,7 @@ Writer options for sink-based sync mode.
 
 Defined in: [sync/WriterSync.ts:21](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L21)
 
-XML declaration encoding. String output is not byte-encoded; only UTF-8 is accepted.
+XML declaration encoding. WriterSync accepts UTF-8; WriterSyncSink requires it to match the sink encoding.
 
 ###### Inherited from
 

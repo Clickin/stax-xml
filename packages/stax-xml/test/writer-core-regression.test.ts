@@ -110,6 +110,69 @@ describe('Writer hot-path regression coverage', () => {
     await expect(async.writeCharacters('\u0000')).rejects.toThrow(/invalid XML character/i);
   });
 
+  it('applies XML namespace rules equally in sync and async writers', async () => {
+    const sync = new WriterSync();
+    sync.writeStartElement('root', { uri: 'urn:default' });
+    sync.writeStartElement('child', {
+      attributes: { id: { value: '1', prefix: 'p', uri: 'urn:attribute' } }
+    });
+    sync.writeEndElement();
+    sync.writeEndElement();
+    expect(sync.getXmlString()).toBe(
+      '<root xmlns="urn:default"><child xmlns:p="urn:attribute" p:id="1"></child></root>'
+    );
+
+    const chunks: Uint8Array[] = [];
+    const async = new Writer(new WritableStream<Uint8Array>({ write: chunk => chunks.push(chunk) }));
+    await async.writeStartElement('root', { uri: 'urn:default' });
+    await async.writeStartElement('child', {
+      attributes: { id: { value: '1', prefix: 'p', uri: 'urn:attribute' } }
+    });
+    await async.writeEndElement();
+    await async.writeEndElement();
+    await async.writeEndDocument();
+    expect(new TextDecoder().decode(concat(chunks))).toBe(sync.getXmlString());
+  });
+
+  it('keeps a sync start tag recoverable after rejecting an undeclared element prefix', () => {
+    const writer = new WriterSync();
+    writer.writeStartElement('root');
+    writer.writeStartElement('child', { prefix: 'p' });
+
+    expect(() => writer.writeEndElement()).toThrow(/not defined/i);
+    writer.writeNamespace('p', 'urn:child');
+    writer.writeEndElement();
+    writer.writeEndElement();
+    writer.writeEndDocument();
+
+    expect(writer.getXmlString()).toBe('<root><p:child xmlns:p="urn:child"></p:child></root>');
+  });
+
+  it('rejects non-NCNames, reserved bindings, duplicate expanded attributes, and XML 1.1', async () => {
+    const sync = new WriterSync();
+    expect(() => sync.writeStartElement('p:root')).toThrow(/invalid XML element name/i);
+    expect(() => sync.writeStartElement('root', { prefix: 'xmlns', uri: 'urn:x' })).toThrow(/reserved/i);
+    expect(() => sync.writeStartElement('root', { prefix: 'p', uri: '' })).toThrow(/cannot be undeclared/i);
+    const namespace = new WriterSync();
+    namespace.writeStartElement('root');
+    expect(() => namespace.writeNamespace('p', '')).toThrow(/cannot be undeclared/i);
+    expect(() => sync.writeStartDocument('1.1' as '1.0')).toThrow(/only supports XML 1\.0/i);
+    const duplicate = new WriterSync();
+    duplicate.writeStartElement('root');
+    duplicate.writeNamespace('p', 'urn:same');
+    duplicate.writeNamespace('q', 'urn:same');
+    duplicate.writeAttribute('id', '1', 'p');
+    expect(() => duplicate.writeAttribute('id', '2', 'q')).toThrow(/duplicate attribute/i);
+
+    const async = new Writer(new WritableStream<Uint8Array>({ write() {} }));
+    await expect(async.writeStartElement('p:root')).rejects.toThrow(/invalid XML element name/i);
+    await expect(async.writeStartElement('root', { prefix: 'xml', uri: 'urn:wrong' }))
+      .rejects.toThrow(/must be bound/i);
+    await expect(async.writeStartElement('root', { prefix: 'p', uri: '' }))
+      .rejects.toThrow(/cannot be undeclared/i);
+    await expect(async.writeStartDocument('1.1' as '1.0')).rejects.toThrow(/only supports XML 1\.0/i);
+  });
+
   it('preserves sink failures and rejects subsequent writes', async () => {
     const sync = new (class extends WriterSync { protected _emit(): void { throw new Error('sync sink failed'); } })();
     expect(() => sync.writeCharacters('x')).toThrow('sync sink failed');

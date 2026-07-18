@@ -41,8 +41,8 @@ Wasm subpaths.
 | `EventReader` | Same asynchronous inputs | You want stable event objects and `for await` iteration. |
 | Converter | `stax-xml/converter` | The XML shape is known and you want typed object projection without building a DOM. |
 | `WriterSync` | JavaScript string output | The complete output comfortably fits in memory. |
-| `WriterSyncSink` | Synchronous text sink | You need incremental synchronous output. |
-| `Writer` | `WritableStream<Uint8Array>` | You need incremental asynchronous UTF-8 output. |
+| `WriterSyncSink` | Synchronous text sink | You need incremental output or an external encoder. |
+| `Writer` | `WritableStream<Uint8Array>` or `AsyncTextSink` | You need incremental asynchronous UTF-8 output or an external encoder. |
 
 All four readers use the same token core and emit `START_DOCUMENT` and
 `END_DOCUMENT`. `StreamReaderSync` and `StreamReader` expose the current token

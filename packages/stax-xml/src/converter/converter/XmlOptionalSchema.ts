@@ -1,6 +1,7 @@
 import { XmlSchemaBase } from './base.js';
 import type { XmlWriteOptions } from './types.js';
 import { SchemaType } from './types.js';
+import { ownWriteOptions, rootWriteOptions } from './write-utils.js';
 
 /**
  * Schema for optional values
@@ -38,7 +39,10 @@ export class XmlOptionalSchema<T extends XmlSchemaBase<unknown, unknown>> extend
     if (data === undefined || data === null) {
       return ''; // Skip undefined/null values
     }
-    return this.schema._writeSync(data as T['_input'], options);
+    const nested = options?.writer
+      ? rootWriteOptions(options, this.writeConfig)
+      : ownWriteOptions(options, this.writeConfig);
+    return this.schema._writeSync(data as T['_input'], nested);
   }
 
   /**
@@ -53,6 +57,9 @@ export class XmlOptionalSchema<T extends XmlSchemaBase<unknown, unknown>> extend
     if (data === undefined || data === null) {
       return; // Skip undefined/null values
     }
-    return this.schema._write(data as T['_input'], stream, options);
+    const nested = options?.writer
+      ? rootWriteOptions(options, this.writeConfig)
+      : ownWriteOptions(options, this.writeConfig);
+    return this.schema._write(data as T['_input'], stream, nested);
   }
 }

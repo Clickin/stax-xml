@@ -41,12 +41,15 @@ try {
 ```
 
 String input은 byte로 encoding하지 않고 직접 scan합니다. Byte input은 fatal
-UTF-8로 incremental decoding합니다.
+`TextDecoder`로 incremental decoding합니다. `encoding` 기본값은 `utf-8`이며 host
+decoder가 지원하는 `utf-16le`, `utf-16be` 등의 label을 지정할 수 있습니다. XML
+declaration에서 label을 자동 추론하지 않으므로 byte source와 일치시켜야 합니다.
 
 ```ts
 interface StreamReaderSyncOptions {
   documentMode?: 'document' | 'fragment';
   namespaceAware?: boolean; // 기본값: true
+  encoding?: string; // byte input 전용, 기본값: 'utf-8'
 }
 ```
 

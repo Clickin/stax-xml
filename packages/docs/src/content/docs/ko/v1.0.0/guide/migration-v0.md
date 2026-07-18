@@ -30,9 +30,9 @@ runtime adapter, backend selection package는 없습니다.
 | v0.x 요구사항 | 1.0 surface |
 | --- | --- |
 | XML string을 안정적인 event로 parsing | `EventReaderSync` |
-| String 또는 동기 UTF-8 byte source에서 current token pull | `StreamReaderSync` |
-| 비동기 UTF-8 byte source에서 안정적인 event iteration | `EventReader` |
-| 비동기 UTF-8 byte source에서 current token pull | `StreamReader` |
+| String 또는 동기 byte source에서 current token pull | `StreamReaderSync` |
+| 비동기 byte source에서 안정적인 event iteration | `EventReader` |
+| 비동기 byte source에서 current token pull | `StreamReader` |
 | 알려진 XML을 typed object로 projection | `stax-xml/converter` |
 | 메모리에서 XML string 생성 | `WriterSync` |
 | Incremental writing | `WriterSyncSink` 또는 `Writer` |

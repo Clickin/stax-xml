@@ -2,6 +2,18 @@ import { describe, expect, it, vi } from 'vitest';
 import { x } from '../../src/converter/index.js';
 import { XmlEventType, type AnyXmlEvent } from 'stax-xml-core';
 
+function utf16le(text: string): Uint8Array {
+  const bytes = new Uint8Array(2 + text.length * 2);
+  bytes[0] = 0xff;
+  bytes[1] = 0xfe;
+  for (let index = 0; index < text.length; index++) {
+    const code = text.charCodeAt(index);
+    bytes[2 + index * 2] = code & 0xff;
+    bytes[3 + index * 2] = code >>> 8;
+  }
+  return bytes;
+}
+
 describe('streaming-only converter', () => {
   it('automatically uses the dispatch plan for supported selectors', () => {
     const schema = x.object({
@@ -129,10 +141,8 @@ describe('streaming-only converter', () => {
   });
 
   it('rejects selectors that require a tree evaluator', () => {
-    const schema = x.object({ title: x.string().xpath('/book/*') });
-
-    expect(() => schema.parseSync('<book><title>XML</title></book>'))
-      .toThrow('Unsupported streaming XPath');
+    expect(() => x.object({ title: x.string().xpath('/book/*') }))
+      .toThrow('Wildcard XPath is not supported');
   });
 
   it('finalizes an array item with an unselected nested object', () => {
@@ -350,6 +360,82 @@ describe('streaming-only converter', () => {
     await expect(x.string().parse(invalidAsync() as AsyncIterable<Uint8Array>))
       .rejects.toThrow('Byte iterables must contain only Uint8Array values or byte batches.');
     expect(asyncClosed).toBe(true);
+  });
+
+  it('uses the configured TextDecoder encoding for converter byte input', async () => {
+    const xml = '<?xml version="1.0" encoding="UTF-16"?><root>값</root>';
+    const bytes = utf16le(xml);
+    const schema = x.string('/root');
+
+    expect(schema.parseSync(bytes, { encoding: 'utf-16le' })).toBe('값');
+    async function* chunks(): AsyncGenerator<Uint8Array> {
+      for (let offset = 0; offset < bytes.length; offset += 3) {
+        yield bytes.slice(offset, offset + 3);
+      }
+    }
+    await expect(schema.parse(chunks(), { encoding: 'utf-16le' })).resolves.toBe('값');
+    expect(() => schema.parseSync(bytes, { encoding: 'not-an-encoding' })).toThrow();
+  });
+
+  it('preserves primary iterable errors when iterator cleanup also fails', async () => {
+    const encoder = new TextEncoder();
+    const syncInput = {
+      [Symbol.iterator]() {
+        let index = 0;
+        return {
+          next: () => index++ === 0
+            ? { value: encoder.encode('<root>'), done: false as const }
+            : { value: 'not bytes', done: false as const },
+          return: () => { throw new Error('sync cleanup failed'); }
+        };
+      }
+    };
+    expect(() => x.string().parseSync(syncInput as Iterable<Uint8Array>))
+      .toThrow('Byte iterables must contain only Uint8Array values or byte batches.');
+
+    const asyncInput = {
+      [Symbol.asyncIterator]() {
+        let index = 0;
+        return {
+          next: async () => index++ === 0
+            ? { value: encoder.encode('<root>'), done: false as const }
+            : { value: 'not bytes', done: false as const },
+          return: async () => { throw new Error('async cleanup failed'); }
+        };
+      }
+    };
+    await expect(x.string().parse(asyncInput as AsyncIterable<Uint8Array>))
+      .rejects.toThrow('Byte iterables must contain only Uint8Array values or byte batches.');
+  });
+
+  it('validates empty and materialized-event inputs with the same document contract', async () => {
+    expect(() => x.string().parseSync([] as Uint8Array[], { documentMode: 'document' })).toThrow();
+    await expect(x.string().parse((async function* () {})(), { documentMode: 'document' })).rejects.toThrow();
+
+    const twoRoots = [
+      { type: XmlEventType.START_DOCUMENT },
+      { type: XmlEventType.START_ELEMENT, name: 'a', attributes: [] },
+      { type: XmlEventType.END_ELEMENT, name: 'a' },
+      { type: XmlEventType.START_ELEMENT, name: 'b', attributes: [] },
+      { type: XmlEventType.END_ELEMENT, name: 'b' },
+      { type: XmlEventType.END_DOCUMENT }
+    ] as AnyXmlEvent[];
+    expect(() => x.string().parseSync(twoRoots, { documentMode: 'document' }))
+      .toThrow(/multiple root/i);
+
+    const mismatched = [
+      { type: XmlEventType.START_DOCUMENT },
+      { type: XmlEventType.START_ELEMENT, name: 'a', attributes: [] },
+      { type: XmlEventType.END_ELEMENT, name: 'b' },
+      { type: XmlEventType.END_DOCUMENT }
+    ] as AnyXmlEvent[];
+    expect(() => x.string().parseSync(mismatched)).toThrow(/mismatched closing/i);
+
+    const mixed = [
+      { type: XmlEventType.START_DOCUMENT },
+      new TextEncoder().encode('<root/>')
+    ] as unknown as AnyXmlEvent[];
+    expect(() => x.string().parseSync(mixed)).toThrow(/only XML event values/i);
   });
 
   it('does not materialize event attributes when the plan does not select them', () => {

@@ -23,7 +23,7 @@ slug: v1.0.0/api-guides/event-reader
 
 ## EventReader
 
-`EventReader` is the asynchronous stable-event API. It accepts UTF-8 bytes from
+`EventReader` is the asynchronous stable-event API. It accepts bytes from
 a `ReadableStream<Uint8Array>` or `AsyncIterable<Uint8Array>` and reads another
 input chunk only when the consumer asks for an event that is not already
 buffered.
@@ -54,11 +54,15 @@ type StreamReaderSource =
 interface EventReaderOptions {
   documentMode?: 'document' | 'fragment';
   namespaceAware?: boolean; // default: true
+  encoding?: string; // default: 'utf-8'
 }
 ```
 
-Byte input is decoded incrementally as fatal UTF-8. Invalid UTF-8 and malformed
-XML reject `next()` and return the underlying source. The reader does not
+Byte input is decoded incrementally by a fatal `TextDecoder`. `encoding`
+defaults to `utf-8` and accepts labels supported by the host decoder. The label
+is not inferred from the XML declaration. Invalid
+byte sequences and malformed XML reject `next()` and return the underlying
+source. The reader does not
 interpret DTD declarations, resolve custom or external entities, or perform
 external I/O. It decodes only the five predefined XML entities and numeric
 character references.

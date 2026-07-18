@@ -1,5 +1,12 @@
 // WriterAsync.ts
-import { assertXmlChars, assertXmlName, WriteElementOptions } from '@stax-xml/core';
+import {
+  assertXmlChars,
+  assertXmlEncodingName,
+  assertXmlVersion,
+  planStartElement,
+  WriteElementOptions,
+  XML_NAMESPACE_URI
+} from '@stax-xml/core';
 
 const WriterState = {
   INITIAL: 0,
@@ -19,8 +26,8 @@ type WriterState = typeof WriterState[keyof typeof WriterState];
  */
 export interface WriterOptions {
   /**
-   * XML declaration encoding. Writer output is always UTF-8.
-   * Values other than UTF-8 are rejected.
+   * XML declaration encoding. Byte-stream output is always UTF-8. For an
+   * AsyncTextSink, this value must match the sink encoding.
    * @defaultValue 'utf-8'
    */
   encoding?: string;
@@ -50,13 +57,13 @@ export interface WriterOptions {
   autoEncodeEntities?: boolean;
 
   /**
-   * Internal buffer size in bytes
+   * Internal buffer size in bytes, or UTF-16 code units for AsyncTextSink output
    * @defaultValue 16384
    */
   bufferSize?: number;
 
   /**
-   * Automatic flush threshold (percentage of bufferSize)
+   * Automatic flush threshold (percentage or output units of bufferSize)
    * @defaultValue 0.8
    */
   flushThreshold?: number;
@@ -66,6 +73,18 @@ export interface WriterOptions {
    * @defaultValue true
    */
   enableAutoFlush?: boolean;
+}
+
+/** Text output boundary for caller-provided streaming encoders. */
+export interface AsyncTextSink {
+  /** Encoding produced after this text sink's external encoding stage. */
+  readonly encoding: string;
+  /** Accept a serialized XML text chunk. */
+  write(chunk: string): void | Promise<void>;
+  /** Flush the external encoding/output chain, when supported. */
+  flush?(): void | Promise<void>;
+  /** Close the external encoding/output chain, when supported. */
+  close?(): void | Promise<void>;
 }
 
 /**
@@ -99,7 +118,9 @@ export interface WriterOptions {
  *
  * const writer = new Writer(writableStream);
  * await writer.writeStartElement('root');
- * await writer.writeElement('item', { id: '1' }, 'Hello World');
+ * await writer.writeStartElement('item', { attributes: { id: '1' } });
+ * await writer.writeCharacters('Hello World');
+ * await writer.writeEndElement();
  * await writer.writeEndElement();
  * await writer.close();
  * ```
@@ -128,7 +149,9 @@ export class Writer {
   };
   private static readonly BASIC_ENTITY_REGEX = /[&<>"']/g;
 
-  private writer: WritableStreamDefaultWriter<Uint8Array>;
+  private writer: WritableStreamDefaultWriter<Uint8Array> | undefined;
+  private textSink: AsyncTextSink | undefined;
+  private textBuffer = '';
   private encoder: TextEncoder;
   private buffer: Uint8Array;
   private bufferPosition: number = 0;
@@ -155,15 +178,22 @@ export class Writer {
   // Performance metrics
   private metrics = {
     totalBytesWritten: 0,
+    totalCharactersWritten: 0,
     flushCount: 0,
     lastFlushTime: 0
   };
 
   constructor(
-    stream: WritableStream<Uint8Array>,
+    output: WritableStream<Uint8Array> | AsyncTextSink,
     options: WriterOptions = {}
   ) {
-    const encoding = utf8Encoding(options.encoding);
+    const textSink = isAsyncTextSink(output) ? output : undefined;
+    if (textSink && typeof textSink.write !== 'function') {
+      throw new TypeError('AsyncTextSink.write must be a function.');
+    }
+    const encoding = textSink
+      ? externalEncoding(textSink.encoding, options.encoding)
+      : utf8Encoding(options.encoding);
     this.options = {
       encoding,
       prettyPrint: options.prettyPrint ?? false,
@@ -182,7 +212,8 @@ export class Writer {
       );
     }
 
-    this.writer = stream.getWriter();
+    if (textSink) this.textSink = textSink;
+    else this.writer = (output as WritableStream<Uint8Array>).getWriter();
     this.encoder = new TextEncoder();
     this.buffer = new Uint8Array(this.options.bufferSize);
 
@@ -216,6 +247,16 @@ export class Writer {
    */
   private async _writeToBuffer(text: string): Promise<void> {
     if (text.length === 0) {
+      return;
+    }
+
+    if (this.textSink) {
+      this.textBuffer += text;
+      this.bufferPosition = this.textBuffer.length;
+      const limit = this.options.enableAutoFlush ? this.options.flushThreshold : this.options.bufferSize;
+      if (this.bufferPosition >= limit) {
+        await this._flushBuffer();
+      }
       return;
     }
 
@@ -259,6 +300,17 @@ export class Writer {
   private async _flushBuffer(): Promise<void> {
     if (this.bufferPosition === 0) return;
 
+    if (this.textSink) {
+      const chunk = this.textBuffer;
+      this.textBuffer = '';
+      this.bufferPosition = 0;
+      await this._writeTextChunk(chunk);
+      this.metrics.totalCharactersWritten += chunk.length;
+      this.metrics.flushCount++;
+      this.metrics.lastFlushTime = Date.now();
+      return;
+    }
+
     const bytesWritten = this.bufferPosition;
     const chunk = bytesWritten === this.buffer.length
       ? this.buffer
@@ -277,14 +329,15 @@ export class Writer {
    * Write XML declaration
    */
   public async writeStartDocument(
-    version: string = '1.0',
+    version: '1.0' = '1.0',
     encoding?: string
   ): Promise<this> {
     if (this.state !== WriterState.INITIAL) {
       throw new Error('writeStartDocument can only be called once at the beginning');
     }
 
-    const actualEncoding = utf8Encoding(encoding ?? this.options.encoding);
+    const actualEncoding = matchingEncoding(encoding ?? this.options.encoding, this.options.encoding);
+    assertXmlVersion(version);
     this.state = WriterState.AFTER_ELEMENT;
     const declaration = `<?xml version="${version}" encoding="${actualEncoding}"?>`;
 
@@ -314,8 +367,18 @@ export class Writer {
     await this._flushBuffer();
 
     // Close writer
-    await this.writer.close();
-    this.state = WriterState.CLOSED;
+    try {
+      if (this.textSink) {
+        await this.textSink.flush?.();
+        await this.textSink.close?.();
+      } else {
+        await this.writer!.close();
+      }
+      this.state = WriterState.CLOSED;
+    } catch (error) {
+      this.state = WriterState.ERROR;
+      throw error;
+    }
   }
 
   /**
@@ -336,6 +399,14 @@ export class Writer {
       throw new Error('Cannot writeStartElement: Writer is closed or in error state');
     }
 
+    const selfClosing = options?.selfClosing ?? false;
+    const plan = planStartElement(
+      localName,
+      options,
+      prefix => prefix === 'xml' ? XML_NAMESPACE_URI : this.namespaces.get(prefix),
+      value => this._escapeXml(value)
+    );
+
     await this._closeStartElementTag();
 
     if (options?.comment) {
@@ -344,73 +415,14 @@ export class Writer {
       await this._writeNewline();
     }
 
-    const prefix = options?.prefix;
-    const uri = options?.uri;
-    const attributes = options?.attributes;
-    const selfClosing = options?.selfClosing ?? false;
-    assertXmlName(localName, 'element name');
-    if (prefix) assertXmlName(prefix, 'prefix');
-    if (options?.comment !== undefined) {
-      assertXmlChars(options.comment, 'comment');
-      if (options.comment.includes('--')) throw new Error('XML comment cannot contain "--" sequence');
-    }
-
     // Indentation
     if (this.options.prettyPrint && this.needsIndent) {
       await this._writeIndent();
     }
 
-    const qualifiedName = prefix ? `${prefix}:${localName}` : localName;
-    const attributeNames = new Set<string>();
-    await this._writeToBuffer(`<${qualifiedName}`);
-
     const undoStart = this.namespaceUndoPrefixes.length;
-
-    if (prefix && uri) {
-      reserveAttribute(attributeNames, `xmlns:${prefix}`);
-      await this._writeToBuffer(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
-      this._bindNamespace(prefix, uri);
-    }
-
-    // OPTIMIZATION 2: Attribute string batching
-    // Build entire attribute string first, then single _writeToBuffer call
-    if (attributes) {
-      let attrString = '';
-      for (const key in attributes) {
-        const value = attributes[key];
-        if (value === undefined) {
-          continue;
-        }
-        if (typeof value === 'string') {
-          assertXmlName(key, 'attribute name');
-          reserveAttribute(attributeNames, key);
-          assertXmlChars(value, 'attribute value');
-          // Simple string attribute
-          attrString += ` ${key}="${this._escapeXml(value)}"`;
-        } else {
-          // AttributeInfo object - attribute with prefix
-          const attrPrefix = value.prefix;
-          const attrValue = value.value;
-          assertXmlName(key, 'attribute name');
-          if (attrPrefix) assertXmlName(attrPrefix, 'attribute prefix');
-          reserveAttribute(attributeNames, attrPrefix ? `${attrPrefix}:${key}` : key);
-          assertXmlChars(attrValue, 'attribute value');
-
-          if (attrPrefix) {
-            // Check if prefix is defined in namespace
-            if (!this.namespaces.has(attrPrefix)) {
-              throw new Error(`Namespace prefix '${attrPrefix}' is not defined for attribute '${key}'`);
-            }
-            attrString += ` ${attrPrefix}:${key}="${this._escapeXml(attrValue)}"`;
-          } else {
-            attrString += ` ${key}="${this._escapeXml(attrValue)}"`;
-          }
-        }
-      }
-      if (attrString) {
-        await this._writeToBuffer(attrString);
-      }
-    }
+    await this._writeToBuffer(plan.startTag);
+    for (const binding of plan.namespaceBindings) this._bindNamespace(binding.prefix, binding.uri);
 
     if (selfClosing) {
       await this._writeToBuffer('/>');
@@ -422,9 +434,9 @@ export class Writer {
       return this;
     }
 
-    this.elementStack.push(qualifiedName);
+    this.elementStack.push(plan.qualifiedName);
     this.hasTextContentStack.push(false);
-    this.attributeNames.push(attributeNames);
+    this.attributeNames.push(plan.attributeNames);
     this.namespaceUndoStarts.push(undoStart);
     this.state = WriterState.START_ELEMENT_OPEN;
     this.currentIndentLevel++;
@@ -438,6 +450,9 @@ export class Writer {
   public async writeEndElement(): Promise<this> {
     if (this.elementStack.length === 0) {
       throw new Error('No open element to close');
+    }
+    if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
+      throw new Error('Cannot writeEndElement: Writer is closed or in error state');
     }
 
     this.currentIndentLevel--;
@@ -473,8 +488,8 @@ export class Writer {
       throw new Error('Cannot writeCharacters: Writer is closed or in error state');
     }
 
-    await this._closeStartElementTag();
     assertXmlChars(text, 'character data');
+    await this._closeStartElementTag();
     await this._writeToBuffer(this._escapeXml(text));
 
     this.state = WriterState.IN_ELEMENT;
@@ -492,6 +507,7 @@ export class Writer {
    * Write CDATA section
    */
   public async writeCData(cdata: string): Promise<this> {
+    this._assertWritable('writeCData');
     assertXmlChars(cdata, 'CDATA');
     if (cdata.includes(']]>')) {
       throw new Error('CDATA section cannot contain "]]>" sequence');
@@ -513,6 +529,7 @@ export class Writer {
    * Write comment
    */
   public async writeComment(comment: string): Promise<this> {
+    this._assertWritable('writeComment');
     assertXmlChars(comment, 'comment');
     if (comment.includes('--')) {
       throw new Error('XML comment cannot contain "--" sequence');
@@ -537,6 +554,7 @@ export class Writer {
    * @returns this (chainable)
    */
   public async writeRaw(xml: string): Promise<this> {
+    this._assertWritable('writeRaw');
     await this._closeStartElementTag();
     await this._writeToBuffer(xml);
     return this;
@@ -546,7 +564,16 @@ export class Writer {
    * Manual flush
    */
   public async flush(): Promise<void> {
+    this._assertWritable('flush');
     await this._flushBuffer();
+    if (this.textSink?.flush) {
+      try {
+        await this.textSink.flush();
+      } catch (error) {
+        this.state = WriterState.ERROR;
+        throw error;
+      }
+    }
   }
 
   /**
@@ -557,7 +584,7 @@ export class Writer {
       ...this.metrics,
       bufferUtilization: this.bufferPosition / this.options.bufferSize,
       averageFlushSize: this.metrics.flushCount > 0
-        ? this.metrics.totalBytesWritten / this.metrics.flushCount
+        ? (this.textSink ? this.metrics.totalCharactersWritten : this.metrics.totalBytesWritten) / this.metrics.flushCount
         : 0
     };
   }
@@ -576,10 +603,25 @@ export class Writer {
 
   private async _writeChunk(chunk: Uint8Array): Promise<void> {
     try {
-      await this.writer.write(chunk);
+      await this.writer!.write(chunk);
     } catch (error) {
       this.state = WriterState.ERROR;
       throw error;
+    }
+  }
+
+  private async _writeTextChunk(chunk: string): Promise<void> {
+    try {
+      await this.textSink!.write(chunk);
+    } catch (error) {
+      this.state = WriterState.ERROR;
+      throw error;
+    }
+  }
+
+  private _assertWritable(action: string): void {
+    if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
+      throw new Error(`Cannot ${action}: Writer is closed or in error state`);
     }
   }
 
@@ -676,14 +718,32 @@ export class Writer {
   }
 }
 
-function reserveAttribute(names: Set<string>, name: string): void {
-  if (names.has(name)) throw new Error(`Duplicate attribute: ${name}`);
-  names.add(name);
-}
-
 function utf8Encoding(value = 'utf-8'): 'UTF-8' {
   if (value.toLowerCase() !== 'utf-8') {
     throw new Error(`Writer only supports UTF-8 output, received: ${value}`);
   }
   return 'UTF-8';
+}
+
+function externalEncoding(sinkEncoding: string, optionEncoding?: string): string {
+  const target = xmlEncoding(sinkEncoding);
+  if (optionEncoding !== undefined) matchingEncoding(optionEncoding, target);
+  return target;
+}
+
+function matchingEncoding(requested: string, target: string): string {
+  const actual = xmlEncoding(requested);
+  if (actual.toLowerCase() !== target.toLowerCase()) {
+    throw new Error(`Writer encoding '${actual}' does not match output encoding '${target}'.`);
+  }
+  return target;
+}
+
+function xmlEncoding(value: string): string {
+  assertXmlEncodingName(value);
+  return value.toLowerCase() === 'utf-8' ? 'UTF-8' : value;
+}
+
+function isAsyncTextSink(output: WritableStream<Uint8Array> | AsyncTextSink): output is AsyncTextSink {
+  return typeof (output as WritableStream<Uint8Array>).getWriter !== 'function';
 }

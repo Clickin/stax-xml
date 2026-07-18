@@ -20,7 +20,7 @@ const DUPLICATE_TABLE_THRESHOLD = 16;
 const enum ResumeKind { NONE, TEXT, START_TAG, END_TAG, COMMENT, CDATA, PI, DOCTYPE }
 const enum DoctypeState { TEXT, LT, BANG, DASH, COMMENT, COMMENT_DASH, COMMENT_END }
 
-/** One tokenizer shared by direct strings and incrementally decoded UTF-8. */
+/** One tokenizer shared by direct strings and incrementally decoded text. */
 export class TokenCursor {
   private buffer: string;
   private pos = 0;
@@ -1097,7 +1097,7 @@ function isXmlNamePartCodePoint(code: number): boolean {
     || (code >= 0x300 && code <= 0x36f) || (code >= 0x203f && code <= 0x2040);
 }
 function isValidXmlDeclaration(value: string): boolean {
-  return /^\s+version\s*=\s*(?:"1\.[01]"|'1\.[01]')(?:\s+encoding\s*=\s*(?:"[A-Za-z][A-Za-z0-9._-]*"|'[A-Za-z][A-Za-z0-9._-]*'))?(?:\s+standalone\s*=\s*(?:"(?:yes|no)"|'(?:yes|no)'))?\s*$/.test(value);
+  return /^\s+version\s*=\s*(?:"1\.0"|'1\.0')(?:\s+encoding\s*=\s*(?:"[A-Za-z][A-Za-z0-9._-]*"|'[A-Za-z][A-Za-z0-9._-]*'))?(?:\s+standalone\s*=\s*(?:"(?:yes|no)"|'(?:yes|no)'))?\s*$/.test(value);
 }
 function parseDoctypeRootName(text: string, start: number, end: number): string {
   while (start < end && isXmlWhitespace(text.charCodeAt(start))) start++;

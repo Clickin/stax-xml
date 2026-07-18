@@ -119,10 +119,10 @@ x.string().xpath('/root/element')
 x.string().xpath('//element')
 
 // 속성
-x.string().xpath('/@id')
+x.string().xpath('/root/@id')
 
-// 조건절
-x.array(x.object({...}), '//book[@category="fiction"]')
+// 1-based positive position
+x.array(x.object({...}), '//book[2]')
 ```
 
 ### 유효성 검사

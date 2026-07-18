@@ -4,6 +4,8 @@ import type { XmlNumberOptions, XmlWriteOptions } from './types.js';
 import { SchemaType } from './types.js';
 import { WriterSync, WriterSyncSink } from '@stax-xml/sync';
 import { Writer } from '@stax-xml/async';
+import { elementOptions, getOwnWriteConfig, getRootWriteConfig } from './write-utils.js';
+import { XPathCompiler } from './XPathEngine.js';
 
 /**
  * Schema for parsing XML number values
@@ -15,6 +17,7 @@ export class XmlNumberSchema extends XmlSchema<number, number> {
 
   constructor(public options: XmlNumberOptions = {}) {
     super();
+    if (options.xpath !== undefined) XPathCompiler.compile(options.xpath);
   }
 
   _parseText(text: string): number {
@@ -71,10 +74,6 @@ export class XmlNumberSchema extends XmlSchema<number, number> {
    * @returns New schema with XPath
    */
   xpath(path: string): XmlNumberSchema {
-    // Validate XPath immediately
-    if (!path || path.length === 0) {
-      throw new Error('XPath cannot be empty');
-    }
     return new XmlNumberSchema({ ...this.options, xpath: path });
   }
 
@@ -117,6 +116,7 @@ export class XmlNumberSchema extends XmlSchema<number, number> {
    * @internal
    */
   _writeSync(data: number, options?: XmlWriteOptions): string {
+    if (!Number.isFinite(data)) throw new Error('XML number writer requires a finite number.');
     // Use injected writer or create new one
     let writer: WriterSync | WriterSyncSink;
     let isInjected = false;
@@ -140,22 +140,19 @@ export class XmlNumberSchema extends XmlSchema<number, number> {
     }
 
     // Write declaration if requested and not injected
-    if (!isInjected && options?.rootElement && options?.includeDeclaration !== false) {
+    const ownConfig = getOwnWriteConfig(options) ?? this.writeConfig;
+    if (!isInjected && (options?.rootElement || ownConfig?.element) && options?.includeDeclaration !== false) {
       writer.writeStartDocument(options?.xmlVersion, options?.encoding);
     }
 
     // Write root element if specified
     if (options?.rootElement) {
-      writer.writeStartElement(options.rootElement, {
-        comment: this.writeConfig?.comment
-      });
+      writer.writeStartElement(options.rootElement, elementOptions(getRootWriteConfig(options)));
     }
 
     // Write number element (only if not injected - parent handles element when injected)
-    if (!isInjected && this.writeConfig?.element) {
-      writer.writeStartElement(this.writeConfig.element, {
-        comment: this.writeConfig?.comment
-      });
+    if (!isInjected && ownConfig?.element) {
+      writer.writeStartElement(ownConfig.element, elementOptions(ownConfig));
     }
 
     // Write content
@@ -163,7 +160,7 @@ export class XmlNumberSchema extends XmlSchema<number, number> {
     writer.writeCharacters(numberStr);
 
     // Close elements (only if not injected)
-    if (!isInjected && this.writeConfig?.element) {
+    if (!isInjected && ownConfig?.element) {
       writer.writeEndElement();
     }
     if (options?.rootElement) {
@@ -190,6 +187,7 @@ export class XmlNumberSchema extends XmlSchema<number, number> {
     stream: WritableStream<Uint8Array>,
     options?: XmlWriteOptions
   ): Promise<void> {
+    if (!Number.isFinite(data)) throw new Error('XML number writer requires a finite number.');
     // Use injected writer or create new one
     let writer: Writer;
     let isInjected = false;
@@ -210,22 +208,19 @@ export class XmlNumberSchema extends XmlSchema<number, number> {
     }
 
     // Write declaration if requested and not injected
-    if (!isInjected && options?.rootElement && options?.includeDeclaration !== false) {
+    const ownConfig = getOwnWriteConfig(options) ?? this.writeConfig;
+    if (!isInjected && (options?.rootElement || ownConfig?.element) && options?.includeDeclaration !== false) {
       await writer.writeStartDocument(options?.xmlVersion, options?.encoding);
     }
 
     // Write root element if specified
     if (options?.rootElement) {
-      await writer.writeStartElement(options.rootElement, {
-        comment: this.writeConfig?.comment
-      });
+      await writer.writeStartElement(options.rootElement, elementOptions(getRootWriteConfig(options)));
     }
 
     // Write number element (only if not injected - parent handles element when injected)
-    if (!isInjected && this.writeConfig?.element) {
-      await writer.writeStartElement(this.writeConfig.element, {
-        comment: this.writeConfig?.comment
-      });
+    if (!isInjected && ownConfig?.element) {
+      await writer.writeStartElement(ownConfig.element, elementOptions(ownConfig));
     }
 
     // Write content
@@ -233,7 +228,7 @@ export class XmlNumberSchema extends XmlSchema<number, number> {
     await writer.writeCharacters(numberStr);
 
     // Close elements (only if not injected)
-    if (!isInjected && this.writeConfig?.element) {
+    if (!isInjected && ownConfig?.element) {
       await writer.writeEndElement();
     }
     if (options?.rootElement) {

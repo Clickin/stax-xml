@@ -9,6 +9,13 @@ import type { DocumentMode } from '@stax-xml/core';
  */
 export interface ParseOptions {
   /**
+   * TextDecoder encoding label for byte input.
+   * String and materialized-event inputs are already decoded and ignore it.
+   * @defaultValue 'utf-8'
+   */
+  encoding?: string;
+
+  /**
    * Whether to trim whitespace from text content
    * @defaultValue true
    */
@@ -96,9 +103,9 @@ export interface XmlObjectOptions {
  */
 export interface XmlElementWriteConfig {
   /**
-   * Element name (required)
+   * Element name. Object fields may omit this to use the field key.
    */
-  element: string;
+  element?: string;
 
   /**
    * Write as attribute instead of element
@@ -118,7 +125,7 @@ export interface XmlElementWriteConfig {
     /**
      * Namespace URI (e.g., 'http://purl.org/dc/elements/1.1/')
      */
-    uri?: string;
+    uri: string;
   };
 
   /**
@@ -179,7 +186,7 @@ export interface XmlWriteOptions {
    * XML version for declaration
    * @defaultValue '1.0'
    */
-  xmlVersion?: string;
+  xmlVersion?: '1.0';
 
   /**
    * Custom writer instance

@@ -1,12 +1,8 @@
-import { type AnyXmlEvent, type DocumentMode } from '@stax-xml/core';
-import { StreamReader, nextMaterialized, type StreamReaderSource } from './StreamReader.js';
+import { type AnyXmlEvent } from '@stax-xml/core';
+import { StreamReader, nextMaterialized, type StreamReaderOptions, type StreamReaderSource } from './StreamReader.js';
 
 /** Options for the asynchronous materialized-event reader. */
-export interface EventReaderOptions {
-  documentMode?: DocumentMode;
-  /** Resolve namespaces and omit xmlns declarations from attributes. @defaultValue true */
-  namespaceAware?: boolean;
-}
+export interface EventReaderOptions extends StreamReaderOptions {}
 
 /**
  * Async iterator that yields stable, materialized XML event objects.

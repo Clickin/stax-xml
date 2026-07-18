@@ -3,6 +3,8 @@ import type { XmlStringOptions, XmlWriteOptions } from './types.js';
 import { SchemaType } from './types.js';
 import { WriterSync, WriterSyncSink } from '@stax-xml/sync';
 import { Writer } from '@stax-xml/async';
+import { elementOptions, getOwnWriteConfig, getRootWriteConfig } from './write-utils.js';
+import { XPathCompiler } from './XPathEngine.js';
 
 /**
  * Helper to escape XML special characters
@@ -26,6 +28,7 @@ export class XmlStringSchema extends XmlSchema<string, string> {
 
   constructor(public options: XmlStringOptions = {}) {
     super();
+    if (options.xpath !== undefined) XPathCompiler.compile(options.xpath);
   }
 
   _parseText(text: string): string {
@@ -38,10 +41,6 @@ export class XmlStringSchema extends XmlSchema<string, string> {
    * @returns New schema with XPath
    */
   xpath(path: string): XmlStringSchema {
-    // Validate XPath immediately
-    if (!path || path.length === 0) {
-      throw new Error('XPath cannot be empty');
-    }
     return new XmlStringSchema({ ...this.options, xpath: path });
   }
 
@@ -81,35 +80,34 @@ export class XmlStringSchema extends XmlSchema<string, string> {
     }
 
     // Write declaration if requested and not injected
-    if (!isInjected && options?.rootElement && options?.includeDeclaration !== false) {
+    const ownConfig = getOwnWriteConfig(options) ?? this.writeConfig;
+    if (!isInjected && (options?.rootElement || ownConfig?.element) && options?.includeDeclaration !== false) {
       writer.writeStartDocument(options?.xmlVersion, options?.encoding);
     }
 
-    // Write root element if specified
+    const rootConfig = getRootWriteConfig(options);
+    const rootSelfClosing = Boolean(options?.rootElement && rootConfig?.selfClosing && data.length === 0);
+
     if (options?.rootElement) {
-      writer.writeStartElement(options.rootElement, {
-        comment: this.writeConfig?.comment
-      });
+      writer.writeStartElement(options.rootElement, elementOptions(rootConfig, { selfClosing: rootSelfClosing }));
+      if (rootSelfClosing) {
+        if (!isInjected) writer.writeEndDocument();
+        return writer instanceof WriterSync ? writer.getXmlString() : '';
+      }
     }
 
-    // Write string element (only if not injected - parent handles element when injected)
-    if (!isInjected && this.writeConfig?.element) {
-      writer.writeStartElement(this.writeConfig.element, {
-        comment: this.writeConfig?.comment
-      });
+    const ownSelfClosing = Boolean(!isInjected && ownConfig?.element && ownConfig.selfClosing && data.length === 0);
+    if (!isInjected && ownConfig?.element) {
+      writer.writeStartElement(ownConfig.element, elementOptions(ownConfig, { selfClosing: ownSelfClosing }));
     }
 
-    // Write content
-    const content = this._writeContent(data, options);
-    if (this.writeConfig?.cdata) {
-      writer.writeCData(content);
-    } else {
-      // _writeContent already escaped the content, so write as raw
-      writer.writeRaw(content);
+    if (!ownSelfClosing) {
+      const contentConfig = rootConfig ?? ownConfig;
+      if (contentConfig?.cdata) writer.writeCData(data);
+      else writer.writeCharacters(data);
     }
 
-    // Close elements (only if not injected)
-    if (!isInjected && this.writeConfig?.element) {
+    if (!isInjected && ownConfig?.element && !ownSelfClosing) {
       writer.writeEndElement();
     }
     if (options?.rootElement) {
@@ -156,35 +154,34 @@ export class XmlStringSchema extends XmlSchema<string, string> {
     }
 
     // Write declaration if requested and not injected
-    if (!isInjected && options?.rootElement && options?.includeDeclaration !== false) {
+    const ownConfig = getOwnWriteConfig(options) ?? this.writeConfig;
+    if (!isInjected && (options?.rootElement || ownConfig?.element) && options?.includeDeclaration !== false) {
       await writer.writeStartDocument(options?.xmlVersion, options?.encoding);
     }
 
-    // Write root element if specified
+    const rootConfig = getRootWriteConfig(options);
+    const rootSelfClosing = Boolean(options?.rootElement && rootConfig?.selfClosing && data.length === 0);
+
     if (options?.rootElement) {
-      await writer.writeStartElement(options.rootElement, {
-        comment: this.writeConfig?.comment
-      });
+      await writer.writeStartElement(options.rootElement, elementOptions(rootConfig, { selfClosing: rootSelfClosing }));
+      if (rootSelfClosing) {
+        if (!isInjected) await writer.writeEndDocument();
+        return;
+      }
     }
 
-    // Write string element (only if not injected - parent handles element when injected)
-    if (!isInjected && this.writeConfig?.element) {
-      await writer.writeStartElement(this.writeConfig.element, {
-        comment: this.writeConfig?.comment
-      });
+    const ownSelfClosing = Boolean(!isInjected && ownConfig?.element && ownConfig.selfClosing && data.length === 0);
+    if (!isInjected && ownConfig?.element) {
+      await writer.writeStartElement(ownConfig.element, elementOptions(ownConfig, { selfClosing: ownSelfClosing }));
     }
 
-    // Write content
-    const content = this._writeContent(data, options);
-    if (this.writeConfig?.cdata) {
-      await writer.writeCData(content);
-    } else {
-      // _writeContent already escaped the content, so write as raw
-      await writer.writeRaw(content);
+    if (!ownSelfClosing) {
+      const contentConfig = rootConfig ?? ownConfig;
+      if (contentConfig?.cdata) await writer.writeCData(data);
+      else await writer.writeCharacters(data);
     }
 
-    // Close elements (only if not injected)
-    if (!isInjected && this.writeConfig?.element) {
+    if (!isInjected && ownConfig?.element && !ownSelfClosing) {
       await writer.writeEndElement();
     }
     if (options?.rootElement) {

@@ -40,7 +40,9 @@ for (const event of new EventReaderSync(xml)) {
 ```
 
 String input is scanned directly as a JavaScript string. It is not encoded to a
-`Uint8Array` first. Byte inputs are decoded incrementally as fatal UTF-8.
+`Uint8Array` first. Byte inputs use a fatal `TextDecoder`; `encoding` defaults
+to `utf-8` and accepts labels supported by the host decoder. The label is not
+inferred from the XML declaration.
 
 ## Input
 
@@ -53,6 +55,7 @@ type StreamReaderSyncInput =
 interface EventReaderSyncOptions {
   documentMode?: 'document' | 'fragment';
   namespaceAware?: boolean; // default: true
+  encoding?: string; // byte input only; default: 'utf-8'
 }
 ```
 
@@ -93,8 +96,9 @@ and `namespaceURIForPrefix()`. They describe only the current token.
 processing-instruction, and DTD events. Start-element attributes are an
 `EventAttribute[]`; namespace declarations are not included as attributes.
 
-Malformed XML, unsupported named entity references, and invalid UTF-8 throw an
-error. DTD declarations are emitted as events but are not interpreted. The
+Malformed XML, unsupported named entity references, and invalid byte sequences
+for the selected encoding throw an error. DTD declarations are emitted as
+events but are not interpreted. The
 reader decodes only the five predefined XML entities and numeric character
 references; it never resolves custom or external entities or performs external
 I/O. Use exported type guards such as `isStartElement()` and `isCharacters()`

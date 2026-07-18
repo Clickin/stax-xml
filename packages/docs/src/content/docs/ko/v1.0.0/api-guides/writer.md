@@ -37,6 +37,37 @@ slug: ko/v1.0.0/api-guides/writer
 
 > **참고**: 작은 동기식 출력에는 문자열 builder인 `WriterSync`를 사용하고, 대용량 파일 출력에는 `WriterSyncSink`를 사용하세요.
 
+### 외부 encoder 연결
+
+기본 `WritableStream<Uint8Array>` 경로는 UTF-8을 출력합니다. `iconv-lite` 같은
+streaming encoder를 연결하려면 `AsyncTextSink`를 전달합니다. Sink의 `encoding`이 XML
+declaration에 사용되고 `write()` promise로 backpressure를 전달합니다. 명시한 declaration
+encoding과 sink encoding이 다르면 선제 거부합니다.
+
+```typescript
+import iconv from 'iconv-lite';
+import { createWriteStream } from 'node:fs';
+import { Writable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
+import { Writer, type AsyncTextSink } from 'stax-xml';
+
+const encoder = iconv.encodeStream('shift_jis');
+const completed = pipeline(encoder, createWriteStream('./catalog.xml'));
+const output = Writable.toWeb(encoder).getWriter();
+const sink: AsyncTextSink = {
+  encoding: 'Shift_JIS',
+  write: chunk => output.write(chunk),
+  close: () => output.close(),
+};
+
+const writer = new Writer(sink);
+await writer.writeStartDocument();
+await writer.writeStartElement('catalog');
+await writer.writeCharacters('日本語');
+await writer.close();
+await completed;
+```
+
 ### 🔧 빠른 시작
 
 ```typescript
@@ -229,7 +260,7 @@ class Writer {
   constructor(stream: WritableStream<Uint8Array>, options?: WriterOptions)
 
   // 문서 레벨 메서드
-  writeStartDocument(version?: string, encoding?: string): Promise<this> // UTF-8 only
+  writeStartDocument(version?: '1.0', encoding?: string): Promise<this> // UTF-8 only
   writeEndDocument(): Promise<void>
 
   // 엘리먼트 작성 메서드
@@ -262,6 +293,8 @@ interface WriterOptions {
 Web platform `TextEncoder`는 UTF-8-only이므로 `Writer`는 항상 UTF-8 byte를
 출력합니다. Constructor와 `writeStartDocument()`는 XML declaration과 실제 byte가
 불일치하지 않도록 다른 encoding을 reject합니다.
+Declaration version은 XML 1.0입니다. Parser와 writer validation 계약이 XML 1.0이므로
+XML 1.1은 거부합니다.
 
 #### 인터페이스
 
@@ -271,16 +304,19 @@ interface WriteElementOptions {
   uri?: string;
   attributes?: Record<string, string | AttributeInfo>;
   selfClosing?: boolean;
+  comment?: string;
 }
 
 interface AttributeInfo {
   value: string;
-  localName: string;
   prefix?: string;
   uri?: string;
 }
 
 ```
+
+Record key가 attribute local name입니다. Namespaced attribute는 prefix를 제공하고,
+해당 element에서 binding을 선언하려면 URI도 제공할 수 있습니다.
 
 ### 🚀 Writer를 언제 사용해야 할까요?
 

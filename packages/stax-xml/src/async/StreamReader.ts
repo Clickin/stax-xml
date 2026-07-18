@@ -7,6 +7,8 @@ export interface StreamReaderOptions {
   documentMode?: DocumentMode;
   /** Resolve namespaces and omit xmlns declarations from attributes. @defaultValue true */
   namespaceAware?: boolean;
+  /** TextDecoder encoding label for byte input. @defaultValue 'utf-8' */
+  encoding?: string;
 }
 
 /**
@@ -16,13 +18,14 @@ export interface StreamReaderOptions {
 export class StreamReader {
   private readonly cursor: TokenCursor;
   private readonly iterator: AsyncIterator<Uint8Array>;
-  private readonly decoder = new TextDecoder('utf-8', { fatal: true });
+  private readonly decoder: TextDecoder;
   private inFlight = false;
   private closed = false;
   private closing: Promise<void> | undefined;
 
   constructor(source: StreamReaderSource, options: StreamReaderOptions = {}) {
     this.cursor = new TokenCursor('', false, options);
+    this.decoder = new TextDecoder(options.encoding ?? 'utf-8', { fatal: true });
     this.iterator = isReadableStream(source) ? streamIterator(source) : source[Symbol.asyncIterator]();
     // The package-internal pump accesses these private fields through ReaderState.
     void this.iterator; void this.decoder; void this.inFlight; void this.closed; void this.closing;

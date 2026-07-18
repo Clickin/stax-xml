@@ -69,8 +69,8 @@ Warm-up은 first-request latency만 옮기며 steady-state throughput은 바꾸�
 
 Wildcard, nested `//`, arbitrary predicate, axis, union, variable, operator,
 terminal `text()` 이외의 XPath function은 public converter contract가 아닙니다.
-Unsupported expression은 document tree를 materialize하지 않고
-`Unsupported streaming XPath` error를 throw합니다.
+지원하지 않는 syntax는 `.precompile()`이나 parse 전에 schema 생성 시점에 throw하며,
+document tree를 materialize하지 않습니다.
 
 Unknown 또는 dynamic XML에는 `EventReader` / `EventReaderSync`를 사용하세요.
 Stable event object보다 current-token traversal과 낮은 allocation이 중요하면

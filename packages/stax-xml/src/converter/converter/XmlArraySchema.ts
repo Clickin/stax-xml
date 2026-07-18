@@ -3,6 +3,8 @@ import type { XmlWriteOptions } from './types.js';
 import { SchemaType } from './types.js';
 import { WriterSync, WriterSyncSink } from '@stax-xml/sync';
 import { Writer } from '@stax-xml/async';
+import { elementOptions, getOwnWriteConfig, getRootWriteConfig, getWriteConfig, nestedWriteOptions } from './write-utils.js';
+import { XPathCompiler } from './XPathEngine.js';
 
 /**
  * Schema for parsing XML array values
@@ -17,6 +19,7 @@ export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends X
     public readonly xpath?: string
   ) {
     super();
+    if (xpath !== undefined) XPathCompiler.compile(xpath);
   }
 
   /**
@@ -46,34 +49,46 @@ export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends X
       });
     }
 
-    // Write declaration if requested and not injected
-    if (!isInjected && options?.rootElement && options?.includeDeclaration !== false) {
+    const ownConfig = getOwnWriteConfig(options) ?? this.writeConfig;
+    const ownElement = !isInjected ? ownConfig?.element : undefined;
+    const rootConfig = getRootWriteConfig(options) ?? (ownElement ? undefined : ownConfig);
+
+    if (!isInjected && (options?.rootElement || ownElement) && options?.includeDeclaration !== false) {
       writer.writeStartDocument(options?.xmlVersion, options?.encoding);
     }
 
-    // Write root element if specified
+    const rootSelfClosing = Boolean(options?.rootElement && !ownElement && rootConfig?.selfClosing && data.length === 0);
     if (options?.rootElement) {
-      writer.writeStartElement(options.rootElement, {
-        /* v8 ignore next -- array write comments are covered at object writer level */
-        comment: this.writeConfig?.comment
-      });
+      writer.writeStartElement(options.rootElement, elementOptions(rootConfig, { selfClosing: rootSelfClosing }));
+      if (rootSelfClosing) {
+        if (!isInjected) writer.writeEndDocument();
+        return writer instanceof WriterSync ? writer.getXmlString() : '';
+      }
+    }
+
+    const ownSelfClosing = Boolean(ownElement && ownConfig?.selfClosing && data.length === 0);
+    if (ownElement) {
+      writer.writeStartElement(ownElement, elementOptions(ownConfig, { selfClosing: ownSelfClosing }));
     }
 
     // Write each array item without declaration
-    // Access writeConfig via type assertion - it's protected but we need it here
-    const elementConfig = (this.element as unknown as { writeConfig?: { element?: string } }).writeConfig;
-    const nestedOptions: XmlWriteOptions = {
-      ...options,
-      writer, // Pass the writer to nested calls
-      rootElement: elementConfig?.element,
-      includeDeclaration: false
-    };
-
-    for (const item of data) {
-      this.element._writeSync(item as T['_output'], nestedOptions);
+    const elementConfig = getWriteConfig(this.element);
+    if (!elementConfig?.element && data.length > 0) {
+      throw new Error('Array element schemas require writer({ element }) for XML output.');
     }
 
-    // Close root element
+    if (!ownSelfClosing) {
+      for (const item of data) {
+        this.element._writeSync(
+          item as T['_output'],
+          nestedWriteOptions(options, writer, elementConfig!.element, elementConfig)
+        );
+      }
+    }
+
+    if (ownElement && !ownSelfClosing) {
+      writer.writeEndElement();
+    }
     if (options?.rootElement) {
       writer.writeEndElement();
     }
@@ -117,34 +132,47 @@ export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends X
       });
     }
 
-    // Write declaration if requested and not injected
-    if (!isInjected && options?.rootElement && options?.includeDeclaration !== false) {
+    const ownConfig = getOwnWriteConfig(options) ?? this.writeConfig;
+    const ownElement = !isInjected ? ownConfig?.element : undefined;
+    const rootConfig = getRootWriteConfig(options) ?? (ownElement ? undefined : ownConfig);
+
+    if (!isInjected && (options?.rootElement || ownElement) && options?.includeDeclaration !== false) {
       await writer.writeStartDocument(options?.xmlVersion, options?.encoding);
     }
 
-    // Write root element if specified
+    const rootSelfClosing = Boolean(options?.rootElement && !ownElement && rootConfig?.selfClosing && data.length === 0);
     if (options?.rootElement) {
-      await writer.writeStartElement(options.rootElement, {
-        /* v8 ignore next -- array write comments are covered at object writer level */
-        comment: this.writeConfig?.comment
-      });
+      await writer.writeStartElement(options.rootElement, elementOptions(rootConfig, { selfClosing: rootSelfClosing }));
+      if (rootSelfClosing) {
+        if (!isInjected) await writer.writeEndDocument();
+        return;
+      }
+    }
+
+    const ownSelfClosing = Boolean(ownElement && ownConfig?.selfClosing && data.length === 0);
+    if (ownElement) {
+      await writer.writeStartElement(ownElement, elementOptions(ownConfig, { selfClosing: ownSelfClosing }));
     }
 
     // Write each array item without declaration
-    // Access writeConfig via type assertion - it's protected but we need it here
-    const elementConfig = (this.element as unknown as { writeConfig?: { element?: string } }).writeConfig;
-    const nestedOptions: XmlWriteOptions = {
-      ...options,
-      writer, // Pass the writer to nested calls
-      rootElement: elementConfig?.element,
-      includeDeclaration: false
-    };
-
-    for (const item of data) {
-      await this.element._write(item as T['_output'], stream, nestedOptions);
+    const elementConfig = getWriteConfig(this.element);
+    if (!elementConfig?.element && data.length > 0) {
+      throw new Error('Array element schemas require writer({ element }) for XML output.');
     }
 
-    // Close root element
+    if (!ownSelfClosing) {
+      for (const item of data) {
+        await this.element._write(
+          item as T['_output'],
+          stream,
+          nestedWriteOptions(options, writer, elementConfig!.element, elementConfig)
+        );
+      }
+    }
+
+    if (ownElement && !ownSelfClosing) {
+      await writer.writeEndElement();
+    }
     if (options?.rootElement) {
       await writer.writeEndElement();
     }

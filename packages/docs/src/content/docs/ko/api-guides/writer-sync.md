@@ -201,6 +201,32 @@ export default app;
 `WriterSyncSink`는 작은 `SyncTextSink` interface를 구현한 모든 object에 쓸 수
 있습니다. Runtime standard library로 필요한 target을 구성하세요.
 
+외부 encoder를 쓸 때는 sink에 `encoding` metadata를 지정하고 각 text chunk를 sink에서
+encoding합니다. XML declaration은 이 값과 일치해야 합니다. Stateful encoder는
+`close()`에서 마지막 byte를 반드시 flush해야 합니다.
+
+```typescript
+import iconv from 'iconv-lite';
+import { closeSync, openSync, writeSync } from 'node:fs';
+import { WriterSyncSink } from 'stax-xml';
+
+const fd = openSync('./catalog-euc-kr.xml', 'w');
+const encoder = iconv.getEncoder('euc-kr');
+const writer = new WriterSyncSink({
+  encoding: 'EUC-KR',
+  write(chunk) { writeSync(fd, encoder.write(chunk)); },
+  close() {
+    const tail = encoder.end();
+    if (tail) writeSync(fd, tail);
+    closeSync(fd);
+  },
+});
+
+writer.writeStartDocument();
+writer.writeStartElement('catalog').writeCharacters('한국어').writeEndElement();
+writer.close();
+```
+
 ```typescript
 import { closeSync, openSync, writeSync } from 'node:fs';
 import { WriterSyncSink } from 'stax-xml';
@@ -393,7 +419,7 @@ class WriterSync {
   )
 
   // 문서 레벨 메서드
-  writeStartDocument(version?: string, encoding?: string): this // UTF-8 only
+  writeStartDocument(version?: '1.0', encoding?: string): this // UTF-8 only
   writeEndDocument(): void
 
   // 요소 작성 메서드

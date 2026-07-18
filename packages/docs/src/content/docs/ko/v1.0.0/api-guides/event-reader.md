@@ -24,7 +24,7 @@ slug: ko/v1.0.0/api-guides/event-reader
 ## EventReader
 
 `EventReader`는 비동기 stable-event API입니다.
-`ReadableStream<Uint8Array>` 또는 `AsyncIterable<Uint8Array>`에서 UTF-8 byte를
+`ReadableStream<Uint8Array>` 또는 `AsyncIterable<Uint8Array>`에서 byte를
 받으며, buffered event가 없을 때 consumer 요청에 맞춰 다음 input chunk를 읽습니다.
 
 ```ts
@@ -53,11 +53,14 @@ type StreamReaderSource =
 interface EventReaderOptions {
   documentMode?: 'document' | 'fragment';
   namespaceAware?: boolean; // 기본값: true
+  encoding?: string; // 기본값: 'utf-8'
 }
 ```
 
-Byte input은 fatal UTF-8로 incremental decoding합니다. Invalid UTF-8 또는 malformed
-XML은 `next()`를 reject하고 source를 반환합니다. DTD declaration을 해석하거나
+Byte input은 fatal `TextDecoder`로 incremental decoding합니다. `encoding`은 `utf-8`이
+기본이며 host decoder가 지원하는 label을 받을 수 있습니다. XML declaration에서 label을
+자동 추론하지 않습니다. Invalid byte sequence 또는
+malformed XML은 `next()`를 reject하고 source를 반환합니다. DTD declaration을 해석하거나
 custom/external entity를 resolve하지 않고, 외부 I/O를 수행하지 않습니다.
 XML predefined entity 5개와 numeric character reference만 decoding합니다.
 

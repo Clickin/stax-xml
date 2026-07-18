@@ -30,9 +30,9 @@ native, Wasm, runtime-adapter, or backend-selection packages.
 | v0.x need | 1.0 surface |
 | --- | --- |
 | Parse an XML string into stable events | `EventReaderSync` |
-| Pull current tokens from a string or synchronous UTF-8 byte source | `StreamReaderSync` |
-| Iterate stable events from an asynchronous UTF-8 byte source | `EventReader` |
-| Pull current tokens from an asynchronous UTF-8 byte source | `StreamReader` |
+| Pull current tokens from a string or synchronous byte source | `StreamReaderSync` |
+| Iterate stable events from an asynchronous byte source | `EventReader` |
+| Pull current tokens from an asynchronous byte source | `StreamReader` |
 | Project known XML into typed objects | `stax-xml/converter` |
 | Build an in-memory XML string | `WriterSync` |
 | Write incrementally | `WriterSyncSink` or `Writer` |

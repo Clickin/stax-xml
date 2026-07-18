@@ -37,6 +37,37 @@ For large file or large document output where maximum write throughput matters, 
 
 > **Note**: For small synchronous output, use `WriterSync` as a string builder. For large file output, use `WriterSyncSink`.
 
+### External encoders
+
+The default `WritableStream<Uint8Array>` path emits UTF-8. To chain a streaming
+encoder such as `iconv-lite`, pass an `AsyncTextSink` instead. Its `encoding`
+is written to the XML declaration, and `write()` promises provide backpressure.
+An explicit declaration encoding that does not match the sink is rejected.
+
+```typescript
+import iconv from 'iconv-lite';
+import { createWriteStream } from 'node:fs';
+import { Writable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
+import { Writer, type AsyncTextSink } from 'stax-xml';
+
+const encoder = iconv.encodeStream('shift_jis');
+const completed = pipeline(encoder, createWriteStream('./catalog.xml'));
+const output = Writable.toWeb(encoder).getWriter();
+const sink: AsyncTextSink = {
+  encoding: 'Shift_JIS',
+  write: chunk => output.write(chunk),
+  close: () => output.close(),
+};
+
+const writer = new Writer(sink);
+await writer.writeStartDocument();
+await writer.writeStartElement('catalog');
+await writer.writeCharacters('日本語');
+await writer.close();
+await completed;
+```
+
 ### 🔧 Quick Start
 
 ```typescript
@@ -229,7 +260,7 @@ class Writer {
   constructor(stream: WritableStream<Uint8Array>, options?: WriterOptions)
 
   // Document Level Methods
-  writeStartDocument(version?: string, encoding?: string): Promise<this> // UTF-8 only
+  writeStartDocument(version?: '1.0', encoding?: string): Promise<this> // UTF-8 only
   writeEndDocument(): Promise<void>
 
   // Element Writing Methods
@@ -262,6 +293,8 @@ interface WriterOptions {
 `Writer` always emits UTF-8 bytes because the web platform `TextEncoder` is
 UTF-8-only. The constructor and `writeStartDocument()` reject any other
 encoding instead of writing bytes that disagree with the XML declaration.
+The declaration version is XML 1.0; XML 1.1 is rejected because the parser and
+writer validation contract is XML 1.0.
 
 #### Interfaces
 
@@ -271,16 +304,19 @@ interface WriteElementOptions {
   uri?: string;
   attributes?: Record<string, string | AttributeInfo>;
   selfClosing?: boolean;
+  comment?: string;
 }
 
 interface AttributeInfo {
   value: string;
-  localName: string;
   prefix?: string;
   uri?: string;
 }
 
 ```
+
+The record key is the attribute local name. A namespaced attribute supplies its
+prefix and may supply its URI to declare the binding on that element.
 
 ### 🚀 When to Use Writer
 

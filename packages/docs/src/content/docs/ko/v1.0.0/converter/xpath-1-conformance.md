@@ -27,5 +27,5 @@ subset을 구현합니다.
 | XPath function library | Unsupported | General function evaluator 또는 tree fallback을 포함하지 않습니다. |
 | DOM/tree materialization | 사용하지 않음 | 지원 selector는 모두 streaming token 위에서 동작합니다. |
 
-Unsupported expression은 `Unsupported streaming XPath` error를 throw합니다. 새
+지원하지 않는 expression은 schema 생성 시점에 구체적인 이유와 함께 throw합니다. 새
 selector form의 추가는 backward-compatible하지만 위 표가 1.0 contract입니다.

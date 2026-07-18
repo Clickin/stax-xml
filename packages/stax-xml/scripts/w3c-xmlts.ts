@@ -248,18 +248,15 @@ function runTests(tests: W3cCase[]): RunResult {
       skip(result, 'missing input');
       continue;
     }
-    if (isUtf16(bytes)) {
-      skip(result, 'UTF-16 input');
-      continue;
-    }
     if (hasUnsupportedRawDeclaration(bytes)) {
       skip(result, 'unsupported declaration');
       continue;
     }
 
     let xml: string;
+    const encoding = inputEncoding(bytes);
     try {
-      xml = decodeUtf8(bytes);
+      xml = decode(bytes, encoding);
     } catch (error) {
       if (test.type === 'not-wf') {
         result.passed++;
@@ -295,7 +292,7 @@ function runTests(tests: W3cCase[]): RunResult {
     let threw = false;
     let error = '';
     try {
-      Array.from(new EventReaderSync(xml, { documentMode: 'document' }));
+      Array.from(new EventReaderSync(bytes, { documentMode: 'document', encoding }));
     } catch (cause) {
       threw = true;
       error = cause instanceof Error ? cause.message : String(cause);
@@ -368,18 +365,17 @@ function isStrictDocumentModeCase(test: W3cCase): boolean {
   return STRICT_DOCUMENT_MODE_URIS.has(test.uri);
 }
 
-function decodeUtf8(bytes: Uint8Array): string {
-  return new TextDecoder('utf-8', { fatal: true, ignoreBOM: true })
+function decode(bytes: Uint8Array, encoding: string): string {
+  return new TextDecoder(encoding, { fatal: true })
     .decode(bytes);
 }
 
-function isUtf16(bytes: Uint8Array): boolean {
-  return bytes.byteLength >= 2
-    && (
-      bytes[0] === 0xfe && bytes[1] === 0xff
-      || bytes[0] === 0xff && bytes[1] === 0xfe
-      || bytes.subarray(0, Math.min(bytes.byteLength, 64)).includes(0)
-    );
+function inputEncoding(bytes: Uint8Array): 'utf-8' | 'utf-16le' | 'utf-16be' {
+  if (bytes[0] === 0xfe && bytes[1] === 0xff) return 'utf-16be';
+  if (bytes[0] === 0xff && bytes[1] === 0xfe) return 'utf-16le';
+  if (bytes[0] === 0 && bytes[1] !== 0) return 'utf-16be';
+  if (bytes[0] !== 0 && bytes[1] === 0) return 'utf-16le';
+  return 'utf-8';
 }
 
 function isUnsupportedXmlVersion(xml: string): boolean {

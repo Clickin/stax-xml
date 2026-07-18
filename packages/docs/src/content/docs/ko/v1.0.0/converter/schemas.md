@@ -35,8 +35,8 @@ const schema = x.string().xpath('/book/@id');
 const result = schema.parseSync('<book id="123">제목</book>');
 // "123"
 
-// 하위 속성 검색
-const schema = x.string().xpath('//@href');
+// Descendant element의 terminal attribute 검색
+const schema = x.string().xpath('//link/@href');
 const result = schema.parseSync('<a><link href="http://example.com"/></a>');
 // "http://example.com"
 ```
@@ -268,19 +268,20 @@ type Book = Infer<typeof booksSchema>[number];
 // { title: string; author: string; year: number; }
 ```
 
-### XPath 조건절
+### Position 조건절
 
-XPath 조건절로 배열 요소 필터링:
+Streaming subset은 1-based positive literal position을 지원합니다:
 
 ```typescript
-// 픽션 책만
 const fictionBooks = x.array(
   x.object({
     title: x.string().xpath('./title'),
     author: x.string().xpath('./author')
   }),
-  '//book[@category="fiction"]'
+  '//book[2]'
 );
+
+// Wildcard와 [@category="fiction"] 같은 arbitrary predicate는 선제 거부합니다.
 ```
 
 ### 중첩 배열

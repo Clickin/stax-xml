@@ -41,8 +41,8 @@ Runtime, adapter, backend selection, tree, DOM, native, Wasm용 public subpath�
 | `EventReader` | 같은 비동기 입력 | 안정적인 event object와 `for await` iteration이 필요할 때 사용합니다. |
 | Converter | `stax-xml/converter` | XML shape를 알고 있고 DOM 없이 typed object projection을 만들 때 사용합니다. |
 | `WriterSync` | JavaScript string 출력 | 전체 출력이 메모리에 충분히 들어갈 때 사용합니다. |
-| `WriterSyncSink` | 동기 text sink | 동기 incremental output에 사용합니다. |
-| `Writer` | `WritableStream<Uint8Array>` | 비동기 incremental UTF-8 output에 사용합니다. |
+| `WriterSyncSink` | 동기 text sink | 동기 incremental output 또는 외부 encoder에 사용합니다. |
+| `Writer` | `WritableStream<Uint8Array>` 또는 `AsyncTextSink` | 비동기 UTF-8 output 또는 외부 encoder에 사용합니다. |
 
 네 reader는 같은 token core를 사용하고 `START_DOCUMENT`와 `END_DOCUMENT`를
 발생시킵니다. `StreamReaderSync`와 `StreamReader`는 `eventType()`, `name()`,

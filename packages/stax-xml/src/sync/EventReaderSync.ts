@@ -1,12 +1,8 @@
-import { materializeTokenEvent, type AnyXmlEvent, type DocumentMode } from '@stax-xml/core';
-import { StreamReaderSync, tokenCursorOf, type StreamReaderSyncInput } from './StreamReaderSync.js';
+import { materializeTokenEvent, type AnyXmlEvent } from '@stax-xml/core';
+import { StreamReaderSync, tokenCursorOf, type StreamReaderSyncInput, type StreamReaderSyncOptions } from './StreamReaderSync.js';
 
 /** Options for the synchronous materialized-event reader. */
-export interface EventReaderSyncOptions {
-  documentMode?: DocumentMode;
-  /** Resolve namespaces and omit xmlns declarations from attributes. @defaultValue true */
-  namespaceAware?: boolean;
-}
+export interface EventReaderSyncOptions extends StreamReaderSyncOptions {}
 
 /** Synchronous iterator that yields stable, materialized XML event objects. */
 export class EventReaderSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEvent> {

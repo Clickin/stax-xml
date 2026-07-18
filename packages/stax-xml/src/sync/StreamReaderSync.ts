@@ -7,12 +7,14 @@ export interface StreamReaderSyncOptions {
   documentMode?: DocumentMode;
   /** Resolve namespaces and omit xmlns declarations from attributes. @defaultValue true */
   namespaceAware?: boolean;
+  /** TextDecoder encoding label for byte input. @defaultValue 'utf-8' */
+  encoding?: string;
 }
 const BYTE_CHUNK_SIZE = 64 * 1024;
 
 /**
  * Synchronous current-token reader. Strings are scanned directly without
- * encoding; byte inputs are decoded as fatal UTF-8.
+ * encoding; byte inputs are decoded in fatal mode with the configured encoding.
  */
 export class StreamReaderSync {
   private readonly cursor: TokenCursor;
@@ -26,7 +28,7 @@ export class StreamReaderSync {
     } else if (input instanceof Uint8Array) {
       this.cursor = new TokenCursor('', false, options);
       this.iterator = fixedByteChunks(input);
-      this.decoder = new TextDecoder('utf-8', { fatal: true });
+      this.decoder = new TextDecoder(options.encoding ?? 'utf-8', { fatal: true });
     } else {
       this.cursor = new TokenCursor('', false, options);
       // Re-batch caller-supplied byte chunks up to BYTE_CHUNK_SIZE before decoding.
@@ -34,7 +36,7 @@ export class StreamReaderSync {
       // full TextDecoder + cursor.push round-trip per few bytes; batching recovers
       // that overhead. Same fatal/stream contract as the single-Uint8Array path.
       this.iterator = batchByteChunks(input[Symbol.iterator](), BYTE_CHUNK_SIZE);
-      this.decoder = new TextDecoder('utf-8', { fatal: true });
+      this.decoder = new TextDecoder(options.encoding ?? 'utf-8', { fatal: true });
     }
   }
 
@@ -113,6 +115,7 @@ function batchByteChunks(source: Iterator<Uint8Array>, size: number): Iterator<U
         const part = source.next();
         if (part.done) { done = true; break; }
         const value = part.value;
+        if (!(value instanceof Uint8Array)) throw new Error('Reader chunks must be Uint8Array values.');
         if (value.byteLength === 0) continue;
         if (length + value.byteLength > buffer.byteLength) {
           const grown = new Uint8Array(Math.max(length + value.byteLength, buffer.byteLength * 2));

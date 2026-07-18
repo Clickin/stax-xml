@@ -221,8 +221,8 @@ x.string().xpath('/root/element/child')
 x.string().xpath('//element')
 
 // Attribute access
-x.string().xpath('/@id')
-x.string().xpath('//@href')
+x.string().xpath('/root/@id')
+x.string().xpath('//link/@href')
 
 // Combined
 x.string().xpath('/root/item/@name')
@@ -269,25 +269,19 @@ const books = x.array(
 );
 ```
 
-### XPath Predicates
+### Position Predicates
 
-Use predicates to filter elements:
+The streaming subset supports positive 1-based literal positions:
 
 ```typescript
-// By attribute value
 x.array(
   x.object({...}),
-  '//book[@category="fiction"]'
+  '//book[2]'
 )
 
-// By position
 x.string().xpath('//item[1]')  // First item
 
-// By element content
-x.array(
-  x.object({...}),
-  '//product[@available="true"]'
-)
+// Attribute predicates and other XPath predicates are rejected at construction.
 ```
 
 ## Error Handling
@@ -518,7 +512,7 @@ The schema above combines the common fast-path shapes in one compiled schema: ab
 | Shape | Example |
 |-------|---------|
 | Wildcards | `/catalog/*` |
-| Predicates | `//book[@id="1"]`, `//book[1]` |
+| Arbitrary predicates | `//book[@id="1"]`, `//book[last()]` |
 | Ambiguous relative paths without `./` | `title` |
 | Nested arrays | `x.array(x.array(x.string(), './value'), '/group')` |
 | Arrays that define both an array XPath and an element XPath | `x.array(x.string().xpath('./title'), '/book')` |

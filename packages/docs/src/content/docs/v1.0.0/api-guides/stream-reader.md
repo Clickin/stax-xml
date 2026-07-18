@@ -59,13 +59,17 @@ type StreamReaderSource =
 interface StreamReaderOptions {
   documentMode?: 'document' | 'fragment';
   namespaceAware?: boolean; // default: true
+  encoding?: string; // default: 'utf-8'
 }
 ```
 
 `namespaceAware` defaults to `true`. Set it to `false` when consumers need raw qualified names only: namespace URIs are `''`, `xmlns` declarations are ordinary attributes, and undeclared prefixes are not rejected.
 
-Input bytes are decoded incrementally as fatal UTF-8. Invalid UTF-8, malformed
-XML, and unsupported named entities reject `next()`. The reader recognizes the
+Input bytes are decoded incrementally by a fatal `TextDecoder`. `encoding`
+defaults to `utf-8` and accepts host-supported labels such as `utf-16le` and
+`utf-16be`. The reader does not infer this label from the XML declaration;
+callers must select the encoding that matches the byte source. Invalid byte sequences, malformed XML, and unsupported named
+entities reject `next()`. The reader recognizes the
 five predefined XML entities and numeric character references; custom and
 external entities are not resolved and no external I/O is performed.
 

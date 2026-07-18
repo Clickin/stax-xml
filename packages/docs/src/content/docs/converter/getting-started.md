@@ -119,10 +119,10 @@ x.string().xpath('/root/element')
 x.string().xpath('//element')
 
 // Attributes
-x.string().xpath('/@id')
+x.string().xpath('/root/@id')
 
-// Predicates
-x.array(x.object({...}), '//book[@category="fiction"]')
+// Positive 1-based position
+x.array(x.object({...}), '//book[2]')
 ```
 
 ### Validation

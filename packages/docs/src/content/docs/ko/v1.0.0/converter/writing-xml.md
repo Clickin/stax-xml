@@ -1,6 +1,6 @@
 ---
 title: Converter - XML 쓰기
-description: Converter Writer API로 JavaScript 객체를 XML로 직렬화
+description: v1 Converter Writer API로 JavaScript 값을 XML로 직렬화
 head:
   - tag: meta
     attrs:
@@ -9,526 +9,84 @@ head:
 slug: ko/v1.0.0/converter/writing-xml
 ---
 
-StAX-XML Converter는 `.writer()` 구성 메서드와 `.write()` / `.writeSync()` 메서드를 사용하여 JavaScript 객체를 다시 XML로 직렬화할 수 있습니다.
+Converter 쓰기는 공개 v1 기능입니다. `.writer()`로 XML 이름을 설정한 뒤
+`.writeSync()`, `.write()`, `.writeToStream()`을 호출합니다.
 
-## 기본 XML 쓰기
-
-### 문자열 스키마
-
-```typescript
+```ts
 import { x } from 'stax-xml/converter';
 
-// Writer 구성
-const schema = x.string().writer({
-  element: 'message'
+const catalog = x.object({
+  id: x.string('./@id').writer({ asAttribute: 'id' }),
+  owner: x.object({
+    name: x.string('./name').writer({ element: 'name' }),
+  }).writer({ element: 'owner' }),
+  books: x.array(
+    x.object({
+      title: x.string('./title').writer({ element: 'title' }),
+    }).writer({ element: 'book' }),
+  ).writer({ element: 'books' }),
 });
-
-// XML로 쓰기
-const xml = schema.writeSync('안녕하세요');
-// <message>안녕하세요</message>
-```
-
-### 루트 요소와 함께
-
-루트 요소와 XML 선언 추가:
-
-```typescript
-const schema = x.string().writer({
-  element: 'content'
-});
-
-const xml = schema.writeSync('안녕하세요', {
-  rootElement: 'root',
-  includeDeclaration: true
-});
-// <?xml version="1.0" encoding="UTF-8"?>
-// <root><content>안녕하세요</content></root>
-```
-
-### 숫자 스키마
-
-```typescript
-const schema = x.number().writer({
-  element: 'count'
-});
-
-const xml = schema.writeSync(42);
-// <count>42</count>
-```
-
-## Writer 구성
-
-`.writer()` 메서드는 구성 객체를 받습니다:
-
-```typescript
-interface XmlElementWriteConfig {
-  element?: string;           // 요소 이름
-  attribute?: string;         // 요소 대신 속성으로 쓰기
-  cdata?: boolean;            // CDATA로 래핑
-  namespace?: string;         // 요소 네임스페이스
-  namespacePrefix?: string;   // 네임스페이스 접두사
-}
-```
-
-### 요소 이름
-
-```typescript
-const schema = x.string().writer({
-  element: 'title'
-});
-
-schema.writeSync('책 제목');
-// <title>책 제목</title>
-```
-
-### 속성
-
-요소 대신 속성으로 값 쓰기:
-
-```typescript
-const schema = x.number().writer({
-  asAttribute: 'id'
-});
-
-// 참고: 속성에는 컨테이너 요소가 필요
-schema.writeSync(123, { rootElement: 'item' });
-// <item id="123"/>
-```
-
-### CDATA 섹션
-
-특수 문자를 위해 내용을 CDATA로 래핑:
-
-```typescript
-const schema = x.string().writer({
-  element: 'description',
-  cdata: true
-});
-
-schema.writeSync('Text with <tags> & special chars');
-// <description><![CDATA[Text with <tags> & special chars]]></description>
-```
-
-## 객체 쓰기
-
-객체 스키마는 각 필드를 Writer 구성에 따라 씁니다:
-
-```typescript
-const bookSchema = x.object({
-  id: x.number().xpath('/book/@id').writer({ asAttribute: 'id' }),
-  title: x.string().xpath('/book/title').writer({ element: 'title' }),
-  author: x.string().xpath('/book/author').writer({ element: 'author' }),
-  price: x.number().xpath('/book/price').writer({ element: 'price' })
-});
-
-const book = {
-  id: 123,
-  title: '1984',
-  author: '조지 오웰',
-  price: 15.99
-};
-
-const xml = bookSchema.writeSync(book, { rootElement: 'book' });
-// <book id="123">
-//   <title>1984</title>
-//   <author>조지 오웰</author>
-//   <price>15.99</price>
-// </book>
-```
-
-### 중첩된 객체
-
-```typescript
-const personSchema = x.object({
-  name: x.string().xpath('/person/name').writer({ element: 'name' }),
-  address: x.object({
-    street: x.string().xpath('./street').writer({ element: 'street' }),
-    city: x.string().xpath('./city').writer({ element: 'city' }),
-    zip: x.string().xpath('./zip').writer({ element: 'zip' })
-  }).xpath('/person/address').writer({ element: 'address' })
-});
-```
-
-### 혼합 속성 및 요소
-
-```typescript
-const productSchema = x.object({
-  id: x.number().xpath('./@id').writer({ asAttribute: 'id' }),
-  sku: x.string().xpath('./@sku').writer({ asAttribute: 'sku' }),
-  name: x.string().xpath('./name').writer({ element: 'name' }),
-  price: x.number().xpath('./price').writer({ element: 'price' }),
-  description: x.string().xpath('./description').writer({
-    element: 'description',
-    cdata: true
-  })
-});
-```
-
-## 배열 쓰기
-
-배열은 각 요소를 별도의 XML 요소로 씁니다:
-
-```typescript
-const itemsSchema = x.array(
-  x.string().writer({ element: 'item' }),
-  '//item'
-);
-
-const items = ['사과', '바나나', '체리'];
-
-const xml = itemsSchema.writeSync(items, { rootElement: 'list' });
-// <list>
-//   <item>사과</item>
-//   <item>바나나</item>
-//   <item>체리</item>
-// </list>
-```
-
-### 객체 배열
-
-```typescript
-const booksSchema = x.array(
-  x.object({
-    title: x.string().xpath('./title').writer({ element: 'title' }),
-    author: x.string().xpath('./author').writer({ element: 'author' }),
-    year: x.number().xpath('./year').writer({ element: 'year' })
-  }),
-  '//book'
-).writer({ element: 'book' });
-
-const books = [
-  { title: '1984', author: '조지 오웰', year: 1949 },
-  { title: '멋진 신세계', author: '올더스 헉슬리', year: 1932 }
-];
-
-const xml = booksSchema.writeSync(books, { rootElement: 'library' });
-```
-
-## 쓰기 옵션
-
-`write()` 및 `writeSync()` 메서드는 옵션을 받습니다:
-
-```typescript
-interface XmlWriteOptions {
-  rootElement?: string;        // 루트 요소 이름
-  includeDeclaration?: boolean; // <?xml?> 선언 추가
-  xmlVersion?: string;         // XML 버전 (기본: "1.0")
-  encoding?: string;           // 인코딩 (기본: "UTF-8")
-  prettyPrint?: boolean;       // 들여쓰기로 포맷
-  indent?: string;             // 들여쓰기 문자열 (기본: "  ")
-  writer?: WriterSync | WriterSyncSink | Writer; // 주입형 writer
-}
-```
-
-### Sink 기반 동기 쓰기
-
-`writeSync()`에 `writer`를 주입하면 전체 문자열을 만들지 않고 동기 sink로 바로 쓸 수 있습니다. 대용량 XML 출력에는 이 converter 쓰기 경로를 권장합니다.
-
-```typescript
-import { x } from 'stax-xml/converter';
-import { closeSync, openSync, writeSync } from 'node:fs';
-import {
-  WriterSyncSink
-} from 'stax-xml';
-
-const schema = x.object({
-  id: x.number().xpath('/book/@id').writer({ asAttribute: 'id' }),
-  title: x.string().xpath('/book/title').writer({ element: 'title' }),
-  price: x.number().xpath('/book/price').writer({ element: 'price' })
-});
-
-const fd = openSync('./catalog.xml', 'w');
-const sink = new WriterSyncSink(
-  {
-    write(chunk) { writeSync(fd, chunk); },
-    close() { closeSync(fd); }
-  },
-  { flushThreshold: 0.8, enableAutoFlush: true }
-);
 
 const data = {
-  id: 1001,
-  title: '고성능 XML',
-  price: 12345
+  id: 'c1',
+  owner: { name: 'Ada' },
+  books: [{ title: 'One' }, { title: 'Two' }],
 };
 
-schema.writeSync(data, {
-  rootElement: 'book',
-  writer: sink,
-  prettyPrint: true
+const xml = catalog.writeSync(data, {
+  rootElement: 'catalog',
+  includeDeclaration: false,
 });
-
-// writer를 주입하면 output은 sink로 바로 쓰이고
-// writeSync의 반환값은 빈 문자열입니다.
-sink.flush();
-sink.close();
+// <catalog id="c1"><owner><name>Ada</name></owner><books><book><title>One</title></book><book><title>Two</title></book></books></catalog>
 ```
 
-### HTTP response streaming
+Object의 `undefined`와 `null` field는 생략됩니다. Attribute field는 포함하는 object
+element에 붙습니다. Element field가 `element`를 생략하면 field key를 사용합니다.
+비어 있지 않은 array output에는 element schema의 item element 이름이 필요합니다.
+`rootElement`는 선택적인 바깥 wrapper이며 top-level schema의 자체 `element`는 그 안에
+유지됩니다.
 
-Node response 객체처럼 동기 `write(string)`을 받는 대상은 `WriterSyncSink`로 감싸서 사용할 수 있습니다. 이 방식은 converter output을 전체 문자열로 만들지 않고 response로 증분 출력합니다.
+```ts
+interface XmlElementWriteConfig {
+  element?: string;
+  asAttribute?: string;
+  namespace?: { prefix?: string; uri: string };
+  cdata?: boolean;
+  selfClosing?: boolean;
+  comment?: string;
+}
 
-```typescript
-import express from 'express';
-import { x } from 'stax-xml/converter';
-import { WriterSyncSink } from 'stax-xml';
-
-const catalogSchema = x.object({
-  title: x.string().writer({ element: 'title' }),
-  price: x.number().writer({ element: 'price' })
-});
-
-const loadCatalog = () => ({
-  title: '고성능 XML',
-  price: 12345
-});
-
-const app = express();
-
-app.get('/catalog.xml', (req, res) => {
-  res.setHeader('Content-Type', 'application/xml; charset=utf-8');
-
-  const writer = new WriterSyncSink({
-    write(chunk) { res.write(chunk); },
-    close() { res.end(); }
-  });
-
-  catalogSchema.writeSync(loadCatalog(), {
-    rootElement: 'catalog',
-    writer
-  });
-
-  writer.close();
-});
+interface XmlWriteOptions {
+  prettyPrint?: boolean;
+  indentString?: string;
+  encoding?: 'utf-8' | 'UTF-8';
+  rootElement?: string;
+  includeDeclaration?: boolean;
+  xmlVersion?: '1.0';
+  writer?: WriterSync | WriterSyncSink | Writer;
+}
 ```
 
-Web `WritableStream` 기반 framework에서는 `writeToStream()`을 사용합니다.
+Namespace prefix를 생략하면 default namespace를 선언합니다. Prefix가 있는 element와
+attribute는 XML Namespaces 규칙에 따라 URI를 선언하고 사용합니다. 예약 binding,
+선언하지 않은 prefix, 잘못된 NCName, 중복 expanded attribute는 거부합니다.
 
-```typescript
-import { stream } from 'hono/streaming';
-import { x } from 'stax-xml/converter';
+`cdata`는 string scalar에 적용됩니다. `selfClosing`은 설정한 element가 비었을 때만
+`/>`를 출력합니다. String content는 한 번만 escape하며 모든 structured writer input은
+XML 1.0 금지 문자를 거부합니다.
 
-const catalogSchema = x.object({
-  title: x.string().writer({ element: 'title' }),
-  price: x.number().writer({ element: 'price' })
-});
+v1 parser와 writer는 XML 1.0을 지원합니다. Reader byte input은 host가 지원하는
+`TextDecoder` encoding을 선택할 수 있습니다. Built-in string/byte writer target은 UTF-8을
+사용하며, 주입한 `AsyncTextSink` 또는 encoded `WriterSyncSink`는 외부 encoding을 선언할 수
+있습니다. 불일치하는 encoding과 XML 1.1 선언은 거부합니다. 동기와 비동기 converter writer는 같은 구조와 검증 의미론을 갖습니다.
 
-const loadCatalog = () => ({
-  title: '고성능 XML',
-  price: 12345
-});
-
-app.get('/catalog.xml', (c) => {
-  c.header('Content-Type', 'application/xml; charset=utf-8');
-
-  return stream(c, async (out) => {
-    const writable = new WritableStream<Uint8Array>({
-      write(chunk) {
-        return out.write(chunk);
-      }
-    });
-
-    await catalogSchema.writeToStream(loadCatalog(), writable, {
-      rootElement: 'catalog'
-    });
-  });
-});
-```
-
-Elysia에서는 `TransformStream`으로 만든 Web `Response`를 반환할 수 있습니다.
-
-```typescript
-import { Elysia } from 'elysia';
-import { x } from 'stax-xml/converter';
-
-const catalogSchema = x.object({
-  title: x.string().writer({ element: 'title' }),
-  price: x.number().writer({ element: 'price' })
-});
-
-const loadCatalog = () => ({
-  title: '고성능 XML',
-  price: 12345
-});
-
-new Elysia()
-  .get('/catalog.xml', () => {
-    const { readable, writable } = new TransformStream<Uint8Array>();
-
-    void catalogSchema.writeToStream(loadCatalog(), writable, {
-      rootElement: 'catalog'
-    }).catch((error) => {
-      void writable.abort(error);
-    });
-
-    return new Response(readable, {
-      headers: {
-        'Content-Type': 'application/xml; charset=utf-8'
-      }
-    });
-  });
-```
-
-### Pretty Printing
-
-```typescript
-const schema = x.object({
-  name: x.string().xpath('/name').writer({ element: 'name' }),
-  value: x.number().xpath('/value').writer({ element: 'value' })
-});
-
-const data = { name: 'Test', value: 42 };
-
-// Pretty print 없이
-const compact = schema.writeSync(data, { rootElement: 'data' });
-// <data><name>Test</name><value>42</value></data>
-
-// Pretty print와 함께
-const formatted = schema.writeSync(data, {
-  rootElement: 'data',
-  prettyPrint: true,
-  indentString: '  '
-});
-// <data>
-//   <name>Test</name>
-//   <value>42</value>
-// </data>
-```
-
-### XML 선언
-
-```typescript
-const xml = schema.writeSync(data, {
-  rootElement: 'root',
+```ts
+await catalog.writeToStream(data, writableStream, {
+  rootElement: 'catalog',
   includeDeclaration: true,
-  xmlVersion: '1.0',
-  encoding: 'UTF-8'
-});
-// <?xml version="1.0" encoding="UTF-8"?>
-// <root>...</root>
-```
-
-## 비동기 쓰기
-
-일관성을 위해 비동기 쓰기도 지원됩니다:
-
-```typescript
-// 비동기 쓰기
-const xml = await schema.write(data, { rootElement: 'root' });
-
-// 동기 쓰기
-const xml = schema.writeSync(data, { rootElement: 'root' });
-
-// 두 가지 모두 동일한 출력 생성
-```
-
-## 양방향 스키마
-
-스키마는 파싱과 쓰기 모두에 사용할 수 있습니다:
-
-```typescript
-const userSchema = x.object({
-  id: x.number().xpath('/user/@id').writer({ asAttribute: 'id' }),
-  username: x.string().xpath('/user/username').writer({ element: 'username' }),
-  email: x.string().xpath('/user/email').writer({ element: 'email' }),
-  active: x.string()
-    .xpath('/user/@active')
-    .writer({ asAttribute: 'active' })
-    .transform(v => v === 'true')  // 파싱: 문자열 -> 불린
-});
-
-// XML을 객체로 파싱
-const xml = '<user id="123" active="true"><username>john</username><email>john@example.com</email></user>';
-const user = userSchema.parseSync(xml);
-
-// 객체를 XML로 쓰기
-const reverseData = {
-  id: 456,
-  username: 'jane',
-  email: 'jane@example.com',
-  active: 'true'  // 참고: 불린이 아닌 문자열 제공 필요
-};
-
-const outputXml = userSchema.writeSync(reverseData, { rootElement: 'user' });
-```
-
-**참고**: Transform은 파싱 중에만 적용되며 쓰기 중에는 적용되지 않습니다. Writer가 기대하는 형식의 데이터를 제공해야 합니다.
-
-## 엔티티 이스케이핑
-
-Writer는 자동으로 특수 XML 문자를 이스케이프합니다:
-
-```typescript
-const schema = x.string().writer({ element: 'text' });
-
-const xml = schema.writeSync('Text with <tags> & "quotes"', { rootElement: 'root' });
-// <root><text>Text with &lt;tags&gt; &amp; &quot;quotes&quot;</text></root>
-```
-
-이스케이프를 피하려면 CDATA 사용:
-
-```typescript
-const schema = x.string().writer({ element: 'text', cdata: true });
-
-const xml = schema.writeSync('Text with <tags> & "quotes"', { rootElement: 'root' });
-// <root><text><![CDATA[Text with <tags> & "quotes"]]></text></root>
-```
-
-## 모범 사례
-
-### 1. 일관된 파싱/쓰기 스키마
-
-```typescript
-// ✅ 양방향으로 작동하는 스키마
-const schema = x.object({
-  id: x.number().xpath('/@id').writer({ asAttribute: 'id' }),
-  name: x.string().xpath('/name').writer({ element: 'name' })
 });
 ```
 
-### 2. 사용자 콘텐츠에 CDATA 사용
-
-```typescript
-// ✅ HTML/특수 콘텐츠에 CDATA
-const schema = x.string().writer({
-  element: 'content',
-  cdata: true
-});
-```
-
-### 3. 모든 필드 구성
-
-```typescript
-// ✅ 모든 필드에 writer 구성
-const schema = x.object({
-  a: x.string().xpath('/a').writer({ element: 'a' }),
-  b: x.number().xpath('/b').writer({ element: 'b' })
-});
-
-// ❌ writer 구성 누락
-const incomplete = x.object({
-  a: x.string().xpath('/a').writer({ element: 'a' }),
-  b: x.number().xpath('/b')  // writer 없음!
-});
-```
-
-### 4. Optional 필드 처리
-
-```typescript
-// Optional 필드는 undefined이면 건너뜀
-const schema = x.object({
-  required: x.string().xpath('/required').writer({ element: 'required' }),
-  optional: x.string().xpath('/optional').optional().writer({ element: 'optional' })
-});
-
-schema.writeSync({ required: 'value', optional: undefined });
-// <required>value</required>
-// (optional 요소는 포함되지 않음)
-```
-
-## 다음 단계
-
-- [예제](/stax-xml/ko/converter/examples)에서 완전한 양방향 스키마 확인
-- [스키마 타입](/stax-xml/ko/converter/schemas)에서 쓰기 중 유효성 검사 검토
-- [변환](/stax-xml/ko/converter/transformations)에서 데이터 준비 확인
-- [XPath](/stax-xml/ko/converter/xpath-guide)로 정확한 필드 매핑 학습
+Transform은 일반적으로 역변환할 수 없으므로 transform schema는 쓸 수 없습니다. Number
+writer는 `NaN`과 infinity를 거부합니다. Low-level `writeRaw()`는 신뢰할 수 있는 XML에만
+사용하며 converter scalar writer는 검증된 character 또는 CDATA method를 사용합니다.

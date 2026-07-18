@@ -1,10 +1,24 @@
 // Writer.ts - Optimized version with real performance improvements
-import { assertXmlChars, assertXmlName, WriteElementOptions } from '@stax-xml/core';
+import {
+  assertNamespaceBinding,
+  assertXmlChars,
+  assertXmlEncodingName,
+  assertXmlName,
+  assertXmlNCName,
+  assertXmlVersion,
+  planStartElement,
+  reserveExpandedAttribute,
+  WriteElementOptions,
+  XML_NAMESPACE_URI,
+  XMLNS_NAMESPACE_URI
+} from '@stax-xml/core';
 
 /**
  * Sink interface for custom sync targets.
  */
 export interface SyncTextSink {
+  /** Encoding produced after this sink's external encoding stage. Defaults to UTF-8. */
+  readonly encoding?: string;
   /** Accept a serialized XML text chunk. */
   write(chunk: string): void;
   /** Flush buffered sink data, when supported. */
@@ -17,7 +31,7 @@ export interface SyncTextSink {
  * Writer output options shared by string and sink variants.
  */
 export interface WriterSyncOptions {
-  /** XML declaration encoding. String output is not byte-encoded; only UTF-8 is accepted. */
+  /** XML declaration encoding. WriterSync accepts UTF-8; WriterSyncSink requires it to match the sink encoding. */
   encoding?: string;
   prettyPrint?: boolean; // Enable pretty print (default: false)
   indentString?: string; // Pretty print indentation string (default: '  ')
@@ -80,6 +94,7 @@ abstract class AbstractWriterSync {
 
   protected state: number = WriterState.INITIAL;
   protected elementStack: string[] = [];
+  protected elementPrefixStack: string[] = [];
   protected hasTextContentStack: boolean[] = [];
   protected readonly namespaces = new Map<string, string>();
   protected namespaceUndoStarts: number[] = [];
@@ -95,8 +110,10 @@ abstract class AbstractWriterSync {
   private fullEntityMap?: Record<string, string>;
   private customEntityKeys?: string[];
 
-  protected constructor(options: WriterSyncOptions = {}) {
-    const encoding = utf8Encoding(options.encoding);
+  protected constructor(options: WriterSyncOptions = {}, sinkEncoding?: string) {
+    const encoding = sinkEncoding === undefined
+      ? utf8Encoding(options.encoding)
+      : externalEncoding(sinkEncoding, options.encoding);
     this.options = {
       prettyPrint: false,
       indentString: '  ',
@@ -132,11 +149,12 @@ abstract class AbstractWriterSync {
   /**
    * Writes the XML declaration (e.g., <?xml version="1.0" encoding="UTF-8"?>).
    */
-  public writeStartDocument(version: string = '1.0', encoding?: string): this {
+  public writeStartDocument(version: '1.0' = '1.0', encoding?: string): this {
     if (this.state !== WriterState.INITIAL) {
       throw new Error('writeStartDocument can only be called once at the beginning of the document.');
     }
-    const actualEncoding = utf8Encoding(encoding ?? this.options.encoding);
+    const actualEncoding = matchingEncoding(encoding ?? this.options.encoding, this.options.encoding);
+    assertXmlVersion(version);
     this.state = WriterState.AFTER_ELEMENT;
 
     const declaration = `<?xml version="${version}" encoding="${actualEncoding}"?>`;
@@ -167,19 +185,23 @@ abstract class AbstractWriterSync {
     if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
       throw new Error('Cannot writeStartElement: Writer is closed or in error state.');
     }
-    this._closeStartElementTag();
-
-    const prefix = options?.prefix;
-    const uri = options?.uri;
-    const attributes = options?.attributes;
     const selfClosing = options?.selfClosing ?? false;
     const comment = options?.comment;
-    assertXmlName(localName, 'element name');
-    if (prefix) assertXmlName(prefix, 'prefix');
-    if (comment !== undefined) {
-      assertXmlChars(comment, 'comment');
-      if (comment.includes('--')) throw new Error('XML comment cannot contain "--" sequence.');
+    const plan = planStartElement(
+      localName,
+      options,
+      prefix => prefix === 'xml' ? XML_NAMESPACE_URI : this.namespaces.get(prefix),
+      value => this._escapeXml(value),
+      true
+    );
+
+    if (selfClosing && plan.prefix && plan.prefix !== 'xml'
+      && plan.namespaceBindings.every(binding => binding.prefix !== plan.prefix)
+      && !this.namespaces.has(plan.prefix)) {
+      throw new Error(`Namespace prefix '${plan.prefix}' is not defined for element '${localName}'`);
     }
+
+    this._closeStartElementTag();
 
     if (comment) {
       this._writeIndent();
@@ -188,52 +210,9 @@ abstract class AbstractWriterSync {
     }
 
     this._writeIndent();
-    const qualifiedName = prefix ? `${prefix}:${localName}` : localName;
-    const attributeNames = new Set<string>();
-    this._write(`<${qualifiedName}`);
-
     const undoStart = this.namespaceUndoPrefixes.length;
-
-    if (prefix && uri) {
-      reserveAttribute(attributeNames, `xmlns:${prefix}`);
-      this._write(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
-      this._bindNamespace(prefix, uri);
-    }
-
-    if (attributes) {
-      let attrString = '';
-      for (const key in attributes) {
-        const value = attributes[key];
-        if (value === undefined) {
-          continue;
-        }
-        if (typeof value === 'string') {
-          assertXmlName(key, 'attribute name');
-          reserveAttribute(attributeNames, key);
-          assertXmlChars(value, 'attribute value');
-          attrString += ` ${key}="${this._escapeXml(value)}"`;
-        } else {
-          const attrPrefix = value.prefix;
-          const attrValue = value.value;
-          assertXmlName(key, 'attribute name');
-          if (attrPrefix) assertXmlName(attrPrefix, 'attribute prefix');
-          reserveAttribute(attributeNames, attrPrefix ? `${attrPrefix}:${key}` : key);
-          assertXmlChars(attrValue, 'attribute value');
-
-          if (attrPrefix) {
-            if (!this.namespaces.has(attrPrefix)) {
-              throw new Error(`Namespace prefix '${attrPrefix}' is not defined for attribute '${key}'`);
-            }
-            attrString += ` ${attrPrefix}:${key}="${this._escapeXml(attrValue)}"`;
-          } else {
-            attrString += ` ${key}="${this._escapeXml(attrValue)}"`;
-          }
-        }
-      }
-      if (attrString) {
-        this._write(attrString);
-      }
-    }
+    this._write(plan.startTag);
+    for (const binding of plan.namespaceBindings) this._bindNamespace(binding.prefix, binding.uri);
 
     if (selfClosing) {
       this._write('/>');
@@ -243,9 +222,10 @@ abstract class AbstractWriterSync {
       return this;
     }
 
-    this.elementStack.push(qualifiedName);
+    this.elementStack.push(plan.qualifiedName);
+    this.elementPrefixStack.push(plan.prefix);
     this.hasTextContentStack.push(false);
-    this.attributeNames.push(attributeNames);
+    this.attributeNames.push(plan.attributeNames);
     this.namespaceUndoStarts.push(undoStart);
     this.state = WriterState.START_ELEMENT_OPEN;
     this.currentIndentLevel++;
@@ -257,14 +237,18 @@ abstract class AbstractWriterSync {
     if (this.state !== WriterState.START_ELEMENT_OPEN) {
       throw new Error('writeAttribute can only be called after writeStartElement.');
     }
-    assertXmlName(localName, 'attribute name');
+    assertXmlNCName(localName, 'attribute name');
+    if (localName === 'xmlns') throw new Error("Attribute name 'xmlns' is reserved for namespace declarations.");
+    let uri = '';
     if (prefix) {
-      assertXmlName(prefix, 'attribute prefix');
-      if (!this.namespaces.has(prefix)) throw new Error(`Namespace prefix '${prefix}' is not defined for attribute '${localName}'`);
+      assertXmlNCName(prefix, 'attribute prefix');
+      if (prefix === 'xmlns') throw new Error("The attribute prefix 'xmlns' is reserved.");
+      uri = prefix === 'xml' ? XML_NAMESPACE_URI : (this.namespaces.get(prefix) ?? '');
+      if (!uri) throw new Error(`Namespace prefix '${prefix}' is not defined for attribute '${localName}'`);
     }
     assertXmlChars(value, 'attribute value');
     const attrName = prefix ? `${prefix}:${localName}` : localName;
-    reserveAttribute(this.attributeNames[this.attributeNames.length - 1]!, attrName);
+    reserveExpandedAttribute(this.attributeNames[this.attributeNames.length - 1]!, uri, localName, attrName);
     const attr = ` ${attrName}="${this._escapeXml(value)}"`;
     this._write(attr);
     return this;
@@ -276,13 +260,13 @@ abstract class AbstractWriterSync {
       throw new Error('writeNamespace can only be called after writeStartElement.');
     }
 
+    assertNamespaceBinding(prefix, uri);
     if (prefix) {
-      assertXmlName(prefix, 'prefix');
-      reserveAttribute(this.attributeNames[this.attributeNames.length - 1]!, `xmlns:${prefix}`);
+      reserveExpandedAttribute(this.attributeNames[this.attributeNames.length - 1]!, XMLNS_NAMESPACE_URI, prefix, `xmlns:${prefix}`);
       this._write(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
       this._bindNamespace(prefix, uri);
     } else {
-      reserveAttribute(this.attributeNames[this.attributeNames.length - 1]!, 'xmlns');
+      reserveExpandedAttribute(this.attributeNames[this.attributeNames.length - 1]!, XMLNS_NAMESPACE_URI, 'xmlns', 'xmlns');
       this._write(` xmlns="${this._escapeXml(uri)}"`);
       this._bindNamespace('', uri);
     }
@@ -294,8 +278,8 @@ abstract class AbstractWriterSync {
     if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
       throw new Error('Cannot writeCharacters: Writer is closed or in error state.');
     }
-    this._closeStartElementTag();
     assertXmlChars(text, 'character data');
+    this._closeStartElementTag();
     this._write(this._escapeXml(text));
     this.state = WriterState.IN_ELEMENT;
     if (this.hasTextContentStack.length > 0) {
@@ -310,11 +294,11 @@ abstract class AbstractWriterSync {
     if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
       throw new Error('Cannot writeCData: Writer is closed or in error state.');
     }
-    this._closeStartElementTag();
     assertXmlChars(cdata, 'CDATA');
     if (cdata.includes(']]>')) {
       throw new Error('CDATA section cannot contain "]]>" sequence.');
     }
+    this._closeStartElementTag();
     this._write(`<![CDATA[${cdata}]]>`);
     this.state = WriterState.IN_ELEMENT;
     if (this.hasTextContentStack.length > 0) {
@@ -329,11 +313,11 @@ abstract class AbstractWriterSync {
     if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
       throw new Error('Cannot writeComment: Writer is closed or in error state.');
     }
-    this._closeStartElementTag();
     assertXmlChars(comment, 'comment');
     if (comment.includes('--')) {
       throw new Error('XML comment cannot contain "--" sequence.');
     }
+    this._closeStartElementTag();
     this._writeIndent();
     this._write(`<!-- ${comment} -->`);
     this.state = WriterState.AFTER_ELEMENT;
@@ -346,7 +330,6 @@ abstract class AbstractWriterSync {
     if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
       throw new Error('Cannot writeProcessingInstruction: Writer is closed or in error state.');
     }
-    this._closeStartElementTag();
     assertXmlName(target, 'processing instruction target');
     if (target.toLowerCase() === 'xml') throw new Error('XML processing instruction target is reserved.');
     if (data !== undefined) assertXmlChars(data, 'processing instruction data');
@@ -358,6 +341,7 @@ abstract class AbstractWriterSync {
       pi += ` ${data}`;
     }
     pi += '?>';
+    this._closeStartElementTag();
     this._writeIndent();
     this._write(pi);
     this.state = WriterState.AFTER_ELEMENT;
@@ -369,6 +353,9 @@ abstract class AbstractWriterSync {
 
   /** Write trusted XML verbatim without validation or escaping. */
   public writeRaw(xml: string): this {
+    if (this.state === WriterState.CLOSED || this.state === WriterState.ERROR) {
+      throw new Error('Cannot writeRaw: Writer is closed or in error state.');
+    }
     this._closeStartElementTag();
     this._write(xml);
     return this;
@@ -385,6 +372,8 @@ abstract class AbstractWriterSync {
     }
     /* v8 ignore end */
 
+    this._assertElementPrefixBound();
+
     this.currentIndentLevel--;
 
     const hasTextContent = this.hasTextContentStack.pop() || false;
@@ -396,6 +385,7 @@ abstract class AbstractWriterSync {
     this._closeStartElementTag();
 
     const closingTagName = this.elementStack.pop()!;
+    this.elementPrefixStack.pop();
     this.attributeNames.pop();
     this._restoreNamespaces(this.namespaceUndoStarts.pop()!);
     this._write(`</${closingTagName}>`);
@@ -461,11 +451,20 @@ abstract class AbstractWriterSync {
 
   protected _closeStartElementTag(): void {
     if (this.state === WriterState.START_ELEMENT_OPEN) {
+      this._assertElementPrefixBound();
       this._write('>');
       this.state = WriterState.IN_ELEMENT;
       if (this.options.prettyPrint) {
         this.needsIndent = true;
       }
+    }
+  }
+
+  private _assertElementPrefixBound(): void {
+    if (this.state !== WriterState.START_ELEMENT_OPEN) return;
+    const prefix = this.elementPrefixStack[this.elementPrefixStack.length - 1];
+    if (prefix && prefix !== 'xml' && !this.namespaces.has(prefix)) {
+      throw new Error(`Namespace prefix '${prefix}' is not defined for element '${this.elementStack.at(-1)}'`);
     }
   }
 
@@ -530,11 +529,6 @@ abstract class AbstractWriterSync {
   }
 }
 
-function reserveAttribute(names: Set<string>, name: string): void {
-  if (names.has(name)) throw new Error(`Duplicate attribute: ${name}`);
-  names.add(name);
-}
-
 /**
  * String-based sync writer.
  */
@@ -567,7 +561,7 @@ export class WriterSyncSink extends AbstractWriterSync {
   private buffer = '';
 
   constructor(sink: SyncTextSink, options: WriterSyncSinkOptions = {}) {
-    super(options);
+    super(options, sink.encoding);
 
     this.sink = sink;
     this.bufferSize = Math.max(1, options.bufferSize ?? (16 * 1024));
@@ -625,18 +619,18 @@ export class WriterSyncSink extends AbstractWriterSync {
 
   public writeEndDocument(): void {
     super.writeEndDocument();
-    this.flushBuffer();
-    if (this.flushOnClose && this.sink.flush) {
-      this.sink.flush();
-    }
+    this._runSinkOperation(() => {
+      this.flushBuffer();
+      if (this.flushOnClose) this.sink.flush?.();
+    });
   }
 
   /** Emit buffered text and invoke the sink's optional `flush()` hook. */
   public flush(): void {
-    this.flushBuffer();
-    if (this.sink.flush) {
-      this.sink.flush();
-    }
+    this._runSinkOperation(() => {
+      this.flushBuffer();
+      this.sink.flush?.();
+    });
   }
 
   /** Finalize the document, emit buffered text, and close the sink. */
@@ -644,14 +638,12 @@ export class WriterSyncSink extends AbstractWriterSync {
     if (this.state !== WriterState.CLOSED && this.state !== WriterState.ERROR) {
       super.writeEndDocument();
     }
-    this.flushBuffer();
-    if (this.flushOnClose && this.sink.flush) {
-      this.sink.flush();
-    }
-    if (this.sink.close) {
-      this.sink.close();
-    }
-    this.state = WriterState.CLOSED;
+    this._runSinkOperation(() => {
+      this.flushBuffer();
+      if (this.flushOnClose) this.sink.flush?.();
+      this.sink.close?.();
+      this.state = WriterState.CLOSED;
+    });
   }
 
   private flushBuffer(): void {
@@ -659,8 +651,23 @@ export class WriterSyncSink extends AbstractWriterSync {
       return;
     }
     const output = this.buffer;
-    this.sink.write(output);
-    this.buffer = '';
+    try {
+      this.sink.write(output);
+      this.buffer = '';
+    } catch (error) {
+      this.state = WriterState.ERROR;
+      throw error;
+    }
+  }
+
+  private _runSinkOperation(operation: () => void): void {
+    if (this.state === WriterState.ERROR) throw new Error('Writer is in error state.');
+    try {
+      operation();
+    } catch (error) {
+      this.state = WriterState.ERROR;
+      throw error;
+    }
   }
 }
 
@@ -671,4 +678,23 @@ function utf8Encoding(value = 'utf-8'): 'UTF-8' {
     throw new Error(`Writer only supports UTF-8 output, received: ${value}`);
   }
   return 'UTF-8';
+}
+
+function externalEncoding(sinkEncoding: string, optionEncoding?: string): string {
+  const target = xmlEncoding(sinkEncoding);
+  if (optionEncoding !== undefined) matchingEncoding(optionEncoding, target);
+  return target;
+}
+
+function matchingEncoding(requested: string, target: string): string {
+  const actual = xmlEncoding(requested);
+  if (actual.toLowerCase() !== target.toLowerCase()) {
+    throw new Error(`Writer encoding '${actual}' does not match output encoding '${target}'.`);
+  }
+  return target;
+}
+
+function xmlEncoding(value: string): string {
+  assertXmlEncodingName(value);
+  return value.toLowerCase() === 'utf-8' ? 'UTF-8' : value;
 }

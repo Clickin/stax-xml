@@ -291,7 +291,7 @@ export class CompiledRootProcessor {
 
   private processBytes(runtime: RuntimeState, bytes: Uint8Array): void {
     const cursor = this.createIncrementalCursor(runtime);
-    const decoder = new TextDecoder('utf-8', { fatal: true });
+    const decoder = createTextDecoder(runtime.options);
     this.processByteChunk(runtime, cursor, decoder, bytes);
     this.finishByteInput(runtime, cursor, decoder);
   }
@@ -376,15 +376,17 @@ export class CompiledRootProcessor {
   ): void {
     const iterator = input[Symbol.iterator]();
     let completed = false;
+    let primaryError: unknown;
     try {
       const first = iterator.next();
       if (first.done) {
+        this.processString(runtime, '');
         completed = true;
         return;
       }
       if (isByteSourceItem(first.value)) {
         const cursor = this.createIncrementalCursor(runtime);
-        const decoder = new TextDecoder('utf-8', { fatal: true });
+        const decoder = createTextDecoder(runtime.options);
         this.processByteSourceItem(runtime, cursor, decoder, first.value);
         for (let next = iterator.next(); !next.done; next = iterator.next()) {
           if (!isByteSourceItem(next.value)) throw new Error('Byte iterables must contain only Uint8Array values or byte batches.');
@@ -394,13 +396,22 @@ export class CompiledRootProcessor {
         completed = true;
         return;
       }
-      this.processEvent(runtime, first.value as AnyXmlEvent);
+      const validator = new EventInputValidator(runtime.options?.documentMode ?? 'fragment');
+      this.processEvent(runtime, validator.accept(first.value));
       for (let next = iterator.next(); !next.done; next = iterator.next()) {
-        this.processEvent(runtime, next.value as AnyXmlEvent);
+        this.processEvent(runtime, validator.accept(next.value));
       }
+      validator.finish();
       completed = true;
+    } catch (error) {
+      primaryError = error;
+      throw error;
     } finally {
-      if (!completed) iterator.return?.();
+      if (!completed) {
+        try { iterator.return?.(); } catch (cleanupError) {
+          if (primaryError === undefined) throw cleanupError;
+        }
+      }
     }
   }
 
@@ -410,15 +421,17 @@ export class CompiledRootProcessor {
   ): Promise<void> {
     const iterator = input[Symbol.asyncIterator]();
     let completed = false;
+    let primaryError: unknown;
     try {
       const first = await iterator.next();
       if (first.done) {
+        this.processString(runtime, '');
         completed = true;
         return;
       }
       if (isByteSourceItem(first.value)) {
         const cursor = this.createIncrementalCursor(runtime);
-        const decoder = new TextDecoder('utf-8', { fatal: true });
+        const decoder = createTextDecoder(runtime.options);
         this.processByteSourceItem(runtime, cursor, decoder, first.value);
         for (let next = await iterator.next(); !next.done; next = await iterator.next()) {
           if (!isByteSourceItem(next.value)) {
@@ -428,14 +441,23 @@ export class CompiledRootProcessor {
         }
         this.finishByteInput(runtime, cursor, decoder);
       } else {
-        this.processEvent(runtime, first.value as AnyXmlEvent);
+        const validator = new EventInputValidator(runtime.options?.documentMode ?? 'fragment');
+        this.processEvent(runtime, validator.accept(first.value));
         for (let next = await iterator.next(); !next.done; next = await iterator.next()) {
-          this.processEvent(runtime, next.value as AnyXmlEvent);
+          this.processEvent(runtime, validator.accept(next.value));
         }
+        validator.finish();
       }
       completed = true;
+    } catch (error) {
+      primaryError = error;
+      throw error;
     } finally {
-      if (!completed) await iterator.return?.();
+      if (!completed) {
+        try { await iterator.return?.(); } catch (cleanupError) {
+          if (primaryError === undefined) throw cleanupError;
+        }
+      }
     }
   }
 
@@ -922,7 +944,7 @@ export class CompiledRootProcessor {
     stream: ReadableStream<Uint8Array>
   ): Promise<void> {
     const cursor = this.createIncrementalCursor(runtime);
-    const decoder = new TextDecoder('utf-8', { fatal: true });
+    const decoder = createTextDecoder(runtime.options);
     const reader = stream.getReader();
     let completed = false;
     try {
@@ -1583,6 +1605,10 @@ function normalizeOptions(options: ParseOptions | unknown): ParseOptions | undef
   return options as ParseOptions;
 }
 
+function createTextDecoder(options?: ParseOptions): TextDecoder {
+  return new TextDecoder(options?.encoding ?? 'utf-8', { fatal: true });
+}
+
 function isSyncIterable(
   input: ParseInput
 ): input is Iterable<Uint8Array> | Iterable<readonly Uint8Array[]> | Iterable<AnyXmlEvent> {
@@ -1607,4 +1633,81 @@ function isAsyncIterable(input: ParseInput): boolean {
     && input !== null
     && Symbol.asyncIterator in input
     && typeof (input as AsyncIterable<unknown>)[Symbol.asyncIterator] === 'function';
+}
+
+class EventInputValidator {
+  private started = false;
+  private ended = false;
+  private roots = 0;
+  private doctypeSeen = false;
+  private readonly stack: string[] = [];
+
+  constructor(private readonly documentMode: 'fragment' | 'document') {}
+
+  accept(value: unknown): AnyXmlEvent {
+    if (!isXmlEvent(value)) throw new Error('Event iterables must contain only XML event values.');
+    if (this.ended) throw new Error('XML events are not allowed after END_DOCUMENT.');
+
+    if (value.type === XmlEventType.START_DOCUMENT) {
+      if (this.started) throw new Error('START_DOCUMENT must occur exactly once at the beginning.');
+      this.started = true;
+      return value;
+    }
+    if (!this.started) throw new Error('XML event input must begin with START_DOCUMENT.');
+
+    if (value.type === XmlEventType.END_DOCUMENT) {
+      if (this.stack.length > 0) throw new Error(`Unclosed element in XML event input: ${this.stack.at(-1)}`);
+      if (this.documentMode === 'document' && this.roots !== 1) {
+        throw new Error(`Document mode requires exactly one root element; found ${this.roots}.`);
+      }
+      this.ended = true;
+      return value;
+    }
+
+    if (value.type === XmlEventType.START_ELEMENT) {
+      if (this.stack.length === 0) {
+        this.roots++;
+        if (this.documentMode === 'document' && this.roots > 1) {
+          throw new Error('Document mode does not allow multiple root elements.');
+        }
+      }
+      this.stack.push(value.name);
+      return value;
+    }
+
+    if (value.type === XmlEventType.END_ELEMENT) {
+      const expected = this.stack.pop();
+      if (expected === undefined) throw new Error(`Unexpected closing element: ${value.name}`);
+      if (expected !== value.name) throw new Error(`Mismatched closing element: expected ${expected}, received ${value.name}`);
+      return value;
+    }
+
+    if ((value.type === XmlEventType.CHARACTERS || value.type === XmlEventType.CDATA) && this.stack.length === 0) {
+      if (this.documentMode === 'document' && (value.type === XmlEventType.CDATA || /[^\t\n\r ]/.test(value.value))) {
+        throw new Error('Character data is not allowed outside the root element.');
+      }
+      return value;
+    }
+
+    if (value.type === XmlEventType.DTD) {
+      if (this.doctypeSeen || this.roots > 0 || this.stack.length > 0) {
+        throw new Error('DOCTYPE must occur at most once before the root element.');
+      }
+      this.doctypeSeen = true;
+    }
+    return value;
+  }
+
+  finish(): void {
+    if (!this.started || !this.ended) throw new Error('XML event input must include START_DOCUMENT and END_DOCUMENT.');
+  }
+}
+
+const XML_EVENT_TYPES = new Set<string>(Object.values(XmlEventType));
+
+function isXmlEvent(value: unknown): value is AnyXmlEvent {
+  return typeof value === 'object' && value !== null
+    && 'type' in value
+    && typeof value.type === 'string'
+    && XML_EVENT_TYPES.has(value.type);
 }

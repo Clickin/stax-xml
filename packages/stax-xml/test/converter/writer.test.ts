@@ -200,13 +200,12 @@ describe('Writer Tests', () => {
       expect(xml).not.toContain('<?xml');
     });
 
-    it('should use custom XML version', async () => {
+    it('should reject XML versions outside the supported XML 1.0 contract', async () => {
       const schema = x.string().writer({ element: 'text' });
-      const xml = await schema.write('Hello', {
+      await expect(schema.write('Hello', {
         rootElement: 'root',
-        xmlVersion: '1.1'
-      });
-      expect(xml).toContain('<?xml version="1.1"');
+        xmlVersion: '1.1' as '1.0'
+      })).rejects.toThrow(/only supports XML 1\.0/i);
     });
   });
 
@@ -239,6 +238,94 @@ describe('Writer Tests', () => {
       const asyncXml = await schema.write(data, options);
 
       expect(syncXml).toBe(asyncXml);
+    });
+
+    it('should preserve nested object, optional, and array element structure exactly', async () => {
+      const schema = x.object({
+        child: x.object({
+          name: x.string().writer({ element: 'name' })
+        }).writer({ element: 'child' }),
+        note: x.string().optional().writer({ element: 'note' }),
+        items: x.array(
+          x.object({ value: x.string().writer({ element: 'value' }) })
+            .writer({ element: 'item' })
+        ).writer({ element: 'items' })
+      });
+      const data = {
+        child: { name: 'A' },
+        note: 'B',
+        items: [{ value: 'one' }, { value: 'two' }]
+      };
+      const options = { rootElement: 'root', includeDeclaration: false } as const;
+      const expected = '<root><child><name>A</name></child><note>B</note><items><item><value>one</value></item><item><value>two</value></item></items></root>';
+
+      expect(schema.writeSync(data, options)).toBe(expected);
+      await expect(schema.write(data, options)).resolves.toBe(expected);
+    });
+
+    it('should honor top-level object, array, and optional schema elements', async () => {
+      const object = x.object({
+        id: x.string().writer({ asAttribute: 'id' }),
+        value: x.string().writer({ element: 'value' })
+      }).writer({ element: 'entry' });
+      const array = x.array(x.string().writer({ element: 'item' }))
+        .writer({ element: 'items' });
+      const optional = x.string().optional().writer({ element: 'maybe' });
+      const options = { rootElement: 'root', includeDeclaration: false } as const;
+
+      expect(object.writeSync({ id: '7', value: 'A' }, options))
+        .toBe('<root><entry id="7"><value>A</value></entry></root>');
+      await expect(object.write({ id: '7', value: 'A' }, options))
+        .resolves.toBe('<root><entry id="7"><value>A</value></entry></root>');
+      expect(object.writeSync({ id: '7', value: 'A' }, { includeDeclaration: false }))
+        .toBe('<entry id="7"><value>A</value></entry>');
+      expect(array.writeSync(['A', 'B'], options))
+        .toBe('<root><items><item>A</item><item>B</item></items></root>');
+      await expect(array.write(['A', 'B'], options))
+        .resolves.toBe('<root><items><item>A</item><item>B</item></items></root>');
+      expect(optional.writeSync('A', options)).toBe('<root><maybe>A</maybe></root>');
+      await expect(optional.write('A', options)).resolves.toBe('<root><maybe>A</maybe></root>');
+    });
+
+    it('should honor namespaces and self-closing empty elements and reject invalid XML characters', async () => {
+      const namespaced = x.string().writer({
+        element: 'value',
+        namespace: { uri: 'urn:example' }
+      });
+      const empty = x.string().writer({ element: 'empty', selfClosing: true });
+
+      expect(namespaced.writeSync('ok', { rootElement: 'root', includeDeclaration: false }))
+        .toBe('<root><value xmlns="urn:example">ok</value></root>');
+      await expect(namespaced.write('ok', { rootElement: 'root', includeDeclaration: false }))
+        .resolves.toBe('<root><value xmlns="urn:example">ok</value></root>');
+      expect(empty.writeSync('', { rootElement: 'root', includeDeclaration: false }))
+        .toBe('<root><empty/></root>');
+      await expect(empty.write('', { rootElement: 'root', includeDeclaration: false }))
+        .resolves.toBe('<root><empty/></root>');
+      expect(() => namespaced.writeSync('\u0000', { rootElement: 'root' }))
+        .toThrow(/invalid XML character/i);
+      await expect(namespaced.write('\u0000', { rootElement: 'root' }))
+        .rejects.toThrow(/invalid XML character/i);
+    });
+
+    it('should serialize namespaced object attributes using their expanded names', async () => {
+      const schema = x.object({
+        id: x.string('./@id').writer({
+          asAttribute: 'id',
+          namespace: { prefix: 'm', uri: 'urn:metrics' }
+        })
+      });
+      const options = { rootElement: 'root', includeDeclaration: false } as const;
+
+      expect(schema.writeSync({ id: '7' }, options))
+        .toBe('<root xmlns:m="urn:metrics" m:id="7"></root>');
+      await expect(schema.write({ id: '7' }, options))
+        .resolves.toBe('<root xmlns:m="urn:metrics" m:id="7"></root>');
+
+      const invalid = x.object({
+        id: x.string('./@id').writer({ asAttribute: 'id', namespace: { uri: 'urn:metrics' } })
+      });
+      expect(() => invalid.writeSync({ id: '7' }, options)).toThrow(/requires a prefix/i);
     });
   });
 

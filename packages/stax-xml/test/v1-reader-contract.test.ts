@@ -102,6 +102,7 @@ function eventToken(event: AnyXmlEvent): unknown[] {
 interface ReaderOptions {
   documentMode?: 'document' | 'fragment';
   namespaceAware?: boolean;
+  encoding?: string;
 }
 
 function collectSync(input: string | Uint8Array | Iterable<Uint8Array>, options?: ReaderOptions): unknown[][] {
@@ -122,6 +123,24 @@ async function* asyncChunks(xml: string, size = 1): AsyncGenerator<Uint8Array> {
   yield* chunks(xml, size);
 }
 
+function utf16Bytes(text: string, littleEndian: boolean): Uint8Array {
+  const bytes = new Uint8Array(2 + text.length * 2);
+  bytes[0] = littleEndian ? 0xff : 0xfe;
+  bytes[1] = littleEndian ? 0xfe : 0xff;
+  for (let index = 0; index < text.length; index++) {
+    const code = text.charCodeAt(index);
+    bytes[2 + index * 2] = littleEndian ? code & 0xff : code >>> 8;
+    bytes[3 + index * 2] = littleEndian ? code >>> 8 : code & 0xff;
+  }
+  return bytes;
+}
+
+async function* byteChunks(bytes: Uint8Array, size: number): AsyncGenerator<Uint8Array> {
+  for (let offset = 0; offset < bytes.length; offset += size) {
+    yield bytes.slice(offset, offset + size);
+  }
+}
+
 describe('v1 reader public surface', () => {
   it('exports exactly the four reader roles from the package root', () => {
     expect(StreamReaderSync).toBeTypeOf('function');
@@ -132,6 +151,28 @@ describe('v1 reader public surface', () => {
 });
 
 describe('v1 current-token reader contract', () => {
+  it('uses the configured fatal TextDecoder encoding for byte readers', async () => {
+    const xml = '<?xml version="1.0" encoding="UTF-16"?><root>한글</root>';
+    const expected = collectSync(xml);
+    const littleEndian = utf16Bytes(xml, true);
+    const bigEndian = utf16Bytes(xml, false);
+
+    expect(collectSync(littleEndian, { encoding: 'utf-16le' })).toEqual(expected);
+    expect(Array.from(new EventReaderSync(littleEndian, { encoding: 'utf-16le' })).map(eventToken))
+      .toEqual(Array.from(new EventReaderSync(xml)).map(eventToken));
+    await expect(collectAsync(byteChunks(bigEndian, 3), { encoding: 'utf-16be' })).resolves.toEqual(expected);
+
+    const asyncEvents: unknown[][] = [];
+    for await (const event of new EventReader(byteChunks(bigEndian, 3), { encoding: 'utf-16be' })) {
+      asyncEvents.push(eventToken(event));
+    }
+    expect(asyncEvents).toEqual(Array.from(new EventReaderSync(xml)).map(eventToken));
+
+    expect(() => collectSync(littleEndian.slice(0, -1), { encoding: 'utf-16le' })).toThrow();
+    expect(() => new StreamReaderSync(littleEndian, { encoding: 'not-an-encoding' })).toThrow();
+    expect(() => new StreamReader(byteChunks(bigEndian, 3), { encoding: 'not-an-encoding' })).toThrow();
+  });
+
   it('has a deterministic document lifecycle and stays exhausted', () => {
     const reader = new StreamReaderSync('<root/>');
 
@@ -442,6 +483,7 @@ describe('v1 current-token reader contract', () => {
     ['reserved uppercase XML PI target', '<?XML version="1.0"?><r/>'],
     ['misplaced XML declaration', '<r><?xml version="1.0"?></r>'],
     ['invalid XML declaration', '<?xml?><r/>'],
+    ['unsupported XML 1.1 declaration', '<?xml version="1.1"?><r/>'],
     ['comment containing internal double hyphen', '<!--a--b--><r/>'],
     ['repeated DOCTYPE', '<!DOCTYPE r><!DOCTYPE r><r/>'],
     ['misplaced DOCTYPE', '<r/><!DOCTYPE r>'],
@@ -465,6 +507,24 @@ describe('v1 current-token reader contract', () => {
 });
 
 describe('v1 sync/async parity and async lifecycle', () => {
+  it('rejects invalid sync iterable chunks before batching and closes the source', () => {
+    let closed = false;
+    function* invalidChunks(): Generator<Uint8Array | string> {
+      try {
+        yield encoder.encode('<root>');
+        yield 'not bytes';
+      } finally {
+        closed = true;
+      }
+    }
+
+    const reader = new StreamReaderSync(invalidChunks() as Iterable<Uint8Array>);
+    expect(() => {
+      while (reader.next() !== null) { /* exhaust */ }
+    }).toThrow('Reader chunks must be Uint8Array values.');
+    expect(closed).toBe(true);
+  });
+
   it('produces identical current tokens across sync and async readers', async () => {
     const xml = '<r> a <x n="1"/> b </r>';
     expect(await collectAsync(asyncChunks(xml))).toEqual(collectSync(xml));

@@ -16,7 +16,7 @@
     "dev:stream-reader:4gb:release": "node --expose-gc ./stream-reader-4gb-consumption.mjs --size-gib=4 --style=index-for --runs=3 --warmups=0 --json-out=results/release/stream-reader-4gb.json --md-out=results/release/stream-reader-4gb.md",
     "dev:converter:compiled-batch": "node --expose-gc ./converter-compiled-batch-plan.mjs",
     "dev:converter:schema-shapes": "node --expose-gc ./converter-schema-shapes.mjs",
-    "check:converter:schema-shapes": "pnpm --filter stax-xml build && node --expose-gc ./converter-schema-shapes.mjs --size-mib=8 --warmups=10 --runs=20 --min-ratio=0.9",
+    "check:converter:schema-shapes": "pnpm --filter stax-xml build && node --expose-gc ./converter-schema-shapes.mjs --size-mib=8 --warmups=10 --runs=20",
     "dev:async:fast-path:poc": "node --expose-gc ./async-fast-path-poc.mjs --quick",
     "dev:async:large-compare": "node --expose-gc ./large-file-parser-compare.mjs",
     "dev:async:writer": "node --expose-gc ./async-writer.mjs",

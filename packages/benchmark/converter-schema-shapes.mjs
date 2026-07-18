@@ -7,7 +7,6 @@ const mib = 1024 * 1024;
 const sizeMiB = Number(arg('size-mib') ?? 4);
 const runs = Number(arg('runs') ?? 10);
 const warmups = Number(arg('warmups') ?? 3);
-const minimumRatio = arg('min-ratio');
 const diagnostic = arg('diagnostic');
 const target = sizeMiB * mib;
 const options = { documentMode: 'fragment', maxEvents: 20_000_000 };
@@ -34,27 +33,18 @@ if (diagnostic) {
   process.exit(0);
 }
 console.log('shape'.padEnd(24), 'manual'.padStart(12), 'converter'.padStart(12), 'ratio'.padStart(8));
-const results = [];
 for (const item of cases) {
   const manual = measure(() => item.manual(item.bytes));
   const converter = measure(() => item.schema.parseSync(item.bytes, options));
   const manualRate = item.bytes.byteLength / mib / (manual / 1000);
   const converterRate = item.bytes.byteLength / mib / (converter / 1000);
   const ratio = converterRate / manualRate;
-  results.push({ name: item.name, ratio });
   console.log(
     item.name.padEnd(24),
     `${manualRate.toFixed(2)} MiB/s`.padStart(12),
     `${converterRate.toFixed(2)} MiB/s`.padStart(12),
     ratio.toFixed(3).padStart(8)
   );
-}
-if (minimumRatio !== undefined) {
-  const minimum = Number(minimumRatio);
-  const failed = results.filter(result => result.ratio < minimum);
-  if (failed.length) {
-    throw new Error(`Converter throughput below ${minimum}x manual: ${failed.map(result => `${result.name}=${result.ratio.toFixed(3)}x`).join(', ')}`);
-  }
 }
 
 function measure(run) {

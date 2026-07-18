@@ -160,8 +160,8 @@ x.string().xpath('/root/element/child')
 x.string().xpath('//element')
 
 // 속성 접근
-x.string().xpath('/@id')
-x.string().xpath('//@href')
+x.string().xpath('/root/@id')
+x.string().xpath('//link/@href')
 
 // 결합
 x.string().xpath('/root/item/@name')
@@ -381,7 +381,7 @@ const result = schema.parseSync(xml);
 | 형태 | 예시 |
 |------|------|
 | wildcard | `/catalog/*` |
-| predicate | `//book[@id="1"]`, `//book[1]` |
+| arbitrary predicate | `//book[@id="1"]`, `//book[last()]` |
 | `./`가 없는 모호한 상대 경로 | `title` |
 | 중첩 배열 | `x.array(x.array(x.string(), './value'), '/group')` |
 | 배열 XPath와 element XPath를 동시에 지정한 배열 | `x.array(x.string().xpath('./title'), '/book')` |

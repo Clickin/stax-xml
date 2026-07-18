@@ -41,7 +41,10 @@ try {
 ```
 
 String input is scanned directly without first encoding it to bytes. Byte
-inputs are decoded incrementally as fatal UTF-8.
+inputs use a fatal `TextDecoder`; `encoding` defaults to `utf-8` and accepts
+labels supported by the host `TextDecoder`, including `utf-16le` and
+`utf-16be`. The label is not inferred from the XML declaration; callers must
+select the encoding that matches the byte source.
 
 ```ts
 type StreamReaderSyncInput =
@@ -52,6 +55,7 @@ type StreamReaderSyncInput =
 interface StreamReaderSyncOptions {
   documentMode?: 'document' | 'fragment';
   namespaceAware?: boolean; // default: true
+  encoding?: string; // byte input only; default: 'utf-8'
 }
 ```
 
@@ -63,7 +67,8 @@ include `eventType()`, `name()`, `text()`, `localName()`, `prefix()`,
 `attributeValue(namespaceURI, localName)`, and
 `namespaceURIForPrefix()`. They describe only the current token.
 
-Malformed XML, unsupported named entities, and invalid UTF-8 throw an error.
+Malformed XML, unsupported named entities, and invalid byte sequences for the
+selected encoding throw an error.
 Only the five predefined XML entities and numeric character references are
 decoded; custom and external entities are not resolved.
 

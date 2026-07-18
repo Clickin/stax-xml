@@ -39,7 +39,9 @@ for (const event of new EventReaderSync(xml)) {
 ```
 
 String input은 JavaScript string 상태로 직접 읽으며 먼저 `Uint8Array`로 encoding하지
-않습니다. Byte input은 fatal UTF-8로 incremental decoding합니다.
+않습니다. Byte input은 fatal `TextDecoder`로 incremental decoding합니다. `encoding`
+기본값은 `utf-8`이며 host decoder가 지원하는 label을 지정할 수 있습니다. XML
+declaration에서 label을 자동 추론하지 않습니다.
 
 ## 입력
 
@@ -52,6 +54,7 @@ type StreamReaderSyncInput =
 interface EventReaderSyncOptions {
   documentMode?: 'document' | 'fragment';
   namespaceAware?: boolean; // 기본값: true
+  encoding?: string; // byte input 전용, 기본값: 'utf-8'
 }
 ```
 
@@ -92,7 +95,7 @@ Accessor에는 `eventType()`, `name()`, `text()`, `localName()`, `prefix()`,
 processing-instruction, DTD event를 포함합니다. Start-element attribute는
 `EventAttribute[]`이며 namespace declaration은 attribute에 포함되지 않습니다.
 
-Malformed XML, 지원하지 않는 named entity reference, invalid UTF-8은 error를
+Malformed XML, 지원하지 않는 named entity reference, 선택한 encoding의 invalid byte sequence는 error를
 throw합니다. DTD declaration은 event로 노출하지만 해석하지 않습니다. XML
 predefined entity 5개와 numeric character reference만 decoding하며,
 custom/external entity를 resolve하거나 외부 I/O를 수행하지 않습니다.

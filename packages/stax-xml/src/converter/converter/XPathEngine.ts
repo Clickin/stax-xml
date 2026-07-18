@@ -1,7 +1,9 @@
+import { assertXmlQName } from '@stax-xml/core';
+
 /**
  * Compiled XPath expression for efficient evaluation
- * Supports: /path/to/element, //element, /path[@attr='value']
- * Does NOT support: complex predicates, functions, axes
+ * Supports absolute, leading descendant, and explicit relative paths; terminal
+ * attributes/text(); and positive literal position predicates.
  *
  * @internal
  */
@@ -64,15 +66,15 @@ export class XPathCompiler {
   }
 
   private static validateXPath(xpath: string): void {
-    if (!xpath || xpath.length === 0) {
+    if (!xpath || xpath.trim().length === 0) {
       throw new Error('XPath cannot be empty');
     }
     if (xpath.length > 1000) {
       throw new Error('XPath too long (max 1000 characters)');
     }
-    // Prevent injection patterns
-    if (/[;<>{}\\]/.test(xpath)) {
-      throw new Error('Invalid characters in XPath');
+    const trimmed = xpath.trim();
+    if (trimmed !== '.' && !trimmed.startsWith('/') && !trimmed.startsWith('./')) {
+      throw new Error(`Ambiguous relative XPath is not supported: ${xpath}`);
     }
   }
 
@@ -81,8 +83,8 @@ export class XPathCompiler {
 
     // Check for relative path (./ or .)
     const isRelative = trimmed.startsWith('./') || trimmed === '.';
-    const isAbsolute = !isRelative && trimmed.startsWith('/');
     const isDescendant = !isRelative && trimmed.startsWith('//');
+    const isAbsolute = !isRelative && !isDescendant && trimmed.startsWith('/');
 
     let path = trimmed;
     if (isRelative && trimmed.startsWith('./')) {
@@ -95,20 +97,31 @@ export class XPathCompiler {
       path = path.slice(1);
     }
 
-    // Check for nested descendant-or-self (//) in the remaining path
-    // After removing the leading //, check if there's another //
-    if (isDescendant && path.includes('//')) {
+    if (path.includes('//')) {
       throw new Error(
-        'Nested descendant-or-self (//) is not supported. ' +
+        'Descendant-or-self (//) is supported only at the beginning. ' +
         'Use // only at the beginning of XPath expression, e.g., "//element/path"'
       );
     }
 
-    const segments: XPathSegment[] = [];
-    const parts = path.split('/').filter(p => p.length > 0);
+    if (trimmed !== '.' && (!path || path.split('/').some(part => part.length === 0))) {
+      throw new Error(`Invalid empty XPath segment: ${xpath}`);
+    }
 
-    for (const part of parts) {
-      segments.push(this.compileSegment(part));
+    const segments: XPathSegment[] = [];
+    const parts = path ? path.split('/') : [];
+
+    for (let index = 0; index < parts.length; index++) {
+      const segment = this.compileSegment(parts[index]!);
+      if ((segment.isAttribute || segment.isTextNode) && index !== parts.length - 1) {
+        throw new Error(`XPath attributes and text() must be terminal: ${xpath}`);
+      }
+      segments.push(segment);
+    }
+
+    const terminal = segments[segments.length - 1];
+    if ((isAbsolute || isDescendant) && segments.length === 1 && (terminal?.isAttribute || terminal?.isTextNode)) {
+      throw new Error(`XPath terminal requires an element owner: ${xpath}`);
     }
 
     return { segments, isAbsolute, isDescendant };
@@ -117,7 +130,8 @@ export class XPathCompiler {
   private static compileSegment(segment: string): XPathSegment {
     // Check if this is an attribute selector (@attribute)
     if (segment.startsWith('@')) {
-      const attrName = segment.slice(1).trim();
+      const attrName = segment.slice(1);
+      assertXmlQName(attrName, 'XPath attribute name');
       return {
         name: attrName,
         predicates: [],
@@ -138,63 +152,23 @@ export class XPathCompiler {
       };
     }
 
-    const predicateMatch = segment.match(/^([^[]+)(\[.+\])?$/);
+    const predicateMatch = segment.match(/^([^\[\]]+)(?:\[(\d+)\])?$/);
     if (!predicateMatch) {
       throw new Error(`Invalid XPath segment: ${segment}`);
     }
 
-    const name = predicateMatch[1].trim();
+    const name = predicateMatch[1];
     const isWildcard = name === '*';
+    if (isWildcard) throw new Error('Wildcard XPath is not supported');
+    assertXmlQName(name, 'XPath element name');
     const predicates: XPathPredicate[] = [];
 
     if (predicateMatch[2]) {
-      const predicateStr = predicateMatch[2];
-
-      // Support both single and double quotes for attribute predicates
-      const attrMatchSingle = predicateStr.match(/\[@([^=]+)='([^']+)'\]/);
-      const attrMatchDouble = predicateStr.match(/\[@([^=]+)="([^"]+)"\]/);
-      const posMatch = predicateStr.match(/\[(\d+)\]/);
-
-      // Position functions
-      const lastMatch = predicateStr.match(/\[last\(\)\]/);
-      const firstMatch = predicateStr.match(/\[first\(\)\]/);
-      const positionMatch = predicateStr.match(/\[position\(\)\s*=\s*(\d+)\]/);
-
-      if (attrMatchSingle) {
-        predicates.push({
-          type: 'attribute',
-          attribute: attrMatchSingle[1].trim(),
-          value: attrMatchSingle[2]
-        });
-      } else if (attrMatchDouble) {
-        predicates.push({
-          type: 'attribute',
-          attribute: attrMatchDouble[1].trim(),
-          value: attrMatchDouble[2]
-        });
-      } else if (posMatch) {
-        predicates.push({
-          type: 'position',
-          position: parseInt(posMatch[1], 10)
-        });
-      } else if (lastMatch) {
-        predicates.push({
-          type: 'position',
-          position: -1 // Special value for "last"
-        });
-      } else if (firstMatch) {
-        predicates.push({
-          type: 'position',
-          position: 1
-        });
-      } else if (positionMatch) {
-        predicates.push({
-          type: 'position',
-          position: parseInt(positionMatch[1], 10)
-        });
-      } else {
-        throw new Error(`Unsupported predicate: ${predicateStr}`);
+      const position = Number(predicateMatch[2]);
+      if (!Number.isSafeInteger(position) || position < 1) {
+        throw new Error(`XPath position must be a positive safe integer: ${segment}`);
       }
+      predicates.push({ type: 'position', position });
     }
 
     return { name, predicates, isWildcard, isAttribute: false, isTextNode: false };

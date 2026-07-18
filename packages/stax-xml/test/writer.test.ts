@@ -797,7 +797,7 @@ describe('Writer Tests', () => {
     expect(result).toContain('<ns1:item xmlns:ns1="http://example.com/ns1">Content with namespace</ns1:item>');
     expect(result).toContain('<simple>Simple content</simple>');
     expect(result).toContain('<ns2:section xmlns:ns2="http://example.com/ns2">');
-    expect(result).toContain('<ns2:title xmlns:ns2="http://example.com/ns2">Nested title</ns2:title>');
+    expect(result).toContain('<ns2:title>Nested title</ns2:title>');
     expect(result).toContain('</ns2:section>');
     expect(result).toContain('</root>');
   });

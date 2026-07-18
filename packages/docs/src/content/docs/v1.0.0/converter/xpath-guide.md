@@ -84,8 +84,8 @@ unprefixed XML names.
 
 Wildcards, nested `//`, arbitrary predicates, axes, unions, variables,
 operators, and XPath functions other than terminal `text()` are not part of the
-public converter contract. An unsupported expression throws
-`Unsupported streaming XPath` instead of materializing a document tree.
+public converter contract. Unsupported syntax throws during schema construction,
+before `.precompile()` or parsing, instead of materializing a document tree.
 
 For unknown or dynamic XML, use `EventReader` / `EventReaderSync`. Use
 `StreamReader` / `StreamReaderSync` when current-token traversal and lower

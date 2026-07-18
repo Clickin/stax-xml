@@ -84,6 +84,16 @@ async function verifyWriters() {
   await writer.close();
   assert.equal(decoder.decode(concatBytes(chunks)), '<root>StAX &amp; XML</root>');
 
+  const textChunks = [];
+  const textWriter = new stax.Writer({
+    encoding: 'Shift_JIS',
+    write(chunk) { textChunks.push(chunk); },
+  });
+  await textWriter.writeStartDocument();
+  await textWriter.writeStartElement('root');
+  await textWriter.close();
+  assert.equal(textChunks.join(''), '<?xml version="1.0" encoding="Shift_JIS"?><root></root>');
+
   const syncWriter = new stax.WriterSync();
   syncWriter.writeStartElement('root').writeCharacters('ok').writeEndElement();
   assert.equal(syncWriter.getXmlString(), '<root>ok</root>');
@@ -93,6 +103,15 @@ async function verifyWriters() {
   sinkWriter.writeStartElement('root').writeCharacters('ok').writeEndElement();
   sinkWriter.close();
   assert.equal(sinkChunks.join(''), '<root>ok</root>');
+
+  const encodedSinkChunks = [];
+  const encodedSinkWriter = new stax.WriterSyncSink({
+    encoding: 'EUC-KR',
+    write(chunk) { encodedSinkChunks.push(chunk); },
+  });
+  encodedSinkWriter.writeStartDocument();
+  encodedSinkWriter.close();
+  assert.equal(encodedSinkChunks.join(''), '<?xml version="1.0" encoding="EUC-KR"?>');
 }
 
 async function verifyConverter() {

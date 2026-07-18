@@ -47,8 +47,8 @@ const schema = x.string().xpath('/book/@id');
 const result = schema.parseSync('<book id="123">Title</book>');
 // "123"
 
-// Descendant attribute search
-const schema = x.string().xpath('//@href');
+// Descendant element with a terminal attribute
+const schema = x.string().xpath('//link/@href');
 const result = schema.parseSync('<a><link href="http://example.com"/></a>');
 // "http://example.com"
 ```
@@ -62,7 +62,7 @@ Set the XPath expression for element selection:
 ```typescript
 x.string().xpath('/root/element')
 x.string().xpath('//element')
-x.string().xpath('//@attribute')
+x.string().xpath('//element/@attribute')
 ```
 
 #### `.writer(config)`
@@ -213,7 +213,7 @@ const prices = x.array(priceSchema, '//price').parseSync(xml);
 
 **ID validation:**
 ```typescript
-const idSchema = x.number().xpath('/@id').int().min(1);
+const idSchema = x.number().xpath('/user/@id').int().min(1);
 
 idSchema.parseSync('<user id="123"/>');  // ✅ 123
 idSchema.parseSync('<user id="0"/>');    // ❌ Error
@@ -223,8 +223,8 @@ idSchema.parseSync('<user id="1.5"/>');  // ❌ Error
 **NaN handling:**
 ```typescript
 const schema = x.number().xpath('/value');
-const result = schema.parseSync('<value>not-a-number</value>');
-// NaN (numeric conversion failed)
+schema.parseSync('<value>not-a-number</value>');
+// Throws XmlParseError (invalid_number)
 ```
 
 ## Object Schema (`x.object()`)
@@ -454,25 +454,20 @@ type Book = Infer<typeof booksSchema>[number];
 // { title: string; author: string; year: number; }
 ```
 
-### XPath Predicates
+### Position Predicates
 
-Filter array elements with XPath predicates:
+The streaming subset supports positive 1-based literal positions:
 
 ```typescript
-// Only fiction books
 const fictionBooks = x.array(
   x.object({
     title: x.string().xpath('./title'),
     author: x.string().xpath('./author')
   }),
-  '//book[@category="fiction"]'
+  '//book[2]'
 );
 
-// Only available products
-const available = x.array(
-  x.object({...}),
-  '//product[@available="true"]'
-);
+// Wildcards and arbitrary predicates such as [@category="fiction"] are rejected.
 ```
 
 ### Nested Arrays

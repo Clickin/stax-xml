@@ -599,7 +599,7 @@ const order = x.object({
 
 ```typescript
 const link = x.string()
-  .xpath('//@href')
+  .xpath('//link/@href')
   .transform(url => {
     if (url.startsWith('//')) return `https:${url}`;
     if (url.startsWith('/')) return `https://example.com${url}`;

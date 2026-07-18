@@ -3558,6 +3558,21 @@ Parse options for XML converter
 
 #### Properties
 
+##### encoding?
+
+> `optional` **encoding?**: `string`
+
+Defined in: [types.ts:16](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/converter/types.ts#L16)
+
+TextDecoder encoding label for byte input.
+String and materialized-event inputs are already decoded and ignore it.
+
+###### Default Value
+
+```ts
+'utf-8'
+```
+
 ##### trimText?
 
 > `optional` **trimText?**: `boolean`
@@ -3708,13 +3723,13 @@ Writer configuration for XML element
 
 #### Properties
 
-##### element
+##### element?
 
-> **element**: `string`
+> `optional` **element?**: `string`
 
 Defined in: [types.ts:101](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/converter/types.ts#L101)
 
-Element name (required)
+Element name. Object fields may omit this to use the field key.
 
 ##### asAttribute?
 
@@ -3739,9 +3754,9 @@ Namespace configuration
 
 Namespace prefix (e.g., 'dc', 'xsi')
 
-###### uri?
+###### uri
 
-> `optional` **uri?**: `string`
+> **uri**: `string`
 
 Namespace URI (e.g., 'http://purl.org/dc/elements/1.1/')
 
@@ -3858,7 +3873,7 @@ true
 
 ##### xmlVersion?
 
-> `optional` **xmlVersion?**: `string`
+> `optional` **xmlVersion?**: `"1.0"`
 
 Defined in: [types.ts:182](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/converter/converter/types.ts#L182)
 

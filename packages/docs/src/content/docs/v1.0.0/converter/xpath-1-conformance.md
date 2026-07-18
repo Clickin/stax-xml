@@ -27,6 +27,6 @@ XPath 1.0 evaluator.
 | XPath function library | Unsupported | No general function evaluator or tree fallback is included. |
 | DOM/tree materialization | Not used | All supported selectors run over streaming tokens. |
 
-Unsupported expressions throw an `Unsupported streaming XPath` error. Adding a
-new selector form is backward-compatible, but the table above is the 1.0
-contract.
+Unsupported expressions throw with a specific reason during schema construction.
+Adding a new selector form is backward-compatible, but the table above is the
+1.0 contract.

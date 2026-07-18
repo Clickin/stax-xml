@@ -201,6 +201,32 @@ export default app;
 `WriterSyncSink` writes to any object implementing the small `SyncTextSink`
 interface. Use the runtime standard library to build the target you need.
 
+For external encoders, set the sink's `encoding` metadata and encode each text
+chunk in the sink. The XML declaration must match this value. Stateful encoders
+must flush their final bytes from `close()`.
+
+```typescript
+import iconv from 'iconv-lite';
+import { closeSync, openSync, writeSync } from 'node:fs';
+import { WriterSyncSink } from 'stax-xml';
+
+const fd = openSync('./catalog-euc-kr.xml', 'w');
+const encoder = iconv.getEncoder('euc-kr');
+const writer = new WriterSyncSink({
+  encoding: 'EUC-KR',
+  write(chunk) { writeSync(fd, encoder.write(chunk)); },
+  close() {
+    const tail = encoder.end();
+    if (tail) writeSync(fd, tail);
+    closeSync(fd);
+  },
+});
+
+writer.writeStartDocument();
+writer.writeStartElement('catalog').writeCharacters('한국어').writeEndElement();
+writer.close();
+```
+
 ```typescript
 import { closeSync, openSync, writeSync } from 'node:fs';
 import { WriterSyncSink } from 'stax-xml';
@@ -393,7 +419,7 @@ class WriterSync {
   )
 
   // Document Level Methods
-  writeStartDocument(version?: string, encoding?: string): this // UTF-8 only
+  writeStartDocument(version?: '1.0', encoding?: string): this // UTF-8 only
   writeEndDocument(): void
 
   // Element Writing Methods
