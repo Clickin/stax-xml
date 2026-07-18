@@ -42,6 +42,7 @@ const rawDir = join(resultsDir, 'raw');
 const summaryPath = join(resultsDir, 'latest-summary.json');
 const benchmarkMarkdownPath = join(repoRoot, 'BENCHMARK.md');
 const runtimeMatrixPath = join(resultsDir, 'runtime-matrix.json');
+const writerCrossRuntimePath = join(resultsDir, 'writer-cross-runtime.json');
 const streamReader4GiBPath = join(resultsDir, 'stream-reader-4gb.json');
 const converterBatchPlanPath = join(resultsDir, 'converter-compiled-batch-plan.json');
 const writer1GiBRawPath = join(rawDir, 'writer-1gb.json');
@@ -409,7 +410,10 @@ function measureStreamSizeCase(fixtureCase) {
   let last;
 
   globalThis.gc?.();
-  const rssBaselineBytes = process.memoryUsage().rss;
+  const memoryBaseline = process.memoryUsage();
+  const heapBaselineBytes = memoryBaseline.heapUsed;
+  const rssBaselineBytes = memoryBaseline.rss;
+  let heapPeakBytes = heapBaselineBytes;
   let rssPeakBytes = rssBaselineBytes;
 
   for (let index = 0; index < fixtureCase.runs; index++) {
@@ -421,6 +425,7 @@ function measureStreamSizeCase(fixtureCase) {
     const after = process.memoryUsage();
     timesMs.push(elapsedMs);
     heapDeltas.push(after.heapUsed - before.heapUsed);
+    heapPeakBytes = Math.max(heapPeakBytes, after.heapUsed);
     rssPeakBytes = Math.max(rssPeakBytes, after.rss);
   }
 
@@ -433,6 +438,9 @@ function measureStreamSizeCase(fixtureCase) {
     p99Ns: percentile(timesMs, 0.99) * 1e6,
     maxNs: Math.max(...timesMs) * 1e6,
     heapAvgBytes: average(heapDeltas),
+    heapBaselineBytes,
+    heapPeakBytes,
+    heapDeltaBytes: heapPeakBytes - heapBaselineBytes,
     rssBaselineBytes,
     rssPeakBytes,
     rssDeltaBytes: rssPeakBytes - rssBaselineBytes,
@@ -486,12 +494,31 @@ function normalizeStreamReader4GiBCase(raw) {
     p75Ns: result.avgMs * 1e6,
     p99Ns: result.maxMs * 1e6,
     maxNs: result.maxMs * 1e6,
-    heapAvgBytes: null,
+    heapAvgBytes: result.memory?.avgHeapUsedDeltaBytes ?? null,
+    heapDeltaBytes: result.memory?.heapUsedDeltaBytes ?? result.memory?.avgHeapUsedDeltaBytes ?? null,
     rssDeltaBytes: result.memory?.rssDeltaBytes ?? result.memory?.avgRssDeltaBytes ?? result.avgRssDelta ?? null,
     bytes: raw.fixture.actualBytes,
     events: result.events,
     checksum: result.checksum,
     throughputMiBs: result.avgMiBs,
+  };
+}
+
+function normalizeWriterCrossRuntimeSuite(raw) {
+  return {
+    context: {
+      collectedAt: raw.generatedAt,
+      workload: raw.workload,
+      environment: raw.environment,
+    },
+    cases: Object.entries(raw.cases).map(([label, runs]) => ({
+      label,
+      avgNs: percentile(runs.map((run) => run.seconds * 1e9), 0.5),
+      throughputMiBs: percentile(runs.map((run) => run.throughputMiBs), 0.5),
+      bytes: runs[0]?.bytes ?? raw.workload.outputBytes,
+      records: runs[0]?.records ?? raw.workload.records,
+      runs: runs.length,
+    })),
   };
 }
 
@@ -802,12 +829,53 @@ function renderParserTable(summary, suiteId) {
 function renderConverterTable(summary) {
   const suite = summary.suites['converter-parity'];
   return renderTable(
-    ['Projection', 'Throughput', 'Average', 'Checksum'],
+    ['Projection', 'Throughput', 'Average', 'Heap delta', 'RSS delta', 'Checksum'],
     suite.cases.map((entry) => [
       entry.label,
       `${entry.throughputMiBs.toFixed(2)} MiB/s`,
       formatDuration(entry.avgNs),
+      formatMemory(entry.heapAvgBytes),
+      formatMemory(entry.rssDeltaBytes),
       String(entry.checksum),
+    ]),
+  );
+}
+
+function renderRuntimeMatrixTable() {
+  const runtimeMatrix = readRequiredJson(
+    runtimeMatrixPath,
+    'pnpm --filter benchmark run release:runtime-matrix',
+  );
+  return renderTable(
+    ['Runtime', 'Workload', 'Throughput', 'Average', 'Peak heap', 'Peak RSS', 'Events', 'Checksum'],
+    runtimeMatrix.results.flatMap((runtime) => runtime.scenarios.map((scenario) => [
+      `${runtime.runtime.id} ${runtime.runtime.version}`,
+      scenario.id,
+      `${scenario.mibPerSec.toFixed(2)} MiB/s`,
+      `${scenario.avgMs.toFixed(2)} ms`,
+      formatMemory(scenario.peakHeapUsedBytes),
+      formatMemory(scenario.peakRssBytes),
+      scenario.eventCount.toLocaleString('en-US'),
+      String(scenario.checksum),
+    ])),
+  );
+}
+
+function renderWriterCrossRuntimeTable(summary) {
+  const versions = summary.suites['writer-cross-runtime'].context.environment;
+  const labels = {
+    'stax-xml': `stax-xml WriterSyncSink (${versions.node})`,
+    woodstox: `Woodstox ${versions.woodstox} (Java ${versions.java})`,
+    'quick-xml': `quick-xml ${versions.quickXml} (Rust ${versions.rust})`,
+  };
+  return renderTable(
+    ['Writer', 'Median throughput', 'Median time', 'Written', 'Records'],
+    summary.suites['writer-cross-runtime'].cases.map((entry) => [
+      labels[entry.label] ?? entry.label,
+      `${entry.throughputMiBs.toFixed(1)} MiB/s`,
+      formatDuration(entry.avgNs),
+      formatMemory(entry.bytes),
+      entry.records.toLocaleString('en-US'),
     ]),
   );
 }
@@ -831,6 +899,7 @@ function renderBenchmarkMarkdown(summary) {
     entry.label.replace('StreamReaderSync iterable chunks ', ''),
     `${entry.throughputMiBs.toFixed(2)} MiB/s`,
     formatDuration(entry.avgNs),
+    formatMemory(entry.heapDeltaBytes),
     formatMemory(entry.rssDeltaBytes),
   ]);
 
@@ -874,7 +943,13 @@ function renderBenchmarkMarkdown(summary) {
     '',
     '## StreamReaderSync Incremental Size Series',
     '',
-    renderTable(['Size', 'Throughput', 'Average', 'RSS delta'], streamRows),
+    renderTable(['Size', 'Throughput', 'Average', 'Heap delta', 'RSS delta'], streamRows),
+    '',
+    '## Runtime Matrix',
+    '',
+    'The same generated 16 MiB fixture and checksum workloads run on Node, Bun, and Deno. Memory columns are absolute measured-run endpoint peaks for each runtime process.',
+    '',
+    renderRuntimeMatrixTable(),
     '',
     '## Converter IR Projection',
     '',
@@ -883,6 +958,12 @@ function renderBenchmarkMarkdown(summary) {
     renderConverterTable(summary),
     '',
     'The converter row uses `schema.parseSync(bytes)`: schema is lowered to IR, then executed by generated code when runtime code generation is available. It is compared only with the equivalent manual object projection on this catalog fixture.',
+    '',
+    '## Cross-Language Writer Comparison',
+    '',
+    'The public writer APIs in Node, Java, and Rust generate the same compact XML workload and write it to a real file sink. Rows are medians of three end-to-end runs.',
+    '',
+    renderWriterCrossRuntimeTable(summary),
     '',
     '### Reader/Writer Throughput Asymmetry',
     '',
@@ -898,6 +979,7 @@ function renderBenchmarkMarkdown(summary) {
     '- 4 GiB cursor reader: `packages/benchmark/results/release/stream-reader-4gb.json`',
     '- Converter compiled batch plan: `packages/benchmark/results/release/converter-compiled-batch-plan.json`',
     '- 1 GiB writer raw result: `packages/benchmark/results/release/raw/writer-1gb.json`',
+    '- Cross-language writer comparison: `packages/benchmark/results/release/writer-cross-runtime.json`',
     '',
   ].join('\n');
 }
@@ -929,6 +1011,10 @@ async function main() {
   const generatedAt = new Date().toISOString();
 
   readRequiredJson(runtimeMatrixPath, 'pnpm --filter benchmark run release:runtime-matrix');
+  const writerCrossRuntime = readRequiredJson(
+    writerCrossRuntimePath,
+    'pnpm --filter benchmark run release:writer:cross-runtime',
+  );
 
   const suites = {
     'parser-2kb': await runMitataSuite('parser-2kb', 'Parser 2KB (complex.xml)', () => registerParserSyncSuite(ASSET_PATHS.complex)),
@@ -942,6 +1028,7 @@ async function main() {
     'writer-big': await runMitataSuite('writer-big', 'Writer large documents', registerWriterBigSuite),
     'writer-async': await runMitataSuite('writer-async', 'Writer async vs sync', registerAsyncWriterSuite),
     'writer-1gb': normalizeWriter1GiBSuiteFromFile(writer1GiBRawPath),
+    'writer-cross-runtime': normalizeWriterCrossRuntimeSuite(writerCrossRuntime),
   };
 
   const summary = {
@@ -957,6 +1044,7 @@ async function main() {
         'runtime matrix artifact',
         'converter compiled batch-plan comparison',
         'writer small/big/async/1GiB rows',
+        'Node/Java/Rust writer comparison',
       ],
     },
     environment: collectEnvironment(),
@@ -965,6 +1053,7 @@ async function main() {
       streamReader4GiB: 'packages/benchmark/results/release/stream-reader-4gb.json',
       converterCompiledBatchPlan: 'packages/benchmark/results/release/converter-compiled-batch-plan.json',
       writer1GiB: 'packages/benchmark/results/release/raw/writer-1gb.json',
+      writerCrossRuntime: 'packages/benchmark/results/release/writer-cross-runtime.json',
     },
     suites,
   };

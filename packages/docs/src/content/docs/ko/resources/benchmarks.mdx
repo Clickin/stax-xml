@@ -21,6 +21,7 @@ head:
 ---
 
 import BenchmarkSection from '../../../../components/BenchmarkSection.astro';
+import CrossRuntimeWriterTable from '../../../../components/CrossRuntimeWriterTable.astro';
 import ReleaseBenchmarkTable from '../../../../components/ReleaseBenchmarkTable.astro';
 
 StAX-XML 벤치마크는 순수 JavaScript 파서를 기준으로 합니다. `latest` 문서와
@@ -33,6 +34,8 @@ StAX-XML 벤치마크는 순수 JavaScript 파서를 기준으로 합니다. `la
 - `pnpm --dir packages/benchmark bench:async`: 비동기 parser와 writer 경로.
 - `pnpm --dir packages/benchmark bench:runtime-matrix`: Node, Bun, Deno가
   설치되어 있을 때 같은 JavaScript reader 작업을 런타임별로 비교.
+- `pnpm --filter benchmark run release:writer:cross-runtime`: Node/stax-xml,
+  Java/Woodstox, Rust/quick-xml의 실제 파일 writer 작업을 비교.
 - `pnpm --filter benchmark run release:expanded`: 전체 release benchmark set을
   다시 생성합니다. Runtime matrix, 4 GiB `StreamReaderSync`, converter
   batch-plan, 1 GiB writer, parser fixture series, npm XML parser 비교,
@@ -42,9 +45,9 @@ StAX-XML 벤치마크는 순수 JavaScript 파서를 기준으로 합니다. `la
 
 Parser benchmark는 라이브러리 기본값인 fragment mode의 공개 API로 JavaScript
 문자열과 객체를 반환하는 경로를 측정합니다. raw byte만 훑는 작업은 완료된
-parse로 보지 않습니다. 대용량 XML 측정은 낮은
-RSS, JavaScript 문자열 크기 제한 회피, stream/event/converter API의 pull 방식
-소비를 기준으로 봅니다.
+parse로 보지 않습니다. 대용량 XML은 heap과 RSS를 별도로 기록하고, JavaScript
+문자열 크기 제한을 피하면서 stream/event/converter API의 pull 방식 소비를
+측정합니다.
 
 ## 릴리스 결과
 
@@ -194,6 +197,13 @@ Writer benchmark는 builder-friendly input normalization을 timed region 밖에
 ### 1 GiB Writer 비교
 
 <BenchmarkSection section="writer-1gb" locale="ko" />
+
+### 다른 언어 writer와의 비교
+
+각 공개 writer API가 같은 compact XML을 생성해 실제 파일 sink에 기록합니다.
+Node 전용 1 GiB 측정과는 별도의 suite입니다.
+
+<CrossRuntimeWriterTable locale="ko" />
 
 ## Current-Token Reader 소비 방식
 

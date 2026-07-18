@@ -71,7 +71,7 @@ if (allocationSampling) {
 for (const candidate of styles) {
   const measured = await measure(candidate);
   results.push({ style: candidate, ...measured });
-  console.log(`${candidate.padEnd(18)} avg=${measured.avgMs.toFixed(2)} ms throughput=${measured.avgMiBs.toFixed(2)} MiB/s min=${measured.minMs.toFixed(2)} ms max=${measured.maxMs.toFixed(2)} ms events=${measured.events} checksum=${measured.checksum} rssDelta=${formatSignedBytes(measured.memory.rssDeltaBytes)} strings=${measured.materialization.stringFieldReads}`);
+  console.log(`${candidate.padEnd(18)} avg=${measured.avgMs.toFixed(2)} ms throughput=${measured.avgMiBs.toFixed(2)} MiB/s min=${measured.minMs.toFixed(2)} ms max=${measured.maxMs.toFixed(2)} ms events=${measured.events} checksum=${measured.checksum} heapDelta=${formatSignedBytes(measured.memory.heapUsedDeltaBytes)} rssDelta=${formatSignedBytes(measured.memory.rssDeltaBytes)} strings=${measured.materialization.stringFieldReads}`);
 }
 
 const report = {
@@ -284,7 +284,10 @@ function createMemorySample(before, after) {
 
 function summarizeMemorySamples(baseline, samples) {
   const maxRssBytes = Math.max(baseline.rssBytes, ...samples.map((sample) => sample.after.rssBytes));
+  const maxHeapUsedBytes = Math.max(baseline.heapUsedBytes, ...samples.map((sample) => sample.after.heapUsedBytes));
   return {
+    heapUsedBaselineBytes: baseline.heapUsedBytes,
+    heapUsedDeltaBytes: maxHeapUsedBytes - baseline.heapUsedBytes,
     rssBaselineBytes: baseline.rssBytes,
     rssDeltaBytes: maxRssBytes - baseline.rssBytes,
     avgRssDeltaBytes: average(samples.map((sample) => sample.delta.rssBytes)),
@@ -293,7 +296,7 @@ function summarizeMemorySamples(baseline, samples) {
     avgExternalDeltaBytes: average(samples.map((sample) => sample.delta.externalBytes)),
     avgArrayBuffersDeltaBytes: average(samples.map((sample) => sample.delta.arrayBuffersBytes)),
     maxRssBytes,
-    maxHeapUsedBytes: Math.max(...samples.map((sample) => sample.after.heapUsedBytes)),
+    maxHeapUsedBytes,
     samples,
   };
 }
@@ -507,13 +510,13 @@ function renderMarkdown(report) {
   lines.push('');
   lines.push('## Memory');
   lines.push('');
-  lines.push('RSS delta is the maximum measured-run endpoint minus the post-warmup, post-GC baseline in the same process.');
+  lines.push('Heap and RSS deltas are the maximum measured-run endpoints minus the post-warmup, post-GC baselines in the same process.');
   lines.push('');
-  lines.push('| Style | Avg heap delta | RSS delta | Max heap used | Max RSS |');
+  lines.push('| Style | Heap delta | RSS delta | Max heap used | Max RSS |');
   lines.push('| --- | ---: | ---: | ---: | ---: |');
   for (const result of report.results) {
     lines.push(
-      `| ${result.style} | ${formatSignedBytes(result.memory.avgHeapUsedDeltaBytes)} | ` +
+      `| ${result.style} | ${formatSignedBytes(result.memory.heapUsedDeltaBytes)} | ` +
       `${formatSignedBytes(result.memory.rssDeltaBytes)} | ${formatBytes(result.memory.maxHeapUsedBytes)} | ` +
       `${formatBytes(result.memory.maxRssBytes)} |`,
     );

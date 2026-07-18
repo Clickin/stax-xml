@@ -1,10 +1,12 @@
 ---
 import benchmark from '../data/benchmarks/v1.0.0/writer-cross-runtime.json';
 
+const { locale = 'en' } = Astro.props as { locale?: 'en' | 'ko' };
+
 const labels = {
-  'stax-xml': 'stax-xml WriterSyncSink (Node.js 24.15.0)',
-  woodstox: 'Woodstox 6.7.0 (Java 25.0.2)',
-  'quick-xml': 'quick-xml 0.40.1 (Rust 1.95.0)',
+  'stax-xml': `stax-xml WriterSyncSink (${benchmark.environment.node})`,
+  woodstox: `Woodstox ${benchmark.environment.woodstox} (Java ${benchmark.environment.java})`,
+  'quick-xml': `quick-xml ${benchmark.environment.quickXml} (Rust ${benchmark.environment.rust})`,
 };
 
 function median(values: number[]) {
@@ -20,15 +22,14 @@ const rows = Object.entries(benchmark.cases).map(([name, runs]) => ({
 ---
 
 <p>
-  동일한 generator로 12,798개 레코드를 compact XML로 만들고 실제 파일에 기록했습니다.
-  결과 파일은 10.28 MiB이며 각 행은 3회 실행의 중앙값입니다. Node.js는
-  {benchmark.environment.node}, Java는 {benchmark.environment.java}, Rust는
-  {benchmark.environment.rust}를 사용했습니다.
+  {locale === 'ko'
+    ? `동일한 generator로 ${benchmark.workload.records.toLocaleString('en-US')}개 레코드를 compact XML로 만들고 실제 파일에 기록했습니다. 각 행은 3회 실행의 중앙값입니다.`
+    : `The same generator wrote ${benchmark.workload.records.toLocaleString('en-US')} records as compact XML to a real file. Each row is the median of three runs.`}
 </p>
 
 <table>
   <thead>
-    <tr><th>Writer</th><th>중앙 처리량</th></tr>
+    <tr><th>Writer</th><th>{locale === 'ko' ? '중앙 처리량' : 'Median throughput'}</th></tr>
   </thead>
   <tbody>
     {rows.map((row) => <tr><td>{row.label}</td><td>{row.throughput.toFixed(1)} MiB/s</td></tr>)}
@@ -36,8 +37,7 @@ const rows = Object.entries(benchmark.cases).map(([name, runs]) => ({
 </table>
 
 <p>
-  이 비교에서 stax-xml은 Woodstox보다 빨랐지만 quick-xml의 Rust buffered writer보다는
-  느렸습니다. 이는 1 GiB Node 전용 측정에서 확인한 WriterSyncSink의 411.6 MiB/s와
-  모순되지 않습니다. 입력 크기, warm-up, sink와 fixture가 다르므로 숫자는 서로 다른
-  benchmark suite로 읽어야 합니다.
+  {locale === 'ko'
+    ? '입력 크기, warm-up, sink와 fixture가 다른 1 GiB Node 전용 측정과 직접 숫자를 섞어 비교하지 않습니다.'
+    : 'Do not mix these values directly with the Node-only 1 GiB suite, which uses a different input size, warm-up, sink, and fixture.'}
 </p>

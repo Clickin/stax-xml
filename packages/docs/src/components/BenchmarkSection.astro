@@ -144,14 +144,21 @@ const parserSurfaces: Array<[BenchmarkLabel, string, string]> = [
     'Current-token reader avoiding event object allocation',
   ],
   ['stax-xml Converter API (JS object)', '**Converter**', 'Declarative schema returning the same object shape'],
+  ['fast-xml-parser XMLParser (JS object)', 'fast-xml-parser XMLParser', 'Object parser plus canonical projection'],
+  ['txml parse (JS object)', 'txml parse', 'Object parser plus canonical projection'],
+  ['xml2js parseString (JS object)', 'xml2js parseString', 'Callback object parser plus canonical projection'],
 ];
 
 function parserRows(suiteId: string): TableModel {
+  const cases = summary.suites[suiteId]?.cases ?? [];
   return {
     headers: ['Surface', 'Average Time', 'Operations/sec', 'Heap', 'Notes'],
-    rows: parserSurfaces.map(([label, display, note]) => {
-      const stats = suiteCase(suiteId, label);
-      return [display, formatDurationNs(stats.avgNs), formatOps(stats.avgNs), formatMemory(stats.heapAvgBytes), note];
+    rows: parserSurfaces.flatMap(([label, display, note]) => {
+      const labels = Array.isArray(label) ? label : [label];
+      const stats = cases.find((entry: any) => labels.includes(entry.label));
+      return stats
+        ? [[display, formatDurationNs(stats.avgNs), formatOps(stats.avgNs), formatMemory(stats.heapAvgBytes), note]]
+        : [];
     }),
   };
 }
@@ -191,13 +198,14 @@ function buildTable(section: Section): TableModel | null {
     }
     case 'stream-size':
       return {
-        headers: ['Size', 'Throughput', 'Average', 'RSS delta', 'Events', 'Checksum'],
+        headers: ['Size', 'Throughput', 'Average', 'Heap delta', 'RSS delta', 'Events', 'Checksum'],
         rows: summary.suites['stream-size'].cases.map((entry: any) => [
           entry.label
             .replace('StreamReaderSync iterable chunks ', '')
             .replace('StreamReaderSync index-first ', ''),
           `${formatNumber(entry.throughputMiBs, 2)} MiB/s`,
           formatDurationNs(entry.avgNs),
+          formatMemory(entry.heapDeltaBytes),
           formatMemory(entry.rssDeltaBytes),
           formatInteger(entry.events),
           String(entry.checksum),
@@ -209,7 +217,7 @@ function buildTable(section: Section): TableModel | null {
         ['Converter schema.parseSync(bytes)', 'Converter schema.parseSync(bytes)'],
       ];
       return {
-        headers: ['Case', 'Throughput', 'Average', 'Heap', 'RSS delta', 'Books', 'Checksum'],
+        headers: ['Case', 'Throughput', 'Average', 'Heap delta', 'RSS delta', 'Books', 'Checksum'],
         rows: rows.map(([label, display]) => {
           const stats = suiteCase('converter-parity', label);
           return [

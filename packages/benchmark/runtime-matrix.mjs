@@ -260,7 +260,8 @@ function createScenarioDetails(report) {
     '  scenario: "stream-sync-type-only" | "stream-sync-name-text" | "stream-sync-full" | "event-sync-full",',
     '  eventCount: number,',
     '  checksum: fold(the fields touched by that accessor tier),',
-    '  peakHeapUsedBytes: number',
+    '  peakHeapUsedBytes: number,',
+    '  peakRssBytes: number',
     '}',
     '~~~',
     '',
@@ -301,20 +302,21 @@ function createMarkdown(report) {
     '',
     '## Results',
     '',
-    '| Runtime | Version | Scenario | Throughput | Average | Events | Checksum | Peak heap | Status |',
-    '| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |',
+    '| Runtime | Version | Scenario | Throughput | Average | Events | Checksum | Peak heap | Peak RSS | Status |',
+    '| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |',
   ];
 
   for (const result of report.results) {
     if (result.status !== 'ok') {
-      lines.push(`| ${result.runtime.id} | n/a | n/a | n/a | n/a | n/a | n/a | n/a | ${result.status}: ${escapePipe(result.reason)} |`);
+      lines.push(`| ${result.runtime.id} | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | ${result.status}: ${escapePipe(result.reason)} |`);
       continue;
     }
     for (const scenario of result.scenarios) {
       lines.push(
         `| ${result.runtime.id} | ${escapePipe(result.runtime.version)} | ${scenario.id} | ` +
         `${formatRate(scenario.mibPerSec)} | ${formatMs(scenario.avgMs)} | ` +
-        `${scenario.eventCount} | ${scenario.checksum} | ${formatBytes(scenario.peakHeapUsedBytes)} | ok |`,
+        `${scenario.eventCount} | ${scenario.checksum} | ${formatBytes(scenario.peakHeapUsedBytes)} | ` +
+        `${formatBytes(scenario.peakRssBytes)} | ok |`,
       );
     }
   }

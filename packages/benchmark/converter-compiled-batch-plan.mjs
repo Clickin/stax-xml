@@ -222,10 +222,11 @@ function formatMarkdown(result) {
     '',
     '## Results',
     '',
-    '| Case | Throughput | Average | Min | Max | Events | Checksum |',
-    '| --- | ---: | ---: | ---: | ---: | ---: | ---: |',
+    '| Case | Throughput | Average | Min | Max | Heap delta | RSS delta | Events | Checksum |',
+    '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
     ...variants.map((v) =>
-      `| ${v.id} | ${v.mibPerSec.toFixed(2)} MiB/s | ${formatMs(v.avgMs)} | ${formatMs(v.minMs)} | ${formatMs(v.maxMs)} | ${v.eventCount} | ${v.checksum} |`
+      `| ${v.id} | ${v.mibPerSec.toFixed(2)} MiB/s | ${formatMs(v.avgMs)} | ${formatMs(v.minMs)} | ${formatMs(v.maxMs)} | ` +
+      `${formatBytes(v.memory.avgHeapUsedDeltaBytes)} | ${formatBytes(v.memory.avgRssDeltaBytes)} | ${v.eventCount} | ${v.checksum} |`
     ),
     '',
   ];

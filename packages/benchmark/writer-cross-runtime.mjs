@@ -9,6 +9,7 @@ const MIB = 1024 * 1024;
 const root = resolve(import.meta.dirname);
 const args = new Map();
 for (let i = 2; i < process.argv.length; i++) {
+  if (process.argv[i] === '--') continue;
   const [key, value] = process.argv[i].split('=');
   args.set(key, value ?? process.argv[++i]);
 }
@@ -17,6 +18,11 @@ const runs = Number(args.get('--runs') ?? 3);
 const jsonOut = args.get('--json-out');
 const temp = mkdtempSync(join(tmpdir(), 'stax-xml-writer-cross-runtime-'));
 const description = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.';
+
+function toolVersion(command, args) {
+  const line = execFileSync(command, args, { encoding: 'utf8' }).trim().split('\n')[0];
+  return line.match(/\d+(?:\.\d+)+/)?.[0] ?? line;
+}
 
 function writeBook(writer, bookId) {
   writer.writeStartElement('book', { attributes: { id: `book-${bookId}` } });
@@ -77,6 +83,14 @@ for (const name of ['stax-xml', 'woodstox', 'quick-xml']) {
   for (let run = 0; run < runs; run++) values.push(name === 'stax-xml' ? runStax() : runExternal(name));
   cases[name] = values;
 }
+const expected = cases['stax-xml'][0];
+for (const [name, values] of Object.entries(cases)) {
+  for (const value of values) {
+    if (value.records !== expected.records || value.bytes !== expected.bytes) {
+      throw new Error(`${name} produced a different workload: records=${value.records}, bytes=${value.bytes}`);
+    }
+  }
+}
 const result = {
   generatedAt: new Date().toISOString(),
   workload: { records, outputBytes: cases['stax-xml'][0].bytes, compact: true, generator: 'writer-cross-runtime.mjs' },
@@ -85,9 +99,9 @@ const result = {
     platform: process.platform,
     arch: process.arch,
     cpu: process.report?.getReport?.().header?.cpus?.[0]?.model ?? 'unknown',
-    java: '25.0.2',
+    java: toolVersion('java', ['--version']),
     woodstox: '6.7.0',
-    rust: '1.95.0',
+    rust: toolVersion('rustc', ['--version']),
     quickXml: '0.40.1',
   },
   cases,

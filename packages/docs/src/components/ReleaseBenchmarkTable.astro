@@ -22,12 +22,12 @@ const { runtimeMatrix, streamReader4GiB } = benchmarkData[version] ?? benchmarkD
 
 const headings = {
   en: {
-    runtime: ['Runtime', 'Workload', 'Throughput', 'Average', 'Heap'],
-    stream4gib: ['Workload', 'Average', 'Throughput', 'Events', 'Average RSS delta'],
+    runtime: ['Runtime', 'Workload', 'Throughput', 'Average', 'Peak heap', 'Peak RSS'],
+    stream4gib: ['Workload', 'Average', 'Throughput', 'Events', 'Heap delta', 'RSS delta'],
   },
   ko: {
-    runtime: ['Runtime', 'Workload', 'Throughput', 'Average', 'Heap'],
-    stream4gib: ['Workload', 'Average', 'Throughput', 'Events', 'Average RSS delta'],
+    runtime: ['Runtime', 'Workload', 'Throughput', 'Average', 'Peak heap', 'Peak RSS'],
+    stream4gib: ['Workload', 'Average', 'Throughput', 'Events', 'Heap delta', 'RSS delta'],
   },
 } as const;
 
@@ -45,16 +45,21 @@ const runtimeRows = runtimeMatrix.results.flatMap((runtime) =>
       throughput: `${formatNumber(scenario.mibPerSec, 1)} MiB/s`,
       average: `${formatNumber(scenario.avgMs, 2)} ms`,
       heap: `${formatNumber(scenario.peakHeapUsedBytes / 1024 / 1024, 1)} MiB`,
+      rss: `${formatNumber(scenario.peakRssBytes / 1024 / 1024, 1)} MiB`,
     }))
 );
 
 const streamRows = streamReader4GiB.results.map((result) => ({
-  workload: 'StreamReaderSync index-first, 4 GiB',
+  workload: 'StreamReaderSync current-token, 4 GiB',
   average: `${formatNumber(result.avgMs / 1000, 2)} s`,
   throughput: `${formatNumber(result.avgMiBs, 2)} MiB/s`,
   events: formatInteger(result.events),
+  heap: `${formatNumber(
+    ((result.memory as any).heapUsedDeltaBytes ?? result.memory.avgHeapUsedDeltaBytes) / 1024 / 1024,
+    1,
+  )} MiB`,
   rss: `${formatNumber(
-    result.memory.avgRssDeltaBytes / 1024 / 1024,
+    ((result.memory as any).rssDeltaBytes ?? result.memory.avgRssDeltaBytes) / 1024 / 1024,
     1,
   )} MiB`,
 }));
@@ -81,6 +86,7 @@ function formatInteger(value: number): string {
         <th>{headings[locale].runtime[2]}</th>
         <th>{headings[locale].runtime[3]}</th>
         <th>{headings[locale].runtime[4]}</th>
+        <th>{headings[locale].runtime[5]}</th>
       </tr>
     </thead>
     <tbody>
@@ -91,6 +97,7 @@ function formatInteger(value: number): string {
           <td>{row.throughput}</td>
           <td>{row.average}</td>
           <td>{row.heap}</td>
+          <td>{row.rss}</td>
         </tr>
       ))}
     </tbody>
@@ -106,6 +113,7 @@ function formatInteger(value: number): string {
         <th>{headings[locale].stream4gib[2]}</th>
         <th>{headings[locale].stream4gib[3]}</th>
         <th>{headings[locale].stream4gib[4]}</th>
+        <th>{headings[locale].stream4gib[5]}</th>
       </tr>
     </thead>
     <tbody>
@@ -115,6 +123,7 @@ function formatInteger(value: number): string {
           <td>{row.average}</td>
           <td>{row.throughput}</td>
           <td>{row.events}</td>
+          <td>{row.heap}</td>
           <td>{row.rss}</td>
         </tr>
       ))}
