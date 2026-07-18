@@ -86,7 +86,7 @@ early. Concurrent `next()` calls are rejected.
 
 ## Current-Token Alternative
 
-Use `StreamReader` when event-object allocation matters. It accepts the same
+Use `StreamReader` when reducing event-object allocation matters. It accepts the same
 sources and returns the event type while accessors read the current token.
 Attribute values can be read by index, qualified name, or the
 `(namespaceURI, localName)` pair.

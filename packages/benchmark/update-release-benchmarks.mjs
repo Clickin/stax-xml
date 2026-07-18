@@ -999,7 +999,7 @@ function renderBenchmarkMarkdown(summary) {
     '',
     '## Cross-Language Reader Comparison',
     '',
-    'The same in-memory UTF-8 fixture is parsed by public pull-reader APIs in Node, Java, and Rust. File I/O is outside the timed region; all element names, non-whitespace text, and attribute names/values are materialized and must preserve the same event count and checksum.',
+    'The same UTF-8 file is read and parsed by public pull-reader APIs in Node, Java, and Rust. Every timed run includes file I/O; all element names, non-whitespace text, and attribute names/values are materialized and must preserve the same event count and checksum.',
     '',
     renderReaderCrossRuntimeTable(summary),
     '',
@@ -1046,6 +1046,17 @@ function updateConverterSection() {
   console.log(`Updated converter section in ${benchmarkMarkdownPath}`);
 }
 
+function updateReaderCrossRuntimeSection() {
+  const summary = readRequiredJson(summaryPath, 'pnpm --filter benchmark run release:expanded');
+  const raw = readRequiredJson(readerCrossRuntimePath, 'pnpm --filter benchmark run release:reader:cross-runtime');
+  summary.suites['reader-cross-runtime'] = normalizeReaderCrossRuntimeSuite(raw);
+  summary.artifacts.readerCrossRuntime = 'packages/benchmark/results/release/reader-cross-runtime.json';
+  writeJson(summaryPath, summary);
+  writeFileSync(benchmarkMarkdownPath, renderBenchmarkMarkdown(summary), 'utf8');
+  console.log(`Updated cross-language reader section in ${summaryPath}`);
+  console.log(`Updated cross-language reader section in ${benchmarkMarkdownPath}`);
+}
+
 async function main() {
   const streamSizeCaseIndex = process.argv.indexOf('--stream-size-case');
   if (streamSizeCaseIndex !== -1) {
@@ -1057,6 +1068,10 @@ async function main() {
   }
   if (process.argv.includes('--converter-only')) {
     updateConverterSection();
+    return;
+  }
+  if (process.argv.includes('--reader-only')) {
+    updateReaderCrossRuntimeSection();
     return;
   }
   mkdirSync(rawDir, { recursive: true });

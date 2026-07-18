@@ -67,12 +67,16 @@ function consumeStax(bytes) {
   return { events, checksum };
 }
 
-function measureStax(bytes) {
-  for (let index = 0; index < warmups; index++) consumeStax(bytes);
+function runStax() {
+  return consumeStax(readFileSync(file));
+}
+
+function measureStax() {
+  for (let index = 0; index < warmups; index++) runStax();
   const values = [];
   for (let index = 0; index < runs; index++) {
     const started = performance.now();
-    const result = consumeStax(bytes);
+    const result = runStax();
     values.push({ ...result, seconds: (performance.now() - started) / 1000 });
   }
   return values;
@@ -110,14 +114,14 @@ function rows(report) {
 }
 
 function markdown(report) {
-  return `# Cross-Language Reader Benchmark\n\nGenerated: ${report.generatedAt}\n\nThe same in-memory UTF-8 XML fixture is parsed through public pull-reader APIs after file I/O. Start/end elements, non-whitespace text, and every attribute name/value are materialized and folded into the same checksum.\n\n| Reader | Median throughput | Median time | Events | Checksum |\n| --- | ---: | ---: | ---: | ---: |\n${rows(report).join('\n')}\n`;
+  return `# Cross-Language Reader Benchmark\n\nGenerated: ${report.generatedAt}\n\nThe same UTF-8 XML file is read and parsed through public pull-reader APIs. Each timed run includes file I/O and materializes start/end elements, non-whitespace text, and every attribute name/value into the same checksum.\n\n| Reader | Median throughput | Median time | Events | Checksum |\n| --- | ---: | ---: | ---: | ---: |\n${rows(report).join('\n')}\n`;
 }
 
 try {
   const bytes = readFileSync(file);
   const external = { woodstox: runJava(), 'quick-xml': runRust() };
   const cases = {
-    'stax-xml': measureStax(bytes),
+    'stax-xml': measureStax(),
     woodstox: external.woodstox.samples,
     'quick-xml': external['quick-xml'].samples,
   };
@@ -132,7 +136,7 @@ try {
   }
   const report = {
     generatedAt: new Date().toISOString(),
-    fixture: { path: file, sizeBytes: statSync(file).size, contract: 'full pull-reader materialization after file I/O' },
+    fixture: { path: file, sizeBytes: statSync(file).size, contract: 'end-to-end file I/O and full pull-reader materialization' },
     options: { warmups, runs },
     environment: {
       node: process.version,

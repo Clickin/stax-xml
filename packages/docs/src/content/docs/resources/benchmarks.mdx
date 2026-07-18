@@ -98,9 +98,9 @@ parse work is retained without forcing a fake object model.
 
 ### Cross-Language Pull Readers
 
-File I/O is outside the timed region. Each public pull reader materializes all
-element names, non-whitespace text, and attribute names/values from the same
-UTF-8 fixture; event count and checksum parity are required before reporting.
+Each timed run reads and parses the same UTF-8 file. Every public pull reader
+materializes all element names, non-whitespace text, and attribute names/values;
+event count and checksum parity are required before reporting.
 
 <BenchmarkSection section="reader-cross-runtime" />
 

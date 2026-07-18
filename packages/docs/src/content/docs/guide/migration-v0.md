@@ -53,7 +53,7 @@ for (const event of new EventReaderSync('<root><item/></root>')) {
 }
 ```
 
-Use `StreamReaderSync` when event-object allocation matters:
+Use `StreamReaderSync` when reducing event-object allocation matters:
 
 ```ts
 import { StreamReaderSync, XmlEventType } from 'stax-xml';
@@ -67,6 +67,13 @@ while (reader.next() !== null) {
 ```
 
 The same reader also accepts a `Uint8Array` or an `Iterable<Uint8Array>`.
+
+Byte readers accept an `encoding` option supported by the host `TextDecoder`;
+it defaults to `utf-8` and decoding is fatal. `documentMode` defaults to
+`fragment`; select `document` to require exactly one root element. Namespace
+processing is enabled by default and can be disabled with `namespaceAware:
+false` when raw qualified names are required. XML 1.1 declarations are
+rejected; the parser and writer contract is XML 1.0.
 
 ## Node.js Streams
 
@@ -114,5 +121,7 @@ reader APIs when the XML shape is not known in advance.
 The package is ESM-only. CommonJS callers can use dynamic import:
 
 ```js
-const { EventReaderSync } = await import('stax-xml');
+import('stax-xml').then(({ EventReaderSync }) => {
+  for (const event of new EventReaderSync('<root/>')) console.log(event.type);
+});
 ```

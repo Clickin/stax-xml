@@ -31,8 +31,9 @@ fn flush_text(pending: &mut Vec<u8>, events: &mut u64, checksum: &mut i32) {
     pending.clear();
 }
 
-fn consume(bytes: &[u8]) -> (u64, i32) {
-    let mut reader = Reader::from_reader(bytes);
+fn consume(path: &str) -> (u64, i32) {
+    let bytes = fs::read(path).unwrap();
+    let mut reader = Reader::from_reader(bytes.as_slice());
     let mut events = 0;
     let mut checksum = 0;
     let mut pending_text = Vec::new();
@@ -68,16 +69,16 @@ fn consume(bytes: &[u8]) -> (u64, i32) {
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
-    let bytes = fs::read(&args[1]).unwrap();
+    let path = &args[1];
     let warmups: usize = args[2].parse().unwrap();
     let runs: usize = args[3].parse().unwrap();
     for _ in 0..warmups {
-        consume(&bytes);
+        consume(path);
     }
     let mut samples = Vec::new();
     for _ in 0..runs {
         let started = Instant::now();
-        let (events, checksum) = consume(&bytes);
+        let (events, checksum) = consume(path);
         samples.push(format!(
             "{{\"events\":{events},\"checksum\":{checksum},\"seconds\":{:.9}}}",
             started.elapsed().as_secs_f64()

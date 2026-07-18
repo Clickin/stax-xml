@@ -94,9 +94,9 @@ StAX-XML surface들을 비교합니다. 별도의 npm parser 비교나 대용량
 
 ### 다른 언어 Pull Reader 비교
 
-파일 I/O는 측정 구간 밖에 둡니다. 각 공개 pull reader가 동일한 UTF-8 fixture의
-element 이름, 공백이 아닌 text, attribute 이름과 값을 모두 materialize하며,
-event 수와 checksum이 일치해야 결과를 기록합니다.
+각 측정은 동일한 UTF-8 파일을 읽고 parsing하는 전체 구간을 포함합니다. 각 공개
+pull reader가 element 이름, 공백이 아닌 text, attribute 이름과 값을 모두
+materialize하며, event 수와 checksum이 일치해야 결과를 기록합니다.
 
 <BenchmarkSection section="reader-cross-runtime" locale="ko" />
 

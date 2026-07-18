@@ -6,8 +6,9 @@
 
 ## English
 
-`stax-xml` is a performance-first, pull-based XML parser and writer for
-JavaScript and TypeScript. It is intentionally pure JavaScript: the parser core,
+`stax-xml` is a StAX-style, pull-based XML parser and writer for JavaScript and
+TypeScript, designed for bounded memory and strong performance. It is
+intentionally pure JavaScript: the parser core,
 stream readers, event readers, converter, and writer all run
 without native addons, Wasm parser modules, or backend selection.
 

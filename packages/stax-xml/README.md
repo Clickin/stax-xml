@@ -1,7 +1,7 @@
 # StAX-XML
 
-A performance-first, pull-based XML parser and writer for JavaScript and
-TypeScript. The package is intentionally pure JavaScript: the parser core,
+A StAX-style, pull-based XML parser and writer for JavaScript and TypeScript,
+designed for bounded memory and strong performance. The package is intentionally pure JavaScript: the parser core,
 stream readers, event readers, converter, and writer all run
 without binary parser modules or backend selection.
 
@@ -61,8 +61,9 @@ for (const event of reader) {
 Both synchronous readers accept `string`, `Uint8Array`, or
 `Iterable<Uint8Array>`. Strings are scanned directly as JavaScript strings;
 they are never re-encoded to bytes. Both asynchronous readers accept
-`ReadableStream<Uint8Array>` or `AsyncIterable<Uint8Array>` and decode UTF-8
-incrementally. For known object output, start with the converter.
+`ReadableStream<Uint8Array>` or `AsyncIterable<Uint8Array>` and decode bytes
+incrementally with a fatal `TextDecoder`; `encoding` defaults to UTF-8. For
+known object output, start with the converter.
 
 These are the only public package entry points. The package has no default
 export, runtime adapters, tree/DOM helpers, or backend-selection API.

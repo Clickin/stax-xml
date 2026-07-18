@@ -32,7 +32,7 @@ Lambda layer, Docker image rebuild, edge runtime용 binary fallback이 필요하
 - Body size limit과 timeout은 web framework에서 먼저 설정하세요. Parser가 첫 번째
   resource limit이 되면 안 됩니다.
 - 일반적인 async request stream은 `EventReader`를 사용하세요.
-- Event object 할당이 중요하면 `StreamReader`를 사용하세요. 애플리케이션이 bounded
+- Event object 할당을 줄이는 것이 중요하면 `StreamReader`를 사용하세요. 애플리케이션이 bounded
   synchronous byte chunk를 이미 가지고 있고 CPU work 위치를 통제할 수 있을 때만
   `StreamReaderSync`를 사용하세요.
 - File stream chunk size는 64 KiB에서 1 MiB 근처가 적당합니다. 너무 작은 chunk는

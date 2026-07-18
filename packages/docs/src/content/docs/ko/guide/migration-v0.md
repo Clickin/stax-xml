@@ -52,7 +52,7 @@ for (const event of new EventReaderSync('<root><item/></root>')) {
 }
 ```
 
-Event object 할당이 중요하면 `StreamReaderSync`를 사용합니다.
+Event object 할당을 줄이는 것이 중요하면 `StreamReaderSync`를 사용합니다.
 
 ```ts
 import { StreamReaderSync, XmlEventType } from 'stax-xml';
@@ -66,6 +66,13 @@ while (reader.next() !== null) {
 ```
 
 같은 reader는 `Uint8Array` 또는 `Iterable<Uint8Array>`도 받습니다.
+
+Byte reader의 `encoding` option에는 host `TextDecoder`가 지원하는 label을 지정할 수
+있습니다. 기본값은 `utf-8`이며 decode 오류는 즉시 throw됩니다. `documentMode`의
+기본값은 `fragment`이고, root element가 정확히 하나여야 한다면 `document`를
+선택합니다. Namespace 처리는 기본 활성화되며 raw qualified name만 필요하면
+`namespaceAware: false`로 끌 수 있습니다. Parser와 writer의 계약은 XML 1.0이므로
+XML 1.1 declaration은 거부됩니다.
 
 ## Node.js Stream
 
@@ -113,5 +120,7 @@ Converter는 streaming 방식이며 DOM parser를 도입하지 않습니다. XML
 Package는 ESM-only입니다. CommonJS에서는 dynamic import를 사용할 수 있습니다.
 
 ```js
-const { EventReaderSync } = await import('stax-xml');
+import('stax-xml').then(({ EventReaderSync }) => {
+  for (const event of new EventReaderSync('<root/>')) console.log(event.type);
+});
 ```

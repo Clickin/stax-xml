@@ -84,7 +84,7 @@ const result = schema.parseSync(xmlString);
 **When to use:**
 - XML is already in memory as a string
 - You're in a synchronous context
-- Performance is critical (slightly faster than async)
+- Blocking synchronous parsing is required
 
 ### Asynchronous Parsing
 
@@ -416,7 +416,7 @@ const articleSchema = x.object({
 ### Synchronous vs Asynchronous
 
 ```typescript
-// Synchronous - slightly faster for small documents
+// Synchronous - use when blocking parsing is appropriate
 const result = schema.parseSync(smallXml);
 
 // Asynchronous - better for large documents

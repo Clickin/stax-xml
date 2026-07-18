@@ -18,7 +18,8 @@ public final class XmlReaderBench {
     return (seed ^ value) * 16777619;
   }
 
-  private static Result consume(byte[] bytes) throws Exception {
+  private static Result consume(Path path) throws Exception {
+    byte[] bytes = Files.readAllBytes(path);
     XMLStreamReader reader = new WstxInputFactory().createXMLStreamReader(new ByteArrayInputStream(bytes));
     long events = 0;
     int checksum = 0;
@@ -57,14 +58,14 @@ public final class XmlReaderBench {
   }
 
   public static void main(String[] args) throws Exception {
-    byte[] bytes = Files.readAllBytes(Path.of(args[0]));
+    Path path = Path.of(args[0]);
     int warmups = Integer.parseInt(args[1]);
     int runs = Integer.parseInt(args[2]);
-    for (int index = 0; index < warmups; index++) consume(bytes);
+    for (int index = 0; index < warmups; index++) consume(path);
     StringBuilder json = new StringBuilder("{\"samples\":[");
     for (int index = 0; index < runs; index++) {
       long started = System.nanoTime();
-      Result result = consume(bytes);
+      Result result = consume(path);
       double seconds = (System.nanoTime() - started) / 1_000_000_000.0;
       if (index > 0) json.append(',');
       json.append(String.format(Locale.ROOT, "{\"events\":%d,\"checksum\":%d,\"seconds\":%.9f}", result.events(), result.checksum(), seconds));

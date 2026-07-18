@@ -687,11 +687,11 @@
     },
     "reader-cross-runtime": {
       "context": {
-        "collectedAt": "2026-07-18T13:42:06.596Z",
+        "collectedAt": "2026-07-18T15:09:14.043Z",
         "fixture": {
           "path": "/Users/senghyunjo/github/stax-xml/packages/benchmark/test-data/runtime-comparison-16mib.xml",
           "sizeBytes": 16777038,
-          "contract": "full pull-reader materialization after file I/O"
+          "contract": "end-to-end file I/O and full pull-reader materialization"
         },
         "environment": {
           "node": "v26.5.0",
@@ -704,24 +704,24 @@
       "cases": [
         {
           "label": "stax-xml",
-          "avgNs": 161812541.99999967,
-          "throughputMiBs": 98.87880165662135,
+          "avgNs": 171509916.99999988,
+          "throughputMiBs": 93.28807643217326,
           "events": 967965,
           "checksum": 36104832,
           "runs": 3
         },
         {
           "label": "woodstox",
-          "avgNs": 52721167,
-          "throughputMiBs": 303.4801988729058,
+          "avgNs": 49728416,
+          "throughputMiBs": 321.7442165455598,
           "events": 967965,
           "checksum": 36104832,
           "runs": 3
         },
         {
           "label": "quick-xml",
-          "avgNs": 24950875,
-          "throughputMiBs": 641.2532725193677,
+          "avgNs": 28440709,
+          "throughputMiBs": 562.5679108763314,
           "events": 967965,
           "checksum": 36104832,
           "runs": 3

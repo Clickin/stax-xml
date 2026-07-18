@@ -83,7 +83,7 @@ reject됩니다.
 
 ## Current-Token 대안
 
-Event object 할당이 중요하면 같은 source를 받는 `StreamReader`를 사용합니다.
+Event object 할당을 줄이는 것이 중요하면 같은 source를 받는 `StreamReader`를 사용합니다.
 Attribute value는 index, qualified name, 또는 `(namespaceURI, localName)` 쌍으로
 조회할 수 있습니다.
 

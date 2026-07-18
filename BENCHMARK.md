@@ -103,13 +103,13 @@ The same generated 16 MiB fixture and checksum workloads run on Node, Bun, and D
 
 ## Cross-Language Reader Comparison
 
-The same in-memory UTF-8 fixture is parsed by public pull-reader APIs in Node, Java, and Rust. File I/O is outside the timed region; all element names, non-whitespace text, and attribute names/values are materialized and must preserve the same event count and checksum.
+The same UTF-8 file is read and parsed by public pull-reader APIs in Node, Java, and Rust. Every timed run includes file I/O; all element names, non-whitespace text, and attribute names/values are materialized and must preserve the same event count and checksum.
 
 | Reader | Median throughput | Median time | Events | Checksum |
 | --- | --- | --- | --- | --- |
-| stax-xml StreamReaderSync (v26.5.0) | 98.9 MiB/s | 161.81 ms | 967,965 | 36104832 |
-| Woodstox 6.7.0 (Java 25.0.2) | 303.5 MiB/s | 52.72 ms | 967,965 | 36104832 |
-| quick-xml 0.40.1 (Rust 1.95.0) | 641.3 MiB/s | 24.95 ms | 967,965 | 36104832 |
+| stax-xml StreamReaderSync (v26.5.0) | 93.3 MiB/s | 171.51 ms | 967,965 | 36104832 |
+| Woodstox 6.7.0 (Java 25.0.2) | 321.7 MiB/s | 49.73 ms | 967,965 | 36104832 |
+| quick-xml 0.40.1 (Rust 1.95.0) | 562.6 MiB/s | 28.44 ms | 967,965 | 36104832 |
 
 ## Converter IR Projection
 
