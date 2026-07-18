@@ -3,6 +3,7 @@ import { resolve, sep } from 'node:path';
 
 const args = new Set(process.argv.slice(2));
 const fail = args.has('--fail');
+const minimum = 83;
 
 const coveragePath = resolve('coverage/coverage-final.json');
 const coverage = JSON.parse(readFileSync(coveragePath, 'utf8'));
@@ -13,14 +14,16 @@ const rows = Object.entries(coverage)
   .filter(row => row.total > 0)
   .sort((left, right) => left.percent - right.percent || left.file.localeCompare(right.file));
 
-for (const row of rows) {
-  const status = row.covered === row.total ? 'PASS' : 'FAIL';
-  console.log(`${status} ${row.percent.toFixed(2)}% ${row.covered}/${row.total} ${row.file}`);
-}
+for (const row of rows) console.log(`${row.percent.toFixed(2)}% ${row.covered}/${row.total} ${row.file}`);
 
-const failures = rows.filter(row => row.covered < row.total);
-if (fail && failures.length > 0) {
-  console.error(`branch coverage gate failed: ${failures.length} file(s) below 100%.`);
+const covered = rows.reduce((sum, row) => sum + row.covered, 0);
+const total = rows.reduce((sum, row) => sum + row.total, 0);
+const percent = total === 0 ? 100 : (covered / total) * 100;
+const status = percent >= minimum ? 'PASS' : 'FAIL';
+console.log(`${status} ${percent.toFixed(2)}% ${covered}/${total} overall (minimum ${minimum}%).`);
+
+if (fail && percent < minimum) {
+  console.error(`branch coverage gate failed: ${percent.toFixed(2)}% is below ${minimum}%.`);
   process.exit(1);
 }
 

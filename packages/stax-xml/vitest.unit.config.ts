@@ -5,6 +5,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@stax-xml': fileURLToPath(new URL('./src', import.meta.url)),
+      'stax-xml': fileURLToPath(new URL('./src/index.ts', import.meta.url)),
       'stax-xml-async': fileURLToPath(new URL('./src/async/index.ts', import.meta.url)),
       'stax-xml-converter': fileURLToPath(new URL('./src/converter/index.ts', import.meta.url)),
       'stax-xml-core': fileURLToPath(new URL('./src/core/index.ts', import.meta.url)),
@@ -39,6 +40,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
+      thresholds: { branches: 83 },
       include: ['src/**/*.ts'],
       exclude: [
         'node_modules/**',
