@@ -31,7 +31,9 @@ jobs:
           node-version: '20.19.0'
       - id: setup-pnpm
         name: Setup pnpm
-        uses: pnpm/action-setup@v6
+        run: |
+          npm install --global pnpm@10.34.5
+          npm_config_manage_package_manager_versions=false pnpm config set --global manage-package-manager-versions false
       - id: install-deps
         name: Install dependencies
         run: pnpm install --frozen-lockfile

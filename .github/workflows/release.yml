@@ -38,10 +38,15 @@ jobs:
           node-version: '20.19.0'
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v6
+        run: |
+          npm install --global pnpm@10.34.5
+          npm_config_manage_package_manager_versions=false pnpm config set --global manage-package-manager-versions false
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build package
+        run: pnpm build
 
       - name: Run tests
         run: pnpm test
@@ -58,14 +63,16 @@ jobs:
       - name: Run W3C conformance subset
         run: pnpm test:w3c
 
-      - name: Build package
-        run: pnpm build
-
       - name: Verify release surfaces
         run: pnpm verify:release-surfaces
 
       - name: Validate pure-JS package contents
         run: node scripts/validate-prerelease.mjs "${{ github.event_name == 'push' && github.ref_name || inputs.version }}" --pack
+
+      - name: Setup Node.js for documentation
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.15.0'
 
       - name: Generate API documentation
         run: pnpm --filter=stax-xml-docs typedoc
