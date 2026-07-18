@@ -55,6 +55,8 @@ type StreamReaderSyncInput =
 interface EventReaderSyncOptions {
   documentMode?: 'document' | 'fragment';
   namespaceAware?: boolean; // default: true
+  autoDecodeEntities?: boolean; // default: true
+  addEntities?: { entity: string; value: string }[];
   encoding?: string; // byte input only; default: 'utf-8'
 }
 ```
@@ -98,8 +100,16 @@ processing-instruction, and DTD events. Start-element attributes are an
 
 Malformed XML, unsupported named entity references, and invalid byte sequences
 for the selected encoding throw an error. DTD declarations are emitted as
-events but are not interpreted. The
-reader decodes only the five predefined XML entities and numeric character
-references; it never resolves custom or external entities or performs external
-I/O. Use exported type guards such as `isStartElement()` and `isCharacters()`
-for TypeScript narrowing.
+events but are not interpreted, and the reader never resolves external
+entities or performs external I/O.
+
+`autoDecodeEntities` defaults to `true` and performs single-pass decoding of
+the five predefined XML entities, numeric character references, and definitions
+supplied through `addEntities`. Set it to `false` to preserve reference
+spelling in returned text and attributes; reference syntax and code points are
+still validated. CDATA is always literal. `addEntities` is a trusted,
+non-recursive internal vocabulary for DTD-free inputs. It cannot override the
+five predefined entities.
+
+Use exported type guards such as `isStartElement()` and `isCharacters()` for
+TypeScript narrowing.

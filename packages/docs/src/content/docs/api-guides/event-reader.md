@@ -53,6 +53,8 @@ type StreamReaderSource =
 interface EventReaderOptions {
   documentMode?: 'document' | 'fragment';
   namespaceAware?: boolean; // default: true
+  autoDecodeEntities?: boolean; // default: true
+  addEntities?: { entity: string; value: string }[];
   encoding?: string; // default: 'utf-8'
 }
 ```
@@ -61,10 +63,15 @@ Byte input is decoded incrementally by a fatal `TextDecoder`. `encoding`
 defaults to `utf-8` and accepts labels supported by the host decoder. The label
 is not inferred from the XML declaration. Invalid
 byte sequences and malformed XML reject `next()` and return the underlying
-source. The reader does not
-interpret DTD declarations, resolve custom or external entities, or perform
-external I/O. It decodes only the five predefined XML entities and numeric
-character references.
+source. The reader does not interpret DTD declarations, resolve external
+entities, or perform external I/O.
+
+`autoDecodeEntities` defaults to `true` and performs single-pass decoding of
+the five predefined XML entities, numeric character references, and trusted
+definitions supplied through `addEntities`. Set it to `false` to preserve
+reference spelling in returned text and attributes while retaining XML
+reference validation. CDATA is always literal. Custom definitions are
+non-recursive and cannot override predefined entities.
 
 Node.js `Readable` streams can be passed directly because they are async
 iterables and their `Buffer` chunks are `Uint8Array` values.

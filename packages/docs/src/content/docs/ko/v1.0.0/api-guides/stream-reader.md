@@ -57,6 +57,8 @@ type StreamReaderSource =
 interface StreamReaderOptions {
   documentMode?: 'document' | 'fragment';
   namespaceAware?: boolean; // 기본값: true
+  autoDecodeEntities?: boolean; // 기본값: true
+  addEntities?: { entity: string; value: string }[];
   encoding?: string; // 기본값: 'utf-8'
 }
 ```
@@ -66,8 +68,11 @@ interface StreamReaderOptions {
 Byte input은 fatal `TextDecoder`로 incremental decoding합니다. `encoding`은
 `utf-8`이 기본이며 host decoder가 지원하는 label을 받을 수 있습니다. XML declaration에서
 label을 자동 추론하지 않으므로 byte source와 일치하는 encoding을 지정해야 합니다. 선택한 encoding의
-invalid byte sequence, malformed XML, unsupported named entity는 `next()`를 reject합니다. XML 기본 entity 5개와
-numeric character reference만 인식하며 custom/external entity는 resolve하지
+invalid byte sequence, malformed XML, unsupported named entity는 `next()`를 reject합니다.
+`autoDecodeEntities` 기본값은 `true`이며 predefined, numeric, configured custom
+entity를 single-pass decode합니다. `false`이면 validation을 유지하면서 raw reference
+표기를 반환합니다. CDATA는 항상 literal입니다. `addEntities`는 DTD processing 없이
+trusted, non-recursive internal definition을 제공합니다. External entity는 resolve하지
 않고 외부 I/O도 수행하지 않습니다.
 
 ## Current-token accessor

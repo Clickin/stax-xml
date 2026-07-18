@@ -6,6 +6,8 @@ export type TokenCursorResult = XmlEventTypeValue | typeof NEED_INPUT | null;
 export interface TokenCursorOptions {
   documentMode?: DocumentMode;
   namespaceAware?: boolean;
+  autoDecodeEntities?: boolean;
+  addEntities?: { entity: string; value: string }[];
 }
 export interface TokenAttribute { name: string; value: string; localName: string; prefix: string; namespaceURI: string }
 
@@ -71,12 +73,16 @@ export class TokenCursor {
   private currentEvent = 0;
   private readonly documentMode: DocumentMode;
   private readonly namespaceAware: boolean;
+  private readonly autoDecodeEntities: boolean;
+  private readonly customEntities: ReadonlyMap<string, string> | undefined;
 
   constructor(input = '', final = false, options: TokenCursorOptions = {}) {
     this.buffer = input;
     this.final = final;
     this.documentMode = options.documentMode ?? 'fragment';
     this.namespaceAware = options.namespaceAware ?? true;
+    this.autoDecodeEntities = options.autoDecodeEntities ?? true;
+    this.customEntities = compileCustomEntities(options.addEntities);
   }
 
   push(text: string, final = false): void {
@@ -156,7 +162,9 @@ export class TokenCursor {
     if (this.currentTextStart < 0) return undefined;
     if (this.currentTextMemo === undefined) {
       const value = this.buffer.slice(this.currentTextStart, this.currentTextEnd);
-      this.currentTextMemo = this.currentType === XmlEventType.CHARACTERS ? decodeEntities(value) : value;
+      this.currentTextMemo = this.currentType === XmlEventType.CHARACTERS && this.autoDecodeEntities
+        ? decodeEntities(value, this.customEntities)
+        : value;
     }
     return this.currentTextMemo;
   }
@@ -173,7 +181,8 @@ export class TokenCursor {
   }
   attributeValue(index: number): string | undefined {
     if (index < 0 || index >= this.currentAttributeCount) return undefined;
-    return decodeEntities(this.buffer.slice(this.attributeValueStarts[index]!, this.attributeValueEnds[index]!));
+    const value = this.buffer.slice(this.attributeValueStarts[index]!, this.attributeValueEnds[index]!);
+    return this.autoDecodeEntities ? decodeEntities(value, this.customEntities, true) : value;
   }
   attribute(indexOrNameOrNamespace: number | string, localName?: string): TokenAttribute | undefined {
     if (localName !== undefined) {
@@ -397,7 +406,7 @@ export class TokenCursor {
       const quote = this.buffer.charCodeAt(cursor++);
       if (quote !== 34 && quote !== 39) throw new Error(`Attribute ${this.buffer.slice(attrStart, attrEnd)} must be quoted.`);
       const valueStart = cursor;
-      const valueEnd = findValidatedAttributeEnd(this.buffer, cursor, quote);
+      const valueEnd = findValidatedAttributeEnd(this.buffer, cursor, quote, this.customEntities);
       if (valueEnd < 0) return this.waitForStartTag(`attribute ${this.buffer.slice(attrStart, attrEnd)}`);
       cursor = valueEnd + 1;
       if (cursor < length && !isXmlWhitespace(this.buffer.charCodeAt(cursor))
@@ -476,7 +485,11 @@ export class TokenCursor {
         const colon = this.attributeColons[index]!;
         if (!isNamespaceDeclaration(this.buffer, start, end, colon)) continue;
         const declaredPrefix = colon < 0 ? '' : this.buffer.slice(colon + 1, end);
-        const value = decodeEntities(this.buffer.slice(this.attributeValueStarts[index]!, this.attributeValueEnds[index]!));
+        const value = decodeEntities(
+          this.buffer.slice(this.attributeValueStarts[index]!, this.attributeValueEnds[index]!),
+          this.customEntities,
+          true,
+        );
         this.bindNamespace(declaredPrefix, value);
       }
 
@@ -612,7 +625,13 @@ export class TokenCursor {
     const name = this.buffer.slice(start, end);
     const attribute = {
       name,
-      value: decodeEntities(this.buffer.slice(this.attributeValueStarts[index]!, this.attributeValueEnds[index]!)),
+      value: this.autoDecodeEntities
+        ? decodeEntities(
+          this.buffer.slice(this.attributeValueStarts[index]!, this.attributeValueEnds[index]!),
+          this.customEntities,
+          true,
+        )
+        : this.buffer.slice(this.attributeValueStarts[index]!, this.attributeValueEnds[index]!),
       localName: colon < 0 ? name : this.buffer.slice(colon + 1, end),
       prefix: colon < 0 ? '' : this.buffer.slice(start, colon),
       namespaceURI: this.attributeNamespaceURIs[index] ?? '',
@@ -723,7 +742,12 @@ export class TokenCursor {
   private findTextEndValidated(start: number): number {
     if (this.resumeKind === ResumeKind.TEXT) {
       const end = this.findDelimiter(ResumeKind.TEXT, '<', start);
-      if (end >= 0 || this.final) validateCharDataSpan(this.buffer, start, end < 0 ? this.buffer.length : end);
+      if (end >= 0 || this.final) validateCharDataSpan(
+        this.buffer,
+        start,
+        end < 0 ? this.buffer.length : end,
+        this.customEntities,
+      );
       return end;
     }
     // The first '<' terminates this text node. Entity references such as
@@ -762,11 +786,11 @@ export class TokenCursor {
       const lt = boundary;
       if (lt >= 0 && (semi < 0 || semi > lt)) throw new Error('Unterminated entity reference.');
       if (semi < 0) break;
-      decodeEntity(this.buffer.slice(index + 1, semi));
+      decodeEntity(this.buffer.slice(index + 1, semi), this.customEntities);
       index = semi;
     }
     if (this.final) {
-      validateCharDataSpan(this.buffer, start, this.buffer.length);
+      validateCharDataSpan(this.buffer, start, this.buffer.length, this.customEntities);
       return -1;
     }
     this.resumeKind = ResumeKind.TEXT;
@@ -997,18 +1021,52 @@ function delimiterFor(kind: ResumeKind): string {
   throw new Error('Invalid resumable delimiter state.');
 }
 
-function decodeEntities(value: string): string {
-  if (!value.includes('&')) return value;
-  return value.replace(/&([^;]+);/g, (_all, entity: string) => decodeEntity(entity));
+function compileCustomEntities(
+  definitions: { entity: string; value: string }[] | undefined,
+): ReadonlyMap<string, string> | undefined {
+  if (definitions === undefined || definitions.length === 0) return undefined;
+  const entities = new Map<string, string>();
+  for (const definition of definitions) {
+    const entity = definition.entity.startsWith('&') && definition.entity.endsWith(';')
+      ? definition.entity.slice(1, -1)
+      : definition.entity;
+    if (!isValidName(entity)) throw new Error(`Invalid custom entity name: ${definition.entity}`);
+    if (entity === 'lt' || entity === 'gt' || entity === 'amp' || entity === 'quot' || entity === 'apos') {
+      throw new Error(`Cannot override predefined XML entity: &${entity};`);
+    }
+    if (entities.has(entity)) throw new Error(`Duplicate custom entity: &${entity};`);
+    validateXmlCharsSpan(definition.value, 0, definition.value.length);
+    entities.set(entity, definition.value);
+  }
+  return entities;
 }
 
-function decodeEntity(entity: string): string {
+function decodeEntities(
+  value: string,
+  customEntities?: ReadonlyMap<string, string>,
+  attribute = false,
+): string {
+  if (!value.includes('&')) return value;
+  return value.replace(/&([^;]+);/g, (_all, entity: string) => decodeEntity(entity, customEntities, attribute));
+}
+
+function decodeEntity(
+  entity: string,
+  customEntities?: ReadonlyMap<string, string>,
+  attribute = false,
+): string {
   if (entity === 'lt') return '<'; if (entity === 'gt') return '>'; if (entity === 'amp') return '&'; if (entity === 'quot') return '"'; if (entity === 'apos') return "'";
   const cp = /^#x[0-9a-fA-F]+$/.test(entity)
     ? Number.parseInt(entity.slice(2), 16)
     : /^#[0-9]+$/.test(entity) ? Number.parseInt(entity.slice(1), 10) : NaN;
-  if (!Number.isInteger(cp) || !isXmlCodePoint(cp)) throw new Error(`Unknown or invalid entity: &${entity};`);
-  return String.fromCodePoint(cp);
+  if (Number.isInteger(cp)) {
+    if (!isXmlCodePoint(cp)) throw new Error(`Unknown or invalid entity: &${entity};`);
+    return String.fromCodePoint(cp);
+  }
+  const custom = customEntities?.get(entity);
+  if (custom === undefined) throw new Error(`Unknown or invalid entity: &${entity};`);
+  if (attribute && custom.includes('<')) throw new Error(`Custom entity &${entity}; cannot expand to < in an attribute value.`);
+  return custom;
 }
 
 function isXmlCodePoint(code: number): boolean {
@@ -1018,7 +1076,13 @@ function isXmlCodePoint(code: number): boolean {
     || (code >= 0x10000 && code <= 0x10ffff);
 }
 
-function validateEntitiesSpan(text: string, start: number, end: number, attribute = false): void {
+function validateEntitiesSpan(
+  text: string,
+  start: number,
+  end: number,
+  attribute = false,
+  customEntities?: ReadonlyMap<string, string>,
+): void {
   for (let index = start; index < end; index++) {
     const code = text.charCodeAt(index);
     if (code >= 32 && code < 0xd800) {
@@ -1038,7 +1102,7 @@ function validateEntitiesSpan(text: string, start: number, end: number, attribut
     if (code === 38) {
       const semi = text.indexOf(';', index + 1);
       if (semi < 0 || semi >= end) throw new Error('Unterminated entity reference.');
-      decodeEntity(text.slice(index + 1, semi));
+      decodeEntity(text.slice(index + 1, semi), customEntities, attribute);
       index = semi;
     }
   }
@@ -1060,15 +1124,25 @@ function validateXmlCharsSpan(text: string, start: number, end: number): void {
   }
 }
 
-function findValidatedAttributeEnd(text: string, start: number, quote: number): number {
+function findValidatedAttributeEnd(
+  text: string,
+  start: number,
+  quote: number,
+  customEntities?: ReadonlyMap<string, string>,
+): number {
   const end = text.indexOf(String.fromCharCode(quote), start);
   if (end < 0) return -1;
-  validateEntitiesSpan(text, start, end, true);
+  validateEntitiesSpan(text, start, end, true, customEntities);
   return end;
 }
 
-function validateCharDataSpan(text: string, start: number, end: number): void {
-  validateEntitiesSpan(text, start, end);
+function validateCharDataSpan(
+  text: string,
+  start: number,
+  end: number,
+  customEntities?: ReadonlyMap<string, string>,
+): void {
+  validateEntitiesSpan(text, start, end, false, customEntities);
   if (text.indexOf(']]>', start) >= 0 && text.indexOf(']]>', start) < end) {
     throw new Error('Character data cannot contain ]]>');
   }

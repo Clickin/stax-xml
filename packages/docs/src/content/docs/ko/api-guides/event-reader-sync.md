@@ -54,6 +54,8 @@ type StreamReaderSyncInput =
 interface EventReaderSyncOptions {
   documentMode?: 'document' | 'fragment';
   namespaceAware?: boolean; // 기본값: true
+  autoDecodeEntities?: boolean; // 기본값: true
+  addEntities?: { entity: string; value: string }[];
   encoding?: string; // byte input 전용, 기본값: 'utf-8'
 }
 ```
@@ -96,8 +98,14 @@ processing-instruction, DTD event를 포함합니다. Start-element attribute는
 `EventAttribute[]`이며 namespace declaration은 attribute에 포함되지 않습니다.
 
 Malformed XML, 지원하지 않는 named entity reference, 선택한 encoding의 invalid byte sequence는 error를
-throw합니다. DTD declaration은 event로 노출하지만 해석하지 않습니다. XML
-predefined entity 5개와 numeric character reference만 decoding하며,
-custom/external entity를 resolve하거나 외부 I/O를 수행하지 않습니다.
+throw합니다. DTD declaration은 event로 노출하지만 해석하지 않으며 external entity를
+resolve하거나 외부 I/O를 수행하지 않습니다.
+
+`autoDecodeEntities` 기본값은 `true`입니다. Predefined entity 5개, numeric
+character reference, `addEntities`로 제공한 trusted custom definition을 single-pass
+decode합니다. `false`로 설정하면 XML reference validation은 유지하면서 반환하는
+text와 attribute의 reference 표기를 보존합니다. CDATA는 항상 literal입니다.
+Custom definition은 recursive expansion을 하지 않고 predefined entity를 override할
+수 없습니다.
 TypeScript narrowing에는 `isStartElement()`, `isCharacters()` 같은 type guard를
 사용하세요.

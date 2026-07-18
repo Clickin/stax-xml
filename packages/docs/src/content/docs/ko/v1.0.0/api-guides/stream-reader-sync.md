@@ -50,6 +50,8 @@ declaration에서 label을 자동 추론하지 않으므로 byte source와 일�
 interface StreamReaderSyncOptions {
   documentMode?: 'document' | 'fragment';
   namespaceAware?: boolean; // 기본값: true
+  autoDecodeEntities?: boolean; // 기본값: true
+  addEntities?: { entity: string; value: string }[];
   encoding?: string; // byte input 전용, 기본값: 'utf-8'
 }
 ```
@@ -58,8 +60,11 @@ interface StreamReaderSyncOptions {
 
 `eventType()`, `name()`, `text()`, `localName()`, `prefix()`, `namespaceURI()`,
 attribute metadata, `attributeValue()`, `namespaceURIForPrefix()`를 제공합니다.
-Accessor는 current token만 설명합니다. XML 기본 entity 5개와 numeric character
-reference만 decode하며 custom/external entity는 resolve하지 않습니다.
+Accessor는 current token만 설명합니다. `autoDecodeEntities` 기본값은 `true`이며
+predefined, numeric, configured custom entity를 single-pass decode합니다. `false`이면
+validation을 유지하면서 raw reference 표기를 반환합니다. CDATA는 항상 literal입니다.
+`addEntities`는 DTD processing 없이 trusted, non-recursive internal definition을
+제공합니다. External entity resolution과 외부 I/O는 수행하지 않습니다.
 
 중단할 때는 `reader.close()`를 호출하세요. close는 idempotent이며 underlying byte
 iterator를 닫습니다. stable event object가 필요하면
