@@ -274,7 +274,6 @@ class Writer {
   // 스트림 관리
   close(): Promise<void>  // 기본 스트림 닫기
   flush(): Promise<void>  // 수동 플러시
-  getMetrics(): object    // 성능 메트릭
 }
 
 interface WriterOptions {

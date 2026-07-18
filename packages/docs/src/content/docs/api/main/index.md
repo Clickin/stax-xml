@@ -423,7 +423,7 @@ const writer = new Writer(writableStream, options);
 
 > **new Writer**(`output`, `options?`): [`Writer`](#writer)
 
-Defined in: [async/Writer.ts:186](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L186)
+Defined in: [async/Writer.ts:178](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L178)
 
 ###### Parameters
 
@@ -445,7 +445,7 @@ Defined in: [async/Writer.ts:186](https://github.com/Clickin/stax-xml/blob/maste
 
 > **writeStartDocument**(`version?`, `encoding?`): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: [async/Writer.ts:331](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L331)
+Defined in: [async/Writer.ts:313](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L313)
 
 Write XML declaration
 
@@ -467,7 +467,7 @@ Write XML declaration
 
 > **writeEndDocument**(): `Promise`\<`void`\>
 
-Defined in: [async/Writer.ts:356](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L356)
+Defined in: [async/Writer.ts:338](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L338)
 
 End document (automatically close all elements)
 
@@ -479,7 +479,7 @@ End document (automatically close all elements)
 
 > **close**(): `Promise`\<`void`\>
 
-Defined in: [async/Writer.ts:387](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L387)
+Defined in: [async/Writer.ts:369](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L369)
 
 Finalize any open elements, flush buffered bytes, and close the underlying stream.
 
@@ -491,7 +491,7 @@ Finalize any open elements, flush buffered bytes, and close the underlying strea
 
 > **writeStartElement**(`localName`, `options?`): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: [async/Writer.ts:394](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L394)
+Defined in: [async/Writer.ts:376](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L376)
 
 Write start element
 
@@ -513,7 +513,7 @@ Write start element
 
 > **writeEndElement**(): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: [async/Writer.ts:450](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L450)
+Defined in: [async/Writer.ts:432](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L432)
 
 Write end element
 
@@ -525,7 +525,7 @@ Write end element
 
 > **writeCharacters**(`text`): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: [async/Writer.ts:486](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L486)
+Defined in: [async/Writer.ts:468](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L468)
 
 Write text
 
@@ -543,7 +543,7 @@ Write text
 
 > **writeCData**(`cdata`): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: [async/Writer.ts:509](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L509)
+Defined in: [async/Writer.ts:491](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L491)
 
 Write CDATA section
 
@@ -561,7 +561,7 @@ Write CDATA section
 
 > **writeComment**(`comment`): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: [async/Writer.ts:531](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L531)
+Defined in: [async/Writer.ts:513](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L513)
 
 Write comment
 
@@ -579,7 +579,7 @@ Write comment
 
 > **writeRaw**(`xml`): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: [async/Writer.ts:556](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L556)
+Defined in: [async/Writer.ts:538](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L538)
 
 Write raw XML content without escaping
 
@@ -601,49 +601,13 @@ this (chainable)
 
 > **flush**(): `Promise`\<`void`\>
 
-Defined in: [async/Writer.ts:566](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L566)
+Defined in: [async/Writer.ts:548](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L548)
 
 Manual flush
 
 ###### Returns
 
 `Promise`\<`void`\>
-
-##### getMetrics()
-
-> **getMetrics**(): `object`
-
-Defined in: [async/Writer.ts:582](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L582)
-
-Return metrics
-
-###### Returns
-
-`object`
-
-###### totalBytesWritten
-
-> **totalBytesWritten**: `number` = `0`
-
-###### totalCharactersWritten
-
-> **totalCharactersWritten**: `number` = `0`
-
-###### flushCount
-
-> **flushCount**: `number` = `0`
-
-###### lastFlushTime
-
-> **lastFlushTime**: `number` = `0`
-
-###### bufferUtilization
-
-> **bufferUtilization**: `number`
-
-###### averageFlushSize
-
-> **averageFlushSize**: `number`
 
 ***
 

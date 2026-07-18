@@ -175,14 +175,6 @@ export class Writer {
   private fullEntityMap?: Record<string, string>;
   private customEntityKeys?: string[]; // For fast early checking
 
-  // Performance metrics
-  private metrics = {
-    totalBytesWritten: 0,
-    totalCharactersWritten: 0,
-    flushCount: 0,
-    lastFlushTime: 0
-  };
-
   constructor(
     output: WritableStream<Uint8Array> | AsyncTextSink,
     options: WriterOptions = {}
@@ -277,9 +269,6 @@ export class Writer {
         const codePoint = Array.from(source)[0]!;
         const encoded = this.encoder.encode(codePoint);
         await this._writeChunk(encoded);
-        this.metrics.totalBytesWritten += encoded.byteLength;
-        this.metrics.flushCount++;
-        this.metrics.lastFlushTime = Date.now();
         readOffset += codePoint.length;
         continue;
       }
@@ -305,9 +294,6 @@ export class Writer {
       this.textBuffer = '';
       this.bufferPosition = 0;
       await this._writeTextChunk(chunk);
-      this.metrics.totalCharactersWritten += chunk.length;
-      this.metrics.flushCount++;
-      this.metrics.lastFlushTime = Date.now();
       return;
     }
 
@@ -319,10 +305,6 @@ export class Writer {
     this.bufferPosition = 0;
 
     await this._writeChunk(chunk);
-
-    this.metrics.totalBytesWritten += bytesWritten;
-    this.metrics.flushCount++;
-    this.metrics.lastFlushTime = Date.now();
   }
 
   /**
@@ -574,19 +556,6 @@ export class Writer {
         throw error;
       }
     }
-  }
-
-  /**
-   * Return metrics
-   */
-  public getMetrics() {
-    return {
-      ...this.metrics,
-      bufferUtilization: this.bufferPosition / this.options.bufferSize,
-      averageFlushSize: this.metrics.flushCount > 0
-        ? (this.textSink ? this.metrics.totalCharactersWritten : this.metrics.totalBytesWritten) / this.metrics.flushCount
-        : 0
-    };
   }
 
   // === Private Helper Methods ===

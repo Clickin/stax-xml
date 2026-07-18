@@ -162,9 +162,10 @@ while (reader.next() !== null) {
 
 ## Writer diff
 
-Write method, `getXmlString()`, mutable formatting method, async writer의
-`getMetrics()`는 v0 이름을 유지합니다. 주요 call-site 변경은 class 이름, named
-import, namespace 설정, output-encoding boundary입니다.
+Write method, `getXmlString()`, mutable formatting method는 v0 이름을 유지합니다.
+Async writer의 구현 세부 진단 API인 `getMetrics()`는 제거됐습니다. 그 밖의 주요
+call-site 변경은 class 이름, named import, namespace 설정, output-encoding
+boundary입니다.
 
 v0 `namespaces` constructor option도 제거됐습니다. Namespace scope가 시작되는
 element를 연 뒤 character나 child를 쓰기 전에 namespace를 선언하세요.

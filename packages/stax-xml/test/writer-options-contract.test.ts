@@ -43,8 +43,6 @@ describe('writer encoding contract', () => {
 
     expect(chunks.join('')).toBe('<?xml version="1.0" encoding="Shift_JIS"?><root>日本語</root>');
     expect(lifecycle).toEqual(['flush', 'close']);
-    expect(writer.getMetrics().totalBytesWritten).toBe(0);
-    expect(writer.getMetrics().totalCharactersWritten).toBe(chunks.join('').length);
   });
 
   it('rejects invalid or mismatched async text-sink encoding metadata', async () => {

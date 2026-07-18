@@ -164,9 +164,10 @@ getters before the next call to `next()`.
 
 ## Writer Diff
 
-The write methods, `getXmlString()`, mutable formatting methods, and the async
-writer's `getMetrics()` keep their v0 names. The main call-site changes are the
-class names, named imports, namespace setup, and output-encoding boundary.
+The write methods, `getXmlString()`, and mutable formatting methods keep their
+v0 names. The async writer's implementation-specific `getMetrics()` diagnostic
+was removed. The other call-site changes are the class names, named imports,
+namespace setup, and output-encoding boundary.
 
 The v0 `namespaces` constructor option was removed. Declare namespaces where
 their scope begins, after opening the element and before writing characters or

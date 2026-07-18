@@ -583,11 +583,6 @@ describe('Writer Async-Specific Tests', () => {
 
     const result = getOutput();
     expect(result).toContain(`<data>${longText}</data>`);
-
-    // 메트릭 확인
-    const metrics = writer.getMetrics();
-    expect(metrics.totalBytesWritten).toBeGreaterThan(0);
-    expect(metrics.flushCount).toBeGreaterThan(0);
   });
 
   it('should handle manual flush', async () => {
@@ -636,38 +631,6 @@ describe('Writer Async-Specific Tests', () => {
 
     const result = getOutput();
     expect(result).toContain(`<large>${veryLongText}</large>`);
-
-    // 큰 청크가 직접 스트림에 쓰여졌는지 메트릭으로 확인
-    const metrics = writer.getMetrics();
-    expect(metrics.totalBytesWritten).toBeGreaterThan(200);
-  });
-
-  it('should track metrics correctly', async () => {
-    const { stream, getOutput } = createMemoryWritableStream();
-    const writer = new Writer(stream, {
-      encoding: 'utf-8',
-      prettyPrint: true,
-      bufferSize: 100,
-      flushThreshold: 50
-    });
-
-    // 초기 메트릭
-    let metrics = writer.getMetrics();
-    expect(metrics.totalBytesWritten).toBe(0);
-    expect(metrics.flushCount).toBe(0);
-    expect(metrics.bufferUtilization).toBe(0);
-
-    await writer.writeStartDocument('1.0', 'utf-8');
-    await writer.writeStartElement('metrics');
-    await writer.writeCharacters('Testing metrics');
-    await writer.writeEndElement();
-    await writer.writeEndDocument();
-
-    // 최종 메트릭
-    metrics = writer.getMetrics();
-    expect(metrics.totalBytesWritten).toBeGreaterThan(0);
-    expect(metrics.flushCount).toBeGreaterThan(0);
-    expect(metrics.averageFlushSize).toBeGreaterThan(0);
   });
 
   it('should handle different buffer configurations', async () => {
@@ -959,11 +922,6 @@ describe('Writer Performance Tests', () => {
     expect(endTime - startTime).toBeLessThan(5000); // 5초 이내
     expect(result).toContain('<item id="0" type="test">Content for item 0</item>');
     expect(result).toContain('<item id="999" type="test">Content for item 999</item>');
-
-    // 메트릭 검증
-    const metrics = writer.getMetrics();
-    expect(metrics.totalBytesWritten).toBeGreaterThan(10000); // 최소 10KB
-    expect(metrics.flushCount).toBeGreaterThan(1); // 여러 번 플러시됨
   });
 
   it('should handle very large text content', async () => {
@@ -986,9 +944,5 @@ describe('Writer Performance Tests', () => {
 
     const result = getOutput();
     expect(result).toContain(`<large-text>${largeText}</large-text>`);
-
-    // 메트릭 검증
-    const metrics = writer.getMetrics();
-    expect(metrics.totalBytesWritten).toBeGreaterThan(1024 * 1024); // 1MB 이상
   });
 });

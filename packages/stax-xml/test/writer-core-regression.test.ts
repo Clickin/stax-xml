@@ -198,7 +198,6 @@ describe('Writer hot-path regression coverage', () => {
     await writer.writeEndDocument();
 
     expect(getBytesWritten()).toBeGreaterThan(140);
-    expect(writer.getMetrics().flushCount).toBeGreaterThan(1);
   });
 });
 
