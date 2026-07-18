@@ -13,22 +13,22 @@
       "contractScope": "catalog-records",
       "fullStringParity": true,
       "eventCountKind": "parsed-elements",
-      "avgMs": 146.5859752,
-      "minMs": 137.2132919999999,
-      "maxMs": 160.57275000000004,
-      "mibPerSec": 109.15153960113751,
+      "avgMs": 151.2627002,
+      "minMs": 142.890042,
+      "maxMs": 164.62041699999997,
+      "mibPerSec": 105.77680324269498,
       "eventCount": 139458,
       "checksum": -1845341048,
       "samplesMs": [
-        160.57275000000004,
-        156.58354199999997,
-        139.2158750000001,
-        137.2132919999999,
-        139.34441700000002
+        164.62041699999997,
+        161.95220900000004,
+        143.896208,
+        142.890042,
+        142.95462500000008
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 60310694.4,
-        "avgRssDeltaBytes": 3427532.8
+        "avgHeapUsedDeltaBytes": 60356384,
+        "avgRssDeltaBytes": 3712614.4
       }
     },
     "converter-auto-compiled-batch-plan": {
@@ -38,28 +38,28 @@
       "contractScope": "catalog-records",
       "fullStringParity": true,
       "eventCountKind": "parsed-elements",
-      "avgMs": 186.5984836,
-      "minMs": 183.99479199999996,
-      "maxMs": 188.03349999999978,
-      "mibPerSec": 85.74606056988429,
+      "avgMs": 191.7960414,
+      "minMs": 189.43775000000005,
+      "maxMs": 193.47945800000002,
+      "mibPerSec": 83.4223937064749,
       "eventCount": 139458,
       "checksum": -1845341048,
       "samplesMs": [
-        187.64266700000007,
-        185.83466700000008,
-        188.03349999999978,
-        183.99479199999996,
-        187.48679200000015
+        192.1717920000001,
+        191.2382909999999,
+        193.47945800000002,
+        189.43775000000005,
+        192.652916
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 63634168,
-        "avgRssDeltaBytes": 3810918.4
+        "avgHeapUsedDeltaBytes": 63739035.2,
+        "avgRssDeltaBytes": 3837132.8
       }
     }
   },
   "metadata": {
     "nodeVersion": "26.5.0",
     "v8Version": "14.6.202.34-node.24",
-    "collectedAt": "2026-07-18T13:44:29.624Z"
+    "collectedAt": "2026-07-18T15:28:29.900Z"
   }
 }

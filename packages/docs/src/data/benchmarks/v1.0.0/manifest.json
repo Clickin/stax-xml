@@ -1,7 +1,7 @@
 {
   "version": "v1.0.0",
-  "createdAt": "2026-07-18T15:12:39.747Z",
-  "gitCommit": "424fb493fc242e17cc6202e5bcc4038706b8f5f7",
+  "createdAt": "2026-07-18T15:58:08.885Z",
+  "gitCommit": "24174f0fd3297f6a7b42989b8fa2f4a665ab94cb",
   "sourceDir": "packages/benchmark/results/release",
   "files": [
     {
