@@ -42,6 +42,7 @@ const rawDir = join(resultsDir, 'raw');
 const summaryPath = join(resultsDir, 'latest-summary.json');
 const benchmarkMarkdownPath = join(repoRoot, 'BENCHMARK.md');
 const runtimeMatrixPath = join(resultsDir, 'runtime-matrix.json');
+const readerCrossRuntimePath = join(resultsDir, 'reader-cross-runtime.json');
 const writerCrossRuntimePath = join(resultsDir, 'writer-cross-runtime.json');
 const streamReader4GiBPath = join(resultsDir, 'stream-reader-4gb.json');
 const converterBatchPlanPath = join(resultsDir, 'converter-compiled-batch-plan.json');
@@ -522,6 +523,24 @@ function normalizeWriterCrossRuntimeSuite(raw) {
   };
 }
 
+function normalizeReaderCrossRuntimeSuite(raw) {
+  return {
+    context: {
+      collectedAt: raw.generatedAt,
+      fixture: raw.fixture,
+      environment: raw.environment,
+    },
+    cases: Object.entries(raw.cases).map(([label, runs]) => ({
+      label,
+      avgNs: percentile(runs.map((run) => run.seconds * 1e9), 0.5),
+      throughputMiBs: percentile(runs.map((run) => run.throughputMiBs), 0.5),
+      events: runs[0]?.events,
+      checksum: runs[0]?.checksum,
+      runs: runs.length,
+    })),
+  };
+}
+
 function runStreamSizeSuite() {
   console.log('\n== StreamReaderSync iterable chunk size series ==');
   const cases = streamSizeCases.map(measureStreamSizeCaseIsolated);
@@ -884,6 +903,29 @@ function renderWriterCrossRuntimeTable(summary) {
   );
 }
 
+function renderReaderCrossRuntimeTable(summary) {
+  const suite = summary.suites['reader-cross-runtime'];
+  if (!suite) {
+    return 'Pending final aggregation by `pnpm --filter benchmark run release:summary`.';
+  }
+  const versions = suite.context.environment;
+  const labels = {
+    'stax-xml': `stax-xml StreamReaderSync (${versions.node})`,
+    woodstox: `Woodstox ${versions.woodstox} (Java ${versions.java})`,
+    'quick-xml': `quick-xml ${versions.quickXml} (Rust ${versions.rust})`,
+  };
+  return renderTable(
+    ['Reader', 'Median throughput', 'Median time', 'Events', 'Checksum'],
+    suite.cases.map((entry) => [
+      labels[entry.label] ?? entry.label,
+      `${entry.throughputMiBs.toFixed(1)} MiB/s`,
+      formatDuration(entry.avgNs),
+      entry.events.toLocaleString('en-US'),
+      String(entry.checksum),
+    ]),
+  );
+}
+
 function renderBenchmarkMarkdown(summary) {
   const npmRows = [
     'stax-xml EventReaderSync (JS event checksum)',
@@ -913,7 +955,7 @@ function renderBenchmarkMarkdown(summary) {
     `Generated: ${summary.generatedAt}`,
     `Run ID: ${summary.runId}`,
     '',
-    'This release benchmark set measures public pure JavaScript surfaces. It keeps parser fixture series, maintained npm XML parser comparisons, incremental large-input measurements, converter rows, and writer rows together so docs do not publish a narrowed subset by accident.',
+    'The core release tables measure public pure JavaScript surfaces. Explicit cross-language reader and writer sections compare equivalent public pull APIs and real file sinks without changing that core contract.',
     '',
     '## Environment',
     '',
@@ -955,6 +997,12 @@ function renderBenchmarkMarkdown(summary) {
     '',
     renderRuntimeMatrixTable(),
     '',
+    '## Cross-Language Reader Comparison',
+    '',
+    'The same in-memory UTF-8 fixture is parsed by public pull-reader APIs in Node, Java, and Rust. File I/O is outside the timed region; all element names, non-whitespace text, and attribute names/values are materialized and must preserve the same event count and checksum.',
+    '',
+    renderReaderCrossRuntimeTable(summary),
+    '',
     '## Converter IR Projection',
     '',
     `Converter section generated: ${summary.suites['converter-parity'].context.collectedAt}`,
@@ -980,6 +1028,7 @@ function renderBenchmarkMarkdown(summary) {
     '## Release Artifacts',
     '',
     '- Runtime matrix: `packages/benchmark/results/release/runtime-matrix.json`',
+    '- Cross-language reader comparison: `packages/benchmark/results/release/reader-cross-runtime.json`',
     '- 4 GiB cursor reader: `packages/benchmark/results/release/stream-reader-4gb.json`',
     '- Converter compiled batch plan: `packages/benchmark/results/release/converter-compiled-batch-plan.json`',
     '- 1 GiB writer raw result: `packages/benchmark/results/release/raw/writer-1gb.json`',
@@ -1015,6 +1064,10 @@ async function main() {
   const generatedAt = new Date().toISOString();
 
   readRequiredJson(runtimeMatrixPath, 'pnpm --filter benchmark run release:runtime-matrix');
+  const readerCrossRuntime = readRequiredJson(
+    readerCrossRuntimePath,
+    'pnpm --filter benchmark run release:reader:cross-runtime',
+  );
   const writerCrossRuntime = readRequiredJson(
     writerCrossRuntimePath,
     'pnpm --filter benchmark run release:writer:cross-runtime',
@@ -1027,6 +1080,7 @@ async function main() {
     'parser-98mb': await runMitataSuite('parser-98mb', 'Parser 98MB (large.xml)', () => registerParserSyncSuite(ASSET_PATHS.large), parser98MbMitataOptions),
     'npm-xml-parsers': await runMitataSuite('npm-xml-parsers', 'Node npm XML parser comparison (books.xml)', registerNpmXmlParserSuite),
     'stream-size': runStreamSizeSuite(),
+    'reader-cross-runtime': normalizeReaderCrossRuntimeSuite(readerCrossRuntime),
     'converter-parity': normalizeConverterSuiteFromFile(converterBatchPlanPath),
     'writer-small': await runMitataSuite('writer-small', 'Writer small documents', registerWriterSmallSuite),
     'writer-big': await runMitataSuite('writer-big', 'Writer large documents', registerWriterBigSuite),
@@ -1046,6 +1100,7 @@ async function main() {
         'maintained Node npm XML parser comparison',
         'StreamReaderSync incremental size series from 1MiB to 4GiB',
         'runtime matrix artifact',
+        'Node/Java/Rust reader comparison',
         'converter compiled batch-plan comparison',
         'writer small/big/async/1GiB rows',
         'Node/Java/Rust writer comparison',
@@ -1054,6 +1109,7 @@ async function main() {
     environment: collectEnvironment(),
     artifacts: {
       runtimeMatrix: 'packages/benchmark/results/release/runtime-matrix.json',
+      readerCrossRuntime: 'packages/benchmark/results/release/reader-cross-runtime.json',
       streamReader4GiB: 'packages/benchmark/results/release/stream-reader-4gb.json',
       converterCompiledBatchPlan: 'packages/benchmark/results/release/converter-compiled-batch-plan.json',
       writer1GiB: 'packages/benchmark/results/release/raw/writer-1gb.json',

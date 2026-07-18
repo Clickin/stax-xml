@@ -10,6 +10,7 @@ type Section =
   | 'parser-98mb'
   | 'npm-xml-parsers'
   | 'stream-size'
+  | 'reader-cross-runtime'
   | 'converter'
   | 'writer-small'
   | 'writer-big'
@@ -53,6 +54,7 @@ const sourceLinks: Record<Section, Array<[string, string]>> = {
   'parser-98mb': [['parser-98mb.mjs', 'packages/benchmark/parser-98mb.mjs'], ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
   'npm-xml-parsers': [['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs'], ['books fixture', 'packages/benchmark/assets/books.xml']],
   'stream-size': [['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs'], ['4 GiB harness', 'packages/benchmark/stream-reader-4gb-consumption.mjs']],
+  'reader-cross-runtime': [['cross-language reader', 'packages/benchmark/reader-cross-runtime.mjs']],
   converter: [['converter-compiled-batch-plan.mjs', 'packages/benchmark/converter-compiled-batch-plan.mjs'], ['release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
   'writer-small': [['writer release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
   'writer-big': [['writer release aggregation', 'packages/benchmark/update-release-benchmarks.mjs']],
@@ -211,6 +213,26 @@ function buildTable(section: Section): TableModel | null {
           String(entry.checksum),
         ]),
       };
+    case 'reader-cross-runtime': {
+      const suite = summary.suites['reader-cross-runtime'];
+      if (!suite) return { headers: ['Status'], rows: [[locale === 'en' ? 'Pending next release benchmark run' : '다음 릴리스 벤치마크 실행 대기 중']] };
+      const versions = suite.context.environment;
+      const labels: Record<string, string> = {
+        'stax-xml': `stax-xml StreamReaderSync (${versions.node})`,
+        woodstox: `Woodstox ${versions.woodstox} (Java ${versions.java})`,
+        'quick-xml': `quick-xml ${versions.quickXml} (Rust ${versions.rust})`,
+      };
+      return {
+        headers: ['Reader', 'Median throughput', 'Median time', 'Events', 'Checksum'],
+        rows: suite.cases.map((entry: any) => [
+          labels[entry.label] ?? entry.label,
+          `${formatNumber(entry.throughputMiBs, 1)} MiB/s`,
+          formatDurationNs(entry.avgNs),
+          formatInteger(entry.events),
+          String(entry.checksum),
+        ]),
+      };
+    }
     case 'converter': {
       const rows: Array<[BenchmarkLabel, string]> = [
         ['Manual StreamReaderSync projection', 'Manual StreamReaderSync projection'],

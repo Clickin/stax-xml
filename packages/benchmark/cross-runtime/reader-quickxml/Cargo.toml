@@ -1,0 +1,7 @@
+[package]
+name = "stax_xml_reader_cross_runtime"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+quick-xml = "0.40.1"

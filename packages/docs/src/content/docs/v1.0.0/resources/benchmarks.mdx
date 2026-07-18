@@ -41,6 +41,8 @@ JavaScript string and object materialization.
   installed.
 - `pnpm --filter benchmark run release:writer:cross-runtime` compares the
   file-writing workload across Node/stax-xml, Java/Woodstox, and Rust/quick-xml.
+- `pnpm --filter benchmark run release:reader:cross-runtime` compares the same
+  pull-reader workload across Node/stax-xml, Java/Woodstox, and Rust/quick-xml.
 - `pnpm --filter benchmark run release:expanded` regenerates the full release
   benchmark set: runtime matrix, 4 GiB stream reader, converter comparison,
   1 GiB writer, parser fixture series, maintained npm XML parser
@@ -94,6 +96,14 @@ Event parsers fold event names, text, and attributes into a checksum so the
 parse work is retained without forcing a fake object model.
 
 <BenchmarkSection section="npm-xml-parsers" />
+
+### Cross-Language Pull Readers
+
+File I/O is outside the timed region. Each public pull reader materializes all
+element names, non-whitespace text, and attribute names/values from the same
+UTF-8 fixture; event count and checksum parity are required before reporting.
+
+<BenchmarkSection section="reader-cross-runtime" />
 
 ### StreamReaderSync Size Series
 

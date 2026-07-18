@@ -36,6 +36,8 @@ StAX-XML 벤치마크는 순수 JavaScript 파서를 기준으로 합니다. `la
   설치되어 있을 때 같은 JavaScript reader 작업을 런타임별로 비교.
 - `pnpm --filter benchmark run release:writer:cross-runtime`: Node/stax-xml,
   Java/Woodstox, Rust/quick-xml의 실제 파일 writer 작업을 비교.
+- `pnpm --filter benchmark run release:reader:cross-runtime`: Node/stax-xml,
+  Java/Woodstox, Rust/quick-xml의 동일 pull-reader 작업을 비교.
 - `pnpm --filter benchmark run release:expanded`: 전체 release benchmark set을
   다시 생성합니다. Runtime matrix, 4 GiB `StreamReaderSync`, converter
   batch-plan, 1 GiB writer, parser fixture series, npm XML parser 비교,
@@ -89,6 +91,14 @@ StAX-XML surface들을 비교합니다. 별도의 npm parser 비교나 대용량
 작업이 제거되지 않도록 합니다.
 
 <BenchmarkSection section="npm-xml-parsers" locale="ko" />
+
+### 다른 언어 Pull Reader 비교
+
+파일 I/O는 측정 구간 밖에 둡니다. 각 공개 pull reader가 동일한 UTF-8 fixture의
+element 이름, 공백이 아닌 text, attribute 이름과 값을 모두 materialize하며,
+event 수와 checksum이 일치해야 결과를 기록합니다.
+
+<BenchmarkSection section="reader-cross-runtime" locale="ko" />
 
 ### StreamReaderSync Size Series
 
