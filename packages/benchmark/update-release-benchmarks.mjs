@@ -258,7 +258,7 @@ function consumeStaxEventReader(xmlString) {
       checksum = foldString(checksum, event.value ?? '');
     }
     if (event.type === XmlEventType.START_ELEMENT) {
-      for (const attribute of event.attributes ?? []) {
+      for (const attribute of event.attributes?.values() ?? []) {
         checksum = foldString(checksum, attribute.name);
         checksum = foldString(checksum, attribute.value);
       }

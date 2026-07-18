@@ -57,6 +57,7 @@ reader를 선택하세요.
 | `StaxXmlWriterSyncSink` | `WriterSyncSink` | 계속 caller가 `SyncTextSink`를 제공합니다. |
 | `StaxXmlWriter` | `Writer` | `WritableStream<Uint8Array>` 또는 `AsyncTextSink`를 제공합니다. |
 | `XmlEventType.ERROR`, `ErrorEvent`, `isError` | 대체 event 없음 | Parse/decode 실패는 동기 reader에서 throw되고 비동기 read를 reject합니다. |
+| v0 대응 없음 | `COMMENT`, `PROCESSING_INSTRUCTION`, `DTD` event | 이제 이 node도 emit됩니다. Exhaustive event switch를 사용하는 consumer는 case를 추가하거나 명시적으로 무시해야 합니다. |
 | `attributes: Record<string, string>` / `attributesWithPrefix` | `attributes: EventAttributes` | qualified name을 key로 쓰는 읽기 전용 Map이며 각 value가 `name`, `localName`, `prefix`, `namespaceURI`, `value`를 가집니다. |
 | Element `uri` | `namespaceURI` | Prefix와 namespace URI가 없을 때는 빈 string을 사용합니다. |
 | `stax-xml/cursor` / platform adapter subpath | Root reader/writer export | Export되는 package path는 `stax-xml`과 `stax-xml/converter`뿐입니다. |
@@ -158,6 +159,32 @@ while (reader.next() !== null) {
 `EventReaderSync`/`EventReader`가 반환하는 stable object는 보관해도 됩니다.
 `StreamReaderSync`/`StreamReader`는 current token만 노출하므로 다음 `next()`를
 호출하기 전에 getter value를 소비하세요.
+
+## Writer diff
+
+Write method, `getXmlString()`, mutable formatting method, async writer의
+`getMetrics()`는 v0 이름을 유지합니다. 주요 call-site 변경은 class 이름, named
+import, namespace 설정, output-encoding boundary입니다.
+
+v0 `namespaces` constructor option도 제거됐습니다. Namespace scope가 시작되는
+element를 연 뒤 character나 child를 쓰기 전에 namespace를 선언하세요.
+
+```ts
+import { WriterSync } from 'stax-xml';
+
+const writer = new WriterSync({ prettyPrint: true, indentString: '    ' });
+writer.writeStartElement('feed');
+writer.writeNamespace('', 'urn:example:feed');
+writer.writeNamespace('media', 'urn:example:media');
+writer.writeEndElement();
+writer.writeEndDocument();
+
+const xml = writer.getXmlString();
+```
+
+`Writer` byte-stream output은 UTF-8이고 `WriterSync` declaration metadata도
+UTF-8로 제한됩니다. 다른 encoding이 필요하면 `encoding` field가 있는
+`AsyncTextSink` 또는 `SyncTextSink`를 전달하고 실제 encoding을 sink에서 수행하세요.
 
 ## 메모리의 String
 

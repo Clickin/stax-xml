@@ -1,6 +1,6 @@
 # CursorReader Iterable Large Shape Benchmark
 
-Generated: 2026-07-18T15:28:25.971Z
+Generated: 2026-07-18T17:15:18.170Z
 
 This benchmark uses generated `Uint8Array` chunks and consumes each row without loading a complete XML document string.
 It measures the pure JavaScript iterable cursor path and does not use native addons, Wasm modules, or backend selection.
@@ -20,7 +20,7 @@ Raw-frame and iterable cursor rows keep the same full-string checksum contract w
 
 | Style | Throughput | Average | Min | Max | Events | Checksum | String fields | Raw span materializations |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| iterable-cursor | 85.95 MiB/s | 47654.72 ms | 46893.19 ms | 48431.42 ms | 572662314 | 659690454 | 715827890 | 0 |
+| iterable-cursor | 84.97 MiB/s | 48207.76 ms | 47819.21 ms | 48899.72 ms | 572662314 | 659690454 | 715827890 | 0 |
 
 ## Memory
 
@@ -28,7 +28,7 @@ Heap and RSS deltas are the maximum measured-run endpoints minus the post-warmup
 
 | Style | Heap delta | RSS delta | Max heap used | Max RSS |
 | --- | ---: | ---: | ---: | ---: |
-| iterable-cursor | +29.4 MiB | +78.1 MiB | 33.8 MiB | 134.6 MiB |
+| iterable-cursor | +27.8 MiB | +78.1 MiB | 32.2 MiB | 134.8 MiB |
 
 ## Materialization Counters
 

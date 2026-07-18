@@ -57,6 +57,7 @@ a reusable current-token view.
 | `StaxXmlWriterSyncSink` | `WriterSyncSink` | The caller still supplies a `SyncTextSink`. |
 | `StaxXmlWriter` | `Writer` | Supply a `WritableStream<Uint8Array>` or `AsyncTextSink`. |
 | `XmlEventType.ERROR`, `ErrorEvent`, `isError` | None | Parse and decode failures throw from sync readers and reject async reads. |
+| No v0 equivalent | `COMMENT`, `PROCESSING_INSTRUCTION`, and `DTD` events | These nodes are now emitted. Consumers with exhaustive event switches must add cases or explicitly ignore them. |
 | `attributes: Record<string, string>` and `attributesWithPrefix` | `attributes: EventAttributes` | A read-only Map keyed by qualified name; each value carries `name`, `localName`, `prefix`, `namespaceURI`, and `value`. |
 | element `uri` | `namespaceURI` | Missing prefixes and namespace URIs are represented by an empty string. |
 | `stax-xml/cursor` and platform adapter subpaths | Root reader/writer exports | Only `stax-xml` and `stax-xml/converter` are exported package paths. |
@@ -160,6 +161,34 @@ while (reader.next() !== null) {
 `EventReaderSync` and `EventReader` return stable objects that can be retained.
 `StreamReaderSync` and `StreamReader` expose only the current token; consume its
 getters before the next call to `next()`.
+
+## Writer Diff
+
+The write methods, `getXmlString()`, mutable formatting methods, and the async
+writer's `getMetrics()` keep their v0 names. The main call-site changes are the
+class names, named imports, namespace setup, and output-encoding boundary.
+
+The v0 `namespaces` constructor option was removed. Declare namespaces where
+their scope begins, after opening the element and before writing characters or
+children:
+
+```ts
+import { WriterSync } from 'stax-xml';
+
+const writer = new WriterSync({ prettyPrint: true, indentString: '    ' });
+writer.writeStartElement('feed');
+writer.writeNamespace('', 'urn:example:feed');
+writer.writeNamespace('media', 'urn:example:media');
+writer.writeEndElement();
+writer.writeEndDocument();
+
+const xml = writer.getXmlString();
+```
+
+`Writer` byte-stream output is UTF-8, and `WriterSync` declaration metadata is
+limited to UTF-8. For another encoding, pass an `AsyncTextSink` or
+`SyncTextSink` with its `encoding` field and perform the actual encoding in that
+sink.
 
 ## In-Memory Strings
 

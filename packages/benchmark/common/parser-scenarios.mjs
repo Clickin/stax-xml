@@ -261,7 +261,7 @@ function parseWithEventReader(xmlString, contract) {
         if (name === contract.itemName) {
           currentRow = createEmptyRow(contract);
           for (const field of contract.attributeFields) {
-            currentRow[field.outputName] = event.attributes?.find((attribute) => attribute.name === field.sourceName)?.value ?? '';
+            currentRow[field.outputName] = event.attributes?.get(field.sourceName)?.value ?? '';
           }
         }
         break;

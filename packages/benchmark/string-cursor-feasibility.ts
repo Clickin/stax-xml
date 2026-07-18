@@ -140,11 +140,11 @@ function consumePublicEventReaderSyncJs(xml: string, updatePeak: () => void) {
     if (event.type === XmlEventType.CHARACTERS || event.type === XmlEventType.CDATA) {
       checksum = foldString(checksum, event.value?.trim());
     }
-    const attrs = event.type === XmlEventType.START_ELEMENT ? Object.entries(event.attributes ?? {}) : [];
-    checksum = mixChecksum(checksum, attrs.length);
-    for (const [name, value] of attrs) {
-      checksum = foldString(checksum, name);
-      checksum = foldString(checksum, value);
+    const attrs = event.type === XmlEventType.START_ELEMENT ? event.attributes : undefined;
+    checksum = mixChecksum(checksum, attrs?.size ?? 0);
+    for (const attribute of attrs?.values() ?? []) {
+      checksum = foldString(checksum, attribute.name);
+      checksum = foldString(checksum, attribute.value);
     }
     if (events % 50_000 === 0) updatePeak();
   }

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-18T15:29:09.067Z",
+  "generatedAt": "2026-07-18T17:16:02.160Z",
   "workload": {
     "records": 12798,
     "outputBytes": 10775015,
@@ -21,60 +21,60 @@
       {
         "records": 12798,
         "bytes": 10775015,
-        "seconds": 0.058454542,
-        "throughputMiBs": 175.79224321682463
+        "seconds": 0.060430917,
+        "throughputMiBs": 170.0430106727007
       },
       {
         "records": 12798,
         "bytes": 10775015,
-        "seconds": 0.05250695800000001,
-        "throughputMiBs": 195.7046352674266
+        "seconds": 0.054431667,
+        "throughputMiBs": 188.78450047087642
       },
       {
         "records": 12798,
         "bytes": 10775015,
-        "seconds": 0.05251958300000001,
-        "throughputMiBs": 195.6575905104214
+        "seconds": 0.05493308299999998,
+        "throughputMiBs": 187.0613208508995
       }
     ],
     "woodstox": [
       {
         "records": 12798,
         "bytes": 10775015,
-        "seconds": 0.084391833,
-        "throughputMiBs": 121.76362
+        "seconds": 0.08470575,
+        "throughputMiBs": 121.312367
       },
       {
         "records": 12798,
         "bytes": 10775015,
-        "seconds": 0.079544792,
-        "throughputMiBs": 129.183254
+        "seconds": 0.078718459,
+        "throughputMiBs": 130.539332
       },
       {
         "records": 12798,
         "bytes": 10775015,
-        "seconds": 0.084489458,
-        "throughputMiBs": 121.622926
+        "seconds": 0.081835791,
+        "throughputMiBs": 125.566759
       }
     ],
     "quick-xml": [
       {
         "records": 12798,
         "bytes": 10775015,
-        "seconds": 0.040161084,
-        "throughputMiBs": 255.865979
+        "seconds": 0.019772875,
+        "throughputMiBs": 519.694534
       },
       {
         "records": 12798,
         "bytes": 10775015,
-        "seconds": 0.035320792,
-        "throughputMiBs": 290.92935
+        "seconds": 0.019445792,
+        "throughputMiBs": 528.435924
       },
       {
         "records": 12798,
         "bytes": 10775015,
-        "seconds": 0.019603458,
-        "throughputMiBs": 524.185838
+        "seconds": 0.019405875,
+        "throughputMiBs": 529.522893
       }
     ]
   }

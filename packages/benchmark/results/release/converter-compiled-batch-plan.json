@@ -13,22 +13,22 @@
       "contractScope": "catalog-records",
       "fullStringParity": true,
       "eventCountKind": "parsed-elements",
-      "avgMs": 151.2627002,
-      "minMs": 142.890042,
-      "maxMs": 164.62041699999997,
-      "mibPerSec": 105.77680324269498,
+      "avgMs": 156.21112519999994,
+      "minMs": 145.702,
+      "maxMs": 169.463209,
+      "mibPerSec": 102.42602667722264,
       "eventCount": 139458,
       "checksum": -1845341048,
       "samplesMs": [
-        164.62041699999997,
-        161.95220900000004,
-        143.896208,
-        142.890042,
-        142.95462500000008
+        169.43741699999998,
+        169.463209,
+        146.54887499999995,
+        145.702,
+        149.9041249999998
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 60356384,
-        "avgRssDeltaBytes": 3712614.4
+        "avgHeapUsedDeltaBytes": 60599348.8,
+        "avgRssDeltaBytes": 3968204.8
       }
     },
     "converter-auto-compiled-batch-plan": {
@@ -38,28 +38,28 @@
       "contractScope": "catalog-records",
       "fullStringParity": true,
       "eventCountKind": "parsed-elements",
-      "avgMs": 191.7960414,
-      "minMs": 189.43775000000005,
-      "maxMs": 193.47945800000002,
-      "mibPerSec": 83.4223937064749,
+      "avgMs": 193.96097500000002,
+      "minMs": 192.19845799999985,
+      "maxMs": 198.766167,
+      "mibPerSec": 82.49125823900482,
       "eventCount": 139458,
       "checksum": -1845341048,
       "samplesMs": [
-        192.1717920000001,
-        191.2382909999999,
-        193.47945800000002,
-        189.43775000000005,
-        192.652916
+        198.766167,
+        192.45416699999987,
+        193.5845830000003,
+        192.19845799999985,
+        192.80150000000003
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 63739035.2,
-        "avgRssDeltaBytes": 3837132.8
+        "avgHeapUsedDeltaBytes": 63936619.2,
+        "avgRssDeltaBytes": 3699507.2
       }
     }
   },
   "metadata": {
     "nodeVersion": "26.5.0",
     "v8Version": "14.6.202.34-node.24",
-    "collectedAt": "2026-07-18T15:28:29.900Z"
+    "collectedAt": "2026-07-18T17:15:22.230Z"
   }
 }

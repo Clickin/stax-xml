@@ -24,7 +24,7 @@ function consume() {
     checksum = fold(checksum, event.value);
     checksum = fold(checksum, event.target);
     checksum = fold(checksum, event.data);
-    for (const attribute of event.attributes ?? []) {
+    for (const attribute of event.attributes?.values() ?? []) {
       checksum = fold(checksum, attribute.name);
       checksum = fold(checksum, attribute.value);
       checksum = fold(checksum, attribute.localName);

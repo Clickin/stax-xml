@@ -178,8 +178,8 @@ function consumeEventReaderFull(xml) {
       checksum = foldString(checksum, event.data);
     }
     if (event.type === XmlEventType.START_ELEMENT) {
-      checksum = mixChecksum(checksum, event.attributes.length);
-      for (const attribute of event.attributes) {
+      checksum = mixChecksum(checksum, event.attributes.size);
+      for (const attribute of event.attributes.values()) {
         checksum = foldString(checksum, attribute.name);
         checksum = foldString(checksum, attribute.localName);
         checksum = foldString(checksum, attribute.prefix);
