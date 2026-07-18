@@ -862,7 +862,11 @@ function renderRuntimeMatrixTable() {
 }
 
 function renderWriterCrossRuntimeTable(summary) {
-  const versions = summary.suites['writer-cross-runtime'].context.environment;
+  const suite = summary.suites['writer-cross-runtime'];
+  if (!suite) {
+    return 'Pending final aggregation by `pnpm --filter benchmark run release:summary`.';
+  }
+  const versions = suite.context.environment;
   const labels = {
     'stax-xml': `stax-xml WriterSyncSink (${versions.node})`,
     woodstox: `Woodstox ${versions.woodstox} (Java ${versions.java})`,
@@ -870,7 +874,7 @@ function renderWriterCrossRuntimeTable(summary) {
   };
   return renderTable(
     ['Writer', 'Median throughput', 'Median time', 'Written', 'Records'],
-    summary.suites['writer-cross-runtime'].cases.map((entry) => [
+    suite.cases.map((entry) => [
       labels[entry.label] ?? entry.label,
       `${entry.throughputMiBs.toFixed(1)} MiB/s`,
       formatDuration(entry.avgNs),
