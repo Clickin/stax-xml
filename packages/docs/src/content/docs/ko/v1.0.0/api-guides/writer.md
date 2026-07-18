@@ -256,11 +256,10 @@ await writer.writeStartElement('title', {
 
 ```typescript
 class Writer {
-  // 생성자 - WritableStream에 직접 XML 스트리밍용
-  constructor(stream: WritableStream<Uint8Array>, options?: WriterOptions)
+  constructor(output: WritableStream<Uint8Array> | AsyncTextSink, options?: WriterOptions)
 
   // 문서 레벨 메서드
-  writeStartDocument(version?: '1.0', encoding?: string): Promise<this> // UTF-8 only
+  writeStartDocument(version?: '1.0', encoding?: string): Promise<this> // output encoding과 일치
   writeEndDocument(): Promise<void>
 
   // 엘리먼트 작성 메서드
@@ -271,6 +270,7 @@ class Writer {
   writeCharacters(text: string): Promise<this>
   writeCData(cdata: string): Promise<this>
   writeComment(comment: string): Promise<this>
+  writeRaw(xml: string): Promise<this>
 
   // 스트림 관리
   close(): Promise<void>  // 기본 스트림 닫기
@@ -279,7 +279,7 @@ class Writer {
 }
 
 interface WriterOptions {
-  encoding?: string; // 기본값: 'utf-8'; 다른 encoding은 reject
+  encoding?: string; // Byte stream: UTF-8; text sink: sink.encoding과 일치
   prettyPrint?: boolean; // 기본값: false
   indentString?: string; // 기본값: '  '
   addEntities?: { entity: string, value: string }[];
@@ -288,11 +288,19 @@ interface WriterOptions {
   flushThreshold?: number; // 기본값: 0.8
   enableAutoFlush?: boolean; // 기본값: true
 }
+
+interface AsyncTextSink {
+  readonly encoding: string;
+  write(chunk: string): void | Promise<void>;
+  flush?(): void | Promise<void>;
+  close?(): void | Promise<void>;
+}
 ```
 
-Web platform `TextEncoder`는 UTF-8-only이므로 `Writer`는 항상 UTF-8 byte를
-출력합니다. Constructor와 `writeStartDocument()`는 XML declaration과 실제 byte가
-불일치하지 않도록 다른 encoding을 reject합니다.
+`WritableStream<Uint8Array>` 경로는 web platform `TextEncoder`가 UTF-8-only이므로
+항상 UTF-8 byte를 출력합니다. `AsyncTextSink`는 다른 encoding을 선언하고 외부
+encoding을 수행할 수 있으며, `options.encoding`과 `writeStartDocument()`는 sink
+metadata와 일치해야 합니다.
 Declaration version은 XML 1.0입니다. Parser와 writer validation 계약이 XML 1.0이므로
 XML 1.1은 거부합니다.
 

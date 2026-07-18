@@ -256,11 +256,10 @@ await writer.writeStartElement('title', {
 
 ```typescript
 class Writer {
-  // Constructor - for streaming XML directly to WritableStream
-  constructor(stream: WritableStream<Uint8Array>, options?: WriterOptions)
+  constructor(output: WritableStream<Uint8Array> | AsyncTextSink, options?: WriterOptions)
 
   // Document Level Methods
-  writeStartDocument(version?: '1.0', encoding?: string): Promise<this> // UTF-8 only
+  writeStartDocument(version?: '1.0', encoding?: string): Promise<this> // Must match output encoding
   writeEndDocument(): Promise<void>
 
   // Element Writing Methods
@@ -271,6 +270,7 @@ class Writer {
   writeCharacters(text: string): Promise<this>
   writeCData(cdata: string): Promise<this>
   writeComment(comment: string): Promise<this>
+  writeRaw(xml: string): Promise<this>
 
   // Stream Management
   close(): Promise<void>  // Closes the underlying stream
@@ -279,7 +279,7 @@ class Writer {
 }
 
 interface WriterOptions {
-  encoding?: string; // Default: 'utf-8'; other encodings are rejected
+  encoding?: string; // Byte stream: UTF-8; text sink: must match sink.encoding
   prettyPrint?: boolean; // Default: false
   indentString?: string; // Default: '  '
   addEntities?: { entity: string, value: string }[];
@@ -288,11 +288,19 @@ interface WriterOptions {
   flushThreshold?: number; // Default: 0.8
   enableAutoFlush?: boolean; // Default: true
 }
+
+interface AsyncTextSink {
+  readonly encoding: string;
+  write(chunk: string): void | Promise<void>;
+  flush?(): void | Promise<void>;
+  close?(): void | Promise<void>;
+}
 ```
 
-`Writer` always emits UTF-8 bytes because the web platform `TextEncoder` is
-UTF-8-only. The constructor and `writeStartDocument()` reject any other
-encoding instead of writing bytes that disagree with the XML declaration.
+The `WritableStream<Uint8Array>` path always emits UTF-8 because the web
+platform `TextEncoder` is UTF-8-only. An `AsyncTextSink` may declare another
+encoding and perform the external encoding; `options.encoding` and
+`writeStartDocument()` must match the sink metadata.
 The declaration version is XML 1.0; XML 1.1 is rejected because the parser and
 writer validation contract is XML 1.0.
 

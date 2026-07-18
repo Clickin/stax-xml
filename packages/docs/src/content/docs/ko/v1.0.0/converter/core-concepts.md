@@ -62,7 +62,7 @@ const result = schema.parseSync(xmlString);
 **사용 시기:**
 - XML이 이미 문자열로 메모리에 있을 때
 - 동기 컨텍스트에 있을 때
-- 성능이 중요할 때 (비동기보다 약간 빠름)
+- 동기 blocking parsing이 필요할 때
 
 ### 비동기 파싱
 

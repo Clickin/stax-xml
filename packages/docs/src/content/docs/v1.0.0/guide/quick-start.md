@@ -125,7 +125,7 @@ for (const event of new EventReaderSync(xmlString)) {
 }
 ```
 
-Use `StreamReaderSync` instead when event-object allocation matters. For typed
+Use `StreamReaderSync` instead when reducing event-object allocation matters. For typed
 domain objects with a known shape, use the converter API.
 
 ## Error Handling

@@ -436,6 +436,7 @@ class WriterSync {
   writeCData(cdata: string): this
   writeComment(comment: string): this
   writeProcessingInstruction(target: string, data?: string): this
+  writeRaw(xml: string): this
 
   // Utility Methods
   setPrettyPrint(enabled: boolean): this
@@ -446,7 +447,7 @@ class WriterSync {
 }
 
 interface WriterSyncOptions {
-  encoding?: string; // Default: 'utf-8'; other encodings are rejected
+  encoding?: string; // WriterSync: UTF-8; WriterSyncSink: must match sink.encoding
   prettyPrint?: boolean; // Default: false
   indentString?: string; // Default: '  '
   addEntities?: { entity: string, value: string }[];
@@ -454,6 +455,7 @@ interface WriterSyncOptions {
 }
 
 interface SyncTextSink {
+  readonly encoding?: string; // Encoding produced by the external sink; default: UTF-8
   write(chunk: string): void;
   flush?(): void;
   close?(): void;
@@ -477,18 +479,12 @@ class WriterSyncSink {
   close(): void
 }
 
-interface XmlAttribute {
-  localName: string;
-  value: string;
-  prefix?: string;
-  uri?: string;
-}
-
 ```
 
 `WriterSync` and `WriterSyncSink` produce JavaScript text rather than encoded
-bytes. Their encoding option controls XML declaration metadata only and is
-restricted to UTF-8 so it stays consistent with the asynchronous writer.
+bytes. `WriterSync` is restricted to UTF-8 declaration metadata. A
+`WriterSyncSink` may declare another encoding through `sink.encoding`; the sink
+must perform that external encoding, and `options.encoding` must match it.
 
 ### 🚀 Key Features
 

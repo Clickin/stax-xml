@@ -436,6 +436,7 @@ class WriterSync {
   writeCData(cdata: string): this
   writeComment(comment: string): this
   writeProcessingInstruction(target: string, data?: string): this
+  writeRaw(xml: string): this
 
   // 유틸리티 메서드
   setPrettyPrint(enabled: boolean): this
@@ -446,7 +447,7 @@ class WriterSync {
 }
 
 interface WriterSyncOptions {
-  encoding?: string; // 기본값: 'utf-8'; 다른 encoding은 reject
+  encoding?: string; // WriterSync: UTF-8; WriterSyncSink: sink.encoding과 일치
   prettyPrint?: boolean; // 기본값: false
   indentString?: string; // 기본값: '  '
   addEntities?: { entity: string, value: string }[];
@@ -454,6 +455,7 @@ interface WriterSyncOptions {
 }
 
 interface SyncTextSink {
+  readonly encoding?: string; // 외부 sink가 생성할 encoding; 기본값: UTF-8
   write(chunk: string): void;
   flush?(): void;
   close?(): void;
@@ -477,18 +479,12 @@ class WriterSyncSink {
   close(): void
 }
 
-interface XmlAttribute {
-  localName: string;
-  value: string;
-  prefix?: string;
-  uri?: string;
-}
-
 ```
 
 `WriterSync`와 `WriterSyncSink`는 encoded byte가 아니라 JavaScript text를
-생성합니다. Encoding option은 XML declaration metadata만 제어하며 비동기 writer와
-일관성을 유지하기 위해 UTF-8로 제한됩니다.
+생성합니다. `WriterSync`의 declaration metadata는 UTF-8로 제한됩니다.
+`WriterSyncSink`는 `sink.encoding`으로 다른 encoding을 선언할 수 있으며 sink가 실제
+외부 encoding을 수행해야 하고 `options.encoding`도 같은 값이어야 합니다.
 
 ### 🚀 주요 기능
 

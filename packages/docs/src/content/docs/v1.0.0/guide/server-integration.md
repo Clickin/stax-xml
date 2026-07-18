@@ -33,7 +33,7 @@ fallbacks for binary parser artifacts.
 - Keep body-size limits and timeouts in the web framework. The parser should
   not be the first resource limit.
 - Use `EventReader` for normal async request streams.
-- Use `StreamReader` when event-object allocation matters. Use
+- Use `StreamReader` when reducing event-object allocation matters. Use
   `StreamReaderSync` only when your application already owns bounded
   synchronous byte chunks and can control where the CPU work runs.
 - Pick a chunk size near 64 KiB to 1 MiB for file streams. Very tiny chunks add
