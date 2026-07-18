@@ -1,6 +1,6 @@
 # Converter Compiled Batch-Plan Benchmark
 
-Generated: 2026-07-18T13:44:29.624Z
+Generated: 2026-07-18T15:28:29.900Z
 
 This benchmark compares a manual `StreamReaderSync` projection with the public IR JIT converter `schema.parseSync` path.
 
@@ -8,5 +8,5 @@ This benchmark compares a manual `StreamReaderSync` projection with the public I
 
 | Case | Throughput | Average | Min | Max | Heap delta | RSS delta | Events | Checksum |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| manual-cursor-reader-sync | 109.15 MiB/s | 146.59 ms | 137.21 ms | 160.57 ms | 57.52 MiB | 3.27 MiB | 139458 | -1845341048 |
-| converter-auto-compiled-batch-plan | 85.75 MiB/s | 186.60 ms | 183.99 ms | 188.03 ms | 60.69 MiB | 3.63 MiB | 139458 | -1845341048 |
+| manual-cursor-reader-sync | 105.78 MiB/s | 151.26 ms | 142.89 ms | 164.62 ms | 57.56 MiB | 3.54 MiB | 139458 | -1845341048 |
+| converter-auto-compiled-batch-plan | 83.42 MiB/s | 191.80 ms | 189.44 ms | 193.48 ms | 60.79 MiB | 3.66 MiB | 139458 | -1845341048 |

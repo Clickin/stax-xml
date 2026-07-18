@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-07-18T13:45:07.836Z",
-  "runId": "2026-07-18T13-45-07-835Z",
+  "generatedAt": "2026-07-18T15:29:09.428Z",
+  "runId": "2026-07-18T15-29-09-427Z",
   "contract": {
     "parser": "pure JavaScript public API surfaces",
     "excludes": [
@@ -242,62 +242,62 @@
         "runtime": "node",
         "version": "26.5.0",
         "cpuName": "Apple M4",
-        "cpuGHz": 4.03
+        "cpuGHz": 3.95
       },
       "cases": [
         {
           "label": "stax-xml EventReaderSync (JS object)",
-          "avgNs": 166837.0237690953,
-          "minNs": 94583,
-          "p75Ns": 169333,
-          "p99Ns": 186917,
-          "maxNs": 283250,
-          "heapAvgBytes": 59997.6301369863
+          "avgNs": 173469.40000000625,
+          "minNs": 121250,
+          "p75Ns": 174375,
+          "p99Ns": 236042,
+          "maxNs": 317833,
+          "heapAvgBytes": 60520.77757009346
         },
         {
           "label": "stax-xml StreamReaderSync (JS object)",
-          "avgNs": 153958.13965517242,
-          "minNs": 80541,
-          "p75Ns": 157500,
-          "p99Ns": 166083,
-          "maxNs": 176291,
-          "heapAvgBytes": 32296.247848537005
+          "avgNs": 161633.9053030303,
+          "minNs": 149708,
+          "p75Ns": 162833,
+          "p99Ns": 216084,
+          "maxNs": 268250,
+          "heapAvgBytes": 33000.25563909775
         },
         {
           "label": "stax-xml Converter API (JS object)",
-          "avgNs": 189477.98242530756,
-          "minNs": 176083,
-          "p75Ns": 190459,
-          "p99Ns": 260958,
-          "maxNs": 350542,
-          "heapAvgBytes": 45098.79003558719
+          "avgNs": 198696.39250493096,
+          "minNs": 179208,
+          "p75Ns": 199708,
+          "p99Ns": 330792,
+          "maxNs": 393042,
+          "heapAvgBytes": 46109.45956607495
         },
         {
           "label": "fast-xml-parser XMLParser (JS object)",
-          "avgNs": 243012.72727271877,
-          "minNs": 225083,
-          "p75Ns": 246667,
-          "p99Ns": 274625,
-          "maxNs": 313417,
-          "heapAvgBytes": 208719.62923351157
+          "avgNs": 258233.64969446606,
+          "minNs": 228957.99999904633,
+          "p75Ns": 263875,
+          "p99Ns": 331542,
+          "maxNs": 421250,
+          "heapAvgBytes": 217580.79674796748
         },
         {
           "label": "txml parse (JS object)",
-          "avgNs": 7483.4034267327725,
-          "minNs": 7398.44775390625,
-          "p75Ns": 7505.523681640625,
-          "p99Ns": 7601.776123046875,
-          "maxNs": 7605.204345703125,
-          "heapAvgBytes": 3949.368777252907
+          "avgNs": 7664.723709909539,
+          "minNs": 7563.934326171875,
+          "p75Ns": 7708.201171875,
+          "p99Ns": 7774.96337890625,
+          "maxNs": 7786.19384765625,
+          "heapAvgBytes": 3949.4215959821427
         },
         {
           "label": "xml2js parseString (JS object)",
-          "avgNs": 315499.4469273743,
-          "minNs": 294125,
-          "p75Ns": 320041,
-          "p99Ns": 338250,
-          "maxNs": 357417,
-          "heapAvgBytes": 204051.90136986302
+          "avgNs": 328857.1731160896,
+          "minNs": 303792,
+          "p75Ns": 333500,
+          "p99Ns": 416792,
+          "maxNs": 484083,
+          "heapAvgBytes": 200972.22686567163
         }
       ]
     },
@@ -309,62 +309,62 @@
         "runtime": "node",
         "version": "26.5.0",
         "cpuName": "Apple M4",
-        "cpuGHz": 4.02
+        "cpuGHz": 3.95
       },
       "cases": [
         {
           "label": "stax-xml EventReaderSync (JS object)",
-          "avgNs": 280618.59292044176,
-          "minNs": 120083.99999809265,
-          "p75Ns": 298917,
-          "p99Ns": 315083.99999809265,
-          "maxNs": 331208,
-          "heapAvgBytes": 133334.82060390763
+          "avgNs": 286790.1272016141,
+          "minNs": 150375,
+          "p75Ns": 307083,
+          "p99Ns": 346333,
+          "maxNs": 466791,
+          "heapAvgBytes": 122864.750499002
         },
         {
           "label": "stax-xml StreamReaderSync (JS object)",
-          "avgNs": 234993.6504347826,
-          "minNs": 118333,
-          "p75Ns": 279208,
-          "p99Ns": 286375,
-          "maxNs": 289959,
-          "heapAvgBytes": 104086.8611599297
+          "avgNs": 259845.35477582845,
+          "minNs": 118000,
+          "p75Ns": 283667,
+          "p99Ns": 317584,
+          "maxNs": 402917,
+          "heapAvgBytes": 67562.05168986083
         },
         {
           "label": "stax-xml Converter API (JS object)",
-          "avgNs": 315188.64864864864,
-          "minNs": 157916,
-          "p75Ns": 329417,
-          "p99Ns": 348667,
-          "maxNs": 445709,
-          "heapAvgBytes": 105194.75092936803
+          "avgNs": 303544.96146044624,
+          "minNs": 193833,
+          "p75Ns": 339709,
+          "p99Ns": 418333,
+          "maxNs": 505625,
+          "heapAvgBytes": 127864.66960352423
         },
         {
           "label": "fast-xml-parser XMLParser (JS object)",
-          "avgNs": 370738.3405511811,
-          "minNs": 246458,
-          "p75Ns": 395500,
-          "p99Ns": 421417,
-          "maxNs": 443041,
-          "heapAvgBytes": 713592.9343065694
+          "avgNs": 434798.1319648094,
+          "minNs": 259000,
+          "p75Ns": 448208,
+          "p99Ns": 962958,
+          "maxNs": 1309625,
+          "heapAvgBytes": 762127.0635451504
         },
         {
           "label": "txml parse (JS object)",
-          "avgNs": 17063.004791259766,
-          "minNs": 16778.889892578125,
-          "p75Ns": 17113.789794921875,
-          "p99Ns": 17372.751953125,
-          "maxNs": 17479.3701171875,
-          "heapAvgBytes": 2996.8529296875
+          "avgNs": 18580.006208147322,
+          "minNs": 17754.109619140625,
+          "p75Ns": 18976.776123046875,
+          "p99Ns": 19358.164306640625,
+          "maxNs": 19975.15869140625,
+          "heapAvgBytes": 3010.927300347222
         },
         {
           "label": "xml2js parseString (JS object)",
-          "avgNs": 468455.508,
-          "minNs": 195459,
-          "p75Ns": 530792,
-          "p99Ns": 566792,
-          "maxNs": 578625,
-          "heapAvgBytes": 548646.605664488
+          "avgNs": 518512.11859838275,
+          "minNs": 219500,
+          "p75Ns": 562875,
+          "p99Ns": 735333,
+          "maxNs": 1207667,
+          "heapAvgBytes": 549472.3953488372
         }
       ]
     },
@@ -376,62 +376,62 @@
         "runtime": "node",
         "version": "26.5.0",
         "cpuName": "Apple M4",
-        "cpuGHz": 4.02
+        "cpuGHz": 3.9
       },
       "cases": [
         {
           "label": "stax-xml EventReaderSync (JS object)",
-          "avgNs": 118050045.16666667,
-          "minNs": 115860250,
-          "p75Ns": 118439416,
-          "p99Ns": 120512083,
-          "maxNs": 121838500,
-          "heapAvgBytes": 31867600.666666668
+          "avgNs": 122018597.08333333,
+          "minNs": 120277666,
+          "p75Ns": 123001458,
+          "p99Ns": 123196250,
+          "maxNs": 124452250,
+          "heapAvgBytes": 31812712
         },
         {
           "label": "stax-xml StreamReaderSync (JS object)",
-          "avgNs": 101563512.5,
-          "minNs": 100871125,
-          "p75Ns": 101599125,
-          "p99Ns": 101906000,
-          "maxNs": 103230875,
-          "heapAvgBytes": 18715424
+          "avgNs": 104203895.90000038,
+          "minNs": 103535542,
+          "p75Ns": 104327417,
+          "p99Ns": 104786125,
+          "maxNs": 104992125,
+          "heapAvgBytes": 18670161.714285713
         },
         {
           "label": "stax-xml Converter API (JS object)",
-          "avgNs": 99799212.4,
-          "minNs": 99239000.00000381,
-          "p75Ns": 99881792,
-          "p99Ns": 100243917,
-          "maxNs": 100651500,
-          "heapAvgBytes": 11614017.714285715
+          "avgNs": 103964583.30000076,
+          "minNs": 102702000.00000381,
+          "p75Ns": 104360666,
+          "p99Ns": 104881667,
+          "maxNs": 104888833,
+          "heapAvgBytes": 12261970.857142856
         },
         {
           "label": "fast-xml-parser XMLParser (JS object)",
-          "avgNs": 486276475.8333333,
-          "minNs": 481732584,
-          "p75Ns": 488716958,
-          "p99Ns": 490101584,
-          "maxNs": 490305292,
-          "heapAvgBytes": 142064702.66666666
+          "avgNs": 503012465.3333333,
+          "minNs": 497548875,
+          "p75Ns": 505775709,
+          "p99Ns": 507708000,
+          "maxNs": 510519583,
+          "heapAvgBytes": 141443823.33333334
         },
         {
           "label": "txml parse (JS object)",
-          "avgNs": 91124151.54545455,
-          "minNs": 90755875,
-          "p75Ns": 91254791,
-          "p99Ns": 91511375,
-          "maxNs": 91657584,
-          "heapAvgBytes": 133031792
+          "avgNs": 94295984.81818181,
+          "minNs": 93800750,
+          "p75Ns": 94541708,
+          "p99Ns": 94602875,
+          "maxNs": 95109666,
+          "heapAvgBytes": 133039478.4
         },
         {
           "label": "xml2js parseString (JS object)",
-          "avgNs": 448871461.8333333,
-          "minNs": 443589708,
-          "p75Ns": 450187584,
-          "p99Ns": 452837250,
-          "maxNs": 455016959,
-          "heapAvgBytes": 110840803.33333333
+          "avgNs": 464081357.5833333,
+          "minNs": 454752792,
+          "p75Ns": 464986833,
+          "p99Ns": 475016708,
+          "maxNs": 475704292,
+          "heapAvgBytes": 99907562.66666667
         }
       ]
     },
@@ -443,62 +443,62 @@
         "runtime": "node",
         "version": "26.5.0",
         "cpuName": "Apple M4",
-        "cpuGHz": 4.02
+        "cpuGHz": 3.95
       },
       "cases": [
         {
           "label": "stax-xml EventReaderSync (JS object)",
-          "avgNs": 840143402.6666679,
-          "minNs": 831834375,
-          "p75Ns": 841936333,
-          "p99Ns": 848307167,
-          "maxNs": 848938500,
-          "heapAvgBytes": 31038732
+          "avgNs": 872356802.0000006,
+          "minNs": 868413500.0000153,
+          "p75Ns": 874337041.9999924,
+          "p99Ns": 877133000,
+          "maxNs": 882264458,
+          "heapAvgBytes": 30885289.333333332
         },
         {
           "label": "stax-xml StreamReaderSync (JS object)",
-          "avgNs": 689714985.8333334,
-          "minNs": 683271083,
-          "p75Ns": 692231875,
-          "p99Ns": 694307958,
-          "maxNs": 697205334,
-          "heapAvgBytes": 42628100
+          "avgNs": 715070034.75,
+          "minNs": 694148708,
+          "p75Ns": 720107459,
+          "p99Ns": 734556292,
+          "maxNs": 761359666,
+          "heapAvgBytes": 42790477.333333336
         },
         {
           "label": "stax-xml Converter API (JS object)",
-          "avgNs": 644116399.1666666,
-          "minNs": 635945291,
-          "p75Ns": 645192958,
-          "p99Ns": 648221500,
-          "maxNs": 652682333,
-          "heapAvgBytes": 31082852.666666668
+          "avgNs": 668756593.75,
+          "minNs": 653277958,
+          "p75Ns": 676633917,
+          "p99Ns": 679454792,
+          "maxNs": 683282208,
+          "heapAvgBytes": 33707427.333333336
         },
         {
           "label": "fast-xml-parser XMLParser (JS object)",
-          "avgNs": 3569469131.8333335,
-          "minNs": 3509533333,
-          "p75Ns": 3594648500,
-          "p99Ns": 3631558250,
-          "maxNs": 3636604667,
-          "heapAvgBytes": 1006081811.3333334
+          "avgNs": 3777832371.5000014,
+          "minNs": 3684355334,
+          "p75Ns": 3806099208,
+          "p99Ns": 3897879875.0000153,
+          "maxNs": 3931428917,
+          "heapAvgBytes": 1006709352
         },
         {
           "label": "txml parse (JS object)",
-          "avgNs": 706709097.25,
-          "minNs": 680199959,
-          "p75Ns": 719355833,
-          "p99Ns": 720581042,
-          "maxNs": 727293542,
-          "heapAvgBytes": 916809550.6666666
+          "avgNs": 835357829.8333334,
+          "minNs": 732685083,
+          "p75Ns": 882948375,
+          "p99Ns": 938933959,
+          "maxNs": 946122833,
+          "heapAvgBytes": 915710862
         },
         {
           "label": "xml2js parseString (JS object)",
-          "avgNs": 3389167573,
-          "minNs": 3349089625,
-          "p75Ns": 3406563000,
-          "p99Ns": 3418602500,
-          "maxNs": 3434430000,
-          "heapAvgBytes": 665185066.6666666
+          "avgNs": 3615194687.4166665,
+          "minNs": 3477986875,
+          "p75Ns": 3708409917,
+          "p99Ns": 3828253666,
+          "maxNs": 3840257750,
+          "heapAvgBytes": 674453491.3333334
         }
       ]
     },
@@ -510,184 +510,184 @@
         "runtime": "node",
         "version": "26.5.0",
         "cpuName": "Apple M4",
-        "cpuGHz": 4.02
+        "cpuGHz": 3.95
       },
       "cases": [
         {
           "label": "stax-xml EventReaderSync (JS event checksum)",
-          "avgNs": 323209.9743589744,
-          "minNs": 201958,
-          "p75Ns": 328291,
-          "p99Ns": 346875,
-          "maxNs": 390083,
-          "heapAvgBytes": 121853.0188034188
+          "avgNs": 302986.6965648855,
+          "minNs": 135125,
+          "p75Ns": 327459,
+          "p99Ns": 399500,
+          "maxNs": 512833,
+          "heapAvgBytes": 142434.1932938856
         },
         {
           "label": "stax-xml StreamReaderSync (JS event checksum)",
-          "avgNs": 306372.3561643836,
-          "minNs": 138084,
-          "p75Ns": 318125,
-          "p99Ns": 328875,
-          "maxNs": 331542,
-          "heapAvgBytes": 76230.24253075571
+          "avgNs": 281780.4942528736,
+          "minNs": 161583,
+          "p75Ns": 320250,
+          "p99Ns": 340500,
+          "maxNs": 436458,
+          "heapAvgBytes": 102536.66272189349
         },
         {
           "label": "fast-xml-parser XMLParser",
-          "avgNs": 364374.0098425197,
-          "minNs": 209875,
-          "p75Ns": 401166,
-          "p99Ns": 451833,
-          "maxNs": 525375,
-          "heapAvgBytes": 792703.5696821515
+          "avgNs": 383788.2719665272,
+          "minNs": 241500,
+          "p75Ns": 415292,
+          "p99Ns": 485916,
+          "maxNs": 559000,
+          "heapAvgBytes": 739195.0456852792
         },
         {
           "label": "txml parse",
-          "avgNs": 65581.00959692898,
-          "minNs": 42416,
-          "p75Ns": 72000,
-          "p99Ns": 88417,
-          "maxNs": 91500,
-          "heapAvgBytes": 85074.63601532567
+          "avgNs": 71924.82352941176,
+          "minNs": 44667,
+          "p75Ns": 85416,
+          "p99Ns": 126125,
+          "maxNs": 202708,
+          "heapAvgBytes": 87047.41071428571
         },
         {
           "label": "xml2js parseString",
-          "avgNs": 469855.1171875,
-          "minNs": 205208,
-          "p75Ns": 541125,
-          "p99Ns": 586375,
-          "maxNs": 594666,
-          "heapAvgBytes": 553784.9655172414
+          "avgNs": 504253.5862068966,
+          "minNs": 204083,
+          "p75Ns": 554000,
+          "p99Ns": 621291,
+          "maxNs": 727708,
+          "heapAvgBytes": 603719.6018957346
         },
         {
           "label": "sax strict event parser",
-          "avgNs": 361545.4588910134,
-          "minNs": 104625,
-          "p75Ns": 437042,
-          "p99Ns": 481833,
-          "maxNs": 507583,
-          "heapAvgBytes": 394046.44580777094
+          "avgNs": 387345.9399585921,
+          "minNs": 111417,
+          "p75Ns": 442833,
+          "p99Ns": 502666,
+          "maxNs": 600083,
+          "heapAvgBytes": 389516.98214285716
         },
         {
           "label": "saxes event parser",
-          "avgNs": 245604.02577319587,
-          "minNs": 219625,
-          "p75Ns": 245417,
-          "p99Ns": 352792,
-          "maxNs": 367917,
-          "heapAvgBytes": 99685.375
+          "avgNs": 247663.64258555134,
+          "minNs": 219334,
+          "p75Ns": 245542,
+          "p99Ns": 385458,
+          "maxNs": 417292,
+          "heapAvgBytes": 94624.83969465649
         },
         {
           "label": "htmlparser2 xmlMode parser",
-          "avgNs": 348026.529739777,
-          "minNs": 88542,
-          "p75Ns": 437250,
-          "p99Ns": 461292,
-          "maxNs": 597083,
-          "heapAvgBytes": 295459.2663755459
+          "avgNs": 352859.0630252101,
+          "minNs": 87833,
+          "p75Ns": 449750,
+          "p99Ns": 534334,
+          "maxNs": 602875,
+          "heapAvgBytes": 265535.28155339806
         }
       ]
     },
     "stream-size": {
       "id": "stream-size",
       "title": "StreamReaderSync iterable chunk size comparison",
-      "generatedAt": "2026-07-18T13:49:18.217Z",
+      "generatedAt": "2026-07-18T15:33:30.236Z",
       "cases": [
         {
           "label": "StreamReaderSync iterable chunks (1MiB generated chunks)",
-          "avgNs": 19625124.999999996,
-          "minNs": 16536666.999999994,
-          "p75Ns": 25516041,
-          "p99Ns": 25516041,
-          "maxNs": 25516041,
-          "heapAvgBytes": 2888877.3333333335,
-          "heapBaselineBytes": 8466560,
-          "heapPeakBytes": 12494104,
-          "heapDeltaBytes": 4027544,
-          "rssBaselineBytes": 84344832,
-          "rssPeakBytes": 84623360,
-          "rssDeltaBytes": 278528,
+          "avgNs": 20257722.333333336,
+          "minNs": 16909374.999999996,
+          "p75Ns": 26619875.000000007,
+          "p99Ns": 26619875.000000007,
+          "maxNs": 26619875.000000007,
+          "heapAvgBytes": 2927072,
+          "heapBaselineBytes": 8463408,
+          "heapPeakBytes": 12599480,
+          "heapDeltaBytes": 4136072,
+          "rssBaselineBytes": 83705856,
+          "rssPeakBytes": 84148224,
+          "rssDeltaBytes": 442368,
           "bytes": 1048620,
           "events": 139818,
           "checksum": 1349859144,
-          "throughputMiBs": 50.95722761867361
+          "throughputMiBs": 49.36596253095984
         },
         {
           "label": "StreamReaderSync iterable chunks (10MiB generated chunks)",
-          "avgNs": 130856847.33333331,
-          "minNs": 128966999.99999999,
-          "p75Ns": 132470417,
-          "p99Ns": 132470417,
-          "maxNs": 132470417,
-          "heapAvgBytes": 4214272,
-          "heapBaselineBytes": 8453840,
-          "heapPeakBytes": 13007072,
-          "heapDeltaBytes": 4553232,
-          "rssBaselineBytes": 93028352,
-          "rssPeakBytes": 93585408,
-          "rssDeltaBytes": 557056,
+          "avgNs": 132914000.00000001,
+          "minNs": 130535125,
+          "p75Ns": 135104042.00000003,
+          "p99Ns": 135104042.00000003,
+          "maxNs": 135104042.00000003,
+          "heapAvgBytes": 4160882.6666666665,
+          "heapBaselineBytes": 8454968,
+          "heapPeakBytes": 13008136,
+          "heapDeltaBytes": 4553168,
+          "rssBaselineBytes": 93126656,
+          "rssPeakBytes": 93798400,
+          "rssDeltaBytes": 671744,
           "bytes": 10485780,
           "events": 1398106,
           "checksum": 4191398664,
-          "throughputMiBs": 76.41953231544048
+          "throughputMiBs": 75.2367626697438
         },
         {
           "label": "StreamReaderSync iterable chunks (100MiB generated chunks)",
-          "avgNs": 1252172389.3333333,
-          "minNs": 1246289167.0000005,
-          "p75Ns": 1259022166.9999998,
-          "p99Ns": 1259022166.9999998,
-          "maxNs": 1259022166.9999998,
-          "heapAvgBytes": 12671333.333333334,
-          "heapBaselineBytes": 8473648,
-          "heapPeakBytes": 31704488,
-          "heapDeltaBytes": 23230840,
-          "rssBaselineBytes": 110034944,
-          "rssPeakBytes": 144801792,
-          "rssDeltaBytes": 34766848,
+          "avgNs": 1283658013.6666667,
+          "minNs": 1276590624.9999998,
+          "p75Ns": 1297732166,
+          "p99Ns": 1297732166,
+          "maxNs": 1297732166,
+          "heapAvgBytes": 7222109.333333333,
+          "heapBaselineBytes": 8474920,
+          "heapPeakBytes": 16307456,
+          "heapDeltaBytes": 7832536,
+          "rssBaselineBytes": 109592576,
+          "rssPeakBytes": 144326656,
+          "rssDeltaBytes": 34734080,
           "bytes": 104857620,
           "events": 13981018,
           "checksum": 2933107464,
-          "throughputMiBs": 79.86122352268697
+          "throughputMiBs": 77.90238366357738
         },
         {
           "label": "StreamReaderSync iterable chunks (1GiB generated chunks)",
-          "avgNs": 12766419319.666666,
-          "minNs": 12672132333.999998,
-          "p75Ns": 12849789542,
-          "p99Ns": 12849789542,
-          "maxNs": 12849789542,
-          "heapAvgBytes": 23123120,
-          "heapBaselineBytes": 8246840,
-          "heapPeakBytes": 36683336,
-          "heapDeltaBytes": 28436496,
-          "rssBaselineBytes": 75235328,
-          "rssPeakBytes": 144867328,
-          "rssDeltaBytes": 69632000,
+          "avgNs": 13030653722,
+          "minNs": 12937371208.000004,
+          "p75Ns": 13085955125,
+          "p99Ns": 13085955125,
+          "maxNs": 13085955125,
+          "heapAvgBytes": 23413410.666666668,
+          "heapBaselineBytes": 8247576,
+          "heapPeakBytes": 36621280,
+          "heapDeltaBytes": 28373704,
+          "rssBaselineBytes": 74924032,
+          "rssPeakBytes": 144818176,
+          "rssDeltaBytes": 69894144,
           "bytes": 1073741880,
           "events": 143165586,
           "checksum": 1039532941,
-          "throughputMiBs": 80.2104354999753
+          "throughputMiBs": 78.58393563762002
         },
         {
           "label": "StreamReaderSync iterable chunks (4GiB generated chunks)",
-          "avgNs": 46313807930.333336,
-          "minNs": 45970640583,
-          "p75Ns": 46313807930.333336,
-          "p99Ns": 46499179792,
-          "maxNs": 46499179792,
-          "heapAvgBytes": 14439261.333333334,
-          "heapDeltaBytes": 29102928,
-          "rssDeltaBytes": 81723392,
+          "avgNs": 47654720861.333336,
+          "minNs": 46893191292,
+          "p75Ns": 47654720861.333336,
+          "p99Ns": 48431420250,
+          "maxNs": 48431420250,
+          "heapAvgBytes": 15282354.666666666,
+          "heapDeltaBytes": 30814056,
+          "rssDeltaBytes": 81936384,
           "bytes": 4294967340,
           "events": 572662314,
           "checksum": 659690454,
-          "throughputMiBs": 88.44014830572775
+          "throughputMiBs": 85.95161125547861
         }
       ]
     },
     "reader-cross-runtime": {
       "context": {
-        "collectedAt": "2026-07-18T15:09:14.043Z",
+        "collectedAt": "2026-07-18T15:26:02.600Z",
         "fixture": {
           "path": "/Users/senghyunjo/github/stax-xml/packages/benchmark/test-data/runtime-comparison-16mib.xml",
           "sizeBytes": 16777038,
@@ -704,24 +704,24 @@
       "cases": [
         {
           "label": "stax-xml",
-          "avgNs": 171509916.99999988,
-          "throughputMiBs": 93.28807643217326,
+          "avgNs": 168753124.99999973,
+          "throughputMiBs": 94.81205308625665,
           "events": 967965,
           "checksum": 36104832,
           "runs": 3
         },
         {
           "label": "woodstox",
-          "avgNs": 49728416,
-          "throughputMiBs": 321.7442165455598,
+          "avgNs": 49682666,
+          "throughputMiBs": 322.0404928747519,
           "events": 967965,
           "checksum": 36104832,
           "runs": 3
         },
         {
           "label": "quick-xml",
-          "avgNs": 28440709,
-          "throughputMiBs": 562.5679108763314,
+          "avgNs": 27933708,
+          "throughputMiBs": 572.7786030401578,
           "events": 967965,
           "checksum": 36104832,
           "runs": 3
@@ -734,32 +734,32 @@
       "context": {
         "nodeVersion": "26.5.0",
         "v8Version": "14.6.202.34-node.24",
-        "collectedAt": "2026-07-18T13:44:29.624Z"
+        "collectedAt": "2026-07-18T15:28:29.900Z"
       },
       "cases": [
         {
           "label": "Manual StreamReaderSync projection",
-          "avgNs": 146585975.20000002,
-          "minNs": 137213291.9999999,
-          "p75Ns": 146585975.20000002,
-          "p99Ns": 160572750.00000003,
-          "maxNs": 160572750.00000003,
-          "heapAvgBytes": 60310694.4,
-          "rssDeltaBytes": 3427532.8,
-          "throughputMiBs": 109.15153960113751,
+          "avgNs": 151262700.20000002,
+          "minNs": 142890042,
+          "p75Ns": 151262700.20000002,
+          "p99Ns": 164620416.99999997,
+          "maxNs": 164620416.99999997,
+          "heapAvgBytes": 60356384,
+          "rssDeltaBytes": 3712614.4,
+          "throughputMiBs": 105.77680324269498,
           "books": 139458,
           "checksum": -1845341048
         },
         {
           "label": "Converter schema.parseSync(bytes)",
-          "avgNs": 186598483.6,
-          "minNs": 183994791.99999997,
-          "p75Ns": 186598483.6,
-          "p99Ns": 188033499.99999976,
-          "maxNs": 188033499.99999976,
-          "heapAvgBytes": 63634168,
-          "rssDeltaBytes": 3810918.4,
-          "throughputMiBs": 85.74606056988429,
+          "avgNs": 191796041.4,
+          "minNs": 189437750.00000006,
+          "p75Ns": 191796041.4,
+          "p99Ns": 193479458.00000003,
+          "maxNs": 193479458.00000003,
+          "heapAvgBytes": 63739035.2,
+          "rssDeltaBytes": 3837132.8,
+          "throughputMiBs": 83.4223937064749,
           "books": 139458,
           "checksum": -1845341048
         }
@@ -773,53 +773,53 @@
         "runtime": "node",
         "version": "26.5.0",
         "cpuName": "Apple M4",
-        "cpuGHz": 4.03
+        "cpuGHz": 3.95
       },
       "cases": [
         {
           "label": "fast-xml-parser builder",
-          "avgNs": 98074.63869863014,
-          "minNs": 92917,
-          "p75Ns": 99167,
-          "p99Ns": 114375,
-          "maxNs": 123042,
-          "heapAvgBytes": 82833.57823129251
+          "avgNs": 109921.34537999409,
+          "minNs": 96000,
+          "p75Ns": 108208.00003051758,
+          "p99Ns": 286625,
+          "maxNs": 325374.99993896484,
+          "heapAvgBytes": 82767.23505976096
         },
         {
           "label": "stax-xml writer",
-          "avgNs": 137406.1459074733,
-          "minNs": 129000,
-          "p75Ns": 138084,
-          "p99Ns": 180083,
-          "maxNs": 193875,
-          "heapAvgBytes": 279351.10638297873
+          "avgNs": 145005.7270935788,
+          "minNs": 131042.00003051758,
+          "p75Ns": 146166,
+          "p99Ns": 203208.00006103516,
+          "maxNs": 285749.9999694824,
+          "heapAvgBytes": 281275.07936507935
         },
         {
           "label": "stax-xml writer sync",
-          "avgNs": 7214.042861566311,
-          "minNs": 7088.216064453125,
-          "p75Ns": 7254.0283203125,
-          "p99Ns": 7334.696533203125,
-          "maxNs": 7427.23583984375,
-          "heapAvgBytes": 1272.142361111111
+          "avgNs": 8137.009229872583,
+          "minNs": 7980.529785163701,
+          "p75Ns": 8195.6684570387,
+          "p99Ns": 8260.416748061776,
+          "maxNs": 8277.862548835576,
+          "heapAvgBytes": 1953.707958984375
         },
         {
           "label": "stax-xml writer sync sink",
-          "avgNs": 9293.6703156502,
-          "minNs": 9073.760986328125,
-          "p75Ns": 9347.71728515625,
-          "p99Ns": 9420.34912109375,
-          "maxNs": 9427.897216796875,
-          "heapAvgBytes": 2905.2931919642856
+          "avgNs": 10048.301269529195,
+          "minNs": 9547.454833991826,
+          "p75Ns": 10218.25146484375,
+          "p99Ns": 10414.1640625,
+          "maxNs": 10532.918212890625,
+          "heapAvgBytes": 3498.7448508522725
         },
         {
           "label": "xml2js builder",
-          "avgNs": 157594.73175182482,
-          "minNs": 143000,
-          "p75Ns": 159500,
-          "p99Ns": 184333,
-          "maxNs": 211500,
-          "heapAvgBytes": 128870.13043478261
+          "avgNs": 166137.02680374618,
+          "minNs": 148207.99996948242,
+          "p75Ns": 168207.99993896484,
+          "p99Ns": 217374.99993896484,
+          "maxNs": 272416.9999694824,
+          "heapAvgBytes": 128898.68852459016
         }
       ]
     },
@@ -831,44 +831,44 @@
         "runtime": "node",
         "version": "26.5.0",
         "cpuName": "Apple M4",
-        "cpuGHz": 4
+        "cpuGHz": 3.94
       },
       "cases": [
         {
           "label": "fast-xml-parser builder (big.json)",
-          "avgNs": 17247131.49230347,
-          "minNs": 14067708.000030518,
-          "p75Ns": 18738250,
-          "p99Ns": 19367792,
-          "maxNs": 19437374.999969482,
-          "heapAvgBytes": 25178774.144927535
+          "avgNs": 18428187.5,
+          "minNs": 15050792,
+          "p75Ns": 20482125,
+          "p99Ns": 21633542,
+          "maxNs": 21937250,
+          "heapAvgBytes": 24837910.344827585
         },
         {
           "label": "stax-xml writer sync (big.json)",
-          "avgNs": 12333657.447058106,
-          "minNs": 4720042,
-          "p75Ns": 14961584,
-          "p99Ns": 15148959,
-          "maxNs": 15182584.000061035,
-          "heapAvgBytes": 9371815.191011235
+          "avgNs": 14525833.298507463,
+          "minNs": 10837208,
+          "p75Ns": 17788083,
+          "p99Ns": 18396375,
+          "maxNs": 18438250,
+          "heapAvgBytes": 9627195.943661971
         },
         {
           "label": "stax-xml writer sync sink (big.json)",
-          "avgNs": 9214516.132077774,
-          "minNs": 5694542.000030518,
-          "p75Ns": 12604166.000030518,
-          "p99Ns": 12834042,
-          "maxNs": 12884291.999969482,
-          "heapAvgBytes": 4261942.293333333
+          "avgNs": 10841504.42857143,
+          "minNs": 6425167,
+          "p75Ns": 14768375,
+          "p99Ns": 15511833,
+          "maxNs": 15516583,
+          "heapAvgBytes": 4516992.545454546
         },
         {
           "label": "stax-xml writer (big.json)",
-          "avgNs": 30143400.66667449,
-          "minNs": 23957959.000030518,
-          "p75Ns": 35556958,
-          "p99Ns": 35902709,
-          "maxNs": 36001875.00003052,
-          "heapAvgBytes": 9017083.906976745
+          "avgNs": 30510589.194444444,
+          "minNs": 24795584,
+          "p75Ns": 35742292,
+          "p99Ns": 36059334,
+          "maxNs": 36599834,
+          "heapAvgBytes": 8737992.8
         }
       ]
     },
@@ -880,89 +880,89 @@
         "runtime": "node",
         "version": "26.5.0",
         "cpuName": "Apple M4",
-        "cpuGHz": 4.02
+        "cpuGHz": 3.95
       },
       "cases": [
         {
           "label": "async writer (1K elements)",
-          "avgNs": 4302730.115943651,
-          "minNs": 2830834.0000305176,
-          "p75Ns": 4667791.999969482,
-          "p99Ns": 4914083.000061035,
-          "maxNs": 4933417,
-          "heapAvgBytes": 16249490.54028436
+          "avgNs": 4038661.665048544,
+          "minNs": 3067875,
+          "p75Ns": 4100084,
+          "p99Ns": 4524167,
+          "maxNs": 4546584,
+          "heapAvgBytes": 15051640.876190476
         },
         {
           "label": "sync writer (1K elements)",
-          "avgNs": 1715647.7341040461,
-          "minNs": 830334,
-          "p75Ns": 1866125,
-          "p99Ns": 1973792,
-          "maxNs": 1994292,
-          "heapAvgBytes": 3443289.6914285715
+          "avgNs": 1855419.2467532468,
+          "minNs": 894875,
+          "p75Ns": 2044167,
+          "p99Ns": 2134875,
+          "maxNs": 2170584,
+          "heapAvgBytes": 3548479.4615384615
         },
         {
           "label": "sync writer sink in-memory (1K elements)",
-          "avgNs": 1996553.3177570093,
-          "minNs": 903958,
-          "p75Ns": 2157958,
-          "p99Ns": 2468542,
-          "maxNs": 2522167,
-          "heapAvgBytes": 3521651.1753846155
+          "avgNs": 2214377.2671480146,
+          "minNs": 1114583,
+          "p75Ns": 2339458,
+          "p99Ns": 2709250,
+          "maxNs": 3127667,
+          "heapAvgBytes": 3634259.5302491104
         },
         {
           "label": "async writer (5K elements)",
-          "avgNs": 16773369.642857144,
-          "minNs": 15001584,
-          "p75Ns": 17210250,
-          "p99Ns": 18185666,
-          "maxNs": 18309333,
-          "heapAvgBytes": 6900913.513513514
+          "avgNs": 17217933.606060605,
+          "minNs": 12777041,
+          "p75Ns": 18213916,
+          "p99Ns": 19490666,
+          "maxNs": 19616458,
+          "heapAvgBytes": 6871672.8
         },
         {
           "label": "sync writer (5K elements)",
-          "avgNs": 5539704.028901734,
-          "minNs": 3090792,
-          "p75Ns": 6768750,
-          "p99Ns": 7923375,
-          "maxNs": 8057917,
-          "heapAvgBytes": 16905450.84745763
+          "avgNs": 6176529.696969697,
+          "minNs": 3284375,
+          "p75Ns": 7299792,
+          "p99Ns": 9636625,
+          "maxNs": 10101791,
+          "heapAvgBytes": 17477592.88235294
         },
         {
           "label": "sync writer sink in-memory (5K elements)",
-          "avgNs": 6129630.695652174,
-          "minNs": 3458583,
-          "p75Ns": 7150125,
-          "p99Ns": 8845667,
-          "maxNs": 8896333,
-          "heapAvgBytes": 17412076.8
+          "avgNs": 7160030.807692308,
+          "minNs": 3799417,
+          "p75Ns": 8606875,
+          "p99Ns": 10175667,
+          "maxNs": 10237583,
+          "heapAvgBytes": 18043688.53731343
         },
         {
           "label": "async writer (10K elements)",
-          "avgNs": 29168039.658536587,
-          "minNs": 26558084,
-          "p75Ns": 30871875,
-          "p99Ns": 32340792,
-          "maxNs": 32428917,
-          "heapAvgBytes": 11929695.822222222
+          "avgNs": 31337438.162162162,
+          "minNs": 26241250,
+          "p75Ns": 33182167,
+          "p99Ns": 34488334,
+          "maxNs": 35273083,
+          "heapAvgBytes": 11586569.56097561
         },
         {
           "label": "sync writer (10K elements)",
-          "avgNs": 11090282.9,
-          "minNs": 6053625,
-          "p75Ns": 15348625,
-          "p99Ns": 16042625,
-          "maxNs": 16075208,
-          "heapAvgBytes": 23863301.692307692
+          "avgNs": 19049614.203703705,
+          "minNs": 8130792,
+          "p75Ns": 21463917,
+          "p99Ns": 27523458,
+          "maxNs": 29256000,
+          "heapAvgBytes": 12501198.620689655
         },
         {
           "label": "sync writer sink in-memory (10K elements)",
-          "avgNs": 11445527.622448979,
-          "minNs": 6851042,
-          "p75Ns": 13121167,
-          "p99Ns": 13614833,
-          "maxNs": 13680792,
-          "heapAvgBytes": 2707810.274509804
+          "avgNs": 15431978.606060605,
+          "minNs": 7790625,
+          "p75Ns": 17786125,
+          "p99Ns": 22181583,
+          "maxNs": 22310834,
+          "heapAvgBytes": 7350134.742857143
         }
       ]
     },
@@ -979,65 +979,65 @@
       "cases": [
         {
           "label": "async writer memory WritableStream",
-          "avgNs": 12227171416.000002,
-          "minNs": 12227171416.000002,
-          "p75Ns": 12227171416.000002,
-          "p99Ns": 12227171416.000002,
-          "maxNs": 12227171416.000002,
-          "heapAvgBytes": 79437552,
-          "rssPeakBytes": 196116480,
+          "avgNs": 12722442625.000002,
+          "minNs": 12722442625.000002,
+          "p75Ns": 12722442625.000002,
+          "p99Ns": 12722442625.000002,
+          "maxNs": 12722442625.000002,
+          "heapAvgBytes": 79770568,
+          "rssPeakBytes": 195870720,
           "bytesWritten": 1073787352,
           "records": 1164225,
-          "throughputMiBs": 83.75145682052465,
+          "throughputMiBs": 80.49110136067736,
           "targetBytes": 1073741824
         },
         {
           "label": "sync writer sink memory",
-          "avgNs": 4655504042.000001,
-          "minNs": 4655504042.000001,
-          "p75Ns": 4655504042.000001,
-          "p99Ns": 4655504042.000001,
-          "maxNs": 4655504042.000001,
-          "heapAvgBytes": 73035288,
-          "rssPeakBytes": 196575232,
+          "avgNs": 4793312040.999999,
+          "minNs": 4793312040.999999,
+          "p75Ns": 4793312040.999999,
+          "p99Ns": 4793312040.999999,
+          "maxNs": 4793312040.999999,
+          "heapAvgBytes": 72594368,
+          "rssPeakBytes": 196427776,
           "bytesWritten": 1073787352,
           "records": 1164225,
-          "throughputMiBs": 219.96402744918447,
+          "throughputMiBs": 213.64004891086486,
           "targetBytes": 1073741824
         },
         {
           "label": "async writer temp file",
-          "avgNs": 12408458292.000004,
-          "minNs": 12408458292.000004,
-          "p75Ns": 12408458292.000004,
-          "p99Ns": 12408458292.000004,
-          "maxNs": 12408458292.000004,
-          "heapAvgBytes": 37234248,
-          "rssPeakBytes": 197165056,
+          "avgNs": 12919219291.000002,
+          "minNs": 12919219291.000002,
+          "p75Ns": 12919219291.000002,
+          "p99Ns": 12919219291.000002,
+          "maxNs": 12919219291.000002,
+          "heapAvgBytes": 40563128,
+          "rssPeakBytes": 196902912,
           "bytesWritten": 1073787352,
           "records": 1164225,
-          "throughputMiBs": 82.52785275867026,
+          "throughputMiBs": 79.26511624411107,
           "targetBytes": 1073741824
         },
         {
           "label": "sync writer sink temp file",
-          "avgNs": 4874566708.999995,
-          "minNs": 4874566708.999995,
-          "p75Ns": 4874566708.999995,
-          "p99Ns": 4874566708.999995,
-          "maxNs": 4874566708.999995,
-          "heapAvgBytes": 71136936,
-          "rssPeakBytes": 189218816,
+          "avgNs": 5024272540.999998,
+          "minNs": 5024272540.999998,
+          "p75Ns": 5024272540.999998,
+          "p99Ns": 5024272540.999998,
+          "maxNs": 5024272540.999998,
+          "heapAvgBytes": 71562672,
+          "rssPeakBytes": 189284352,
           "bytesWritten": 1073787352,
           "records": 1164225,
-          "throughputMiBs": 210.07886034128296,
+          "throughputMiBs": 203.81924159720413,
           "targetBytes": 1073741824
         }
       ]
     },
     "writer-cross-runtime": {
       "context": {
-        "collectedAt": "2026-07-18T13:45:07.465Z",
+        "collectedAt": "2026-07-18T15:29:09.067Z",
         "workload": {
           "records": 12798,
           "outputBytes": 10775015,
@@ -1058,24 +1058,24 @@
       "cases": [
         {
           "label": "stax-xml",
-          "avgNs": 50178375.000000015,
-          "throughputMiBs": 204.78652535862483,
+          "avgNs": 52519583.00000001,
+          "throughputMiBs": 195.6575905104214,
           "bytes": 10775015,
           "records": 12798,
           "runs": 3
         },
         {
           "label": "woodstox",
-          "avgNs": 81056500,
-          "throughputMiBs": 126.773979,
+          "avgNs": 84391833,
+          "throughputMiBs": 121.76362,
           "bytes": 10775015,
           "records": 12798,
           "runs": 3
         },
         {
           "label": "quick-xml",
-          "avgNs": 48464916,
-          "throughputMiBs": 212.026676,
+          "avgNs": 35320792,
+          "throughputMiBs": 290.92935,
           "bytes": 10775015,
           "records": 12798,
           "runs": 3
