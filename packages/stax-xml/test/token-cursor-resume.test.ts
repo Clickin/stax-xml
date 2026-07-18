@@ -95,6 +95,22 @@ describe('TokenCursor resumable token scans', () => {
     expect(() => collect(xml)).toThrow();
     expect(() => collect(xml, 1)).toThrow();
   });
+
+  it.each([
+    ['a second root opener', '<r/><second', /exactly one root/i],
+    ['a misplaced DOCTYPE opener', '<r/><!DOCTYPE ', /DOCTYPE must appear/i],
+  ])('rejects %s before requesting the rest of the invalid document', (_label, xml, error) => {
+    const cursor = new TokenCursor(xml, false, { documentMode: 'document' });
+    expect(() => {
+      while (cursor.next() !== null) { /* consume until rejection */ }
+    }).toThrow(error);
+  });
+
+  it('rejects streamed non-whitespace outside the root as soon as it arrives', () => {
+    const cursor = new TokenCursor('<r/> ', false, { documentMode: 'document' });
+    while (cursor.next() !== NEED_INPUT) { /* consume the root and leading whitespace */ }
+    expect(() => cursor.push('tail')).toThrow(/outside the root element/i);
+  });
 });
 
 describe('TokenCursor XML character checks', () => {

@@ -143,6 +143,9 @@ export class TokenCursor {
         continue;
       }
       if (next === 33) return this.parseBang();
+      if (this.documentMode === 'document' && this.stack.length === 0 && this.roots === 1) {
+        throw new Error('XML document must contain exactly one root element.');
+      }
       return this.parseStart();
     }
   }
@@ -306,10 +309,12 @@ export class TokenCursor {
   }
 
   private parseDoctype(): TokenCursorResult {
+    if (this.seenDoctype || this.roots !== 0 || this.stack.length !== 0) {
+      throw new Error('DOCTYPE must appear once before the root element.');
+    }
     const end = this.findDeclarationEnd(this.pos + 2);
     if (end < 0) return this.incomplete('DOCTYPE');
     validateXmlCharsSpan(this.buffer, this.pos + 2, end);
-    if (this.seenDoctype || this.roots !== 0 || this.stack.length !== 0) throw new Error('DOCTYPE must appear once before the root element.');
     this.doctypeRootName = parseDoctypeRootName(this.buffer, this.pos + 9, end);
     this.seenDoctype = true;
     this.xmlDeclarationAllowed = false;
@@ -725,13 +730,18 @@ export class TokenCursor {
     // '&lt;' contain no literal '<', so this single lookup is the real boundary.
     // Reusing it below avoids an O(n^2) per-entity forward scan.
     const boundary = this.buffer.indexOf('<', start);
-    const forbidden = this.buffer.indexOf(']]>', start);
-    if (forbidden >= 0 && (boundary < 0 || forbidden < boundary)) {
-      throw new Error('Character data cannot contain ]]>');
-    }
+    const outsideDocumentRoot = this.documentMode === 'document' && this.stack.length === 0;
     for (let index = start; index < this.buffer.length; index++) {
       const code = this.buffer.charCodeAt(index);
       if (code === 60) return index;
+      if (outsideDocumentRoot && !isXmlWhitespace(code)) {
+        throw new Error('Character data is not allowed outside the root element.');
+      }
+      if (code === 93
+        && this.buffer.charCodeAt(index + 1) === 93
+        && this.buffer.charCodeAt(index + 2) === 62) {
+        throw new Error('Character data cannot contain ]]>');
+      }
       if (code >= 32 && code < 0xd800) {
         if (code !== 38) continue;
       } else if (code < 32) {
@@ -895,6 +905,17 @@ export class TokenCursor {
     if (this.resumeKind === ResumeKind.DOCTYPE) {
       this.scanDoctypeText(text, 0, baseLength);
       return;
+    }
+    if (this.resumeKind === ResumeKind.TEXT
+      && this.documentMode === 'document'
+      && this.stack.length === 0) {
+      const boundary = text.indexOf('<');
+      const end = boundary < 0 ? text.length : boundary;
+      for (let index = 0; index < end; index++) {
+        if (!isXmlWhitespace(text.charCodeAt(index))) {
+          throw new Error('Character data is not allowed outside the root element.');
+        }
+      }
     }
 
     const delimiter = delimiterFor(this.resumeKind);
