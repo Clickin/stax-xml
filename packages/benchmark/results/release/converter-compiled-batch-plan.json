@@ -13,22 +13,22 @@
       "contractScope": "catalog-records",
       "fullStringParity": true,
       "eventCountKind": "parsed-elements",
-      "avgMs": 144.64894999999996,
-      "minMs": 142.0703329999999,
-      "maxMs": 146.21516699999984,
-      "mibPerSec": 110.61321134383738,
+      "avgMs": 146.5859752,
+      "minMs": 137.2132919999999,
+      "maxMs": 160.57275000000004,
+      "mibPerSec": 109.15153960113751,
       "eventCount": 139458,
       "checksum": -1845341048,
       "samplesMs": [
-        144.7405,
-        145.435292,
-        144.783458,
-        142.0703329999999,
-        146.21516699999984
+        160.57275000000004,
+        156.58354199999997,
+        139.2158750000001,
+        137.2132919999999,
+        139.34441700000002
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 68301942.4,
-        "avgRssDeltaBytes": 2742681.6
+        "avgHeapUsedDeltaBytes": 60310694.4,
+        "avgRssDeltaBytes": 3427532.8
       }
     },
     "converter-auto-compiled-batch-plan": {
@@ -38,28 +38,28 @@
       "contractScope": "catalog-records",
       "fullStringParity": true,
       "eventCountKind": "parsed-elements",
-      "avgMs": 192.35026659999988,
-      "minMs": 188.91254200000003,
-      "maxMs": 195.70466599999986,
-      "mibPerSec": 83.18202599784787,
+      "avgMs": 186.5984836,
+      "minMs": 183.99479199999996,
+      "maxMs": 188.03349999999978,
+      "mibPerSec": 85.74606056988429,
       "eventCount": 139458,
       "checksum": -1845341048,
       "samplesMs": [
-        190.86074999999983,
-        195.70466599999986,
-        194.10695799999985,
-        188.91254200000003,
-        192.1664169999999
+        187.64266700000007,
+        185.83466700000008,
+        188.03349999999978,
+        183.99479199999996,
+        187.48679200000015
       ],
       "memory": {
-        "avgHeapUsedDeltaBytes": 71487734.4,
-        "avgRssDeltaBytes": 3266969.6
+        "avgHeapUsedDeltaBytes": 63634168,
+        "avgRssDeltaBytes": 3810918.4
       }
     }
   },
   "metadata": {
-    "nodeVersion": "24.15.0",
-    "v8Version": "13.6.233.17-node.48",
-    "collectedAt": "2026-07-18T12:38:48.532Z"
+    "nodeVersion": "26.5.0",
+    "v8Version": "14.6.202.34-node.24",
+    "collectedAt": "2026-07-18T13:44:29.624Z"
   }
 }

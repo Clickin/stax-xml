@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-18T12:39:24.356Z",
+  "generatedAt": "2026-07-18T13:45:04.184Z",
   "context": {
     "arch": "arm64-darwin",
     "runtime": "node",
-    "version": "24.15.0",
+    "version": "26.5.0",
     "cpuName": "Apple M4",
     "cpuGHz": 2.4
   },
@@ -16,28 +16,28 @@
       "kind": "async",
       "records": 1164225,
       "bytesWritten": 1073787352,
-      "elapsedMs": 12799.871458,
-      "throughputMiBs": 80.00419552996712,
+      "elapsedMs": 12227.171416000001,
+      "throughputMiBs": 83.75145682052465,
       "memoryBefore": {
-        "rss": 51527680,
-        "heapTotal": 7323648,
-        "heapUsed": 4440720,
-        "external": 1938119,
-        "arrayBuffers": 22767
+        "rss": 58884096,
+        "heapTotal": 6701056,
+        "heapUsed": 4485216,
+        "external": 2167757,
+        "arrayBuffers": 137467
       },
       "memoryAfter": {
-        "rss": 241041408,
-        "heapTotal": 166182912,
-        "heapUsed": 48478352,
-        "external": 2588723,
-        "arrayBuffers": 612591
+        "rss": 196116480,
+        "heapTotal": 79839232,
+        "heapUsed": 23185072,
+        "external": 2820175,
+        "arrayBuffers": 727291
       },
       "memoryPeak": {
-        "rss": 241041408,
-        "heapTotal": 166182912,
-        "heapUsed": 94942976,
-        "external": 17334323,
-        "arrayBuffers": 15358191
+        "rss": 196116480,
+        "heapTotal": 115490816,
+        "heapUsed": 79437552,
+        "external": 17172559,
+        "arrayBuffers": 15079675
       }
     },
     {
@@ -45,28 +45,28 @@
       "kind": "sync-sink",
       "records": 1164225,
       "bytesWritten": 1073787352,
-      "elapsedMs": 4700.870999999999,
-      "throughputMiBs": 217.84120833868394,
+      "elapsedMs": 4655.5040420000005,
+      "throughputMiBs": 219.96402744918447,
       "memoryBefore": {
-        "rss": 241041408,
-        "heapTotal": 144687104,
-        "heapUsed": 4866456,
-        "external": 2588723,
-        "arrayBuffers": 22767
+        "rss": 196116480,
+        "heapTotal": 74334208,
+        "heapUsed": 4976760,
+        "external": 2820175,
+        "arrayBuffers": 137467
       },
       "memoryAfter": {
-        "rss": 249905152,
-        "heapTotal": 174833664,
-        "heapUsed": 77197376,
-        "external": 1998899,
-        "arrayBuffers": 22767
+        "rss": 196575232,
+        "heapTotal": 107626496,
+        "heapUsed": 59845720,
+        "external": 2230351,
+        "arrayBuffers": 137467
       },
       "memoryPeak": {
-        "rss": 249905152,
-        "heapTotal": 174833664,
-        "heapUsed": 104315200,
-        "external": 2588723,
-        "arrayBuffers": 22767
+        "rss": 196575232,
+        "heapTotal": 107626496,
+        "heapUsed": 73035288,
+        "external": 2820175,
+        "arrayBuffers": 137467
       }
     },
     {
@@ -74,28 +74,28 @@
       "kind": "async",
       "records": 1164225,
       "bytesWritten": 1073787352,
-      "elapsedMs": 13191.220792,
-      "throughputMiBs": 77.63067839068563,
+      "elapsedMs": 12408.458292000003,
+      "throughputMiBs": 82.52785275867026,
       "memoryBefore": {
-        "rss": 249905152,
-        "heapTotal": 146522112,
-        "heapUsed": 4884392,
-        "external": 1998899,
-        "arrayBuffers": 22767
+        "rss": 196575232,
+        "heapTotal": 76431360,
+        "heapUsed": 4993736,
+        "external": 2230351,
+        "arrayBuffers": 137467
       },
       "memoryAfter": {
-        "rss": 250576896,
-        "heapTotal": 148094976,
-        "heapUsed": 17443448,
-        "external": 2455184,
-        "arrayBuffers": 481519
+        "rss": 164675584,
+        "heapTotal": 79839232,
+        "heapUsed": 17074248,
+        "external": 2752172,
+        "arrayBuffers": 661755
       },
       "memoryPeak": {
-        "rss": 250494976,
-        "heapTotal": 150454272,
-        "heapUsed": 66334232,
-        "external": 3178547,
-        "arrayBuffers": 1202415
+        "rss": 197165056,
+        "heapTotal": 83247104,
+        "heapUsed": 37234248,
+        "external": 3082319,
+        "arrayBuffers": 923899
       }
     },
     {
@@ -103,28 +103,28 @@
       "kind": "sync-sink",
       "records": 1164225,
       "bytesWritten": 1073787352,
-      "elapsedMs": 4788.718917000002,
-      "throughputMiBs": 213.84496284568144,
+      "elapsedMs": 4874.566708999995,
+      "throughputMiBs": 210.07886034128296,
       "memoryBefore": {
-        "rss": 250576896,
-        "heapTotal": 144162816,
-        "heapUsed": 4111360,
-        "external": 2455184,
-        "arrayBuffers": 88303
+        "rss": 164691968,
+        "heapTotal": 77217792,
+        "heapUsed": 4171248,
+        "external": 2752172,
+        "arrayBuffers": 203003
       },
       "memoryAfter": {
-        "rss": 250707968,
-        "heapTotal": 174571520,
-        "heapUsed": 64601936,
-        "external": 2061968,
-        "arrayBuffers": 88303
+        "rss": 189218816,
+        "heapTotal": 107102208,
+        "heapUsed": 47879680,
+        "external": 2293420,
+        "arrayBuffers": 203003
       },
       "memoryPeak": {
-        "rss": 250707968,
-        "heapTotal": 174571520,
-        "heapUsed": 103705304,
-        "external": 2455184,
-        "arrayBuffers": 88303
+        "rss": 189218816,
+        "heapTotal": 107102208,
+        "heapUsed": 71136936,
+        "external": 2752172,
+        "arrayBuffers": 203003
       }
     }
   ]

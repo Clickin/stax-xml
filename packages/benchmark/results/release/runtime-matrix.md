@@ -1,6 +1,6 @@
 # JavaScript Runtime Benchmark Matrix
 
-Generated: 2026-07-18T12:55:49.934Z
+Generated: 2026-07-18T13:42:03.411Z
 
 This fixture compares the same built `stax-xml` JavaScript implementation on Node, Bun, and Deno.
 It does not compare binary parser modules or non-JavaScript parser backends.
@@ -41,7 +41,8 @@ runtime-result = {
   scenario: "stream-sync-type-only" | "stream-sync-name-text" | "stream-sync-full" | "event-sync-full",
   eventCount: number,
   checksum: fold(the fields touched by that accessor tier),
-  peakHeapUsedBytes: number
+  peakHeapUsedBytes: number,
+  peakRssBytes: number
 }
 ~~~
 
@@ -60,20 +61,20 @@ Runtime methods:
 
 ## Results
 
-| Runtime | Version | Scenario | Throughput | Average | Events | Checksum | Peak heap | Status |
-| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| node | 24.15.0 | stream-sync-type-only | 115.3 MiB/s | 138.74 ms | 1024909 | 879435954 | 22.3 MiB | ok |
-| node | 24.15.0 | stream-sync-name-text | 79.4 MiB/s | 201.60 ms | 1024909 | -1201287088 | 22.8 MiB | ok |
-| node | 24.15.0 | stream-sync-full | 61.5 MiB/s | 260.30 ms | 1024909 | -855783368 | 28.0 MiB | ok |
-| node | 24.15.0 | event-sync-full | 59.1 MiB/s | 270.89 ms | 1024909 | -855783368 | 30.6 MiB | ok |
-| bun | 1.3.13 | stream-sync-type-only | 187.3 MiB/s | 85.44 ms | 1024909 | 879435954 | 33.1 MiB | ok |
-| bun | 1.3.13 | stream-sync-name-text | 149.9 MiB/s | 106.72 ms | 1024909 | -1201287088 | 33.0 MiB | ok |
-| bun | 1.3.13 | stream-sync-full | 100.9 MiB/s | 158.56 ms | 1024909 | -855783368 | 33.0 MiB | ok |
-| bun | 1.3.13 | event-sync-full | 108.9 MiB/s | 146.93 ms | 1024909 | -855783368 | 17.1 MiB | ok |
-| deno | 2.7.14 (v8 14.7.173.20-rusty) | stream-sync-type-only | 126.0 MiB/s | 127.01 ms | 1024909 | 879435954 | 31.0 MiB | ok |
-| deno | 2.7.14 (v8 14.7.173.20-rusty) | stream-sync-name-text | 82.6 MiB/s | 193.73 ms | 1024909 | -1201287088 | 35.0 MiB | ok |
-| deno | 2.7.14 (v8 14.7.173.20-rusty) | stream-sync-full | 64.4 MiB/s | 248.27 ms | 1024909 | -855783368 | 32.7 MiB | ok |
-| deno | 2.7.14 (v8 14.7.173.20-rusty) | event-sync-full | 59.6 MiB/s | 268.26 ms | 1024909 | -855783368 | 43.8 MiB | ok |
+| Runtime | Version | Scenario | Throughput | Average | Events | Checksum | Peak heap | Peak RSS | Status |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| node | 26.5.0 | stream-sync-type-only | 123.0 MiB/s | 130.06 ms | 1024909 | 879435954 | 11.4 MiB | 132.4 MiB | ok |
+| node | 26.5.0 | stream-sync-name-text | 85.0 MiB/s | 188.17 ms | 1024909 | -1201287088 | 7.5 MiB | 133.5 MiB | ok |
+| node | 26.5.0 | stream-sync-full | 66.8 MiB/s | 239.39 ms | 1024909 | -855783368 | 20.2 MiB | 153.6 MiB | ok |
+| node | 26.5.0 | event-sync-full | 59.9 MiB/s | 267.23 ms | 1024909 | -855783368 | 14.9 MiB | 153.7 MiB | ok |
+| bun | 1.3.14 | stream-sync-type-only | 196.4 MiB/s | 81.45 ms | 1024909 | 879435954 | 33.0 MiB | 183.1 MiB | ok |
+| bun | 1.3.14 | stream-sync-name-text | 154.6 MiB/s | 103.52 ms | 1024909 | -1201287088 | 32.9 MiB | 213.1 MiB | ok |
+| bun | 1.3.14 | stream-sync-full | 105.1 MiB/s | 152.27 ms | 1024909 | -855783368 | 33.1 MiB | 221.1 MiB | ok |
+| bun | 1.3.14 | event-sync-full | 114.2 MiB/s | 140.09 ms | 1024909 | -855783368 | 17.0 MiB | 260.4 MiB | ok |
+| deno | 2.9.3 (v8 14.9.207.2-rusty) | stream-sync-type-only | 136.2 MiB/s | 117.44 ms | 1024909 | 879435954 | 28.3 MiB | 117.8 MiB | ok |
+| deno | 2.9.3 (v8 14.9.207.2-rusty) | stream-sync-name-text | 124.0 MiB/s | 129.02 ms | 1024909 | -1201287088 | 24.7 MiB | 118.1 MiB | ok |
+| deno | 2.9.3 (v8 14.9.207.2-rusty) | stream-sync-full | 67.2 MiB/s | 237.99 ms | 1024909 | -855783368 | 36.0 MiB | 136.9 MiB | ok |
+| deno | 2.9.3 (v8 14.9.207.2-rusty) | event-sync-full | 65.0 MiB/s | 246.15 ms | 1024909 | -855783368 | 31.4 MiB | 137.6 MiB | ok |
 
 ## Contract
 
