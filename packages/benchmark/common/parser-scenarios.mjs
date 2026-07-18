@@ -40,19 +40,19 @@ const BENCHMARK_PARSE_OPTIONS = { documentMode: 'fragment' };
 const FIXTURE_CONTRACTS = new Map([
   [ASSET_PATHS.complex, createFixtureContract({
     itemName: 'person',
-    rootXPath: '//person',
+    rootXPath: '/any_name/person',
     outputDescription: 'Array<{ id, name, age }>',
     fields: PERSON_FIELDS,
   })],
   [ASSET_PATHS.midsize, createFixtureContract({
     itemName: 'person',
-    rootXPath: '//person',
+    rootXPath: '/root/any_name/person',
     outputDescription: 'Array<{ id, name, age }>',
     fields: PERSON_FIELDS,
   })],
   [ASSET_PATHS.large, createFixtureContract({
     itemName: 'person',
-    rootXPath: '//person',
+    rootXPath: '/root/any_name/person',
     outputDescription: 'Array<{ id, name, age }>',
     fields: PERSON_FIELDS,
   })],
@@ -88,16 +88,20 @@ export function createStaxParserSurfaceRunners({ assetPath, xmlString, inputBuff
       run: () => parseWithConverter(inputBuffer, contract),
     },
     {
-      label: 'fast-xml-parser XMLParser',
-      run: () => new XMLParser({ ignoreAttributes: false }).parse(xmlString),
+      label: 'fast-xml-parser XMLParser (JS object)',
+      run: () => projectObjectTree(
+        new XMLParser({ ignoreAttributes: false }).parse(xmlString),
+        contract,
+        'fxp',
+      ),
     },
     {
-      label: 'txml parse',
-      run: () => txml.parse(xmlString),
+      label: 'txml parse (JS object)',
+      run: () => projectTxmlTree(txml.parse(xmlString), contract),
     },
     {
-      label: 'xml2js parseString',
-      run: () => parseWithXml2js(xmlString),
+      label: 'xml2js parseString (JS object)',
+      run: async () => projectObjectTree(await parseWithXml2js(xmlString), contract, 'xml2js'),
     },
   ];
 }
@@ -111,12 +115,15 @@ function parseWithXml2js(xmlString) {
   });
 }
 
-export function assertStaxParserSurfaceParity({ assetPath, xmlString, inputBuffer }) {
+export async function assertParserSurfaceParity({ assetPath, xmlString, inputBuffer }) {
   const contract = parserFixtureContractForAssetPath(assetPath);
   const reference = parseWithEventReader(xmlString, contract);
   const candidates = [
     ['StreamReaderSync', parseWithStreamReader(inputBuffer, contract)],
     ['Converter', parseWithConverter(inputBuffer, contract)],
+    ['fast-xml-parser', projectObjectTree(new XMLParser({ ignoreAttributes: false }).parse(xmlString), contract, 'fxp')],
+    ['txml', projectTxmlTree(txml.parse(xmlString), contract)],
+    ['xml2js', projectObjectTree(await parseWithXml2js(xmlString), contract, 'xml2js')],
   ];
 
   const referenceJson = JSON.stringify(reference);
@@ -135,6 +142,61 @@ export function assertStaxParserSurfaceParity({ assetPath, xmlString, inputBuffe
     contract: contract.outputDescription,
     records: reference.length,
   };
+}
+
+function projectObjectTree(root, contract, kind) {
+  const nodes = [];
+  collectObjectNodes(root, contract.itemName, nodes);
+  return nodes.map((node) => Object.fromEntries(contract.fields.map((field) => {
+    const value = field.sourceKind === 'attribute'
+      ? (kind === 'fxp' ? node[`@_${field.sourceName}`] : node.$?.[field.sourceName])
+      : firstText(node[field.sourceName]);
+    return [field.outputName, value === undefined ? '' : String(value)];
+  })));
+}
+
+function collectObjectNodes(value, itemName, nodes) {
+  if (Array.isArray(value)) {
+    for (const item of value) collectObjectNodes(item, itemName, nodes);
+    return;
+  }
+  if (!value || typeof value !== 'object') return;
+  for (const [name, child] of Object.entries(value)) {
+    if (name === itemName) {
+      if (Array.isArray(child)) nodes.push(...child);
+      else nodes.push(child);
+    } else if (name !== '$' && name !== '#text' && name !== '_') {
+      collectObjectNodes(child, itemName, nodes);
+    }
+  }
+}
+
+function firstText(value) {
+  const first = Array.isArray(value) ? value[0] : value;
+  if (first && typeof first === 'object') return first['#text'] ?? first._;
+  return first;
+}
+
+function projectTxmlTree(root, contract) {
+  const nodes = [];
+  collectTxmlNodes(root, contract.itemName, nodes);
+  return nodes.map((node) => Object.fromEntries(contract.fields.map((field) => {
+    const value = field.sourceKind === 'attribute'
+      ? node.attributes?.[field.sourceName]
+      : node.children.find((child) => child?.tagName === field.sourceName)?.children
+        .filter((child) => typeof child === 'string').join('').trim();
+    return [field.outputName, value === undefined ? '' : String(value)];
+  })));
+}
+
+function collectTxmlNodes(value, itemName, nodes) {
+  if (Array.isArray(value)) {
+    for (const item of value) collectTxmlNodes(item, itemName, nodes);
+    return;
+  }
+  if (!value || typeof value !== 'object') return;
+  if (value.tagName === itemName) nodes.push(value);
+  else collectTxmlNodes(value.children, itemName, nodes);
 }
 
 function createFixtureContract({ itemName, rootXPath, fields, outputDescription }) {

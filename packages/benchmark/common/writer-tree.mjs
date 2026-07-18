@@ -81,17 +81,20 @@ function normalizeFxpElement(name, value) {
 
 export function normalizeFxpWriterTree(root) {
   const nodes = [];
-  for (const key in root) {
-    if (key === '_attr' || key === '__text') {
-      continue;
-    }
-    const node = normalizeFxpElement(key, root[key]);
-    if (Array.isArray(node)) {
-      for (const item of node) {
-        nodes.push(item);
+  const roots = Array.isArray(root) ? root : [root];
+  for (const value of roots) {
+    for (const key in value) {
+      if (key === '_attr' || key === '__text') {
+        continue;
       }
-    } else {
-      nodes.push(node);
+      const node = normalizeFxpElement(key, value[key]);
+      if (Array.isArray(node)) {
+        for (const item of node) {
+          nodes.push(item);
+        }
+      } else {
+        nodes.push(node);
+      }
     }
   }
   return nodes;

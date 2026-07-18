@@ -22,7 +22,7 @@ import {
   XmlEventType,
 } from 'stax-xml';
 import {
-  assertStaxParserSurfaceParity,
+  assertParserSurfaceParity,
   createStaxParserSurfaceRunners,
 } from './common/parser-scenarios.mjs';
 import {
@@ -212,7 +212,7 @@ async function runMitataSuite(id, title, registerSuite, runOptions = {}) {
 async function registerParserSyncSuite(assetPath) {
   const inputBuffer = loadXmlBuffer(assetPath);
   const xmlString = inputBuffer.toString('utf8');
-  assertStaxParserSurfaceParity({ assetPath, xmlString, inputBuffer });
+  await assertParserSurfaceParity({ assetPath, xmlString, inputBuffer });
   const staxSurfaceRunners = createStaxParserSurfaceRunners({ assetPath, xmlString, inputBuffer });
 
   barplot(() => {
@@ -227,7 +227,7 @@ async function registerParserSyncSuite(assetPath) {
 async function registerNpmXmlParserSuite() {
   const inputBuffer = loadXmlBuffer(ASSET_PATHS.books);
   const xmlString = inputBuffer.toString('utf8');
-  assertStaxParserSurfaceParity({ assetPath: ASSET_PATHS.books, xmlString, inputBuffer });
+  await assertParserSurfaceParity({ assetPath: ASSET_PATHS.books, xmlString, inputBuffer });
 
   barplot(() => {
     mitataSummary(() => {
@@ -564,19 +564,19 @@ function createCountingWritableStream() {
   };
 }
 
-async function writeAsyncTree(nodes, options = {}) {
+async function writeAsyncTree(nodes, options = {}, documentMode = 'document') {
   const { stream, getBytesWritten } = createCountingWritableStream();
   const writer = new Writer(stream, options);
-  await writer.writeStartDocument();
+  if (documentMode === 'document') await writer.writeStartDocument();
   await writeWriterTreeAsync(writer, nodes);
   await writer.writeEndDocument();
   await writer.close();
   return getBytesWritten();
 }
 
-function writeSyncTree(nodes, options = {}) {
+function writeSyncTree(nodes, options = {}, documentMode = 'document') {
   const writer = new WriterSync(options);
-  writer.writeStartDocument();
+  if (documentMode === 'document') writer.writeStartDocument();
   writeWriterTreeSync(writer, nodes);
   writer.writeEndDocument();
   return writer.getXmlString().length;
@@ -594,10 +594,10 @@ function createInMemorySink() {
   };
 }
 
-function writeSyncSinkTree(nodes, options = {}) {
+function writeSyncSinkTree(nodes, options = {}, documentMode = 'document') {
   const { sink, getBytesWritten } = createInMemorySink();
   const writer = new WriterSyncSink(sink, options);
-  writer.writeStartDocument();
+  if (documentMode === 'document') writer.writeStartDocument();
   writeWriterTreeSync(writer, nodes);
   writer.writeEndDocument();
   writer.close();
@@ -633,9 +633,9 @@ function registerWriterBigSuite() {
         const builder = new XMLBuilder({ format: false, ignoreAttributes: false });
         return builder.build(bigJsonContent).length;
       }).gc('inner');
-      bench('stax-xml writer sync (big.json)', () => writeSyncTree(bigWriterTree)).gc('inner');
-      bench('stax-xml writer sync sink (big.json)', () => writeSyncSinkTree(bigWriterTree)).gc('inner');
-      bench('stax-xml writer (big.json)', async () => writeAsyncTree(bigWriterTree)).gc('inner');
+      bench('stax-xml writer sync (big.json)', () => writeSyncTree(bigWriterTree, {}, 'fragment')).gc('inner');
+      bench('stax-xml writer sync sink (big.json)', () => writeSyncSinkTree(bigWriterTree, {}, 'fragment')).gc('inner');
+      bench('stax-xml writer (big.json)', async () => writeAsyncTree(bigWriterTree, {}, 'fragment')).gc('inner');
     });
   });
 }
@@ -832,6 +832,8 @@ function renderBenchmarkMarkdown(summary) {
     `- Package manager: ${summary.environment.packageManager ?? 'n/a'}`,
     '',
     '## Parser Fixture Series',
+    '',
+    'Every row parses the same XML and returns the same canonical JavaScript record array. The benchmark validates full-result parity before measuring parse-plus-projection time.',
     '',
     '### 2 KiB',
     '',

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-12T07:49:57.485Z",
+  "generatedAt": "2026-07-18T12:36:23.232Z",
   "environment": {
     "cpuName": "Apple M4",
     "platform": "darwin-arm64",
@@ -32,78 +32,85 @@
       },
       "options": {
         "runs": 3,
-        "warmups": 1
+        "warmups": 1,
+        "retentionRuns": 0
       },
       "scenarios": [
         {
-          "id": "public-sync-full-string",
+          "id": "stream-sync-type-only",
           "status": "ok",
-          "avgMs": 130.28941700000001,
-          "minMs": 128.274792,
-          "maxMs": 132.514917,
-          "mibPerSec": 122.80222457340244,
+          "avgMs": 134.397597,
+          "minMs": 132.32129099999997,
+          "maxMs": 136.45958299999995,
+          "mibPerSec": 119.04848451994036,
           "eventCount": 1024909,
-          "checksum": -26688828,
-          "peakRssBytes": 123797504,
-          "peakHeapUsedBytes": 24754208,
+          "checksum": 879435954,
+          "peakRssBytes": 130514944,
+          "peakHeapUsedBytes": 23053864,
           "samplesMs": [
-            132.514917,
-            130.07854200000003,
-            128.274792
+            134.41191700000002,
+            136.45958299999995,
+            132.32129099999997
           ]
         },
         {
-          "id": "cursor-sync-full-string",
+          "id": "stream-sync-name-text",
           "status": "ok",
-          "avgMs": 143.51381933333337,
-          "minMs": 143.262875,
-          "maxMs": 143.80387500000006,
-          "mibPerSec": 111.48633853029555,
+          "avgMs": 194.3249863333334,
+          "minMs": 192.4430000000001,
+          "maxMs": 196.30987500000015,
+          "mibPerSec": 82.33542452706793,
           "eventCount": 1024909,
-          "checksum": 113372214,
-          "peakRssBytes": 133873664,
-          "peakHeapUsedBytes": 23920832,
+          "checksum": -1201287088,
+          "peakRssBytes": 130908160,
+          "peakHeapUsedBytes": 23525752,
           "samplesMs": [
-            143.80387500000006,
-            143.262875,
-            143.47470800000008
+            194.222084,
+            192.4430000000001,
+            196.30987500000015
           ]
         },
         {
-          "id": "event-count-only",
+          "id": "stream-sync-full",
           "status": "ok",
-          "avgMs": 108.1769303333333,
-          "minMs": 106.5027500000001,
-          "maxMs": 110.15987499999983,
-          "mibPerSec": 147.90427308919064,
+          "avgMs": 247.97704166666654,
+          "minMs": 246.5809999999999,
+          "maxMs": 250.50324999999998,
+          "mibPerSec": 64.52141754105942,
           "eventCount": 1024909,
-          "checksum": 1485326873,
-          "peakRssBytes": 134119424,
-          "peakHeapUsedBytes": 25460536,
+          "checksum": -855783368,
+          "peakRssBytes": 150306816,
+          "peakHeapUsedBytes": 29411688,
           "samplesMs": [
-            110.15987499999983,
-            106.5027500000001,
-            107.86816599999997
+            250.50324999999998,
+            246.5809999999999,
+            246.84687499999973
           ]
         },
         {
-          "id": "event-full-string",
+          "id": "event-sync-full",
           "status": "ok",
-          "avgMs": 135.77026366666647,
-          "minMs": 132.5688329999998,
-          "maxMs": 139.3757079999998,
-          "mibPerSec": 117.84487864922563,
+          "avgMs": 254.56563900000006,
+          "minMs": 252.676375,
+          "maxMs": 255.65083400000003,
+          "mibPerSec": 62.85149208991114,
           "eventCount": 1024909,
-          "checksum": 1078379828,
-          "peakRssBytes": 133939200,
-          "peakHeapUsedBytes": 29575736,
+          "checksum": -855783368,
+          "peakRssBytes": 151617536,
+          "peakHeapUsedBytes": 32098168,
           "samplesMs": [
-            139.3757079999998,
-            135.3662499999998,
-            132.5688329999998
+            252.676375,
+            255.36970800000017,
+            255.65083400000003
           ]
         }
       ],
+      "retention": {
+        "status": "disabled",
+        "requestedRuns": 0,
+        "evidenceOnly": true,
+        "scenarios": []
+      },
       "status": "ok"
     },
     {
@@ -118,78 +125,85 @@
       },
       "options": {
         "runs": 3,
-        "warmups": 1
+        "warmups": 1,
+        "retentionRuns": 0
       },
       "scenarios": [
         {
-          "id": "public-sync-full-string",
+          "id": "stream-sync-type-only",
           "status": "ok",
-          "avgMs": 131.20241633333333,
-          "minMs": 123.66579099999998,
-          "maxMs": 145.049375,
-          "mibPerSec": 121.94767972353843,
+          "avgMs": 81.23040266666666,
+          "minMs": 72.28949999999998,
+          "maxMs": 91.30641700000001,
+          "mibPerSec": 196.96849603993527,
           "eventCount": 1024909,
-          "checksum": -26688828,
-          "peakRssBytes": 169279488,
-          "peakHeapUsedBytes": 17700890,
+          "checksum": 879435954,
+          "peakRssBytes": 196526080,
+          "peakHeapUsedBytes": 34758026,
           "samplesMs": [
-            123.66579099999998,
-            145.049375,
-            124.89208300000001
+            80.095291,
+            91.30641700000001,
+            72.28949999999998
           ]
         },
         {
-          "id": "cursor-sync-full-string",
+          "id": "stream-sync-name-text",
           "status": "ok",
-          "avgMs": 111.00984733333333,
-          "minMs": 105.04225000000008,
-          "maxMs": 121.97087499999998,
-          "mibPerSec": 144.12982839196602,
+          "avgMs": 104.47875033333332,
+          "minMs": 100.50675000000001,
+          "maxMs": 111.468167,
+          "mibPerSec": 153.13956373832153,
           "eventCount": 1024909,
-          "checksum": 113372214,
-          "peakRssBytes": 228294656,
-          "peakHeapUsedBytes": 34646378,
+          "checksum": -1201287088,
+          "peakRssBytes": 227917824,
+          "peakHeapUsedBytes": 34596755,
           "samplesMs": [
-            121.97087499999998,
-            106.01641699999993,
-            105.04225000000008
+            111.468167,
+            100.50675000000001,
+            101.46133399999997
           ]
         },
         {
-          "id": "event-count-only",
+          "id": "stream-sync-full",
           "status": "ok",
-          "avgMs": 101.91880600000006,
-          "minMs": 100.84183400000006,
-          "maxMs": 102.87304199999994,
-          "mibPerSec": 156.98604481268816,
+          "avgMs": 157.21000000000004,
+          "minMs": 155.22154100000012,
+          "maxMs": 159.01604199999997,
+          "mibPerSec": 101.77361647459878,
           "eventCount": 1024909,
-          "checksum": 1485326873,
-          "peakRssBytes": 266158080,
-          "peakHeapUsedBytes": 40216226,
+          "checksum": -855783368,
+          "peakRssBytes": 237027328,
+          "peakHeapUsedBytes": 34630768,
           "samplesMs": [
-            100.84183400000006,
-            102.04154200000016,
-            102.87304199999994
+            157.39241700000002,
+            155.22154100000012,
+            159.01604199999997
           ]
         },
         {
-          "id": "event-full-string",
+          "id": "event-sync-full",
           "status": "ok",
-          "avgMs": 203.49288866666666,
-          "minMs": 202.59145799999988,
-          "maxMs": 204.37024999999994,
-          "mibPerSec": 78.62599204722257,
+          "avgMs": 147.61744433333334,
+          "minMs": 145.80958299999998,
+          "maxMs": 149.73725000000013,
+          "mibPerSec": 108.38712401660766,
           "eventCount": 1024909,
-          "checksum": 1078379828,
-          "peakRssBytes": 266158080,
-          "peakHeapUsedBytes": 17843682,
+          "checksum": -855783368,
+          "peakRssBytes": 277987328,
+          "peakHeapUsedBytes": 17909411,
           "samplesMs": [
-            204.37024999999994,
-            202.59145799999988,
-            203.51695800000016
+            147.30549999999994,
+            149.73725000000013,
+            145.80958299999998
           ]
         }
       ],
+      "retention": {
+        "status": "disabled",
+        "requestedRuns": 0,
+        "evidenceOnly": true,
+        "scenarios": []
+      },
       "status": "ok"
     },
     {
@@ -204,78 +218,85 @@
       },
       "options": {
         "runs": 3,
-        "warmups": 1
+        "warmups": 1,
+        "retentionRuns": 0
       },
       "scenarios": [
         {
-          "id": "public-sync-full-string",
+          "id": "stream-sync-type-only",
           "status": "ok",
-          "avgMs": 138.30006966666667,
-          "minMs": 125.07362500000005,
-          "maxMs": 163.79720899999995,
-          "mibPerSec": 115.68924212789452,
+          "avgMs": 122.16274966666667,
+          "minMs": 120.41508299999998,
+          "maxMs": 124.61345799999998,
+          "mibPerSec": 130.97143187779272,
           "eventCount": 1024909,
-          "checksum": -26688828,
-          "peakRssBytes": 135561216,
-          "peakHeapUsedBytes": 30094488,
+          "checksum": 879435954,
+          "peakRssBytes": 145555456,
+          "peakHeapUsedBytes": 36543720,
           "samplesMs": [
-            126.02937500000002,
-            125.07362500000005,
-            163.79720899999995
+            120.41508299999998,
+            121.45970800000003,
+            124.61345799999998
           ]
         },
         {
-          "id": "cursor-sync-full-string",
+          "id": "stream-sync-name-text",
           "status": "ok",
-          "avgMs": 138.07491666666667,
-          "minMs": 125.41866700000003,
-          "maxMs": 160.42212499999994,
-          "mibPerSec": 115.87789174334716,
+          "avgMs": 181.73091666666673,
+          "minMs": 176.859333,
+          "maxMs": 189.92587500000013,
+          "mibPerSec": 88.04132251926501,
           "eventCount": 1024909,
-          "checksum": 113372214,
-          "peakRssBytes": 149618688,
-          "peakHeapUsedBytes": 36025344,
+          "checksum": -1201287088,
+          "peakRssBytes": 146046976,
+          "peakHeapUsedBytes": 32201712,
           "samplesMs": [
-            128.383958,
-            125.41866700000003,
-            160.42212499999994
+            178.40754200000003,
+            176.859333,
+            189.92587500000013
           ]
         },
         {
-          "id": "event-count-only",
+          "id": "stream-sync-full",
           "status": "ok",
-          "avgMs": 96.85890266666668,
-          "minMs": 96.63100000000009,
-          "maxMs": 97.0586659999999,
-          "mibPerSec": 165.1869864872825,
+          "avgMs": 238.89611100000002,
+          "minMs": 228.15983400000005,
+          "maxMs": 247.61079100000006,
+          "mibPerSec": 66.97400882332353,
           "eventCount": 1024909,
-          "checksum": 1485326873,
-          "peakRssBytes": 149700608,
-          "peakHeapUsedBytes": 37622784,
+          "checksum": -855783368,
+          "peakRssBytes": 164757504,
+          "peakHeapUsedBytes": 37432888,
           "samplesMs": [
-            96.88704200000006,
-            96.63100000000009,
-            97.0586659999999
+            240.91770799999995,
+            228.15983400000005,
+            247.61079100000006
           ]
         },
         {
-          "id": "event-full-string",
+          "id": "event-sync-full",
           "status": "ok",
-          "avgMs": 149.9430276666666,
-          "minMs": 122.79399999999987,
-          "maxMs": 163.78491600000007,
-          "mibPerSec": 106.70606359597042,
+          "avgMs": 262.01597166666653,
+          "minMs": 244.84766599999966,
+          "maxMs": 274.25079099999994,
+          "mibPerSec": 61.06433185808408,
           "eventCount": 1024909,
-          "checksum": 1078379828,
-          "peakRssBytes": 149880832,
-          "peakHeapUsedBytes": 36051040,
+          "checksum": -855783368,
+          "peakRssBytes": 166019072,
+          "peakHeapUsedBytes": 40112080,
           "samplesMs": [
-            122.79399999999987,
-            163.25016699999992,
-            163.78491600000007
+            274.25079099999994,
+            266.94945800000005,
+            244.84766599999966
           ]
         }
       ],
+      "retention": {
+        "status": "disabled",
+        "requestedRuns": 0,
+        "evidenceOnly": true,
+        "scenarios": []
+      },
       "status": "ok"
     }
   ]

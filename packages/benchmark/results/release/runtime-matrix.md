@@ -1,6 +1,6 @@
 # JavaScript Runtime Benchmark Matrix
 
-Generated: 2026-07-12T07:49:57.485Z
+Generated: 2026-07-18T12:36:23.232Z
 
 This fixture compares the same built `stax-xml` JavaScript implementation on Node, Bun, and Deno.
 It does not compare binary parser modules or non-JavaScript parser backends.
@@ -38,9 +38,9 @@ Output shape:
 
 ~~~text
 runtime-result = {
-  scenario: "public-sync-full-string" | "stream-sync-index-full-string" | "event-count-only" | "event-full-string",
+  scenario: "stream-sync-type-only" | "stream-sync-name-text" | "stream-sync-full" | "event-sync-full",
   eventCount: number,
-  checksum: fold(event type, names, text, attr names, attr values),
+  checksum: fold(the fields touched by that accessor tier),
   peakHeapUsedBytes: number
 }
 ~~~
@@ -50,9 +50,10 @@ Runtime methods:
 - Node reads text with `fs.readFileSync`, then runs the built package through `node --expose-gc`.
 - Bun reads text with `Bun.file(path).text()`, then runs the same built JavaScript package.
 - Deno reads text with `Deno.readTextFile` under `--allow-read --allow-env`, then runs the same built JavaScript package.
-- `public-sync-full-string` uses `EventReaderSync` over one string.
-- `stream-sync-index-full-string` uses `StreamReaderSync` over bytes and consumes each `StreamBatch` with `eventCount` plus index accessors.
-- `event-count-only` and `event-full-string` use public event reader checksum tiers; they are not async parser rows.
+- `stream-sync-type-only` advances `StreamReaderSync` and reads only each token type.
+- `stream-sync-name-text` additionally reads element/PI names and text payloads.
+- `stream-sync-full` additionally reads namespace and complete attribute fields.
+- `event-sync-full` materializes `EventReaderSync` events and folds the same full checksum.
 - This matrix measures only the public pure JavaScript reader path.
 
 </details>
@@ -61,23 +62,21 @@ Runtime methods:
 
 | Runtime | Version | Scenario | Throughput | Average | Events | Checksum | Peak heap | Status |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| node | 24.15.0 | public-sync-full-string | 122.8 MiB/s | 130.29 ms | 1024909 | -26688828 | 23.6 MiB | ok |
-| node | 24.15.0 | cursor-sync-full-string | 111.5 MiB/s | 143.51 ms | 1024909 | 113372214 | 22.8 MiB | ok |
-| node | 24.15.0 | event-count-only | 147.9 MiB/s | 108.18 ms | 1024909 | 1485326873 | 24.3 MiB | ok |
-| node | 24.15.0 | event-full-string | 117.8 MiB/s | 135.77 ms | 1024909 | 1078379828 | 28.2 MiB | ok |
-| bun | 1.3.13 | public-sync-full-string | 121.9 MiB/s | 131.20 ms | 1024909 | -26688828 | 16.9 MiB | ok |
-| bun | 1.3.13 | cursor-sync-full-string | 144.1 MiB/s | 111.01 ms | 1024909 | 113372214 | 33.0 MiB | ok |
-| bun | 1.3.13 | event-count-only | 157.0 MiB/s | 101.92 ms | 1024909 | 1485326873 | 38.4 MiB | ok |
-| bun | 1.3.13 | event-full-string | 78.6 MiB/s | 203.49 ms | 1024909 | 1078379828 | 17.0 MiB | ok |
-| deno | 2.7.14 (v8 14.7.173.20-rusty) | public-sync-full-string | 115.7 MiB/s | 138.30 ms | 1024909 | -26688828 | 28.7 MiB | ok |
-| deno | 2.7.14 (v8 14.7.173.20-rusty) | cursor-sync-full-string | 115.9 MiB/s | 138.07 ms | 1024909 | 113372214 | 34.4 MiB | ok |
-| deno | 2.7.14 (v8 14.7.173.20-rusty) | event-count-only | 165.2 MiB/s | 96.86 ms | 1024909 | 1485326873 | 35.9 MiB | ok |
-| deno | 2.7.14 (v8 14.7.173.20-rusty) | event-full-string | 106.7 MiB/s | 149.94 ms | 1024909 | 1078379828 | 34.4 MiB | ok |
+| node | 24.15.0 | stream-sync-type-only | 119.0 MiB/s | 134.40 ms | 1024909 | 879435954 | 22.0 MiB | ok |
+| node | 24.15.0 | stream-sync-name-text | 82.3 MiB/s | 194.32 ms | 1024909 | -1201287088 | 22.4 MiB | ok |
+| node | 24.15.0 | stream-sync-full | 64.5 MiB/s | 247.98 ms | 1024909 | -855783368 | 28.0 MiB | ok |
+| node | 24.15.0 | event-sync-full | 62.9 MiB/s | 254.57 ms | 1024909 | -855783368 | 30.6 MiB | ok |
+| bun | 1.3.13 | stream-sync-type-only | 197.0 MiB/s | 81.23 ms | 1024909 | 879435954 | 33.1 MiB | ok |
+| bun | 1.3.13 | stream-sync-name-text | 153.1 MiB/s | 104.48 ms | 1024909 | -1201287088 | 33.0 MiB | ok |
+| bun | 1.3.13 | stream-sync-full | 101.8 MiB/s | 157.21 ms | 1024909 | -855783368 | 33.0 MiB | ok |
+| bun | 1.3.13 | event-sync-full | 108.4 MiB/s | 147.62 ms | 1024909 | -855783368 | 17.1 MiB | ok |
+| deno | 2.7.14 (v8 14.7.173.20-rusty) | stream-sync-type-only | 131.0 MiB/s | 122.16 ms | 1024909 | 879435954 | 34.9 MiB | ok |
+| deno | 2.7.14 (v8 14.7.173.20-rusty) | stream-sync-name-text | 88.0 MiB/s | 181.73 ms | 1024909 | -1201287088 | 30.7 MiB | ok |
+| deno | 2.7.14 (v8 14.7.173.20-rusty) | stream-sync-full | 67.0 MiB/s | 238.90 ms | 1024909 | -855783368 | 35.7 MiB | ok |
+| deno | 2.7.14 (v8 14.7.173.20-rusty) | event-sync-full | 61.1 MiB/s | 262.02 ms | 1024909 | -855783368 | 38.3 MiB | ok |
 
 ## Contract
 
-- `public-sync-full-string` uses `EventReaderSync` and folds element names, text, attribute names, and attribute values into a checksum.
-- `stream-sync-index-full-string` uses `StreamReaderSync` and folds the same full-string checksum through batch-local index accessors.
-- `event-count-only` uses the public event reader without string field folding beyond event counts and attribute counts.
-- `event-full-string` uses the same public event reader and materializes the full string checksum workload.
-- All runtime rows must preserve event count and checksum for the same scenario.
+- `stream-sync-type-only`, `stream-sync-name-text`, and `stream-sync-full` isolate incremental public accessor cost.
+- `event-sync-full` is the fully materialized event-object reference workload.
+- All tiers must preserve event count; the two full tiers must also preserve the complete checksum.

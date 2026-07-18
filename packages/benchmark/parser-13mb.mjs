@@ -1,7 +1,7 @@
 import { barplot, bench, summary } from 'mitata';
 import { parseMitataCliArgs, runMitataWithCli, shouldPrintHumanReadableBanner } from './common/mitata-cli.mjs';
 import {
-  assertStaxParserSurfaceParity,
+  assertParserSurfaceParity,
   createStaxParserSurfaceRunners,
 } from './common/parser-scenarios.mjs';
 import { ASSET_PATHS, loadXmlBuffer } from './common/utils.mjs';
@@ -9,7 +9,7 @@ import { ASSET_PATHS, loadXmlBuffer } from './common/utils.mjs';
 const cli = parseMitataCliArgs();
 const inputBuffer = loadXmlBuffer(ASSET_PATHS.midsize);
 const xmlString = inputBuffer.toString('utf8');
-assertStaxParserSurfaceParity({ assetPath: ASSET_PATHS.midsize, xmlString, inputBuffer });
+await assertParserSurfaceParity({ assetPath: ASSET_PATHS.midsize, xmlString, inputBuffer });
 const staxSurfaceRunners = createStaxParserSurfaceRunners({ assetPath: ASSET_PATHS.midsize, xmlString, inputBuffer });
 
 if (shouldPrintHumanReadableBanner(cli)) {

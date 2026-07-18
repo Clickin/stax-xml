@@ -20,14 +20,12 @@ function fastXmlParserBigJsonBuilder() {
 async function staxXmlWriterBigJsonBuilder() {
   const stream = new WritableStream();
   const writer = new Writer(stream);
-  await writer.writeStartDocument();
   await writeWriterTreeAsync(writer, bigWriterTree);
   await writer.writeEndDocument();
 }
 
 function staxXmlWriterBigJsonBuilderSync() {
   const writer = new WriterSync();
-  writer.writeStartDocument();
   writeWriterTreeSync(writer, bigWriterTree);
   writer.writeEndDocument();
   return writer.getXmlString();
@@ -49,7 +47,6 @@ function createCountingSink() {
 function staxXmlWriterBigJsonBuilderSyncSink() {
   const { sink, getCharsWritten } = createCountingSink();
   const writer = new WriterSyncSink(sink);
-  writer.writeStartDocument();
   writeWriterTreeSync(writer, bigWriterTree);
   writer.writeEndDocument();
   return getCharsWritten();
