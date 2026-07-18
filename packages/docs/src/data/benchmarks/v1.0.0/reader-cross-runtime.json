@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-18T15:26:02.600Z",
+  "generatedAt": "2026-07-18T17:12:53.113Z",
   "fixture": {
     "path": "/Users/senghyunjo/github/stax-xml/packages/benchmark/test-data/runtime-comparison-16mib.xml",
     "sizeBytes": 16777038,
@@ -21,60 +21,60 @@
       {
         "events": 967965,
         "checksum": 36104832,
-        "seconds": 0.16875312499999973,
-        "throughputMiBs": 94.81205308625665
+        "seconds": 0.17057237499999975,
+        "throughputMiBs": 93.80082938970453
       },
       {
         "events": 967965,
         "checksum": 36104832,
-        "seconds": 0.1681722920000002,
-        "throughputMiBs": 95.13951469467789
+        "seconds": 0.17474641699999985,
+        "throughputMiBs": 91.56027643171473
       },
       {
         "events": 967965,
         "checksum": 36104832,
-        "seconds": 0.1727967920000001,
-        "throughputMiBs": 92.5933291977531
+        "seconds": 0.17504437499999995,
+        "throughputMiBs": 91.40442385521777
       }
     ],
     "woodstox": [
       {
         "events": 967965,
         "checksum": 36104832,
-        "seconds": 0.063181625,
-        "throughputMiBs": 253.23549759873504
+        "seconds": 0.065473167,
+        "throughputMiBs": 244.37232807100472
       },
       {
         "events": 967965,
         "checksum": 36104832,
-        "seconds": 0.0486,
-        "throughputMiBs": 329.2146141146436
+        "seconds": 0.047988959,
+        "throughputMiBs": 333.4064872291079
       },
       {
         "events": 967965,
         "checksum": 36104832,
-        "seconds": 0.049682666,
-        "throughputMiBs": 322.0404928747519
+        "seconds": 0.047876625,
+        "throughputMiBs": 334.1887663545975
       }
     ],
     "quick-xml": [
       {
         "events": 967965,
         "checksum": 36104832,
-        "seconds": 0.028855708,
-        "throughputMiBs": 554.4771331194396
+        "seconds": 0.028167917,
+        "throughputMiBs": 568.0160959708763
       },
       {
         "events": 967965,
         "checksum": 36104832,
-        "seconds": 0.027933708,
-        "throughputMiBs": 572.7786030401578
+        "seconds": 0.028065625,
+        "throughputMiBs": 570.0863688576926
       },
       {
         "events": 967965,
         "checksum": 36104832,
-        "seconds": 0.027302208,
-        "throughputMiBs": 586.0269706381139
+        "seconds": 0.028031709,
+        "throughputMiBs": 570.7761252077667
       }
     ]
   }

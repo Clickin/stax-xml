@@ -275,7 +275,6 @@ class Writer {
   // Stream Management
   close(): Promise<void>  // Closes the underlying stream
   flush(): Promise<void>  // Manual flush
-  getMetrics(): object    // Performance metrics
 }
 
 interface WriterOptions {
