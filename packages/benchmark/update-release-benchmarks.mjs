@@ -406,8 +406,11 @@ function measureStreamSizeCase(fixtureCase) {
 
   const timesMs = [];
   const heapDeltas = [];
-  const rssDeltas = [];
   let last;
+
+  globalThis.gc?.();
+  const rssBaselineBytes = process.memoryUsage().rss;
+  let rssPeakBytes = rssBaselineBytes;
 
   for (let index = 0; index < fixtureCase.runs; index++) {
     globalThis.gc?.();
@@ -418,7 +421,7 @@ function measureStreamSizeCase(fixtureCase) {
     const after = process.memoryUsage();
     timesMs.push(elapsedMs);
     heapDeltas.push(after.heapUsed - before.heapUsed);
-    rssDeltas.push(after.rss - before.rss);
+    rssPeakBytes = Math.max(rssPeakBytes, after.rss);
   }
 
   const avgMs = average(timesMs);
@@ -430,12 +433,26 @@ function measureStreamSizeCase(fixtureCase) {
     p99Ns: percentile(timesMs, 0.99) * 1e6,
     maxNs: Math.max(...timesMs) * 1e6,
     heapAvgBytes: average(heapDeltas),
-    rssDeltaBytes: average(rssDeltas),
+    rssBaselineBytes,
+    rssPeakBytes,
+    rssDeltaBytes: rssPeakBytes - rssBaselineBytes,
     bytes: actualBytes,
     events: last.events,
     checksum: last.checksum,
     throughputMiBs: (actualBytes / MIB) / (avgMs / 1000),
   };
+}
+
+function measureStreamSizeCaseIsolated(fixtureCase) {
+  const result = spawnSync(
+    process.execPath,
+    ['--expose-gc', fileURLToPath(import.meta.url), '--stream-size-case', fixtureCase.display],
+    { cwd: benchmarkDir, encoding: 'utf8', windowsHide: true },
+  );
+  if (result.status !== 0) {
+    throw new Error(`Stream-size worker failed for ${fixtureCase.display}:\n${result.stderr || result.stdout}`);
+  }
+  return JSON.parse(result.stdout);
 }
 
 function consumeCursorSize(row, targetBytes) {
@@ -470,7 +487,7 @@ function normalizeStreamReader4GiBCase(raw) {
     p99Ns: result.maxMs * 1e6,
     maxNs: result.maxMs * 1e6,
     heapAvgBytes: null,
-    rssDeltaBytes: result.memory?.avgRssDeltaBytes ?? result.avgRssDelta ?? null,
+    rssDeltaBytes: result.memory?.rssDeltaBytes ?? result.memory?.avgRssDeltaBytes ?? result.avgRssDelta ?? null,
     bytes: raw.fixture.actualBytes,
     events: result.events,
     checksum: result.checksum,
@@ -480,7 +497,7 @@ function normalizeStreamReader4GiBCase(raw) {
 
 function runStreamSizeSuite() {
   console.log('\n== StreamReaderSync iterable chunk size series ==');
-  const cases = streamSizeCases.map(measureStreamSizeCase);
+  const cases = streamSizeCases.map(measureStreamSizeCaseIsolated);
   const stream4GiB = readRequiredJson(
     streamReader4GiBPath,
     'pnpm --filter benchmark run release:stream-reader:4gb',
@@ -895,6 +912,14 @@ function updateConverterSection() {
 }
 
 async function main() {
+  const streamSizeCaseIndex = process.argv.indexOf('--stream-size-case');
+  if (streamSizeCaseIndex !== -1) {
+    const display = process.argv[streamSizeCaseIndex + 1];
+    const fixtureCase = streamSizeCases.find((entry) => entry.display === display);
+    if (!fixtureCase) throw new Error(`Unknown stream-size case: ${display}`);
+    process.stdout.write(JSON.stringify(measureStreamSizeCase(fixtureCase)));
+    return;
+  }
   if (process.argv.includes('--converter-only')) {
     updateConverterSection();
     return;

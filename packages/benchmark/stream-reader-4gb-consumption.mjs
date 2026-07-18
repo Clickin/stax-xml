@@ -71,7 +71,7 @@ if (allocationSampling) {
 for (const candidate of styles) {
   const measured = await measure(candidate);
   results.push({ style: candidate, ...measured });
-  console.log(`${candidate.padEnd(18)} avg=${measured.avgMs.toFixed(2)} ms throughput=${measured.avgMiBs.toFixed(2)} MiB/s min=${measured.minMs.toFixed(2)} ms max=${measured.maxMs.toFixed(2)} ms events=${measured.events} checksum=${measured.checksum} rssDelta=${formatSignedBytes(measured.memory.avgRssDeltaBytes)} strings=${measured.materialization.stringFieldReads}`);
+  console.log(`${candidate.padEnd(18)} avg=${measured.avgMs.toFixed(2)} ms throughput=${measured.avgMiBs.toFixed(2)} MiB/s min=${measured.minMs.toFixed(2)} ms max=${measured.maxMs.toFixed(2)} ms events=${measured.events} checksum=${measured.checksum} rssDelta=${formatSignedBytes(measured.memory.rssDeltaBytes)} strings=${measured.materialization.stringFieldReads}`);
 }
 
 const report = {
@@ -137,6 +137,8 @@ async function measure(candidate) {
   const times = [];
   const memorySamples = [];
   let last;
+  globalThis.gc?.();
+  const memoryBaseline = takeMemorySnapshot();
   const session = allocationSampling ? new inspector.Session() : null;
   try {
     if (session) {
@@ -166,7 +168,7 @@ async function measure(candidate) {
 
     const avgMs = average(times);
     const avgMiBs = (expectedBytes / MIB) / (avgMs / 1000);
-    const memory = summarizeMemorySamples(memorySamples);
+    const memory = summarizeMemorySamples(memoryBaseline, memorySamples);
     return {
       ...last,
       avgMs,
@@ -280,14 +282,17 @@ function createMemorySample(before, after) {
   };
 }
 
-function summarizeMemorySamples(samples) {
+function summarizeMemorySamples(baseline, samples) {
+  const maxRssBytes = Math.max(baseline.rssBytes, ...samples.map((sample) => sample.after.rssBytes));
   return {
+    rssBaselineBytes: baseline.rssBytes,
+    rssDeltaBytes: maxRssBytes - baseline.rssBytes,
     avgRssDeltaBytes: average(samples.map((sample) => sample.delta.rssBytes)),
     avgHeapUsedDeltaBytes: average(samples.map((sample) => sample.delta.heapUsedBytes)),
     avgHeapTotalDeltaBytes: average(samples.map((sample) => sample.delta.heapTotalBytes)),
     avgExternalDeltaBytes: average(samples.map((sample) => sample.delta.externalBytes)),
     avgArrayBuffersDeltaBytes: average(samples.map((sample) => sample.delta.arrayBuffersBytes)),
-    maxRssBytes: Math.max(...samples.map((sample) => sample.after.rssBytes)),
+    maxRssBytes,
     maxHeapUsedBytes: Math.max(...samples.map((sample) => sample.after.heapUsedBytes)),
     samples,
   };
@@ -502,14 +507,14 @@ function renderMarkdown(report) {
   lines.push('');
   lines.push('## Memory');
   lines.push('');
-  lines.push('Memory uses `process.memoryUsage()` before and after each measured run; max values are the maximum observed run endpoints.');
+  lines.push('RSS delta is the maximum measured-run endpoint minus the post-warmup, post-GC baseline in the same process.');
   lines.push('');
-  lines.push('| Style | Avg heap delta | Avg RSS delta | Max heap used | Max RSS |');
+  lines.push('| Style | Avg heap delta | RSS delta | Max heap used | Max RSS |');
   lines.push('| --- | ---: | ---: | ---: | ---: |');
   for (const result of report.results) {
     lines.push(
       `| ${result.style} | ${formatSignedBytes(result.memory.avgHeapUsedDeltaBytes)} | ` +
-      `${formatSignedBytes(result.memory.avgRssDeltaBytes)} | ${formatBytes(result.memory.maxHeapUsedBytes)} | ` +
+      `${formatSignedBytes(result.memory.rssDeltaBytes)} | ${formatBytes(result.memory.maxHeapUsedBytes)} | ` +
       `${formatBytes(result.memory.maxRssBytes)} |`,
     );
   }
