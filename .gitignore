@@ -6,6 +6,7 @@ CLAUDE.md
 .claude/
 .agents/
 .codex/
+/.ai-internal/
 .specify/
 .planning/
 .omx/
