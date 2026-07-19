@@ -126,7 +126,15 @@ describe('TokenCursor XML character checks', () => {
     expect(() => collect(xml)).toThrow(/invalid XML character/i);
   });
 
-  it.each(['<r>&#1;</r>', '<r>&#xFFFF;</r>', '<r>&#12x;</r>', '<r>&#x1g;</r>', '<r>&#X58;</r>'])('rejects invalid character references', (xml) => {
+  it.each([
+    '<r>&#1;</r>',
+    '<r>&#xD800;</r>',
+    '<r>&#xFFFF;</r>',
+    '<r>&#1114112;</r>',
+    '<r>&#12x;</r>',
+    '<r>&#x1g;</r>',
+    '<r>&#X58;</r>',
+  ])('rejects invalid character references', (xml) => {
     expect(() => collect(xml)).toThrow(/invalid entity/i);
   });
 

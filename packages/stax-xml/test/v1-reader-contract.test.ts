@@ -285,6 +285,19 @@ describe('v1 current-token reader contract', () => {
     expect(reader.attributeValue('title')).toBe('Θ');
   });
 
+  it.each([
+    ['leading zero forms', '&#00065;&#x000042;', 'AB'],
+    ['BMP scripts and symbols', '&#169;&#x20AC;&#xD55C;', '©€한'],
+    ['supplementary-plane scalars', '&#128578;&#x1F680;', '🙂🚀'],
+    ['XML whitespace boundaries', '&#9;&#10;&#13;&#32;', '\t\n\r '],
+    ['the highest XML 1.0 scalar', '&#x10FFFF;', '\u{10FFFF}'],
+  ])('decodes %s', (_label, source, expected) => {
+    expect(collectSync(`<r>${source}</r>`)).toContainEqual([
+      XmlEventType.CHARACTERS,
+      expected,
+    ]);
+  });
+
   it('can preserve raw entity spelling while still validating references', async () => {
     const xml = '<r a="&#x398;&product;">&#920;&product;&amp;product;<![CDATA[&product;]]></r>';
     const options = {
