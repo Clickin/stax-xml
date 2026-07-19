@@ -24,6 +24,10 @@ head:
 
 StAX-XML includes a synchronous XML writer that generates XML documents programmatically. `WriterSync` builds a complete XML string in memory. `WriterSyncSink` uses the same synchronous writer model but writes incrementally to a sink, so large output can keep high throughput without retaining the whole XML string.
 
+In v1.1, `writeEvent()` accepts events from `EventReaderSync`, enabling a
+fixture → reader → modify → writer pipeline without manual event dispatch. See
+[XML Transformation Pipelines](/stax-xml/guide/event-pipelines/).
+
 For large file output, prefer the sink path. The 1GiB writer benchmark shows `WriterSyncSink` has the best write throughput while peak RSS stays in the same range as async writing.
 
 ### 🔧 Quick Start
@@ -419,7 +423,7 @@ class WriterSync {
   )
 
   // Document Level Methods
-  writeStartDocument(version?: '1.0', encoding?: string): this // UTF-8 only
+  writeStartDocument(version?: '1.0', encoding?: string, standalone?: boolean): this // UTF-8 only
   writeEndDocument(): void
 
   // Element Writing Methods
@@ -435,6 +439,8 @@ class WriterSync {
   writeCData(cdata: string): this
   writeComment(comment: string): this
   writeProcessingInstruction(target: string, data?: string): this
+  writeDTD(value: string): this
+  writeEvent(event: AnyXmlEvent): this
   writeRaw(xml: string): this
 
   // Utility Methods

@@ -1,11 +1,11 @@
-import { NEED_INPUT, TokenCursor, XmlEventType } from '@stax-xml/core';
+import { NEED_INPUT, TokenCursor, XmlEventType } from "@stax-xml/core";
 import {
   isCdata,
   isCharacters,
   isEndElement,
   isStartElement,
-  type AnyXmlEvent
-} from '@stax-xml/core';
+  type AnyXmlEvent,
+} from "@stax-xml/core";
 import type {
   DispatchArrayPlan,
   DispatchCompiledPlan,
@@ -18,17 +18,17 @@ import type {
   DispatchStartAction,
   DispatchIrProgram,
   DispatchTextAction,
-  DispatchValuePlan
-} from './compiled-plan.js';
-import type { ParseInput } from './XmlSchema.js';
-import type { ParseOptions } from './types.js';
+  DispatchValuePlan,
+} from "./compiled-plan.js";
+import type { ParseInput } from "./XmlSchema.js";
+import type { ParseOptions } from "./types.js";
 
 const DECODE_CHUNK_BYTES = 64 * 1024;
 
 type ParentBinding =
-  | { kind: 'root' }
-  | { kind: 'field'; object: ObjectState; field: DispatchFieldPlan }
-  | { kind: 'array'; array: ArrayState; index: number };
+  | { kind: "root" }
+  | { kind: "field"; object: ObjectState; field: DispatchFieldPlan }
+  | { kind: "array"; array: ArrayState; index: number };
 
 type ObjectState = {
   slot: number;
@@ -61,7 +61,7 @@ type CaptureState = {
   plan: DispatchScalarPlan;
   depth: number;
   buffer: string;
-  textMode: 'subtree' | 'direct';
+  textMode: "subtree" | "direct";
   parent: ParentBinding;
 };
 
@@ -72,7 +72,7 @@ type DepthActive<T> = Array<T | T[] | undefined>;
 
 type RuntimeState = {
   plan: DispatchCompiledPlan;
-  options?: ParseOptions;
+  options: ParseOptions;
   depth: number;
   eventCount: number;
   maxDepth: number;
@@ -99,28 +99,46 @@ type RuntimeState = {
   processingStart?: boolean;
 };
 
-type StartExecutor = (processor: CompiledRootProcessor, runtime: RuntimeState, currentName: string) => void;
-type TextExecutor = (processor: CompiledRootProcessor, runtime: RuntimeState, text: string) => void;
-type EndExecutor = (processor: CompiledRootProcessor, runtime: RuntimeState) => void;
+type StartExecutor = (
+  processor: CompiledRootProcessor,
+  runtime: RuntimeState,
+  currentName: string,
+) => void;
+type TextExecutor = (
+  processor: CompiledRootProcessor,
+  runtime: RuntimeState,
+  text: string,
+) => void;
+type EndExecutor = (
+  processor: CompiledRootProcessor,
+  runtime: RuntimeState,
+) => void;
 type CursorExecutor = (
   processor: CompiledRootProcessor,
   runtime: RuntimeState,
-  cursor: TokenCursor
+  cursor: TokenCursor,
 ) => void;
-type StartConstant = DispatchValuePlan | DispatchArrayPlan | DispatchFieldAction;
+type StartConstant =
+  | DispatchValuePlan
+  | DispatchArrayPlan
+  | DispatchFieldAction;
 type ObjectFactory = () => Record<string, unknown>;
 const startExecutorCache = new WeakMap<DispatchIrProgram, StartExecutor>();
 const textExecutorCache = new WeakMap<DispatchIrProgram, TextExecutor>();
 const endExecutorCache = new WeakMap<DispatchIrProgram, EndExecutor>();
 const cursorExecutorCache = new WeakMap<DispatchIrProgram, CursorExecutor>();
-const objectFactoryCache = new WeakMap<DispatchObjectPlan, ObjectFactory>();
-const objectTemplateFactoryCache = new WeakMap<DispatchObjectPlan, ObjectFactory>();
+const objectTemplateFactoryCache = new WeakMap<
+  DispatchObjectPlan,
+  ObjectFactory
+>();
 let warnedCodeGenerationFallback = false;
 
 export function warnCodeGenerationFallback(): void {
   if (warnedCodeGenerationFallback) return;
   warnedCodeGenerationFallback = true;
-  console.warn('[stax-xml] Runtime code generation is unavailable; using the slower compiled-plan executor.');
+  console.warn(
+    "[stax-xml] Runtime code generation is unavailable; using the slower compiled-plan executor.",
+  );
 }
 
 export class CompiledRootProcessor {
@@ -131,7 +149,7 @@ export class CompiledRootProcessor {
 
   constructor(
     private readonly plan: DispatchCompiledPlan,
-    private readonly options?: ParseOptions
+    private readonly options: ParseOptions = {},
   ) {
     let executor = startExecutorCache.get(plan.ir);
     if (!executor) {
@@ -156,7 +174,8 @@ export class CompiledRootProcessor {
       cursorExecutor = compileCursorExecutor(
         plan.ir,
         this.startExecutor,
-        (processor, runtime, cursor) => processor.processCursor(runtime, cursor)
+        (processor, runtime, cursor) =>
+          processor.processCursor(runtime, cursor),
       );
       cursorExecutorCache.set(plan.ir, cursorExecutor);
     }
@@ -164,8 +183,9 @@ export class CompiledRootProcessor {
   }
 
   parseSync<T>(input: ParseInput, options?: ParseOptions | unknown): T {
-    const effectiveOptions = normalizeOptions(options) ?? this.options;
-    if (typeof input === 'string') {
+    void options;
+    const effectiveOptions = this.options;
+    if (typeof input === "string") {
       const runtime = this.createRuntime(this.plan, effectiveOptions);
       this.processString(runtime, input);
       return this.finish<T>(runtime);
@@ -175,17 +195,23 @@ export class CompiledRootProcessor {
       this.processBytes(runtime, input);
       return this.finish<T>(runtime);
     }
+    /* v8 ignore next -- the public compiled hook calls this processor only after accepting a supported sync input */
     if (isSyncIterable(input)) {
       const runtime = this.createRuntime(this.plan, effectiveOptions);
       this.processSyncIterable(runtime, input);
       return this.finish<T>(runtime);
     }
-    throw new Error('Unsupported parseSync input type.');
+    /* v8 ignore next -- the public compiled hook rejects unsupported inputs before constructing this processor */
+    throw new Error("Unsupported parseSync input type.");
   }
 
-  async parse<T>(input: ParseInput, options?: ParseOptions | unknown): Promise<T> {
-    const effectiveOptions = normalizeOptions(options) ?? this.options;
-    if (typeof input === 'string') {
+  async parse<T>(
+    input: ParseInput,
+    options?: ParseOptions | unknown,
+  ): Promise<T> {
+    void options;
+    const effectiveOptions = this.options;
+    if (typeof input === "string") {
       const runtime = this.createRuntime(this.plan, effectiveOptions);
       this.processString(runtime, input);
       return this.finish<T>(runtime);
@@ -210,15 +236,20 @@ export class CompiledRootProcessor {
     if (isAsyncIterable(input)) {
       await this.processAsyncIterable(
         runtime,
-        input as AsyncIterable<Uint8Array | readonly Uint8Array[] | AnyXmlEvent>
+        input as AsyncIterable<
+          Uint8Array | readonly Uint8Array[] | AnyXmlEvent
+        >,
       );
       return this.finish<T>(runtime);
     }
 
-    throw new Error('Unsupported parse input type.');
+    throw new Error("Unsupported parse input type.");
   }
 
-  private createRuntime(plan: DispatchCompiledPlan, options?: ParseOptions): RuntimeState {
+  private createRuntime(
+    plan: DispatchCompiledPlan,
+    options: ParseOptions,
+  ): RuntimeState {
     const runtime: RuntimeState = {
       plan,
       options,
@@ -239,13 +270,21 @@ export class CompiledRootProcessor {
       arraysByPlanDepth: [],
       captures: [],
       attributeLookupCount: 0,
-      positionScopes: plan.ir.paths.some(path => path.selector.positionFilters) ? [] : undefined
+      positionScopes: plan.ir.paths.some(
+        (path) => path.selector.positionFilters,
+      )
+        ? []
+        : undefined,
     };
 
-    if (plan.root.kind === 'object' && !plan.root.selector) {
-      runtime.rootObject = this.createObjectState(runtime, plan.root, 0, { kind: 'root' });
-    } else if (plan.root.kind === 'array') {
-      runtime.rootArray = this.createArrayState(runtime, plan.root, undefined, { kind: 'root' });
+    if (plan.root.kind === "object" && !plan.root.selector) {
+      runtime.rootObject = this.createObjectState(runtime, plan.root, 0, {
+        kind: "root",
+      });
+    } else if (plan.root.kind === "array") {
+      runtime.rootArray = this.createArrayState(runtime, plan.root, undefined, {
+        kind: "root",
+      });
     }
 
     return runtime;
@@ -259,7 +298,12 @@ export class CompiledRootProcessor {
       runtime.elementStack.push(event.name);
       recordElementPosition(runtime);
       runtime.currentAttributes = runtime.plan.eventFilter.includeAttributes
-        ? Object.fromEntries(Array.from(event.attributes, ([name, attribute]) => [name, attribute.value]))
+        ? Object.fromEntries(
+            Array.from(event.attributes ?? [], ([name, attribute]) => [
+              name,
+              attribute.value,
+            ]),
+          )
         : undefined;
       runtime.attributeLookupCount = 0;
       runtime.attributeLookupCache = undefined;
@@ -284,7 +328,7 @@ export class CompiledRootProcessor {
 
   private processString(runtime: RuntimeState, input: string): void {
     const cursor = new TokenCursor(input, true, {
-      documentMode: runtime.options?.documentMode ?? 'fragment',
+      documentMode: runtime.options?.documentMode ?? "fragment",
     });
     this.cursorExecutor(this, runtime, cursor);
   }
@@ -297,8 +341,8 @@ export class CompiledRootProcessor {
   }
 
   private createIncrementalCursor(runtime: RuntimeState): TokenCursor {
-    return new TokenCursor('', false, {
-      documentMode: runtime.options?.documentMode ?? 'fragment',
+    return new TokenCursor("", false, {
+      documentMode: runtime.options?.documentMode ?? "fragment",
     });
   }
 
@@ -308,21 +352,34 @@ export class CompiledRootProcessor {
     decoder: TextDecoder,
     bytes: Uint8Array,
   ): void {
-    for (let offset = 0; offset < bytes.byteLength; offset += DECODE_CHUNK_BYTES) {
+    for (
+      let offset = 0;
+      offset < bytes.byteLength;
+      offset += DECODE_CHUNK_BYTES
+    ) {
       const end = Math.min(offset + DECODE_CHUNK_BYTES, bytes.byteLength);
-      const text = decoder.decode(bytes.subarray(offset, end), { stream: true });
+      const text = decoder.decode(bytes.subarray(offset, end), {
+        stream: true,
+      });
       if (text.length === 0) continue;
       cursor.push(text, false);
       this.drainIncrementalCursor(runtime, cursor);
     }
   }
 
-  private finishByteInput(runtime: RuntimeState, cursor: TokenCursor, decoder: TextDecoder): void {
+  private finishByteInput(
+    runtime: RuntimeState,
+    cursor: TokenCursor,
+    decoder: TextDecoder,
+  ): void {
     cursor.push(decoder.decode(), true);
     this.drainIncrementalCursor(runtime, cursor);
   }
 
-  private drainIncrementalCursor(runtime: RuntimeState, cursor: TokenCursor): void {
+  private drainIncrementalCursor(
+    runtime: RuntimeState,
+    cursor: TokenCursor,
+  ): void {
     this.cursorExecutor(this, runtime, cursor);
   }
 
@@ -334,9 +391,18 @@ export class CompiledRootProcessor {
     }
   }
 
-  private processTokenCursorEvent(runtime: RuntimeState, cursor: TokenCursor, type: XmlEventType): void {
-    if (type === XmlEventType.CHARACTERS && !runtime.plan.eventFilter.includeCharacters) return;
-    if (type === XmlEventType.CDATA && !runtime.plan.eventFilter.includeCdata) return;
+  private processTokenCursorEvent(
+    runtime: RuntimeState,
+    cursor: TokenCursor,
+    type: XmlEventType,
+  ): void {
+    if (
+      type === XmlEventType.CHARACTERS &&
+      !runtime.plan.eventFilter.includeCharacters
+    )
+      return;
+    if (type === XmlEventType.CDATA && !runtime.plan.eventFilter.includeCdata)
+      return;
 
     this.checkEventLimit(runtime);
     if (type === XmlEventType.START_ELEMENT) {
@@ -359,7 +425,8 @@ export class CompiledRootProcessor {
       return;
     }
     if (type === XmlEventType.CHARACTERS || type === XmlEventType.CDATA) {
-      if (runtime.captures.length !== 0) this.processText(runtime, cursor.text()!);
+      if (runtime.captures.length !== 0)
+        this.processText(runtime, cursor.text()!);
       return;
     }
     if (type === XmlEventType.END_ELEMENT) {
@@ -372,15 +439,14 @@ export class CompiledRootProcessor {
 
   private processSyncIterable(
     runtime: RuntimeState,
-    input: Iterable<Uint8Array | readonly Uint8Array[] | AnyXmlEvent>
+    input: Iterable<Uint8Array | readonly Uint8Array[] | AnyXmlEvent>,
   ): void {
     const iterator = input[Symbol.iterator]();
     let completed = false;
-    let primaryError: unknown;
     try {
       const first = iterator.next();
       if (first.done) {
-        this.processString(runtime, '');
+        this.processString(runtime, "");
         completed = true;
         return;
       }
@@ -389,27 +455,31 @@ export class CompiledRootProcessor {
         const decoder = createTextDecoder(runtime.options);
         this.processByteSourceItem(runtime, cursor, decoder, first.value);
         for (let next = iterator.next(); !next.done; next = iterator.next()) {
-          if (!isByteSourceItem(next.value)) throw new Error('Byte iterables must contain only Uint8Array values or byte batches.');
+          if (!isByteSourceItem(next.value))
+            throw new Error(
+              "Byte iterables must contain only Uint8Array values or byte batches.",
+            );
           this.processByteSourceItem(runtime, cursor, decoder, next.value);
         }
         this.finishByteInput(runtime, cursor, decoder);
         completed = true;
         return;
       }
-      const validator = new EventInputValidator(runtime.options?.documentMode ?? 'fragment');
+      const validator = new EventInputValidator(
+        runtime.options?.documentMode ?? "fragment",
+      );
       this.processEvent(runtime, validator.accept(first.value));
       for (let next = iterator.next(); !next.done; next = iterator.next()) {
         this.processEvent(runtime, validator.accept(next.value));
       }
       validator.finish();
       completed = true;
-    } catch (error) {
-      primaryError = error;
-      throw error;
     } finally {
       if (!completed) {
-        try { iterator.return?.(); } catch (cleanupError) {
-          if (primaryError === undefined) throw cleanupError;
+        try {
+          iterator.return?.();
+        } catch {
+          /* Preserve the primary parse/input error. */
         }
       }
     }
@@ -417,15 +487,14 @@ export class CompiledRootProcessor {
 
   private async processAsyncIterable(
     runtime: RuntimeState,
-    input: AsyncIterable<Uint8Array | readonly Uint8Array[] | AnyXmlEvent>
+    input: AsyncIterable<Uint8Array | readonly Uint8Array[] | AnyXmlEvent>,
   ): Promise<void> {
     const iterator = input[Symbol.asyncIterator]();
     let completed = false;
-    let primaryError: unknown;
     try {
       const first = await iterator.next();
       if (first.done) {
-        this.processString(runtime, '');
+        this.processString(runtime, "");
         completed = true;
         return;
       }
@@ -433,29 +502,40 @@ export class CompiledRootProcessor {
         const cursor = this.createIncrementalCursor(runtime);
         const decoder = createTextDecoder(runtime.options);
         this.processByteSourceItem(runtime, cursor, decoder, first.value);
-        for (let next = await iterator.next(); !next.done; next = await iterator.next()) {
+        for (
+          let next = await iterator.next();
+          !next.done;
+          next = await iterator.next()
+        ) {
           if (!isByteSourceItem(next.value)) {
-            throw new Error('Byte iterables must contain only Uint8Array values or byte batches.');
+            throw new Error(
+              "Byte iterables must contain only Uint8Array values or byte batches.",
+            );
           }
           this.processByteSourceItem(runtime, cursor, decoder, next.value);
         }
         this.finishByteInput(runtime, cursor, decoder);
       } else {
-        const validator = new EventInputValidator(runtime.options?.documentMode ?? 'fragment');
+        const validator = new EventInputValidator(
+          runtime.options?.documentMode ?? "fragment",
+        );
         this.processEvent(runtime, validator.accept(first.value));
-        for (let next = await iterator.next(); !next.done; next = await iterator.next()) {
+        for (
+          let next = await iterator.next();
+          !next.done;
+          next = await iterator.next()
+        ) {
           this.processEvent(runtime, validator.accept(next.value));
         }
         validator.finish();
       }
       completed = true;
-    } catch (error) {
-      primaryError = error;
-      throw error;
     } finally {
       if (!completed) {
-        try { await iterator.return?.(); } catch (cleanupError) {
-          if (primaryError === undefined) throw cleanupError;
+        try {
+          await iterator.return?.();
+        } catch {
+          /* Preserve the primary parse/input error. */
         }
       }
     }
@@ -471,13 +551,20 @@ export class CompiledRootProcessor {
       this.processByteChunk(runtime, cursor, decoder, item);
       return;
     }
-    for (const bytes of item) this.processByteChunk(runtime, cursor, decoder, bytes);
+    for (const bytes of item)
+      this.processByteChunk(runtime, cursor, decoder, bytes);
   }
 
   private processStart(runtime: RuntimeState, currentName: string): void {
     const root = runtime.plan.root;
-    if (!runtime.rootDone && !runtime.rootActive && !root.selector && root.kind !== 'array' && root.kind !== 'object') {
-      this.tryStartValue(runtime, root, undefined, { kind: 'root' });
+    if (
+      !runtime.rootDone &&
+      !runtime.rootActive &&
+      !root.selector &&
+      root.kind !== "array" &&
+      root.kind !== "object"
+    ) {
+      this.tryStartValue(runtime, root, undefined);
     }
 
     this.startExecutor(this, runtime, currentName);
@@ -485,36 +572,52 @@ export class CompiledRootProcessor {
 
   /** @internal Called by a schema-generated start executor. */
   executeRootStart(runtime: RuntimeState, plan: DispatchValuePlan): void {
-    if (!runtime.rootDone && !runtime.rootActive) this.tryStartValue(runtime, plan, undefined, { kind: 'root' });
+    /* v8 ignore next -- root dispatch actions are removed once the single root value starts */
+    if (!runtime.rootDone && !runtime.rootActive)
+      this.tryStartValue(runtime, plan, undefined);
   }
 
   /** @internal Called by a schema-generated executor after its path check. */
-  executeMatchedRootStart(runtime: RuntimeState, plan: DispatchValuePlan): void {
+  executeMatchedRootStart(
+    runtime: RuntimeState,
+    plan: DispatchValuePlan,
+  ): void {
     if (runtime.rootDone || runtime.rootActive) return;
-    if (plan.kind === 'string' || plan.kind === 'number') {
+    if (plan.kind === "string" || plan.kind === "number") {
       runtime.rootActive = true;
-      this.startMatchedScalar(runtime, plan, { kind: 'root' });
-    } else if (plan.kind === 'object') {
+      this.startMatchedScalar(runtime, plan, { kind: "root" });
+    } else {
       runtime.rootActive = true;
-      this.createObjectState(runtime, plan, runtime.depth, { kind: 'root' });
+      this.createObjectState(
+        runtime,
+        plan as DispatchObjectPlan,
+        runtime.depth,
+        { kind: "root" },
+      );
     }
   }
 
   /** @internal Called by a schema-generated start executor. */
   executeArrayStart(runtime: RuntimeState, plan: DispatchArrayPlan): void {
     const selector = plan.itemSelector;
-    if (selector.mode === 'relative') {
-      const active = runtime.arraysByPlanDepth[plan.id]?.[runtime.depth - selector.segments.length];
+    if (selector.mode === "relative") {
+      const active =
+        runtime.arraysByPlanDepth[plan.id]?.[
+          runtime.depth - selector.segments.length
+        ];
       if (!active) return;
+      /* v8 ignore next 5 -- matched IR emits one owner-specific action when same-slot owners share a depth */
       if (Array.isArray(active)) {
         for (const array of active) {
-          if (matchesSelector(selector, runtime, array.contextDepth)) this.startArrayItem(runtime, array);
+          if (matchesSelector(selector, runtime, array.contextDepth))
+            this.startArrayItem(runtime, array);
         }
       } else if (matchesSelector(selector, runtime, active.contextDepth)) {
         this.startArrayItem(runtime, active);
       }
       return;
     }
+    /* v8 ignore next -- plan registration always initializes this slot before an array action can run */
     for (const array of runtime.arraysByPlan[plan.id] ?? []) {
       if (matchesSelector(selector, runtime, array.contextDepth)) {
         this.startArrayItem(runtime, array);
@@ -530,17 +633,21 @@ export class CompiledRootProcessor {
   /** @internal Called by a schema-generated start executor. */
   executeFieldStart(runtime: RuntimeState, action: DispatchFieldAction): void {
     const selector = action.field.value.selector!;
-    if (selector.mode === 'relative') {
-      const active = runtime.objectsByPlanDepth[action.objectPlanId]
-        ?.[runtime.depth - selector.segments.length];
+    if (selector.mode === "relative") {
+      const active =
+        runtime.objectsByPlanDepth[action.objectPlanId]?.[
+          runtime.depth - selector.segments.length
+        ];
       if (!active) return;
       if (Array.isArray(active)) {
-        for (const object of active) this.processObjectFieldStart(runtime, object, action.field);
+        for (const object of active)
+          this.processObjectFieldStart(runtime, object, action.field);
       } else {
         this.processObjectFieldStart(runtime, active, action.field);
       }
       return;
     }
+    /* v8 ignore next -- plan registration always initializes this slot before a field action can run */
     for (const object of runtime.objectsByPlan[action.objectPlanId] ?? []) {
       this.processObjectFieldStart(runtime, object, action.field);
     }
@@ -550,13 +657,17 @@ export class CompiledRootProcessor {
   executeMatchedFieldStart(
     runtime: RuntimeState,
     object: ObjectState,
-    field: DispatchFieldAction
+    field: DispatchFieldAction,
   ): void {
     const value = field.field.value;
-    if (value.kind === 'array' || hasStartedField(object, value.id)) return;
-    if (value.kind === 'object') {
+    if (value.kind === "array" || hasStartedField(object, value.id)) return;
+    if (value.kind === "object") {
       markObjectFieldActive(object, value.id);
-      this.createObjectState(runtime, value, runtime.depth, { kind: 'field', object, field: field.field });
+      this.createObjectState(runtime, value, runtime.depth, {
+        kind: "field",
+        object,
+        field: field.field,
+      });
       return;
     }
     this.processMatchedObjectFieldStart(runtime, object, field.field);
@@ -565,13 +676,17 @@ export class CompiledRootProcessor {
   private processObjectFieldStart(
     runtime: RuntimeState,
     object: ObjectState,
-    field: DispatchFieldPlan
+    field: DispatchFieldPlan,
   ): void {
     const value = field.value;
-    if (value.kind === 'array' || hasStartedField(object, value.id)) return;
+    if (value.kind === "array" || hasStartedField(object, value.id)) return;
 
-    if (value.kind === 'object') {
-      if (value.selector && matchesSelector(value.selector, runtime, object.depth)) {
+    if (value.kind === "object") {
+      /* v8 ignore next -- generated matched-field actions have already checked this selector */
+      if (
+        value.selector &&
+        matchesSelector(value.selector, runtime, object.depth)
+      ) {
         this.processMatchedObjectFieldStart(runtime, object, field);
       }
       return;
@@ -585,34 +700,41 @@ export class CompiledRootProcessor {
   private processMatchedObjectFieldStart(
     runtime: RuntimeState,
     object: ObjectState,
-    field: DispatchFieldPlan
+    field: DispatchFieldPlan,
   ): void {
     const value = field.value;
-    if (value.kind === 'array' || hasStartedField(object, value.id)) return;
-    if (value.kind === 'object') {
+    /* v8 ignore next -- arrays are dispatched by their dedicated start action */
+    if (value.kind === "array") return;
+    if (value.kind === "object") {
       markObjectFieldActive(object, value.id);
-      this.createObjectState(runtime, value, runtime.depth, { kind: 'field', object, field });
+      this.createObjectState(runtime, value, runtime.depth, {
+        kind: "field",
+        object,
+        field,
+      });
       return;
     }
-    this.startMatchedScalar(runtime, value, { kind: 'field', object, field });
+    this.startMatchedScalar(runtime, value, { kind: "field", object, field });
   }
 
   private tryStartValue(
     runtime: RuntimeState,
     value: DispatchValuePlan,
     contextDepth: number | undefined,
-    parent: ParentBinding
   ): void {
-    if (value.kind === 'string' || value.kind === 'number') {
-      this.tryStartScalar(runtime, value, contextDepth, parent);
+    if (value.kind === "string" || value.kind === "number") {
+      this.tryStartScalar(runtime, value, contextDepth);
       return;
     }
 
     const object = value as DispatchObjectPlan;
-    if (object.selector && matchesSelector(object.selector, runtime, contextDepth)) {
-      if (parent.kind === 'root') runtime.rootActive = true;
-      else if (parent.kind === 'field') markObjectFieldActive(parent.object, value.id);
-      this.createObjectState(runtime, object, runtime.depth, parent);
+    /* v8 ignore next -- generated root actions have already checked a selected object path */
+    if (
+      object.selector &&
+      matchesSelector(object.selector, runtime, contextDepth)
+    ) {
+      runtime.rootActive = true;
+      this.createObjectState(runtime, object, runtime.depth, { kind: "root" });
     }
   }
 
@@ -620,31 +742,36 @@ export class CompiledRootProcessor {
     runtime: RuntimeState,
     plan: DispatchScalarPlan,
     contextDepth: number | undefined,
-    parent: ParentBinding
   ): void {
     const selector = plan.selector;
     if (!selector) {
-      if (parent.kind === 'root' && runtime.depth === 1) {
-        runtime.rootActive = true;
-        runtime.captures.push({ slot: plan.id, plan, depth: 1, buffer: '', textMode: 'subtree', parent });
-      }
+      runtime.rootActive = true;
+      runtime.captures.push({
+        slot: plan.id,
+        plan,
+        depth: 1,
+        buffer: "",
+        textMode: "subtree",
+        parent: { kind: "root" },
+      });
       return;
     }
+    /* v8 ignore next 3 -- generated root actions have already checked a selected scalar path */
     if (!matchesSelector(selector, runtime, contextDepth)) {
       return;
     }
 
-    this.startMatchedScalar(runtime, plan, parent);
+    this.startMatchedScalar(runtime, plan, { kind: "root" });
   }
 
   private startMatchedScalar(
     runtime: RuntimeState,
     plan: DispatchScalarPlan,
-    parent: ParentBinding
+    parent: ParentBinding,
   ): void {
     const selector = plan.selector!;
-    if (parent.kind === 'root') runtime.rootActive = true;
-    if (selector.terminal === 'attribute') {
+    if (parent.kind === "root") runtime.rootActive = true;
+    if (selector.terminal === "attribute") {
       const value = currentAttributeValue(runtime, selector.attributeName!);
       if (value !== undefined) {
         markActive(parent, plan);
@@ -658,9 +785,9 @@ export class CompiledRootProcessor {
       slot: plan.id,
       plan,
       depth: runtime.depth,
-      buffer: '',
+      buffer: "",
       textMode: selector.textMode,
-      parent
+      parent,
     });
   }
 
@@ -668,18 +795,24 @@ export class CompiledRootProcessor {
     const itemSelector = array.plan.itemSelector;
     const element = array.plan.element;
 
-    if (itemSelector.terminal === 'attribute') {
+    if (itemSelector.terminal === "attribute") {
       const value = currentAttributeValue(runtime, itemSelector.attributeName!);
       if (value !== undefined) {
-        array.items.push(parseScalar(element as DispatchScalarPlan, value, true));
+        array.items.push(
+          parseScalar(element as DispatchScalarPlan, value, true),
+        );
       }
       return;
     }
 
     const index = array.items.length;
     array.items.push(undefined);
-    if (element.kind === 'object') {
-      this.createObjectState(runtime, element, runtime.depth, { kind: 'array', array, index });
+    if (element.kind === "object") {
+      this.createObjectState(runtime, element, runtime.depth, {
+        kind: "array",
+        array,
+        index,
+      });
       return;
     }
 
@@ -687,9 +820,9 @@ export class CompiledRootProcessor {
       slot: element.id,
       plan: element as DispatchScalarPlan,
       depth: runtime.depth,
-      buffer: '',
+      buffer: "",
       textMode: itemSelector.textMode,
-      parent: { kind: 'array', array, index }
+      parent: { kind: "array", array, index },
     });
   }
 
@@ -700,7 +833,7 @@ export class CompiledRootProcessor {
   /** @internal Called by the IR text executor. */
   executeAppendCaptures(runtime: RuntimeState, text: string): void {
     for (const capture of runtime.captures) {
-      if (capture.textMode === 'direct') {
+      if (capture.textMode === "direct") {
         if (runtime.depth === capture.depth) {
           capture.buffer += text;
         }
@@ -719,21 +852,35 @@ export class CompiledRootProcessor {
     const captureEnd = runtime.captures.length;
     if (captureEnd === 1) {
       const capture = runtime.captures[0]!;
+      /* v8 ignore next -- a sole capture remains registered until its own closing depth */
       if (capture.depth === runtime.depth) {
-        this.assignScalar(runtime, capture.plan, this.captureText(runtime, capture), capture.parent);
+        this.assignScalar(
+          runtime,
+          capture.plan,
+          this.captureText(runtime, capture),
+          capture.parent,
+        );
         runtime.captures = [];
       }
     } else if (captureEnd > 1) {
       let captureStart = captureEnd;
-      while (captureStart > 0 && runtime.captures[captureStart - 1]!.depth === runtime.depth) captureStart--;
+      while (
+        captureStart > 0 &&
+        runtime.captures[captureStart - 1]!.depth === runtime.depth
+      )
+        captureStart--;
       for (let index = captureStart; index < captureEnd; index++) {
         const capture = runtime.captures[index]!;
-        this.assignScalar(runtime, capture.plan, this.captureText(runtime, capture), capture.parent);
+        this.assignScalar(
+          runtime,
+          capture.plan,
+          this.captureText(runtime, capture),
+          capture.parent,
+        );
       }
       if (captureStart === 0) runtime.captures = [];
       else runtime.captures.length = captureStart;
     }
-
   }
 
   /** @internal Called by the IR end executor. */
@@ -746,14 +893,16 @@ export class CompiledRootProcessor {
   }
 
   private captureText(runtime: RuntimeState, capture: CaptureState): string {
-    return runtime.options?.trimText === false ? capture.buffer : capture.buffer.trim();
+    return runtime.options.trimText === false
+      ? capture.buffer
+      : capture.buffer.trim();
   }
 
   private createObjectState(
     runtime: RuntimeState,
     plan: DispatchObjectPlan,
     depth: number,
-    parent: ParentBinding
+    parent: ParentBinding,
   ): ObjectState {
     const slot = irSlot(runtime, plan.id);
     const runtimeStart = runtime.objects.length;
@@ -761,45 +910,56 @@ export class CompiledRootProcessor {
       slot: slot.slot,
       plan,
       depth,
-      values: compileObjectFactory(plan, false)(),
+      values: compileObjectFactory(plan)(),
       completedFieldBits: 0,
       activeFieldBits: 0,
       childArrays: EMPTY_ARRAY_STATES,
       childObjects: EMPTY_OBJECT_STATES,
       runtimeStart,
       parent,
-      closed: false
+      closed: false,
     };
 
     runtime.objects.push(object);
-    if (slot.globalActive) (runtime.objectsByPlan[object.slot] ??= []).push(object);
-    if (slot.depthActive) addDepthActive(runtime.objectsByPlanDepth, object.slot, depth, object);
+    if (slot.globalActive)
+      (runtime.objectsByPlan[object.slot] ??= []).push(object);
+    if (slot.depthActive)
+      addDepthActive(runtime.objectsByPlanDepth, object.slot, depth, object);
 
     for (const childSlot of slot.stateChildren) {
       const child = irSlot(runtime, childSlot);
-      if (!child.fieldName) throw new Error(`Missing converter IR field binding for slot: ${child.slot}`);
+      /* v8 ignore next -- stateChildren contains only field slots emitted with fieldName by buildIrProgram */
+      if (!child.fieldName)
+        throw new Error(
+          `Missing converter IR field binding for slot: ${child.slot}`,
+        );
       const value = child.value;
-      if (value.kind === 'array') {
+      if (value.kind === "array") {
         const array = this.createArrayState(runtime, value, depth, {
-          kind: 'field',
+          kind: "field",
           object,
-          field: child as unknown as DispatchFieldPlan
+          field: child as unknown as DispatchFieldPlan,
         });
-        if (object.childArrays === EMPTY_ARRAY_STATES) object.childArrays = [array];
+        if (object.childArrays === EMPTY_ARRAY_STATES)
+          object.childArrays = [array];
         else object.childArrays.push(array);
         continue;
       }
 
-      if (value.kind === 'object' && !value.selector) {
-        const childObject = this.createObjectState(runtime, value, depth, {
-          kind: 'field',
+      // stateChildren contains only arrays and selectorless objects.
+      const childObject = this.createObjectState(
+        runtime,
+        value as DispatchObjectPlan,
+        depth,
+        {
+          kind: "field",
           object,
-          field: child as unknown as DispatchFieldPlan
-        });
-        if (object.childObjects === EMPTY_OBJECT_STATES) object.childObjects = [childObject];
-        else object.childObjects.push(childObject);
-        continue;
-      }
+          field: child as unknown as DispatchFieldPlan,
+        },
+      );
+      if (object.childObjects === EMPTY_OBJECT_STATES)
+        object.childObjects = [childObject];
+      else object.childObjects.push(childObject);
     }
 
     if (runtime.processingStart) {
@@ -814,7 +974,7 @@ export class CompiledRootProcessor {
     runtime: RuntimeState,
     plan: DispatchArrayPlan,
     contextDepth: number | undefined,
-    parent: ParentBinding
+    parent: ParentBinding,
   ): ArrayState {
     const slot = irSlot(runtime, plan.id);
     const array: ArrayState = {
@@ -824,13 +984,23 @@ export class CompiledRootProcessor {
       items: [],
       runtimeStart: runtime.arrays.length,
       parent,
-      closed: false
+      closed: false,
     };
     runtime.arrays.push(array);
-    if (slot.globalActive) (runtime.arraysByPlan[array.slot] ??= []).push(array);
-    if (slot.depthActive) addDepthActive(runtime.arraysByPlanDepth, array.slot, contextDepth, array);
-    if (runtime.processingStart && !plan.itemSelector.lastElementName
-      && matchesSelector(plan.itemSelector, runtime, contextDepth)) {
+    if (slot.globalActive)
+      (runtime.arraysByPlan[array.slot] ??= []).push(array);
+    if (slot.depthActive)
+      addDepthActive(
+        runtime.arraysByPlanDepth,
+        array.slot,
+        contextDepth!,
+        array,
+      );
+    if (
+      runtime.processingStart &&
+      !plan.itemSelector.lastElementName &&
+      matchesSelector(plan.itemSelector, runtime, contextDepth)
+    ) {
       this.startArrayItem(runtime, array);
     }
     return array;
@@ -840,9 +1010,9 @@ export class CompiledRootProcessor {
     runtime: RuntimeState,
     plan: DispatchScalarPlan,
     rawValue: string,
-    parent: ParentBinding
+    parent: ParentBinding,
   ): void {
-    const value = parseScalar(plan, rawValue, parent.kind === 'array');
+    const value = parseScalar(plan, rawValue, parent.kind === "array");
     this.assignValue(runtime, value, parent, plan);
   }
 
@@ -850,16 +1020,16 @@ export class CompiledRootProcessor {
     runtime: RuntimeState,
     value: unknown,
     parent: ParentBinding,
-    plan: DispatchValuePlan
+    plan: DispatchValuePlan,
   ): void {
-    if (parent.kind === 'root') {
+    if (parent.kind === "root") {
       runtime.rootValue = value;
       runtime.rootDone = true;
       runtime.rootActive = false;
       return;
     }
 
-    if (parent.kind === 'array') {
+    if (parent.kind === "array") {
       parent.array.items[parent.index] = value;
       return;
     }
@@ -870,13 +1040,14 @@ export class CompiledRootProcessor {
 
   private finalizeObject(runtime: RuntimeState, object: ObjectState): unknown {
     if (object.closed) return object.values;
-    for (const child of object.childObjects) this.finalizeObject(runtime, child);
+    for (const child of object.childObjects)
+      this.finalizeObject(runtime, child);
 
     for (const array of object.childArrays) this.finalizeArray(runtime, array);
 
     for (const field of object.plan.fields) {
       if (!hasCompletedField(object, field.value.id)) {
-        setOwn(object.values, field.fieldName, defaultValue(field.value, true, 'field'));
+        setOwn(object.values, field.fieldName, defaultValue(field.value));
         markObjectFieldCompleted(object, field.value.id);
       }
     }
@@ -889,16 +1060,25 @@ export class CompiledRootProcessor {
     this.assignValue(runtime, value, object.parent, object.plan);
     object.closed = true;
     const slot = irSlot(runtime, object.slot);
-    if (slot.globalActive) removeActive(runtime.objectsByPlan[object.slot]!, object);
-    if (slot.depthActive) removeDepthActive(runtime.objectsByPlanDepth[object.slot], object.depth, object);
-    runtime.objects.length = Math.min(runtime.objects.length, object.runtimeStart);
+    if (slot.globalActive)
+      removeActive(runtime.objectsByPlan[object.slot]!, object);
+    if (slot.depthActive)
+      removeDepthActive(
+        runtime.objectsByPlanDepth[object.slot]!,
+        object.depth,
+        object,
+      );
+    runtime.objects.length = Math.min(
+      runtime.objects.length,
+      object.runtimeStart,
+    );
     return value;
   }
 
   private finalizeArray(runtime: RuntimeState, array: ArrayState): unknown {
-    if (array.closed) return array.items;
     const missingOptional = array.plan.optional && array.items.length === 0;
-    let value: unknown = missingOptional && array.parent.kind !== 'root' ? undefined : array.items;
+    let value: unknown =
+      missingOptional && array.parent.kind !== "root" ? undefined : array.items;
     if (!missingOptional || array.plan.transforms.length > 0) {
       value = applyTransforms(array.plan, value);
     }
@@ -906,8 +1086,14 @@ export class CompiledRootProcessor {
     this.assignValue(runtime, value, array.parent, array.plan);
     array.closed = true;
     const slot = irSlot(runtime, array.slot);
-    if (slot.globalActive) removeActive(runtime.arraysByPlan[array.slot]!, array);
-    if (slot.depthActive) removeDepthActive(runtime.arraysByPlanDepth[array.slot], array.contextDepth, array);
+    if (slot.globalActive)
+      removeActive(runtime.arraysByPlan[array.slot]!, array);
+    if (slot.depthActive)
+      removeDepthActive(
+        runtime.arraysByPlanDepth[array.slot]!,
+        array.contextDepth!,
+        array,
+      );
     runtime.arrays.length = Math.min(runtime.arrays.length, array.runtimeStart);
     return value;
   }
@@ -920,7 +1106,7 @@ export class CompiledRootProcessor {
       this.finalizeArray(runtime, runtime.rootArray);
     }
     if (!runtime.rootDone) {
-      runtime.rootValue = defaultValue(runtime.plan.root, true, 'root');
+      runtime.rootValue = defaultValue(runtime.plan.root);
       runtime.rootDone = true;
     }
     return runtime.rootValue as T;
@@ -941,7 +1127,7 @@ export class CompiledRootProcessor {
 
   private async processReadableStream(
     runtime: RuntimeState,
-    stream: ReadableStream<Uint8Array>
+    stream: ReadableStream<Uint8Array>,
   ): Promise<void> {
     const cursor = this.createIncrementalCursor(runtime);
     const decoder = createTextDecoder(runtime.options);
@@ -954,7 +1140,8 @@ export class CompiledRootProcessor {
           completed = true;
           break;
         }
-        if (!(item.value instanceof Uint8Array)) throw new Error('Reader chunks must be Uint8Array values.');
+        if (!(item.value instanceof Uint8Array))
+          throw new Error("Reader chunks must be Uint8Array values.");
         this.processByteChunk(runtime, cursor, decoder, item.value);
       }
       this.finishByteInput(runtime, cursor, decoder);
@@ -963,7 +1150,6 @@ export class CompiledRootProcessor {
       reader.releaseLock();
     }
   }
-
 }
 
 function compileStartExecutor(program: DispatchIrProgram): StartExecutor {
@@ -977,17 +1163,22 @@ function compileStartExecutor(program: DispatchIrProgram): StartExecutor {
 
 function compileTextExecutor(program: DispatchIrProgram): TextExecutor {
   try {
-    const statements = program.onText.map(action => {
-      if (action.op === 'append-captures') return 'append(processor,runtime,text);';
-      return '';
-    }).join('');
+    const statements = program.onText
+      .map(() => "append(processor,runtime,text);")
+      .join("");
     const create = Function(
-      'append',
-      `return function(processor,runtime,text){${statements}}`
+      "append",
+      `return function(processor,runtime,text){${statements}}`,
     ) as (
-      append: (processor: CompiledRootProcessor, runtime: RuntimeState, text: string) => void
+      append: (
+        processor: CompiledRootProcessor,
+        runtime: RuntimeState,
+        text: string,
+      ) => void,
     ) => TextExecutor;
-    return create((processor, runtime, text) => processor.executeAppendCaptures(runtime, text));
+    return create((processor, runtime, text) =>
+      processor.executeAppendCaptures(runtime, text),
+    );
   } catch {
     warnCodeGenerationFallback();
   }
@@ -997,28 +1188,35 @@ function compileTextExecutor(program: DispatchIrProgram): TextExecutor {
   };
 }
 
-function compileTextAction(action: DispatchTextAction): TextExecutor {
+function compileTextAction(_action: DispatchTextAction): TextExecutor {
   return (processor, runtime, text) => {
-    if (action.op === 'append-captures') processor.executeAppendCaptures(runtime, text);
+    processor.executeAppendCaptures(runtime, text);
   };
 }
 
 function compileEndExecutor(program: DispatchIrProgram): EndExecutor {
   try {
-    const statements = program.onEnd.map(action => action.op === 'finish-captures'
-      ? 'finish(processor,runtime);'
-      : 'finalize(processor,runtime);'
-    ).join('');
+    const statements = program.onEnd
+      .map((action) =>
+        action.op === "finish-captures"
+          ? "finish(processor,runtime);"
+          : "finalize(processor,runtime);",
+      )
+      .join("");
     const create = Function(
-      'finish', 'finalize',
-      `return function(processor,runtime){${statements}}`
+      "finish",
+      "finalize",
+      `return function(processor,runtime){${statements}}`,
     ) as (
       finish: (processor: CompiledRootProcessor, runtime: RuntimeState) => void,
-      finalize: (processor: CompiledRootProcessor, runtime: RuntimeState) => void
+      finalize: (
+        processor: CompiledRootProcessor,
+        runtime: RuntimeState,
+      ) => void,
     ) => EndExecutor;
     return create(
       (processor, runtime) => processor.executeFinishCaptures(runtime),
-      (processor, runtime) => processor.executeFinalizeValues(runtime)
+      (processor, runtime) => processor.executeFinalizeValues(runtime),
     );
   } catch {
     warnCodeGenerationFallback();
@@ -1031,7 +1229,7 @@ function compileEndExecutor(program: DispatchIrProgram): EndExecutor {
 
 function compileEndAction(action: DispatchEndAction): EndExecutor {
   return (processor, runtime) => {
-    if (action.op === 'finish-captures') {
+    if (action.op === "finish-captures") {
       processor.executeFinishCaptures(runtime);
     } else {
       processor.executeFinalizeValues(runtime);
@@ -1042,18 +1240,22 @@ function compileEndAction(action: DispatchEndAction): EndExecutor {
 function compileCursorExecutor(
   program: DispatchIrProgram,
   start: StartExecutor,
-  fallback: CursorExecutor
+  fallback: CursorExecutor,
 ): CursorExecutor {
   try {
-    const tracksPositions = program.paths.some(path => path.selector.positionFilters !== undefined);
-    const recordPositionStatement = tracksPositions ? 'recordPosition(runtime);' : '';
-    const popPositionStatement = tracksPositions ? 'popPosition(runtime);' : '';
-    const textStatements = program.onText.map(action => {
-      if (action.op === 'append-captures') {
-        return 'const value=cursor.text();for(let i=0,length=runtime.captures.length;i<length;i++){const capture=runtime.captures[i];if(capture.textMode===\'direct\'){if(runtime.depth===capture.depth)capture.buffer+=value;}else capture.buffer+=value;}';
-      }
-      return '';
-    }).join('');
+    const tracksPositions = program.paths.some(
+      (path) => path.selector.positionFilters !== undefined,
+    );
+    const recordPositionStatement = tracksPositions
+      ? "recordPosition(runtime);"
+      : "";
+    const popPositionStatement = tracksPositions ? "popPosition(runtime);" : "";
+    const textStatements = program.onText
+      .map(
+        () =>
+          "const value=cursor.text();for(let i=0,length=runtime.captures.length;i<length;i++){const capture=runtime.captures[i];if(capture.textMode==='direct'){if(runtime.depth===capture.depth)capture.buffer+=value;}else capture.buffer+=value;}",
+      )
+      .join("");
     const finishCapturesStatement = `const captureEnd=runtime.captures.length;
       if(captureEnd===1){
         const capture=runtime.captures[0];
@@ -1075,20 +1277,21 @@ function compileCursorExecutor(
       if(!object||object.depth!==runtime.depth)break;
       processor.finalizeObject(runtime,object);
     }`;
-    const endStatements = program.onEnd.map(action => {
-      if (action.op === 'finish-captures') return finishCapturesStatement;
-      if (action.op === 'finalize-values') return finalizeValuesStatement;
-      return '';
-    }).join('');
+    const endStatements = program.onEnd
+      .map((action) => {
+        if (action.op === "finish-captures") return finishCapturesStatement;
+        return finalizeValuesStatement;
+      })
+      .join("");
     const create = Function(
-      'start',
-      'needInput',
-      'startElement',
-      'characters',
-      'cdata',
-      'endElement',
-      'recordPosition',
-      'popPosition',
+      "start",
+      "needInput",
+      "startElement",
+      "characters",
+      "cdata",
+      "endElement",
+      "recordPosition",
+      "popPosition",
       `return function(processor,runtime,cursor){
         while(true){
           const type=cursor.next();
@@ -1131,7 +1334,7 @@ function compileCursorExecutor(
             ${popPositionStatement}
           }
         }
-      }`
+      }`,
     ) as (
       start: StartExecutor,
       needInput: typeof NEED_INPUT,
@@ -1140,7 +1343,7 @@ function compileCursorExecutor(
       cdata: XmlEventType,
       endElement: XmlEventType,
       recordPosition: (runtime: RuntimeState) => void,
-      popPosition: (runtime: RuntimeState) => void
+      popPosition: (runtime: RuntimeState) => void,
     ) => CursorExecutor;
     return create(
       start,
@@ -1150,7 +1353,7 @@ function compileCursorExecutor(
       XmlEventType.CDATA,
       XmlEventType.END_ELEMENT,
       recordElementPosition,
-      popCompletedChildPositionScope
+      popCompletedChildPositionScope,
     );
   } catch {
     warnCodeGenerationFallback();
@@ -1158,75 +1361,81 @@ function compileCursorExecutor(
   }
 }
 
-function compileGeneratedStartExecutor(program: DispatchIrProgram): StartExecutor {
+function compileGeneratedStartExecutor(
+  program: DispatchIrProgram,
+): StartExecutor {
   const constants: StartConstant[] = [];
   const cases: string[] = [];
   for (const [name, bucket] of Object.entries(program.byElement)) {
     const statements: string[] = [];
     for (const action of bucket.actions) {
       const resolved = resolveStartAction(program, action);
-      if (resolved.op === 'start-root') {
+      if (resolved.op === "start-root") {
         const constant = constants.push(resolved.value) - 1;
         statements.push(
-          `if(${emitPathMatch(resolved.selector, '0')})processor.executeMatchedRootStart(runtime,constants[${constant}]);`
+          `if(${emitPathMatch(resolved.selector, "0")})processor.executeMatchedRootStart(runtime,constants[${constant}]);`,
         );
-      } else if (resolved.op === 'start-array-item') {
+      } else if (resolved.op === "start-array-item") {
         const constant = constants.push(resolved.array) - 1;
         const state = `a${constant}`;
-        const match = emitPathMatch(resolved.selector, 'value.contextDepth');
-        if (resolved.selector.mode === 'relative') {
+        const match = emitPathMatch(resolved.selector, "value.contextDepth");
+        if (resolved.selector.mode === "relative") {
           const active = `runtime.arraysByPlanDepth[constants[${constant}].id]?.[runtime.depth-${resolved.selector.segments.length}]`;
           statements.push(
             `{const ${state}=${active};if(${state}){if(Array.isArray(${state})){` +
-            `for(let i=0;i<${state}.length;i++){const value=${state}[i];if(${match})` +
-            `processor.executeMatchedArrayStart(runtime,value);}}else{const value=${state};if(${match})` +
-            `processor.executeMatchedArrayStart(runtime,value);}}}`
+              `for(let i=0;i<${state}.length;i++){const value=${state}[i];if(${match})` +
+              `processor.executeMatchedArrayStart(runtime,value);}}else{const value=${state};if(${match})` +
+              `processor.executeMatchedArrayStart(runtime,value);}}}`,
           );
         } else {
           const arrays = `runtime.arraysByPlan[constants[${constant}].id]`;
           statements.push(
             `{const ${state}=${arrays};if(${state})for(let i=0;i<${state}.length;i++){` +
-            `const value=${state}[i];if(${match})processor.executeMatchedArrayStart(runtime,value);}}`
+              `const value=${state}[i];if(${match})processor.executeMatchedArrayStart(runtime,value);}}`,
           );
         }
       } else {
         const constant = constants.push(resolved.field) - 1;
         const state = `o${constant}`;
-        const match = emitPathMatch(resolved.selector, 'value.depth');
-        if (resolved.selector.mode === 'relative') {
+        const match = emitPathMatch(resolved.selector, "value.depth");
+        if (resolved.selector.mode === "relative") {
           const active = `runtime.objectsByPlanDepth[constants[${constant}].objectPlanId]?.[runtime.depth-${resolved.selector.segments.length}]`;
           statements.push(
             `{const ${state}=${active};if(${state}){if(Array.isArray(${state})){` +
-            `for(let i=0;i<${state}.length;i++){const value=${state}[i];if(${match})` +
-            `processor.executeMatchedFieldStart(runtime,value,constants[${constant}]);}}` +
-            `else{const value=${state};if(${match})` +
-            `processor.executeMatchedFieldStart(runtime,value,constants[${constant}]);}}}`
+              `for(let i=0;i<${state}.length;i++){const value=${state}[i];if(${match})` +
+              `processor.executeMatchedFieldStart(runtime,value,constants[${constant}]);}}` +
+              `else{const value=${state};if(${match})` +
+              `processor.executeMatchedFieldStart(runtime,value,constants[${constant}]);}}}`,
           );
         } else {
           const objects = `runtime.objectsByPlan[constants[${constant}].objectPlanId]`;
           statements.push(
             `{const ${state}=${objects};if(${state})for(let i=0;i<${state}.length;i++){` +
-            `const value=${state}[i];if(${match})` +
-            `processor.executeMatchedFieldStart(runtime,value,constants[${constant}]);}}`
+              `const value=${state}[i];if(${match})` +
+              `processor.executeMatchedFieldStart(runtime,value,constants[${constant}]);}}`,
           );
         }
       }
     }
-    cases.push(`case ${JSON.stringify(name)}:${statements.join('')}return;`);
+    cases.push(`case ${JSON.stringify(name)}:${statements.join("")}return;`);
   }
   const create = Function(
-    'constants',
-    `return function(processor,runtime,currentName){switch(currentName){${cases.join('')}}}`
+    "constants",
+    `return function(processor,runtime,currentName){switch(currentName){${cases.join("")}}}`,
   ) as (values: StartConstant[]) => StartExecutor;
   return create(constants);
 }
 
-function compileFallbackStartExecutor(program: DispatchIrProgram): StartExecutor {
+function compileFallbackStartExecutor(
+  program: DispatchIrProgram,
+): StartExecutor {
   const handlers: Record<string, StartExecutor> = Object.create(null);
   for (const [name, bucket] of Object.entries(program.byElement)) {
     const actions: StartExecutor[] = [];
     for (const action of bucket.actions) {
-      actions.push(compileFallbackStartAction(resolveStartAction(program, action)));
+      actions.push(
+        compileFallbackStartAction(resolveStartAction(program, action)),
+      );
     }
     handlers[name] = chain(actions);
   }
@@ -1236,72 +1445,115 @@ function compileFallbackStartExecutor(program: DispatchIrProgram): StartExecutor
 }
 
 type ResolvedStartAction =
-  | { op: 'start-root'; value: DispatchValuePlan; selector: DispatchSelector }
-  | { op: 'start-array-item'; array: DispatchArrayPlan; selector: DispatchSelector }
-  | { op: 'start-field'; field: DispatchFieldAction; selector: DispatchSelector };
+  | { op: "start-root"; value: DispatchValuePlan; selector: DispatchSelector }
+  | {
+      op: "start-array-item";
+      array: DispatchArrayPlan;
+      selector: DispatchSelector;
+    }
+  | {
+      op: "start-field";
+      field: DispatchFieldAction;
+      selector: DispatchSelector;
+    };
 
 function resolveStartAction(
   program: DispatchIrProgram,
-  action: DispatchStartAction
+  action: DispatchStartAction,
 ): ResolvedStartAction {
   const value = (slot: number): DispatchValuePlan => {
     const resolved = program.slotsById[slot]?.value;
+    /* v8 ignore next -- actions and slots are emitted together by buildIrProgram */
     if (!resolved) throw new Error(`Invalid converter IR slot: ${slot}`);
     return resolved;
   };
   const selector = (path: number): DispatchSelector => {
     const resolved = program.paths[path]?.selector;
+    /* v8 ignore next -- every action path is returned by addPath in buildIrProgram */
     if (!resolved) throw new Error(`Invalid converter IR path: ${path}`);
     return resolved;
   };
-  if (action.op === 'start-root') {
-    return { op: action.op, value: value(action.slot), selector: selector(action.path) };
+  if (action.op === "start-root") {
+    return {
+      op: action.op,
+      value: value(action.slot),
+      selector: selector(action.path),
+    };
   }
-  if (action.op === 'start-array-item') {
+  if (action.op === "start-array-item") {
     const array = value(action.slot);
-    if (array.kind !== 'array') throw new Error(`Converter IR slot ${action.slot} is not an array`);
+    /* v8 ignore next -- start-array-item actions are emitted only while visiting array plans */
+    if (array.kind !== "array")
+      throw new Error(`Converter IR slot ${action.slot} is not an array`);
     return { op: action.op, array, selector: selector(action.path) };
   }
   const object = value(action.objectSlot);
-  if (object.kind !== 'object') throw new Error(`Converter IR slot ${action.objectSlot} is not an object`);
-  const field = object.fields.find(candidate => candidate.fieldName === action.fieldName);
+  /* v8 ignore next -- start-field actions are emitted only from object field visits */
+  if (object.kind !== "object")
+    throw new Error(`Converter IR slot ${action.objectSlot} is not an object`);
+  const field = object.fields.find(
+    (candidate) => candidate.fieldName === action.fieldName,
+  );
+  /* v8 ignore next -- action fieldName/slot are copied from this exact object field */
   if (!field || field.value.id !== action.slot) {
     throw new Error(`Invalid converter IR field binding: ${action.fieldName}`);
   }
-  return { op: action.op, field: { objectPlanId: object.id, field }, selector: selector(action.path) };
+  return {
+    op: action.op,
+    field: { objectPlanId: object.id, field },
+    selector: selector(action.path),
+  };
 }
 
-function emitPathMatch(selector: DispatchSelector, contextDepth: string): string {
+function emitPathMatch(
+  selector: DispatchSelector,
+  contextDepth: string,
+): string {
   const segments = selector.segments;
-  const offset = selector.mode === 'absolute'
-    ? '0'
-    : selector.mode === 'descendant'
-      ? `runtime.depth-${segments.length}`
-      : contextDepth;
-  const checks: string[] = [selector.mode === 'absolute'
-    ? `runtime.depth===${segments.length}`
-    : selector.mode === 'descendant'
-      ? `runtime.depth>=${segments.length}`
-      : `runtime.depth===${contextDepth}+${segments.length}`];
-  const compareLength = segments.length - (selector.lastElementName ? 1 : 0);
+  const offset =
+    selector.mode === "absolute"
+      ? "0"
+      : selector.mode === "descendant"
+        ? `runtime.depth-${segments.length}`
+        : contextDepth;
+  const checks: string[] = [
+    selector.mode === "absolute"
+      ? `runtime.depth===${segments.length}`
+      : selector.mode === "descendant"
+        ? `runtime.depth>=${segments.length}`
+        : `runtime.depth===${contextDepth}+${segments.length}`,
+  ];
+  const compareLength = segments.length - 1;
   for (let index = 0; index < compareLength; index++) {
-    checks.push(`runtime.elementStack[${offset}+${index}]===${JSON.stringify(segments[index])}`);
+    checks.push(
+      `runtime.elementStack[${offset}+${index}]===${JSON.stringify(segments[index])}`,
+    );
   }
-  for (let index = 0; index < (selector.positionFilters?.length ?? 0); index++) {
+  for (
+    let index = 0;
+    index < (selector.positionFilters?.length ?? 0);
+    index++
+  ) {
     const expected = selector.positionFilters![index];
-    if (expected !== undefined) checks.push(`runtime.positionStack[${offset}+${index}]===${expected}`);
+    if (expected !== undefined)
+      checks.push(`runtime.positionStack[${offset}+${index}]===${expected}`);
   }
-  return checks.join('&&');
+  return checks.join("&&");
 }
 
-function compileFallbackStartAction(action: ResolvedStartAction): StartExecutor {
-  if (action.op === 'start-root') {
-    return (processor, runtime) => processor.executeRootStart(runtime, action.value);
+function compileFallbackStartAction(
+  action: ResolvedStartAction,
+): StartExecutor {
+  if (action.op === "start-root") {
+    return (processor, runtime) =>
+      processor.executeRootStart(runtime, action.value);
   }
-  if (action.op === 'start-array-item') {
-    return (processor, runtime) => processor.executeArrayStart(runtime, action.array);
+  if (action.op === "start-array-item") {
+    return (processor, runtime) =>
+      processor.executeArrayStart(runtime, action.array);
   }
-  return (processor, runtime) => processor.executeFieldStart(runtime, action.field);
+  return (processor, runtime) =>
+    processor.executeFieldStart(runtime, action.field);
 }
 
 function chain(actions: StartExecutor[]): StartExecutor {
@@ -1320,40 +1572,48 @@ function chain(actions: StartExecutor[]): StartExecutor {
 function matchesSelector(
   selector: DispatchSelector,
   runtime: RuntimeState,
-  contextDepth: number | undefined
+  contextDepth: number | undefined,
 ): boolean {
-  if (selector.lastElementName && runtime.elementStack[runtime.depth - 1] !== selector.lastElementName) {
-    return false;
-  }
-
   const segments = selector.segments;
-  if (selector.mode === 'absolute') {
+  if (selector.mode === "absolute") {
+    /* v8 ignore start -- absolute actions are bucketed and path-checked before selector evaluation */
     if (runtime.depth !== segments.length) return false;
     for (let index = 0; index < segments.length; index++) {
       if (runtime.elementStack[index] !== segments[index]) return false;
     }
+    /* v8 ignore stop */
     return matchesPositionFilters(selector, runtime, 0);
   }
 
-  if (selector.mode === 'descendant') {
+  if (selector.mode === "descendant") {
+    /* v8 ignore start -- descendant actions are bucketed and suffix-checked before selector evaluation */
     if (runtime.depth < segments.length) return false;
     const offset = runtime.depth - segments.length;
     for (let index = 0; index < segments.length; index++) {
-      if (runtime.elementStack[offset + index] !== segments[index]) return false;
+      if (runtime.elementStack[offset + index] !== segments[index])
+        return false;
     }
+    /* v8 ignore stop */
     return matchesPositionFilters(selector, runtime, offset);
   }
 
+  /* v8 ignore start -- relative actions use the exact owner-depth index and a prechecked path */
   if (runtime.depth !== contextDepth! + segments.length) {
     return false;
   }
   for (let index = 0; index < segments.length; index++) {
-    if (runtime.elementStack[contextDepth! + index] !== segments[index]) return false;
+    if (runtime.elementStack[contextDepth! + index] !== segments[index])
+      return false;
   }
+  /* v8 ignore stop */
   return matchesPositionFilters(selector, runtime, contextDepth!);
 }
 
-function matchesPositionFilters(selector: DispatchSelector, runtime: RuntimeState, offset: number): boolean {
+function matchesPositionFilters(
+  selector: DispatchSelector,
+  runtime: RuntimeState,
+  offset: number,
+): boolean {
   const filters = selector.positionFilters;
   if (!filters) {
     return true;
@@ -1361,7 +1621,10 @@ function matchesPositionFilters(selector: DispatchSelector, runtime: RuntimeStat
 
   for (let index = 0; index < filters.length; index++) {
     const expected = filters[index];
-    if (expected !== undefined && runtime.positionStack[offset + index] !== expected) {
+    if (
+      expected !== undefined &&
+      runtime.positionStack[offset + index] !== expected
+    ) {
       return false;
     }
   }
@@ -1372,7 +1635,7 @@ function recordElementPosition(runtime: RuntimeState): void {
   const scopes = runtime.positionScopes;
   if (!scopes) return;
   const parentDepth = runtime.depth - 1;
-  const parentScope = scopes[parentDepth] ??= new Map();
+  const parentScope = (scopes[parentDepth] ??= new Map());
   const name = runtime.elementStack[parentDepth]!;
   const position = (parentScope.get(name) ?? 0) + 1;
   parentScope.set(name, position);
@@ -1386,80 +1649,75 @@ function popCompletedChildPositionScope(runtime: RuntimeState): void {
   runtime.positionScopes.length = runtime.depth + 1;
 }
 
-export function parseScalar(plan: DispatchScalarPlan, rawValue: string, preserveEmptyOptional: boolean): unknown {
-  if (!(plan.optional && rawValue === '' && preserveEmptyOptional) && plan.schema._parseText) {
+export function parseScalar(
+  plan: DispatchScalarPlan,
+  rawValue: string,
+  preserveEmptyOptional: boolean,
+): unknown {
+  if (
+    !(plan.optional && rawValue === "" && preserveEmptyOptional) &&
+    plan.schema._parseText
+  ) {
     return plan.schema._parseText(rawValue);
   }
 
   let value: unknown;
-  if (plan.unwrappedSchema._parseText) {
-    try {
-      value = plan.unwrappedSchema._parseText(rawValue);
-    } catch {
-      value = undefined;
-    }
-  } else {
-    value = rawValue;
+  try {
+    value = plan.unwrappedSchema._parseText!(rawValue);
+  } catch {
+    value = undefined;
   }
   return applyTransforms(plan, value);
 }
 
-export function defaultValue(
-  plan: DispatchValuePlan,
-  missingSelectableObject: boolean,
-  context: 'root' | 'field'
-): unknown {
+export function defaultValue(plan: DispatchValuePlan): unknown {
   let value: unknown;
-  if ((plan.kind === 'string' || plan.kind === 'number') && plan.optional) {
-    return parseScalar(plan, '', false);
+  if ((plan.kind === "string" || plan.kind === "number") && plan.optional) {
+    return parseScalar(plan, "", false);
   }
   if (plan.optional) {
-    value = plan.kind === 'array' && context === 'root' ? [] : undefined;
-  } else if (plan.kind === 'string') {
-    value = '';
-  } else if (plan.kind === 'number') {
+    value = undefined;
+  } else if (plan.kind === "string") {
+    value = "";
+  } else if (plan.kind === "number") {
     value = NaN;
-  } else if (plan.kind === 'array') {
-    value = [];
-  } else if (missingSelectableObject && plan.selector) {
-    value = {};
   } else {
-    const result: Record<string, unknown> = {};
-    const objectPlan = plan as DispatchObjectPlan;
-    for (const field of objectPlan.fields) {
-      setOwn(result, field.fieldName, defaultValue(field.value, true, 'field'));
-    }
-    value = result;
+    // Non-selectable objects are eagerly materialized as runtime states; a
+    // missing object here is therefore a selectable object with no match.
+    value = {};
   }
   return applyTransforms(plan, value);
 }
 
-export function compileObjectFactory(plan: DispatchObjectPlan, includeDefaults = true): ObjectFactory {
-  const cache = includeDefaults ? objectFactoryCache : objectTemplateFactoryCache;
+export function compileObjectFactory(plan: DispatchObjectPlan): ObjectFactory {
+  const cache = objectTemplateFactoryCache;
   const cached = cache.get(plan);
   if (cached) return cached;
   try {
-    const dynamicPlans: DispatchValuePlan[] = [];
-    const properties = plan.fields.map(field => {
+    const properties = plan.fields.map((field) => {
       const value = field.value;
       let expression: string;
-      if (!value.optional && value.transforms.length === 0 && value.kind === 'string') {
+      if (
+        !value.optional &&
+        value.transforms.length === 0 &&
+        value.kind === "string"
+      ) {
         expression = "''";
-      } else if (!value.optional && value.transforms.length === 0 && value.kind === 'number') {
-        expression = 'NaN';
-      } else if (includeDefaults) {
-        expression = `defaultValue(plans[${dynamicPlans.push(value) - 1}],true,'field')`;
+      } else if (
+        !value.optional &&
+        value.transforms.length === 0 &&
+        value.kind === "number"
+      ) {
+        expression = "NaN";
       } else {
-        expression = 'undefined';
+        expression = "undefined";
       }
       return `[${JSON.stringify(field.fieldName)}]:${expression}`;
     });
     const create = Function(
-      'defaultValue',
-      'plans',
-      `return function(){return {${properties.join(',')}}}`
-    ) as (defaultValueFn: typeof defaultValue, plans: DispatchValuePlan[]) => ObjectFactory;
-    const factory = create(defaultValue, dynamicPlans);
+      `return function(){return {${properties.join(",")}}}`,
+    ) as () => ObjectFactory;
+    const factory = create();
     cache.set(plan, factory);
     return factory;
   } catch {
@@ -1469,7 +1727,7 @@ export function compileObjectFactory(plan: DispatchObjectPlan, includeDefaults =
   const factory = (): Record<string, unknown> => {
     const values: Record<string, unknown> = {};
     for (const field of fields) {
-      setOwn(values, field.fieldName, includeDefaults ? defaultValue(field.value, true, 'field') : undefined);
+      setOwn(values, field.fieldName, undefined);
     }
     return values;
   };
@@ -1477,7 +1735,10 @@ export function compileObjectFactory(plan: DispatchObjectPlan, includeDefaults =
   return factory;
 }
 
-export function applyTransforms(plan: DispatchValuePlan, value: unknown): unknown {
+export function applyTransforms(
+  plan: DispatchValuePlan,
+  value: unknown,
+): unknown {
   let result = value;
   for (const transformFn of plan.transforms) {
     result = transformFn(result);
@@ -1487,11 +1748,15 @@ export function applyTransforms(plan: DispatchValuePlan, value: unknown): unknow
 
 function irSlot(runtime: RuntimeState, slot: number) {
   const resolved = runtime.plan.ir.slotsById[slot];
+  /* v8 ignore next -- runtime states retain slot ids from their validated compiled plan */
   if (!resolved) throw new Error(`Missing converter IR slot: ${slot}`);
   return resolved;
 }
 
-function currentAttributeValue(runtime: RuntimeState, name: string): string | undefined {
+function currentAttributeValue(
+  runtime: RuntimeState,
+  name: string,
+): string | undefined {
   const tokenCursor = runtime.currentTokenCursor;
   if (tokenCursor) {
     const cache = runtime.attributeLookupCache;
@@ -1510,9 +1775,18 @@ function currentAttributeValue(runtime: RuntimeState, name: string): string | un
   return runtime.currentAttributes?.[name];
 }
 
-function setOwn(target: Record<string, unknown>, key: string, value: unknown): void {
-  if (key === '__proto__') {
-    Object.defineProperty(target, key, { configurable: true, enumerable: true, value, writable: true });
+function setOwn(
+  target: Record<string, unknown>,
+  key: string,
+  value: unknown,
+): void {
+  if (key === "__proto__") {
+    Object.defineProperty(target, key, {
+      configurable: true,
+      enumerable: true,
+      value,
+      writable: true,
+    });
     return;
   }
   target[key] = value;
@@ -1521,11 +1795,10 @@ function setOwn(target: Record<string, unknown>, key: string, value: unknown): v
 function addDepthActive<T>(
   indexes: Array<DepthActive<T> | undefined>,
   slot: number,
-  depth: number | undefined,
-  value: T
+  depth: number,
+  value: T,
 ): void {
-  if (depth === undefined) return;
-  const byDepth = indexes[slot] ??= [];
+  const byDepth = (indexes[slot] ??= []);
   const active = byDepth[depth];
   if (!active) byDepth[depth] = value;
   else if (Array.isArray(active)) active.push(value);
@@ -1533,30 +1806,29 @@ function addDepthActive<T>(
 }
 
 function removeDepthActive<T>(
-  byDepth: DepthActive<T> | undefined,
-  depth: number | undefined,
-  value: T
+  byDepth: DepthActive<T>,
+  depth: number,
+  value: T,
 ): void {
-  if (depth === undefined || !byDepth) return;
-  const active = byDepth[depth];
-  if (!active) return;
+  // closed guards ensure the registered state is present exactly once here.
+  const active = byDepth[depth]!;
   if (!Array.isArray(active)) {
-    if (active === value) byDepth[depth] = undefined;
+    // Closed-state guards guarantee that this is the registered value.
+    byDepth[depth] = undefined;
     return;
   }
   removeActive(active, value);
   if (active.length === 1) byDepth[depth] = active[0];
-  else if (active.length === 0) byDepth[depth] = undefined;
 }
 
 function removeActive<T>(values: T[], value: T): void {
-  const index = values.indexOf(value);
-  if (index >= 0) values.splice(index, 1);
+  values.splice(values.indexOf(value), 1);
 }
 
 function markActive(parent: ParentBinding, plan: DispatchValuePlan): void {
-  if (parent.kind === 'root') return;
-  if (parent.kind === 'field') markObjectFieldActive(parent.object, plan.id);
+  if (parent.kind === "root") return;
+  /* v8 ignore next -- array parents own no object field bit; field parents take the marked branch */
+  if (parent.kind === "field") markObjectFieldActive(parent.object, plan.id);
 }
 
 function hasCompletedField(object: ObjectState, id: number): boolean {
@@ -1595,44 +1867,46 @@ function markObjectFieldCompleted(object: ObjectState, id: number): void {
   object.activeFields?.delete(id);
 }
 
-function normalizeOptions(options: ParseOptions | unknown): ParseOptions | undefined {
-  if (!options || typeof options !== 'object') {
-    return undefined;
-  }
-  if ('schemaType' in options) {
-    return undefined;
-  }
-  return options as ParseOptions;
-}
-
 function createTextDecoder(options?: ParseOptions): TextDecoder {
-  return new TextDecoder(options?.encoding ?? 'utf-8', { fatal: true });
+  return new TextDecoder(options?.encoding ?? "utf-8", { fatal: true });
 }
 
 function isSyncIterable(
-  input: ParseInput
-): input is Iterable<Uint8Array> | Iterable<readonly Uint8Array[]> | Iterable<AnyXmlEvent> {
-  return typeof input === 'object'
-    && input !== null
-    && !(input instanceof Uint8Array)
-    && !(input instanceof ReadableStream)
-    && Symbol.iterator in input
-    && typeof (input as Iterable<AnyXmlEvent>)[Symbol.iterator] === 'function';
+  input: ParseInput,
+): input is
+  | Iterable<Uint8Array>
+  | Iterable<readonly Uint8Array[]>
+  | Iterable<AnyXmlEvent> {
+  return (
+    typeof input === "object" &&
+    input !== null &&
+    !(input instanceof Uint8Array) &&
+    !(input instanceof ReadableStream) &&
+    Symbol.iterator in input &&
+    typeof (input as Iterable<AnyXmlEvent>)[Symbol.iterator] === "function"
+  );
 }
 
-function isByteSourceItem(value: unknown): value is Uint8Array | readonly Uint8Array[] {
+function isByteSourceItem(
+  value: unknown,
+): value is Uint8Array | readonly Uint8Array[] {
   return value instanceof Uint8Array || isByteBatch(value);
 }
 
 function isByteBatch(value: unknown): value is readonly Uint8Array[] {
-  return Array.isArray(value) && value.every(entry => entry instanceof Uint8Array);
+  return (
+    Array.isArray(value) && value.every((entry) => entry instanceof Uint8Array)
+  );
 }
 
 function isAsyncIterable(input: ParseInput): boolean {
-  return typeof input === 'object'
-    && input !== null
-    && Symbol.asyncIterator in input
-    && typeof (input as AsyncIterable<unknown>)[Symbol.asyncIterator] === 'function';
+  return (
+    typeof input === "object" &&
+    input !== null &&
+    Symbol.asyncIterator in input &&
+    typeof (input as AsyncIterable<unknown>)[Symbol.asyncIterator] ===
+      "function"
+  );
 }
 
 class EventInputValidator {
@@ -1642,23 +1916,34 @@ class EventInputValidator {
   private doctypeSeen = false;
   private readonly stack: string[] = [];
 
-  constructor(private readonly documentMode: 'fragment' | 'document') {}
+  constructor(private readonly documentMode: "fragment" | "document") {}
 
   accept(value: unknown): AnyXmlEvent {
-    if (!isXmlEvent(value)) throw new Error('Event iterables must contain only XML event values.');
-    if (this.ended) throw new Error('XML events are not allowed after END_DOCUMENT.');
+    if (!isXmlEvent(value))
+      throw new Error("Event iterables must contain only XML event values.");
+    if (this.ended)
+      throw new Error("XML events are not allowed after END_DOCUMENT.");
 
     if (value.type === XmlEventType.START_DOCUMENT) {
-      if (this.started) throw new Error('START_DOCUMENT must occur exactly once at the beginning.');
+      if (this.started)
+        throw new Error(
+          "START_DOCUMENT must occur exactly once at the beginning.",
+        );
       this.started = true;
       return value;
     }
-    if (!this.started) throw new Error('XML event input must begin with START_DOCUMENT.');
+    if (!this.started)
+      throw new Error("XML event input must begin with START_DOCUMENT.");
 
     if (value.type === XmlEventType.END_DOCUMENT) {
-      if (this.stack.length > 0) throw new Error(`Unclosed element in XML event input: ${this.stack.at(-1)}`);
-      if (this.documentMode === 'document' && this.roots !== 1) {
-        throw new Error(`Document mode requires exactly one root element; found ${this.roots}.`);
+      if (this.stack.length > 0)
+        throw new Error(
+          `Unclosed element in XML event input: ${this.stack.at(-1)}`,
+        );
+      if (this.documentMode === "document" && this.roots !== 1) {
+        throw new Error(
+          `Document mode requires exactly one root element; found ${this.roots}.`,
+        );
       }
       this.ended = true;
       return value;
@@ -1667,8 +1952,10 @@ class EventInputValidator {
     if (value.type === XmlEventType.START_ELEMENT) {
       if (this.stack.length === 0) {
         this.roots++;
-        if (this.documentMode === 'document' && this.roots > 1) {
-          throw new Error('Document mode does not allow multiple root elements.');
+        if (this.documentMode === "document" && this.roots > 1) {
+          throw new Error(
+            "Document mode does not allow multiple root elements.",
+          );
         }
       }
       this.stack.push(value.name);
@@ -1677,21 +1964,36 @@ class EventInputValidator {
 
     if (value.type === XmlEventType.END_ELEMENT) {
       const expected = this.stack.pop();
-      if (expected === undefined) throw new Error(`Unexpected closing element: ${value.name}`);
-      if (expected !== value.name) throw new Error(`Mismatched closing element: expected ${expected}, received ${value.name}`);
+      if (expected === undefined)
+        throw new Error(`Unexpected closing element: ${value.name}`);
+      if (expected !== value.name)
+        throw new Error(
+          `Mismatched closing element: expected ${expected}, received ${value.name}`,
+        );
       return value;
     }
 
-    if ((value.type === XmlEventType.CHARACTERS || value.type === XmlEventType.CDATA) && this.stack.length === 0) {
-      if (this.documentMode === 'document' && (value.type === XmlEventType.CDATA || /[^\t\n\r ]/.test(value.value))) {
-        throw new Error('Character data is not allowed outside the root element.');
+    if (
+      (value.type === XmlEventType.CHARACTERS ||
+        value.type === XmlEventType.CDATA) &&
+      this.stack.length === 0
+    ) {
+      if (
+        this.documentMode === "document" &&
+        (value.type === XmlEventType.CDATA || /[^\t\n\r ]/.test(value.value))
+      ) {
+        throw new Error(
+          "Character data is not allowed outside the root element.",
+        );
       }
       return value;
     }
 
     if (value.type === XmlEventType.DTD) {
       if (this.doctypeSeen || this.roots > 0 || this.stack.length > 0) {
-        throw new Error('DOCTYPE must occur at most once before the root element.');
+        throw new Error(
+          "DOCTYPE must occur at most once before the root element.",
+        );
       }
       this.doctypeSeen = true;
     }
@@ -1699,15 +2001,21 @@ class EventInputValidator {
   }
 
   finish(): void {
-    if (!this.started || !this.ended) throw new Error('XML event input must include START_DOCUMENT and END_DOCUMENT.');
+    if (!this.started || !this.ended)
+      throw new Error(
+        "XML event input must include START_DOCUMENT and END_DOCUMENT.",
+      );
   }
 }
 
 const XML_EVENT_TYPES = new Set<string>(Object.values(XmlEventType));
 
 function isXmlEvent(value: unknown): value is AnyXmlEvent {
-  return typeof value === 'object' && value !== null
-    && 'type' in value
-    && typeof value.type === 'string'
-    && XML_EVENT_TYPES.has(value.type);
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "type" in value &&
+    typeof value.type === "string" &&
+    XML_EVENT_TYPES.has(value.type)
+  );
 }

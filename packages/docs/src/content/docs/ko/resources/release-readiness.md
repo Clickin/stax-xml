@@ -7,8 +7,8 @@ Release tag를 만들거나 release branch를 `master`에 병합하기 전에 �
 사용하세요.
 
 아래 command를 실행하기 전에 `RELEASE_TAG`를 아직 사용하지 않은 다음 release tag로
-설정하세요. 최종 1.0 release라면 `v1.0.0`, prerelease를 한 번 더 낸다면
-`v1.0.0-rc4` 같은 다음 rc tag를 사용합니다. `package.json`과
+설정하세요. 이번 release에는 `v1.1.0`, prerelease에는 `v1.1.0-rc1` 같은 tag를
+사용합니다. `package.json`과
 `packages/stax-xml/package.json`의 version은 앞의 `v`를 뺀 tag와 이미 일치해야
 합니다.
 
@@ -81,6 +81,7 @@ Docs build와 release snapshot을 검증합니다.
 ```bash
 pnpm docs:build
 pnpm docs:snapshot:release "$RELEASE_TAG" --dry-run
+pnpm dlx changelogithub@14.0.0 --dry
 ```
 
 Release-facing docs는 다음 항목을 포함해야 합니다.
@@ -89,6 +90,13 @@ Release-facing docs는 다음 항목을 포함해야 합니다.
 - Import, reader, 큰 파일 변경을 설명하는 [v0.x 마이그레이션](/stax-xml/ko/guide/migration-v0/).
 - 주요 server framework의 request stream 처리법을 설명하는 [Web Server 연동](/stax-xml/ko/guide/server-integration/).
 - 재현 가능한 성능 command와 생성된 release 결과를 담은 [벤치마크](/stax-xml/ko/resources/benchmarks/).
+- Event/current-token read → modify → write 흐름, event fidelity, DTD entity
+  보안 경계를 설명하는 [XML 변환 파이프라인](/stax-xml/ko/guide/event-pipelines/).
+
+`changelogithub`는 이전 tag 이후의 Conventional Commit subject로 GitHub Release
+message를 만듭니다. Tag 전에 preview하고, 사용자에게 중요한 v1.1 변화가 `feat`,
+`fix`, `perf` commit으로 표현되었는지 확인하세요. Docs/test/internal refactor만으로
+구현 중심의 release message가 만들어져서는 안 됩니다.
 
 ## 5. Migration readiness
 

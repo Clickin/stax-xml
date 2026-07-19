@@ -7,8 +7,8 @@ Use this checklist before creating a release tag or merging the release branch
 to `master`.
 
 Set `RELEASE_TAG` to the next unused release tag before running the commands
-below. For the final 1.0 release use `v1.0.0`; for another prerelease use the
-next rc tag, for example `v1.0.0-rc4`. The package versions in `package.json`
+below. For this release use `v1.1.0`; for a prerelease use a tag such as
+`v1.1.0-rc1`. The package versions in `package.json`
 and `packages/stax-xml/package.json` must already match the tag without the
 leading `v`.
 
@@ -83,6 +83,7 @@ Build the docs and validate the release snapshot:
 ```bash
 pnpm docs:build
 pnpm docs:snapshot:release "$RELEASE_TAG" --dry-run
+pnpm dlx changelogithub@14.0.0 --dry
 ```
 
 Release-facing docs must cover:
@@ -95,6 +96,15 @@ Release-facing docs must cover:
   stream handling in common server frameworks;
 - [Benchmarks](/stax-xml/resources/benchmarks/) for reproducible performance
   commands and generated release results.
+- [XML Transformation Pipelines](/stax-xml/guide/event-pipelines/) for event
+  and current-token read → modify → write flows, event fidelity, and the DTD
+  entity security boundary.
+
+`changelogithub` builds the GitHub Release message from Conventional Commit
+subjects since the previous tag. Preview it before tagging and ensure the
+user-facing v1.1 work is represented by `feat`, `fix`, or `perf` commits; docs,
+tests, and internal refactors should support those entries rather than replace
+them with an implementation-only release message.
 
 ## 5. Migration Readiness
 

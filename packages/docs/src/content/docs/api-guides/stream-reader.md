@@ -117,3 +117,8 @@ error also closes the reader before rethrowing the original error. Concurrent
 For stable event objects, use [`EventReader`](/stax-xml/api-guides/event-reader)
 instead. For complete XML already held as a JavaScript string, use
 [`StreamReaderSync`](/stax-xml/api-guides/stream-reader-sync).
+
+To transform XML while retaining this low-allocation model, dispatch each
+current token to the corresponding writer method. The tradeoffs and a complete
+event-based alternative are covered in
+[XML Transformation Pipelines](/stax-xml/guide/event-pipelines/).

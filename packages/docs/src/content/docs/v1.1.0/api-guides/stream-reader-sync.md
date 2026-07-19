@@ -1,0 +1,82 @@
+---
+title: StreamReaderSync - Synchronous Current-Token XML Parsing
+description: Low-allocation synchronous XML stream reader for JavaScript and TypeScript
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/api-guides/stream-reader-sync.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/api-guides/stream-reader-sync.png
+slug: v1.1.0/api-guides/stream-reader-sync
+---
+
+## StreamReaderSync
+
+`StreamReaderSync` is the synchronous current-token reader. It accepts a
+JavaScript string, one `Uint8Array`, or an `Iterable<Uint8Array>`.
+
+```ts
+import { StreamReaderSync, XmlEventType } from 'stax-xml';
+
+const reader = new StreamReaderSync('<catalog><book id="b1">StAX</book></catalog>');
+try {
+  while (reader.next() !== null) {
+    if (reader.eventType() === XmlEventType.START_ELEMENT) {
+      console.log(reader.name(), reader.attributeValue('id'));
+    }
+  }
+} finally {
+  reader.close();
+}
+```
+
+String input is scanned directly without first encoding it to bytes. Byte
+inputs use a fatal `TextDecoder`; `encoding` defaults to `utf-8` and accepts
+labels supported by the host `TextDecoder`, including `utf-16le` and
+`utf-16be`. The label is not inferred from the XML declaration; callers must
+select the encoding that matches the byte source.
+
+```ts
+type StreamReaderSyncInput =
+  | string
+  | Uint8Array
+  | Iterable<Uint8Array>;
+
+interface StreamReaderSyncOptions {
+  documentMode?: 'document' | 'fragment';
+  namespaceAware?: boolean; // default: true
+  autoDecodeEntities?: boolean; // default: true
+  addEntities?: { entity: string; value: string }[];
+  encoding?: string; // byte input only; default: 'utf-8'
+}
+```
+
+`namespaceAware` defaults to `true`. Set it to `false` when consumers need raw qualified names only: namespace URIs are `''`, `xmlns` declarations are ordinary attributes, and undeclared prefixes are not rejected.
+
+The reader emits `START_DOCUMENT` first and `END_DOCUMENT` last. Accessors
+include `eventType()`, `name()`, `text()`, `localName()`, `prefix()`,
+`namespaceURI()`, indexed attribute metadata, `attributeValue(indexOrName)`,
+`attributeValue(namespaceURI, localName)`, and
+`namespaceURIForPrefix()`. They describe only the current token.
+
+Malformed XML, unsupported named entities, and invalid byte sequences for the
+selected encoding throw an error. `autoDecodeEntities` defaults to `true` and
+single-pass decodes predefined, numeric, and configured custom entities. Set it
+to `false` to return raw reference spelling while retaining validation. CDATA
+is always literal. `addEntities` supplies trusted, non-recursive internal
+definitions without DTD processing or external I/O.
+
+Call `reader.close()` when stopping early. It is idempotent and closes an
+underlying byte iterator. Use [`EventReaderSync`](/stax-xml/api-guides/event-reader-sync)
+when stable event objects are more convenient.

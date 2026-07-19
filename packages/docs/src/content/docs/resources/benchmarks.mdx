@@ -25,7 +25,7 @@ import CrossRuntimeWriterTable from '../../../components/CrossRuntimeWriterTable
 import ReleaseBenchmarkTable from '../../../components/ReleaseBenchmarkTable.astro';
 
 StAX-XML benchmarks the package as a pure JavaScript parser. The `latest`
-documentation and the `v1.0.0` release benchmark set use this same contract:
+documentation and the `v1.1.0` release benchmark set use this same contract:
 measure the public JavaScript surfaces that users actually call, with full
 JavaScript string and object materialization.
 
@@ -151,13 +151,13 @@ limited by JavaScript tokenizer and string-materialization costs.
 
 ### Runtime Matrix
 
-<ReleaseBenchmarkTable kind="runtime" version="v1.0.0" />
+<ReleaseBenchmarkTable kind="runtime" version="v1.1.0" />
 
 The 4 GiB generated stream fixture uses `StreamReaderSync` over
 `Iterable<Uint8Array[]>` in fragment mode, consumes events through current-token
 accessors, skips warmup, and measures 3 runs.
 
-<ReleaseBenchmarkTable kind="stream4gib" version="v1.0.0" />
+<ReleaseBenchmarkTable kind="stream4gib" version="v1.1.0" />
 
 ## Other Benchmark Tracks
 

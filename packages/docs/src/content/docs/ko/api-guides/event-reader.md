@@ -42,6 +42,10 @@ for await (const event of new EventReader(response.body!)) {
 반환한 event와 attribute는 안정적인 JavaScript object이며 reader가 진행되어도
 이전 값을 변경하지 않습니다.
 
+v1.1부터 이 event를 `Writer.writeEvent()`에 직접 전달하고 중간에서 선택한
+event만 교체할 수 있습니다. 동기/비동기 전체 예제는
+[XML 변환 파이프라인](/stax-xml/ko/guide/event-pipelines/)을 참고하세요.
+
 ## 입력
 
 ```ts
@@ -88,6 +92,10 @@ const reader = new EventReader(createReadStream('large.xml'));
 loop를 일찍 끝낼 때는 `await reader.return()`을 호출하세요. Concurrent `next()`는
 reject됩니다.
 
+첫 `next()`는 `START_DOCUMENT`를 반환하기 전에 input을 소비할 수 있습니다. 해당
+event를 materialize하려면 BOM, XML declaration, DTD preamble을 먼저 확인해야 하므로
+source error나 cancellation도 첫 호출에서 발생할 수 있습니다.
+
 ## Current-Token 대안
 
 Event object 할당을 줄이는 것이 중요하면 같은 source를 받는 `StreamReader`를 사용합니다.
@@ -117,8 +125,12 @@ Current-token accessor는 다음 성공한 `next()` 호출 전까지만 유효�
 processing-instruction, DTD event를 포함합니다. Start-element attribute는
 `EventAttributes`는 qualified name을 key로 사용하는 읽기 전용 Map입니다. value에는
 `name`, `localName`, `prefix`, `namespaceURI`, `value`가 유지되고 source 순서대로
-순회합니다. `JSON.stringify()` 결과는 `{}`가 아니라 JSON object입니다. namespace
-declaration은 attribute에 포함되지 않습니다.
+순회합니다. `JSON.stringify()` 결과는 `{}`가 아니라 JSON object입니다.
+Namespace-aware mode에서는 namespace declaration도 XMLNS namespace의 attribute로
+source 순서대로 포함되므로 `writeEvent()`가 qualified name의 binding을 재구성할 수
+있습니다. Attribute가 없으면 `attributes`는 `undefined`입니다. Start-document
+event에는 XML declaration metadata가, start-element event에는 `selfClosing`이
+포함됩니다.
 TypeScript narrowing에는 `isStartElement()`, `isCharacters()` 같은 type guard를
 사용하세요.
 

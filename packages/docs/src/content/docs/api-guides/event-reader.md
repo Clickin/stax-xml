@@ -43,6 +43,11 @@ for await (const event of new EventReader(response.body!)) {
 Every yielded event and attribute is a stable JavaScript object. Advancing the
 reader does not mutate previously yielded values.
 
+Starting with v1.1, these events can be forwarded directly to
+`Writer.writeEvent()`, with selected events replaced in between. See
+[XML Transformation Pipelines](/stax-xml/guide/event-pipelines/) for complete
+sync and async examples.
+
 ## Input
 
 ```ts
@@ -91,6 +96,11 @@ const reader = new EventReader(createReadStream('large.xml'));
 returns the source. In a manual loop, call `await reader.return()` when stopping
 early. Concurrent `next()` calls are rejected.
 
+The first `next()` may consume input before yielding `START_DOCUMENT`. BOM, XML
+declaration, and DTD preamble information must be inspected before that event
+can be materialized, so source errors or cancellation can also occur on the
+first call.
+
 ## Current-Token Alternative
 
 Use `StreamReader` when reducing event-object allocation matters. It accepts the same
@@ -122,7 +132,11 @@ processing-instruction, and DTD events. Start-element attributes are an
 `EventAttributes` is a read-only Map keyed by qualified name. Values retain
 `name`, `localName`, `prefix`, `namespaceURI`, and `value`; iteration follows
 source order. `JSON.stringify()` emits a JSON object rather than `{}`.
-Namespace declarations are not included as attributes.
+In namespace-aware mode, namespace declarations are included in source order as
+attributes in the XMLNS namespace. This lets `writeEvent()` reproduce the
+bindings required by qualified names. `attributes` is `undefined` when the
+element has none. Start-document events also carry XML declaration metadata,
+and start-element events carry `selfClosing`.
 Use the exported type guards such as `isStartElement()` and `isCharacters()`
 for TypeScript narrowing.
 

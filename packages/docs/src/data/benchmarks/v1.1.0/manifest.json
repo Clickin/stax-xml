@@ -1,0 +1,36 @@
+{
+  "version": "v1.1.0",
+  "createdAt": "2026-07-19T09:35:12.636Z",
+  "gitCommit": "67e0177daadb0ed75d613f4574d47aa9abc26d3d",
+  "sourceDir": "packages/benchmark/results/release",
+  "files": [
+    {
+      "source": "packages/benchmark/results/release/latest-summary.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.1.0/latest-summary.json"
+    },
+    {
+      "source": "packages/benchmark/results/release/runtime-matrix.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.1.0/runtime-matrix.json"
+    },
+    {
+      "source": "packages/benchmark/results/release/reader-cross-runtime.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.1.0/reader-cross-runtime.json"
+    },
+    {
+      "source": "packages/benchmark/results/release/stream-reader-4gb.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.1.0/stream-reader-4gb.json"
+    },
+    {
+      "source": "packages/benchmark/results/release/converter-compiled-batch-plan.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.1.0/converter-compiled-batch-plan.json"
+    },
+    {
+      "source": "packages/benchmark/results/release/raw/writer-1gb.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.1.0/raw/writer-1gb.json"
+    },
+    {
+      "source": "packages/benchmark/results/release/writer-cross-runtime.json",
+      "destination": "packages/docs/src/data/benchmarks/v1.1.0/writer-cross-runtime.json"
+    }
+  ]
+}

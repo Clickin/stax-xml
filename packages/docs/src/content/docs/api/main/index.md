@@ -113,7 +113,7 @@ Close the reader when async iteration ends early.
 
 ### StreamReader
 
-Defined in: [async/StreamReader.ts:22](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L22)
+Defined in: [async/StreamReader.ts:31](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L31)
 
 Asynchronous, forward-only XML reader backed by a reusable token cursor.
 Call `next()` before accessing the current token through the accessor methods.
@@ -124,7 +124,7 @@ Call `next()` before accessing the current token through the accessor methods.
 
 > **new StreamReader**(`source`, `options?`): [`StreamReader`](#streamreader)
 
-Defined in: [async/StreamReader.ts:30](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L30)
+Defined in: [async/StreamReader.ts:39](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L39)
 
 ###### Parameters
 
@@ -146,7 +146,7 @@ Defined in: [async/StreamReader.ts:30](https://github.com/Clickin/stax-xml/blob/
 
 > **next**(): `Promise`\<[`XmlEventType`](#xmleventtype-1) \| `null`\>
 
-Defined in: [async/StreamReader.ts:38](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L38)
+Defined in: [async/StreamReader.ts:55](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L55)
 
 Advance to the next token, or return `null` at end of input.
 
@@ -158,7 +158,7 @@ Advance to the next token, or return `null` at end of input.
 
 > **close**(): `Promise`\<`void`\>
 
-Defined in: [async/StreamReader.ts:40](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L40)
+Defined in: [async/StreamReader.ts:59](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L59)
 
 Stop parsing and close the underlying input iterator.
 
@@ -170,7 +170,7 @@ Stop parsing and close the underlying input iterator.
 
 > **eventType**(): [`XmlEventType`](#xmleventtype-1)
 
-Defined in: [async/StreamReader.ts:42](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L42)
+Defined in: [async/StreamReader.ts:63](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L63)
 
 Return the current token type.
 
@@ -182,7 +182,7 @@ Return the current token type.
 
 > **name**(): `string` \| `undefined`
 
-Defined in: [async/StreamReader.ts:44](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L44)
+Defined in: [async/StreamReader.ts:67](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L67)
 
 Return the current element's qualified name.
 
@@ -194,7 +194,7 @@ Return the current element's qualified name.
 
 > **text**(): `string` \| `undefined`
 
-Defined in: [async/StreamReader.ts:46](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L46)
+Defined in: [async/StreamReader.ts:71](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L71)
 
 Return text carried by the current text-like token.
 
@@ -206,7 +206,7 @@ Return text carried by the current text-like token.
 
 > **localName**(): `string` \| `undefined`
 
-Defined in: [async/StreamReader.ts:48](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L48)
+Defined in: [async/StreamReader.ts:75](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L75)
 
 Return the current element's local name.
 
@@ -218,7 +218,7 @@ Return the current element's local name.
 
 > **prefix**(): `string`
 
-Defined in: [async/StreamReader.ts:50](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L50)
+Defined in: [async/StreamReader.ts:79](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L79)
 
 Return the current element's namespace prefix, or an empty string.
 
@@ -230,7 +230,7 @@ Return the current element's namespace prefix, or an empty string.
 
 > **namespaceURI**(): `string`
 
-Defined in: [async/StreamReader.ts:52](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L52)
+Defined in: [async/StreamReader.ts:83](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L83)
 
 Return the namespace URI resolved for the current element.
 
@@ -242,7 +242,7 @@ Return the namespace URI resolved for the current element.
 
 > **attributeCount**(): `number`
 
-Defined in: [async/StreamReader.ts:54](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L54)
+Defined in: [async/StreamReader.ts:87](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L87)
 
 Return the number of attributes on the current start element.
 
@@ -254,7 +254,7 @@ Return the number of attributes on the current start element.
 
 > **attributeName**(`index`): `string` \| `undefined`
 
-Defined in: [async/StreamReader.ts:56](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L56)
+Defined in: [async/StreamReader.ts:91](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L91)
 
 Return an attribute's qualified name by zero-based index.
 
@@ -272,7 +272,7 @@ Return an attribute's qualified name by zero-based index.
 
 > **attributeLocalName**(`index`): `string` \| `undefined`
 
-Defined in: [async/StreamReader.ts:58](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L58)
+Defined in: [async/StreamReader.ts:95](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L95)
 
 Return an attribute's local name by zero-based index.
 
@@ -290,7 +290,7 @@ Return an attribute's local name by zero-based index.
 
 > **attributePrefix**(`index`): `string` \| `undefined`
 
-Defined in: [async/StreamReader.ts:60](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L60)
+Defined in: [async/StreamReader.ts:99](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L99)
 
 Return an attribute's namespace prefix by zero-based index.
 
@@ -308,7 +308,7 @@ Return an attribute's namespace prefix by zero-based index.
 
 > **attributeNamespaceURI**(`index`): `string` \| `undefined`
 
-Defined in: [async/StreamReader.ts:62](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L62)
+Defined in: [async/StreamReader.ts:103](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L103)
 
 Return an attribute's namespace URI by zero-based index.
 
@@ -326,7 +326,7 @@ Return an attribute's namespace URI by zero-based index.
 
 > **attributeValue**(`indexOrNameOrNamespace`, `localName?`): `string` \| `undefined`
 
-Defined in: [async/StreamReader.ts:64](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L64)
+Defined in: [async/StreamReader.ts:107](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L107)
 
 Return an attribute value by index, qualified name, or namespace URI plus local name.
 
@@ -348,7 +348,7 @@ Return an attribute value by index, qualified name, or namespace URI plus local 
 
 > **namespaceURIForPrefix**(`prefix`): `string`
 
-Defined in: [async/StreamReader.ts:68](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L68)
+Defined in: [async/StreamReader.ts:114](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L114)
 
 Resolve a namespace prefix in the current element scope.
 
@@ -366,56 +366,9 @@ Resolve a namespace prefix in the current element scope.
 
 ### Writer
 
-Defined in: [async/Writer.ts:141](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L141)
+Defined in: [async/Writer.ts:31](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L31)
 
-High-performance asynchronous XML writer implementing the StAX (Streaming API for XML) pattern.
-
-This writer provides efficient streaming XML generation using WritableStream for handling
-large XML documents with automatic buffering, backpressure management, and namespace support.
-
-This is an optimized implementation with:
-- Optimization 1: Regex caching for entity escaping
-- Optimization 2: Attribute string batching
-- Optimization 3: Early entity check before regex execution
-- Optimization 4: Qualified closing-tag stack (avoid rebuilding end tags)
-- Optimization 5: Copy-on-write namespace frames
-- Optimization 6: Indentation cache for pretty-print output
-- Optimization 7: `TextEncoder.encodeInto()` buffering to reduce intermediate byte arrays
-- Optimization 8: Flush by buffer view to avoid per-flush copy slices
-
-#### Remarks
-
-The writer supports streaming output with configurable buffering, automatic entity encoding,
-pretty printing with customizable indentation, and comprehensive namespace handling.
-
-#### Examples
-
-Basic usage:
-```typescript
-const writableStream = new WritableStream({
-  write(chunk) {
-    console.log(new TextDecoder().decode(chunk));
-  }
-});
-
-const writer = new Writer(writableStream);
-await writer.writeStartElement('root');
-await writer.writeStartElement('item', { attributes: { id: '1' } });
-await writer.writeCharacters('Hello World');
-await writer.writeEndElement();
-await writer.writeEndElement();
-await writer.close();
-```
-
-With pretty printing:
-```typescript
-const options = {
-  prettyPrint: true,
-  indentString: '    ',
-  autoEncodeEntities: true
-};
-const writer = new Writer(writableStream, options);
-```
+Asynchronous I/O wrapper for the shared WriterCore serializer.
 
 #### Constructors
 
@@ -423,7 +376,7 @@ const writer = new Writer(writableStream, options);
 
 > **new Writer**(`output`, `options?`): [`Writer`](#writer)
 
-Defined in: [async/Writer.ts:178](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L178)
+Defined in: [async/Writer.ts:44](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L44)
 
 ###### Parameters
 
@@ -443,57 +396,37 @@ Defined in: [async/Writer.ts:178](https://github.com/Clickin/stax-xml/blob/maste
 
 ##### writeStartDocument()
 
-> **writeStartDocument**(`version?`, `encoding?`): `Promise`\<[`Writer`](#writer)\>
+> **writeStartDocument**(`version?`, `encoding?`, `standalone?`): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: [async/Writer.ts:313](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L313)
+Defined in: [async/Writer.ts:87](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L87)
 
-Write XML declaration
+Write an XML declaration.
 
 ###### Parameters
 
 ###### version?
 
-`"1.0"` = `'1.0'`
+`"1.0"` = `"1.0"`
 
 ###### encoding?
 
 `string`
 
+###### standalone?
+
+`boolean`
+
 ###### Returns
 
 `Promise`\<[`Writer`](#writer)\>
-
-##### writeEndDocument()
-
-> **writeEndDocument**(): `Promise`\<`void`\>
-
-Defined in: [async/Writer.ts:338](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L338)
-
-End document (automatically close all elements)
-
-###### Returns
-
-`Promise`\<`void`\>
-
-##### close()
-
-> **close**(): `Promise`\<`void`\>
-
-Defined in: [async/Writer.ts:369](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L369)
-
-Finalize any open elements, flush buffered bytes, and close the underlying stream.
-
-###### Returns
-
-`Promise`\<`void`\>
 
 ##### writeStartElement()
 
 > **writeStartElement**(`localName`, `options?`): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: [async/Writer.ts:376](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L376)
+Defined in: [async/Writer.ts:98](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L98)
 
-Write start element
+Open an element.
 
 ###### Parameters
 
@@ -513,9 +446,9 @@ Write start element
 
 > **writeEndElement**(): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: [async/Writer.ts:432](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L432)
+Defined in: [async/Writer.ts:106](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L106)
 
-Write end element
+Close the current element.
 
 ###### Returns
 
@@ -525,9 +458,9 @@ Write end element
 
 > **writeCharacters**(`text`): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: [async/Writer.ts:468](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L468)
+Defined in: [async/Writer.ts:111](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L111)
 
-Write text
+Write escaped character data.
 
 ###### Parameters
 
@@ -543,9 +476,9 @@ Write text
 
 > **writeCData**(`cdata`): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: [async/Writer.ts:491](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L491)
+Defined in: [async/Writer.ts:116](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L116)
 
-Write CDATA section
+Write a CDATA section.
 
 ###### Parameters
 
@@ -557,13 +490,61 @@ Write CDATA section
 
 `Promise`\<[`Writer`](#writer)\>
 
+##### writeAttribute()
+
+> **writeAttribute**(`localName`, `value`, `prefix?`): `Promise`\<[`Writer`](#writer)\>
+
+Defined in: [async/Writer.ts:121](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L121)
+
+Add an attribute to the open start tag.
+
+###### Parameters
+
+###### localName
+
+`string`
+
+###### value
+
+`string`
+
+###### prefix?
+
+`string`
+
+###### Returns
+
+`Promise`\<[`Writer`](#writer)\>
+
+##### writeNamespace()
+
+> **writeNamespace**(`prefix`, `uri`): `Promise`\<[`Writer`](#writer)\>
+
+Defined in: [async/Writer.ts:130](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L130)
+
+Add a namespace declaration to the open start tag.
+
+###### Parameters
+
+###### prefix
+
+`string`
+
+###### uri
+
+`string`
+
+###### Returns
+
+`Promise`\<[`Writer`](#writer)\>
+
 ##### writeComment()
 
 > **writeComment**(`comment`): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: [async/Writer.ts:513](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L513)
+Defined in: [async/Writer.ts:135](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L135)
 
-Write comment
+Write an XML comment.
 
 ###### Parameters
 
@@ -575,13 +556,71 @@ Write comment
 
 `Promise`\<[`Writer`](#writer)\>
 
+##### writeProcessingInstruction()
+
+> **writeProcessingInstruction**(`target`, `data?`): `Promise`\<[`Writer`](#writer)\>
+
+Defined in: [async/Writer.ts:140](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L140)
+
+Write a processing instruction.
+
+###### Parameters
+
+###### target
+
+`string`
+
+###### data?
+
+`string`
+
+###### Returns
+
+`Promise`\<[`Writer`](#writer)\>
+
+##### writeDTD()
+
+> **writeDTD**(`value`): `Promise`\<[`Writer`](#writer)\>
+
+Defined in: [async/Writer.ts:148](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L148)
+
+Write a document type declaration.
+
+###### Parameters
+
+###### value
+
+`string`
+
+###### Returns
+
+`Promise`\<[`Writer`](#writer)\>
+
+##### writeEvent()
+
+> **writeEvent**(`event`): `Promise`\<[`Writer`](#writer)\>
+
+Defined in: [async/Writer.ts:153](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L153)
+
+Write one standard materialized XML event.
+
+###### Parameters
+
+###### event
+
+[`AnyXmlEvent`](#anyxmlevent)
+
+###### Returns
+
+`Promise`\<[`Writer`](#writer)\>
+
 ##### writeRaw()
 
 > **writeRaw**(`xml`): `Promise`\<[`Writer`](#writer)\>
 
-Defined in: [async/Writer.ts:538](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L538)
+Defined in: [async/Writer.ts:159](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L159)
 
-Write raw XML content without escaping
+Write trusted XML text without escaping.
 
 ###### Parameters
 
@@ -589,21 +628,41 @@ Write raw XML content without escaping
 
 `string`
 
-Raw XML string to write
-
 ###### Returns
 
 `Promise`\<[`Writer`](#writer)\>
 
-this (chainable)
+##### writeEndDocument()
+
+> **writeEndDocument**(): `Promise`\<`void`\>
+
+Defined in: [async/Writer.ts:165](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L165)
+
+Finish the XML document and close the output.
+
+###### Returns
+
+`Promise`\<`void`\>
+
+##### close()
+
+> **close**(): `Promise`\<`void`\>
+
+Defined in: [async/Writer.ts:180](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L180)
+
+Close the writer and its output.
+
+###### Returns
+
+`Promise`\<`void`\>
 
 ##### flush()
 
 > **flush**(): `Promise`\<`void`\>
 
-Defined in: [async/Writer.ts:548](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L548)
+Defined in: [async/Writer.ts:184](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L184)
 
-Manual flush
+Flush buffered output.
 
 ###### Returns
 
@@ -710,7 +769,7 @@ Stop parsing and release the underlying input iterator.
 
 ### StreamReaderSync
 
-Defined in: [sync/StreamReaderSync.ts:23](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L23)
+Defined in: [sync/StreamReaderSync.ts:28](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L28)
 
 Synchronous current-token reader. Strings are scanned directly without
 encoding; byte inputs are decoded in fatal mode with the configured encoding.
@@ -721,7 +780,7 @@ encoding; byte inputs are decoded in fatal mode with the configured encoding.
 
 > **new StreamReaderSync**(`input`, `options?`): [`StreamReaderSync`](#streamreadersync)
 
-Defined in: [sync/StreamReaderSync.ts:29](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L29)
+Defined in: [sync/StreamReaderSync.ts:34](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L34)
 
 ###### Parameters
 
@@ -743,7 +802,7 @@ Defined in: [sync/StreamReaderSync.ts:29](https://github.com/Clickin/stax-xml/bl
 
 > **next**(): [`XmlEventType`](#xmleventtype-1) \| `null`
 
-Defined in: [sync/StreamReaderSync.ts:48](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L48)
+Defined in: [sync/StreamReaderSync.ts:63](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L63)
 
 Advance to the next token, or return `null` at end of input.
 
@@ -755,7 +814,7 @@ Advance to the next token, or return `null` at end of input.
 
 > **close**(): `void`
 
-Defined in: [sync/StreamReaderSync.ts:68](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L68)
+Defined in: [sync/StreamReaderSync.ts:89](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L89)
 
 Stop parsing and release the underlying input iterator.
 
@@ -767,7 +826,7 @@ Stop parsing and release the underlying input iterator.
 
 > **eventType**(): [`XmlEventType`](#xmleventtype-1)
 
-Defined in: [sync/StreamReaderSync.ts:77](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L77)
+Defined in: [sync/StreamReaderSync.ts:98](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L98)
 
 Return the current token type.
 
@@ -779,7 +838,7 @@ Return the current token type.
 
 > **name**(): `string` \| `undefined`
 
-Defined in: [sync/StreamReaderSync.ts:79](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L79)
+Defined in: [sync/StreamReaderSync.ts:102](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L102)
 
 Return the current element's qualified name.
 
@@ -791,7 +850,7 @@ Return the current element's qualified name.
 
 > **text**(): `string` \| `undefined`
 
-Defined in: [sync/StreamReaderSync.ts:81](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L81)
+Defined in: [sync/StreamReaderSync.ts:106](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L106)
 
 Return text carried by the current text-like token.
 
@@ -803,7 +862,7 @@ Return text carried by the current text-like token.
 
 > **localName**(): `string` \| `undefined`
 
-Defined in: [sync/StreamReaderSync.ts:83](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L83)
+Defined in: [sync/StreamReaderSync.ts:110](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L110)
 
 Return the current element's local name.
 
@@ -815,7 +874,7 @@ Return the current element's local name.
 
 > **prefix**(): `string`
 
-Defined in: [sync/StreamReaderSync.ts:85](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L85)
+Defined in: [sync/StreamReaderSync.ts:114](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L114)
 
 Return the current element's namespace prefix, or an empty string.
 
@@ -827,7 +886,7 @@ Return the current element's namespace prefix, or an empty string.
 
 > **namespaceURI**(): `string`
 
-Defined in: [sync/StreamReaderSync.ts:87](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L87)
+Defined in: [sync/StreamReaderSync.ts:118](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L118)
 
 Return the namespace URI resolved for the current element.
 
@@ -839,7 +898,7 @@ Return the namespace URI resolved for the current element.
 
 > **attributeCount**(): `number`
 
-Defined in: [sync/StreamReaderSync.ts:89](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L89)
+Defined in: [sync/StreamReaderSync.ts:122](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L122)
 
 Return the number of attributes on the current start element.
 
@@ -851,7 +910,7 @@ Return the number of attributes on the current start element.
 
 > **attributeName**(`index`): `string` \| `undefined`
 
-Defined in: [sync/StreamReaderSync.ts:91](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L91)
+Defined in: [sync/StreamReaderSync.ts:126](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L126)
 
 Return an attribute's qualified name by zero-based index.
 
@@ -869,7 +928,7 @@ Return an attribute's qualified name by zero-based index.
 
 > **attributeLocalName**(`index`): `string` \| `undefined`
 
-Defined in: [sync/StreamReaderSync.ts:93](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L93)
+Defined in: [sync/StreamReaderSync.ts:130](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L130)
 
 Return an attribute's local name by zero-based index.
 
@@ -887,7 +946,7 @@ Return an attribute's local name by zero-based index.
 
 > **attributePrefix**(`index`): `string` \| `undefined`
 
-Defined in: [sync/StreamReaderSync.ts:95](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L95)
+Defined in: [sync/StreamReaderSync.ts:134](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L134)
 
 Return an attribute's namespace prefix by zero-based index.
 
@@ -905,7 +964,7 @@ Return an attribute's namespace prefix by zero-based index.
 
 > **attributeNamespaceURI**(`index`): `string` \| `undefined`
 
-Defined in: [sync/StreamReaderSync.ts:97](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L97)
+Defined in: [sync/StreamReaderSync.ts:138](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L138)
 
 Return an attribute's namespace URI by zero-based index.
 
@@ -923,7 +982,7 @@ Return an attribute's namespace URI by zero-based index.
 
 > **attributeValue**(`indexOrNameOrNamespace`, `localName?`): `string` \| `undefined`
 
-Defined in: [sync/StreamReaderSync.ts:99](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L99)
+Defined in: [sync/StreamReaderSync.ts:142](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L142)
 
 Return an attribute value by index, qualified name, or namespace URI plus local name.
 
@@ -945,7 +1004,7 @@ Return an attribute value by index, qualified name, or namespace URI plus local 
 
 > **namespaceURIForPrefix**(`prefix`): `string`
 
-Defined in: [sync/StreamReaderSync.ts:105](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L105)
+Defined in: [sync/StreamReaderSync.ts:151](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L151)
 
 Resolve a namespace prefix in the current element scope.
 
@@ -963,21 +1022,21 @@ Resolve a namespace prefix in the current element scope.
 
 ### WriterSync
 
-Defined in: [sync/WriterSync.ts:535](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L535)
+Defined in: [sync/WriterSync.ts:35](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L35)
 
-String-based sync writer.
+String-based synchronous XML writer.
 
-#### Extends
+#### Extended by
 
-- `AbstractWriterSync`
+- [`WriterSyncSink`](#writersyncsink)
 
 #### Constructors
 
 ##### Constructor
 
-> **new WriterSync**(`options?`): [`WriterSync`](#writersync)
+> **new WriterSync**(`options?`, `encoding?`): [`WriterSync`](#writersync)
 
-Defined in: [sync/WriterSync.ts:538](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L538)
+Defined in: [sync/WriterSync.ts:39](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L39)
 
 ###### Parameters
 
@@ -985,65 +1044,73 @@ Defined in: [sync/WriterSync.ts:538](https://github.com/Clickin/stax-xml/blob/ma
 
 [`WriterSyncOptions`](#writersyncoptions) = `{}`
 
+###### encoding?
+
+`string` = `...`
+
 ###### Returns
 
 [`WriterSync`](#writersync)
 
-###### Overrides
-
-`AbstractWriterSync.constructor`
-
 #### Methods
+
+##### getXmlString()
+
+> **getXmlString**(): `string`
+
+Defined in: [sync/WriterSync.ts:48](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L48)
+
+Return XML accumulated by this string writer.
+
+###### Returns
+
+`string`
 
 ##### writeStartDocument()
 
-> **writeStartDocument**(`version?`, `encoding?`): `this`
+> **writeStartDocument**(`version?`, `encoding?`, `standalone?`): `this`
 
-Defined in: [sync/WriterSync.ts:152](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L152)
+Defined in: [sync/WriterSync.ts:56](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L56)
 
-Writes the XML declaration (e.g., <?xml version="1.0" encoding="UTF-8"?>).
+Write an XML declaration.
 
 ###### Parameters
 
 ###### version?
 
-`"1.0"` = `'1.0'`
+`"1.0"` = `"1.0"`
 
 ###### encoding?
 
 `string`
 
+###### standalone?
+
+`boolean`
+
 ###### Returns
 
 `this`
-
-###### Inherited from
-
-`AbstractWriterSync.writeStartDocument`
 
 ##### writeEndDocument()
 
 > **writeEndDocument**(): `void`
 
-Defined in: [sync/WriterSync.ts:171](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L171)
+Defined in: [sync/WriterSync.ts:65](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L65)
 
-Indicates the end of the document and automatically closes all open elements.
+Finish the XML document.
 
 ###### Returns
 
 `void`
 
-###### Inherited from
-
-`AbstractWriterSync.writeEndDocument`
-
 ##### writeStartElement()
 
 > **writeStartElement**(`localName`, `options?`): `this`
 
-Defined in: [sync/WriterSync.ts:184](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L184)
+Defined in: [sync/WriterSync.ts:69](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L69)
 
-Start an element and leave its start tag open for attributes.
+Open an element.
 
 ###### Parameters
 
@@ -1059,17 +1126,61 @@ Start an element and leave its start tag open for attributes.
 
 `this`
 
-###### Inherited from
+##### writeEndElement()
 
-`AbstractWriterSync.writeStartElement`
+> **writeEndElement**(): `this`
+
+Defined in: [sync/WriterSync.ts:77](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L77)
+
+Close the current element.
+
+###### Returns
+
+`this`
+
+##### writeCharacters()
+
+> **writeCharacters**(`text`): `this`
+
+Defined in: [sync/WriterSync.ts:82](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L82)
+
+Write escaped character data.
+
+###### Parameters
+
+###### text
+
+`string`
+
+###### Returns
+
+`this`
+
+##### writeCData()
+
+> **writeCData**(`cdata`): `this`
+
+Defined in: [sync/WriterSync.ts:87](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L87)
+
+Write a CDATA section.
+
+###### Parameters
+
+###### cdata
+
+`string`
+
+###### Returns
+
+`this`
 
 ##### writeAttribute()
 
 > **writeAttribute**(`localName`, `value`, `prefix?`): `this`
 
-Defined in: [sync/WriterSync.ts:236](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L236)
+Defined in: [sync/WriterSync.ts:92](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L92)
 
-Add an attribute to the currently open start tag.
+Add an attribute to the open start tag.
 
 ###### Parameters
 
@@ -1089,17 +1200,13 @@ Add an attribute to the currently open start tag.
 
 `this`
 
-###### Inherited from
-
-`AbstractWriterSync.writeAttribute`
-
 ##### writeNamespace()
 
 > **writeNamespace**(`prefix`, `uri`): `this`
 
-Defined in: [sync/WriterSync.ts:258](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L258)
+Defined in: [sync/WriterSync.ts:101](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L101)
 
-Declare a namespace on the currently open start tag.
+Add a namespace declaration to the open start tag.
 
 ###### Parameters
 
@@ -1115,59 +1222,11 @@ Declare a namespace on the currently open start tag.
 
 `this`
 
-###### Inherited from
-
-`AbstractWriterSync.writeNamespace`
-
-##### writeCharacters()
-
-> **writeCharacters**(`text`): `this`
-
-Defined in: [sync/WriterSync.ts:277](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L277)
-
-Write escaped character data.
-
-###### Parameters
-
-###### text
-
-`string`
-
-###### Returns
-
-`this`
-
-###### Inherited from
-
-`AbstractWriterSync.writeCharacters`
-
-##### writeCData()
-
-> **writeCData**(`cdata`): `this`
-
-Defined in: [sync/WriterSync.ts:293](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L293)
-
-Write a CDATA section.
-
-###### Parameters
-
-###### cdata
-
-`string`
-
-###### Returns
-
-`this`
-
-###### Inherited from
-
-`AbstractWriterSync.writeCData`
-
 ##### writeComment()
 
 > **writeComment**(`comment`): `this`
 
-Defined in: [sync/WriterSync.ts:312](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L312)
+Defined in: [sync/WriterSync.ts:106](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L106)
 
 Write an XML comment.
 
@@ -1181,15 +1240,11 @@ Write an XML comment.
 
 `this`
 
-###### Inherited from
-
-`AbstractWriterSync.writeComment`
-
 ##### writeProcessingInstruction()
 
 > **writeProcessingInstruction**(`target`, `data?`): `this`
 
-Defined in: [sync/WriterSync.ts:329](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L329)
+Defined in: [sync/WriterSync.ts:111](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L111)
 
 Write a processing instruction.
 
@@ -1207,17 +1262,49 @@ Write a processing instruction.
 
 `this`
 
-###### Inherited from
+##### writeDTD()
 
-`AbstractWriterSync.writeProcessingInstruction`
+> **writeDTD**(`value`): `this`
+
+Defined in: [sync/WriterSync.ts:116](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L116)
+
+Write a document type declaration.
+
+###### Parameters
+
+###### value
+
+`string`
+
+###### Returns
+
+`this`
+
+##### writeEvent()
+
+> **writeEvent**(`event`): `this`
+
+Defined in: [sync/WriterSync.ts:121](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L121)
+
+Write one standard materialized XML event.
+
+###### Parameters
+
+###### event
+
+[`AnyXmlEvent`](#anyxmlevent)
+
+###### Returns
+
+`this`
 
 ##### writeRaw()
 
 > **writeRaw**(`xml`): `this`
 
-Defined in: [sync/WriterSync.ts:355](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L355)
+Defined in: [sync/WriterSync.ts:127](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L127)
 
-Write trusted XML verbatim without validation or escaping.
+Write trusted XML text without escaping.
 
 ###### Parameters
 
@@ -1229,33 +1316,13 @@ Write trusted XML verbatim without validation or escaping.
 
 `this`
 
-###### Inherited from
-
-`AbstractWriterSync.writeRaw`
-
-##### writeEndElement()
-
-> **writeEndElement**(): `this`
-
-Defined in: [sync/WriterSync.ts:365](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L365)
-
-Close the most recently opened element.
-
-###### Returns
-
-`this`
-
-###### Inherited from
-
-`AbstractWriterSync.writeEndElement`
-
 ##### setPrettyPrint()
 
 > **setPrettyPrint**(`enabled`): `this`
 
-Defined in: [sync/WriterSync.ts:401](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L401)
+Defined in: [sync/WriterSync.ts:132](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L132)
 
-Enable or disable indentation for subsequent output.
+Enable or disable pretty printing.
 
 ###### Parameters
 
@@ -1267,15 +1334,11 @@ Enable or disable indentation for subsequent output.
 
 `this`
 
-###### Inherited from
-
-`AbstractWriterSync.setPrettyPrint`
-
 ##### setIndentString()
 
 > **setIndentString**(`indentString`): `this`
 
-Defined in: [sync/WriterSync.ts:407](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L407)
+Defined in: [sync/WriterSync.ts:137](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L137)
 
 Set the indentation unit used by pretty printing.
 
@@ -1289,15 +1352,11 @@ Set the indentation unit used by pretty printing.
 
 `this`
 
-###### Inherited from
-
-`AbstractWriterSync.setIndentString`
-
 ##### isPrettyPrintEnabled()
 
 > **isPrettyPrintEnabled**(): `boolean`
 
-Defined in: [sync/WriterSync.ts:414](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L414)
+Defined in: [sync/WriterSync.ts:142](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L142)
 
 Return whether pretty printing is enabled.
 
@@ -1305,33 +1364,13 @@ Return whether pretty printing is enabled.
 
 `boolean`
 
-###### Inherited from
-
-`AbstractWriterSync.isPrettyPrintEnabled`
-
 ##### getIndentString()
 
 > **getIndentString**(): `string`
 
-Defined in: [sync/WriterSync.ts:419](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L419)
+Defined in: [sync/WriterSync.ts:146](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L146)
 
 Return the current indentation unit.
-
-###### Returns
-
-`string`
-
-###### Inherited from
-
-`AbstractWriterSync.getIndentString`
-
-##### getXmlString()
-
-> **getXmlString**(): `string`
-
-Defined in: [sync/WriterSync.ts:543](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L543)
-
-Return all XML serialized so far.
 
 ###### Returns
 
@@ -1341,13 +1380,13 @@ Return all XML serialized so far.
 
 ### WriterSyncSink
 
-Defined in: [sync/WriterSync.ts:555](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L555)
+Defined in: [sync/WriterSync.ts:152](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L152)
 
-Sink-based sync writer. Use this for file/buffer incremental writes.
+Sink-based sync writer. I/O and flushing live here, outside WriterCore.
 
 #### Extends
 
-- `AbstractWriterSync`
+- [`WriterSync`](#writersync)
 
 #### Constructors
 
@@ -1355,7 +1394,7 @@ Sink-based sync writer. Use this for file/buffer incremental writes.
 
 > **new WriterSyncSink**(`sink`, `options?`): [`WriterSyncSink`](#writersyncsink)
 
-Defined in: [sync/WriterSync.ts:563](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L563)
+Defined in: [sync/WriterSync.ts:159](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L159)
 
 ###### Parameters
 
@@ -1373,27 +1412,47 @@ Defined in: [sync/WriterSync.ts:563](https://github.com/Clickin/stax-xml/blob/ma
 
 ###### Overrides
 
-`AbstractWriterSync.constructor`
+[`WriterSync`](#writersync).[`constructor`](#constructor-5)
 
 #### Methods
 
+##### getXmlString()
+
+> **getXmlString**(): `string`
+
+Defined in: [sync/WriterSync.ts:48](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L48)
+
+Return XML accumulated by this string writer.
+
+###### Returns
+
+`string`
+
+###### Inherited from
+
+[`WriterSync`](#writersync).[`getXmlString`](#getxmlstring)
+
 ##### writeStartDocument()
 
-> **writeStartDocument**(`version?`, `encoding?`): `this`
+> **writeStartDocument**(`version?`, `encoding?`, `standalone?`): `this`
 
-Defined in: [sync/WriterSync.ts:152](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L152)
+Defined in: [sync/WriterSync.ts:56](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L56)
 
-Writes the XML declaration (e.g., <?xml version="1.0" encoding="UTF-8"?>).
+Write an XML declaration.
 
 ###### Parameters
 
 ###### version?
 
-`"1.0"` = `'1.0'`
+`"1.0"` = `"1.0"`
 
 ###### encoding?
 
 `string`
+
+###### standalone?
+
+`boolean`
 
 ###### Returns
 
@@ -1401,15 +1460,15 @@ Writes the XML declaration (e.g., <?xml version="1.0" encoding="UTF-8"?>).
 
 ###### Inherited from
 
-`AbstractWriterSync.writeStartDocument`
+[`WriterSync`](#writersync).[`writeStartDocument`](#writestartdocument-1)
 
 ##### writeStartElement()
 
 > **writeStartElement**(`localName`, `options?`): `this`
 
-Defined in: [sync/WriterSync.ts:184](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L184)
+Defined in: [sync/WriterSync.ts:69](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L69)
 
-Start an element and leave its start tag open for attributes.
+Open an element.
 
 ###### Parameters
 
@@ -1427,15 +1486,75 @@ Start an element and leave its start tag open for attributes.
 
 ###### Inherited from
 
-`AbstractWriterSync.writeStartElement`
+[`WriterSync`](#writersync).[`writeStartElement`](#writestartelement-1)
+
+##### writeEndElement()
+
+> **writeEndElement**(): `this`
+
+Defined in: [sync/WriterSync.ts:77](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L77)
+
+Close the current element.
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`WriterSync`](#writersync).[`writeEndElement`](#writeendelement-1)
+
+##### writeCharacters()
+
+> **writeCharacters**(`text`): `this`
+
+Defined in: [sync/WriterSync.ts:82](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L82)
+
+Write escaped character data.
+
+###### Parameters
+
+###### text
+
+`string`
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`WriterSync`](#writersync).[`writeCharacters`](#writecharacters-1)
+
+##### writeCData()
+
+> **writeCData**(`cdata`): `this`
+
+Defined in: [sync/WriterSync.ts:87](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L87)
+
+Write a CDATA section.
+
+###### Parameters
+
+###### cdata
+
+`string`
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`WriterSync`](#writersync).[`writeCData`](#writecdata-1)
 
 ##### writeAttribute()
 
 > **writeAttribute**(`localName`, `value`, `prefix?`): `this`
 
-Defined in: [sync/WriterSync.ts:236](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L236)
+Defined in: [sync/WriterSync.ts:92](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L92)
 
-Add an attribute to the currently open start tag.
+Add an attribute to the open start tag.
 
 ###### Parameters
 
@@ -1457,15 +1576,15 @@ Add an attribute to the currently open start tag.
 
 ###### Inherited from
 
-`AbstractWriterSync.writeAttribute`
+[`WriterSync`](#writersync).[`writeAttribute`](#writeattribute-1)
 
 ##### writeNamespace()
 
 > **writeNamespace**(`prefix`, `uri`): `this`
 
-Defined in: [sync/WriterSync.ts:258](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L258)
+Defined in: [sync/WriterSync.ts:101](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L101)
 
-Declare a namespace on the currently open start tag.
+Add a namespace declaration to the open start tag.
 
 ###### Parameters
 
@@ -1483,57 +1602,13 @@ Declare a namespace on the currently open start tag.
 
 ###### Inherited from
 
-`AbstractWriterSync.writeNamespace`
-
-##### writeCharacters()
-
-> **writeCharacters**(`text`): `this`
-
-Defined in: [sync/WriterSync.ts:277](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L277)
-
-Write escaped character data.
-
-###### Parameters
-
-###### text
-
-`string`
-
-###### Returns
-
-`this`
-
-###### Inherited from
-
-`AbstractWriterSync.writeCharacters`
-
-##### writeCData()
-
-> **writeCData**(`cdata`): `this`
-
-Defined in: [sync/WriterSync.ts:293](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L293)
-
-Write a CDATA section.
-
-###### Parameters
-
-###### cdata
-
-`string`
-
-###### Returns
-
-`this`
-
-###### Inherited from
-
-`AbstractWriterSync.writeCData`
+[`WriterSync`](#writersync).[`writeNamespace`](#writenamespace-1)
 
 ##### writeComment()
 
 > **writeComment**(`comment`): `this`
 
-Defined in: [sync/WriterSync.ts:312](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L312)
+Defined in: [sync/WriterSync.ts:106](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L106)
 
 Write an XML comment.
 
@@ -1549,13 +1624,13 @@ Write an XML comment.
 
 ###### Inherited from
 
-`AbstractWriterSync.writeComment`
+[`WriterSync`](#writersync).[`writeComment`](#writecomment-1)
 
 ##### writeProcessingInstruction()
 
 > **writeProcessingInstruction**(`target`, `data?`): `this`
 
-Defined in: [sync/WriterSync.ts:329](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L329)
+Defined in: [sync/WriterSync.ts:111](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L111)
 
 Write a processing instruction.
 
@@ -1575,15 +1650,59 @@ Write a processing instruction.
 
 ###### Inherited from
 
-`AbstractWriterSync.writeProcessingInstruction`
+[`WriterSync`](#writersync).[`writeProcessingInstruction`](#writeprocessinginstruction-1)
+
+##### writeDTD()
+
+> **writeDTD**(`value`): `this`
+
+Defined in: [sync/WriterSync.ts:116](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L116)
+
+Write a document type declaration.
+
+###### Parameters
+
+###### value
+
+`string`
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`WriterSync`](#writersync).[`writeDTD`](#writedtd-1)
+
+##### writeEvent()
+
+> **writeEvent**(`event`): `this`
+
+Defined in: [sync/WriterSync.ts:121](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L121)
+
+Write one standard materialized XML event.
+
+###### Parameters
+
+###### event
+
+[`AnyXmlEvent`](#anyxmlevent)
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`WriterSync`](#writersync).[`writeEvent`](#writeevent-1)
 
 ##### writeRaw()
 
 > **writeRaw**(`xml`): `this`
 
-Defined in: [sync/WriterSync.ts:355](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L355)
+Defined in: [sync/WriterSync.ts:127](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L127)
 
-Write trusted XML verbatim without validation or escaping.
+Write trusted XML text without escaping.
 
 ###### Parameters
 
@@ -1597,31 +1716,15 @@ Write trusted XML verbatim without validation or escaping.
 
 ###### Inherited from
 
-`AbstractWriterSync.writeRaw`
-
-##### writeEndElement()
-
-> **writeEndElement**(): `this`
-
-Defined in: [sync/WriterSync.ts:365](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L365)
-
-Close the most recently opened element.
-
-###### Returns
-
-`this`
-
-###### Inherited from
-
-`AbstractWriterSync.writeEndElement`
+[`WriterSync`](#writersync).[`writeRaw`](#writeraw-1)
 
 ##### setPrettyPrint()
 
 > **setPrettyPrint**(`enabled`): `this`
 
-Defined in: [sync/WriterSync.ts:401](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L401)
+Defined in: [sync/WriterSync.ts:132](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L132)
 
-Enable or disable indentation for subsequent output.
+Enable or disable pretty printing.
 
 ###### Parameters
 
@@ -1635,13 +1738,13 @@ Enable or disable indentation for subsequent output.
 
 ###### Inherited from
 
-`AbstractWriterSync.setPrettyPrint`
+[`WriterSync`](#writersync).[`setPrettyPrint`](#setprettyprint)
 
 ##### setIndentString()
 
 > **setIndentString**(`indentString`): `this`
 
-Defined in: [sync/WriterSync.ts:407](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L407)
+Defined in: [sync/WriterSync.ts:137](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L137)
 
 Set the indentation unit used by pretty printing.
 
@@ -1657,13 +1760,13 @@ Set the indentation unit used by pretty printing.
 
 ###### Inherited from
 
-`AbstractWriterSync.setIndentString`
+[`WriterSync`](#writersync).[`setIndentString`](#setindentstring)
 
 ##### isPrettyPrintEnabled()
 
 > **isPrettyPrintEnabled**(): `boolean`
 
-Defined in: [sync/WriterSync.ts:414](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L414)
+Defined in: [sync/WriterSync.ts:142](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L142)
 
 Return whether pretty printing is enabled.
 
@@ -1673,13 +1776,13 @@ Return whether pretty printing is enabled.
 
 ###### Inherited from
 
-`AbstractWriterSync.isPrettyPrintEnabled`
+[`WriterSync`](#writersync).[`isPrettyPrintEnabled`](#isprettyprintenabled)
 
 ##### getIndentString()
 
 > **getIndentString**(): `string`
 
-Defined in: [sync/WriterSync.ts:419](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L419)
+Defined in: [sync/WriterSync.ts:146](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L146)
 
 Return the current indentation unit.
 
@@ -1689,15 +1792,15 @@ Return the current indentation unit.
 
 ###### Inherited from
 
-`AbstractWriterSync.getIndentString`
+[`WriterSync`](#writersync).[`getIndentString`](#getindentstring)
 
 ##### writeEndDocument()
 
 > **writeEndDocument**(): `void`
 
-Defined in: [sync/WriterSync.ts:620](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L620)
+Defined in: [sync/WriterSync.ts:200](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L200)
 
-Indicates the end of the document and automatically closes all open elements.
+Finish the document and flush serialized text to the sink.
 
 ###### Returns
 
@@ -1705,15 +1808,15 @@ Indicates the end of the document and automatically closes all open elements.
 
 ###### Overrides
 
-`AbstractWriterSync.writeEndDocument`
+[`WriterSync`](#writersync).[`writeEndDocument`](#writeenddocument-1)
 
 ##### flush()
 
 > **flush**(): `void`
 
-Defined in: [sync/WriterSync.ts:629](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L629)
+Defined in: [sync/WriterSync.ts:206](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L206)
 
-Emit buffered text and invoke the sink's optional `flush()` hook.
+Flush buffered text to the sink.
 
 ###### Returns
 
@@ -1723,9 +1826,9 @@ Emit buffered text and invoke the sink's optional `flush()` hook.
 
 > **close**(): `void`
 
-Defined in: [sync/WriterSync.ts:637](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L637)
+Defined in: [sync/WriterSync.ts:217](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L217)
 
-Finalize the document, emit buffered text, and close the sink.
+Finalize the document and close the sink.
 
 ###### Returns
 
@@ -1749,7 +1852,7 @@ Options for the asynchronous materialized-event reader.
 
 > `optional` **documentMode?**: [`DocumentMode`](#documentmode-2)
 
-Defined in: [async/StreamReader.ts:7](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L7)
+Defined in: [async/StreamReader.ts:16](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L16)
 
 ###### Inherited from
 
@@ -1759,9 +1862,9 @@ Defined in: [async/StreamReader.ts:7](https://github.com/Clickin/stax-xml/blob/m
 
 > `optional` **namespaceAware?**: `boolean`
 
-Defined in: [async/StreamReader.ts:9](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L9)
+Defined in: [async/StreamReader.ts:18](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L18)
 
-Resolve namespaces and omit xmlns declarations from attributes.
+Resolve namespaces while retaining xmlns declarations in start-event attributes.
 
 ###### Default Value
 
@@ -1777,7 +1880,7 @@ true
 
 > `optional` **autoDecodeEntities?**: `boolean`
 
-Defined in: [async/StreamReader.ts:11](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L11)
+Defined in: [async/StreamReader.ts:20](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L20)
 
 Decode predefined, numeric, and configured custom entities.
 
@@ -1795,7 +1898,7 @@ true
 
 > `optional` **addEntities?**: `object`[]
 
-Defined in: [async/StreamReader.ts:13](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L13)
+Defined in: [async/StreamReader.ts:22](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L22)
 
 Trusted internal entity replacements available without parsing a DTD.
 
@@ -1815,7 +1918,7 @@ Trusted internal entity replacements available without parsing a DTD.
 
 > `optional` **encoding?**: `string`
 
-Defined in: [async/StreamReader.ts:15](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L15)
+Defined in: [async/StreamReader.ts:24](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L24)
 
 TextDecoder encoding label for byte input.
 
@@ -1833,7 +1936,7 @@ TextDecoder encoding label for byte input.
 
 ### StreamReaderOptions
 
-Defined in: [async/StreamReader.ts:6](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L6)
+Defined in: [async/StreamReader.ts:15](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L15)
 
 Options for asynchronous current-token parsing.
 
@@ -1847,15 +1950,15 @@ Options for asynchronous current-token parsing.
 
 > `optional` **documentMode?**: [`DocumentMode`](#documentmode-2)
 
-Defined in: [async/StreamReader.ts:7](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L7)
+Defined in: [async/StreamReader.ts:16](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L16)
 
 ##### namespaceAware?
 
 > `optional` **namespaceAware?**: `boolean`
 
-Defined in: [async/StreamReader.ts:9](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L9)
+Defined in: [async/StreamReader.ts:18](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L18)
 
-Resolve namespaces and omit xmlns declarations from attributes.
+Resolve namespaces while retaining xmlns declarations in start-event attributes.
 
 ###### Default Value
 
@@ -1867,7 +1970,7 @@ true
 
 > `optional` **autoDecodeEntities?**: `boolean`
 
-Defined in: [async/StreamReader.ts:11](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L11)
+Defined in: [async/StreamReader.ts:20](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L20)
 
 Decode predefined, numeric, and configured custom entities.
 
@@ -1881,7 +1984,7 @@ true
 
 > `optional` **addEntities?**: `object`[]
 
-Defined in: [async/StreamReader.ts:13](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L13)
+Defined in: [async/StreamReader.ts:22](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L22)
 
 Trusted internal entity replacements available without parsing a DTD.
 
@@ -1897,7 +2000,7 @@ Trusted internal entity replacements available without parsing a DTD.
 
 > `optional` **encoding?**: `string`
 
-Defined in: [async/StreamReader.ts:15](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L15)
+Defined in: [async/StreamReader.ts:24](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L24)
 
 TextDecoder encoding label for byte input.
 
@@ -1911,9 +2014,9 @@ TextDecoder encoding label for byte input.
 
 ### WriterOptions
 
-Defined in: [async/Writer.ts:27](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L27)
+Defined in: [async/Writer.ts:9](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L9)
 
-Configuration options for the Writer
+Options shared by the asynchronous XML writer and its serializer core.
 
 #### Properties
 
@@ -1921,52 +2024,25 @@ Configuration options for the Writer
 
 > `optional` **encoding?**: `string`
 
-Defined in: [async/Writer.ts:33](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L33)
-
-XML declaration encoding. Byte-stream output is always UTF-8. For an
-AsyncTextSink, this value must match the sink encoding.
-
-###### Default Value
-
-```ts
-'utf-8'
-```
+Defined in: [async/Writer.ts:10](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L10)
 
 ##### prettyPrint?
 
 > `optional` **prettyPrint?**: `boolean`
 
-Defined in: [async/Writer.ts:39](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L39)
-
-Whether to format output with indentation
-
-###### Default Value
-
-```ts
-false
-```
+Defined in: [async/Writer.ts:11](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L11)
 
 ##### indentString?
 
 > `optional` **indentString?**: `string`
 
-Defined in: [async/Writer.ts:45](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L45)
-
-String used for indentation when prettyPrint is true
-
-###### Default Value
-
-```ts
-'  '
-```
+Defined in: [async/Writer.ts:12](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L12)
 
 ##### addEntities?
 
 > `optional` **addEntities?**: `object`[]
 
-Defined in: [async/Writer.ts:51](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L51)
-
-Additional custom entities to encode
+Defined in: [async/Writer.ts:13](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L13)
 
 ###### entity
 
@@ -1976,75 +2052,37 @@ Additional custom entities to encode
 
 > **value**: `string`
 
-###### Default Value
-
-```ts
-[]
-```
-
 ##### autoEncodeEntities?
 
 > `optional` **autoEncodeEntities?**: `boolean`
 
-Defined in: [async/Writer.ts:57](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L57)
-
-Whether to automatically encode XML entities
-
-###### Default Value
-
-```ts
-true
-```
+Defined in: [async/Writer.ts:14](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L14)
 
 ##### bufferSize?
 
 > `optional` **bufferSize?**: `number`
 
-Defined in: [async/Writer.ts:63](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L63)
-
-Internal buffer size in bytes, or UTF-16 code units for AsyncTextSink output
-
-###### Default Value
-
-```ts
-16384
-```
+Defined in: [async/Writer.ts:15](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L15)
 
 ##### flushThreshold?
 
 > `optional` **flushThreshold?**: `number`
 
-Defined in: [async/Writer.ts:69](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L69)
-
-Automatic flush threshold (percentage or output units of bufferSize)
-
-###### Default Value
-
-```ts
-0.8
-```
+Defined in: [async/Writer.ts:16](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L16)
 
 ##### enableAutoFlush?
 
 > `optional` **enableAutoFlush?**: `boolean`
 
-Defined in: [async/Writer.ts:75](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L75)
-
-Whether to enable automatic flushing
-
-###### Default Value
-
-```ts
-true
-```
+Defined in: [async/Writer.ts:17](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L17)
 
 ***
 
 ### AsyncTextSink
 
-Defined in: [async/Writer.ts:79](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L79)
+Defined in: [async/Writer.ts:20](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L20)
 
-Text output boundary for caller-provided streaming encoders.
+Text sink for external streaming encoders.
 
 #### Properties
 
@@ -2052,9 +2090,7 @@ Text output boundary for caller-provided streaming encoders.
 
 > `readonly` **encoding**: `string`
 
-Defined in: [async/Writer.ts:81](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L81)
-
-Encoding produced after this text sink's external encoding stage.
+Defined in: [async/Writer.ts:21](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L21)
 
 #### Methods
 
@@ -2062,9 +2098,9 @@ Encoding produced after this text sink's external encoding stage.
 
 > **write**(`chunk`): `void` \| `Promise`\<`void`\>
 
-Defined in: [async/Writer.ts:83](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L83)
+Defined in: [async/Writer.ts:23](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L23)
 
-Accept a serialized XML text chunk.
+Write a serialized XML text chunk.
 
 ###### Parameters
 
@@ -2080,9 +2116,9 @@ Accept a serialized XML text chunk.
 
 > `optional` **flush**(): `void` \| `Promise`\<`void`\>
 
-Defined in: [async/Writer.ts:85](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L85)
+Defined in: [async/Writer.ts:25](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L25)
 
-Flush the external encoding/output chain, when supported.
+Flush buffered text when supported.
 
 ###### Returns
 
@@ -2092,9 +2128,9 @@ Flush the external encoding/output chain, when supported.
 
 > `optional` **close**(): `void` \| `Promise`\<`void`\>
 
-Defined in: [async/Writer.ts:87](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L87)
+Defined in: [async/Writer.ts:27](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/Writer.ts#L27)
 
-Close the external encoding/output chain, when supported.
+Close the sink when supported.
 
 ###### Returns
 
@@ -2116,11 +2152,31 @@ Event fired when the document starts parsing
 
 Defined in: [core/types.ts:26](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L26)
 
+##### version?
+
+> `optional` **version?**: `"1.0"`
+
+Defined in: [core/types.ts:28](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L28)
+
+Present only when the source contained an XML declaration.
+
+##### encoding?
+
+> `optional` **encoding?**: `string`
+
+Defined in: [core/types.ts:29](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L29)
+
+##### standalone?
+
+> `optional` **standalone?**: `boolean`
+
+Defined in: [core/types.ts:30](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L30)
+
 ***
 
 ### EndDocumentEvent
 
-Defined in: [core/types.ts:34](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L34)
+Defined in: [core/types.ts:38](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L38)
 
 Event fired when the document ends parsing
 
@@ -2130,13 +2186,13 @@ Event fired when the document ends parsing
 
 > **type**: `"END_DOCUMENT"`
 
-Defined in: [core/types.ts:35](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L35)
+Defined in: [core/types.ts:39](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L39)
 
 ***
 
 ### StartElementEvent
 
-Defined in: [core/types.ts:43](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L43)
+Defined in: [core/types.ts:47](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L47)
 
 Event fired when an XML element starts
 
@@ -2146,43 +2202,53 @@ Event fired when an XML element starts
 
 > **type**: `"START_ELEMENT"`
 
-Defined in: [core/types.ts:44](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L44)
+Defined in: [core/types.ts:48](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L48)
 
 ##### name
 
 > **name**: `string`
 
-Defined in: [core/types.ts:45](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L45)
+Defined in: [core/types.ts:49](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L49)
 
 ##### localName
 
 > **localName**: `string`
 
-Defined in: [core/types.ts:46](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L46)
+Defined in: [core/types.ts:50](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L50)
 
 ##### prefix
 
 > **prefix**: `string`
 
-Defined in: [core/types.ts:47](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L47)
+Defined in: [core/types.ts:51](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L51)
 
 ##### namespaceURI
 
 > **namespaceURI**: `string`
 
-Defined in: [core/types.ts:48](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L48)
+Defined in: [core/types.ts:52](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L52)
 
-##### attributes
+##### attributes?
 
-> **attributes**: [`EventAttributes`](#eventattributes)
+> `optional` **attributes?**: [`EventAttributes`](#eventattributes)
 
-Defined in: [core/types.ts:49](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L49)
+Defined in: [core/types.ts:54](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L54)
+
+Attributes in source order, or undefined when the element has none.
+
+##### selfClosing
+
+> **selfClosing**: `boolean`
+
+Defined in: [core/types.ts:56](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L56)
+
+Whether the source used an empty-element tag (`<element/>`).
 
 ***
 
 ### EventAttribute
 
-Defined in: [core/types.ts:53](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L53)
+Defined in: [core/types.ts:60](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L60)
 
 Materialized attribute attached to a start-element event.
 
@@ -2192,37 +2258,37 @@ Materialized attribute attached to a start-element event.
 
 > **name**: `string`
 
-Defined in: [core/types.ts:53](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L53)
+Defined in: [core/types.ts:61](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L61)
 
 ##### localName
 
 > **localName**: `string`
 
-Defined in: [core/types.ts:53](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L53)
+Defined in: [core/types.ts:62](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L62)
 
 ##### prefix
 
 > **prefix**: `string`
 
-Defined in: [core/types.ts:53](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L53)
+Defined in: [core/types.ts:63](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L63)
 
 ##### namespaceURI
 
 > **namespaceURI**: `string`
 
-Defined in: [core/types.ts:53](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L53)
+Defined in: [core/types.ts:64](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L64)
 
 ##### value
 
 > **value**: `string`
 
-Defined in: [core/types.ts:53](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L53)
+Defined in: [core/types.ts:65](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L65)
 
 ***
 
 ### EventAttributes
 
-Defined in: [core/types.ts:62](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L62)
+Defined in: [core/types.ts:75](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L75)
 
 Attribute lookup table keyed by qualified XML name.
 
@@ -2241,7 +2307,7 @@ shape as a record while reserved JavaScript property names remain safe.
 
 > **toJSON**(): `Record`\<`string`, [`EventAttribute`](#eventattribute)\>
 
-Defined in: [core/types.ts:64](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L64)
+Defined in: [core/types.ts:77](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L77)
 
 Return a qualified-name record for JSON serialization.
 
@@ -2253,7 +2319,7 @@ Return a qualified-name record for JSON serialization.
 
 ### EndElementEvent
 
-Defined in: [core/types.ts:68](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L68)
+Defined in: [core/types.ts:81](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L81)
 
 Event emitted when an XML element ends.
 
@@ -2263,37 +2329,37 @@ Event emitted when an XML element ends.
 
 > **type**: `"END_ELEMENT"`
 
-Defined in: [core/types.ts:69](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L69)
+Defined in: [core/types.ts:82](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L82)
 
 ##### name
 
 > **name**: `string`
 
-Defined in: [core/types.ts:70](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L70)
+Defined in: [core/types.ts:83](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L83)
 
 ##### localName
 
 > **localName**: `string`
 
-Defined in: [core/types.ts:71](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L71)
+Defined in: [core/types.ts:84](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L84)
 
 ##### prefix
 
 > **prefix**: `string`
 
-Defined in: [core/types.ts:72](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L72)
+Defined in: [core/types.ts:85](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L85)
 
 ##### namespaceURI
 
 > **namespaceURI**: `string`
 
-Defined in: [core/types.ts:73](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L73)
+Defined in: [core/types.ts:86](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L86)
 
 ***
 
 ### CharactersEvent
 
-Defined in: [core/types.ts:77](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L77)
+Defined in: [core/types.ts:90](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L90)
 
 Event containing ordinary character data.
 
@@ -2303,19 +2369,19 @@ Event containing ordinary character data.
 
 > **type**: `"CHARACTERS"`
 
-Defined in: [core/types.ts:78](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L78)
+Defined in: [core/types.ts:91](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L91)
 
 ##### value
 
 > **value**: `string`
 
-Defined in: [core/types.ts:79](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L79)
+Defined in: [core/types.ts:92](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L92)
 
 ***
 
 ### CdataEvent
 
-Defined in: [core/types.ts:83](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L83)
+Defined in: [core/types.ts:96](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L96)
 
 Event containing CDATA content.
 
@@ -2325,19 +2391,19 @@ Event containing CDATA content.
 
 > **type**: `"CDATA"`
 
-Defined in: [core/types.ts:84](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L84)
+Defined in: [core/types.ts:97](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L97)
 
 ##### value
 
 > **value**: `string`
 
-Defined in: [core/types.ts:85](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L85)
+Defined in: [core/types.ts:98](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L98)
 
 ***
 
 ### CommentEvent
 
-Defined in: [core/types.ts:89](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L89)
+Defined in: [core/types.ts:102](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L102)
 
 Event containing an XML comment.
 
@@ -2347,19 +2413,19 @@ Event containing an XML comment.
 
 > **type**: `"COMMENT"`
 
-Defined in: [core/types.ts:89](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L89)
+Defined in: [core/types.ts:103](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L103)
 
 ##### value
 
 > **value**: `string`
 
-Defined in: [core/types.ts:89](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L89)
+Defined in: [core/types.ts:104](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L104)
 
 ***
 
 ### ProcessingInstructionEvent
 
-Defined in: [core/types.ts:91](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L91)
+Defined in: [core/types.ts:107](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L107)
 
 Event containing an XML processing instruction.
 
@@ -2369,25 +2435,25 @@ Event containing an XML processing instruction.
 
 > **type**: `"PROCESSING_INSTRUCTION"`
 
-Defined in: [core/types.ts:91](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L91)
+Defined in: [core/types.ts:108](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L108)
 
 ##### target
 
 > **target**: `string`
 
-Defined in: [core/types.ts:91](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L91)
+Defined in: [core/types.ts:109](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L109)
 
 ##### data
 
 > **data**: `string`
 
-Defined in: [core/types.ts:91](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L91)
+Defined in: [core/types.ts:110](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L110)
 
 ***
 
 ### DtdEvent
 
-Defined in: [core/types.ts:93](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L93)
+Defined in: [core/types.ts:113](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L113)
 
 Event containing a document type declaration.
 
@@ -2397,19 +2463,19 @@ Event containing a document type declaration.
 
 > **type**: `"DTD"`
 
-Defined in: [core/types.ts:93](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L93)
+Defined in: [core/types.ts:114](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L114)
 
 ##### value
 
 > **value**: `string`
 
-Defined in: [core/types.ts:93](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L93)
+Defined in: [core/types.ts:115](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L115)
 
 ***
 
 ### AttributeInfo
 
-Defined in: [core/types.ts:112](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L112)
+Defined in: [core/types.ts:135](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L135)
 
 Attribute information interface
 
@@ -2419,25 +2485,25 @@ Attribute information interface
 
 > **value**: `string`
 
-Defined in: [core/types.ts:113](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L113)
+Defined in: [core/types.ts:136](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L136)
 
 ##### prefix?
 
 > `optional` **prefix?**: `string`
 
-Defined in: [core/types.ts:114](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L114)
+Defined in: [core/types.ts:137](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L137)
 
 ##### uri?
 
 > `optional` **uri?**: `string`
 
-Defined in: [core/types.ts:115](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L115)
+Defined in: [core/types.ts:138](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L138)
 
 ***
 
 ### WriteElementOptions
 
-Defined in: [core/types.ts:182](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L182)
+Defined in: [core/types.ts:207](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L207)
 
 Element writing options interface (for Writer)
 
@@ -2447,31 +2513,31 @@ Element writing options interface (for Writer)
 
 > `optional` **prefix?**: `string`
 
-Defined in: [core/types.ts:183](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L183)
+Defined in: [core/types.ts:208](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L208)
 
 ##### uri?
 
 > `optional` **uri?**: `string`
 
-Defined in: [core/types.ts:184](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L184)
+Defined in: [core/types.ts:209](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L209)
 
 ##### attributes?
 
 > `optional` **attributes?**: `Record`\<`string`, `string` \| [`AttributeInfo`](#attributeinfo)\>
 
-Defined in: [core/types.ts:185](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L185)
+Defined in: [core/types.ts:210](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L210)
 
 ##### selfClosing?
 
 > `optional` **selfClosing?**: `boolean`
 
-Defined in: [core/types.ts:186](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L186)
+Defined in: [core/types.ts:211](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L211)
 
 ##### comment?
 
 > `optional` **comment?**: `string`
 
-Defined in: [core/types.ts:187](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L187)
+Defined in: [core/types.ts:212](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L212)
 
 ***
 
@@ -2491,7 +2557,7 @@ Options for the synchronous materialized-event reader.
 
 > `optional` **documentMode?**: [`DocumentMode`](#documentmode-2)
 
-Defined in: [sync/StreamReaderSync.ts:7](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L7)
+Defined in: [sync/StreamReaderSync.ts:12](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L12)
 
 ###### Inherited from
 
@@ -2501,9 +2567,9 @@ Defined in: [sync/StreamReaderSync.ts:7](https://github.com/Clickin/stax-xml/blo
 
 > `optional` **namespaceAware?**: `boolean`
 
-Defined in: [sync/StreamReaderSync.ts:9](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L9)
+Defined in: [sync/StreamReaderSync.ts:14](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L14)
 
-Resolve namespaces and omit xmlns declarations from attributes.
+Resolve namespaces while retaining xmlns declarations in start-event attributes.
 
 ###### Default Value
 
@@ -2519,7 +2585,7 @@ true
 
 > `optional` **autoDecodeEntities?**: `boolean`
 
-Defined in: [sync/StreamReaderSync.ts:11](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L11)
+Defined in: [sync/StreamReaderSync.ts:16](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L16)
 
 Decode predefined, numeric, and configured custom entities.
 
@@ -2537,7 +2603,7 @@ true
 
 > `optional` **addEntities?**: `object`[]
 
-Defined in: [sync/StreamReaderSync.ts:13](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L13)
+Defined in: [sync/StreamReaderSync.ts:18](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L18)
 
 Trusted internal entity replacements available without parsing a DTD.
 
@@ -2557,7 +2623,7 @@ Trusted internal entity replacements available without parsing a DTD.
 
 > `optional` **encoding?**: `string`
 
-Defined in: [sync/StreamReaderSync.ts:15](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L15)
+Defined in: [sync/StreamReaderSync.ts:20](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L20)
 
 TextDecoder encoding label for byte input.
 
@@ -2569,13 +2635,13 @@ TextDecoder encoding label for byte input.
 
 ###### Inherited from
 
-[`StreamReaderSyncOptions`](#streamreadersyncoptions).[`encoding`](#encoding-5)
+[`StreamReaderSyncOptions`](#streamreadersyncoptions).[`encoding`](#encoding-6)
 
 ***
 
 ### StreamReaderSyncOptions
 
-Defined in: [sync/StreamReaderSync.ts:6](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L6)
+Defined in: [sync/StreamReaderSync.ts:11](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L11)
 
 Options for synchronous current-token parsing.
 
@@ -2589,15 +2655,15 @@ Options for synchronous current-token parsing.
 
 > `optional` **documentMode?**: [`DocumentMode`](#documentmode-2)
 
-Defined in: [sync/StreamReaderSync.ts:7](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L7)
+Defined in: [sync/StreamReaderSync.ts:12](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L12)
 
 ##### namespaceAware?
 
 > `optional` **namespaceAware?**: `boolean`
 
-Defined in: [sync/StreamReaderSync.ts:9](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L9)
+Defined in: [sync/StreamReaderSync.ts:14](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L14)
 
-Resolve namespaces and omit xmlns declarations from attributes.
+Resolve namespaces while retaining xmlns declarations in start-event attributes.
 
 ###### Default Value
 
@@ -2609,7 +2675,7 @@ true
 
 > `optional` **autoDecodeEntities?**: `boolean`
 
-Defined in: [sync/StreamReaderSync.ts:11](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L11)
+Defined in: [sync/StreamReaderSync.ts:16](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L16)
 
 Decode predefined, numeric, and configured custom entities.
 
@@ -2623,7 +2689,7 @@ true
 
 > `optional` **addEntities?**: `object`[]
 
-Defined in: [sync/StreamReaderSync.ts:13](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L13)
+Defined in: [sync/StreamReaderSync.ts:18](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L18)
 
 Trusted internal entity replacements available without parsing a DTD.
 
@@ -2639,7 +2705,7 @@ Trusted internal entity replacements available without parsing a DTD.
 
 > `optional` **encoding?**: `string`
 
-Defined in: [sync/StreamReaderSync.ts:15](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L15)
+Defined in: [sync/StreamReaderSync.ts:20](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L20)
 
 TextDecoder encoding label for byte input.
 
@@ -2653,7 +2719,7 @@ TextDecoder encoding label for byte input.
 
 ### SyncTextSink
 
-Defined in: [sync/WriterSync.ts:19](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L19)
+Defined in: [sync/WriterSync.ts:9](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L9)
 
 Sink interface for custom sync targets.
 
@@ -2663,9 +2729,7 @@ Sink interface for custom sync targets.
 
 > `readonly` `optional` **encoding?**: `string`
 
-Defined in: [sync/WriterSync.ts:21](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L21)
-
-Encoding produced after this sink's external encoding stage. Defaults to UTF-8.
+Defined in: [sync/WriterSync.ts:10](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L10)
 
 #### Methods
 
@@ -2673,9 +2737,9 @@ Encoding produced after this sink's external encoding stage. Defaults to UTF-8.
 
 > **write**(`chunk`): `void`
 
-Defined in: [sync/WriterSync.ts:23](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L23)
+Defined in: [sync/WriterSync.ts:12](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L12)
 
-Accept a serialized XML text chunk.
+Write a serialized XML text chunk.
 
 ###### Parameters
 
@@ -2691,9 +2755,9 @@ Accept a serialized XML text chunk.
 
 > `optional` **flush**(): `void`
 
-Defined in: [sync/WriterSync.ts:25](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L25)
+Defined in: [sync/WriterSync.ts:14](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L14)
 
-Flush buffered sink data, when supported.
+Flush buffered text when supported.
 
 ###### Returns
 
@@ -2703,9 +2767,9 @@ Flush buffered sink data, when supported.
 
 > `optional` **close**(): `void`
 
-Defined in: [sync/WriterSync.ts:27](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L27)
+Defined in: [sync/WriterSync.ts:16](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L16)
 
-Close the sink, when supported.
+Close the sink when supported.
 
 ###### Returns
 
@@ -2715,9 +2779,9 @@ Close the sink, when supported.
 
 ### WriterSyncOptions
 
-Defined in: [sync/WriterSync.ts:33](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L33)
+Defined in: [sync/WriterSync.ts:19](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L19)
 
-Writer output options shared by string and sink variants.
+Options for string-based synchronous writing.
 
 #### Extended by
 
@@ -2729,27 +2793,25 @@ Writer output options shared by string and sink variants.
 
 > `optional` **encoding?**: `string`
 
-Defined in: [sync/WriterSync.ts:35](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L35)
-
-XML declaration encoding. WriterSync accepts UTF-8; WriterSyncSink requires it to match the sink encoding.
+Defined in: [sync/WriterSync.ts:20](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L20)
 
 ##### prettyPrint?
 
 > `optional` **prettyPrint?**: `boolean`
 
-Defined in: [sync/WriterSync.ts:36](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L36)
+Defined in: [sync/WriterSync.ts:21](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L21)
 
 ##### indentString?
 
 > `optional` **indentString?**: `string`
 
-Defined in: [sync/WriterSync.ts:37](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L37)
+Defined in: [sync/WriterSync.ts:22](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L22)
 
 ##### addEntities?
 
 > `optional` **addEntities?**: `object`[]
 
-Defined in: [sync/WriterSync.ts:38](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L38)
+Defined in: [sync/WriterSync.ts:23](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L23)
 
 ###### entity
 
@@ -2763,15 +2825,15 @@ Defined in: [sync/WriterSync.ts:38](https://github.com/Clickin/stax-xml/blob/mas
 
 > `optional` **autoEncodeEntities?**: `boolean`
 
-Defined in: [sync/WriterSync.ts:39](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L39)
+Defined in: [sync/WriterSync.ts:24](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L24)
 
 ***
 
 ### WriterSyncSinkOptions
 
-Defined in: [sync/WriterSync.ts:45](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L45)
+Defined in: [sync/WriterSync.ts:27](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L27)
 
-Writer options for sink-based sync mode.
+Options for incremental synchronous sink writing.
 
 #### Extends
 
@@ -2783,19 +2845,17 @@ Writer options for sink-based sync mode.
 
 > `optional` **encoding?**: `string`
 
-Defined in: [sync/WriterSync.ts:35](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L35)
-
-XML declaration encoding. WriterSync accepts UTF-8; WriterSyncSink requires it to match the sink encoding.
+Defined in: [sync/WriterSync.ts:20](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L20)
 
 ###### Inherited from
 
-[`WriterSyncOptions`](#writersyncoptions).[`encoding`](#encoding-7)
+[`WriterSyncOptions`](#writersyncoptions).[`encoding`](#encoding-8)
 
 ##### prettyPrint?
 
 > `optional` **prettyPrint?**: `boolean`
 
-Defined in: [sync/WriterSync.ts:36](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L36)
+Defined in: [sync/WriterSync.ts:21](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L21)
 
 ###### Inherited from
 
@@ -2805,7 +2865,7 @@ Defined in: [sync/WriterSync.ts:36](https://github.com/Clickin/stax-xml/blob/mas
 
 > `optional` **indentString?**: `string`
 
-Defined in: [sync/WriterSync.ts:37](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L37)
+Defined in: [sync/WriterSync.ts:22](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L22)
 
 ###### Inherited from
 
@@ -2815,7 +2875,7 @@ Defined in: [sync/WriterSync.ts:37](https://github.com/Clickin/stax-xml/blob/mas
 
 > `optional` **addEntities?**: `object`[]
 
-Defined in: [sync/WriterSync.ts:38](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L38)
+Defined in: [sync/WriterSync.ts:23](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L23)
 
 ###### entity
 
@@ -2833,7 +2893,7 @@ Defined in: [sync/WriterSync.ts:38](https://github.com/Clickin/stax-xml/blob/mas
 
 > `optional` **autoEncodeEntities?**: `boolean`
 
-Defined in: [sync/WriterSync.ts:39](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L39)
+Defined in: [sync/WriterSync.ts:24](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L24)
 
 ###### Inherited from
 
@@ -2843,58 +2903,25 @@ Defined in: [sync/WriterSync.ts:39](https://github.com/Clickin/stax-xml/blob/mas
 
 > `optional` **bufferSize?**: `number`
 
-Defined in: [sync/WriterSync.ts:50](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L50)
-
-Internal character buffer size.
-
-###### Default Value
-
-```ts
-16384
-```
+Defined in: [sync/WriterSync.ts:28](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L28)
 
 ##### enableAutoFlush?
 
 > `optional` **enableAutoFlush?**: `boolean`
 
-Defined in: [sync/WriterSync.ts:56](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L56)
-
-Emit buffered chunks automatically when threshold is reached.
-
-###### Default Value
-
-```ts
-true
-```
+Defined in: [sync/WriterSync.ts:29](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L29)
 
 ##### flushOnClose?
 
 > `optional` **flushOnClose?**: `boolean`
 
-Defined in: [sync/WriterSync.ts:62](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L62)
-
-Whether to call sink.flush() when the writer is finalized.
-
-###### Default Value
-
-```ts
-false
-```
+Defined in: [sync/WriterSync.ts:30](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L30)
 
 ##### flushThreshold?
 
 > `optional` **flushThreshold?**: `number`
 
-Defined in: [sync/WriterSync.ts:69](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L69)
-
-Flush threshold (percentage or absolute char count).
-If <= 1, treated as percentage of bufferSize. Otherwise absolute char count.
-
-###### Default Value
-
-```ts
-0.8
-```
+Defined in: [sync/WriterSync.ts:31](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/WriterSync.ts#L31)
 
 ## Type Aliases
 
@@ -2902,7 +2929,7 @@ If <= 1, treated as percentage of bufferSize. Otherwise absolute char count.
 
 > **StreamReaderSource** = `AsyncIterable`\<`Uint8Array`\> \| `ReadableStream`\<`Uint8Array`\>
 
-Defined in: [async/StreamReader.ts:4](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L4)
+Defined in: [async/StreamReader.ts:11](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/async/StreamReader.ts#L11)
 
 Byte-stream sources accepted by `StreamReader`.
 
@@ -2922,7 +2949,7 @@ Enumeration of XML stream event types used by the StAX parser
 
 > **AnyXmlEvent** = [`StartDocumentEvent`](#startdocumentevent) \| [`EndDocumentEvent`](#enddocumentevent) \| [`StartElementEvent`](#startelementevent) \| [`EndElementEvent`](#endelementevent) \| [`CharactersEvent`](#charactersevent) \| [`CdataEvent`](#cdataevent) \| [`CommentEvent`](#commentevent) \| [`ProcessingInstructionEvent`](#processinginstructionevent) \| [`DtdEvent`](#dtdevent)
 
-Defined in: [core/types.ts:98](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L98)
+Defined in: [core/types.ts:121](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L121)
 
 Discriminated Union type for developer use
 
@@ -2932,7 +2959,7 @@ Discriminated Union type for developer use
 
 > **DocumentMode** = `"fragment"` \| `"document"`
 
-Defined in: [core/types.ts:201](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L201)
+Defined in: [core/types.ts:226](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L226)
 
 XML document conformance mode.
 
@@ -2942,7 +2969,7 @@ XML document conformance mode.
 
 > **StreamReaderSyncInput** = `string` \| `Uint8Array` \| `Iterable`\<`Uint8Array`\>
 
-Defined in: [sync/StreamReaderSync.ts:4](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L4)
+Defined in: [sync/StreamReaderSync.ts:9](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/sync/StreamReaderSync.ts#L9)
 
 Inputs accepted by `StreamReaderSync`.
 
@@ -2960,39 +2987,39 @@ Enumeration of XML stream event types used by the StAX parser
 
 ##### START\_DOCUMENT
 
-> `readonly` **START\_DOCUMENT**: `"START_DOCUMENT"` = `'START_DOCUMENT'`
+> `readonly` **START\_DOCUMENT**: `"START_DOCUMENT"` = `"START_DOCUMENT"`
 
 ##### END\_DOCUMENT
 
-> `readonly` **END\_DOCUMENT**: `"END_DOCUMENT"` = `'END_DOCUMENT'`
+> `readonly` **END\_DOCUMENT**: `"END_DOCUMENT"` = `"END_DOCUMENT"`
 
 ##### START\_ELEMENT
 
-> `readonly` **START\_ELEMENT**: `"START_ELEMENT"` = `'START_ELEMENT'`
+> `readonly` **START\_ELEMENT**: `"START_ELEMENT"` = `"START_ELEMENT"`
 
 ##### END\_ELEMENT
 
-> `readonly` **END\_ELEMENT**: `"END_ELEMENT"` = `'END_ELEMENT'`
+> `readonly` **END\_ELEMENT**: `"END_ELEMENT"` = `"END_ELEMENT"`
 
 ##### CHARACTERS
 
-> `readonly` **CHARACTERS**: `"CHARACTERS"` = `'CHARACTERS'`
+> `readonly` **CHARACTERS**: `"CHARACTERS"` = `"CHARACTERS"`
 
 ##### CDATA
 
-> `readonly` **CDATA**: `"CDATA"` = `'CDATA'`
+> `readonly` **CDATA**: `"CDATA"` = `"CDATA"`
 
 ##### COMMENT
 
-> `readonly` **COMMENT**: `"COMMENT"` = `'COMMENT'`
+> `readonly` **COMMENT**: `"COMMENT"` = `"COMMENT"`
 
 ##### PROCESSING\_INSTRUCTION
 
-> `readonly` **PROCESSING\_INSTRUCTION**: `"PROCESSING_INSTRUCTION"` = `'PROCESSING_INSTRUCTION'`
+> `readonly` **PROCESSING\_INSTRUCTION**: `"PROCESSING_INSTRUCTION"` = `"PROCESSING_INSTRUCTION"`
 
 ##### DTD
 
-> `readonly` **DTD**: `"DTD"` = `'DTD'`
+> `readonly` **DTD**: `"DTD"` = `"DTD"`
 
 ## Functions
 
@@ -3000,7 +3027,7 @@ Enumeration of XML stream event types used by the StAX parser
 
 > **isStartElement**(`event`): `event is StartElementEvent`
 
-Defined in: [core/types.ts:128](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L128)
+Defined in: [core/types.ts:151](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L151)
 
 Type guard function - Check if the event is a START_ELEMENT event
 
@@ -3024,7 +3051,7 @@ true if the event is a START_ELEMENT event, false otherwise
 
 > **isEndElement**(`event`): `event is EndElementEvent`
 
-Defined in: [core/types.ts:137](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L137)
+Defined in: [core/types.ts:160](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L160)
 
 Type guard function - Check if the event is an END_ELEMENT event
 
@@ -3048,7 +3075,7 @@ true if the event is an END_ELEMENT event, false otherwise
 
 > **isCharacters**(`event`): `event is CharactersEvent`
 
-Defined in: [core/types.ts:146](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L146)
+Defined in: [core/types.ts:169](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L169)
 
 Type guard function - Check if the event is a CHARACTERS event
 
@@ -3072,7 +3099,7 @@ true if the event is a CHARACTERS event, false otherwise
 
 > **isCdata**(`event`): `event is CdataEvent`
 
-Defined in: [core/types.ts:154](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L154)
+Defined in: [core/types.ts:177](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L177)
 
 Type guard function - Check if the event is a CDATA event
 
@@ -3096,7 +3123,7 @@ true if the event is a CDATA event, false otherwise
 
 > **isStartDocument**(`event`): `event is StartDocumentEvent`
 
-Defined in: [core/types.ts:167](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L167)
+Defined in: [core/types.ts:190](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L190)
 
 Type guard function - Check if the event is a START_DOCUMENT event
 
@@ -3120,7 +3147,7 @@ true if the event is a START_DOCUMENT event, false otherwise
 
 > **isEndDocument**(`event`): `event is EndDocumentEvent`
 
-Defined in: [core/types.ts:175](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L175)
+Defined in: [core/types.ts:200](https://github.com/Clickin/stax-xml/blob/master/packages/stax-xml/src/core/types.ts#L200)
 
 Type guard function - Check if the event is an END_DOCUMENT event
 

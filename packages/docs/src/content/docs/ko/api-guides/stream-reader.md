@@ -108,3 +108,7 @@ reject되므로 이전 호출을 await한 뒤 진행해야 합니다.
 stable event object가 필요하면 [`EventReader`](/stax-xml/ko/api-guides/event-reader)를,
 완성된 JavaScript string을 동기 처리하려면
 [`StreamReaderSync`](/stax-xml/ko/api-guides/stream-reader-sync)를 사용하세요.
+
+이 low-allocation model을 유지하며 XML을 변환하려면 각 current token을 대응하는
+writer method로 dispatch합니다. Tradeoff와 event 기반 대안은
+[XML 변환 파이프라인](/stax-xml/ko/guide/event-pipelines/)에서 설명합니다.

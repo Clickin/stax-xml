@@ -24,6 +24,10 @@ head:
 
 `Writer`는 논블로킹 `WritableStream` 워크플로우, 스트리밍 응답, 실시간 XML 생성을 위한 비동기 스트림 기반 XML 라이터입니다.
 
+v1.1의 `writeEvent()`는 `EventReader`가 반환한 안정적인 object를 직접 받습니다.
+따라서 reader → modify → writer 변환을 하나의 streaming pipeline으로 구성할 수
+있습니다. [XML 변환 파이프라인](/stax-xml/ko/guide/event-pipelines/)을 참고하세요.
+
 대용량 파일이나 대용량 문서를 최대 처리량으로 생성해야 한다면 [`WriterSyncSink`](/stax-xml/ko/api-guides/writer-sync/#sink-기반-증분-쓰기)를 권장합니다. 1GiB writer 벤치마크에서 sync sink 경로가 가장 높은 쓰기 처리량을 보였고, peak RSS는 async 쓰기와 같은 범위에 머물렀습니다.
 
 ### 주요 기능
@@ -258,17 +262,22 @@ class Writer {
   constructor(output: WritableStream<Uint8Array> | AsyncTextSink, options?: WriterOptions)
 
   // 문서 레벨 메서드
-  writeStartDocument(version?: '1.0', encoding?: string): Promise<this> // output encoding과 일치
+  writeStartDocument(version?: '1.0', encoding?: string, standalone?: boolean): Promise<this> // output encoding과 일치
   writeEndDocument(): Promise<void>
 
   // 엘리먼트 작성 메서드
   writeStartElement(localName: string, options?: WriteElementOptions): Promise<this>
   writeEndElement(): Promise<this>
+  writeAttribute(localName: string, value: string, prefix?: string): Promise<this>
+  writeNamespace(prefix: string, uri: string): Promise<this>
 
   // 콘텐츠 작성 메서드
   writeCharacters(text: string): Promise<this>
   writeCData(cdata: string): Promise<this>
   writeComment(comment: string): Promise<this>
+  writeProcessingInstruction(target: string, data?: string): Promise<this>
+  writeDTD(value: string): Promise<this>
+  writeEvent(event: AnyXmlEvent): Promise<this>
   writeRaw(xml: string): Promise<this>
 
   // 스트림 관리
@@ -301,6 +310,13 @@ encoding을 수행할 수 있으며, `options.encoding`과 `writeStartDocument()
 metadata와 일치해야 합니다.
 Declaration version은 XML 1.0입니다. Parser와 writer validation 계약이 XML 1.0이므로
 XML 1.1은 거부합니다.
+
+`writeDTD()`는 validation을 거친 document type declaration을 기록합니다.
+`writeEvent()`는 DTD event를 전달할 수 있지만 reader와 writer는 entity declaration을
+자동 적용하거나 external entity를 resolve하지 않습니다. 애플리케이션이 선택한
+신뢰할 수 있는 replacement만 `addEntities`로 제공하세요. `writeRaw()`는
+`AnyXmlEvent`로 표현되지 않습니다. Java StAX의 `XMLEventWriter`에도 RAW event는
+없습니다.
 
 #### 인터페이스
 

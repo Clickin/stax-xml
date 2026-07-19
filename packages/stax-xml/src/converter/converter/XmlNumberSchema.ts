@@ -1,11 +1,15 @@
-import { XmlSchema } from './XmlSchema.js';
-import { XmlParseError } from './errors.js';
-import type { XmlNumberOptions, XmlWriteOptions } from './types.js';
-import { SchemaType } from './types.js';
-import { WriterSync, WriterSyncSink } from '@stax-xml/sync';
-import { Writer } from '@stax-xml/async';
-import { elementOptions, getOwnWriteConfig, getRootWriteConfig } from './write-utils.js';
-import { XPathCompiler } from './XPathEngine.js';
+import { XmlSchema } from "./XmlSchema.js";
+import { XmlParseError } from "./errors.js";
+import type { XmlNumberOptions, XmlWriteOptions } from "./types.js";
+import { SchemaType } from "./types.js";
+import { WriterSync, WriterSyncSink } from "@stax-xml/sync";
+import { Writer } from "@stax-xml/async";
+import {
+  elementOptions,
+  getOwnWriteConfig,
+  getRootWriteConfig,
+} from "./write-utils.js";
+import { XPathCompiler } from "./XPathEngine.js";
 
 /**
  * Schema for parsing XML number values
@@ -23,46 +27,56 @@ export class XmlNumberSchema extends XmlSchema<number, number> {
   _parseText(text: string): number {
     // Handle empty or whitespace-only strings gracefully
     const trimmedText = text.trim();
-    if (trimmedText === '') {
-      throw new XmlParseError([{
-        path: [],
-        message: `No number content found (empty text)`,
-        code: 'empty_content'
-      }]);
+    if (trimmedText === "") {
+      throw new XmlParseError([
+        {
+          path: [],
+          message: `No number content found (empty text)`,
+          code: "empty_content",
+        },
+      ]);
     }
 
     const num = parseFloat(trimmedText);
 
     if (isNaN(num)) {
-      throw new XmlParseError([{
-        path: [],
-        message: `Invalid number: ${trimmedText}`,
-        code: 'invalid_number'
-      }]);
+      throw new XmlParseError([
+        {
+          path: [],
+          message: `Invalid number: ${trimmedText}`,
+          code: "invalid_number",
+        },
+      ]);
     }
 
     if (this.options.min !== undefined && num < this.options.min) {
-      throw new XmlParseError([{
-        path: [],
-        message: `Number ${num} is less than minimum ${this.options.min}`,
-        code: 'too_small'
-      }]);
+      throw new XmlParseError([
+        {
+          path: [],
+          message: `Number ${num} is less than minimum ${this.options.min}`,
+          code: "too_small",
+        },
+      ]);
     }
 
     if (this.options.max !== undefined && num > this.options.max) {
-      throw new XmlParseError([{
-        path: [],
-        message: `Number ${num} is greater than maximum ${this.options.max}`,
-        code: 'too_big'
-      }]);
+      throw new XmlParseError([
+        {
+          path: [],
+          message: `Number ${num} is greater than maximum ${this.options.max}`,
+          code: "too_big",
+        },
+      ]);
     }
 
     if (this.options.int && !Number.isInteger(num)) {
-      throw new XmlParseError([{
-        path: [],
-        message: `Expected integer, got ${num}`,
-        code: 'not_integer'
-      }]);
+      throw new XmlParseError([
+        {
+          path: [],
+          message: `Expected integer, got ${num}`,
+          code: "not_integer",
+        },
+      ]);
     }
 
     return num;
@@ -116,7 +130,8 @@ export class XmlNumberSchema extends XmlSchema<number, number> {
    * @internal
    */
   _writeSync(data: number, options?: XmlWriteOptions): string {
-    if (!Number.isFinite(data)) throw new Error('XML number writer requires a finite number.');
+    if (!Number.isFinite(data))
+      throw new Error("XML number writer requires a finite number.");
     // Use injected writer or create new one
     let writer: WriterSync | WriterSyncSink;
     let isInjected = false;
@@ -129,25 +144,34 @@ export class XmlNumberSchema extends XmlSchema<number, number> {
         writer = options.writer;
         isInjected = true;
       } else {
-        throw new Error('writeSync requires WriterSync or WriterSyncSink instance');
+        throw new Error(
+          "writeSync requires WriterSync or WriterSyncSink instance",
+        );
       }
     } else {
       writer = new WriterSync({
         prettyPrint: options?.prettyPrint,
         indentString: options?.indentString,
-        encoding: options?.encoding
+        encoding: options?.encoding,
       });
     }
 
     // Write declaration if requested and not injected
     const ownConfig = getOwnWriteConfig(options) ?? this.writeConfig;
-    if (!isInjected && (options?.rootElement || ownConfig?.element) && options?.includeDeclaration !== false) {
+    if (
+      !isInjected &&
+      (options?.rootElement || ownConfig?.element) &&
+      options?.includeDeclaration !== false
+    ) {
       writer.writeStartDocument(options?.xmlVersion, options?.encoding);
     }
 
     // Write root element if specified
     if (options?.rootElement) {
-      writer.writeStartElement(options.rootElement, elementOptions(getRootWriteConfig(options)));
+      writer.writeStartElement(
+        options.rootElement,
+        elementOptions(getRootWriteConfig(options)),
+      );
     }
 
     // Write number element (only if not injected - parent handles element when injected)
@@ -172,10 +196,7 @@ export class XmlNumberSchema extends XmlSchema<number, number> {
       writer.writeEndDocument();
     }
 
-    if (writer instanceof WriterSync) {
-      return writer.getXmlString();
-    }
-    return '';
+    return writer.getXmlString();
   }
 
   /**
@@ -185,9 +206,10 @@ export class XmlNumberSchema extends XmlSchema<number, number> {
   async _write(
     data: number,
     stream: WritableStream<Uint8Array>,
-    options?: XmlWriteOptions
+    options?: XmlWriteOptions,
   ): Promise<void> {
-    if (!Number.isFinite(data)) throw new Error('XML number writer requires a finite number.');
+    if (!Number.isFinite(data))
+      throw new Error("XML number writer requires a finite number.");
     // Use injected writer or create new one
     let writer: Writer;
     let isInjected = false;
@@ -197,30 +219,40 @@ export class XmlNumberSchema extends XmlSchema<number, number> {
         writer = options.writer;
         isInjected = true;
       } else {
-        throw new Error('write requires Writer instance');
+        throw new Error("write requires Writer instance");
       }
     } else {
       writer = new Writer(stream, {
         prettyPrint: options?.prettyPrint,
         indentString: options?.indentString,
-        encoding: options?.encoding
+        encoding: options?.encoding,
       });
     }
 
     // Write declaration if requested and not injected
     const ownConfig = getOwnWriteConfig(options) ?? this.writeConfig;
-    if (!isInjected && (options?.rootElement || ownConfig?.element) && options?.includeDeclaration !== false) {
+    if (
+      !isInjected &&
+      (options?.rootElement || ownConfig?.element) &&
+      options?.includeDeclaration !== false
+    ) {
       await writer.writeStartDocument(options?.xmlVersion, options?.encoding);
     }
 
     // Write root element if specified
     if (options?.rootElement) {
-      await writer.writeStartElement(options.rootElement, elementOptions(getRootWriteConfig(options)));
+      await writer.writeStartElement(
+        options.rootElement,
+        elementOptions(getRootWriteConfig(options)),
+      );
     }
 
     // Write number element (only if not injected - parent handles element when injected)
     if (!isInjected && ownConfig?.element) {
-      await writer.writeStartElement(ownConfig.element, elementOptions(ownConfig));
+      await writer.writeStartElement(
+        ownConfig.element,
+        elementOptions(ownConfig),
+      );
     }
 
     // Write content

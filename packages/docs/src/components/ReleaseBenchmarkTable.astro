@@ -1,6 +1,8 @@
 ---
 import runtimeMatrixV100 from '../data/benchmarks/v1.0.0/runtime-matrix.json';
 import streamReader4GiBV100 from '../data/benchmarks/v1.0.0/stream-reader-4gb.json';
+import runtimeMatrixV110 from '../data/benchmarks/v1.1.0/runtime-matrix.json';
+import streamReader4GiBV110 from '../data/benchmarks/v1.1.0/stream-reader-4gb.json';
 
 type Kind = 'runtime' | 'stream4gib';
 type Locale = 'en' | 'ko';
@@ -11,14 +13,18 @@ const benchmarkData = {
     runtimeMatrix: runtimeMatrixV100,
     streamReader4GiB: streamReader4GiBV100,
   },
+  'v1.1.0': {
+    runtimeMatrix: runtimeMatrixV110,
+    streamReader4GiB: streamReader4GiBV110,
+  },
 } as const;
 
-const { kind, locale = 'en', version = 'v1.0.0' } = Astro.props as {
+const { kind, locale = 'en', version = 'v1.1.0' } = Astro.props as {
   kind: Kind;
   locale?: Locale;
   version?: BenchmarkVersion;
 };
-const { runtimeMatrix, streamReader4GiB } = benchmarkData[version] ?? benchmarkData['v1.0.0'];
+const { runtimeMatrix, streamReader4GiB } = benchmarkData[version] ?? benchmarkData['v1.1.0'];
 
 const headings = {
   en: {

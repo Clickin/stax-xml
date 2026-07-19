@@ -4,18 +4,18 @@
  * @public
  */
 export const XmlEventType = {
-  START_DOCUMENT: 'START_DOCUMENT',
-  END_DOCUMENT: 'END_DOCUMENT',
-  START_ELEMENT: 'START_ELEMENT',
-  END_ELEMENT: 'END_ELEMENT',
-  CHARACTERS: 'CHARACTERS',
-  CDATA: 'CDATA',
-  COMMENT: 'COMMENT',
-  PROCESSING_INSTRUCTION: 'PROCESSING_INSTRUCTION',
-  DTD: 'DTD',
+  START_DOCUMENT: "START_DOCUMENT",
+  END_DOCUMENT: "END_DOCUMENT",
+  START_ELEMENT: "START_ELEMENT",
+  END_ELEMENT: "END_ELEMENT",
+  CHARACTERS: "CHARACTERS",
+  CDATA: "CDATA",
+  COMMENT: "COMMENT",
+  PROCESSING_INSTRUCTION: "PROCESSING_INSTRUCTION",
+  DTD: "DTD",
 } as const;
 
-export type XmlEventType = typeof XmlEventType[keyof typeof XmlEventType];
+export type XmlEventType = (typeof XmlEventType)[keyof typeof XmlEventType];
 
 /**
  * Event fired when the document starts parsing
@@ -25,7 +25,7 @@ export type XmlEventType = typeof XmlEventType[keyof typeof XmlEventType];
 export interface StartDocumentEvent {
   type: typeof XmlEventType.START_DOCUMENT;
   /** Present only when the source contained an XML declaration. */
-  version?: '1.0';
+  version?: "1.0";
   encoding?: string;
   standalone?: boolean;
 }
@@ -50,13 +50,20 @@ export interface StartElementEvent {
   localName: string;
   prefix: string;
   namespaceURI: string;
-  attributes: EventAttributes;
+  /** Attributes in source order, or undefined when the element has none. */
+  attributes?: EventAttributes;
   /** Whether the source used an empty-element tag (`<element/>`). */
   selfClosing: boolean;
 }
 
 /** Materialized attribute attached to a start-element event. */
-export interface EventAttribute { name: string; localName: string; prefix: string; namespaceURI: string; value: string }
+export interface EventAttribute {
+  name: string;
+  localName: string;
+  prefix: string;
+  namespaceURI: string;
+  value: string;
+}
 
 /**
  * Attribute lookup table keyed by qualified XML name.
@@ -92,11 +99,21 @@ export interface CdataEvent {
 }
 
 /** Event containing an XML comment. */
-export interface CommentEvent { type: typeof XmlEventType.COMMENT; value: string }
+export interface CommentEvent {
+  type: typeof XmlEventType.COMMENT;
+  value: string;
+}
 /** Event containing an XML processing instruction. */
-export interface ProcessingInstructionEvent { type: typeof XmlEventType.PROCESSING_INSTRUCTION; target: string; data: string }
+export interface ProcessingInstructionEvent {
+  type: typeof XmlEventType.PROCESSING_INSTRUCTION;
+  target: string;
+  data: string;
+}
 /** Event containing a document type declaration. */
-export interface DtdEvent { type: typeof XmlEventType.DTD; value: string }
+export interface DtdEvent {
+  type: typeof XmlEventType.DTD;
+  value: string;
+}
 
 /**
  * Discriminated Union type for developer use
@@ -170,7 +187,9 @@ export function isCdata(event: AnyXmlEvent): event is CdataEvent {
  * @param event XML event to check
  * @returns true if the event is a START_DOCUMENT event, false otherwise
  */
-export function isStartDocument(event: AnyXmlEvent): event is StartDocumentEvent {
+export function isStartDocument(
+  event: AnyXmlEvent,
+): event is StartDocumentEvent {
   return event.type === XmlEventType.START_DOCUMENT;
 }
 /**
@@ -204,4 +223,4 @@ export interface ParserEventFilter {
  *
  * @public
  */
-export type DocumentMode = 'fragment' | 'document';
+export type DocumentMode = "fragment" | "document";

@@ -1,24 +1,28 @@
-import mdx from '@astrojs/mdx';
-import starlight from '@astrojs/starlight';
-import { defineConfig } from 'astro/config';
-import { fileURLToPath } from 'node:url';
+import mdx from "@astrojs/mdx";
+import starlight from "@astrojs/starlight";
+import { defineConfig } from "astro/config";
+import { fileURLToPath } from "node:url";
 // import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
 
 function crossOriginIsolationHeaders() {
-  function applyHeaders(response: { setHeader(name: string, value: string): void }) {
-    response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-    response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  function applyHeaders(response: {
+    setHeader(name: string, value: string): void;
+  }) {
+    response.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+    response.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
   }
 
   return {
-    name: 'stax-xml-cross-origin-isolation',
+    name: "stax-xml-cross-origin-isolation",
     configureServer(server: {
       middlewares: {
-        use(handler: (
-          request: unknown,
-          response: { setHeader(name: string, value: string): void },
-          next: () => void,
-        ) => void): void;
+        use(
+          handler: (
+            request: unknown,
+            response: { setHeader(name: string, value: string): void },
+            next: () => void,
+          ) => void,
+        ): void;
       };
     }) {
       server.middlewares.use((_request, response, next) => {
@@ -28,11 +32,13 @@ function crossOriginIsolationHeaders() {
     },
     configurePreviewServer(server: {
       middlewares: {
-        use(handler: (
-          request: unknown,
-          response: { setHeader(name: string, value: string): void },
-          next: () => void,
-        ) => void): void;
+        use(
+          handler: (
+            request: unknown,
+            response: { setHeader(name: string, value: string): void },
+            next: () => void,
+          ) => void,
+        ): void;
       };
     }) {
       server.middlewares.use((_request, response, next) => {
@@ -48,270 +54,365 @@ export default defineConfig({
     enabled: false,
   },
   vite: {
-    plugins: [
-      crossOriginIsolationHeaders(),
-    ],
+    plugins: [crossOriginIsolationHeaders()],
     resolve: {
       alias: {
-        'stax-xml/converter': fileURLToPath(new URL('../stax-xml/src/converter.ts', import.meta.url)),
-        'stax-xml': fileURLToPath(new URL('../stax-xml/src/index.ts', import.meta.url)),
+        "stax-xml/converter": fileURLToPath(
+          new URL("../stax-xml/src/converter.ts", import.meta.url),
+        ),
+        "stax-xml": fileURLToPath(
+          new URL("../stax-xml/src/index.ts", import.meta.url),
+        ),
       },
     },
     worker: {
-      format: 'es',
+      format: "es",
     },
   },
   integrations: [
     starlight({
-      title: 'StAX-XML',
-      description: 'High-performance XML parser for JavaScript/TypeScript',
-      defaultLocale: 'root',
+      title: "StAX-XML",
+      description: "High-performance XML parser for JavaScript/TypeScript",
+      defaultLocale: "root",
       locales: {
         root: {
-          label: 'English',
-          lang: 'en',
+          label: "English",
+          lang: "en",
         },
         ko: {
-          label: '한국어',
-          lang: 'ko',
+          label: "한국어",
+          lang: "ko",
         },
       },
       social: [
         {
-          icon: 'github',
-          label: 'GitHub',
-          href: 'https://github.com/Clickin/stax-xml',
+          icon: "github",
+          label: "GitHub",
+          href: "https://github.com/Clickin/stax-xml",
         },
       ],
       components: {
-        SiteTitle: './src/components/SiteTitle.astro',
+        SiteTitle: "./src/components/SiteTitle.astro",
       },
       head: [
         // Enhanced OpenGraph Protocol
         {
-          tag: 'meta',
+          tag: "meta",
           attrs: {
-            property: 'og:title',
-            content: 'StAX-XML - High-Performance JavaScript XML Parser Library'
-          }
+            property: "og:title",
+            content:
+              "StAX-XML - High-Performance JavaScript XML Parser Library",
+          },
         },
         {
-          tag: 'meta',
+          tag: "meta",
           attrs: {
-            property: 'og:description',
-            content: 'Fast, streaming XML parser for JavaScript/TypeScript. Works in Node.js, Bun, Deno, and browsers. Memory-efficient processing of large XML files with TypeScript support.'
-          }
+            property: "og:description",
+            content:
+              "Fast, streaming XML parser for JavaScript/TypeScript. Works in Node.js, Bun, Deno, and browsers. Memory-efficient processing of large XML files with TypeScript support.",
+          },
         },
         {
-          tag: 'meta',
+          tag: "meta",
           attrs: {
-            property: 'og:type',
-            content: 'website'
-          }
+            property: "og:type",
+            content: "website",
+          },
         },
         {
-          tag: 'meta',
+          tag: "meta",
           attrs: {
-            property: 'og:url',
-            content: 'https://clickin.github.io/stax-xml'
-          }
+            property: "og:url",
+            content: "https://clickin.github.io/stax-xml",
+          },
         },
         // OpenGraph image will be dynamically generated per page
         {
-          tag: 'meta',
+          tag: "meta",
           attrs: {
-            property: 'og:image:width',
-            content: '1200'
-          }
+            property: "og:image:width",
+            content: "1200",
+          },
         },
         {
-          tag: 'meta',
+          tag: "meta",
           attrs: {
-            property: 'og:image:height',
-            content: '630'
-          }
+            property: "og:image:height",
+            content: "630",
+          },
         },
         {
-          tag: 'meta',
+          tag: "meta",
           attrs: {
-            property: 'og:site_name',
-            content: 'StAX-XML Documentation'
-          }
+            property: "og:site_name",
+            content: "StAX-XML Documentation",
+          },
         },
 
         // Twitter Card Optimization
         {
-          tag: 'meta',
+          tag: "meta",
           attrs: {
-            name: 'twitter:card',
-            content: 'summary_large_image'
-          }
+            name: "twitter:card",
+            content: "summary_large_image",
+          },
         },
         {
-          tag: 'meta',
+          tag: "meta",
           attrs: {
-            name: 'twitter:title',
-            content: 'StAX-XML - JavaScript XML Parser for Node.js, Bun, Deno'
-          }
+            name: "twitter:title",
+            content: "StAX-XML - JavaScript XML Parser for Node.js, Bun, Deno",
+          },
         },
         {
-          tag: 'meta',
+          tag: "meta",
           attrs: {
-            name: 'twitter:description',
-            content: 'High-performance streaming XML parser library for JavaScript/TypeScript. Memory-efficient processing with full platform compatibility.'
-          }
+            name: "twitter:description",
+            content:
+              "High-performance streaming XML parser library for JavaScript/TypeScript. Memory-efficient processing with full platform compatibility.",
+          },
         },
         // Twitter image will be dynamically generated per page
 
         // Enhanced Meta Tags for SEO
         {
-          tag: 'meta',
+          tag: "meta",
           attrs: {
-            name: 'keywords',
-            content: 'XML parser JavaScript, TypeScript XML parser, Node.js XML parser, streaming XML parser, JavaScript XML library, Bun XML parser, Deno XML parser, XML processing JavaScript, high performance XML parser, memory efficient XML parser'
-          }
+            name: "keywords",
+            content:
+              "XML parser JavaScript, TypeScript XML parser, Node.js XML parser, streaming XML parser, JavaScript XML library, Bun XML parser, Deno XML parser, XML processing JavaScript, high performance XML parser, memory efficient XML parser",
+          },
         },
         {
-          tag: 'meta',
+          tag: "meta",
           attrs: {
-            name: 'author',
-            content: 'StAX-XML Contributors'
-          }
+            name: "author",
+            content: "StAX-XML Contributors",
+          },
         },
         {
-          tag: 'meta',
+          tag: "meta",
           attrs: {
-            name: 'robots',
-            content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'
-          }
+            name: "robots",
+            content:
+              "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+          },
         },
 
         // Critical Resource Preloading
         {
-          tag: 'link',
+          tag: "link",
           attrs: {
-            rel: 'preconnect',
-            href: 'https://fonts.googleapis.com'
-          }
+            rel: "preconnect",
+            href: "https://fonts.googleapis.com",
+          },
         },
         {
-          tag: 'link',
+          tag: "link",
           attrs: {
-            rel: 'preconnect',
-            href: 'https://fonts.gstatic.com',
-            crossorigin: ''
-          }
+            rel: "preconnect",
+            href: "https://fonts.gstatic.com",
+            crossorigin: "",
+          },
         },
         {
-          tag: 'link',
+          tag: "link",
           attrs: {
-            rel: 'dns-prefetch',
-            href: 'https://github.com'
-          }
+            rel: "dns-prefetch",
+            href: "https://github.com",
+          },
         },
 
         // Schema.org Structured Data for Software Library
         {
-          tag: 'script',
+          tag: "script",
           attrs: {
-            type: 'application/ld+json'
+            type: "application/ld+json",
           },
           content: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "SoftwareApplication",
-            "name": "StAX-XML",
-            "description": "High-performance, streaming XML parser for JavaScript and TypeScript with universal platform compatibility",
-            "applicationCategory": "DeveloperApplication",
-            "operatingSystem": ["Windows", "macOS", "Linux"],
-            "programmingLanguage": ["JavaScript", "TypeScript"],
-            "runtimePlatform": ["Node.js", "Bun", "Deno", "Web Browser"],
-            "downloadUrl": "https://www.npmjs.com/package/stax-xml",
-            "codeRepository": "https://github.com/Clickin/stax-xml",
-            "license": "https://github.com/Clickin/stax-xml/blob/master/LICENSE",
-            "author": {
+            name: "StAX-XML",
+            description:
+              "High-performance, streaming XML parser for JavaScript and TypeScript with universal platform compatibility",
+            applicationCategory: "DeveloperApplication",
+            operatingSystem: ["Windows", "macOS", "Linux"],
+            programmingLanguage: ["JavaScript", "TypeScript"],
+            runtimePlatform: ["Node.js", "Bun", "Deno", "Web Browser"],
+            downloadUrl: "https://www.npmjs.com/package/stax-xml",
+            codeRepository: "https://github.com/Clickin/stax-xml",
+            license: "https://github.com/Clickin/stax-xml/blob/master/LICENSE",
+            author: {
               "@type": "Organization",
-              "name": "StAX-XML Contributors",
-              "url": "https://github.com/Clickin/stax-xml"
+              name: "StAX-XML Contributors",
+              url: "https://github.com/Clickin/stax-xml",
             },
-            "offers": {
+            offers: {
               "@type": "Offer",
-              "price": "0",
-              "priceCurrency": "USD"
+              price: "0",
+              priceCurrency: "USD",
             },
-            "keywords": ["XML parser", "JavaScript", "TypeScript", "Node.js", "streaming", "high-performance"]
-          })
-        }
+            keywords: [
+              "XML parser",
+              "JavaScript",
+              "TypeScript",
+              "Node.js",
+              "streaming",
+              "high-performance",
+            ],
+          }),
+        },
       ],
       sidebar: [
         {
-          label: 'Guide',
+          label: "Guide",
           translations: {
-            ko: '가이드',
+            ko: "가이드",
           },
           items: [
-            { label: 'Getting Started', slug: 'guide/getting-started', translations: { ko: '시작하기' } },
-            { label: 'Quick Start', slug: 'guide/quick-start', translations: { ko: '빠른 시작' } },
-            { label: 'Examples', slug: 'guide/examples', translations: { ko: '예제' } },
-            { label: 'Migrating from v0.x', slug: 'guide/migration-v0', translations: { ko: 'v0.x 마이그레이션' } },
-            { label: 'Web Server Integration', slug: 'guide/server-integration', translations: { ko: 'Web Server 연동' } },
+            {
+              label: "Getting Started",
+              slug: "guide/getting-started",
+              translations: { ko: "시작하기" },
+            },
+            {
+              label: "Quick Start",
+              slug: "guide/quick-start",
+              translations: { ko: "빠른 시작" },
+            },
+            {
+              label: "Examples",
+              slug: "guide/examples",
+              translations: { ko: "예제" },
+            },
+            {
+              label: "Transformation Pipelines",
+              slug: "guide/event-pipelines",
+              translations: { ko: "변환 파이프라인" },
+            },
+            {
+              label: "Migrating from v0.x",
+              slug: "guide/migration-v0",
+              translations: { ko: "v0.x 마이그레이션" },
+            },
+            {
+              label: "Web Server Integration",
+              slug: "guide/server-integration",
+              translations: { ko: "Web Server 연동" },
+            },
           ],
         },
         {
-          label: 'API Guides',
+          label: "API Guides",
           translations: {
-            ko: 'API 가이드',
+            ko: "API 가이드",
           },
           items: [
-            { label: 'EventReader', slug: 'api-guides/event-reader' },
-            { label: 'EventReaderSync', slug: 'api-guides/event-reader-sync' },
-            { label: 'StreamReader', slug: 'api-guides/stream-reader' },
-            { label: 'StreamReaderSync', slug: 'api-guides/stream-reader-sync' },
-            { label: 'Writer', slug: 'api-guides/writer' },
-            { label: 'WriterSync', slug: 'api-guides/writer-sync' },
+            { label: "EventReader", slug: "api-guides/event-reader" },
+            { label: "EventReaderSync", slug: "api-guides/event-reader-sync" },
+            { label: "StreamReader", slug: "api-guides/stream-reader" },
+            {
+              label: "StreamReaderSync",
+              slug: "api-guides/stream-reader-sync",
+            },
+            { label: "Writer", slug: "api-guides/writer" },
+            { label: "WriterSync", slug: "api-guides/writer-sync" },
           ],
         },
         {
-          label: 'Converter',
+          label: "Converter",
           items: [
-            { label: 'Getting Started', slug: 'converter/getting-started', translations: { ko: '시작하기' } },
-            { label: 'Interactive Demo', slug: 'converter/demo', translations: { ko: '인터랙티브 데모' } },
-            { label: 'Core Concepts', slug: 'converter/core-concepts', translations: { ko: '핵심 개념' } },
-            { label: 'Schema Types', slug: 'converter/schemas', translations: { ko: '스키마 타입' } },
-            { label: 'XPath Guide', slug: 'converter/xpath-guide', translations: { ko: 'XPath 가이드' } },
-            { label: 'XPath 1.0 Conformance', slug: 'converter/xpath-guide/xpath-1-conformance', translations: { ko: 'XPath 1.0 준수 범위' } },
-            { label: 'Transformations', slug: 'converter/transformations', translations: { ko: '변환' } },
-            { label: 'Writing XML', slug: 'converter/writing-xml', translations: { ko: 'XML 작성' } },
-            { label: 'Examples', slug: 'converter/examples', translations: { ko: '예제' } },
+            {
+              label: "Getting Started",
+              slug: "converter/getting-started",
+              translations: { ko: "시작하기" },
+            },
+            {
+              label: "Interactive Demo",
+              slug: "converter/demo",
+              translations: { ko: "인터랙티브 데모" },
+            },
+            {
+              label: "Core Concepts",
+              slug: "converter/core-concepts",
+              translations: { ko: "핵심 개념" },
+            },
+            {
+              label: "Schema Types",
+              slug: "converter/schemas",
+              translations: { ko: "스키마 타입" },
+            },
+            {
+              label: "XPath Guide",
+              slug: "converter/xpath-guide",
+              translations: { ko: "XPath 가이드" },
+            },
+            {
+              label: "XPath 1.0 Conformance",
+              slug: "converter/xpath-guide/xpath-1-conformance",
+              translations: { ko: "XPath 1.0 준수 범위" },
+            },
+            {
+              label: "Transformations",
+              slug: "converter/transformations",
+              translations: { ko: "변환" },
+            },
+            {
+              label: "Writing XML",
+              slug: "converter/writing-xml",
+              translations: { ko: "XML 작성" },
+            },
+            {
+              label: "Examples",
+              slug: "converter/examples",
+              translations: { ko: "예제" },
+            },
           ],
         },
         {
-          label: 'API Reference',
+          label: "API Reference",
           translations: {
-            ko: 'API 레퍼런스',
+            ko: "API 레퍼런스",
           },
           items: [
-            { label: 'Overview', slug: 'api/overview', translations: { ko: '개요' } },
-            { label: 'Core API', slug: 'api/main' },
-            { label: 'Converter API', slug: 'api/converter' },
+            {
+              label: "Overview",
+              slug: "api/overview",
+              translations: { ko: "개요" },
+            },
+            { label: "Core API", slug: "api/main" },
+            { label: "Converter API", slug: "api/converter" },
           ],
         },
         {
-          label: 'Resources',
+          label: "Resources",
           translations: {
-            ko: '리소스',
+            ko: "리소스",
           },
           items: [
-            { label: 'Benchmarks', slug: 'resources/benchmarks', translations: { ko: '벤치마크' } },
-            { label: 'Runtime Model', slug: 'resources/runtime-model', translations: { ko: '실행 모델' } },
-            { label: 'Release Readiness', slug: 'resources/release-readiness', translations: { ko: '릴리스 준비' } },
-            { label: 'FAQ', slug: 'resources/faq' },
+            {
+              label: "Benchmarks",
+              slug: "resources/benchmarks",
+              translations: { ko: "벤치마크" },
+            },
+            {
+              label: "Runtime Model",
+              slug: "resources/runtime-model",
+              translations: { ko: "실행 모델" },
+            },
+            {
+              label: "Release Readiness",
+              slug: "resources/release-readiness",
+              translations: { ko: "릴리스 준비" },
+            },
+            { label: "FAQ", slug: "resources/faq" },
           ],
         },
       ],
     }),
     mdx(),
   ],
-  output: 'static',
-  site: 'https://clickin.github.io',
-  base: '/stax-xml',
+  output: "static",
+  site: "https://clickin.github.io",
+  base: "/stax-xml",
 });

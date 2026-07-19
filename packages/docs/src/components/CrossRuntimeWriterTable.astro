@@ -1,7 +1,12 @@
 ---
-import benchmark from '../data/benchmarks/v1.0.0/writer-cross-runtime.json';
+import benchmarkV100 from '../data/benchmarks/v1.0.0/writer-cross-runtime.json';
+import benchmarkV110 from '../data/benchmarks/v1.1.0/writer-cross-runtime.json';
 
-const { locale = 'en' } = Astro.props as { locale?: 'en' | 'ko' };
+const { locale = 'en', version = 'v1.1.0' } = Astro.props as {
+  locale?: 'en' | 'ko';
+  version?: 'v1.0.0' | 'v1.1.0';
+};
+const benchmark = version === 'v1.0.0' ? benchmarkV100 : benchmarkV110;
 
 const labels = {
   'stax-xml': `stax-xml WriterSyncSink (${benchmark.environment.node})`,

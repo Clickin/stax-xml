@@ -1,22 +1,30 @@
-import { XmlSchemaBase } from './base.js';
-import type { XmlWriteOptions } from './types.js';
-import { SchemaType } from './types.js';
-import { WriterSync, WriterSyncSink } from '@stax-xml/sync';
-import { Writer } from '@stax-xml/async';
-import { elementOptions, getOwnWriteConfig, getRootWriteConfig, getWriteConfig, nestedWriteOptions } from './write-utils.js';
-import { XPathCompiler } from './XPathEngine.js';
+import { XmlSchemaBase } from "./base.js";
+import type { XmlWriteOptions } from "./types.js";
+import { SchemaType } from "./types.js";
+import { WriterSync, WriterSyncSink } from "@stax-xml/sync";
+import { Writer } from "@stax-xml/async";
+import {
+  elementOptions,
+  getOwnWriteConfig,
+  getRootWriteConfig,
+  getWriteConfig,
+  nestedWriteOptions,
+} from "./write-utils.js";
+import { XPathCompiler } from "./XPathEngine.js";
 
 /**
  * Schema for parsing XML array values
  *
  * @public
  */
-export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends XmlSchemaBase<T['_output'][], T['_input'][]> {
+export class XmlArraySchema<
+  T extends XmlSchemaBase<unknown, unknown>,
+> extends XmlSchemaBase<T["_output"][], T["_input"][]> {
   readonly schemaType = SchemaType.ARRAY;
 
   constructor(
     public readonly element: T,
-    public readonly xpath?: string
+    public readonly xpath?: string,
   ) {
     super();
     if (xpath !== undefined) XPathCompiler.compile(xpath);
@@ -26,7 +34,7 @@ export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends X
    * Write array data to XML synchronously
    * @internal
    */
-  _writeSync(data: T['_output'][], options?: XmlWriteOptions): string {
+  _writeSync(data: T["_output"][], options?: XmlWriteOptions): string {
     // Use injected writer or create new one
     let writer: WriterSync | WriterSyncSink;
     let isInjected = false;
@@ -39,49 +47,76 @@ export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends X
         writer = options.writer;
         isInjected = true;
       } else {
-        throw new Error('writeSync requires WriterSync or WriterSyncSink instance');
+        throw new Error(
+          "writeSync requires WriterSync or WriterSyncSink instance",
+        );
       }
     } else {
       writer = new WriterSync({
         prettyPrint: options?.prettyPrint,
         indentString: options?.indentString,
-        encoding: options?.encoding
+        encoding: options?.encoding,
       });
     }
 
     const ownConfig = getOwnWriteConfig(options) ?? this.writeConfig;
     const ownElement = !isInjected ? ownConfig?.element : undefined;
-    const rootConfig = getRootWriteConfig(options) ?? (ownElement ? undefined : ownConfig);
+    const rootConfig =
+      getRootWriteConfig(options) ?? (ownElement ? undefined : ownConfig);
 
-    if (!isInjected && (options?.rootElement || ownElement) && options?.includeDeclaration !== false) {
+    if (
+      !isInjected &&
+      (options?.rootElement || ownElement) &&
+      options?.includeDeclaration !== false
+    ) {
       writer.writeStartDocument(options?.xmlVersion, options?.encoding);
     }
 
-    const rootSelfClosing = Boolean(options?.rootElement && !ownElement && rootConfig?.selfClosing && data.length === 0);
+    const rootSelfClosing = Boolean(
+      options?.rootElement &&
+        !ownElement &&
+        rootConfig?.selfClosing &&
+        data.length === 0,
+    );
     if (options?.rootElement) {
-      writer.writeStartElement(options.rootElement, elementOptions(rootConfig, { selfClosing: rootSelfClosing }));
+      writer.writeStartElement(
+        options.rootElement,
+        elementOptions(rootConfig, { selfClosing: rootSelfClosing }),
+      );
       if (rootSelfClosing) {
         if (!isInjected) writer.writeEndDocument();
-        return writer instanceof WriterSync ? writer.getXmlString() : '';
+        return writer.getXmlString();
       }
     }
 
-    const ownSelfClosing = Boolean(ownElement && ownConfig?.selfClosing && data.length === 0);
+    const ownSelfClosing = Boolean(
+      ownElement && ownConfig?.selfClosing && data.length === 0,
+    );
     if (ownElement) {
-      writer.writeStartElement(ownElement, elementOptions(ownConfig, { selfClosing: ownSelfClosing }));
+      writer.writeStartElement(
+        ownElement,
+        elementOptions(ownConfig, { selfClosing: ownSelfClosing }),
+      );
     }
 
     // Write each array item without declaration
     const elementConfig = getWriteConfig(this.element);
     if (!elementConfig?.element && data.length > 0) {
-      throw new Error('Array element schemas require writer({ element }) for XML output.');
+      throw new Error(
+        "Array element schemas require writer({ element }) for XML output.",
+      );
     }
 
     if (!ownSelfClosing) {
       for (const item of data) {
         this.element._writeSync(
-          item as T['_output'],
-          nestedWriteOptions(options, writer, elementConfig!.element, elementConfig)
+          item as T["_output"],
+          nestedWriteOptions(
+            options,
+            writer,
+            elementConfig!.element,
+            elementConfig,
+          ),
         );
       }
     }
@@ -98,10 +133,7 @@ export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends X
       writer.writeEndDocument();
     }
 
-    if (writer instanceof WriterSync) {
-      return writer.getXmlString();
-    }
-    return '';
+    return writer.getXmlString();
   }
 
   /**
@@ -109,9 +141,9 @@ export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends X
    * @internal
    */
   async _write(
-    data: T['_output'][],
+    data: T["_output"][],
     stream: WritableStream<Uint8Array>,
-    options?: XmlWriteOptions
+    options?: XmlWriteOptions,
   ): Promise<void> {
     // Use injected writer or create new one
     let writer: Writer;
@@ -122,50 +154,75 @@ export class XmlArraySchema<T extends XmlSchemaBase<unknown, unknown>> extends X
         writer = options.writer;
         isInjected = true;
       } else {
-        throw new Error('write requires Writer instance');
+        throw new Error("write requires Writer instance");
       }
     } else {
       writer = new Writer(stream, {
         prettyPrint: options?.prettyPrint,
         indentString: options?.indentString,
-        encoding: options?.encoding
+        encoding: options?.encoding,
       });
     }
 
     const ownConfig = getOwnWriteConfig(options) ?? this.writeConfig;
     const ownElement = !isInjected ? ownConfig?.element : undefined;
-    const rootConfig = getRootWriteConfig(options) ?? (ownElement ? undefined : ownConfig);
+    const rootConfig =
+      getRootWriteConfig(options) ?? (ownElement ? undefined : ownConfig);
 
-    if (!isInjected && (options?.rootElement || ownElement) && options?.includeDeclaration !== false) {
+    if (
+      !isInjected &&
+      (options?.rootElement || ownElement) &&
+      options?.includeDeclaration !== false
+    ) {
       await writer.writeStartDocument(options?.xmlVersion, options?.encoding);
     }
 
-    const rootSelfClosing = Boolean(options?.rootElement && !ownElement && rootConfig?.selfClosing && data.length === 0);
+    const rootSelfClosing = Boolean(
+      options?.rootElement &&
+        !ownElement &&
+        rootConfig?.selfClosing &&
+        data.length === 0,
+    );
     if (options?.rootElement) {
-      await writer.writeStartElement(options.rootElement, elementOptions(rootConfig, { selfClosing: rootSelfClosing }));
+      await writer.writeStartElement(
+        options.rootElement,
+        elementOptions(rootConfig, { selfClosing: rootSelfClosing }),
+      );
       if (rootSelfClosing) {
         if (!isInjected) await writer.writeEndDocument();
         return;
       }
     }
 
-    const ownSelfClosing = Boolean(ownElement && ownConfig?.selfClosing && data.length === 0);
+    const ownSelfClosing = Boolean(
+      ownElement && ownConfig?.selfClosing && data.length === 0,
+    );
     if (ownElement) {
-      await writer.writeStartElement(ownElement, elementOptions(ownConfig, { selfClosing: ownSelfClosing }));
+      await writer.writeStartElement(
+        ownElement,
+        elementOptions(ownConfig, { selfClosing: ownSelfClosing }),
+      );
     }
 
     // Write each array item without declaration
     const elementConfig = getWriteConfig(this.element);
     if (!elementConfig?.element && data.length > 0) {
-      throw new Error('Array element schemas require writer({ element }) for XML output.');
+      throw new Error(
+        "Array element schemas require writer({ element }) for XML output.",
+      );
     }
 
     if (!ownSelfClosing) {
       for (const item of data) {
         await this.element._write(
-          item as T['_output'],
+          item as T["_output"],
           stream,
-          nestedWriteOptions(options, writer, elementConfig!.element, elementConfig)
+          nestedWriteOptions(
+            options,
+            writer,
+            elementConfig!.element,
+            elementConfig,
+          ),
         );
       }
     }

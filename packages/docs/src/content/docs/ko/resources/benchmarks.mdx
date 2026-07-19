@@ -25,7 +25,7 @@ import CrossRuntimeWriterTable from '../../../../components/CrossRuntimeWriterTa
 import ReleaseBenchmarkTable from '../../../../components/ReleaseBenchmarkTable.astro';
 
 StAX-XML 벤치마크는 순수 JavaScript 파서를 기준으로 합니다. `latest` 문서와
-`v1.0.0` 릴리스 결과는 같은 측정 기준을 사용합니다. JavaScript에서 실제
+`v1.1.0` 릴리스 결과는 같은 측정 기준을 사용합니다. JavaScript에서 실제
 호출하는 공개 API가 문자열과 객체를 만드는 비용까지 포함해 측정합니다.
 
 ## 실행 대상
@@ -148,13 +148,13 @@ materialization 비용의 제한을 받습니다.
 
 ### Runtime Matrix
 
-<ReleaseBenchmarkTable kind="runtime" locale="ko" version="v1.0.0" />
+<ReleaseBenchmarkTable kind="runtime" locale="ko" version="v1.1.0" />
 
 과거 4 GiB generated stream fixture는 `Iterable<Uint8Array[]>` 위의
 `StreamReaderSync`를 fragment mode로 사용하고 current-token accessor로
 소비합니다.
 
-<ReleaseBenchmarkTable kind="stream4gib" locale="ko" version="v1.0.0" />
+<ReleaseBenchmarkTable kind="stream4gib" locale="ko" version="v1.1.0" />
 
 ## 기타 벤치마크 항목
 

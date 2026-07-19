@@ -1,4 +1,9 @@
-import { NEED_INPUT, TokenCursor, type DocumentMode, type XmlEventType } from '@stax-xml/core';
+import {
+  NEED_INPUT,
+  TokenCursor,
+  type DocumentMode,
+  type XmlEventType,
+} from "@stax-xml/core";
 
 /** Inputs accepted by `StreamReaderSync`. */
 export type StreamReaderSyncInput = string | Uint8Array | Iterable<Uint8Array>;
@@ -26,21 +31,31 @@ export class StreamReaderSync {
   private readonly decoder: TextDecoder | undefined;
   private closed = false;
 
-  constructor(input: StreamReaderSyncInput, options: StreamReaderSyncOptions = {}) {
-    if (typeof input === 'string') {
+  constructor(
+    input: StreamReaderSyncInput,
+    options: StreamReaderSyncOptions = {},
+  ) {
+    if (typeof input === "string") {
       this.cursor = new TokenCursor(input, true, options);
     } else if (input instanceof Uint8Array) {
-      this.cursor = new TokenCursor('', false, options);
+      this.cursor = new TokenCursor("", false, options);
       this.iterator = fixedByteChunks(input);
-      this.decoder = new TextDecoder(options.encoding ?? 'utf-8', { fatal: true });
+      this.decoder = new TextDecoder(options.encoding ?? "utf-8", {
+        fatal: true,
+      });
     } else {
-      this.cursor = new TokenCursor('', false, options);
+      this.cursor = new TokenCursor("", false, options);
       // Re-batch caller-supplied byte chunks up to BYTE_CHUNK_SIZE before decoding.
       // Tiny chunks (e.g. per-row iterables, small stream frames) otherwise pay a
       // full TextDecoder + cursor.push round-trip per few bytes; batching recovers
       // that overhead. Same fatal/stream contract as the single-Uint8Array path.
-      this.iterator = batchByteChunks(input[Symbol.iterator](), BYTE_CHUNK_SIZE);
-      this.decoder = new TextDecoder(options.encoding ?? 'utf-8', { fatal: true });
+      this.iterator = batchByteChunks(
+        input[Symbol.iterator](),
+        BYTE_CHUNK_SIZE,
+      );
+      this.decoder = new TextDecoder(options.encoding ?? "utf-8", {
+        fatal: true,
+      });
     }
   }
 
@@ -55,12 +70,18 @@ export class StreamReaderSync {
         if (part.done) {
           this.cursor.push(this.decoder!.decode(), true);
         } else {
-          if (!(part.value instanceof Uint8Array)) throw new Error('Reader chunks must be Uint8Array values.');
-          this.cursor.push(this.decoder!.decode(part.value, { stream: true }), false);
+          this.cursor.push(
+            this.decoder!.decode(part.value, { stream: true }),
+            false,
+          );
         }
       }
     } catch (error) {
-      try { this.close(); } catch { /* Preserve the parse/decode error. */ }
+      try {
+        this.close();
+      } catch {
+        /* Preserve the parse/decode error. */
+      }
       throw error;
     }
   }
@@ -74,41 +95,71 @@ export class StreamReaderSync {
     iterator?.return?.();
   }
   /** Return the current token type. */
-  eventType(): XmlEventType { return this.cursor.eventType(); }
+  eventType(): XmlEventType {
+    return this.cursor.eventType();
+  }
   /** Return the current element's qualified name. */
-  name(): string | undefined { return this.cursor.name(); }
+  name(): string | undefined {
+    return this.cursor.name();
+  }
   /** Return text carried by the current text-like token. */
-  text(): string | undefined { return this.cursor.text(); }
+  text(): string | undefined {
+    return this.cursor.text();
+  }
   /** Return the current element's local name. */
-  localName(): string | undefined { return this.cursor.localName(); }
+  localName(): string | undefined {
+    return this.cursor.localName();
+  }
   /** Return the current element's namespace prefix, or an empty string. */
-  prefix(): string { return this.cursor.prefix(); }
+  prefix(): string {
+    return this.cursor.prefix();
+  }
   /** Return the namespace URI resolved for the current element. */
-  namespaceURI(): string { return this.cursor.namespaceURI(); }
+  namespaceURI(): string {
+    return this.cursor.namespaceURI();
+  }
   /** Return the number of attributes on the current start element. */
-  attributeCount(): number { return this.cursor.attributeCount(); }
+  attributeCount(): number {
+    return this.cursor.attributeCount();
+  }
   /** Return an attribute's qualified name by zero-based index. */
-  attributeName(index: number): string | undefined { return this.cursor.attribute(index)?.name; }
+  attributeName(index: number): string | undefined {
+    return this.cursor.attribute(index)?.name;
+  }
   /** Return an attribute's local name by zero-based index. */
-  attributeLocalName(index: number): string | undefined { return this.cursor.attributeLocalName(index); }
+  attributeLocalName(index: number): string | undefined {
+    return this.cursor.attributeLocalName(index);
+  }
   /** Return an attribute's namespace prefix by zero-based index. */
-  attributePrefix(index: number): string | undefined { return this.cursor.attribute(index)?.prefix; }
+  attributePrefix(index: number): string | undefined {
+    return this.cursor.attribute(index)?.prefix;
+  }
   /** Return an attribute's namespace URI by zero-based index. */
-  attributeNamespaceURI(index: number): string | undefined { return this.cursor.attribute(index)?.namespaceURI; }
+  attributeNamespaceURI(index: number): string | undefined {
+    return this.cursor.attribute(index)?.namespaceURI;
+  }
   /** Return an attribute value by index, qualified name, or namespace URI plus local name. */
-  attributeValue(indexOrNameOrNamespace: number | string, localName?: string): string | undefined {
-    return typeof indexOrNameOrNamespace === 'number' && localName === undefined
+  attributeValue(
+    indexOrNameOrNamespace: number | string,
+    localName?: string,
+  ): string | undefined {
+    return typeof indexOrNameOrNamespace === "number" && localName === undefined
       ? this.cursor.attributeValue(indexOrNameOrNamespace)
       : this.cursor.attribute(indexOrNameOrNamespace, localName)?.value;
   }
   /** Resolve a namespace prefix in the current element scope. */
-  namespaceURIForPrefix(prefix: string): string { return this.cursor.namespaceURIForPrefix(prefix); }
+  namespaceURIForPrefix(prefix: string): string {
+    return this.cursor.namespaceURIForPrefix(prefix);
+  }
 }
 
 /** Coalesce small caller-supplied Uint8Array chunks into ~size-byte batches.
  *  Reuses one backing buffer; returned views stay valid only until the next call,
  *  which matches StreamReaderSync's decode-then-refill consumption order. */
-function batchByteChunks(source: Iterator<Uint8Array>, size: number): Iterator<Uint8Array> {
+function batchByteChunks(
+  source: Iterator<Uint8Array>,
+  size: number,
+): Iterator<Uint8Array> {
   let buffer = new Uint8Array(size);
   let length = 0;
   let done = false;
@@ -117,12 +168,18 @@ function batchByteChunks(source: Iterator<Uint8Array>, size: number): Iterator<U
       if (done) return { value: undefined, done: true };
       while (length < size) {
         const part = source.next();
-        if (part.done) { done = true; break; }
+        if (part.done) {
+          done = true;
+          break;
+        }
         const value = part.value;
-        if (!(value instanceof Uint8Array)) throw new Error('Reader chunks must be Uint8Array values.');
+        if (!(value instanceof Uint8Array))
+          throw new Error("Reader chunks must be Uint8Array values.");
         if (value.byteLength === 0) continue;
         if (length + value.byteLength > buffer.byteLength) {
-          const grown = new Uint8Array(Math.max(length + value.byteLength, buffer.byteLength * 2));
+          const grown = new Uint8Array(
+            Math.max(length + value.byteLength, buffer.byteLength * 2),
+          );
           grown.set(buffer.subarray(0, length));
           buffer = grown;
         }
@@ -154,12 +211,16 @@ function fixedByteChunks(input: Uint8Array): Iterator<Uint8Array> {
   let offset = 0;
   return {
     next(): IteratorResult<Uint8Array> {
+      /* v8 ignore next -- StreamReaderSync stops requesting fixed chunks after this iterator reports done */
       if (source === undefined) return { value: undefined, done: true };
       if (offset >= source.byteLength) {
         source = undefined;
         return { value: undefined, done: true };
       }
-      const value = source.subarray(offset, Math.min(offset + BYTE_CHUNK_SIZE, source.byteLength));
+      const value = source.subarray(
+        offset,
+        Math.min(offset + BYTE_CHUNK_SIZE, source.byteLength),
+      );
       offset += value.byteLength;
       return { value, done: false };
     },

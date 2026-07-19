@@ -24,6 +24,10 @@ head:
 
 StAX-XML에는 프로그래밍 방식으로 XML 문서를 생성하는 동기식 XML writer가 포함되어 있습니다. `WriterSync`는 완성된 XML 문자열을 메모리에 만듭니다. `WriterSyncSink`는 같은 동기 writer 모델을 사용하면서 sink로 증분 출력하므로, 대용량 출력에서도 전체 XML 문자열을 보관하지 않고 높은 처리량을 유지할 수 있습니다.
 
+v1.1의 `writeEvent()`는 `EventReaderSync` event를 직접 받으므로 fixture → reader
+→ modify → writer pipeline을 manual event dispatch 없이 구성할 수 있습니다.
+[XML 변환 파이프라인](/stax-xml/ko/guide/event-pipelines/)을 참고하세요.
+
 대용량 파일 출력에는 sink 경로를 권장합니다. 1GiB writer 벤치마크에서 `WriterSyncSink`가 가장 높은 쓰기 처리량을 보였고, peak RSS는 async 쓰기와 같은 범위에 머물렀습니다.
 
 ### 🔧 빠른 시작
@@ -419,7 +423,7 @@ class WriterSync {
   )
 
   // 문서 레벨 메서드
-  writeStartDocument(version?: '1.0', encoding?: string): this // UTF-8 only
+  writeStartDocument(version?: '1.0', encoding?: string, standalone?: boolean): this // UTF-8 only
   writeEndDocument(): void
 
   // 요소 작성 메서드
@@ -435,6 +439,8 @@ class WriterSync {
   writeCData(cdata: string): this
   writeComment(comment: string): this
   writeProcessingInstruction(target: string, data?: string): this
+  writeDTD(value: string): this
+  writeEvent(event: AnyXmlEvent): this
   writeRaw(xml: string): this
 
   // 유틸리티 메서드

@@ -1,21 +1,25 @@
-import { XmlSchema } from './XmlSchema.js';
-import type { XmlStringOptions, XmlWriteOptions } from './types.js';
-import { SchemaType } from './types.js';
-import { WriterSync, WriterSyncSink } from '@stax-xml/sync';
-import { Writer } from '@stax-xml/async';
-import { elementOptions, getOwnWriteConfig, getRootWriteConfig } from './write-utils.js';
-import { XPathCompiler } from './XPathEngine.js';
+import { XmlSchema } from "./XmlSchema.js";
+import type { XmlStringOptions, XmlWriteOptions } from "./types.js";
+import { SchemaType } from "./types.js";
+import { WriterSync, WriterSyncSink } from "@stax-xml/sync";
+import { Writer } from "@stax-xml/async";
+import {
+  elementOptions,
+  getOwnWriteConfig,
+  getRootWriteConfig,
+} from "./write-utils.js";
+import { XPathCompiler } from "./XPathEngine.js";
 
 /**
  * Helper to escape XML special characters
  */
 function escapeXml(text: string): string {
   return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }
 
 /**
@@ -69,36 +73,56 @@ export class XmlStringSchema extends XmlSchema<string, string> {
         writer = options.writer;
         isInjected = true;
       } else {
-        throw new Error('writeSync requires WriterSync or WriterSyncSink instance');
+        throw new Error(
+          "writeSync requires WriterSync or WriterSyncSink instance",
+        );
       }
     } else {
       writer = new WriterSync({
         prettyPrint: options?.prettyPrint,
         indentString: options?.indentString,
-        encoding: options?.encoding
+        encoding: options?.encoding,
       });
     }
 
     // Write declaration if requested and not injected
     const ownConfig = getOwnWriteConfig(options) ?? this.writeConfig;
-    if (!isInjected && (options?.rootElement || ownConfig?.element) && options?.includeDeclaration !== false) {
+    if (
+      !isInjected &&
+      (options?.rootElement || ownConfig?.element) &&
+      options?.includeDeclaration !== false
+    ) {
       writer.writeStartDocument(options?.xmlVersion, options?.encoding);
     }
 
     const rootConfig = getRootWriteConfig(options);
-    const rootSelfClosing = Boolean(options?.rootElement && rootConfig?.selfClosing && data.length === 0);
+    const rootSelfClosing = Boolean(
+      options?.rootElement && rootConfig?.selfClosing && data.length === 0,
+    );
 
     if (options?.rootElement) {
-      writer.writeStartElement(options.rootElement, elementOptions(rootConfig, { selfClosing: rootSelfClosing }));
+      writer.writeStartElement(
+        options.rootElement,
+        elementOptions(rootConfig, { selfClosing: rootSelfClosing }),
+      );
       if (rootSelfClosing) {
+        /* v8 ignore next -- root self-closing config reaches this branch only through an injected parent writer */
         if (!isInjected) writer.writeEndDocument();
-        return writer instanceof WriterSync ? writer.getXmlString() : '';
+        return writer.getXmlString();
       }
     }
 
-    const ownSelfClosing = Boolean(!isInjected && ownConfig?.element && ownConfig.selfClosing && data.length === 0);
+    const ownSelfClosing = Boolean(
+      !isInjected &&
+        ownConfig?.element &&
+        ownConfig.selfClosing &&
+        data.length === 0,
+    );
     if (!isInjected && ownConfig?.element) {
-      writer.writeStartElement(ownConfig.element, elementOptions(ownConfig, { selfClosing: ownSelfClosing }));
+      writer.writeStartElement(
+        ownConfig.element,
+        elementOptions(ownConfig, { selfClosing: ownSelfClosing }),
+      );
     }
 
     if (!ownSelfClosing) {
@@ -119,10 +143,7 @@ export class XmlStringSchema extends XmlSchema<string, string> {
       writer.writeEndDocument();
     }
 
-    if (writer instanceof WriterSync) {
-      return writer.getXmlString();
-    }
-    return '';
+    return writer.getXmlString();
   }
 
   /**
@@ -132,7 +153,7 @@ export class XmlStringSchema extends XmlSchema<string, string> {
   async _write(
     data: string,
     stream: WritableStream<Uint8Array>,
-    options?: XmlWriteOptions
+    options?: XmlWriteOptions,
   ): Promise<void> {
     // Use injected writer or create new one
     let writer: Writer;
@@ -143,36 +164,54 @@ export class XmlStringSchema extends XmlSchema<string, string> {
         writer = options.writer;
         isInjected = true;
       } else {
-        throw new Error('write requires Writer instance');
+        throw new Error("write requires Writer instance");
       }
     } else {
       writer = new Writer(stream, {
         prettyPrint: options?.prettyPrint,
         indentString: options?.indentString,
-        encoding: options?.encoding
+        encoding: options?.encoding,
       });
     }
 
     // Write declaration if requested and not injected
     const ownConfig = getOwnWriteConfig(options) ?? this.writeConfig;
-    if (!isInjected && (options?.rootElement || ownConfig?.element) && options?.includeDeclaration !== false) {
+    if (
+      !isInjected &&
+      (options?.rootElement || ownConfig?.element) &&
+      options?.includeDeclaration !== false
+    ) {
       await writer.writeStartDocument(options?.xmlVersion, options?.encoding);
     }
 
     const rootConfig = getRootWriteConfig(options);
-    const rootSelfClosing = Boolean(options?.rootElement && rootConfig?.selfClosing && data.length === 0);
+    const rootSelfClosing = Boolean(
+      options?.rootElement && rootConfig?.selfClosing && data.length === 0,
+    );
 
     if (options?.rootElement) {
-      await writer.writeStartElement(options.rootElement, elementOptions(rootConfig, { selfClosing: rootSelfClosing }));
+      await writer.writeStartElement(
+        options.rootElement,
+        elementOptions(rootConfig, { selfClosing: rootSelfClosing }),
+      );
       if (rootSelfClosing) {
+        /* v8 ignore next -- root self-closing config reaches this branch only through an injected parent writer */
         if (!isInjected) await writer.writeEndDocument();
         return;
       }
     }
 
-    const ownSelfClosing = Boolean(!isInjected && ownConfig?.element && ownConfig.selfClosing && data.length === 0);
+    const ownSelfClosing = Boolean(
+      !isInjected &&
+        ownConfig?.element &&
+        ownConfig.selfClosing &&
+        data.length === 0,
+    );
     if (!isInjected && ownConfig?.element) {
-      await writer.writeStartElement(ownConfig.element, elementOptions(ownConfig, { selfClosing: ownSelfClosing }));
+      await writer.writeStartElement(
+        ownConfig.element,
+        elementOptions(ownConfig, { selfClosing: ownSelfClosing }),
+      );
     }
 
     if (!ownSelfClosing) {

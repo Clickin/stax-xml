@@ -24,6 +24,10 @@ head:
 
 `Writer` is an asynchronous, stream-based XML writer for non-blocking `WritableStream` workflows, streaming responses, and real-time XML generation.
 
+In v1.1, `writeEvent()` accepts stable objects from `EventReader`, making
+reader → modify → writer transformations a direct streaming pipeline. See
+[XML Transformation Pipelines](/stax-xml/guide/event-pipelines/).
+
 For large file or large document output where maximum write throughput matters, prefer [`WriterSyncSink`](/stax-xml/api-guides/writer-sync/#sink-based-incremental-writing). The 1GiB writer benchmark shows the sync sink path has the best write throughput while peak RSS stays in the same range as async writing.
 
 ### Key Features
@@ -258,17 +262,22 @@ class Writer {
   constructor(output: WritableStream<Uint8Array> | AsyncTextSink, options?: WriterOptions)
 
   // Document Level Methods
-  writeStartDocument(version?: '1.0', encoding?: string): Promise<this> // Must match output encoding
+  writeStartDocument(version?: '1.0', encoding?: string, standalone?: boolean): Promise<this> // Must match output encoding
   writeEndDocument(): Promise<void>
 
   // Element Writing Methods
   writeStartElement(localName: string, options?: WriteElementOptions): Promise<this>
   writeEndElement(): Promise<this>
+  writeAttribute(localName: string, value: string, prefix?: string): Promise<this>
+  writeNamespace(prefix: string, uri: string): Promise<this>
 
   // Content Writing Methods
   writeCharacters(text: string): Promise<this>
   writeCData(cdata: string): Promise<this>
   writeComment(comment: string): Promise<this>
+  writeProcessingInstruction(target: string, data?: string): Promise<this>
+  writeDTD(value: string): Promise<this>
+  writeEvent(event: AnyXmlEvent): Promise<this>
   writeRaw(xml: string): Promise<this>
 
   // Stream Management
@@ -301,6 +310,12 @@ encoding and perform the external encoding; `options.encoding` and
 `writeStartDocument()` must match the sink metadata.
 The declaration version is XML 1.0; XML 1.1 is rejected because the parser and
 writer validation contract is XML 1.0.
+
+`writeDTD()` writes a validated document type declaration. `writeEvent()` can
+forward a DTD event, but neither reader nor writer automatically applies entity
+declarations or resolves external entities. Use `addEntities` only for trusted
+replacement values selected by the application. `writeRaw()` is not represented
+as an `AnyXmlEvent`: Java StAX `XMLEventWriter` likewise has no RAW event.
 
 #### Interfaces
 

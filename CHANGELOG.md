@@ -5,7 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - Unreleased
+## [1.1.0] - Unreleased
+
+### Added
+
+- Added `writeEvent()` to `Writer`, `WriterSync`, and `WriterSyncSink`, enabling
+  event-reader → transform → writer pipelines for every standard StAX event
+  represented by `AnyXmlEvent`.
+- Added XML declaration metadata (`version`, `encoding`, and `standalone`) to
+  `START_DOCUMENT` events and empty-element fidelity (`selfClosing`) to
+  `START_ELEMENT` events.
+- Added DTD output through `writeDTD()` and DTD event forwarding through
+  `writeEvent()`.
+
+### Changed
+
+- Start-element events now retain namespace declarations in their ordered
+  `EventAttributes`, allowing namespace-aware reader/writer round trips.
+  Elements without attributes expose `attributes` as `undefined`.
+- Materialized events keep a stable runtime property layout, using `undefined`
+  for absent optional values to preserve predictable hidden classes.
+- Async readers may consume source bytes on the first `next()` before returning
+  `START_DOCUMENT`, because BOM, XML declaration, and DTD preamble parsing must
+  precede that event.
+- Sync and async writers now share one serializer state machine through
+  `WriterCore`, aligning namespace, validation, declaration, DTD, and
+  self-closing behavior across output targets.
+- Expanded compiled converter coverage across supported schema, writer, event
+  input, XPath dispatch, optional/default, and transform combinations.
+
+### Security
+
+- DTD declarations are surfaced and can be written, but are not automatically
+  applied and external entities are never resolved. Applications can explicitly
+  install reviewed internal replacements with `addEntities`; parsing a DTD
+  never triggers filesystem or network access.
+
+### Quality
+
+- Raised the maintained unit-test coverage gate to 100% for statements,
+  branches, functions, and lines, excluding only documented unreachable paths.
+
+### Performance
+
+- Removed per-call chunk-array draining from `WriterSync`/`WriterSyncSink` and
+  coalesced each async serializer operation before buffering. This preserves the
+  shared `WriterCore` state machine while restoring writer throughput close to
+  the v1.0 implementation.
+
+## [1.0.0] - 2026-07-19
 
 ### Changed
 

@@ -1,11 +1,17 @@
-import { XmlSchema } from './XmlSchema.js';
-import type { XmlObjectOptions, XmlWriteOptions } from './types.js';
-import { SchemaType } from './types.js';
-import { WriterSync, WriterSyncSink } from '@stax-xml/sync';
-import { Writer } from '@stax-xml/async';
-import type { AttributeInfo } from '@stax-xml/core';
-import { elementOptions, getOwnWriteConfig, getRootWriteConfig, getWriteConfig, nestedWriteOptions } from './write-utils.js';
-import { XPathCompiler } from './XPathEngine.js';
+import { XmlSchema } from "./XmlSchema.js";
+import type { XmlObjectOptions, XmlWriteOptions } from "./types.js";
+import { SchemaType } from "./types.js";
+import { WriterSync, WriterSyncSink } from "@stax-xml/sync";
+import { Writer } from "@stax-xml/async";
+import type { AttributeInfo } from "@stax-xml/core";
+import {
+  elementOptions,
+  getOwnWriteConfig,
+  getRootWriteConfig,
+  getWriteConfig,
+  nestedWriteOptions,
+} from "./write-utils.js";
+import { XPathCompiler } from "./XPathEngine.js";
 
 /**
  * Shape type for object schema
@@ -20,7 +26,7 @@ export type XmlObjectShape = Record<string, XmlSchema<unknown, unknown>>;
  * @public
  */
 export type InferObjectOutput<T extends XmlObjectShape> = {
-  [K in keyof T]: T[K]['_output']
+  [K in keyof T]: T[K]["_output"];
 };
 
 /**
@@ -28,12 +34,15 @@ export type InferObjectOutput<T extends XmlObjectShape> = {
  *
  * @public
  */
-export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferObjectOutput<T>, unknown> {
+export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<
+  InferObjectOutput<T>,
+  unknown
+> {
   readonly schemaType = SchemaType.OBJECT;
 
   constructor(
     public readonly shape: T,
-    public options: XmlObjectOptions = {}
+    public options: XmlObjectOptions = {},
   ) {
     super();
     if (options.xpath !== undefined) XPathCompiler.compile(options.xpath);
@@ -65,49 +74,72 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
         writer = options.writer;
         isInjected = true;
       } else {
-        throw new Error('writeSync requires WriterSync or WriterSyncSink instance');
+        throw new Error(
+          "writeSync requires WriterSync or WriterSyncSink instance",
+        );
       }
     } else {
       writer = new WriterSync({
         prettyPrint: options?.prettyPrint,
         indentString: options?.indentString,
-        encoding: options?.encoding
+        encoding: options?.encoding,
       });
     }
 
     const ownConfig = getOwnWriteConfig(options) ?? this.writeConfig;
     const ownElement = !isInjected ? ownConfig?.element : undefined;
-    const rootConfig = getRootWriteConfig(options) ?? (ownElement ? undefined : ownConfig);
+    const rootConfig =
+      getRootWriteConfig(options) ?? (ownElement ? undefined : ownConfig);
     const rootAttributes = this._collectAttributes(data);
     const hasContent = this._hasElementContent(data);
 
-    if (!isInjected && (options?.rootElement || ownElement) && options?.includeDeclaration !== false) {
+    if (
+      !isInjected &&
+      (options?.rootElement || ownElement) &&
+      options?.includeDeclaration !== false
+    ) {
       writer.writeStartDocument(options?.xmlVersion, options?.encoding);
     }
 
     const rootSelfClosing = Boolean(
-      options?.rootElement && !ownElement && rootConfig?.selfClosing && !hasContent
+      options?.rootElement &&
+        !ownElement &&
+        rootConfig?.selfClosing &&
+        !hasContent,
     );
 
     if (options?.rootElement) {
-      writer.writeStartElement(options.rootElement, elementOptions(rootConfig, {
-        attributes: ownElement ? undefined : rootAttributes,
-        selfClosing: rootSelfClosing
-      }));
+      writer.writeStartElement(
+        options.rootElement,
+        elementOptions(rootConfig, {
+          attributes: ownElement ? undefined : rootAttributes,
+          selfClosing: rootSelfClosing,
+        }),
+      );
       if (rootSelfClosing) {
         if (!isInjected) writer.writeEndDocument();
-        return writer instanceof WriterSync ? writer.getXmlString() : '';
+        return writer.getXmlString();
       }
     }
 
-    const ownSelfClosing = Boolean(ownElement && ownConfig?.selfClosing && !hasContent);
+    const ownSelfClosing = Boolean(
+      ownElement && ownConfig?.selfClosing && !hasContent,
+    );
     if (ownElement) {
-      writer.writeStartElement(ownElement, elementOptions(ownConfig, {
-        attributes: rootAttributes,
-        selfClosing: ownSelfClosing
-      }));
-    } else if (!options?.rootElement && Object.keys(rootAttributes).length > 0) {
-      throw new Error('Object attributes require a root or containing element.');
+      writer.writeStartElement(
+        ownElement,
+        elementOptions(ownConfig, {
+          attributes: rootAttributes,
+          selfClosing: ownSelfClosing,
+        }),
+      );
+    } else if (
+      !options?.rootElement &&
+      Object.keys(rootAttributes).length > 0
+    ) {
+      throw new Error(
+        "Object attributes require a root or containing element.",
+      );
     }
 
     if (!ownSelfClosing) {
@@ -124,10 +156,12 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
           continue;
         }
 
-        /* v8 ignore next -- key fallback is covered by basic converter writer tests */
         const elementName = fieldConfig?.element || key;
 
-        schema._writeSync(value as never, nestedWriteOptions(options, writer, elementName, fieldConfig));
+        schema._writeSync(
+          value as never,
+          nestedWriteOptions(options, writer, elementName, fieldConfig),
+        );
       }
     }
 
@@ -143,10 +177,7 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
       writer.writeEndDocument();
     }
 
-    if (writer instanceof WriterSync) {
-      return writer.getXmlString();
-    }
-    return '';
+    return writer.getXmlString();
   }
 
   /**
@@ -156,7 +187,7 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
   async _write(
     data: InferObjectOutput<T>,
     stream: WritableStream<Uint8Array>,
-    options?: XmlWriteOptions
+    options?: XmlWriteOptions,
   ): Promise<void> {
     // Use injected writer or create new one
     let writer: Writer;
@@ -167,49 +198,70 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
         writer = options.writer;
         isInjected = true;
       } else {
-        throw new Error('write requires Writer instance');
+        throw new Error("write requires Writer instance");
       }
     } else {
       writer = new Writer(stream, {
         prettyPrint: options?.prettyPrint,
         indentString: options?.indentString,
-        encoding: options?.encoding
+        encoding: options?.encoding,
       });
     }
 
     const ownConfig = getOwnWriteConfig(options) ?? this.writeConfig;
     const ownElement = !isInjected ? ownConfig?.element : undefined;
-    const rootConfig = getRootWriteConfig(options) ?? (ownElement ? undefined : ownConfig);
+    const rootConfig =
+      getRootWriteConfig(options) ?? (ownElement ? undefined : ownConfig);
     const rootAttributes = this._collectAttributes(data);
     const hasContent = this._hasElementContent(data);
 
-    if (!isInjected && (options?.rootElement || ownElement) && options?.includeDeclaration !== false) {
+    if (
+      !isInjected &&
+      (options?.rootElement || ownElement) &&
+      options?.includeDeclaration !== false
+    ) {
       await writer.writeStartDocument(options?.xmlVersion, options?.encoding);
     }
 
     const rootSelfClosing = Boolean(
-      options?.rootElement && !ownElement && rootConfig?.selfClosing && !hasContent
+      options?.rootElement &&
+        !ownElement &&
+        rootConfig?.selfClosing &&
+        !hasContent,
     );
 
     if (options?.rootElement) {
-      await writer.writeStartElement(options.rootElement, elementOptions(rootConfig, {
-        attributes: ownElement ? undefined : rootAttributes,
-        selfClosing: rootSelfClosing
-      }));
+      await writer.writeStartElement(
+        options.rootElement,
+        elementOptions(rootConfig, {
+          attributes: ownElement ? undefined : rootAttributes,
+          selfClosing: rootSelfClosing,
+        }),
+      );
       if (rootSelfClosing) {
         if (!isInjected) await writer.writeEndDocument();
         return;
       }
     }
 
-    const ownSelfClosing = Boolean(ownElement && ownConfig?.selfClosing && !hasContent);
+    const ownSelfClosing = Boolean(
+      ownElement && ownConfig?.selfClosing && !hasContent,
+    );
     if (ownElement) {
-      await writer.writeStartElement(ownElement, elementOptions(ownConfig, {
-        attributes: rootAttributes,
-        selfClosing: ownSelfClosing
-      }));
-    } else if (!options?.rootElement && Object.keys(rootAttributes).length > 0) {
-      throw new Error('Object attributes require a root or containing element.');
+      await writer.writeStartElement(
+        ownElement,
+        elementOptions(ownConfig, {
+          attributes: rootAttributes,
+          selfClosing: ownSelfClosing,
+        }),
+      );
+    } else if (
+      !options?.rootElement &&
+      Object.keys(rootAttributes).length > 0
+    ) {
+      throw new Error(
+        "Object attributes require a root or containing element.",
+      );
     }
 
     if (!ownSelfClosing) {
@@ -226,10 +278,13 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
           continue;
         }
 
-        /* v8 ignore next -- key fallback is covered by basic converter writer tests */
         const elementName = fieldConfig?.element || key;
 
-        await schema._write(value as never, stream, nestedWriteOptions(options, writer, elementName, fieldConfig));
+        await schema._write(
+          value as never,
+          stream,
+          nestedWriteOptions(options, writer, elementName, fieldConfig),
+        );
       }
     }
 
@@ -246,7 +301,9 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
     }
   }
 
-  private _collectAttributes(data: InferObjectOutput<T>): Record<string, string | AttributeInfo> {
+  private _collectAttributes(
+    data: InferObjectOutput<T>,
+  ): Record<string, string | AttributeInfo> {
     const attributes: Record<string, string | AttributeInfo> = {};
     for (const [key, schema] of Object.entries(this.shape)) {
       const config = getWriteConfig(schema);
@@ -254,10 +311,16 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
       const value = (data as Record<string, unknown>)[key];
       if (value === undefined || value === null) continue;
       if (config.namespace && !config.namespace.prefix) {
-        throw new Error(`Namespaced attribute '${config.asAttribute}' requires a prefix.`);
+        throw new Error(
+          `Namespaced attribute '${config.asAttribute}' requires a prefix.`,
+        );
       }
       attributes[config.asAttribute] = config.namespace?.prefix
-        ? { value: String(value), prefix: config.namespace.prefix, uri: config.namespace.uri }
+        ? {
+            value: String(value),
+            prefix: config.namespace.prefix,
+            uri: config.namespace.uri,
+          }
         : String(value);
     }
     return attributes;
@@ -266,7 +329,11 @@ export class XmlObjectSchema<T extends XmlObjectShape> extends XmlSchema<InferOb
   private _hasElementContent(data: InferObjectOutput<T>): boolean {
     return Object.entries(this.shape).some(([key, schema]) => {
       const value = (data as Record<string, unknown>)[key];
-      return value !== undefined && value !== null && !getWriteConfig(schema)?.asAttribute;
+      return (
+        value !== undefined &&
+        value !== null &&
+        !getWriteConfig(schema)?.asAttribute
+      );
     });
   }
 }
