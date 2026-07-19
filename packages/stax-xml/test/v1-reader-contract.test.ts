@@ -919,6 +919,7 @@ describe('v1 event reader contract', () => {
         localName: 'item',
         prefix: '',
         namespaceURI: '',
+        selfClosing: false,
       },
     });
     expect(event.attributes).toBe(attributes);

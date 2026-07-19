@@ -414,9 +414,9 @@ describe('streaming-only converter', () => {
 
     const twoRoots = [
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'a', attributes: new Map() as unknown as EventAttributes },
+      { type: XmlEventType.START_ELEMENT, name: 'a', attributes: new Map() as unknown as EventAttributes, selfClosing: false },
       { type: XmlEventType.END_ELEMENT, name: 'a' },
-      { type: XmlEventType.START_ELEMENT, name: 'b', attributes: new Map() as unknown as EventAttributes },
+      { type: XmlEventType.START_ELEMENT, name: 'b', attributes: new Map() as unknown as EventAttributes, selfClosing: false },
       { type: XmlEventType.END_ELEMENT, name: 'b' },
       { type: XmlEventType.END_DOCUMENT }
     ] as AnyXmlEvent[];
@@ -425,7 +425,7 @@ describe('streaming-only converter', () => {
 
     const mismatched = [
       { type: XmlEventType.START_DOCUMENT },
-      { type: XmlEventType.START_ELEMENT, name: 'a', attributes: new Map() as unknown as EventAttributes },
+      { type: XmlEventType.START_ELEMENT, name: 'a', attributes: new Map() as unknown as EventAttributes, selfClosing: false },
       { type: XmlEventType.END_ELEMENT, name: 'b' },
       { type: XmlEventType.END_DOCUMENT }
     ] as AnyXmlEvent[];
@@ -442,6 +442,7 @@ describe('streaming-only converter', () => {
     const start = {
       type: XmlEventType.START_ELEMENT,
       name: 'root',
+      selfClosing: false,
       get attributes(): never { throw new Error('attributes should stay lazy'); }
     } as AnyXmlEvent;
     const events: AnyXmlEvent[] = [

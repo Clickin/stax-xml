@@ -5,7 +5,7 @@ export type StreamReaderSource = AsyncIterable<Uint8Array> | ReadableStream<Uint
 /** Options for asynchronous current-token parsing. */
 export interface StreamReaderOptions {
   documentMode?: DocumentMode;
-  /** Resolve namespaces and omit xmlns declarations from attributes. @defaultValue true */
+  /** Resolve namespaces while retaining xmlns declarations in start-event attributes. @defaultValue true */
   namespaceAware?: boolean;
   /** Decode predefined, numeric, and configured custom entities. @defaultValue true */
   autoDecodeEntities?: boolean;

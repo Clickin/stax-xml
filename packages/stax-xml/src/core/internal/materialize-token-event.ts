@@ -35,6 +35,7 @@ function eventShape(
 
 /** @internal Materialize one stable event from the cursor's current token. */
 export function materializeTokenEvent(cursor: TokenCursor, type: XmlEventTypeValue = cursor.eventType()): AnyXmlEvent {
+  if (type === XmlEventType.START_DOCUMENT) return { type, ...cursor.documentDeclaration() };
   if (type === XmlEventType.START_ELEMENT) {
     const count = cursor.attributeCount();
     const attributes = new MaterializedEventAttributes();
@@ -42,7 +43,7 @@ export function materializeTokenEvent(cursor: TokenCursor, type: XmlEventTypeVal
       const attribute = cursor.attribute(index)!;
       attributes.set(attribute.name, attribute);
     }
-    return eventShape(type, cursor.name()!, cursor.localName()!, cursor.prefix(), cursor.namespaceURI(), attributes);
+    return { type, name: cursor.name()!, localName: cursor.localName()!, prefix: cursor.prefix(), namespaceURI: cursor.namespaceURI(), attributes, selfClosing: cursor.selfClosing() };
   }
   if (type === XmlEventType.END_ELEMENT) {
     return eventShape(type, cursor.name()!, cursor.localName()!, cursor.prefix(), cursor.namespaceURI());

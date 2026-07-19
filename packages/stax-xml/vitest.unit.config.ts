@@ -25,6 +25,7 @@ export default defineConfig({
       'test/writer.test.ts',
       'test/writer-async.test.ts',
       'test/writer-core-regression.test.ts',
+      'test/event-writer.test.ts',
       'test/writeoptions.test.ts',
     ],
     globals: true,

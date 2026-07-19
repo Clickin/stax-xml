@@ -2,10 +2,20 @@
 import {
   assertXmlChars,
   assertXmlEncodingName,
+  assertXmlName,
+  assertXmlNCName,
+  assertNamespaceBinding,
   assertXmlVersion,
   planStartElement,
+  reserveExpandedAttribute,
   WriteElementOptions,
-  XML_NAMESPACE_URI
+  XML_NAMESPACE_URI,
+  XMLNS_NAMESPACE_URI,
+  XmlEventType,
+  type AnyXmlEvent,
+  type EndElementEvent,
+  type EventAttribute,
+  type StartElementEvent,
 } from '@stax-xml/core';
 
 const WriterState = {
@@ -164,6 +174,10 @@ export class Writer {
   private namespaceUndoPrefixes: string[] = [];
   private namespaceUndoPrevious: Array<string | undefined> = [];
   private attributeNames: Array<Set<string>> = [];
+  private eventElements: Array<{ localName: string; namespaceURI: string }> = [];
+  private suppressedEnd: { localName: string; namespaceURI: string } | undefined;
+  private seenDtd = false;
+  private seenRoot = false;
 
   private readonly options: Required<WriterOptions>;
   private currentIndentLevel: number = 0;
@@ -312,7 +326,8 @@ export class Writer {
    */
   public async writeStartDocument(
     version: '1.0' = '1.0',
-    encoding?: string
+    encoding?: string,
+    standalone?: boolean,
   ): Promise<this> {
     if (this.state !== WriterState.INITIAL) {
       throw new Error('writeStartDocument can only be called once at the beginning');
@@ -321,7 +336,7 @@ export class Writer {
     const actualEncoding = matchingEncoding(encoding ?? this.options.encoding, this.options.encoding);
     assertXmlVersion(version);
     this.state = WriterState.AFTER_ELEMENT;
-    const declaration = `<?xml version="${version}" encoding="${actualEncoding}"?>`;
+    const declaration = `<?xml version="${version}" encoding="${actualEncoding}"${standalone === undefined ? '' : ` standalone="${standalone ? 'yes' : 'no'}"`}?>`;
 
     await this._writeToBuffer(declaration);
 
@@ -388,6 +403,7 @@ export class Writer {
       prefix => prefix === 'xml' ? XML_NAMESPACE_URI : this.namespaces.get(prefix),
       value => this._escapeXml(value)
     );
+    this.seenRoot = true;
 
     await this._closeStartElementTag();
 
@@ -507,6 +523,40 @@ export class Writer {
     return this;
   }
 
+  /** Add an attribute to the currently open start tag. */
+  public async writeAttribute(localName: string, value: string, prefix?: string): Promise<this> {
+    if (this.state !== WriterState.START_ELEMENT_OPEN) throw new Error('writeAttribute can only be called after writeStartElement.');
+    assertXmlNCName(localName, 'attribute name');
+    if (localName === 'xmlns') throw new Error("Attribute name 'xmlns' is reserved for namespace declarations.");
+    let uri = '';
+    if (prefix) {
+      assertXmlNCName(prefix, 'attribute prefix');
+      if (prefix === 'xmlns') throw new Error("The attribute prefix 'xmlns' is reserved.");
+      uri = prefix === 'xml' ? XML_NAMESPACE_URI : (this.namespaces.get(prefix) ?? '');
+      if (!uri) throw new Error(`Namespace prefix '${prefix}' is not defined for attribute '${localName}'`);
+    }
+    assertXmlChars(value, 'attribute value');
+    const name = prefix ? `${prefix}:${localName}` : localName;
+    reserveExpandedAttribute(this.attributeNames[this.attributeNames.length - 1]!, uri, localName, name);
+    await this._writeToBuffer(` ${name}="${this._escapeXml(value)}"`);
+    return this;
+  }
+
+  /** Declare a namespace on the currently open start tag. */
+  public async writeNamespace(prefix: string, uri: string): Promise<this> {
+    if (this.state !== WriterState.START_ELEMENT_OPEN) throw new Error('writeNamespace can only be called after writeStartElement.');
+    assertNamespaceBinding(prefix, uri);
+    if (prefix) {
+      reserveExpandedAttribute(this.attributeNames[this.attributeNames.length - 1]!, XMLNS_NAMESPACE_URI, prefix, `xmlns:${prefix}`);
+      await this._writeToBuffer(` xmlns:${prefix}="${this._escapeXml(uri)}"`);
+    } else {
+      reserveExpandedAttribute(this.attributeNames[this.attributeNames.length - 1]!, XMLNS_NAMESPACE_URI, 'xmlns', 'xmlns');
+      await this._writeToBuffer(` xmlns="${this._escapeXml(uri)}"`);
+    }
+    this._bindNamespace(prefix, uri);
+    return this;
+  }
+
   /**
    * Write comment
    */
@@ -528,6 +578,102 @@ export class Writer {
     }
 
     return this;
+  }
+
+  /** Write a processing instruction. */
+  public async writeProcessingInstruction(target: string, data?: string): Promise<this> {
+    this._assertWritable('writeProcessingInstruction');
+    assertXmlName(target, 'processing instruction target');
+    if (target.toLowerCase() === 'xml') throw new Error('XML processing instruction target is reserved.');
+    if (data !== undefined) assertXmlChars(data, 'processing instruction data');
+    if (data?.includes('?>')) throw new Error('Processing instruction data cannot contain "?>" sequence.');
+    await this._closeStartElementTag();
+    await this._writeIndent();
+    await this._writeToBuffer(`<?${target}${data ? ` ${data}` : ''}?>`);
+    this.state = WriterState.AFTER_ELEMENT;
+    if (this.options.prettyPrint) await this._writeNewline();
+    return this;
+  }
+
+  /** Write a document type declaration in the XML prolog. */
+  public async writeDTD(value: string): Promise<this> {
+    this._assertWritable('writeDTD');
+    if (this.seenDtd || this.seenRoot || this.elementStack.length || this.state === WriterState.START_ELEMENT_OPEN) {
+      throw new Error('DOCTYPE must occur at most once before the root element.');
+    }
+    if (!/^DOCTYPE\s+/.test(value)) throw new Error('DTD event value must begin with DOCTYPE.');
+    assertXmlChars(value, 'DTD');
+    await this._writeIndent();
+    await this._writeToBuffer(`<!${value}>`);
+    this.state = WriterState.AFTER_ELEMENT;
+    this.seenDtd = true;
+    if (this.options.prettyPrint) await this._writeNewline();
+    return this;
+  }
+
+  /** Serialize one materialized XML event. */
+  public async writeEvent(event: AnyXmlEvent): Promise<this> {
+    if (this.suppressedEnd && (event.type !== XmlEventType.END_ELEMENT || !sameExpandedName(event, this.suppressedEnd))) {
+      throw new Error('Self-closing START_ELEMENT must be followed by its matching END_ELEMENT.');
+    }
+    switch (event.type) {
+      case XmlEventType.START_DOCUMENT:
+        if (event.version !== undefined) await this.writeStartDocument(event.version, event.encoding, event.standalone);
+        return this;
+      case XmlEventType.END_DOCUMENT:
+        if (this.suppressedEnd || this.eventElements.length) throw new Error('END_DOCUMENT received before all event elements were closed.');
+        await this.writeEndDocument();
+        return this;
+      case XmlEventType.START_ELEMENT:
+        return this.writeEventStartElement(event);
+      case XmlEventType.END_ELEMENT:
+        if (this.suppressedEnd) {
+          this.suppressedEnd = undefined;
+          return this;
+        }
+        const expected = this.eventElements.pop();
+        if (!expected || !sameExpandedName(event, expected)) throw new Error(`Mismatched END_ELEMENT event: ${event.name}`);
+        return this.writeEndElement();
+      case XmlEventType.CHARACTERS: return this.writeCharacters(event.value);
+      case XmlEventType.CDATA: return this.writeCData(event.value);
+      case XmlEventType.COMMENT: return this.writeComment(event.value);
+      case XmlEventType.PROCESSING_INSTRUCTION: return this.writeProcessingInstruction(event.target, event.data);
+      case XmlEventType.DTD: return this.writeDTD(event.value);
+    }
+  }
+
+  private async writeEventStartElement(event: StartElementEvent): Promise<this> {
+    const elementDeclaration = namespaceDeclarationFor(event, event.prefix, event.namespaceURI);
+    await this.writeStartElement(event.localName, {
+      prefix: event.prefix || undefined,
+      uri: elementDeclaration || event.namespaceURI ? event.namespaceURI : undefined,
+      selfClosing: false,
+    });
+    for (const attribute of event.attributes.values()) {
+      if (!isNamespaceAttribute(attribute)) continue;
+      if (attribute.prefix === event.prefix && attribute.value === event.namespaceURI) continue;
+      await this.writeNamespace(attribute.prefix === 'xmlns' ? attribute.localName : '', attribute.value);
+    }
+    for (const attribute of event.attributes.values()) {
+      if (!isNamespaceAttribute(attribute)) await this.writeAttribute(attribute.localName, attribute.value, attribute.prefix || undefined);
+    }
+    const name = { localName: event.localName, namespaceURI: event.namespaceURI };
+    if (event.selfClosing) {
+      await this.finishEventEmptyElement();
+      this.suppressedEnd = name;
+    } else this.eventElements.push(name);
+    return this;
+  }
+
+  private async finishEventEmptyElement(): Promise<void> {
+    await this._writeToBuffer('/>');
+    this.currentIndentLevel--;
+    this.elementStack.pop();
+    this.hasTextContentStack.pop();
+    this.attributeNames.pop();
+    this._restoreNamespaces(this.namespaceUndoStarts.pop()!);
+    this.state = WriterState.AFTER_ELEMENT;
+    if (this.options.prettyPrint) await this._writeNewline();
   }
 
   /**
@@ -685,6 +831,20 @@ export class Writer {
       else this.namespaces.set(prefix, previous);
     }
   }
+}
+
+function isNamespaceAttribute(attribute: EventAttribute): boolean {
+  return attribute.namespaceURI === XMLNS_NAMESPACE_URI || attribute.name === 'xmlns' || attribute.prefix === 'xmlns';
+}
+
+function namespaceDeclarationFor(event: StartElementEvent, prefix: string, uri: string): boolean {
+  return Array.from(event.attributes.values()).some(attribute => isNamespaceAttribute(attribute)
+    && (prefix ? attribute.prefix === 'xmlns' && attribute.localName === prefix : attribute.name === 'xmlns')
+    && attribute.value === uri);
+}
+
+function sameExpandedName(event: EndElementEvent, expected: { localName: string; namespaceURI: string }): boolean {
+  return event.localName === expected.localName && event.namespaceURI === expected.namespaceURI;
 }
 
 function utf8Encoding(value = 'utf-8'): 'UTF-8' {

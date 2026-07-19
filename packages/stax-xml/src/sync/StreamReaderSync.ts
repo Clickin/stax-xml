@@ -5,7 +5,7 @@ export type StreamReaderSyncInput = string | Uint8Array | Iterable<Uint8Array>;
 /** Options for synchronous current-token parsing. */
 export interface StreamReaderSyncOptions {
   documentMode?: DocumentMode;
-  /** Resolve namespaces and omit xmlns declarations from attributes. @defaultValue true */
+  /** Resolve namespaces while retaining xmlns declarations in start-event attributes. @defaultValue true */
   namespaceAware?: boolean;
   /** Decode predefined, numeric, and configured custom entities. @defaultValue true */
   autoDecodeEntities?: boolean;

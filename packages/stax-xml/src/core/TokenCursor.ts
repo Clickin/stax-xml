@@ -12,6 +12,7 @@ export interface TokenCursorOptions {
 export interface TokenAttribute { name: string; value: string; localName: string; prefix: string; namespaceURI: string }
 
 interface ElementFrame { name: string; localName: string; prefix: string; namespaceURI: string; namespaceUndoStart: number }
+interface XmlDeclaration { version: '1.0'; encoding?: string; standalone?: boolean }
 interface DuplicateTable { slots: Int32Array; generations: Uint32Array; generation: number }
 
 const NO_SPAN = -1;
@@ -48,6 +49,7 @@ export class TokenCursor {
   private namespaceUndoHad = new Uint8Array(this.namespaceUndoCapacity);
   private roots = 0;
   private xmlDeclarationAllowed = true;
+  private xmlDeclaration: XmlDeclaration | undefined;
   private seenDoctype = false;
   private doctypeRootName: string | undefined;
   private seenNonWhitespaceOutsideRoot = false;
@@ -58,6 +60,7 @@ export class TokenCursor {
   private currentTextMemo: string | undefined;
   private currentFrame: ElementFrame | undefined;
   private currentAttributeCount = 0;
+  private currentSelfClosing = false;
   private attributeCapacity = 8;
   private attributeNameStarts = new Int32Array(this.attributeCapacity);
   private attributeNameEnds = new Int32Array(this.attributeCapacity);
@@ -107,6 +110,7 @@ export class TokenCursor {
       this.pendingNamespaceUndoStart = NO_SPAN;
     }
     if (!this.started) {
+      if (!this.prepareStartDocument()) return NEED_INPUT;
       this.started = true;
       return this.set(XmlEventType.START_DOCUMENT);
     }
@@ -172,6 +176,8 @@ export class TokenCursor {
   prefix(): string { return this.currentFrame?.prefix ?? ''; }
   namespaceURI(): string { return this.currentFrame?.namespaceURI ?? ''; }
   attributeCount(): number { return this.currentAttributeCount; }
+  selfClosing(): boolean { return this.currentSelfClosing; }
+  documentDeclaration(): XmlDeclaration | undefined { return this.xmlDeclaration; }
   attributeLocalName(index: number): string | undefined {
     if (index < 0 || index >= this.currentAttributeCount) return undefined;
     const start = this.attributeNameStarts[index]!;
@@ -270,6 +276,7 @@ export class TokenCursor {
       if (target !== 'xml' || !this.xmlDeclarationAllowed || !isValidXmlDeclaration(this.buffer.slice(targetEnd, end))) {
         throw new Error('Invalid or misplaced XML declaration.');
       }
+      this.xmlDeclaration = parseXmlDeclaration(this.buffer.slice(targetEnd, end));
       this.xmlDeclarationAllowed = false;
       return undefined;
     }
@@ -505,7 +512,12 @@ export class TokenCursor {
         const start = this.attributeNameStarts[index]!;
         const end = this.attributeNameEnds[index]!;
         const colon = this.attributeColons[index]!;
-        if (isNamespaceDeclaration(this.buffer, start, end, colon)) continue;
+        if (isNamespaceDeclaration(this.buffer, start, end, colon)) {
+          if (publicCount !== index) this.copyAttributeSpan(index, publicCount);
+          this.attributeNamespaceURIs[publicCount] = XMLNS_NAMESPACE_URI;
+          publicCount++;
+          continue;
+        }
         if (publicCount !== index) this.copyAttributeSpan(index, publicCount);
         const publicColon = this.attributeColons[publicCount]!;
         const attrPrefix = publicColon < 0 ? '' : this.buffer.slice(this.attributeNameStarts[publicCount]!, publicColon);
@@ -563,7 +575,21 @@ export class TokenCursor {
     this.currentFrame = frame;
     this.currentNameValue = name;
     this.currentAttributeCount = publicCount;
+    this.currentSelfClosing = selfClosing;
     return this.set(XmlEventType.START_ELEMENT);
+  }
+
+  private prepareStartDocument(): boolean {
+    if (this.leadingBOMPending) {
+      if (this.pos >= this.buffer.length && !this.final) return false;
+      this.leadingBOMPending = false;
+      if (this.buffer.charCodeAt(this.pos) === 0xfeff) this.pos++;
+    }
+    if (!this.buffer.startsWith('<?xml', this.pos)) return true;
+    const targetEnd = this.pos + 5;
+    if (targetEnd >= this.buffer.length && !this.final) return false;
+    if (!isXmlWhitespace(this.buffer.charCodeAt(targetEnd))) return true;
+    return this.parseProcessingInstruction() !== NEED_INPUT;
   }
 
   private parseEnd(): TokenCursorResult {
@@ -997,6 +1023,7 @@ export class TokenCursor {
     this.attributeMemoHighWater = 0;
     this.currentEvent = (this.currentEvent + 1) | 0;
     this.currentType = type;
+    if (type !== XmlEventType.START_ELEMENT) this.currentSelfClosing = false;
     if (type !== XmlEventType.START_ELEMENT) this.currentAttributeCount = 0;
     if (type !== XmlEventType.CHARACTERS && type !== XmlEventType.CDATA && type !== XmlEventType.COMMENT && type !== XmlEventType.PROCESSING_INSTRUCTION && type !== XmlEventType.DTD) {
       this.currentTextStart = this.currentTextEnd = NO_SPAN;
@@ -1193,6 +1220,12 @@ function isXmlNamePartCodePoint(code: number): boolean {
 }
 function isValidXmlDeclaration(value: string): boolean {
   return /^\s+version\s*=\s*(?:"1\.0"|'1\.0')(?:\s+encoding\s*=\s*(?:"[A-Za-z][A-Za-z0-9._-]*"|'[A-Za-z][A-Za-z0-9._-]*'))?(?:\s+standalone\s*=\s*(?:"(?:yes|no)"|'(?:yes|no)'))?\s*$/.test(value);
+}
+function parseXmlDeclaration(value: string): XmlDeclaration {
+  const version = /version\s*=\s*["'](1\.0)["']/.exec(value)![1] as '1.0';
+  const encoding = /encoding\s*=\s*["']([A-Za-z][A-Za-z0-9._-]*)["']/.exec(value)?.[1];
+  const standalone = /standalone\s*=\s*["'](yes|no)["']/.exec(value)?.[1];
+  return { version, ...(encoding === undefined ? {} : { encoding }), ...(standalone === undefined ? {} : { standalone: standalone === 'yes' }) };
 }
 function parseDoctypeRootName(text: string, start: number, end: number): string {
   while (start < end && isXmlWhitespace(text.charCodeAt(start))) start++;

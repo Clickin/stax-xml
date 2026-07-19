@@ -24,6 +24,10 @@ export type XmlEventType = typeof XmlEventType[keyof typeof XmlEventType];
  */
 export interface StartDocumentEvent {
   type: typeof XmlEventType.START_DOCUMENT;
+  /** Present only when the source contained an XML declaration. */
+  version?: '1.0';
+  encoding?: string;
+  standalone?: boolean;
 }
 
 /**
@@ -47,6 +51,8 @@ export interface StartElementEvent {
   prefix: string;
   namespaceURI: string;
   attributes: EventAttributes;
+  /** Whether the source used an empty-element tag (`<element/>`). */
+  selfClosing: boolean;
 }
 
 /** Materialized attribute attached to a start-element event. */
