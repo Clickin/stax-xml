@@ -1,0 +1,63 @@
+---
+import DefaultSiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
+
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+const isKorean = Astro.url.pathname.startsWith(`${base}ko/`);
+const locale = isKorean ? 'ko/' : '';
+const versionLabel = isKorean ? '문서 버전' : 'Documentation version';
+const versionPattern = /\/docs\/(v\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)\/index\.mdx?$/;
+const versions = Object.keys(import.meta.glob('../content/docs/v*/index.{md,mdx}'))
+  .flatMap((path) => path.match(versionPattern)?.[1] ?? [])
+  .sort((left, right) => right.localeCompare(left, undefined, { numeric: true }));
+const currentVersion = Astro.url.pathname.match(/\/(v\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)(?:\/|$)/)?.[1] ?? 'current';
+---
+
+<div class="site-title-with-version">
+  <DefaultSiteTitle />
+  <label>
+    <span class="sr-only">{versionLabel}</span>
+    <select data-version-select aria-label={versionLabel}>
+      <option value={`${base}${locale}`} selected={currentVersion === 'current'}>{isKorean ? '최신' : 'Latest'}</option>
+      {versions.map((version) => (
+        <option value={`${base}${locale}${version}/`} selected={currentVersion === version}>{version}</option>
+      ))}
+    </select>
+  </label>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLSelectElement>('[data-version-select]').forEach((select) => {
+    select.addEventListener('change', () => window.location.assign(select.value));
+  });
+</script>
+
+<style>
+  .site-title-with-version {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+
+  select {
+    width: 7.5rem;
+    padding: 0.3rem 1.5rem 0.3rem 0.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.35rem;
+    background-color: var(--sl-color-bg-nav);
+    color: var(--sl-color-text);
+    font: inherit;
+    font-size: var(--sl-text-sm);
+  }
+
+  select:focus-visible {
+    outline: 2px solid var(--sl-color-accent-high);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 30rem) {
+    select {
+      width: 6.5rem;
+    }
+  }
+</style>

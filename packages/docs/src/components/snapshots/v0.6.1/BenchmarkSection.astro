@@ -1,0 +1,217 @@
+---
+import summary from '../../../data/benchmarks/v0.6.1/latest-summary.json';
+
+type Locale = 'en' | 'ko';
+type Section =
+  | 'environment'
+  | 'parser-2kb'
+  | 'parser-4kb'
+  | 'async-size'
+  | 'parser-13mb'
+  | 'parser-98mb'
+  | 'converter'
+  | 'writer-small'
+  | 'writer-big'
+  | 'writer-async'
+  | 'memory';
+
+interface Props {
+  locale: Locale;
+  section: Section;
+}
+
+const { locale, section } = Astro.props as Props;
+
+const env = summary.environment;
+
+function suiteCase(suiteId: string, label: string) {
+  const suite = summary.suites[suiteId as keyof typeof summary.suites] as any;
+  if (!suite) throw new Error(`Missing suite: ${suiteId}`);
+  const found = suite.cases.find((entry: any) => entry.label === label);
+  if (!found) throw new Error(`Missing benchmark case: ${suiteId} / ${label}`);
+  return found;
+}
+
+function formatDurationNsCompact(ns: number) {
+  if (ns >= 1e9) return `${(ns / 1e9).toFixed(2)} s`;
+  if (ns >= 1e6) return `${(ns / 1e6).toFixed(2)} ms`;
+  return `${(ns / 1e3).toFixed(2)} µs`;
+}
+
+function formatMemory(bytes: number) {
+  if (bytes >= 1024 ** 3) return `${(bytes / 1024 ** 3).toFixed(2)} gb`;
+  if (bytes >= 1024 ** 2) return `${(bytes / 1024 ** 2).toFixed(2)} mb`;
+  return `${(bytes / 1024).toFixed(2)} kb`;
+}
+
+function formatOps(avgNs: number) {
+  return `~${(1e9 / avgNs).toLocaleString(undefined, { maximumFractionDigits: avgNs < 1e6 ? 0 : 2 })} ops/sec`;
+}
+
+function parseLabel(label: string) {
+  if (locale === 'en') return label;
+  return label
+    .replace('File Size', '파일 크기')
+    .replace('Parser Type', '파서 유형')
+    .replace('Processing Time', '처리 시간')
+    .replace('Memory Usage', '메모리 사용량')
+    .replace('Performance Ratio', '성능 비율')
+    .replace('Element Count', '요소 수')
+    .replace('Async Writer', 'Async Writer')
+    .replace('Sync Writer', 'Sync Writer')
+    .replace('Average Time', '평균 시간')
+    .replace('Operations/sec', '초당 작업 수')
+    .replace('Library', '라이브러리')
+    .replace('Notes', '비고')
+    .replace('Implementation', '구현')
+    .replace('Average time', '평균 시간');
+}
+
+type TableModel = {
+  headers: string[];
+  rows: string[][];
+};
+
+function buildTable(section: Section): TableModel | null {
+  const parserRows = (suiteId: string, rows: Array<[string, string, string]>) => ({
+    headers: ['Library', 'Average Time', 'Operations/sec', 'Memory Usage', 'Notes'],
+    rows: rows.map(([display, label, note]) => {
+      const stats = suiteCase(suiteId, label);
+      return [
+        display,
+        formatDurationNsCompact(stats.avgNs),
+        formatOps(stats.avgNs),
+        formatMemory(stats.heapAvgBytes),
+        note,
+      ];
+    }),
+  });
+
+  switch (section) {
+    case 'parser-2kb':
+      return parserRows('parser-2kb', [
+        ['**txml**', 'txml', locale === 'en' ? 'Fastest, lightweight' : '가장 빠름, 경량'],
+        ['**stax-xml to object**', 'stax-xml to object', locale === 'en' ? 'Object conversion' : '객체 변환'],
+        ['**stax-xml consume**', 'stax-xml consume', locale === 'en' ? 'Stream processing' : '스트림 처리'],
+        ['fast-xml-parser', 'fast-xml-parser', locale === 'en' ? 'DOM-based' : 'DOM 기반'],
+        ['xml2js', 'xml2js', locale === 'en' ? 'Callback-based, memory intensive' : '콜백 기반, 메모리 집약적'],
+      ]);
+    case 'parser-4kb':
+      return parserRows('parser-4kb', [
+        ['**txml**', 'txml', locale === 'en' ? 'Fastest, lightweight' : '가장 빠름, 경량'],
+        ['**stax-xml consume**', 'stax-xml consume', locale === 'en' ? 'Stream processing' : '스트림 처리'],
+        ['**stax-xml to object**', 'stax-xml to object', locale === 'en' ? 'Object conversion' : '객체 변환'],
+        ['fast-xml-parser', 'fast-xml-parser', locale === 'en' ? 'Good balance' : '좋은 균형'],
+        ['xml2js', 'xml2js', locale === 'en' ? 'Memory intensive' : '메모리 집약적'],
+      ]);
+    case 'parser-13mb':
+      return parserRows('parser-13mb', [
+        ['**xml2js**', 'xml2js', locale === 'en' ? 'Exceptional performance*' : '예외적 성능*'],
+        ['**stax-xml to object**', 'stax-xml to object', locale === 'en' ? 'Object conversion' : '객체 변환'],
+        ['**stax-xml consume**', 'stax-xml consume', locale === 'en' ? 'Stream processing' : '스트림 처리'],
+        ['**txml**', 'txml', locale === 'en' ? 'Lightweight DOM' : '경량 DOM'],
+        ['fast-xml-parser', 'fast-xml-parser', locale === 'en' ? 'Memory intensive' : '메모리 집약적'],
+      ]);
+    case 'parser-98mb':
+      return parserRows('parser-98mb', [
+        ['**stax-xml consume**', 'stax-xml consume', locale === 'en' ? 'Best overall' : '최고 전체 성능'],
+        ['**stax-xml to object**', 'stax-xml to object', locale === 'en' ? 'Memory efficient' : '메모리 효율적'],
+        ['**txml**', 'txml', locale === 'en' ? 'High memory' : '높은 메모리'],
+        ['fast-xml-parser', 'fast-xml-parser', locale === 'en' ? 'Slow, memory intensive' : '느림, 메모리 집약적'],
+        ['xml2js', 'xml2js', locale === 'en' ? 'Slowest performance' : '가장 느린 성능'],
+      ]);
+    case 'async-size':
+      return {
+        headers: ['File Size', 'Parser Type', 'Processing Time', 'Memory Usage', 'Performance Ratio'],
+        rows: [
+          ['1MB', '**sync parser**', formatDurationNsCompact(suiteCase('async-size', 'sync parser (1MB)').avgNs), formatMemory(suiteCase('async-size', 'sync parser (1MB)').heapAvgBytes), locale === 'en' ? 'Baseline' : '기준선'],
+          ['1MB', 'async parser', formatDurationNsCompact(suiteCase('async-size', 'async parser (1MB)').avgNs), formatMemory(suiteCase('async-size', 'async parser (1MB)').heapAvgBytes), `${(suiteCase('async-size', 'async parser (1MB)').avgNs / suiteCase('async-size', 'sync parser (1MB)').avgNs).toFixed(2)}x ${locale === 'en' ? 'slower' : '느림'}`],
+          ['10MB', '**sync parser**', formatDurationNsCompact(suiteCase('async-size', 'sync parser (10MB)').avgNs), formatMemory(suiteCase('async-size', 'sync parser (10MB)').heapAvgBytes), locale === 'en' ? 'Baseline' : '기준선'],
+          ['10MB', 'async parser', formatDurationNsCompact(suiteCase('async-size', 'async parser (10MB)').avgNs), formatMemory(suiteCase('async-size', 'async parser (10MB)').heapAvgBytes), `${(suiteCase('async-size', 'async parser (10MB)').avgNs / suiteCase('async-size', 'sync parser (10MB)').avgNs).toFixed(2)}x ${locale === 'en' ? 'slower' : '느림'}`],
+          ['100MB', '**sync parser**', formatDurationNsCompact(suiteCase('async-size', 'sync parser (100MB)').avgNs), formatMemory(suiteCase('async-size', 'sync parser (100MB)').heapAvgBytes), locale === 'en' ? 'Baseline' : '기준선'],
+          ['100MB', 'async parser', formatDurationNsCompact(suiteCase('async-size', 'async parser (100MB)').avgNs), formatMemory(suiteCase('async-size', 'async parser (100MB)').heapAvgBytes), `${(suiteCase('async-size', 'async parser (100MB)').avgNs / suiteCase('async-size', 'sync parser (100MB)').avgNs).toFixed(2)}x ${locale === 'en' ? 'slower' : '느림'}`],
+          ['1GB', 'async parser', formatDurationNsCompact(suiteCase('async-size', 'async parser (1GB)').avgNs), formatMemory(suiteCase('async-size', 'async parser (1GB)').heapAvgBytes), locale === 'en' ? 'Memory efficient' : '메모리 효율적'],
+        ],
+      };
+    case 'converter':
+      return {
+        headers: ['Implementation', 'Average time', 'Notes'],
+        rows: [
+          ['plain parser', formatDurationNsCompact(suiteCase('converter-parity', 'plain parser').avgNs), locale === 'en' ? 'Lowest overhead, handwritten state machine' : '가장 낮은 오버헤드, 수동 상태 관리'],
+          ['converter api', formatDurationNsCompact(suiteCase('converter-parity', 'converter api').avgNs), locale === 'en' ? 'Declarative but uncompiled' : '선언형이지만 uncompiled 경로'],
+          ['converter api compiled', formatDurationNsCompact(suiteCase('converter-parity', 'converter api compiled').avgNs), locale === 'en' ? 'Declarative schema with compiled root processor' : '선언형 스키마 + compiled root processor'],
+        ],
+      };
+    case 'writer-small':
+      return {
+        headers: ['Library', 'Average Time', 'Operations/sec', 'Memory Usage', 'Notes'],
+        rows: [
+          ['**fast-xml-parser builder**', formatDurationNsCompact(suiteCase('writer-small', 'fast-xml-parser builder').avgNs), formatOps(suiteCase('writer-small', 'fast-xml-parser builder').avgNs), formatMemory(suiteCase('writer-small', 'fast-xml-parser builder').heapAvgBytes), locale === 'en' ? 'Fastest' : '가장 빠름'],
+          ['stax-xml writer', formatDurationNsCompact(suiteCase('writer-small', 'stax-xml writer').avgNs), formatOps(suiteCase('writer-small', 'stax-xml writer').avgNs), formatMemory(suiteCase('writer-small', 'stax-xml writer').heapAvgBytes), 'Writer API'],
+          ['**stax-xml writer sync**', formatDurationNsCompact(suiteCase('writer-small', 'stax-xml writer sync').avgNs), formatOps(suiteCase('writer-small', 'stax-xml writer sync').avgNs), formatMemory(suiteCase('writer-small', 'stax-xml writer sync').heapAvgBytes), locale === 'en' ? 'Sync writer API' : 'Sync writer API'],
+          ['xml2js builder', formatDurationNsCompact(suiteCase('writer-small', 'xml2js builder').avgNs), formatOps(suiteCase('writer-small', 'xml2js builder').avgNs), formatMemory(suiteCase('writer-small', 'xml2js builder').heapAvgBytes), 'xml2js builder'],
+        ],
+      };
+    case 'writer-big':
+      return {
+        headers: ['Library', 'Average Time', 'Operations/sec', 'Memory Usage', 'Notes'],
+        rows: [
+          ['**fast-xml-parser builder**', formatDurationNsCompact(suiteCase('writer-big', 'fast-xml-parser builder (big.json)').avgNs), formatOps(suiteCase('writer-big', 'fast-xml-parser builder (big.json)').avgNs), formatMemory(suiteCase('writer-big', 'fast-xml-parser builder (big.json)').heapAvgBytes), locale === 'en' ? 'Fastest' : '가장 빠름'],
+          ['**stax-xml writer sync**', formatDurationNsCompact(suiteCase('writer-big', 'stax-xml writer sync (big.json)').avgNs), formatOps(suiteCase('writer-big', 'stax-xml writer sync (big.json)').avgNs), formatMemory(suiteCase('writer-big', 'stax-xml writer sync (big.json)').heapAvgBytes), locale === 'en' ? 'Sync writer API' : 'Sync writer API'],
+          ['stax-xml writer', formatDurationNsCompact(suiteCase('writer-big', 'stax-xml writer (big.json)').avgNs), formatOps(suiteCase('writer-big', 'stax-xml writer (big.json)').avgNs), formatMemory(suiteCase('writer-big', 'stax-xml writer (big.json)').heapAvgBytes), 'Writer API'],
+        ],
+      };
+    case 'writer-async':
+      return {
+        headers: ['Element Count', 'Async Writer', 'Sync Writer', 'Performance Ratio'],
+        rows: [
+          ['1K elements', formatDurationNsCompact(suiteCase('writer-async', 'async writer (1K elements)').avgNs), formatDurationNsCompact(suiteCase('writer-async', 'sync writer (1K elements)').avgNs), `${(suiteCase('writer-async', 'async writer (1K elements)').avgNs / suiteCase('writer-async', 'sync writer (1K elements)').avgNs).toFixed(2)}x ${locale === 'en' ? 'faster (sync)' : '빠름 (sync)'}`],
+          ['5K elements', formatDurationNsCompact(suiteCase('writer-async', 'async writer (5K elements)').avgNs), formatDurationNsCompact(suiteCase('writer-async', 'sync writer (5K elements)').avgNs), `${(suiteCase('writer-async', 'async writer (5K elements)').avgNs / suiteCase('writer-async', 'sync writer (5K elements)').avgNs).toFixed(2)}x ${locale === 'en' ? 'faster (sync)' : '빠름 (sync)'}`],
+          ['10K elements', formatDurationNsCompact(suiteCase('writer-async', 'async writer (10K elements)').avgNs), formatDurationNsCompact(suiteCase('writer-async', 'sync writer (10K elements)').avgNs), `${(suiteCase('writer-async', 'async writer (10K elements)').avgNs / suiteCase('writer-async', 'sync writer (10K elements)').avgNs).toFixed(2)}x ${locale === 'en' ? 'faster (sync)' : '빠름 (sync)'}`],
+        ],
+      };
+    default:
+      return null;
+  }
+}
+
+const table = buildTable(section);
+const memoryBlock = section === 'memory'
+  ? (locale === 'en'
+      ? `File Size: 100MB XML Document\n\nstax-xml async parser:     ~${(suiteCase('async-size', 'async parser (100MB)').heapAvgBytes / 1024 / 1024).toFixed(2)} MB peak memory\nstax-xml sync parser:      ~${(suiteCase('async-size', 'sync parser (100MB)').heapAvgBytes / 1024 / 1024).toFixed(2)} MB peak memory\n\nFile Size: 1GB XML Document\n\nstax-xml async parser:     ~${(suiteCase('async-size', 'async parser (1GB)').heapAvgBytes / 1024 / 1024).toFixed(2)} MB peak memory`
+      : `파일 크기: 100MB XML 문서\n\nstax-xml async parser:     ~${(suiteCase('async-size', 'async parser (100MB)').heapAvgBytes / 1024 / 1024).toFixed(2)} MB 최대 메모리\nstax-xml sync parser:      ~${(suiteCase('async-size', 'sync parser (100MB)').heapAvgBytes / 1024 / 1024).toFixed(2)} MB 최대 메모리\n\n파일 크기: 1GB XML 문서\n\nstax-xml async parser:     ~${(suiteCase('async-size', 'async parser (1GB)').heapAvgBytes / 1024 / 1024).toFixed(2)} MB 최대 메모리`)
+  : null;
+---
+{section === 'environment' && (
+  <ul>
+    <li><strong>CPU:</strong> {env.cpuName} (~{env.cpuGHz.toFixed(2)} GHz)</li>
+    <li><strong>{locale === 'en' ? 'Runtime' : '런타임'}:</strong> {env.runtime} {env.version} ({env.arch}) {locale === 'en' ? 'with garbage collection exposed' : '(`--expose-gc`)'} <code>--expose-gc</code></li>
+    <li><strong>{locale === 'en' ? 'Tool' : '도구'}:</strong> <a href="https://github.com/evanw/mitata">Mitata</a></li>
+    <li><strong>Canonical Set:</strong> parser 2KB / 4KB / 13MB / 98MB, async size-comparison, writer small / big / async, converter parity</li>
+  </ul>
+)}
+
+{table && (
+  <table>
+    <thead>
+      <tr>
+        {table.headers.map((header) => <th>{parseLabel(header)}</th>)}
+      </tr>
+    </thead>
+    <tbody>
+      {table.rows.map((row) => (
+        <tr>
+          {row.map((cell, index) => (
+            index === 0 && cell.startsWith('**') && cell.endsWith('**')
+              ? <td><strong>{cell.slice(2, -2)}</strong></td>
+              : <td>{cell}</td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+)}
+
+{memoryBlock && (
+  <pre><code>{memoryBlock}</code></pre>
+)}

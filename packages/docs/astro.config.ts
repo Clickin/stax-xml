@@ -83,6 +83,9 @@ export default defineConfig({
           href: 'https://github.com/Clickin/stax-xml',
         },
       ],
+      components: {
+        SiteTitle: './src/components/SiteTitle.astro',
+      },
       head: [
         // Enhanced OpenGraph Protocol
         {

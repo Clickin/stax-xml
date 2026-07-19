@@ -1,0 +1,473 @@
+---
+title: Converter - Core Concepts
+description: Understand the fundamental concepts of the declarative XML converter
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/converter/core-concepts.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/converter/core-concepts.png
+slug: v0.6.0/converter/core-concepts
+---
+
+This guide covers the fundamental concepts you need to understand to use the StAX-XML converter effectively.
+
+## Schema Builder (`x`)
+
+The `x` object is the primary interface for creating XML schemas. It provides factory methods for all schema types:
+
+```typescript
+import { x } from 'stax-xml/converter';
+
+// Create schemas
+const stringSchema = x.string();
+const numberSchema = x.number();
+const objectSchema = x.object({...});
+const arraySchema = x.array(elementSchema, xpath);
+```
+
+### Fluent API Pattern
+
+All schema methods return **new schema instances**, making the API immutable and chainable:
+
+```typescript
+const schema = x.number()
+  .xpath('//price')
+  .min(0)
+  .max(1000);
+
+// Each method returns a new schema
+const baseNumber = x.number();
+const withXPath = baseNumber.xpath('//value');  // New instance
+const withMin = withXPath.min(0);               // New instance
+
+// Original remains unchanged
+console.log(baseNumber.options.xpath);  // undefined
+console.log(withXPath.options.xpath);   // '//value'
+```
+
+This immutability ensures schemas are **reusable** and **composable**:
+
+```typescript
+// Base price schema
+const priceSchema = x.number().min(0);
+
+// Reuse with different XPath
+const retailPrice = priceSchema.xpath('//retailPrice');
+const wholesalePrice = priceSchema.xpath('//wholesalePrice');
+```
+
+## Parsing Modes
+
+The converter provides multiple parsing methods for different use cases:
+
+### Synchronous Parsing
+
+Use `parseSync()` for synchronous, blocking parsing:
+
+```typescript
+const schema = x.string().xpath('//title');
+const result = schema.parseSync(xmlString);
+// Returns: string
+```
+
+**When to use:**
+- XML is already in memory as a string
+- You're in a synchronous context
+- Performance is critical (slightly faster than async)
+
+### Asynchronous Parsing
+
+Use `parse()` for asynchronous parsing:
+
+```typescript
+const schema = x.object({
+  name: x.string().xpath('//name'),
+  value: x.number().xpath('//value')
+});
+
+const result = await schema.parse(xmlString);
+// Returns: Promise<{ name: string; value: number; }>
+```
+
+**When to use:**
+- Parsing large XML documents
+- You're already in an async context
+- You want non-blocking execution
+
+### Safe Parsing
+
+Safe parsing methods return a result object instead of throwing errors:
+
+```typescript
+const schema = x.number().xpath('//age').min(0).max(120);
+
+// Safe sync parsing
+const result = schema.safeParseSync('<age>150</age>');
+
+if (result.success) {
+  console.log(result.data);  // number
+} else {
+  console.log(result.issues);  // Array of error objects
+}
+
+// Safe async parsing
+const result = await schema.safeParse('<age>150</age>');
+```
+
+**ParseResult type:**
+```typescript
+type ParseResult<T> =
+  | { success: true; data: T }
+  | { success: false; issues: Array<{ message: string; path?: string }> };
+```
+
+**When to use:**
+- You want to handle errors explicitly
+- You're validating user input
+- You don't want to use try/catch blocks
+
+## Type Inference
+
+The converter provides automatic TypeScript type inference using the `Infer` utility type:
+
+```typescript
+import { x, type Infer } from 'stax-xml/converter';
+
+const userSchema = x.object({
+  id: x.number().xpath('//id'),
+  username: x.string().xpath('//username'),
+  email: x.string().xpath('//email'),
+  active: x.string().xpath('//active').transform(v => v === 'true')
+});
+
+// Automatically infer the type
+type User = Infer<typeof userSchema>;
+// {
+//   id: number;
+//   username: string;
+//   email: string;
+//   active: boolean;  // Note: transformed type!
+// }
+
+// Use the inferred type
+const users: User[] = [];
+```
+
+### Complex Type Inference
+
+Type inference works with nested structures and transformations:
+
+```typescript
+const productSchema = x.object({
+  name: x.string().xpath('//name'),
+  price: x.number().xpath('//price'),
+  tags: x.array(x.string(), '//tag'),
+  specs: x.object({
+    weight: x.number().xpath('./weight'),
+    dimensions: x.string().xpath('./dimensions')
+  }).xpath('//specs').optional()
+});
+
+type Product = Infer<typeof productSchema>;
+// {
+//   name: string;
+//   price: number;
+//   tags: string[];
+//   specs: { weight: number; dimensions: string; } | undefined;
+// }
+```
+
+### Type Inference Best Practices
+
+1. **Define schemas as const**:
+   ```typescript
+   const schema = x.object({...}) as const;
+   ```
+
+2. **Extract types early**:
+   ```typescript
+   type MyData = Infer<typeof mySchema>;
+   ```
+
+3. **Use in function signatures**:
+   ```typescript
+   function processData(data: Infer<typeof schema>) {
+     // TypeScript knows the exact shape
+   }
+   ```
+
+## XPath Integration
+
+XPath is the primary method for selecting elements in XML documents.
+
+### XPath Basics
+
+```typescript
+// Absolute path from root
+x.string().xpath('/root/element/child')
+
+// Descendant search (anywhere in document)
+x.string().xpath('//element')
+
+// Attribute access
+x.string().xpath('/@id')
+x.string().xpath('//@href')
+
+// Combined
+x.string().xpath('/root/item/@name')
+```
+
+### XPath in Different Schemas
+
+**String and Number schemas:**
+```typescript
+const title = x.string().xpath('/book/title');
+const price = x.number().xpath('/book/price');
+```
+
+**Object schemas:**
+```typescript
+// XPath on individual fields
+const book = x.object({
+  title: x.string().xpath('/book/title'),
+  author: x.string().xpath('/book/author')
+});
+
+// XPath on entire object (scopes child XPaths)
+const book = x.object({
+  title: x.string().xpath('./title'),     // Relative to /book
+  author: x.string().xpath('./author')     // Relative to /book
+}).xpath('/book');
+```
+
+**Array schemas:**
+```typescript
+// XPath is REQUIRED for arrays
+const items = x.array(
+  x.string(),
+  '//item'  // Selects all <item> elements
+);
+
+// Array of objects
+const books = x.array(
+  x.object({
+    title: x.string().xpath('./title'),
+    price: x.number().xpath('./price')
+  }),
+  '//book'  // Each book becomes an object
+);
+```
+
+### XPath Predicates
+
+Use predicates to filter elements:
+
+```typescript
+// By attribute value
+x.array(
+  x.object({...}),
+  '//book[@category="fiction"]'
+)
+
+// By position
+x.string().xpath('//item[1]')  // First item
+
+// By element content
+x.array(
+  x.object({...}),
+  '//product[@available="true"]'
+)
+```
+
+## Error Handling
+
+The converter provides detailed error information when parsing fails:
+
+### XmlParseError
+
+```typescript
+import { XmlParseError } from 'stax-xml/converter';
+
+try {
+  const result = schema.parseSync(invalidXml);
+} catch (error) {
+  if (error instanceof XmlParseError) {
+    console.log(error.message);  // Human-readable message
+    console.log(error.issues);    // Array of specific issues
+  }
+}
+```
+
+### Error Types
+
+Common error scenarios:
+
+**1. Validation Errors**
+```typescript
+const schema = x.number().xpath('//age').min(18);
+schema.parseSync('<age>15</age>');
+// Error: Value 15 is less than minimum 18
+```
+
+**2. Type Conversion Errors**
+```typescript
+const schema = x.number().xpath('//count');
+schema.parseSync('<count>abc</count>');
+// Error: Expected number, got NaN
+```
+
+**3. Missing Required Fields**
+```typescript
+const schema = x.object({
+  required: x.string().xpath('//required')
+});
+schema.parseSync('<root></root>');
+// Returns: { required: '' }  (empty string, not error)
+```
+
+**4. XPath Errors**
+```typescript
+const schema = x.array(x.string());  // Missing xpath
+schema.parseSync('<root></root>');
+// Error: Array schema requires xpath
+```
+
+### Error Recovery Strategies
+
+**1. Use Optional**
+```typescript
+const schema = x.object({
+  id: x.number().xpath('//id'),
+  optional: x.string().xpath('//optional').optional()
+});
+// Returns: { id: number; optional: string | undefined }
+```
+
+**2. Use Safe Parsing**
+```typescript
+const result = schema.safeParseSync(xml);
+if (!result.success) {
+  // Handle errors gracefully
+  return defaultValue;
+}
+return result.data;
+```
+
+**3. Use Transform for Defaults**
+```typescript
+const schema = x.string()
+  .xpath('//value')
+  .transform(v => v || 'default');
+```
+
+## Schema Composition
+
+Schemas can be composed and reused:
+
+### Reusing Schemas
+
+```typescript
+// Define reusable schemas
+const priceSchema = x.number().min(0);
+const idSchema = x.number().int().min(1);
+
+// Compose in objects
+const productSchema = x.object({
+  id: idSchema.xpath('//id'),
+  price: priceSchema.xpath('//price'),
+  salePrice: priceSchema.xpath('//salePrice').optional()
+});
+```
+
+### Nested Objects
+
+```typescript
+const addressSchema = x.object({
+  street: x.string().xpath('./street'),
+  city: x.string().xpath('./city'),
+  zip: x.string().xpath('./zip')
+}).xpath('/address');
+
+const personSchema = x.object({
+  name: x.string().xpath('/person/name'),
+  address: addressSchema  // Nested object schema
+});
+```
+
+### Schema Arrays
+
+```typescript
+const tagSchema = x.string();
+const tagsArray = x.array(tagSchema, '//tag');
+
+const articleSchema = x.object({
+  title: x.string().xpath('//title'),
+  tags: tagsArray
+});
+```
+
+## Performance Considerations
+
+### Synchronous vs Asynchronous
+
+```typescript
+// Synchronous - slightly faster for small documents
+const result = schema.parseSync(smallXml);
+
+// Asynchronous - better for large documents
+const result = await schema.parse(largeXml);
+```
+
+### XPath Optimization
+
+```typescript
+// ❌ Slow - searches entire document multiple times
+const schema = x.object({
+  a: x.string().xpath('//a'),
+  b: x.string().xpath('//b'),
+  c: x.string().xpath('//c')
+});
+
+// ✅ Better - single root XPath, relative children
+const schema = x.object({
+  a: x.string().xpath('./a'),
+  b: x.string().xpath('./b'),
+  c: x.string().xpath('./c')
+}).xpath('/root');
+```
+
+### Schema Reuse
+
+```typescript
+// ❌ Creates new schema every time
+function parseUser(xml: string) {
+  const schema = x.object({...});
+  return schema.parseSync(xml);
+}
+
+// ✅ Define schema once, reuse
+const userSchema = x.object({...});
+
+function parseUser(xml: string) {
+  return userSchema.parseSync(xml);
+}
+```
+
+## Next Steps
+
+- Explore [Schema Types](/stax-xml/v0.6.0/converter/schemas) for detailed API reference
+- Learn [XPath patterns](/stax-xml/v0.6.0/converter/xpath-guide) for element selection
+- See [Transformations](/stax-xml/v0.6.0/converter/transformations) for data processing
+- Check [Examples](/stax-xml/v0.6.0/converter/examples) for real-world patterns

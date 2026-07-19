@@ -1,0 +1,106 @@
+---
+title: Interactive Demo
+description: Try the stax-xml/converter in your browser with live examples
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://clickin.github.io/stax-xml/og/converter/demo.png
+  - tag: meta
+    attrs:
+      property: og:image:width
+      content: "1200"
+  - tag: meta
+    attrs:
+      property: og:image:height
+      content: "630"
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://clickin.github.io/stax-xml/og/converter/demo.png
+slug: v0.6.1/converter/demo
+---
+
+Experience the power of stax-xml/converter right in your browser! This interactive demo lets you experiment with different XML parsing scenarios using our declarative, type-safe API.
+
+<div style="width: 100%; height: 800px; border: 2px solid #e9ecef; border-radius: 8px; overflow: hidden; margin: 2rem 0;">
+  <iframe
+    src="/stax-xml/demos/converter"
+    style="width: 100%; height: 100%; border: none;"
+    title="StAX-XML Converter Interactive Demo"
+  ></iframe>
+</div>
+
+**[🚀 Open in Full Screen](/stax-xml/v0.6.1/demos/converter)** for the best experience.
+
+## Features Demonstrated
+
+### 🎯 Basic Object Parsing
+Parse XML into structured JavaScript objects with type safety and validation.
+
+### 📦 Array Handling
+Extract arrays of elements from XML documents using XPath selectors.
+
+### 🔄 Transformations
+Apply custom transformation functions to parsed data for data manipulation.
+
+### ✅ Validation
+Enforce constraints on your data with built-in validation methods like `min()`, `max()`, and `int()`.
+
+### 📰 RSS Feeds
+Parse real-world RSS feed structures with nested arrays and complex schemas.
+
+### 🏷️ Attributes
+Access XML attributes using XPath attribute selectors (`@attribute`).
+
+### 🗂️ Nested Arrays
+Handle complex nested structures with arrays inside objects inside arrays.
+
+### ❓ Optional Fields
+Mark fields as optional to handle incomplete or variable XML documents.
+
+## How to Use
+
+1. **Choose an Example**: Click one of the quick example buttons to load a pre-configured scenario
+2. **Edit the XML**: Modify the XML input to test different structures
+3. **Adjust the Schema**: Change the schema definition to match your XML structure
+4. **Select Mode**: Choose between Sync (string-based) or Async (ReadableStream-based) parsing
+5. **Parse**: Click the "Parse XML" button to see the result
+6. **Upload Files**: Test with your own XML files (up to 10MB)
+
+## Performance Metrics
+
+The demo tracks:
+- **Parse Time**: How long it took to parse the XML
+- **Mode**: Whether sync or async parsing was used
+- **XML Size**: The size of your input XML
+- **Throughput**: Processing speed in KB/s
+
+## Try It in Your Project
+
+Once you've experimented with the demo, install stax-xml in your project:
+
+```bash
+npm install stax-xml
+```
+
+Then use the same patterns from the demo:
+
+```typescript
+import { x } from 'stax-xml/converter';
+
+const schema = x.object({
+  title: x.string().xpath('/book/title'),
+  author: x.string().xpath('/book/author'),
+  price: x.number().xpath('/book/price')
+});
+
+const result = schema.parseSync(xmlString);
+```
+
+## Next Steps
+
+- [Core Concepts](/stax-xml/v0.6.1/converter/core-concepts) - Learn the fundamentals
+- [Schema Types](/stax-xml/v0.6.1/converter/schemas) - Explore all available schema types
+- [XPath Guide](/stax-xml/v0.6.1/converter/xpath-guide) - Master XPath expressions
+- [Examples](/stax-xml/v0.6.1/converter/examples) - More real-world examples
