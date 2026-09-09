@@ -4,6 +4,7 @@ import {
   TokenCursorWasm,
   XmlEventType,
   initWasm,
+  jsTokenBackendFactory,
   withWasmBackend,
   wasmTokenBackendFactory,
 } from "@stax-xml/wasm";
@@ -11,6 +12,7 @@ import { x } from "stax-xml/converter";
 import {
   runBackendContract,
   runDifferentialFuzz,
+  collectBytes,
 } from "../../stax-xml/test/backend-contract.js";
 
 const variants = ["scalar", "simd"] as const;
@@ -22,20 +24,87 @@ interface RawTokenizer {
   reserve(length: number): number;
   commit(length: number, final: number): number;
   next(): number;
-  fieldPtr(field: number, index: number): number;
-  fieldLen(field: number, index: number): number;
+  tokenView(): number;
   lookupNamespace(ptr: number, length: number): void;
   scratch(length: number): number;
   dispose(): void;
 }
 
 function rawSpan(raw: RawTokenizer, field: number, index: number): string | undefined {
-  const length = raw.fieldLen(field, index);
+  const header = raw.tokenView();
+  const view = new DataView(raw.memory.buffer);
+  const word = (index: number) => view.getUint32(header + index * 4, true);
+  const u32 = (pointer: number, index: number) =>
+    view.getUint32(pointer + index * 4, true);
+  const i32 = (pointer: number, index: number) =>
+    view.getInt32(pointer + index * 4, true);
+  const fieldPtrs = word(0);
+  const fieldLens = word(1);
+  const inputPtr = word(2);
+  const attributeCount = word(3);
+  if (index < 0 || (field >= 5 && field <= 9 && index >= attributeCount))
+    return undefined;
+  let pointer: number;
+  let length: number;
+  if (field >= 5 && field <= 9) {
+    const attrNames = word(6);
+    const attrNameLens = word(7);
+    const attrValues = word(8);
+    const attrValueLens = word(9);
+    const attrColons = word(10);
+    const attrUris = word(11);
+    const attrUriLens = word(12);
+    switch (field) {
+      case 5:
+        pointer = inputPtr + u32(attrNames, index);
+        length = i32(attrNameLens, index);
+        break;
+      case 6: {
+        const nameOffset = u32(attrNames, index);
+        const nameLength = i32(attrNameLens, index);
+        const colon = i32(attrColons, index);
+        pointer = inputPtr + (colon < 0 ? nameOffset : colon + 1);
+        length = colon < 0 ? nameLength : nameLength - (colon - nameOffset) - 1;
+        break;
+      }
+      case 7: {
+        const nameOffset = u32(attrNames, index);
+        const colon = i32(attrColons, index);
+        pointer = inputPtr + nameOffset;
+        length = colon < 0 ? 0 : colon - nameOffset;
+        break;
+      }
+      case 8:
+        pointer = u32(attrUris, index);
+        length = i32(attrUriLens, index);
+        break;
+      default:
+        pointer = u32(attrValues, index);
+        length = i32(attrValueLens, index);
+        break;
+    }
+  } else {
+    if (field < 0 || (field > 4 && field < 10) || field > 12)
+      return undefined;
+    pointer = u32(fieldPtrs, field);
+    length = i32(fieldLens, field);
+  }
   if (length < 0) return undefined;
-  const pointer = raw.fieldPtr(field, index);
   return new TextDecoder().decode(
     new Uint8Array(raw.memory.buffer, pointer, length),
   );
+}
+
+function rawAttributeCount(raw: RawTokenizer): number {
+  return new Int32Array(raw.memory.buffer, raw.tokenView() + 12, 1)[0]!;
+}
+
+function rawSelfClosing(raw: RawTokenizer): boolean {
+  return new Int32Array(raw.memory.buffer, raw.tokenView() + 16, 1)[0]! !== 0;
+}
+
+function rawDeclarationStandalone(raw: RawTokenizer): number {
+  return new Int32Array(raw.memory.buffer, raw.tokenView() + 20, 1)[0]!;
 }
 
 it("switches scalar/SIMD assets while caching each compiled variant", async () => {
@@ -46,7 +115,7 @@ it("switches scalar/SIMD assets while caching each compiled variant", async () =
 });
 
 describe.each(variants)("compiled WASM %s backend", (variant) => {
-  it("keeps the raw ABI incremental and exposes pointer/length spans", async () => {
+  it("keeps the raw ABI incremental and exposes tokenView spans", async () => {
     const module = await initWasm({ variant });
     const raw = new WebAssembly.Instance(module, {
       env: { abort() { throw new Error("AssemblyScript abort"); } },
@@ -58,6 +127,7 @@ describe.each(variants)("compiled WASM %s backend", (variant) => {
       new Uint8Array(raw.memory.buffer).set(first, pointer);
       expect(raw.commit(first.byteLength, 0)).toBe(0);
       expect(raw.next()).toBe(1);
+      expect(rawDeclarationStandalone(raw)).toBe(-1);
       expect(raw.next()).toBe(-1);
 
       const second = encoder.encode(
@@ -67,6 +137,8 @@ describe.each(variants)("compiled WASM %s backend", (variant) => {
       new Uint8Array(raw.memory.buffer).set(second, pointer);
       expect(raw.commit(second.byteLength, 1)).toBe(0);
       expect(raw.next()).toBe(3);
+      expect(rawAttributeCount(raw)).toBe(2);
+      expect(rawSelfClosing(raw)).toBe(true);
       expect(rawSpan(raw, 0, 0)).toBe("r");
       expect(rawSpan(raw, 5, 0)).toBe("xmlns:p");
       expect(rawSpan(raw, 9, 1)).toBe("7");
@@ -145,6 +217,113 @@ describe.each(variants)("compiled WASM %s backend", (variant) => {
     expect(children[0]?.namespaceURI).toBe("urn:inner");
     expect(children[1]?.namespaceURI).toBe("urn:outer");
     expect(children[1]?.attributes?.get("p:id")?.namespaceURI).toBe("urn:outer");
+  });
+
+  it("keeps changing attribute layouts and namespace aliases coherent", async () => {
+    await initWasm({ variant });
+    const cursor = new TokenCursorWasm();
+    const xml =
+      '<root xmlns:p="urn:outer" p:wide="wide" p:empty="" plain="">' +
+      '<p:inner xmlns:p="urn:inner"><p:none/><p:leaf p:id=""/></p:inner>' +
+      '<p:restored p:id="outer"/></root>';
+    try {
+      cursor.pushBytes(encoder.encode(xml), true);
+      expect(cursor.next()).toBe(XmlEventType.START_DOCUMENT);
+
+      expect(cursor.next()).toBe(XmlEventType.START_ELEMENT);
+      expect(cursor.name()).toBe("root");
+      expect(cursor.localName()).toBe("root");
+      expect(cursor.attributeCount()).toBe(4);
+      expect(cursor.attributeValue(2)).toBe("");
+      expect(cursor.attributeName(3)).toBe("plain");
+      expect(cursor.attributeLocalName(3)).toBe("plain");
+      expect(cursor.attributePrefix(3)).toBe("");
+      expect(cursor.attributeNamespaceURI(3)).toBe("");
+      expect(cursor.attributeName(1)).toBe("p:wide");
+      expect(cursor.attributeLocalName(1)).toBe("wide");
+      expect(cursor.attributePrefix(1)).toBe("p");
+      expect(cursor.attributeNamespaceURI(1)).toBe("urn:outer");
+      expect(cursor.attributeValue(1)).toBe("wide");
+      expect(cursor.namespaceURIForPrefix("p")).toBe("urn:outer");
+
+      expect(cursor.next()).toBe(XmlEventType.START_ELEMENT);
+      expect(cursor.name()).toBe("p:inner");
+      expect(cursor.localName()).toBe("inner");
+      expect(cursor.prefix()).toBe("p");
+      expect(cursor.namespaceURI()).toBe("urn:inner");
+      expect(cursor.attributeCount()).toBe(1);
+      expect(cursor.attributeName(0)).toBe("xmlns:p");
+      expect(cursor.attributeLocalName(0)).toBe("p");
+      expect(cursor.attributePrefix(0)).toBe("xmlns");
+      expect(cursor.attributeNamespaceURI(0)).toBe("http://www.w3.org/2000/xmlns/");
+      expect(cursor.attributeValue(0)).toBe("urn:inner");
+      expect(cursor.namespaceURIForPrefix("p")).toBe("urn:inner");
+
+      expect(cursor.next()).toBe(XmlEventType.START_ELEMENT);
+      expect(cursor.name()).toBe("p:none");
+      expect(cursor.localName()).toBe("none");
+      expect(cursor.attributeCount()).toBe(0);
+      expect(cursor.attributeName(0)).toBeUndefined();
+      expect(cursor.attributeValue(0)).toBeUndefined();
+      expect(cursor.namespaceURI()).toBe("urn:inner");
+      expect(cursor.next()).toBe(XmlEventType.END_ELEMENT);
+
+      expect(cursor.next()).toBe(XmlEventType.START_ELEMENT);
+      expect(cursor.name()).toBe("p:leaf");
+      expect(cursor.localName()).toBe("leaf");
+      expect(cursor.attributeCount()).toBe(1);
+      expect(cursor.attributeValue(0)).toBe("");
+      expect(cursor.attributeName(0)).toBe("p:id");
+      expect(cursor.attributeLocalName(0)).toBe("id");
+      expect(cursor.attributePrefix(0)).toBe("p");
+      expect(cursor.attributeNamespaceURI(0)).toBe("urn:inner");
+      expect(cursor.next()).toBe(XmlEventType.END_ELEMENT);
+      expect(cursor.next()).toBe(XmlEventType.END_ELEMENT);
+
+      expect(cursor.next()).toBe(XmlEventType.START_ELEMENT);
+      expect(cursor.name()).toBe("p:restored");
+      expect(cursor.localName()).toBe("restored");
+      expect(cursor.namespaceURI()).toBe("urn:outer");
+      expect(cursor.attributeName(0)).toBe("p:id");
+      expect(cursor.attributeNamespaceURI(0)).toBe("urn:outer");
+      expect(cursor.namespaceURIForPrefix("p")).toBe("urn:outer");
+    } finally {
+      cursor.dispose();
+    }
+  });
+
+  it("retains long names and expanded values across input compaction", async () => {
+    await initWasm({ variant });
+    const root = `é${"a".repeat(2048)}`;
+    const inner = `é${"b".repeat(2048)}`;
+    const leaf = `é${"c".repeat(1024)}`;
+    const prefix = `p${"x".repeat(256)}`;
+    const attribute = `a${"d".repeat(1024)}`;
+    const outerUri = `urn:${"한".repeat(2048)}`;
+    const innerUri = `urn:${"글".repeat(2048)}`;
+    const expanded = "한😀".repeat(10_000);
+    const xml =
+      `<${root} xmlns:${prefix}="${outerUri}">` +
+      `<${prefix}:${inner} xmlns:${prefix}="${innerUri}">` +
+      `<${prefix}:${leaf} ${prefix}:${attribute}="&large;">value</${prefix}:${leaf}>` +
+      `</${prefix}:${inner}></${root}>`;
+    const bytes = encoder.encode(xml);
+    const cuts: number[] = [];
+    let offset = 0;
+    for (const width of [1, 2, 3, 15, 16, 17, 257]) {
+      offset = Math.min(bytes.length, offset + width);
+      cuts.push(offset);
+    }
+    while (offset < bytes.length) {
+      offset = Math.min(bytes.length, offset + 4096);
+      cuts.push(offset);
+    }
+    const options = {
+      addEntities: [{ entity: "large", value: expanded }],
+    };
+    const expected = collectBytes(jsTokenBackendFactory, bytes, [], options);
+    const actual = collectBytes(wasmTokenBackendFactory, bytes, cuts, options);
+    expect(actual, JSON.stringify({ xmlLength: bytes.length, cuts })).toEqual(expected);
   });
 
   it("validates custom entities on the real WASM byte session", async () => {

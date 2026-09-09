@@ -1,3 +1,6 @@
+import { appendValid, reset as resetUtf8, width as utf8Width, readCodePoint as utf8ReadCodePoint, xmlChar as utf8XmlChar, asciiLetter as utf8AsciiLetter, nameStart as utf8NameStart, namePart as utf8NamePart } from "./utf8";
+import { markerPrefix as scanMarkerPrefix, findSequence as scanFindSequence, findTagEnd as scanFindTagEnd, scanName as scanScanName, qnameColon as scanQnameColon } from "./scan";
+
 // Raw UTF-8 tokenizer. The JavaScript facade owns all string/event materialization.
 // Pointers are byte offsets in linear memory; lengths are UTF-8 byte lengths.
 
@@ -47,9 +50,6 @@ let inputLen: usize = 0;
 let inputPos: usize = 0;
 let inputBase: i32 = 0;
 let reserved: usize = 0;
-let utf8Need: i32 = 0;
-let utf8Code: i32 = 0;
-let utf8Min: i32 = 0;
 let started: bool = false;
 let ended: bool = false;
 let leadingPending: bool = true;
@@ -75,6 +75,10 @@ let pendingUriLen: i32 = 0;
 let pendingUndo: i32 = -1;
 let pendingState: usize = 0;
 let resumeKind: i32 = RESUME_NONE;
+let resumeOffset: usize = 0;
+let resumeQuote: i32 = 0;
+let resumeBrackets: i32 = 0;
+let resumeComment: bool = false;
 let errorKind: i32 = 0;
 let errorAt: i32 = -1;
 let errorMessagePtr: usize = 0;
@@ -83,6 +87,7 @@ let lastWidth: i32 = 0;
 let decodeResultLen: i32 = 0;
 let decodeHadEntity: bool = false;
 let parseNameError: bool = false;
+let tokenHeader: usize = 0;
 
 // Current fields: 0 name, 1 text, 2 local, 3 prefix, 4 URI,
 // 10 declaration version, 11 declaration encoding, 12 namespace lookup.
@@ -158,6 +163,7 @@ function releaseOwned(): void {
   if (statePtr != 0) heap.free(statePtr);
   if (scratchPtr != 0) heap.free(scratchPtr);
   if (errorMessagePtr != 0) heap.free(errorMessagePtr);
+  if (tokenHeader != 0) heap.free(tokenHeader);
   if (fieldPtrs != 0) heap.free(fieldPtrs);
   if (fieldLens != 0) heap.free(fieldLens);
   if (stackName != 0) heap.free(stackName);
@@ -185,7 +191,7 @@ function releaseOwned(): void {
   if (entityNameLen != 0) heap.free(entityNameLen);
   if (entityValue != 0) heap.free(entityValue);
   if (entityValueLen != 0) heap.free(entityValueLen);
-  inputPtr = 0; tokenPtr = 0; statePtr = 0; scratchPtr = 0; errorMessagePtr = 0;
+  inputPtr = 0; tokenPtr = 0; statePtr = 0; scratchPtr = 0; errorMessagePtr = 0; tokenHeader = 0;
   fieldPtrs = 0; fieldLens = 0;
   stackName = 0; stackNameLen = 0; stackLocal = 0; stackLocalLen = 0;
   stackPrefix = 0; stackPrefixLen = 0; stackUri = 0; stackUriLen = 0;
@@ -429,29 +435,14 @@ function byteAt(p: usize, index: usize): u8 { return load<u8>(p + index); }
 function inputByte(index: usize): u8 { return load<u8>(inputPtr + index); }
 
 function readCodePoint(p: usize, end: usize): i32 {
-  if (p >= end) { lastWidth = 0; return -1; }
-  const a = <i32>load<u8>(p);
-  if (a < 0x80) { lastWidth = 1; return a; }
-  if (a >= 0xc2 && a <= 0xdf && p + 1 < end) {
-    lastWidth = 2; return ((a & 0x1f) << 6) | (<i32>load<u8>(p + 1) & 0x3f);
-  }
-  if (a >= 0xe0 && a <= 0xef && p + 2 < end) {
-    lastWidth = 3; return ((a & 0x0f) << 12) | ((<i32>load<u8>(p + 1) & 0x3f) << 6) | (<i32>load<u8>(p + 2) & 0x3f);
-  }
-  if (a >= 0xf0 && a <= 0xf4 && p + 3 < end) {
-    lastWidth = 4; return ((a & 7) << 18) | ((<i32>load<u8>(p + 1) & 0x3f) << 12) | ((<i32>load<u8>(p + 2) & 0x3f) << 6) | (<i32>load<u8>(p + 3) & 0x3f);
-  }
-  lastWidth = 1; return -1;
+  lastWidth = utf8Width(p, end);
+  return utf8ReadCodePoint(p, end);
 }
 
-function xmlChar(cp: i32): bool {
-  return cp == 9 || cp == 10 || cp == 13 || (cp >= 0x20 && cp <= 0xd7ff) || (cp >= 0xe000 && cp <= 0xfffd) || (cp >= 0x10000 && cp <= 0x10ffff);
-}
-function asciiLetter(cp: i32): bool { return (cp >= 65 && cp <= 90) || (cp >= 97 && cp <= 122); }
-function nameStart(cp: i32): bool {
-  return cp == 58 || cp == 95 || asciiLetter(cp) || (cp >= 0xc0 && cp <= 0xd6) || (cp >= 0xd8 && cp <= 0xf6) || (cp >= 0xf8 && cp <= 0x2ff) || (cp >= 0x370 && cp <= 0x37d) || (cp >= 0x37f && cp <= 0x1fff) || (cp >= 0x200c && cp <= 0x200d) || (cp >= 0x2070 && cp <= 0x218f) || (cp >= 0x2c00 && cp <= 0x2fef) || (cp >= 0x3001 && cp <= 0xd7ff) || (cp >= 0xf900 && cp <= 0xfdcf) || (cp >= 0xfdf0 && cp <= 0xfffd) || (cp >= 0x10000 && cp <= 0xeffff);
-}
-function namePart(cp: i32): bool { return (cp >= 48 && cp <= 57) || cp == 45 || cp == 46 || cp == 0xb7 || (cp >= 0x300 && cp <= 0x36f) || (cp >= 0x203f && cp <= 0x2040); }
+function xmlChar(cp: i32): bool { return utf8XmlChar(cp); }
+function asciiLetter(cp: i32): bool { return utf8AsciiLetter(cp); }
+function nameStart(cp: i32): bool { return utf8NameStart(cp); }
+function namePart(cp: i32): bool { return utf8NamePart(cp); }
 function whitespace(cp: i32): bool { return cp == 32 || cp == 9 || cp == 10 || cp == 13; }
 function trimWhitespace(cp: i32): bool { return whitespace(cp) || cp == 0xa0 || cp == 0x1680 || (cp >= 0x2000 && cp <= 0x200a) || cp == 0x2028 || cp == 0x2029 || cp == 0x202f || cp == 0x205f || cp == 0x3000 || cp == 0xfeff; }
 function previousCodePointStart(start: usize, end: usize): usize {
@@ -608,32 +599,6 @@ function validateXmlSpan(src: usize, length: i32): bool {
   return true;
 }
 
-function utf8AppendValid(start: usize, length: usize, final: bool): bool {
-  for (let i: usize = 0; i < length; i++) {
-    if (ASC_FEATURE_SIMD && utf8Need == 0 && i + 16 <= length) {
-      const nonAscii = i8x16.bitmask(v128.load(start + i));
-      const asciiLength = nonAscii == 0 ? 16 : ctz<i32>(nonAscii);
-      if (asciiLength != 0) {
-        i += <usize>asciiLength - 1;
-        continue;
-      }
-    }
-    const b = <i32>load<u8>(start + i);
-    if (utf8Need == 0) {
-      if (b < 0x80) continue;
-      if (b >= 0xc2 && b <= 0xdf) { utf8Need = 1; utf8Code = b & 31; utf8Min = 0x80; continue; }
-      if (b >= 0xe0 && b <= 0xef) { utf8Need = 2; utf8Code = b & 15; utf8Min = 0x800; continue; }
-      if (b >= 0xf0 && b <= 0xf4) { utf8Need = 3; utf8Code = b & 7; utf8Min = 0x10000; continue; }
-      return false;
-    }
-    if (b < 0x80 || b > 0xbf) return false;
-    utf8Code = (utf8Code << 6) | (b & 63);
-    utf8Need--;
-    if (utf8Need == 0 && (utf8Code < utf8Min || utf8Code > 0x10ffff || (utf8Code >= 0xd800 && utf8Code <= 0xdfff))) return false;
-  }
-  return !final || utf8Need == 0;
-}
-
 function compactInput(): void {
   if (inputPos == 0) return;
   const remain = inputLen - inputPos;
@@ -643,48 +608,53 @@ function compactInput(): void {
   inputPos = 0;
 }
 
-function markerPrefix(start: usize, length: i32, marker: string): bool {
-  if (length > marker.length) return false;
-  for (let i = 0; i < length; i++) if (load<u8>(start + i) != <u8>marker.charCodeAt(i)) return false;
-  return true;
+function beginResume(kind: i32): void {
+  if (resumeKind == kind) return;
+  resumeKind = kind;
+  resumeOffset = 0;
+  resumeQuote = 0;
+  resumeBrackets = 0;
+  resumeComment = false;
 }
 
-function findSequence(start: usize, end: usize, a: u8, b: u8, c: u8 = 0, width: i32 = 2): i32 {
-  if (width == 2) { for (let i = start; i + 1 < end; i++) if (load<u8>(inputPtr + i) == a && load<u8>(inputPtr + i + 1) == b) return <i32>i; }
-  else { for (let i = start; i + 2 < end; i++) if (load<u8>(inputPtr + i) == a && load<u8>(inputPtr + i + 1) == b && load<u8>(inputPtr + i + 2) == c) return <i32>i; }
-  return -1;
+function finishResume(): void {
+  resumeKind = RESUME_NONE;
+  resumeOffset = 0;
+  resumeQuote = 0;
+  resumeBrackets = 0;
+  resumeComment = false;
+}
+
+function markerPrefix(start: usize, length: i32, marker: string): bool {
+  return scanMarkerPrefix(start, length, marker);
+}
+
+function findSequence(start: usize, end: usize, a: u8, b: u8, c: u8 = 0, sequenceWidth: i32 = 2): i32 {
+  const result = scanFindSequence(inputPtr + start, inputPtr + end, a, b, c, sequenceWidth);
+  return result < 0 ? -1 : result - <i32>inputPtr;
 }
 
 function findTagEnd(): i32 {
-  let quote: i32 = 0;
-  for (let i = inputPos + 1; i < inputLen; i++) {
-    const b = <i32>inputByte(i);
-    if (quote != 0) { if (b == quote) quote = 0; }
-    else if (b == 34 || b == 39) quote = b;
-    else if (b == 62) return <i32>i;
+  const result = scanFindTagEnd(inputPtr + inputPos + 1, inputPtr + inputLen, inputPtr + inputPos + 1 + resumeOffset, resumeQuote);
+  if (result >= 0) {
+    resumeOffset = 0;
+    resumeQuote = 0;
+    return result - <i32>inputPtr;
   }
+  resumeOffset = inputLen - inputPos - 1;
+  resumeQuote = result == -1 ? 0 : -2 - result;
   return -1;
 }
 
 function scanName(start: usize, end: usize): i32 {
   parseNameError = false;
-  let at = start;
-  const cp = readCodePoint(inputPtr + at, inputPtr + end);
-  if (cp < 0 || !nameStart(cp)) { parseNameError = true; return -1; }
-  at += <usize>lastWidth;
-  while (at < end) {
-    const next = readCodePoint(inputPtr + at, inputPtr + end);
-    if (next < 0 || (!nameStart(next) && !namePart(next))) break;
-    at += <usize>lastWidth;
-  }
-  return <i32>at;
+  const result = scanScanName(inputPtr + start, inputPtr + end);
+  if (result < 0) parseNameError = true;
+  return result < 0 ? -1 : result - <i32>inputPtr;
 }
 function qnameParts(start: usize, end: usize, colonOut: i32 = 0): i32 {
-  let colon = -1;
-  let count = 0;
-  for (let i = start; i < end; i++) if (inputByte(i) == 58) { colon = <i32>i; count++; }
-  if (count > 1 || colon == <i32>start || colon == <i32>end - 1) return -2;
-  return colon;
+  const result = scanQnameColon(inputPtr + start, inputPtr + end);
+  return result < 0 ? result : result - <i32>inputPtr;
 }
 function scanInvalidName(start: usize, end: usize): i32 {
   let at = start;
@@ -786,12 +756,14 @@ function emitText(type: i32, start: i32, end: i32): i32 {
 }
 
 function parseText(): i32 {
+  beginResume(RESUME_TEXT);
   if (declarationAllowed && stackDepth == 0 && roots == 0) declarationAllowed = false;
   const start = <i32>inputPos;
+  const scanStart = inputPos + resumeOffset;
   let end = -1;
-  for (let i = inputPos; i < inputLen; i++) if (inputByte(i) == 60) { end = <i32>i; break; }
+  for (let i = scanStart; i < inputLen; i++) if (inputByte(i) == 60) { end = <i32>i; break; }
   if (end < 0) {
-    if (!isFinal) return NEED;
+    if (!isFinal) { resumeOffset = inputLen - inputPos; return NEED; }
     end = <i32>inputLen;
   }
   if (documentMode == 1 && stackDepth == 0) {
@@ -802,14 +774,22 @@ function parseText(): i32 {
   if (end == start) return NEED;
   if (!isFinal && end == <i32>inputLen) {
     // Keep text until a markup boundary so a token never changes after it is exposed.
+    resumeOffset = inputLen - inputPos;
     return NEED;
   }
+  finishResume();
   return emitText(CHARACTERS, start, end);
 }
 
 function parseComment(): i32 {
-  const end = findSequence(inputPos + 4, inputLen, 45, 45, 62, 3);
-  if (end < 0) return isFinal ? fail("Unterminated comment.") : NEED;
+  beginResume(RESUME_COMMENT);
+  const contentStart = inputPos + 4;
+  const scanStart = contentStart + (resumeOffset > 2 ? resumeOffset - 2 : 0);
+  const end = findSequence(scanStart, inputLen, 45, 45, 62, 3);
+  if (end < 0) {
+    if (!isFinal) { resumeOffset = inputLen - contentStart; return NEED; }
+    return fail("Unterminated comment.");
+  }
   const bad = findSequence(inputPos + 4, <usize>end + 1, 45, 45, 0, 2);
   if (bad >= 0) return fail("XML comments must not contain \"--\".", inputBase + bad);
   if (!validateXmlSpan(inputPtr + inputPos + 4, <i32>(end - <i32>inputPos - 4))) return fail("Invalid XML character.");
@@ -820,12 +800,19 @@ function parseComment(): i32 {
   setRawInt(fieldLens, 1, end - <i32>inputPos - 4);
   inputPos = <usize>end + 3;
   declarationAllowed = false;
+  finishResume();
   return COMMENT;
 }
 
 function parseCdata(): i32 {
-  const end = findSequence(inputPos + 9, inputLen, 93, 93, 62, 3);
-  if (end < 0) return isFinal ? fail("Unterminated CDATA.") : NEED;
+  beginResume(RESUME_CDATA);
+  const contentStart = inputPos + 9;
+  const scanStart = contentStart + (resumeOffset > 2 ? resumeOffset - 2 : 0);
+  const end = findSequence(scanStart, inputLen, 93, 93, 62, 3);
+  if (end < 0) {
+    if (!isFinal) { resumeOffset = inputLen - contentStart; return NEED; }
+    return fail("Unterminated CDATA.");
+  }
   if (!validateXmlSpan(inputPtr + inputPos + 9, <i32>(end - <i32>inputPos - 9))) return fail("Invalid XML character.");
   if (documentMode == 1 && stackDepth == 0) return fail("CDATA is not allowed outside the root element.");
   currentAttrCount = 0;
@@ -835,18 +822,23 @@ function parseCdata(): i32 {
   setRawInt(fieldLens, 1, end - <i32>inputPos - 9);
   inputPos = <usize>end + 3;
   declarationAllowed = false;
+  finishResume();
   return CDATA;
 }
 
 function parseDoctype(): i32 {
   if (seenDoctype || roots != 0 || stackDepth != 0) return fail("DOCTYPE must appear once before the root element.");
-  let quote: i32 = 0;
-  let brackets: i32 = 0;
-  let inComment: bool = false;
+  beginResume(RESUME_DOCTYPE);
+  const contentStart = inputPos + 2;
+  let quote: i32 = resumeQuote;
+  let brackets: i32 = resumeBrackets;
+  let inComment: bool = resumeComment;
   let end = -1;
-  for (let i = inputPos + 2; i < inputLen; i++) {
+  let i = contentStart + resumeOffset;
+  for (; i < inputLen; i++) {
     const b = <i32>inputByte(i);
     if (inComment) {
+      if (b == 45 && i + 2 >= inputLen && !isFinal) break;
       if (b == 45 && i + 2 < inputLen && inputByte(i + 1) == 45 && inputByte(i + 2) == 62) {
         inComment = false;
         i += 2;
@@ -854,6 +846,7 @@ function parseDoctype(): i32 {
       continue;
     }
     if (quote != 0) { if (b == quote) quote = 0; continue; }
+    if (b == 60 && i + 3 >= inputLen && !isFinal) break;
     if (b == 34 || b == 39) quote = b;
     else if (b == 60 && i + 3 < inputLen && inputByte(i + 1) == 33 && inputByte(i + 2) == 45 && inputByte(i + 3) == 45) {
       inComment = true;
@@ -866,7 +859,17 @@ function parseDoctype(): i32 {
     }
     else if (b == 62 && brackets == 0) { end = <i32>i; break; }
   }
-  if (end < 0) return isFinal ? fail("Unterminated DOCTYPE.") : NEED;
+  if (end < 0) {
+    if (!isFinal) {
+      // Save the first unprocessed byte: replaying brackets or quotes changes state.
+      resumeOffset = i - contentStart;
+      resumeQuote = quote;
+      resumeBrackets = brackets;
+      resumeComment = inComment;
+      return NEED;
+    }
+    return fail("Unterminated DOCTYPE.");
+  }
   if (!validateXmlSpan(inputPtr + inputPos + 2, <i32>(end - <i32>inputPos - 2))) return fail("Invalid XML character.");
   const rootStart = inputPos + 9;
   let s = rootStart;
@@ -884,6 +887,7 @@ function parseDoctype(): i32 {
   setRawPointer(fieldPtrs, 1, inputPtr + inputPos + 2);
   setRawInt(fieldLens, 1, end - <i32>inputPos - 2);
   inputPos = <usize>end + 1;
+  finishResume();
   return DTD;
 }
 
@@ -939,8 +943,14 @@ function parseDeclarationBody(start: usize, end: usize): bool {
 }
 
 function parsePi(): i32 {
-  const end = findSequence(inputPos + 2, inputLen, 63, 62, 0, 2);
-  if (end < 0) return isFinal ? fail("Unterminated processing instruction.") : NEED;
+  beginResume(RESUME_PI);
+  const contentStart = inputPos + 2;
+  const scanStart = contentStart + (resumeOffset > 1 ? resumeOffset - 1 : 0);
+  const end = findSequence(scanStart, inputLen, 63, 62, 0, 2);
+  if (end < 0) {
+    if (!isFinal) { resumeOffset = inputLen - contentStart; return NEED; }
+    return fail("Unterminated processing instruction.");
+  }
   const content = inputPos + 2;
   let targetEnd = content;
   while (targetEnd < <usize>end && !whitespace(inputByte(targetEnd))) {
@@ -952,6 +962,7 @@ function parsePi(): i32 {
   if (targetLen <= 0 || scanName(content, <usize>end) < 0) return fail("Invalid processing instruction target.");
   if (eqLiteral(inputPtr + content, targetLen, "xml")) {
     if (!declarationAllowed || !parseDeclarationBody(targetEnd, <usize>end)) return fail("Invalid or misplaced XML declaration.");
+    finishResume();
     return NO;
   }
   if (targetLen == 3 && (inputByte(content) == 88 || inputByte(content) == 120) && (inputByte(content + 1) == 77 || inputByte(content + 1) == 109) && (inputByte(content + 2) == 76 || inputByte(content + 2) == 108)) return fail("Invalid or misplaced XML declaration.");
@@ -976,6 +987,7 @@ function parsePi(): i32 {
   setRawPointer(fieldPtrs, 1, inputPtr + dataStart); setRawInt(fieldLens, 1, <i32>(s - dataStart));
   inputPos = <usize>end + 2;
   declarationAllowed = false;
+  finishResume();
   return PI;
 }
 
@@ -993,9 +1005,13 @@ function parseBang(): i32 {
 }
 
 function parseEnd(): i32 {
-  let end = inputPos + 2;
+  beginResume(RESUME_END);
+  let end = inputPos + 2 + resumeOffset;
   while (end < inputLen && inputByte(end) != 62) end++;
-  if (end == inputLen) return isFinal ? fail("Unterminated end tag.") : NEED;
+  if (end == inputLen) {
+    if (!isFinal) { resumeOffset = inputLen - inputPos - 2; return NEED; }
+    return fail("Unterminated end tag.");
+  }
   const start = inputPos + 2;
   if (start >= <usize>end || whitespace(inputByte(start))) return fail("Invalid end tag.");
   let nameEnd = <usize>end;
@@ -1011,10 +1027,12 @@ function parseEnd(): i32 {
   pendingUndo = rawInt(stackUndo, top); pendingState = rawPointer(stackMark, top);
   stackDepth--;
   inputPos = <usize>end + 1;
+  finishResume();
   return END_ELEMENT;
 }
 
 function parseStart(): i32 {
+  beginResume(RESUME_START);
   const end = findTagEnd();
   if (end < 0) return isFinal ? fail("Unterminated start tag.") : NEED;
   const tagEnd = <usize>end;
@@ -1090,7 +1108,7 @@ function parseStart(): i32 {
   }
   // Reserve the complete frame before capturing any state-arena pointers.
   // A state growth relocates retained spans, so locals must only be captured after it.
-  if (!ensureState(stateUsed + <usize>qualifiedNameLength + <usize>localLen + <usize>prefixLen + 8))
+  if (!ensureState(stateUsed + <usize>qualifiedNameLength + 8))
     return fail("Tokenizer memory exhausted.");
   let uriPtr: usize = 0; let uriLen: i32 = 0;
   if (namespaceAware) {
@@ -1100,8 +1118,8 @@ function parseStart(): i32 {
   if (uriPtr == 0 && namespaceAware) { uriPtr = stateCopyLiteral(""); uriLen = 0; }
   // Copy the frame into retained state before current input may be compacted.
   const frameName = stateCopy(inputPtr + nameStart, <usize>qualifiedNameLength);
-  const frameLocal = stateCopy(inputPtr + localStart, <usize>localLen);
-  const framePrefix = prefixLen == 0 ? stateCopyLiteral("") : stateCopy(inputPtr + nameStart, <usize>prefixLen);
+  const frameLocal = frameName + <usize>(localStart - nameStart);
+  const framePrefix = frameName;
   const frameUri = uriPtr;
   if (frameName == 0 || frameLocal == 0 || framePrefix == 0) { stateUsed = mark; nsCount = nsUndo; return fail("Tokenizer memory exhausted."); }
   for (let i = 0; i < currentAttrCount; i++) {
@@ -1161,6 +1179,7 @@ function parseStart(): i32 {
     pendingEnd = true; pendingNamePtr = frameName; pendingNameLen = qualifiedNameLength; pendingLocalPtr = frameLocal; pendingLocalLen = localLen; pendingPrefixPtr = framePrefix; pendingPrefixLen = prefixLen; pendingUriPtr = frameUri; pendingUriLen = uriLen; pendingUndo = nsUndo; pendingState = mark;
   }
   inputPos = tagEnd + 1;
+  finishResume();
   return START_ELEMENT;
 }
 
@@ -1255,11 +1274,12 @@ export function initialize(mode: i32, nsAware: i32, decode: i32): void {
   leadingBomCount = 0;
   disposed = false; initialized = true; documentMode = mode; namespaceAware = nsAware != 0; autoDecode = decode != 0;
   isFinal = false; inputPtr = 0; inputCap = 0; inputLen = 0; inputPos = 0; inputBase = 0; reserved = 0;
-  utf8Need = 0; utf8Code = 0; utf8Min = 0; started = false; ended = false; leadingPending = true; roots = 0; declarationAllowed = true; seenDoctype = false; doctypeRootPtr = 0; doctypeRootLen = -1;
-  currentType = START_DOCUMENT; currentEvent = 0; pendingEnd = false; pendingUndo = -1; pendingState = 0; resumeKind = RESUME_NONE; errorKind = 0; errorAt = -1; errorMessagePtr = 0; errorMessageLen = 0;
+  resetUtf8(); started = false; ended = false; leadingPending = true; roots = 0; declarationAllowed = true; seenDoctype = false; doctypeRootPtr = 0; doctypeRootLen = -1;
+  currentType = START_DOCUMENT; currentEvent = 0; pendingEnd = false; pendingUndo = -1; pendingState = 0; resumeKind = RESUME_NONE; resumeOffset = 0; resumeQuote = 0; resumeBrackets = 0; resumeComment = false; errorKind = 0; errorAt = -1; errorMessagePtr = 0; errorMessageLen = 0;
   tokenPtr = 0; tokenCap = 0; tokenUsed = 0; statePtr = 0; stateCap = 0; stateUsed = 0; stateFloor = 0; scratchPtr = 0; scratchCap = 0;
   fieldPtrs = allocRaw(13 * 4);
   fieldLens = allocRaw(13 * 4);
+  tokenHeader = allocRaw(13 * 4);
   stackCap = 0; stackDepth = 0; stackName = 0; stackNameLen = 0; stackLocal = 0; stackLocalLen = 0; stackPrefix = 0; stackPrefixLen = 0; stackUri = 0; stackUriLen = 0; stackUndo = 0; stackMark = 0;
   nsCap = 0; nsCount = 0; nsPrefix = 0; nsPrefixLen = 0; nsUri = 0; nsUriLen = 0;
   attrCap = 0; currentAttrCount = 0; attrName = 0; attrNameLen = 0; attrValue = 0; attrValueLen = 0; attrColon = 0; attrUri = 0; attrUriLen = 0;
@@ -1291,39 +1311,29 @@ export function reserve(length: i32): usize {
 export function commit(length: i32, final: i32): i32 {
   if (!initialized || disposed || isFinal || errorKind != 0 || length < 0 || <usize>length > reserved) return ERROR;
   const start = inputPtr + inputLen;
-  if (!utf8AppendValid(start, <usize>length, final != 0)) return failUtf8(<i32>(inputLen));
+  if (!appendValid(start, <usize>length, final != 0)) return failUtf8(<i32>(inputLen));
   inputLen += <usize>length; reserved = 0; isFinal = final != 0;
   return 0;
 }
 
 export function next(): i32 { return nextInternal(); }
-export function fieldPtr(field: i32, index: i32): usize {
-  if (field >= 0 && field < 5) return rawPointer(fieldPtrs, field);
-  if (field >= 10 && field <= 12) return rawPointer(fieldPtrs, field);
-  if (field >= 5 && field <= 9 && index >= 0 && index < currentAttrCount) {
-    if (field == 5) return rawPointer(attrName, index) == 0 ? 0 : inputPtr + rawPointer(attrName, index);
-    if (field == 6) return rawInt(attrColon, index) < 0 ? inputPtr + rawPointer(attrName, index) : inputPtr + <usize>rawInt(attrColon, index) + 1;
-    if (field == 7) return rawInt(attrColon, index) < 0 ? 0 : inputPtr + rawPointer(attrName, index);
-    if (field == 8) return rawPointer(attrUri, index);
-    return rawPointer(attrValue, index);
-  }
-  return 0;
+export function tokenView(): usize {
+  if (!initialized || disposed || tokenHeader == 0) return 0;
+  store<i32>(tokenHeader, <i32>fieldPtrs);
+  store<i32>(tokenHeader + 4, <i32>fieldLens);
+  store<i32>(tokenHeader + 8, <i32>inputPtr);
+  store<i32>(tokenHeader + 12, currentAttrCount);
+  store<i32>(tokenHeader + 16, currentSelfClosing ? 1 : 0);
+  store<i32>(tokenHeader + 20, declarationStandaloneValue);
+  store<i32>(tokenHeader + 24, <i32>attrName);
+  store<i32>(tokenHeader + 28, <i32>attrNameLen);
+  store<i32>(tokenHeader + 32, <i32>attrValue);
+  store<i32>(tokenHeader + 36, <i32>attrValueLen);
+  store<i32>(tokenHeader + 40, <i32>attrColon);
+  store<i32>(tokenHeader + 44, <i32>attrUri);
+  store<i32>(tokenHeader + 48, <i32>attrUriLen);
+  return tokenHeader;
 }
-export function fieldLen(field: i32, index: i32): i32 {
-  if (field >= 0 && field < 5) return rawInt(fieldLens, field);
-  if (field >= 10 && field <= 12) return rawInt(fieldLens, field);
-  if (field >= 5 && field <= 9 && index >= 0 && index < currentAttrCount) {
-    if (field == 5) return rawInt(attrNameLen, index);
-    if (field == 6) return rawInt(attrColon, index) < 0 ? rawInt(attrNameLen, index) : rawInt(attrNameLen, index) - (rawInt(attrColon, index) - <i32>rawPointer(attrName, index)) - 1;
-    if (field == 7) return rawInt(attrColon, index) < 0 ? 0 : rawInt(attrColon, index) - <i32>rawPointer(attrName, index);
-    if (field == 8) return rawInt(attrUriLen, index);
-    return rawInt(attrValueLen, index);
-  }
-  return -1;
-}
-export function attributeCount(): i32 { return currentAttrCount; }
-export function selfClosing(): i32 { return currentSelfClosing ? 1 : 0; }
-export function declarationStandalone(): i32 { return declarationStandaloneValue; }
 export function lookupNamespace(ptr: usize, length: i32): void {
   setRawPointer(fieldPtrs, 12, 0); setRawInt(fieldLens, 12, 0);
   if (!namespaceAware || rawInt(fieldLens, 2) < 0) return;

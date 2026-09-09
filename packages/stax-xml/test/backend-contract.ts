@@ -90,6 +90,57 @@ function errorCategory(message: string): string {
   return 'syntax';
 }
 
+function fixedWidthCuts(length: number, width: number): number[] {
+  const cuts: number[] = [];
+  for (let end = width; end < length; end += width) cuts.push(end);
+  cuts.push(length);
+  return cuts;
+}
+
+function runResumeCases(factory: TokenBackendFactory): void {
+  const cases = [
+    {name: 'text', xml: '<r>é split 한글 😀 &amp; tail</r>'},
+    {name: 'start-quote', xml: '<r a="quoted é 한글 😀 value" b="">text</r>'},
+    {name: 'end-tag', xml: '<é:根>text</é:根>'},
+    {name: 'comment', xml: '<r><!-- comment é 한글 😀 --></r>'},
+    {name: 'cdata', xml: '<r><![CDATA[ cdata <é> 한글 😀 ]]></r>'},
+    {name: 'pi', xml: '<r><?é target data 한글 😀?></r>'},
+    {name: 'doctype-quote', xml: '<!DOCTYPE r SYSTEM "a>b"><r/>'},
+    {name: 'doctype-comment', xml: '<!DOCTYPE r [<!ELEMENT r ANY><!-- " ] > é 한글 😀 " -->]><r/>'},
+    {name: 'error-start-quote', xml: '<r a="unterminated'},
+    {name: 'error-end-tag', xml: '<r></s>'},
+    {name: 'error-comment', xml: '<r><!--a--b--></r>'},
+    {name: 'error-cdata', xml: '<r><![CDATA[unterminated</r>'},
+    {name: 'error-pi', xml: '<r><?pi data</r>'},
+    {name: 'error-doctype', xml: '<!DOCTYPE r [<!-- unterminated><r/>'},
+  ] as const;
+  const widths = [1, 2, 3, 15, 16, 17];
+  const encoder = new TextEncoder();
+  for (const testCase of cases) {
+    const bytes = encoder.encode(testCase.xml);
+    const expected = collectBytes(jsTokenBackendFactory, bytes, []);
+    for (const width of widths) {
+      const cuts = fixedWidthCuts(bytes.length, width);
+      const context = JSON.stringify({
+        seed: 0x5a17c0de,
+        case: testCase.name,
+        xml: testCase.xml,
+        width,
+        cuts,
+      });
+      const actual = collectBytes(factory, bytes, cuts);
+      if (expected.error) {
+        assert.ok(actual.error, context);
+        const reference = collectBytes(jsTokenBackendFactory, bytes, cuts);
+        assert.equal(errorCategory(actual.error), errorCategory(reference.error!), context);
+      } else {
+        assert.equal(expected.error, undefined, context);
+        assert.deepEqual(actual, expected, context);
+      }
+    }
+  }
+}
+
 export function runBackendContract(factory: TokenBackendFactory): void {
   const encoder = new TextEncoder();
   const options: TokenCursorOptions[] = [
@@ -139,6 +190,7 @@ export function runBackendContract(factory: TokenBackendFactory): void {
   const xml = `<!DOCTYPE r [${' '.repeat(16_384)}]><?work ${payload}?><r a="${payload}">${payload}<!--${payload}--><![CDATA[${payload}]]><c${' '.repeat(16_384)}/></r>`;
   const bytes = encoder.encode(xml);
   assert.deepEqual(collectBytes(factory, bytes, Array.from({length:bytes.length}, (_,i)=>i+1)), collectBytes(jsTokenBackendFactory, bytes, []));
+  runResumeCases(factory);
 }
 
 /** Deterministic structures and malformed mutations; failures include a replayable seed/input. */

@@ -56,6 +56,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Performance
 
+- Replaced experimental Wasm per-field ABI calls with a lazy borrowed token
+  view, reused current-token caches, and shared retained name spans. Incremental
+  lexical scanners now resume across byte feeds instead of rescanning complete
+  token prefixes. Added fresh-process byte Reader/converter comparisons; the
+  normal JS backend remains unchanged.
 - Removed per-call chunk-array draining from `WriterSync`/`WriterSyncSink` and
   coalesced each async serializer operation before buffering. This preserves the
   shared `WriterCore` state machine while restoring writer throughput close to

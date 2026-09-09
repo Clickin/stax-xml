@@ -22,11 +22,7 @@ interface RawExports {
   reserve(length: number): number;
   commit(length: number, final: number): number;
   next(): number;
-  fieldPtr(field: number, index: number): number;
-  fieldLen(field: number, index: number): number;
-  attributeCount(): number;
-  selfClosing(): number;
-  declarationStandalone(): number;
+  tokenView(): number;
   lookupNamespace(ptr: number, length: number): void;
   scratch(length: number): number;
   addEntity(
@@ -54,6 +50,7 @@ const EVENT_TYPES: Readonly<Record<number, XmlEventTypeValue>> = {
   8: XmlEventType.PROCESSING_INSTRUCTION,
   9: XmlEventType.DTD,
 };
+const NAME_FIELDS = [0, 2, 3] as const;
 
 const WASM_IMPORTS = {
   env: {
@@ -74,10 +71,17 @@ export class TokenCursorWasm implements TokenCursorSpi {
   private readonly decoder = new TextDecoder("utf-8", { fatal: true });
   private readonly encoder = new TextEncoder();
   private readonly fields: CachedValue[] = new Array(13).fill(UNSET);
+  private readonly fieldPointers: Array<number | undefined> = new Array(13);
+  private readonly fieldLengths: Array<number | undefined> = new Array(13);
   private readonly attributes: Array<CachedValue[] | undefined> = [];
+  private fieldDirtyMask = 0;
+  private attributeDirtyMask = 0;
   private readonly namespaceMemo = new Map<string, string>();
   private raw: RawExports | undefined;
   private memoryBytes: Uint8Array | undefined;
+  private memoryInts: Int32Array | undefined;
+  private tokenViewAddress = 0;
+  private tokenViewReady = false;
   private currentType: XmlEventTypeValue = XmlEventType.START_DOCUMENT;
   private finalInput = false;
   private declarationMemo: XmlDeclaration | undefined | typeof UNSET = UNSET;
@@ -112,6 +116,7 @@ export class TokenCursorWasm implements TokenCursorSpi {
       }
       this.raw = undefined;
       this.memoryBytes = undefined;
+      this.memoryInts = undefined;
       throw error;
     }
   }
@@ -178,7 +183,8 @@ export class TokenCursorWasm implements TokenCursorSpi {
   }
 
   attributeCount(): number {
-    const count = this.raw?.attributeCount() ?? 0;
+    if (!this.raw) return 0;
+    const count = this.headerWord(3);
     return count > 0 ? count : 0;
   }
 
@@ -203,7 +209,8 @@ export class TokenCursorWasm implements TokenCursorSpi {
   }
 
   selfClosing(): boolean {
-    return (this.raw?.selfClosing() ?? 0) !== 0;
+    if (!this.raw) return false;
+    return this.headerWord(4) !== 0;
   }
 
   documentDeclaration(): XmlDeclaration | undefined {
@@ -214,7 +221,7 @@ export class TokenCursorWasm implements TokenCursorSpi {
       return undefined;
     }
     const encoding = this.readField(11, 0);
-    const standalone = this.raw?.declarationStandalone() ?? -1;
+    const standalone = this.headerWord(5);
     const declaration = {
       version: version as "1.0",
       ...(encoding === undefined ? {} : { encoding }),
@@ -240,6 +247,8 @@ export class TokenCursorWasm implements TokenCursorSpi {
       this.throwRawError(raw.errorCode() || -2);
     this.memoryBytes!.set(encoded, address);
     this.fields[12] = UNSET;
+    this.fieldPointers[12] = undefined;
+    this.fieldLengths[12] = undefined;
     raw.lookupNamespace(address, encoded.byteLength);
     this.refreshMemory();
     const value = this.readField(12, 0) ?? "";
@@ -269,6 +278,7 @@ export class TokenCursorWasm implements TokenCursorSpi {
     } finally {
       this.raw = undefined;
       this.memoryBytes = undefined;
+      this.memoryInts = undefined;
       this.finalInput = true;
       this.clearCaches();
     }
@@ -308,50 +318,169 @@ export class TokenCursorWasm implements TokenCursorSpi {
       cache = [];
       this.attributes[slot] = cache;
     }
+    this.attributeDirtyMask |= 1 << slot;
     const value = cache[index];
     if (index in cache && value !== UNSET) return value;
+
+    this.ensureTokenView();
+    let pointer: number;
+    let length: number;
+    let colon = -1;
+    let inputPointer = 0;
+    let nameOffset = 0;
+    let nameLength = 0;
+    if (field <= 7) {
+      inputPointer = this.headerWord(2) >>> 0;
+      nameOffset = this.readI32(this.headerWord(6) >>> 0, index) >>> 0;
+      nameLength = this.readI32(this.headerWord(7) >>> 0, index);
+      colon = this.readI32(this.headerWord(10) >>> 0, index);
+      if (colon < 0 && (field === 5 || field === 6)) {
+        const other = this.attributes[field === 5 ? 1 : 0];
+        if (other && index in other && other[index] !== UNSET) {
+          const decoded = other[index];
+          cache[index] = decoded;
+          return decoded;
+        }
+      }
+    }
+    switch (field) {
+      case 5:
+        pointer = inputPointer + nameOffset;
+        length = nameLength;
+        break;
+      case 6: {
+        if (colon < 0) {
+          pointer = inputPointer + nameOffset;
+          length = nameLength;
+        } else {
+          pointer = inputPointer + colon + 1;
+          length = nameLength - (colon - nameOffset) - 1;
+        }
+        break;
+      }
+      case 7: {
+        pointer = colon < 0 ? 0 : inputPointer + nameOffset;
+        length = colon < 0 ? 0 : colon - nameOffset;
+        break;
+      }
+      case 8:
+        pointer = this.readI32(this.headerWord(11) >>> 0, index) >>> 0;
+        length = this.readI32(this.headerWord(12) >>> 0, index);
+        break;
+      case 9:
+        pointer = this.readI32(this.headerWord(8) >>> 0, index) >>> 0;
+        length = this.readI32(this.headerWord(9) >>> 0, index);
+        break;
+      default:
+        return undefined;
+    }
     cache[index] = UNSET;
-    const decoded = this.readField(field, index);
+    const decoded = this.decodeSpan(pointer, length);
     cache[index] = decoded;
     return decoded;
   }
 
   private readField(field: number, index: number): string | undefined {
-    const cache = index === 0 ? this.fields[field] : undefined;
-    if (index === 0 && cache !== UNSET) return cache;
-    const raw = this.raw;
-    if (!raw) return undefined;
-    const length = raw.fieldLen(field, index);
-    if (length < 0) {
-      if (index === 0) this.fields[field] = undefined;
-      return undefined;
-    }
-    if (length > MAX_I32) throw new RangeError("Wasm span exceeds the 32-bit ABI limit.");
-    const pointer = raw.fieldPtr(field, index);
-    this.refreshMemory();
-    const decoded = this.decoder.decode(
-      this.memoryBytes!.subarray(pointer, pointer + length),
-    );
-    if (index === 0) this.fields[field] = decoded;
+    if (index !== 0) return undefined;
+    const cache = this.fields[field];
+    if (cache !== UNSET) return cache;
+    if (!this.raw) return undefined;
+    this.ensureTokenView();
+    const fieldPointers = this.headerWord(0) >>> 0;
+    const fieldLengths = this.headerWord(1) >>> 0;
+    const length = this.readI32(fieldLengths, field);
+    const pointer =
+      length < 0 ? 0 : this.readI32(fieldPointers, field) >>> 0;
+    const decoded = this.decodeCurrentField(field, pointer, length);
+    this.fields[field] = decoded;
+    this.fieldDirtyMask |= 1 << field;
+    this.fieldPointers[field] = pointer;
+    this.fieldLengths[field] = length;
     return decoded;
   }
 
   private clearCaches(): void {
-    for (let index = 0; index < this.fields.length; index++)
-      this.fields[index] = UNSET;
-    for (const cache of this.attributes) {
-      if (!cache) continue;
-      for (let index = 0; index < cache.length; index++) cache[index] = UNSET;
-    }
-    this.namespaceMemo.clear();
+    for (let field = 0, mask = this.fieldDirtyMask; mask !== 0; field++, mask >>>= 1)
+      if ((mask & 1) !== 0) this.fields[field] = UNSET;
+    this.fieldDirtyMask = 0;
+    for (let slot = 0, mask = this.attributeDirtyMask; mask !== 0; slot++, mask >>>= 1)
+      if ((mask & 1) !== 0) this.attributes[slot]!.length = 0;
+    this.attributeDirtyMask = 0;
+    if (this.namespaceMemo.size !== 0) this.namespaceMemo.clear();
     this.declarationMemo = UNSET;
+    this.tokenViewAddress = 0;
+    this.tokenViewReady = false;
   }
 
   private refreshMemory(): void {
     const memory = this.raw?.memory;
     if (!memory) return;
-    if (!this.memoryBytes || this.memoryBytes.buffer !== memory.buffer)
-      this.memoryBytes = new Uint8Array(memory.buffer);
+    const buffer = memory.buffer;
+    if (!this.memoryBytes || this.memoryBytes.buffer !== buffer) {
+      this.memoryBytes = new Uint8Array(buffer);
+      this.memoryInts = new Int32Array(buffer);
+    }
+  }
+
+  private ensureTokenView(): void {
+    if (this.tokenViewReady) return;
+    const raw = this.requireRaw();
+    const address = raw.tokenView();
+    this.refreshMemory();
+    const memoryInts = this.memoryInts;
+    if (
+      !Number.isInteger(address) ||
+      address <= 0 ||
+      address % 4 !== 0 ||
+      !memoryInts ||
+      address + 13 * 4 > memoryInts.byteLength
+    )
+      throw new Error("WebAssembly tokenizer returned an invalid token view.");
+    this.tokenViewAddress = address;
+    this.tokenViewReady = true;
+  }
+
+  private headerWord(offset: number): number {
+    this.ensureTokenView();
+    return this.memoryInts![(this.tokenViewAddress >>> 2) + offset]!;
+  }
+
+  private readI32(pointer: number, index: number): number {
+    return this.memoryInts![(pointer >>> 2) + index]!;
+  }
+
+  private decodeCurrentField(
+    field: number,
+    pointer: number,
+    length: number,
+  ): string | undefined {
+    if (length < 0) return undefined;
+    if (length > MAX_I32)
+      throw new RangeError("Wasm span exceeds the 32-bit ABI limit.");
+    if (length === 0) return "";
+    if (field === 0 || field === 2 || field === 3) {
+      for (const other of NAME_FIELDS) {
+        if (
+          other !== field &&
+          this.fields[other] !== UNSET &&
+          this.fieldPointers[other] === pointer &&
+          this.fieldLengths[other] === length
+        )
+          return this.fields[other] as string | undefined;
+      }
+    }
+    return this.decodeSpan(pointer, length);
+  }
+
+  private decodeSpan(pointer: number, length: number): string | undefined {
+    if (length < 0) return undefined;
+    if (length > MAX_I32)
+      throw new RangeError("Wasm span exceeds the 32-bit ABI limit.");
+    if (length === 0) return "";
+    // Views refresh after Wasm calls that can grow memory, not between JS getters.
+    return this.decoder.decode(
+      this.memoryBytes!.subarray(pointer, pointer + length),
+    );
   }
 
   private requireRaw(): RawExports {
@@ -394,11 +523,7 @@ function validateExports(exports: WebAssembly.Exports): RawExports {
     "reserve",
     "commit",
     "next",
-    "fieldPtr",
-    "fieldLen",
-    "attributeCount",
-    "selfClosing",
-    "declarationStandalone",
+    "tokenView",
     "lookupNamespace",
     "scratch",
     "addEntity",

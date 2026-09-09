@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from "vitest-pool-assemblyscript/assembly";
 import {
-  initialize, reserve, commit, next, fieldPtr, fieldLen, attributeCount,
-  selfClosing, declarationStandalone, lookupNamespace, scratch, addEntity,
+  initialize, reserve, commit, next, tokenView, lookupNamespace, scratch, addEntity,
   errorCode, errorPosition, errorLen, dispose, inputCapacity,
 } from "../tokenizer";
 
@@ -13,8 +12,59 @@ function push(xml: string, final: bool = true): i32 {
 }
 
 function field(id: i32, index: i32 = 0): string {
-  const length = fieldLen(id, index);
-  return length < 0 ? "<undefined>" : String.UTF8.decodeUnsafe(fieldPtr(id, index), length);
+  const header = tokenView();
+  const fieldPtrs = load<usize>(header);
+  const fieldLens = load<usize>(header + 4);
+  const inputPtr = load<usize>(header + 8);
+  const count = load<i32>(header + 12);
+  if (index < 0 || (id >= 5 && id <= 9 && index >= count)) return "<undefined>";
+  let pointer: usize = 0;
+  let length: i32 = -1;
+  if (id >= 5 && id <= 9) {
+    const offset = <usize>index * 4;
+    const names = load<usize>(header + 24);
+    const nameLens = load<usize>(header + 28);
+    const values = load<usize>(header + 32);
+    const valueLens = load<usize>(header + 36);
+    const colons = load<usize>(header + 40);
+    const uris = load<usize>(header + 44);
+    const uriLens = load<usize>(header + 48);
+    const nameOffset = load<u32>(names + offset);
+    const nameLength = load<i32>(nameLens + offset);
+    const colon = load<i32>(colons + offset);
+    if (id == 5) {
+      pointer = inputPtr + <usize>nameOffset;
+      length = nameLength;
+    } else if (id == 6) {
+      pointer = colon < 0 ? inputPtr + <usize>nameOffset : inputPtr + <usize>(colon + 1);
+      length = colon < 0 ? nameLength : nameLength - (colon - <i32>nameOffset) - 1;
+    } else if (id == 7) {
+      pointer = inputPtr + <usize>nameOffset;
+      length = colon < 0 ? 0 : colon - <i32>nameOffset;
+    } else if (id == 8) {
+      pointer = load<usize>(uris + offset);
+      length = load<i32>(uriLens + offset);
+    } else {
+      pointer = load<usize>(values + offset);
+      length = load<i32>(valueLens + offset);
+    }
+  } else if ((id >= 0 && id <= 4) || (id >= 10 && id <= 12)) {
+    pointer = load<usize>(fieldPtrs + <usize>id * 4);
+    length = load<i32>(fieldLens + <usize>id * 4);
+  }
+  return length < 0 ? "<undefined>" : String.UTF8.decodeUnsafe(pointer, length);
+}
+
+function attributeCount(): i32 {
+  return load<i32>(tokenView() + 12);
+}
+
+function selfClosing(): bool {
+  return load<i32>(tokenView() + 16) != 0;
+}
+
+function declarationStandalone(): i32 {
+  return load<i32>(tokenView() + 20);
 }
 
 function namespaceFor(prefix: string): string {
@@ -66,7 +116,7 @@ describe("raw UTF-8 tokenizer behavior", () => {
     expect(field(0)).toBe("p");
     expect(field(1)).toBe("data");
     expect(next()).toBe(3);
-    expect(selfClosing()).toBe(1);
+    expect(selfClosing()).toBe(true);
     expect(next()).toBe(4);
     expect(field(0)).toBe("x");
     expect(next()).toBe(4);
