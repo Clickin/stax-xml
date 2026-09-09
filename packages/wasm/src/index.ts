@@ -29,10 +29,13 @@ import {
   tokenBackendOf,
   withTokenBackend,
   type TokenBackendFactory,
+  type TokenBatch,
+  type TokenCursor,
+  type TokenAdvanceResult,
+  type TokenFillResult,
   type TokenCursorOptions,
-  type TokenCursorResult,
-  type TokenCursorSpi,
   type TokenInputSessionSpi,
+  type TokenReadView,
   type XmlDeclaration,
 } from "stax-xml/experimental/backend";
 import {
@@ -40,7 +43,7 @@ import {
   type InitWasmOptions,
   type WasmVariant,
 } from "./loader.js";
-import { TokenCursorWasm } from "./TokenCursorWasm.js";
+import { WasmTokenCursor } from "./WasmTokenCursor.js";
 import { TokenCursorWasmError } from "./errors.js";
 import {
   WasmTokenInputSession,
@@ -92,10 +95,13 @@ export type {
   StreamReaderSyncInput,
   StreamReaderSyncOptions,
   TokenBackendFactory,
+  TokenBatch,
+  TokenCursor,
+  TokenAdvanceResult,
+  TokenFillResult,
   TokenCursorOptions,
-  TokenCursorResult,
-  TokenCursorSpi,
   TokenInputSessionSpi,
+  TokenReadView,
   WasmVariant,
   XmlDeclaration,
 };
@@ -105,7 +111,7 @@ export {
   tokenBackendFactorySymbol,
   tokenBackendOf,
   withTokenBackend,
-  TokenCursorWasm,
+  WasmTokenCursor,
   TokenCursorWasmError,
   WasmTokenInputSession,
   XmlEventType,

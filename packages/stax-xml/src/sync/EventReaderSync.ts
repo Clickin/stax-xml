@@ -1,5 +1,5 @@
 import { materializeTokenEvent, type AnyXmlEvent } from '@stax-xml/core';
-import { StreamReaderSync, tokenCursorOf, type StreamReaderSyncInput, type StreamReaderSyncOptions } from './StreamReaderSync.js';
+import { StreamReaderSync, tokenViewOf, type StreamReaderSyncInput, type StreamReaderSyncOptions } from './StreamReaderSync.js';
 
 /** Options for the synchronous materialized-event reader. */
 export interface EventReaderSyncOptions extends StreamReaderSyncOptions {}
@@ -28,5 +28,5 @@ export class EventReaderSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEv
 }
 
 function materialize(reader: StreamReaderSync, type = reader.eventType()): AnyXmlEvent {
-  return materializeTokenEvent(tokenCursorOf(reader), type);
+  return materializeTokenEvent(tokenViewOf(reader), type);
 }

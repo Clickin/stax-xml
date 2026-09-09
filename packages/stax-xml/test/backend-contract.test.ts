@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { TokenCursor } from '../src/core/TokenCursor.js';
+import { JsTokenCursor as TokenCursor } from '../src/core/js/JsTokenCursor.js';
 import { StreamReaderSync } from '../src/sync/StreamReaderSync.js';
 import { x } from '../src/converter/converter/index.js';
 import {
@@ -38,7 +38,7 @@ it('distinguishes missing attributes from raw values and namespace matches', () 
   reader.close();
 });
 
-it('ignores malformed backend extensions but honors a complete backend', () => {
+it('rejects malformed backend extensions but honors a complete backend', () => {
   const parser = x.string('/r');
   for (const backend of [
     1,
@@ -49,7 +49,7 @@ it('ignores malformed backend extensions but honors a complete backend', () => {
       encoding: 'utf-8',
       [tokenBackendFactorySymbol]: backend,
     };
-    expect(parser.parseSync('<r>JS</r>', options)).toBe('JS');
+    expect(() => parser.parseSync('<r>JS</r>', options)).toThrow(/version 2/i);
   }
   const backend: TokenBackendFactory = {
     ...jsTokenBackendFactory,

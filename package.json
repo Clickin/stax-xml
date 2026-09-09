@@ -26,6 +26,7 @@
     "docs:preview": "pnpm --filter=stax-xml-docs preview",
     "docs:snapshot:release": "pnpm --filter=stax-xml-docs snapshot:release",
     "benchmark": "pnpm --filter=benchmark dev:bench:all",
+    "benchmark:token-batch": "node --expose-gc packages/benchmark/token-batch.mjs",
     "benchmark:release": "pnpm --filter=benchmark run release:expanded",
     "benchmark:wasm": "node --expose-gc packages/benchmark/wasm-backend.mjs"
   },

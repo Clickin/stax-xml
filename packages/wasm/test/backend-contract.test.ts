@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   EventReaderSync,
-  TokenCursorWasm,
+  WasmTokenCursor,
   XmlEventType,
   initWasm,
   jsTokenBackendFactory,
@@ -9,6 +9,7 @@ import {
   wasmTokenBackendFactory,
 } from "@stax-xml/wasm";
 import { x } from "stax-xml/converter";
+import { TokenCursorConsumer } from "@stax-xml/core";
 import {
   runBackendContract,
   runDifferentialFuzz,
@@ -18,95 +19,6 @@ import {
 const variants = ["scalar", "simd"] as const;
 const encoder = new TextEncoder();
 
-interface RawTokenizer {
-  memory: WebAssembly.Memory;
-  initialize(documentMode: number, namespaceAware: number, autoDecode: number): void;
-  reserve(length: number): number;
-  commit(length: number, final: number): number;
-  next(): number;
-  tokenView(): number;
-  lookupNamespace(ptr: number, length: number): void;
-  scratch(length: number): number;
-  dispose(): void;
-}
-
-function rawSpan(raw: RawTokenizer, field: number, index: number): string | undefined {
-  const header = raw.tokenView();
-  const view = new DataView(raw.memory.buffer);
-  const word = (index: number) => view.getUint32(header + index * 4, true);
-  const u32 = (pointer: number, index: number) =>
-    view.getUint32(pointer + index * 4, true);
-  const i32 = (pointer: number, index: number) =>
-    view.getInt32(pointer + index * 4, true);
-  const fieldPtrs = word(0);
-  const fieldLens = word(1);
-  const inputPtr = word(2);
-  const attributeCount = word(3);
-  if (index < 0 || (field >= 5 && field <= 9 && index >= attributeCount))
-    return undefined;
-  let pointer: number;
-  let length: number;
-  if (field >= 5 && field <= 9) {
-    const attrNames = word(6);
-    const attrNameLens = word(7);
-    const attrValues = word(8);
-    const attrValueLens = word(9);
-    const attrColons = word(10);
-    const attrUris = word(11);
-    const attrUriLens = word(12);
-    switch (field) {
-      case 5:
-        pointer = inputPtr + u32(attrNames, index);
-        length = i32(attrNameLens, index);
-        break;
-      case 6: {
-        const nameOffset = u32(attrNames, index);
-        const nameLength = i32(attrNameLens, index);
-        const colon = i32(attrColons, index);
-        pointer = inputPtr + (colon < 0 ? nameOffset : colon + 1);
-        length = colon < 0 ? nameLength : nameLength - (colon - nameOffset) - 1;
-        break;
-      }
-      case 7: {
-        const nameOffset = u32(attrNames, index);
-        const colon = i32(attrColons, index);
-        pointer = inputPtr + nameOffset;
-        length = colon < 0 ? 0 : colon - nameOffset;
-        break;
-      }
-      case 8:
-        pointer = u32(attrUris, index);
-        length = i32(attrUriLens, index);
-        break;
-      default:
-        pointer = u32(attrValues, index);
-        length = i32(attrValueLens, index);
-        break;
-    }
-  } else {
-    if (field < 0 || (field > 4 && field < 10) || field > 12)
-      return undefined;
-    pointer = u32(fieldPtrs, field);
-    length = i32(fieldLens, field);
-  }
-  if (length < 0) return undefined;
-  return new TextDecoder().decode(
-    new Uint8Array(raw.memory.buffer, pointer, length),
-  );
-}
-
-function rawAttributeCount(raw: RawTokenizer): number {
-  return new Int32Array(raw.memory.buffer, raw.tokenView() + 12, 1)[0]!;
-}
-
-function rawSelfClosing(raw: RawTokenizer): boolean {
-  return new Int32Array(raw.memory.buffer, raw.tokenView() + 16, 1)[0]! !== 0;
-}
-
-function rawDeclarationStandalone(raw: RawTokenizer): number {
-  return new Int32Array(raw.memory.buffer, raw.tokenView() + 20, 1)[0]!;
-}
-
 it("switches scalar/SIMD assets while caching each compiled variant", async () => {
   const scalar = await initWasm({ variant: "scalar" });
   const simd = await initWasm({ variant: "simd" });
@@ -115,42 +27,24 @@ it("switches scalar/SIMD assets while caching each compiled variant", async () =
 });
 
 describe.each(variants)("compiled WASM %s backend", (variant) => {
-  it("keeps the raw ABI incremental and exposes tokenView spans", async () => {
+  it("exposes the numeric batch ABI and control block", async () => {
     const module = await initWasm({ variant });
     const raw = new WebAssembly.Instance(module, {
       env: { abort() { throw new Error("AssemblyScript abort"); } },
-    }).exports as unknown as RawTokenizer;
+    }).exports as Record<string, any>;
     try {
-      raw.initialize(0, 1, 1);
-      const first = encoder.encode("<r");
-      let pointer = raw.reserve(first.byteLength);
+      expect(raw.abiVersion()).toBe(2);
+      const control = raw.initialize(0, 1, 1);
+      const first = encoder.encode("<r>text</r>");
+      const pointer = raw.reserve(first.byteLength);
       new Uint8Array(raw.memory.buffer).set(first, pointer);
-      expect(raw.commit(first.byteLength, 0)).toBe(0);
-      expect(raw.next()).toBe(1);
-      expect(rawDeclarationStandalone(raw)).toBe(-1);
-      expect(raw.next()).toBe(-1);
-
-      const second = encoder.encode(
-        ' xmlns:p="urn:p" p:id="7"/>',
-      );
-      pointer = raw.reserve(second.byteLength);
-      new Uint8Array(raw.memory.buffer).set(second, pointer);
-      expect(raw.commit(second.byteLength, 1)).toBe(0);
-      expect(raw.next()).toBe(3);
-      expect(rawAttributeCount(raw)).toBe(2);
-      expect(rawSelfClosing(raw)).toBe(true);
-      expect(rawSpan(raw, 0, 0)).toBe("r");
-      expect(rawSpan(raw, 5, 0)).toBe("xmlns:p");
-      expect(rawSpan(raw, 9, 1)).toBe("7");
-
-      const prefix = encoder.encode("p");
-      const scratch = raw.scratch(prefix.byteLength);
-      new Uint8Array(raw.memory.buffer).set(prefix, scratch);
-      raw.lookupNamespace(scratch, prefix.byteLength);
-      expect(rawSpan(raw, 12, 0)).toBe("urn:p");
-      expect(raw.next()).toBe(4);
-      expect(raw.next()).toBe(2);
-      expect(raw.next()).toBe(0);
+      expect(raw.commit(first.byteLength, 1)).toBe(0);
+      expect(raw.nextBatch(0, 1, 1024, 65536, 262144)).toBe(1);
+      const view = new DataView(raw.memory.buffer);
+      const tokenPtr = view.getUint32(control + 32, true);
+      expect(view.getUint32(tokenPtr, true)).toBe(1);
+      expect(raw.nextBatch(1, 128, 1024, 65536, 262144)).toBe(4);
+      expect(view.getUint32(control + 24, true)).toBe(4);
     } finally {
       raw.dispose();
     }
@@ -221,7 +115,9 @@ describe.each(variants)("compiled WASM %s backend", (variant) => {
 
   it("keeps changing attribute layouts and namespace aliases coherent", async () => {
     await initWasm({ variant });
-    const cursor = new TokenCursorWasm();
+    const cursor = new WasmTokenCursor();
+    const consumer = new TokenCursorConsumer(cursor);
+
     const xml =
       '<root xmlns:p="urn:outer" p:wide="wide" p:empty="" plain="">' +
       '<p:inner xmlns:p="urn:inner"><p:none/><p:leaf p:id=""/></p:inner>' +
@@ -377,7 +273,7 @@ describe.each(variants)("compiled WASM %s backend", (variant) => {
 
   it("keeps stale memory views valid after linear-memory growth", async () => {
     await initWasm({ variant });
-    const cursor = new TokenCursorWasm();
+    const cursor = new WasmTokenCursor();
     const text = "é".repeat(1_000_000);
     const input = encoder.encode(`<r>${text}</r>`);
     try {

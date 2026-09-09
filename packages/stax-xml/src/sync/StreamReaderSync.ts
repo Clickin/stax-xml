@@ -1,11 +1,13 @@
 import {
   NEED_INPUT,
   attributeValueOf,
+  TokenCursorConsumer,
   tokenBackendOf,
   withTokenBackend,
   type DocumentMode,
   type TokenBackendFactory,
-  type TokenCursorSpi,
+  type TokenCursor,
+  type TokenReadView,
   type TokenInputSessionSpi,
   type XmlEventType,
 } from "@stax-xml/core";
@@ -26,13 +28,16 @@ export interface StreamReaderSyncOptions {
 }
 const BYTE_CHUNK_SIZE = 64 * 1024;
 const EMPTY_BYTES = new Uint8Array(0);
+const readerViews = new WeakMap<StreamReaderSync, TokenReadView>();
 
 /**
  * Synchronous current-token reader. Strings are scanned directly without
  * encoding; byte inputs are decoded in fatal mode with the configured encoding.
  */
 export class StreamReaderSync {
-  private readonly cursor: TokenCursorSpi;
+  private readonly producer: TokenCursor;
+  private readonly consumer: TokenCursorConsumer;
+  private readonly view: TokenReadView;
   private readonly session: TokenInputSessionSpi | undefined;
   private iterator: Iterator<Uint8Array> | undefined;
   private closed = false;
@@ -43,15 +48,15 @@ export class StreamReaderSync {
   ) {
     const backend = tokenBackendOf(options);
     if (typeof input === "string") {
-      this.cursor = backend.createStringCursor(input, options);
+      this.producer = backend.createStringCursor(input, options);
       this.session = undefined;
     } else if (input instanceof Uint8Array) {
       this.session = backend.createByteSession(byteOptions(options, backend));
-      this.cursor = this.session.cursor;
+      this.producer = this.session.cursor;
       this.iterator = fixedByteChunks(input);
     } else {
       this.session = backend.createByteSession(byteOptions(options, backend));
-      this.cursor = this.session.cursor;
+      this.producer = this.session.cursor;
       // Re-batch caller-supplied byte chunks up to BYTE_CHUNK_SIZE before decoding.
       // Tiny chunks (e.g. per-row iterables, small stream frames) otherwise pay
       // a full backend push round-trip per few bytes; batching recovers that
@@ -61,6 +66,9 @@ export class StreamReaderSync {
         BYTE_CHUNK_SIZE,
       );
     }
+    this.consumer = new TokenCursorConsumer(this.producer);
+    this.view = this.consumer.current;
+    readerViews.set(this, this.view);
   }
 
   /** Advance to the next token, or return `null` at end of input. */
@@ -68,7 +76,7 @@ export class StreamReaderSync {
     if (this.closed) return null;
     try {
       while (true) {
-        const result = this.cursor.next();
+        const result = this.consumer.next();
         if (result !== NEED_INPUT) return result;
         const part = this.iterator!.next();
         if (part.done) this.session!.pushBytes(EMPTY_BYTES, true);
@@ -87,66 +95,67 @@ export class StreamReaderSync {
   close(): void {
     if (this.closed) return;
     this.closed = true;
+    this.consumer.close();
     if (this.session) this.session.dispose();
-    else this.cursor.dispose();
+    else this.producer.dispose();
     const iterator = this.iterator;
     this.iterator = undefined;
     iterator?.return?.();
   }
   /** Return the current token type. */
   eventType(): XmlEventType {
-    return this.cursor.eventType();
+    return this.view.eventType();
   }
   /** Return the current element's qualified name. */
   name(): string | undefined {
-    return this.cursor.name();
+    return this.view.name();
   }
   /** Return text carried by the current text-like token. */
   text(): string | undefined {
-    return this.cursor.text();
+    return this.view.text();
   }
   /** Return the current element's local name. */
   localName(): string | undefined {
-    return this.cursor.localName();
+    return this.view.localName();
   }
   /** Return the current element's namespace prefix, or an empty string. */
   prefix(): string {
-    return this.cursor.prefix();
+    return this.view.prefix();
   }
   /** Return the namespace URI resolved for the current element. */
   namespaceURI(): string {
-    return this.cursor.namespaceURI();
+    return this.view.namespaceURI();
   }
   /** Return the number of attributes on the current start element. */
   attributeCount(): number {
-    return this.cursor.attributeCount();
+    return this.view.attributeCount();
   }
   /** Return an attribute's qualified name by zero-based index. */
   attributeName(index: number): string | undefined {
-    return this.cursor.attributeName(index);
+    return this.view.attributeName(index);
   }
   /** Return an attribute's local name by zero-based index. */
   attributeLocalName(index: number): string | undefined {
-    return this.cursor.attributeLocalName(index);
+    return this.view.attributeLocalName(index);
   }
   /** Return an attribute's namespace prefix by zero-based index. */
   attributePrefix(index: number): string | undefined {
-    return this.cursor.attributePrefix(index);
+    return this.view.attributePrefix(index);
   }
   /** Return an attribute's namespace URI by zero-based index. */
   attributeNamespaceURI(index: number): string | undefined {
-    return this.cursor.attributeNamespaceURI(index);
+    return this.view.attributeNamespaceURI(index);
   }
   /** Return an attribute value by index, qualified name, or namespace URI plus local name. */
   attributeValue(
     indexOrNameOrNamespace: number | string,
     localName?: string,
   ): string | undefined {
-    return attributeValueOf(this.cursor, indexOrNameOrNamespace, localName);
+    return attributeValueOf(this.view, indexOrNameOrNamespace, localName);
   }
   /** Resolve a namespace prefix in the current element scope. */
   namespaceURIForPrefix(prefix: string): string {
-    return this.cursor.namespaceURIForPrefix(prefix);
+    return this.view.namespaceURIForPrefix(prefix);
   }
 }
 
@@ -241,6 +250,6 @@ function byteOptions(
 }
 
 /** @internal */
-export function tokenCursorOf(reader: StreamReaderSync): TokenCursorSpi {
-  return (reader as unknown as { cursor: TokenCursorSpi }).cursor;
+export function tokenViewOf(reader: StreamReaderSync): TokenReadView {
+  return readerViews.get(reader)!;
 }

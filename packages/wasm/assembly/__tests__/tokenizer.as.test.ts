@@ -1,8 +1,90 @@
 import { afterEach, beforeEach, describe, expect, test } from "vitest-pool-assemblyscript/assembly";
 import {
-  initialize, reserve, commit, next, tokenView, lookupNamespace, scratch, addEntity,
-  errorCode, errorPosition, errorLen, dispose, inputCapacity,
+  initialize as initializeWasm, reserve, commit, nextBatch, scratch, addEntity,
+  dispose,
 } from "../tokenizer";
+
+const TOKEN_STRIDE: usize = 80;
+const ATTRIBUTE_STRIDE: usize = 48;
+let control: usize = 0;
+let activeSlot: i32 = 1;
+let activeCount: i32 = 0;
+let activeIndex: i32 = -1;
+let firstBatch: bool = true;
+let activeTokenPtr: usize = 0;
+let activeAttrPtr: usize = 0;
+
+function reset(mode: i32 = 0, nsAware: i32 = 1, decode: i32 = 1): void {
+  control = <usize>initializeWasm(mode, nsAware, decode);
+  activeSlot = 1;
+  activeCount = 0;
+  activeIndex = -1;
+  firstBatch = true;
+  activeTokenPtr = 0;
+  activeAttrPtr = 0;
+}
+
+function controlWord(word: i32): i32 {
+  return load<i32>(control + <usize>word * 4);
+}
+
+function currentRecord(): usize {
+  return activeTokenPtr + <usize>activeIndex * TOKEN_STRIDE;
+}
+
+function span(pointer: usize, length: i32): string {
+  return length < 0 ? "<undefined>" : String.UTF8.decodeUnsafe(pointer, length);
+}
+
+function field(id: i32, index: i32 = 0): string {
+  const record = currentRecord();
+  let pointer: usize = 0;
+  let length: i32 = -1;
+  if (id >= 0 && id <= 4) {
+    pointer = load<usize>(record + <usize>(4 + id * 2) * 4);
+    length = load<i32>(record + <usize>(5 + id * 2) * 4);
+  } else if (id >= 5 && id <= 9) {
+    const count = load<i32>(record + 12);
+    if (index < 0 || index >= count) return "<undefined>";
+    const attr = activeAttrPtr + <usize>(load<i32>(record + 8) + index) * ATTRIBUTE_STRIDE;
+    const word = id == 5 ? 0 : id == 9 ? 2 : id == 6 ? 4 : id == 7 ? 6 : 8;
+    pointer = load<usize>(attr + <usize>word * 4);
+    length = load<i32>(attr + <usize>(word + 1) * 4);
+  } else if (id == 10 || id == 11) {
+    const declaration = load<usize>(record + 60);
+    if (declaration == 0) return "<undefined>";
+    const word = id == 10 ? 0 : 2;
+    pointer = load<usize>(declaration + <usize>word * 4);
+    length = load<i32>(declaration + <usize>(word + 1) * 4);
+  }
+  return span(pointer, length);
+}
+
+function attributeCount(): i32 { return load<i32>(currentRecord() + 12); }
+function selfClosing(): bool { return (load<i32>(currentRecord() + 4) & 1) != 0; }
+function declarationStandalone(): i32 {
+  const declaration = load<usize>(currentRecord() + 60);
+  return declaration == 0 ? -1 : load<i32>(declaration + 16);
+}
+function namespaceFor(prefix: string): string {
+  const bytes = String.UTF8.encode(prefix);
+  const bytesPtr = changetype<usize>(bytes);
+  let node = <usize>load<i32>(currentRecord() + 56);
+  while (node != 0) {
+    const length = load<i32>(node + 12);
+    if (length == bytes.byteLength) {
+      let equal = true;
+      for (let i = 0; i < length; i++) if (load<u8>(load<usize>(node + 8) + <usize>i) != load<u8>(bytesPtr + <usize>i)) equal = false;
+      if (equal) return String.UTF8.decodeUnsafe(load<usize>(node + 16), load<i32>(node + 20));
+    }
+    node = load<usize>(node);
+  }
+  return "";
+}
+function errorCode(): i32 { return controlWord(11); }
+function errorPosition(): i32 { return controlWord(12); }
+function errorLen(): i32 { return controlWord(14); }
+function inputCapacity(): i32 { return controlWord(15); }
 
 function push(xml: string, final: bool = true): i32 {
   const bytes = String.UTF8.encode(xml);
@@ -11,68 +93,23 @@ function push(xml: string, final: bool = true): i32 {
   return commit(bytes.byteLength, final ? 1 : 0);
 }
 
-function field(id: i32, index: i32 = 0): string {
-  const header = tokenView();
-  const fieldPtrs = load<usize>(header);
-  const fieldLens = load<usize>(header + 4);
-  const inputPtr = load<usize>(header + 8);
-  const count = load<i32>(header + 12);
-  if (index < 0 || (id >= 5 && id <= 9 && index >= count)) return "<undefined>";
-  let pointer: usize = 0;
-  let length: i32 = -1;
-  if (id >= 5 && id <= 9) {
-    const offset = <usize>index * 4;
-    const names = load<usize>(header + 24);
-    const nameLens = load<usize>(header + 28);
-    const values = load<usize>(header + 32);
-    const valueLens = load<usize>(header + 36);
-    const colons = load<usize>(header + 40);
-    const uris = load<usize>(header + 44);
-    const uriLens = load<usize>(header + 48);
-    const nameOffset = load<u32>(names + offset);
-    const nameLength = load<i32>(nameLens + offset);
-    const colon = load<i32>(colons + offset);
-    if (id == 5) {
-      pointer = inputPtr + <usize>nameOffset;
-      length = nameLength;
-    } else if (id == 6) {
-      pointer = colon < 0 ? inputPtr + <usize>nameOffset : inputPtr + <usize>(colon + 1);
-      length = colon < 0 ? nameLength : nameLength - (colon - <i32>nameOffset) - 1;
-    } else if (id == 7) {
-      pointer = inputPtr + <usize>nameOffset;
-      length = colon < 0 ? 0 : colon - <i32>nameOffset;
-    } else if (id == 8) {
-      pointer = load<usize>(uris + offset);
-      length = load<i32>(uriLens + offset);
-    } else {
-      pointer = load<usize>(values + offset);
-      length = load<i32>(valueLens + offset);
-    }
-  } else if ((id >= 0 && id <= 4) || (id >= 10 && id <= 12)) {
-    pointer = load<usize>(fieldPtrs + <usize>id * 4);
-    length = load<i32>(fieldLens + <usize>id * 4);
+function next(): i32 {
+  if (activeIndex + 1 < activeCount) {
+    activeIndex++;
+    return load<i32>(currentRecord());
   }
-  return length < 0 ? "<undefined>" : String.UTF8.decodeUnsafe(pointer, length);
-}
-
-function attributeCount(): i32 {
-  return load<i32>(tokenView() + 12);
-}
-
-function selfClosing(): bool {
-  return load<i32>(tokenView() + 16) != 0;
-}
-
-function declarationStandalone(): i32 {
-  return load<i32>(tokenView() + 20);
-}
-
-function namespaceFor(prefix: string): string {
-  const bytes = String.UTF8.encode(prefix);
-  const ptr = scratch(bytes.byteLength);
-  memory.copy(ptr, changetype<usize>(bytes), bytes.byteLength);
-  lookupNamespace(ptr, bytes.byteLength);
-  return field(12);
+  const slot = activeSlot == 0 ? 1 : 0;
+  const result = nextBatch(slot, firstBatch ? 1 : 128, 1024, 65536, 262144);
+  if (result > 0) {
+    activeSlot = slot;
+    activeCount = result;
+    activeIndex = 0;
+    activeTokenPtr = <usize>controlWord(8);
+    activeAttrPtr = <usize>controlWord(9);
+    firstBatch = false;
+    return load<i32>(currentRecord());
+  }
+  return result;
 }
 
 function drain(): string {
@@ -82,15 +119,13 @@ function drain(): string {
     if (type == -1 || type == 0) break;
     expect(type).toBeGreaterThan(0);
     result += type.toString() + ":" + field(0) + ":" + field(1) + ":" + field(4);
-    for (let i = 0; i < attributeCount(); i++) {
-      result += ":" + field(5, i) + "=" + field(9, i) + "@" + field(8, i);
-    }
+    for (let i = 0; i < attributeCount(); i++) result += ":" + field(5, i) + "=" + field(9, i) + "@" + field(8, i);
     result += "\n";
   }
   return result;
 }
 
-beforeEach(() => initialize(0, 1, 1));
+beforeEach(() => reset());
 afterEach(() => dispose());
 
 describe("raw UTF-8 tokenizer behavior", () => {
@@ -131,7 +166,7 @@ describe("raw UTF-8 tokenizer behavior", () => {
     const expected = drain();
     const bytes = String.UTF8.encode(xml);
     for (let cut = 0; cut <= bytes.byteLength; cut++) {
-      dispose(); initialize(0, 1, 1);
+      dispose(); reset(0, 1, 1);
       let ptr = reserve(cut);
       memory.copy(ptr, changetype<usize>(bytes), cut);
       expect(commit(cut, 0)).toBe(0);
@@ -180,7 +215,7 @@ describe("raw UTF-8 tokenizer behavior", () => {
   });
 
   test("raw entity mode and namespace-unaware names stay intact", () => {
-    dispose(); initialize(0, 0, 0);
+    dispose(); reset(0, 0, 0);
     expect(push('<a:b q:r="&amp;&#65;">&lt;&#x41;</a:b>')).toBe(0);
     expect(next()).toBe(1);
     expect(next()).toBe(3);
@@ -195,14 +230,14 @@ describe("raw UTF-8 tokenizer behavior", () => {
     for (let offset = 0; offset < 32; offset++) {
       const prefix = "x".repeat(offset);
       const suffix = "y".repeat(32 - offset);
-      dispose(); initialize(0, 1, 1);
+      dispose(); reset(0, 1, 1);
       expect(push("<r>" + prefix + "&amp;😀" + suffix + "</r>")).toBe(0);
       expect(next()).toBe(1);
       expect(next()).toBe(3);
       expect(next()).toBe(5);
       expect(field(1)).toBe(prefix + "&😀" + suffix);
 
-      dispose(); initialize(0, 1, 1);
+      dispose(); reset(0, 1, 1);
       expect(push("<r>" + prefix + "\u0000" + suffix + "</r>")).toBe(0);
       expect(next()).toBe(1);
       expect(next()).toBe(3);
@@ -213,7 +248,7 @@ describe("raw UTF-8 tokenizer behavior", () => {
   test("malformed XML and UTF-8 return errors rather than successful EOF", () => {
     const invalid = ["<r>", "<r></x>", '<r a="1" a="2"/>', "<p:r/>", "<r>&missing;</r>", "<r>&#0;</r>", "<!--a--b-->", "<!--a--->", "<r><![CDATA[x</r>"];
     for (let i = 0; i < invalid.length; i++) {
-      dispose(); initialize(0, 1, 1);
+      dispose(); reset(0, 1, 1);
       const committed = push(invalid[i]);
       let type = committed;
       if (committed == 0) {
@@ -224,7 +259,7 @@ describe("raw UTF-8 tokenizer behavior", () => {
       expect(errorLen()).toBeGreaterThan(0);
       expect(errorPosition()).toBeGreaterThanOrEqual(0);
     }
-    dispose(); initialize(0, 1, 1);
+    dispose(); reset(0, 1, 1);
     const ptr = reserve(3);
     store<u8>(ptr, 0xed); store<u8>(ptr + 1, 0xa0); store<u8>(ptr + 2, 0x80);
     expect(commit(3, 1)).toBe(-2);
@@ -234,7 +269,7 @@ describe("raw UTF-8 tokenizer behavior", () => {
   test("document mode rejects a second root while fragments accept it", () => {
     expect(push("<a/><b/>")).toBe(0);
     expect(drain()).toContain("3:b:");
-    dispose(); initialize(1, 1, 1);
+    dispose(); reset(1, 1, 1);
     expect(push("<a/><b/>")).toBe(0);
     let type: i32;
     do { type = next(); } while (type > 0);

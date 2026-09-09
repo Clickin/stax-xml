@@ -5,7 +5,7 @@ import {
   type EventAttributes,
   type XmlEventType as XmlEventTypeValue,
 } from "../types.js";
-import type { TokenCursorSpi } from "../TokenCursorSpi.js";
+import type { TokenReadView } from "../TokenCursor.js";
 
 class MaterializedEventAttributes
   extends Map<string, EventAttribute>
@@ -18,7 +18,7 @@ class MaterializedEventAttributes
 
 /** @internal Materialize one stable event from the cursor's current token. */
 export function materializeTokenEvent(
-  cursor: TokenCursorSpi,
+  cursor: TokenReadView,
   type: XmlEventTypeValue = cursor.eventType(),
 ): AnyXmlEvent {
   let name: string | undefined;

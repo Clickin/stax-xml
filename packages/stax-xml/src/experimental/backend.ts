@@ -12,8 +12,11 @@ export {
 export type {
   TokenBackendFactory,
   TokenCursorOptions,
-  TokenCursorResult,
-  TokenCursorSpi,
+  TokenCursor,
+  TokenAdvanceResult,
+  TokenFillResult,
   TokenInputSessionSpi,
+  TokenReadView,
+  TokenBatch,
   XmlDeclaration,
 } from "@stax-xml/core";

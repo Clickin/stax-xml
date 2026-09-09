@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { NEED_INPUT, TokenCursor, XmlEventType } from '@stax-xml/core';
+import { NEED_INPUT, JsTokenCursor as TokenCursor, XmlEventType } from '@stax-xml/core';
 
 function collect(xml: string, chunkSize?: number): unknown[][] {
   const cursor = chunkSize === undefined

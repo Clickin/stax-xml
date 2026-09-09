@@ -3,10 +3,10 @@ import {
   withTokenBackend,
   type TokenBackendFactory,
   type TokenCursorOptions,
-  type TokenCursorSpi,
+  type TokenCursor,
   type TokenInputSessionSpi,
 } from "stax-xml/experimental/backend";
-import { TokenCursorWasm } from "./TokenCursorWasm.js";
+import { WasmTokenCursor } from "./WasmTokenCursor.js";
 import { initializedWasmModule } from "./loader.js";
 
 export type WasmTokenInputOptions = TokenCursorOptions & {
@@ -17,7 +17,7 @@ export type WasmTokenInputOptions = TokenCursorOptions & {
  * Byte session that forwards UTF-8 chunks directly to one Wasm cursor.
  */
 export class WasmTokenInputSession implements TokenInputSessionSpi {
-  readonly cursor: TokenCursorWasm;
+  readonly cursor: WasmTokenCursor;
 
   constructor(
     options: Partial<WasmTokenInputOptions> = {},
@@ -30,7 +30,7 @@ export class WasmTokenInputSession implements TokenInputSessionSpi {
       throw new RangeError(
         `WasmTokenInputSession only accepts UTF-8, got ${options.encoding}.`,
       );
-    this.cursor = new TokenCursorWasm(options, module);
+    this.cursor = new WasmTokenCursor(options, module);
   }
 
   pushBytes(bytes: Uint8Array, final = false): void {
@@ -47,7 +47,8 @@ export class WasmTokenInputSession implements TokenInputSessionSpi {
  * strings and all other TextDecoder labels retain the JS implementation.
  */
 export const wasmTokenBackendFactory: TokenBackendFactory = {
-  createStringCursor(input: string, options: TokenCursorOptions): TokenCursorSpi {
+  apiVersion: 2,
+  createStringCursor(input: string, options: TokenCursorOptions): TokenCursor {
     return jsTokenBackendFactory.createStringCursor(input, options);
   },
   createByteSession(options: WasmTokenInputOptions): TokenInputSessionSpi {

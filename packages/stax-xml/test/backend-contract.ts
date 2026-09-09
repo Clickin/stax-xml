@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {
   NEED_INPUT, jsTokenBackendFactory,
-  type TokenBackendFactory, type TokenCursorSpi, type TokenCursorOptions,
+  type TokenBackendFactory, type TokenCursorOptions, type TokenReadView,
 } from '../src/experimental/backend.js';
 
 export const contractDocuments = [
@@ -35,7 +35,7 @@ export const invalidDocuments = [
   '<̳/>', '<×/>', '<\u{f0000}/>', '<\ufffe/>',
 ];
 
-export function snapshot(cursor: TokenCursorSpi): unknown {
+export function snapshot(cursor: TokenReadView): unknown {
   return {
     type: cursor.eventType(), name: cursor.name(), text: cursor.text(),
     localName: cursor.localName(), prefix: cursor.prefix(), uri: cursor.namespaceURI(),
@@ -57,7 +57,7 @@ export function collectBytes(factory: TokenBackendFactory, bytes: Uint8Array, cu
     let cut = 0;
     let final = false;
     for (;;) {
-      const result = session.cursor.next();
+      const result = session.cursor.fillBatch();
       if (result === NEED_INPUT) {
         assert.equal(final, false, 'backend requested input after final');
         const end = cuts[cut++] ?? bytes.length;
@@ -67,9 +67,12 @@ export function collectBytes(factory: TokenBackendFactory, bytes: Uint8Array, cu
       } else if (result === null) {
         return {tokens};
       } else {
-        const token = snapshot(session.cursor);
-        assert.deepEqual(snapshot(session.cursor), token, 'repeated access must be stable');
-        tokens.push(token);
+        for (let index = 0; index < result; index++) {
+          session.cursor.batch.select(index);
+          const token = snapshot(session.cursor.batch.current);
+          assert.deepEqual(snapshot(session.cursor.batch.current), token, 'repeated access must be stable');
+          tokens.push(token);
+        }
       }
     }
   } catch (error) {

@@ -1,8 +1,10 @@
 import {
   NEED_INPUT,
+  TokenCursorConsumer,
   attributeValueOf,
   tokenBackendOf,
-  type TokenCursorSpi,
+  type TokenCursor,
+  type TokenReadView,
   type TokenInputSessionSpi,
   XmlEventType,
 } from "@stax-xml/core";
@@ -101,7 +103,8 @@ type RuntimeState = {
   captures: CaptureState[];
   positionScopes?: Array<Map<string, number>>;
   currentAttributes?: Record<string, string>;
-  currentTokenCursor?: TokenCursorSpi;
+  currentTokenConsumer?: TokenCursorConsumer;
+  currentTokenView?: TokenReadView;
   attributeLookupCount: number;
   attributeLookupCache?: Record<string, string | undefined>;
   processingStart?: boolean;
@@ -124,7 +127,7 @@ type EndExecutor = (
 type CursorExecutor = (
   processor: CompiledRootProcessor,
   runtime: RuntimeState,
-  cursor: TokenCursorSpi,
+  cursor: TokenCursor,
 ) => void;
 type StartConstant =
   | DispatchValuePlan
@@ -392,22 +395,26 @@ export class CompiledRootProcessor {
 
   private drainIncrementalCursor(
     runtime: RuntimeState,
-    cursor: TokenCursorSpi,
+    cursor: TokenCursor,
   ): void {
     this.cursorExecutor(this, runtime, cursor);
   }
 
-  private processCursor(runtime: RuntimeState, cursor: TokenCursorSpi): void {
+  private processCursor(runtime: RuntimeState, cursor: TokenCursor): void {
+    const consumer =
+      runtime.currentTokenConsumer ??
+      (runtime.currentTokenConsumer = new TokenCursorConsumer(cursor));
+    const view = consumer.current;
     while (true) {
-      const type = cursor.next();
+      const type = consumer.next();
       if (type === NEED_INPUT || type === null) return;
-      this.processTokenCursorEvent(runtime, cursor, type);
+      this.processTokenCursorEvent(runtime, view, type);
     }
   }
 
   private processTokenCursorEvent(
     runtime: RuntimeState,
-    cursor: TokenCursorSpi,
+    view: TokenReadView,
     type: XmlEventType,
   ): void {
     if (
@@ -421,10 +428,10 @@ export class CompiledRootProcessor {
     this.checkEventLimit(runtime);
     if (type === XmlEventType.START_ELEMENT) {
       runtime.depth++;
-      const currentName = cursor.name()!;
+      const currentName = view.name()!;
       runtime.elementStack.push(currentName);
       recordElementPosition(runtime);
-      runtime.currentTokenCursor = cursor;
+      runtime.currentTokenView = view;
       runtime.attributeLookupCount = 0;
       runtime.attributeLookupCache = undefined;
       runtime.processingStart = true;
@@ -433,14 +440,14 @@ export class CompiledRootProcessor {
         this.processStart(runtime, currentName);
       } finally {
         runtime.processingStart = false;
-        runtime.currentTokenCursor = undefined;
+        runtime.currentTokenView = undefined;
         runtime.attributeLookupCache = undefined;
       }
       return;
     }
     if (type === XmlEventType.CHARACTERS || type === XmlEventType.CDATA) {
       if (runtime.captures.length !== 0)
-        this.processText(runtime, cursor.text()!);
+        this.processText(runtime, view.text()!);
       return;
     }
     if (type === XmlEventType.END_ELEMENT) {
@@ -1287,7 +1294,7 @@ function compileCursorExecutor(
     const textStatements = program.onText
       .map(
         () =>
-          "const value=cursor.text();for(let i=0,length=runtime.captures.length;i<length;i++){const capture=runtime.captures[i];if(capture.textMode==='direct'){if(runtime.depth===capture.depth)capture.buffer+=value;}else capture.buffer+=value;}",
+          "const value=view.text();for(let i=0,length=runtime.captures.length;i<length;i++){const capture=runtime.captures[i];if(capture.textMode==='direct'){if(runtime.depth===capture.depth)capture.buffer+=value;}else capture.buffer+=value;}",
       )
       .join("");
     const finishCapturesStatement = `const captureEnd=runtime.captures.length;
@@ -1326,9 +1333,12 @@ function compileCursorExecutor(
       "endElement",
       "recordPosition",
       "popPosition",
+      "consumerConstructor",
       `return function(processor,runtime,cursor){
+        const consumer=runtime.currentTokenConsumer||(runtime.currentTokenConsumer=new consumerConstructor(cursor));
+        const view=consumer.current;
         while(true){
-          const type=cursor.next();
+          const type=consumer.next();
           if(type===needInput||type===null)return;
           if(type===characters&&!runtime.plan.eventFilter.includeCharacters)continue;
           if(type===cdata&&!runtime.plan.eventFilter.includeCdata)continue;
@@ -1336,10 +1346,10 @@ function compileCursorExecutor(
           runtime.eventCount++;
           if(type===startElement){
             runtime.depth++;
-            const currentName=cursor.name();
+            const currentName=view.name();
             runtime.elementStack.push(currentName);
             ${recordPositionStatement}
-            runtime.currentTokenCursor=cursor;
+            runtime.currentTokenView=view;
             runtime.attributeLookupCount=0;
             runtime.attributeLookupCache=undefined;
             runtime.processingStart=true;
@@ -1352,7 +1362,7 @@ function compileCursorExecutor(
               }
             }finally{
               runtime.processingStart=false;
-              runtime.currentTokenCursor=undefined;
+              runtime.currentTokenView=undefined;
               runtime.attributeLookupCache=undefined;
             }
             continue;
@@ -1378,6 +1388,7 @@ function compileCursorExecutor(
       endElement: XmlEventType,
       recordPosition: (runtime: RuntimeState) => void,
       popPosition: (runtime: RuntimeState) => void,
+      consumerConstructor: typeof TokenCursorConsumer,
     ) => CursorExecutor;
     return create(
       start,
@@ -1388,6 +1399,7 @@ function compileCursorExecutor(
       XmlEventType.END_ELEMENT,
       recordElementPosition,
       popCompletedChildPositionScope,
+      TokenCursorConsumer,
     );
   } catch {
     warnCodeGenerationFallback();
@@ -1791,20 +1803,20 @@ function currentAttributeValue(
   runtime: RuntimeState,
   name: string,
 ): string | undefined {
-  const tokenCursor = runtime.currentTokenCursor;
-  if (tokenCursor) {
+  const tokenView = runtime.currentTokenView;
+  if (tokenView) {
     const cache = runtime.attributeLookupCache;
     if (cache) return cache[name];
     if (++runtime.attributeLookupCount > 1) {
       const indexed: Record<string, string | undefined> = Object.create(null);
-      for (let index = 0; index < tokenCursor.attributeCount(); index++) {
-        indexed[tokenCursor.attributeName(index)!] =
-          tokenCursor.attributeValue(index);
+      for (let index = 0; index < tokenView.attributeCount(); index++) {
+        indexed[tokenView.attributeName(index)!] =
+          tokenView.attributeValue(index);
       }
       runtime.attributeLookupCache = indexed;
       return indexed[name];
     }
-    return attributeValueOf(tokenCursor, name);
+    return attributeValueOf(tokenView, name);
   }
   return runtime.currentAttributes?.[name];
 }

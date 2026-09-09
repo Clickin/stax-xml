@@ -2,12 +2,14 @@ import {
   NEED_INPUT,
   attributeValueOf,
   materializeTokenEvent,
+  TokenCursorConsumer,
   tokenBackendOf,
   withTokenBackend,
   type AnyXmlEvent,
   type DocumentMode,
   type TokenBackendFactory,
-  type TokenCursorSpi,
+  type TokenCursor,
+  type TokenReadView,
   type TokenInputSessionSpi,
   type XmlEventType,
 } from "@stax-xml/core";
@@ -29,30 +31,38 @@ export interface StreamReaderOptions {
   encoding?: string;
 }
 
+const readerStates = new WeakMap<StreamReader, ReaderState>();
+
 /**
  * Asynchronous, forward-only XML reader backed by a reusable token cursor.
  * Call `next()` before accessing the current token through the accessor methods.
  */
 export class StreamReader {
-  private readonly cursor: TokenCursorSpi;
+  private readonly producer: TokenCursor;
+  private readonly consumer: TokenCursorConsumer;
+  private readonly view: TokenReadView;
   private readonly session: TokenInputSessionSpi;
   private readonly iterator: AsyncIterator<Uint8Array>;
-  private inFlight = false;
-  private closed = false;
-  private closing: Promise<void> | undefined;
 
   constructor(source: StreamReaderSource, options: StreamReaderOptions = {}) {
     const backend = tokenBackendOf(options);
     this.session = backend.createByteSession(byteOptions(options, backend));
-    this.cursor = this.session.cursor;
+    this.producer = this.session.cursor;
+    this.consumer = new TokenCursorConsumer(this.producer);
+    this.view = this.consumer.current;
     this.iterator = isReadableStream(source)
       ? streamIterator(source)
       : source[Symbol.asyncIterator]();
-    // The package-internal pump accesses these private fields through ReaderState.
-    void this.iterator;
-    void this.inFlight;
-    void this.closed;
-    void this.closing;
+    readerStates.set(this, {
+      producer: this.producer,
+      consumer: this.consumer,
+      view: this.view,
+      session: this.session,
+      iterator: this.iterator,
+      inFlight: false,
+      closed: false,
+      closing: undefined,
+    });
   }
   /** Advance to the next token, or return `null` at end of input. */
   next(): Promise<XmlEventType | null> {
@@ -60,62 +70,62 @@ export class StreamReader {
   }
   /** Stop parsing and close the underlying input iterator. */
   close(): Promise<void> {
-    return closeReader(this as unknown as ReaderState);
+    return closeReader(stateOf(this));
   }
   /** Return the current token type. */
   eventType(): XmlEventType {
-    return this.cursor.eventType();
+    return this.view.eventType();
   }
   /** Return the current element's qualified name. */
   name(): string | undefined {
-    return this.cursor.name();
+    return this.view.name();
   }
   /** Return text carried by the current text-like token. */
   text(): string | undefined {
-    return this.cursor.text();
+    return this.view.text();
   }
   /** Return the current element's local name. */
   localName(): string | undefined {
-    return this.cursor.localName();
+    return this.view.localName();
   }
   /** Return the current element's namespace prefix, or an empty string. */
   prefix(): string {
-    return this.cursor.prefix();
+    return this.view.prefix();
   }
   /** Return the namespace URI resolved for the current element. */
   namespaceURI(): string {
-    return this.cursor.namespaceURI();
+    return this.view.namespaceURI();
   }
   /** Return the number of attributes on the current start element. */
   attributeCount(): number {
-    return this.cursor.attributeCount();
+    return this.view.attributeCount();
   }
   /** Return an attribute's qualified name by zero-based index. */
   attributeName(index: number): string | undefined {
-    return this.cursor.attributeName(index);
+    return this.view.attributeName(index);
   }
   /** Return an attribute's local name by zero-based index. */
   attributeLocalName(index: number): string | undefined {
-    return this.cursor.attributeLocalName(index);
+    return this.view.attributeLocalName(index);
   }
   /** Return an attribute's namespace prefix by zero-based index. */
   attributePrefix(index: number): string | undefined {
-    return this.cursor.attributePrefix(index);
+    return this.view.attributePrefix(index);
   }
   /** Return an attribute's namespace URI by zero-based index. */
   attributeNamespaceURI(index: number): string | undefined {
-    return this.cursor.attributeNamespaceURI(index);
+    return this.view.attributeNamespaceURI(index);
   }
   /** Return an attribute value by index, qualified name, or namespace URI plus local name. */
   attributeValue(
     indexOrNameOrNamespace: number | string,
     localName?: string,
   ): string | undefined {
-    return attributeValueOf(this.cursor, indexOrNameOrNamespace, localName);
+    return attributeValueOf(this.view, indexOrNameOrNamespace, localName);
   }
   /** Resolve a namespace prefix in the current element scope. */
   namespaceURIForPrefix(prefix: string): string {
-    return this.cursor.namespaceURIForPrefix(prefix);
+    return this.view.namespaceURIForPrefix(prefix);
   }
 }
 
@@ -127,7 +137,9 @@ export function nextMaterialized(
 }
 
 interface ReaderState {
-  cursor: TokenCursorSpi;
+  producer: TokenCursor;
+  consumer: TokenCursorConsumer;
+  view: TokenReadView;
   session: TokenInputSessionSpi;
   iterator: AsyncIterator<Uint8Array>;
   inFlight: boolean;
@@ -147,18 +159,18 @@ function advance(
   reader: StreamReader,
   event: boolean,
 ): Promise<XmlEventType | null | IteratorResult<AnyXmlEvent>> {
-  const state = reader as unknown as ReaderState;
+  const state = stateOf(reader);
   if (state.inFlight)
     return Promise.reject(
       new Error("Concurrent next() calls are not allowed."),
     );
-  if (state.closed) return Promise.resolve(project(state.cursor, null, event));
+  if (state.closed) return Promise.resolve(project(state.view, null, event));
   state.inFlight = true;
   try {
-    const result = state.cursor.next();
+    const result = state.consumer.next();
     if (result === NEED_INPUT) return refill(state, event);
     state.inFlight = false;
-    return Promise.resolve(project(state.cursor, result, event));
+    return Promise.resolve(project(state.view, result, event));
   } catch (error) {
     state.inFlight = false;
     return fail(state, error);
@@ -172,7 +184,7 @@ async function refill(
   try {
     while (true) {
       const part = await state.iterator.next();
-      if (state.closed) return project(state.cursor, null, event);
+      if (state.closed) return project(state.view, null, event);
       if (part.done) {
         state.session.pushBytes(EMPTY_BYTES, true);
       } else {
@@ -180,8 +192,8 @@ async function refill(
           throw new Error("Reader chunks must be Uint8Array values.");
         state.session.pushBytes(part.value);
       }
-      const result = state.cursor.next();
-      if (result !== NEED_INPUT) return project(state.cursor, result, event);
+      const result = state.consumer.next();
+      if (result !== NEED_INPUT) return project(state.view, result, event);
     }
   } catch (error) {
     return fail(state, error);
@@ -193,9 +205,14 @@ async function refill(
 function closeReader(state: ReaderState): Promise<void> {
   if (state.closing) return state.closing;
   state.closed = true;
+  state.consumer.close();
   state.session.dispose();
   state.closing = closeIterator(state.iterator);
   return state.closing;
+}
+
+function stateOf(reader: StreamReader): ReaderState {
+  return readerStates.get(reader)!;
 }
 
 async function closeIterator(
@@ -214,13 +231,13 @@ async function fail(state: ReaderState, error: unknown): Promise<never> {
 }
 
 function project(
-  cursor: TokenCursorSpi,
+  view: TokenReadView,
   type: XmlEventType | null,
   event: boolean,
 ): XmlEventType | null | IteratorResult<AnyXmlEvent> {
   if (!event) return type;
   if (type === null) return { value: undefined, done: true };
-  return { value: materializeTokenEvent(cursor, type), done: false };
+  return { value: materializeTokenEvent(view, type), done: false };
 }
 
 const EMPTY_BYTES = new Uint8Array(0);

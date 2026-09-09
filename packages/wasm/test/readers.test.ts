@@ -4,7 +4,7 @@ import {
   EventReaderSync,
   StreamReader,
   StreamReaderSync,
-  TokenCursorWasm,
+  WasmTokenCursor,
   WasmTokenInputSession,
   initWasm,
 } from "@stax-xml/wasm";
@@ -133,7 +133,7 @@ describe.each(variants)("WASM public readers (%s)", (variant) => {
     expect(session.cursor.next()).toBeNull();
     expect(() => session.pushBytes(bytes)).toThrow(/disposed|closed/i);
 
-    const cursor = new TokenCursorWasm();
+    const cursor = new WasmTokenCursor();
     cursor.dispose();
     cursor.dispose();
     expect(cursor.next()).toBeNull();

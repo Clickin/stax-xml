@@ -26,6 +26,7 @@ export default defineConfig({
       "test/v1-reader-contract.test.ts",
       "test/token-cursor-resume.test.ts",
       "test/token-cursor-options-coverage.test.ts",
+      "test/token-cursor-v2.test.ts",
       "test/namespace.test.ts",
       "test/parser-async-regression.test.ts",
       "test/root-import-host-api.test.ts",

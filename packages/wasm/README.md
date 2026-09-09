@@ -79,16 +79,16 @@ non-UTF-8 fallback paths do not require Wasm initialization.
 
 AssemblyScript emits a Wasm32 module using its `minimal` runtime and explicitly
 freed raw heap blocks. The ABI consists of numeric event/status codes,
-`reserve`/`commit`, a borrowed `tokenView()` header, namespace/entity
-operations, diagnostics, and `dispose`. No managed AssemblyScript strings or
-arrays cross the hot ABI.
+`reserve`/`commit`, the `nextBatch(slotId, maxTokens, maxAttributes,
+maxScanBytes, maxTransientBytes)` producer export, and a 128-byte control
+block. Token and attribute descriptors use the fixed v2 strides in
+`abi/layout.json`. No managed AssemblyScript strings or arrays cross the hot
+ABI.
 
-`tokenView()` exposes 13 little-endian 32-bit words: the current field pointer
-and length tables, input base, attribute count, self-closing and standalone
-flags, and the seven attribute span tables. The facade obtains it lazily once
-per token; subsequent getters read linear memory without another Wasm call.
-Type-only traversal does not request a view. This raw ABI is unstable: ship
-the JS facade and Wasm assets from the same build.
+`select()` and normal metadata/string accessors read the selected descriptor
+directly; they make zero Wasm export calls. The JS facade decodes only
+requested spans. This raw ABI is unstable: ship the JS facade and Wasm assets
+from the same build.
 
 Input bytes are copied into a compacting Wasm input window. Plain values borrow
 spans from that window; entity replacements use reusable scratch storage.
@@ -98,13 +98,12 @@ tokens retain scan offsets and lexical state across feeds, rather than scanning
 their entire prefix again. SIMD scans only complete 16-byte blocks, with scalar
 tails and non-ASCII/entity handling.
 
-The JS facade decodes requested spans lazily, caches current-token values, and
-refreshes memory views after operations that may grow memory. Empty spans need
-no decoder call; cache invalidation touches only fields read for the preceding
-token, not every previously used attribute slot. Borrowed spans
-are not valid after advancing or pushing input. Materialized public events own
-stable JavaScript values. Memory is bounded by the largest live chunk/token,
-open-element state, and configured entities—not by total bytes already parsed.
+The JS facade decodes requested spans lazily and refreshes memory views after
+operations that may grow memory. Empty spans need no decoder call. A selected
+batch slot remains valid while the producer fills the other slot; materialized
+public events own stable JavaScript values. Memory is bounded by the largest
+live chunk/token, open-element state, and configured entities—not by total
+bytes already parsed.
 A single huge token still requires proportionate memory. Wasm buffers and
 integer diagnostics have Wasm32 limits; error messages and positions are not
 promised to be identical to JS errors.
@@ -119,10 +118,10 @@ Implementation responsibilities:
 
 - The stable backend factory/session owns backend choice and JS byte decoding.
 - `assembly/utf8.ts` owns incremental UTF-8 validation and XML character rules.
-- `assembly/scan.ts` owns pointer/limit lexical scanners, without parser state.
+- `assembly/scanners.ts` owns pointer/limit lexical scanners, without parser state.
 - `assembly/tokenizer.ts` owns XML parser/resume state, arenas, namespaces,
   entities, and the raw ABI.
-- `src/TokenCursorWasm.ts` owns lazy JS string access, not lexical parsing or
+- `src/WasmTokenCursor.ts` owns lazy JS string access, not lexical parsing or
   event/object construction.
 
 ## Development

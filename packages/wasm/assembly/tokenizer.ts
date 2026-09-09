@@ -1,5 +1,6 @@
 import { appendValid, reset as resetUtf8, width as utf8Width, readCodePoint as utf8ReadCodePoint, xmlChar as utf8XmlChar, asciiLetter as utf8AsciiLetter, nameStart as utf8NameStart, namePart as utf8NamePart } from "./utf8";
-import { markerPrefix as scanMarkerPrefix, findSequence as scanFindSequence, findTagEnd as scanFindTagEnd, scanName as scanScanName, qnameColon as scanQnameColon } from "./scan";
+import { markerPrefix as scanMarkerPrefix, findSequence as scanFindSequence, findTagEnd as scanFindTagEnd, scanName as scanScanName, qnameColon as scanQnameColon } from "./scanners";
+import { ABI_VERSION, CONTROL_BYTES, TOKEN_STRIDE, ATTRIBUTE_STRIDE } from "./abi.generated";
 
 // Raw UTF-8 tokenizer. The JavaScript facade owns all string/event materialization.
 // Pointers are byte offsets in linear memory; lengths are UTF-8 byte lengths.
@@ -17,6 +18,11 @@ const CDATA: i32 = 6;
 const COMMENT: i32 = 7;
 const PI: i32 = 8;
 const DTD: i32 = 9;
+
+const STOP_BUDGET: i32 = 0;
+const STOP_INPUT: i32 = 1;
+const STOP_EOF: i32 = 2;
+const STOP_ERROR: i32 = 3;
 
 // Stable error categories consumed by the facade. Messages remain available in errorPtr/errorLen.
 const ERROR_PARSE: i32 = 1;
@@ -87,7 +93,6 @@ let lastWidth: i32 = 0;
 let decodeResultLen: i32 = 0;
 let decodeHadEntity: bool = false;
 let parseNameError: bool = false;
-let tokenHeader: usize = 0;
 
 // Current fields: 0 name, 1 text, 2 local, 3 prefix, 4 URI,
 // 10 declaration version, 11 declaration encoding, 12 namespace lookup.
@@ -111,6 +116,32 @@ let stateUsed: usize = 0;
 let stateFloor: usize = 0;
 let scratchPtr: usize = 0;
 let scratchCap: usize = 0;
+
+let controlPtr: usize = 0;
+let batchTokenPtr0: usize = 0;
+let batchTokenPtr1: usize = 0;
+let batchAttrPtr0: usize = 0;
+let batchAttrPtr1: usize = 0;
+let batchTokenCount0: i32 = 0;
+let batchTokenCount1: i32 = 0;
+let batchAttrCount0: i32 = 0;
+let batchAttrCount1: i32 = 0;
+let batchAttrCap0: i32 = 0;
+let batchAttrCap1: i32 = 0;
+let batchAlloc0: usize = 0;
+let batchAlloc1: usize = 0;
+let batchAllocCap0: i32 = 0;
+let batchAllocCap1: i32 = 0;
+let batchAllocLen0: i32 = 0;
+let batchAllocLen1: i32 = 0;
+let batchChunk0: usize = 0;
+let batchChunk1: usize = 0;
+let batchChunkCap0: usize = 0;
+let batchChunkCap1: usize = 0;
+let batchChunkUsed0: usize = 0;
+let batchChunkUsed1: usize = 0;
+let batchBytes0: usize = 0;
+let batchBytes1: usize = 0;
 
 // Element frames: name, local, prefix, URI, namespace undo count, arena mark.
 let stackCap: i32 = 0;
@@ -157,13 +188,208 @@ function allocRaw(size: usize): usize {
   return heap.alloc(size);
 }
 
+function slotTokenPtr(slot: i32): usize { return slot == 0 ? batchTokenPtr0 : batchTokenPtr1; }
+function slotAttrPtr(slot: i32): usize { return slot == 0 ? batchAttrPtr0 : batchAttrPtr1; }
+function slotTokenCount(slot: i32): i32 { return slot == 0 ? batchTokenCount0 : batchTokenCount1; }
+function slotAttrCount(slot: i32): i32 { return slot == 0 ? batchAttrCount0 : batchAttrCount1; }
+
+function batchSetControl(slot: i32, tokenCount: i32, attrCount: i32, stopReason: i32): void {
+  if (controlPtr == 0) return;
+  for (let i = 0; i < 32; i++) store<i32>(controlPtr + <usize>i * 4, 0);
+  store<i32>(controlPtr, 0x53545832);
+  store<i32>(controlPtr + 4, ABI_VERSION);
+  store<i32>(controlPtr + 8, <i32>TOKEN_STRIDE);
+  store<i32>(controlPtr + 12, <i32>ATTRIBUTE_STRIDE);
+  store<i32>(controlPtr + 16, 32);
+  store<i32>(controlPtr + 20, slot);
+  store<i32>(controlPtr + 24, tokenCount);
+  store<i32>(controlPtr + 28, stopReason);
+  store<i32>(controlPtr + 32, <i32>slotTokenPtr(slot));
+  store<i32>(controlPtr + 36, <i32>slotAttrPtr(slot));
+  store<i32>(controlPtr + 40, attrCount);
+  store<i32>(controlPtr + 44, errorKind);
+  store<i32>(controlPtr + 48, errorAt);
+  store<i32>(controlPtr + 52, <i32>errorMessagePtr);
+  store<i32>(controlPtr + 56, errorMessageLen);
+  store<i32>(controlPtr + 60, <i32>inputCap);
+}
+
+function batchEmitScope(slot: i32): usize {
+  if (!namespaceAware || nsCount <= 0) return 0;
+  let parent: usize = 0;
+  for (let i = 0; i < nsCount; i++) {
+    const prefixLength = rawInt(nsPrefixLen, i);
+    const uriLength = rawInt(nsUriLen, i);
+    const node = batchAlloc(slot, 32);
+    if (node == 0) return 0;
+    const prefix = batchCopy(slot, rawPointer(nsPrefix, i), prefixLength);
+    const uri = batchCopy(slot, rawPointer(nsUri, i), uriLength);
+    if ((prefixLength > 0 && prefix == 0) || (uriLength > 0 && uri == 0)) return 0;
+    store<i32>(node, <i32>parent);
+    store<i32>(node + 4, 1);
+    store<i32>(node + 8, <i32>prefix);
+    store<i32>(node + 12, prefixLength);
+    store<i32>(node + 16, <i32>uri);
+    store<i32>(node + 20, uriLength);
+    store<i32>(node + 24, 0);
+    store<i32>(node + 28, 0);
+    parent = node;
+  }
+  return parent;
+}
+
+function batchEmitDeclaration(slot: i32): usize {
+  if (declarationVersionPtr == 0) return 0;
+  const descriptor = batchAlloc(slot, 24);
+  if (descriptor == 0) return 0;
+  if (!batchWriteSpan(slot, descriptor, 0, declarationVersionPtr, 3)) return 0;
+  if (!batchWriteSpan(slot, descriptor, 2, declarationEncodingPtr, declarationEncodingLen)) return 0;
+  store<i32>(descriptor + 16, declarationStandaloneValue);
+  store<i32>(descriptor + 20, 0);
+  return descriptor;
+}
+
+function batchEmitCurrent(slot: i32, tokenIndex: i32, attrBase: i32): bool {
+  const record = slotTokenPtr(slot) + <usize>tokenIndex * TOKEN_STRIDE;
+  for (let i = 0; i < 20; i++) store<i32>(record + <usize>i * 4, 0);
+  store<i32>(record, currentType);
+  store<i32>(record + 4, currentSelfClosing ? 1 : 0);
+  if (namespaceAware && rawInt(fieldLens, 2) >= 0) store<i32>(record + 4, load<i32>(record + 4) | 2);
+  store<i32>(record + 8, attrBase);
+  store<i32>(record + 12, currentAttrCount);
+  for (let field = 0; field <= 4; field++) {
+    if (!batchWriteSpan(slot, record, 4 + field * 2, rawPointer(fieldPtrs, field), rawInt(fieldLens, field))) return false;
+  }
+  if (namespaceAware && rawInt(fieldLens, 2) >= 0)
+    store<i32>(record + 56, <i32>batchEmitScope(slot));
+  if (currentType == START_DOCUMENT) store<i32>(record + 60, <i32>batchEmitDeclaration(slot));
+  for (let i = 0; i < currentAttrCount; i++) {
+    const attr = slotAttrPtr(slot) + <usize>(attrBase + i) * ATTRIBUTE_STRIDE;
+    for (let word = 0; word < 12; word++) store<i32>(attr + <usize>word * 4, 0);
+    const nameOffset = rawPointer(attrName, i);
+    const nameLength = rawInt(attrNameLen, i);
+    const namePointer = inputPtr + nameOffset;
+    const colon = rawInt(attrColon, i);
+    if (!batchWriteSpan(slot, attr, 0, namePointer, nameLength)) return false;
+    if (!batchWriteSpan(slot, attr, 2, rawPointer(attrValue, i), rawInt(attrValueLen, i))) return false;
+    if (colon < 0) {
+      if (!batchWriteSpan(slot, attr, 4, namePointer, nameLength)) return false;
+      store<i32>(attr + 24, 0);
+      store<i32>(attr + 28, 0);
+    } else {
+      const localOffset = <usize>(colon - <i32>nameOffset + 1);
+      if (!batchWriteSpan(slot, attr, 4, namePointer + localOffset, nameLength - <i32>localOffset)) return false;
+      if (!batchWriteSpan(slot, attr, 6, namePointer, colon - <i32>nameOffset)) return false;
+    }
+    if (!batchWriteSpan(slot, attr, 8, rawPointer(attrUri, i), rawInt(attrUriLen, i))) return false;
+    store<u32>(attr + 40, batchHash(namePointer, nameLength));
+  }
+  return true;
+}
+
+function trackSlotAlloc(slot: i32, pointer: usize): bool {
+  if (pointer == 0) return false;
+  if (slot == 0) {
+    if (batchAllocLen0 >= batchAllocCap0) {
+      const next = batchAllocCap0 == 0 ? 32 : batchAllocCap0 * 2;
+      const p = batchAlloc0 == 0 ? heap.alloc(<usize>next * 4) : heap.realloc(batchAlloc0, <usize>next * 4);
+      if (p == 0) return false;
+      batchAlloc0 = p; batchAllocCap0 = next;
+    }
+    store<usize>(batchAlloc0 + <usize>batchAllocLen0 * 4, pointer);
+    batchAllocLen0++;
+    return true;
+  }
+  if (batchAllocLen1 >= batchAllocCap1) {
+    const next = batchAllocCap1 == 0 ? 32 : batchAllocCap1 * 2;
+    const p = batchAlloc1 == 0 ? heap.alloc(<usize>next * 4) : heap.realloc(batchAlloc1, <usize>next * 4);
+    if (p == 0) return false;
+    batchAlloc1 = p; batchAllocCap1 = next;
+  }
+  store<usize>(batchAlloc1 + <usize>batchAllocLen1 * 4, pointer);
+  batchAllocLen1++;
+  return true;
+}
+
+function releaseBatchSlot(slot: i32): void {
+  const list = slot == 0 ? batchAlloc0 : batchAlloc1;
+  const length = slot == 0 ? batchAllocLen0 : batchAllocLen1;
+  for (let i = 0; i < length; i++) heap.free(load<usize>(list + <usize>i * 4));
+  if (list != 0) heap.free(list);
+  if (slot == 0) {
+    batchTokenPtr0 = 0; batchAttrPtr0 = 0; batchTokenCount0 = 0; batchAttrCount0 = 0;
+    batchAlloc0 = 0; batchAllocCap0 = 0; batchAllocLen0 = 0;
+    batchChunk0 = 0; batchChunkCap0 = 0; batchChunkUsed0 = 0;
+    batchBytes0 = 0;
+  } else {
+    batchTokenPtr1 = 0; batchAttrPtr1 = 0; batchTokenCount1 = 0; batchAttrCount1 = 0;
+    batchAlloc1 = 0; batchAllocCap1 = 0; batchAllocLen1 = 0;
+    batchChunk1 = 0; batchChunkCap1 = 0; batchChunkUsed1 = 0;
+    batchBytes1 = 0;
+  }
+}
+
+function batchAlloc(slot: i32, size: usize): usize {
+  if (size == 0) return 0;
+  let chunk = slot == 0 ? batchChunk0 : batchChunk1;
+  let capacity = slot == 0 ? batchChunkCap0 : batchChunkCap1;
+  let used = slot == 0 ? batchChunkUsed0 : batchChunkUsed1;
+  if (chunk == 0 || used + size > capacity) {
+    const nextCapacity = size > 65536 ? size : 65536;
+    chunk = allocRaw(nextCapacity);
+    if (chunk == 0 || !trackSlotAlloc(slot, chunk)) {
+      if (chunk != 0) heap.free(chunk);
+      return 0;
+    }
+    capacity = nextCapacity;
+    used = 0;
+    if (slot == 0) { batchChunk0 = chunk; batchChunkCap0 = capacity; batchChunkUsed0 = 0; }
+    else { batchChunk1 = chunk; batchChunkCap1 = capacity; batchChunkUsed1 = 0; }
+  }
+  const pointer = chunk + used;
+  used += size;
+  if (slot == 0) batchChunkUsed0 = used; else batchChunkUsed1 = used;
+  if (slot == 0) batchBytes0 += size; else batchBytes1 += size;
+  return pointer;
+}
+
+function batchCopy(slot: i32, source: usize, length: i32): usize {
+  if (length <= 0) return 0;
+  const pointer = batchAlloc(slot, <usize>length);
+  if (pointer == 0) return 0;
+  copyBytes(pointer, source, <usize>length);
+  return pointer;
+}
+
+function batchWriteWord(base: usize, word: i32, value: i32): void {
+  store<i32>(base + <usize>word * 4, value);
+}
+
+function batchWriteSpan(slot: i32, record: usize, word: i32, pointer: usize, length: i32): bool {
+  if (length < 0) { batchWriteWord(record, word, 0); batchWriteWord(record, word + 1, -1); return true; }
+  const copy = batchCopy(slot, pointer, length);
+  if (length > 0 && copy == 0) return false;
+  batchWriteWord(record, word, <i32>copy);
+  batchWriteWord(record, word + 1, length);
+  return true;
+}
+
+function batchHash(pointer: usize, length: i32): u32 {
+  let hash: u32 = HASH_OFFSET;
+  for (let i = 0; i < length; i++) hash = (hash ^ <u32>load<u8>(pointer + <usize>i)) * 16777619;
+  return hash;
+}
+
 function releaseOwned(): void {
+  releaseBatchSlot(0);
+  releaseBatchSlot(1);
+  if (controlPtr != 0) heap.free(controlPtr);
+  controlPtr = 0;
   if (inputPtr != 0) heap.free(inputPtr);
   if (tokenPtr != 0) heap.free(tokenPtr);
   if (statePtr != 0) heap.free(statePtr);
   if (scratchPtr != 0) heap.free(scratchPtr);
   if (errorMessagePtr != 0) heap.free(errorMessagePtr);
-  if (tokenHeader != 0) heap.free(tokenHeader);
   if (fieldPtrs != 0) heap.free(fieldPtrs);
   if (fieldLens != 0) heap.free(fieldLens);
   if (stackName != 0) heap.free(stackName);
@@ -191,7 +417,7 @@ function releaseOwned(): void {
   if (entityNameLen != 0) heap.free(entityNameLen);
   if (entityValue != 0) heap.free(entityValue);
   if (entityValueLen != 0) heap.free(entityValueLen);
-  inputPtr = 0; tokenPtr = 0; statePtr = 0; scratchPtr = 0; errorMessagePtr = 0; tokenHeader = 0;
+  inputPtr = 0; tokenPtr = 0; statePtr = 0; scratchPtr = 0; errorMessagePtr = 0;
   fieldPtrs = 0; fieldLens = 0;
   stackName = 0; stackNameLen = 0; stackLocal = 0; stackLocalLen = 0;
   stackPrefix = 0; stackPrefixLen = 0; stackUri = 0; stackUriLen = 0;
@@ -248,6 +474,7 @@ function setError(kind: i32, position: i32, message: string): i32 {
     errorMessagePtr = p;
     errorMessageLen = <i32>n;
   }
+  batchSetControl(0, 0, 0, STOP_ERROR);
   return ERROR;
 }
 
@@ -1269,7 +1496,9 @@ function nextInternal(): i32 {
   }
 }
 
-export function initialize(mode: i32, nsAware: i32, decode: i32): void {
+export function abiVersion(): i32 { return ABI_VERSION; }
+
+export function initialize(mode: i32, nsAware: i32, decode: i32): i32 {
   releaseOwned();
   leadingBomCount = 0;
   disposed = false; initialized = true; documentMode = mode; namespaceAware = nsAware != 0; autoDecode = decode != 0;
@@ -1279,15 +1508,23 @@ export function initialize(mode: i32, nsAware: i32, decode: i32): void {
   tokenPtr = 0; tokenCap = 0; tokenUsed = 0; statePtr = 0; stateCap = 0; stateUsed = 0; stateFloor = 0; scratchPtr = 0; scratchCap = 0;
   fieldPtrs = allocRaw(13 * 4);
   fieldLens = allocRaw(13 * 4);
-  tokenHeader = allocRaw(13 * 4);
   stackCap = 0; stackDepth = 0; stackName = 0; stackNameLen = 0; stackLocal = 0; stackLocalLen = 0; stackPrefix = 0; stackPrefixLen = 0; stackUri = 0; stackUriLen = 0; stackUndo = 0; stackMark = 0;
   nsCap = 0; nsCount = 0; nsPrefix = 0; nsPrefixLen = 0; nsUri = 0; nsUriLen = 0;
   attrCap = 0; currentAttrCount = 0; attrName = 0; attrNameLen = 0; attrValue = 0; attrValueLen = 0; attrColon = 0; attrUri = 0; attrUriLen = 0;
   entityCap = 0; entityCount = 0; entityName = 0; entityNameLen = 0; entityValue = 0; entityValueLen = 0;
   declarationVersionPtr = 0; declarationEncodingPtr = 0; declarationEncodingLen = -1; declarationStandaloneStored = -1;
+  batchTokenPtr0 = 0; batchTokenPtr1 = 0; batchAttrPtr0 = 0; batchAttrPtr1 = 0;
+  batchTokenCount0 = 0; batchTokenCount1 = 0; batchAttrCount0 = 0; batchAttrCount1 = 0;
+  batchAttrCap0 = 0; batchAttrCap1 = 0;
+  batchAlloc0 = 0; batchAlloc1 = 0; batchAllocCap0 = 0; batchAllocCap1 = 0; batchAllocLen0 = 0; batchAllocLen1 = 0;
+  batchChunk0 = 0; batchChunk1 = 0; batchChunkCap0 = 0; batchChunkCap1 = 0; batchChunkUsed0 = 0; batchChunkUsed1 = 0; batchBytes0 = 0; batchBytes1 = 0;
+  controlPtr = allocRaw(CONTROL_BYTES);
+  if (controlPtr == 0) return 0;
   zeroFields();
   xmlUriPtr = stateCopyLiteral(XML_URI); xmlnsUriPtr = stateCopyLiteral(XMLNS_URI); stateFloor = stateUsed;
   if (namespaceAware && ensureNamespaces(1)) { setRawPointer(nsPrefix, 0, stateCopyLiteral("xml")); setRawInt(nsPrefixLen, 0, 3); setRawPointer(nsUri, 0, xmlUriPtr); setRawInt(nsUriLen, 0, <i32>XML_URI.length); nsCount = 1; }
+  batchSetControl(0, 0, 0, STOP_INPUT);
+  return <i32>controlPtr;
 }
 
 export function reserve(length: i32): usize {
@@ -1316,31 +1553,80 @@ export function commit(length: i32, final: i32): i32 {
   return 0;
 }
 
-export function next(): i32 { return nextInternal(); }
-export function tokenView(): usize {
-  if (!initialized || disposed || tokenHeader == 0) return 0;
-  store<i32>(tokenHeader, <i32>fieldPtrs);
-  store<i32>(tokenHeader + 4, <i32>fieldLens);
-  store<i32>(tokenHeader + 8, <i32>inputPtr);
-  store<i32>(tokenHeader + 12, currentAttrCount);
-  store<i32>(tokenHeader + 16, currentSelfClosing ? 1 : 0);
-  store<i32>(tokenHeader + 20, declarationStandaloneValue);
-  store<i32>(tokenHeader + 24, <i32>attrName);
-  store<i32>(tokenHeader + 28, <i32>attrNameLen);
-  store<i32>(tokenHeader + 32, <i32>attrValue);
-  store<i32>(tokenHeader + 36, <i32>attrValueLen);
-  store<i32>(tokenHeader + 40, <i32>attrColon);
-  store<i32>(tokenHeader + 44, <i32>attrUri);
-  store<i32>(tokenHeader + 48, <i32>attrUriLen);
-  return tokenHeader;
+export function nextBatch(slotId: i32, maxTokens: i32, maxAttributes: i32, maxScanBytes: i32, maxTransientBytes: i32): i32 {
+  if (slotId != 0 && slotId != 1) return ERROR;
+  if (maxTokens <= 0 || maxAttributes <= 0 || maxScanBytes <= 0 || maxTransientBytes <= 0) return ERROR;
+  if (!initialized || disposed) return EOF;
+  if (errorKind != 0) {
+    batchSetControl(slotId, 0, 0, STOP_ERROR);
+    return ERROR;
+  }
+  releaseBatchSlot(slotId);
+  const tokenBytes = <usize>maxTokens * TOKEN_STRIDE;
+  const tokenRecords = batchAlloc(slotId, tokenBytes);
+  if (tokenRecords == 0) {
+    setError(ERROR_STATE, inputBase + <i32>inputPos, "Tokenizer memory exhausted.");
+    batchSetControl(slotId, 0, 0, STOP_ERROR);
+    return ERROR;
+  }
+  if (slotId == 0) batchTokenPtr0 = tokenRecords; else batchTokenPtr1 = tokenRecords;
+  const attrBytes = <usize>maxAttributes * ATTRIBUTE_STRIDE;
+  const attrRecords = batchAlloc(slotId, attrBytes);
+  if (attrRecords == 0) {
+    setError(ERROR_STATE, inputBase + <i32>inputPos, "Tokenizer memory exhausted.");
+    batchSetControl(slotId, 0, 0, STOP_ERROR);
+    return ERROR;
+  }
+  if (slotId == 0) { batchAttrPtr0 = attrRecords; batchAttrCap0 = maxAttributes; }
+  else { batchAttrPtr1 = attrRecords; batchAttrCap1 = maxAttributes; }
+  let count: i32 = 0;
+  let attrs: i32 = 0;
+  let stop = STOP_BUDGET;
+  const batchInputStart = inputPos;
+  const batchTransientStart = slotId == 0 ? batchBytes0 : batchBytes1;
+  while (count < maxTokens) {
+    const result = nextInternal();
+    if (result >= START_DOCUMENT && result <= DTD) {
+      if (attrs + currentAttrCount > (slotId == 0 ? batchAttrCap0 : batchAttrCap1)) {
+        const required = attrs + currentAttrCount;
+        const replacement = batchAlloc(slotId, <usize>required * ATTRIBUTE_STRIDE);
+        if (replacement == 0) {
+          setError(ERROR_STATE, inputBase + <i32>inputPos, "Tokenizer memory exhausted.");
+          stop = STOP_ERROR;
+          break;
+        }
+        if (slotId == 0) { batchAttrPtr0 = replacement; batchAttrCap0 = required; }
+        else { batchAttrPtr1 = replacement; batchAttrCap1 = required; }
+      }
+      if (!batchEmitCurrent(slotId, count, attrs)) {
+        setError(ERROR_STATE, inputBase + <i32>inputPos, "Tokenizer memory exhausted.");
+        stop = STOP_ERROR;
+        break;
+      }
+      count++;
+      attrs += currentAttrCount;
+      const transientUsed = (slotId == 0 ? batchBytes0 : batchBytes1) - batchTransientStart;
+      const scanned = inputPos >= batchInputStart ? inputPos - batchInputStart : 0;
+      if (attrs >= maxAttributes || scanned >= <usize>maxScanBytes || transientUsed >= <usize>maxTransientBytes) {
+        stop = STOP_BUDGET;
+        break;
+      }
+      continue;
+    }
+    if (result == NEED) stop = STOP_INPUT;
+    else if (result == EOF) stop = STOP_EOF;
+    else stop = STOP_ERROR;
+    break;
+  }
+  if (slotId == 0) { batchTokenCount0 = count; batchAttrCount0 = attrs; }
+  else { batchTokenCount1 = count; batchAttrCount1 = attrs; }
+  batchSetControl(slotId, count, attrs, stop);
+  if (count > 0) return count;
+  if (stop == STOP_INPUT) return NEED;
+  if (stop == STOP_EOF) return EOF;
+  return ERROR;
 }
-export function lookupNamespace(ptr: usize, length: i32): void {
-  setRawPointer(fieldPtrs, 12, 0); setRawInt(fieldLens, 12, 0);
-  if (!namespaceAware || rawInt(fieldLens, 2) < 0) return;
-  if (eqLiteral(ptr, length, "xml")) { setRawPointer(fieldPtrs, 12, xmlUriPtr); setRawInt(fieldLens, 12, <i32>XML_URI.length); return; }
-  const i = nsLookup(ptr, length);
-  if (i >= 0) { setRawPointer(fieldPtrs, 12, rawPointer(nsUri, i)); setRawInt(fieldLens, 12, rawInt(nsUriLen, i)); }
-}
+
 export function scratch(length: i32): usize {
   if (length < 0 || !initialized || disposed) return 0;
   const required = <usize>length;
@@ -1368,10 +1654,6 @@ export function addEntity(namePtr: usize, nameLen: i32, valuePtr: usize, valueLe
   setRawPointer(entityName, entityCount, n); setRawInt(entityNameLen, entityCount, nn); setRawPointer(entityValue, entityCount, v); setRawInt(entityValueLen, entityCount, valueLen); entityCount++; stateFloor = stateUsed;
   return 0;
 }
-export function errorCode(): i32 { return errorKind; }
-export function errorPosition(): i32 { return errorAt; }
-export function errorPtr(): usize { return errorMessagePtr; }
-export function errorLen(): i32 { return errorMessageLen; }
 export function dispose(): void {
   if (disposed) return;
   releaseOwned();
@@ -1384,4 +1666,3 @@ export function dispose(): void {
   stateCap = 0;
   scratchCap = 0;
 }
-export function inputCapacity(): i32 { return <i32>inputCap; }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { NEED_INPUT, TokenCursor, XmlEventType } from "@stax-xml/core";
+import { NEED_INPUT, JsTokenCursor as TokenCursor, XmlEventType } from "@stax-xml/core";
 
 describe("TokenCursor option and accessor coverage", () => {
   it("resumes an initially empty cursor across a BOM boundary", () => {

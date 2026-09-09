@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "controlBytes": 128,
+  "tokenStride": 80,
+  "attributeStride": 48,
+  "scopeHeaderBytes": 32,
+  "declarationBytes": 24,
+  "flags": {
+    "selfClosing": 1,
+    "scopeVisible": 2
+  },
+  "returnCodes": {
+    "needInput": -1,
+    "error": -2,
+    "eof": 0
+  }
+}

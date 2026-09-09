@@ -2,8 +2,8 @@
 // Internal module consumed by the reader, writer, and converter layers.
 
 export * from './types.js';
-export * from './TokenCursorSpi.js';
-export { TokenCursor } from './TokenCursor.js';
+export * from './TokenCursor.js';
+export { JsTokenCursor } from './js/JsTokenCursor.js';
 export type { TokenAttribute } from './TokenCursor.js';
 export {
   jsTokenBackendFactory,
@@ -14,6 +14,7 @@ export {
 export type {
   TokenBackendFactory,
   TokenInputSessionSpi,
-} from './internal/token-backend.js';
+} from './TokenCursor.js';
 export * from './xml-validation.js';
 export { materializeTokenEvent } from './internal/materialize-token-event.js';
+export { TokenCursorConsumer } from './internal/TokenCursorConsumer.js';

@@ -25,8 +25,10 @@
     "node": ">=20.19.0"
   },
   "scripts": {
-    "build": "tsdown && pnpm run build:assets",
-    "build:assets": "pnpm exec asc assembly/tokenizer.ts --config asconfig.json --outFile dist/tokenizer.scalar.wasm && pnpm exec asc assembly/tokenizer.ts --config asconfig.json --enable simd --outFile dist/tokenizer.simd.wasm",
+    "build": "pnpm run generate:abi && tsdown && pnpm run build:assets",
+    "generate:abi": "node scripts/generate-abi.mjs",
+    "verify:abi": "node scripts/verify-abi.mjs",
+    "build:assets": "pnpm run generate:abi && pnpm exec asc assembly/tokenizer.ts --config asconfig.json --outFile dist/tokenizer.scalar.wasm && pnpm exec asc assembly/tokenizer.ts --config asconfig.json --enable simd --outFile dist/tokenizer.simd.wasm",
     "test": "pnpm run test:js && pnpm run test:assembly",
     "test:js": "vitest run --config vitest.config.ts",
     "test:assembly": "vitest run --config vitest.assembly.config.ts",
