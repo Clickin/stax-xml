@@ -1,0 +1,103 @@
+{
+  "generatedAt": "2026-07-25T01:46:06.253Z",
+  "environment": {
+    "runtime": "Node v26.5.0",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "results": [
+    {
+      "sizeGib": 10,
+      "fileSize": 10777613538,
+      "staxXml": {
+        "rows": 10990193,
+        "events": 593470429,
+        "checksum": -1981085726,
+        "wallTimeSec": 92.927589458,
+        "throughputMiBps": 110.60583066117668,
+        "peakRss": 579502080,
+        "peakHeap": 46376632
+      },
+      "woodstox": {
+        "rows": 10990193,
+        "events": 594173449,
+        "checksum": -1981085726,
+        "wallTimeSec": 34.129539291,
+        "throughputMiBps": 301.15651827897085,
+        "peakRss": 222838784,
+        "peakHeap": 157830304
+      },
+      "quickXml": {
+        "rows": 10990193,
+        "events": 395646950,
+        "checksum": -1981085726,
+        "wallTimeSec": 15.734839291,
+        "throughputMiBps": 653.2213665011429,
+        "peakRss": 2654208,
+        "peakHeap": null
+      }
+    },
+    {
+      "sizeGib": 20,
+      "fileSize": 21585253208,
+      "staxXml": {
+        "rows": 21980386,
+        "events": 1186940851,
+        "checksum": -1677173944,
+        "wallTimeSec": 187.55687625,
+        "throughputMiBps": 109.75498211090097,
+        "peakRss": 582615040,
+        "peakHeap": 59201088
+      },
+      "woodstox": {
+        "rows": 21980386,
+        "events": 1188347610,
+        "checksum": -1677173944,
+        "wallTimeSec": 69.025419875,
+        "throughputMiBps": 298.2278359896064,
+        "peakRss": 223395840,
+        "peakHeap": 157835608
+      },
+      "quickXml": {
+        "rows": 21980386,
+        "events": 791293898,
+        "checksum": -1677173944,
+        "wallTimeSec": 31.330185292,
+        "throughputMiBps": 657.0437233530043,
+        "peakRss": 2654208,
+        "peakHeap": null
+      }
+    },
+    {
+      "sizeGib": 30,
+      "fileSize": 32459392743,
+      "staxXml": {
+        "rows": 33038210,
+        "events": 1784063347,
+        "checksum": -1176897731,
+        "wallTimeSec": 281.177728667,
+        "throughputMiBps": 110.09296266776333,
+        "peakRss": 585482240,
+        "peakHeap": 79617456
+      },
+      "woodstox": {
+        "rows": 33038210,
+        "events": 1786177800,
+        "checksum": -1176897731,
+        "wallTimeSec": 103.261335084,
+        "throughputMiBps": 299.78005959307995,
+        "peakRss": 219807744,
+        "peakHeap": 157845264
+      },
+      "quickXml": {
+        "rows": 33038210,
+        "events": 1189375562,
+        "checksum": -1176897731,
+        "wallTimeSec": 47.020574708,
+        "throughputMiBps": 658.3434885128227,
+        "peakRss": 2654208,
+        "peakHeap": null
+      }
+    }
+  ]
+}

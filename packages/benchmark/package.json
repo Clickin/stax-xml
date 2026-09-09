@@ -61,6 +61,10 @@
     "bench:baseline:quick": "node --expose-gc benchmark-baseline.mjs --iterations 50",
     "// GC Pressure Measurement": "",
     "example:gc": "node --expose-gc example-gc-benchmark.mjs",
+    "// Large XML stream reader benchmarks": "",
+    "generate:large:fixtures": "node generate-large-xml.mjs --size-gib=10 --output=./assets/large && node generate-large-xml.mjs --size-gib=20 --output=./assets/large && node generate-large-xml.mjs --size-gib=30 --output=./assets/large",
+    "dev:stream-reader:large": "node --expose-gc ./stream-reader-large.mjs --file=./assets/large/database-10gib.xml --runs=1 --warmups=0",
+    "bench:large:cross-runtime": "node --expose-gc ./large-stream-reader-cross-runtime.mjs --sizes=10,20,30 --runs=1 --warmups=0",
     "// Complete workflow": "",
     "workflow:full": "pnpm run generate:testdata && pnpm run bench:baseline"
   },

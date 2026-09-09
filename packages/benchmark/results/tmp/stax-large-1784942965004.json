@@ -1,0 +1,31 @@
+{
+  "fileSize": 21585253208,
+  "runs": 1,
+  "warmups": 0,
+  "wallTimeMs": 187556.87625,
+  "throughputMiBps": 109.75498211090097,
+  "rowCount": 21980386,
+  "eventCount": 1186940851,
+  "checksum": -1677173944,
+  "peakRss": 582615040,
+  "peakHeap": 59201088,
+  "samples": [
+    {
+      "wallTimeMs": 187556.87625,
+      "throughputMiBps": 109.75498211090097,
+      "rowCount": 21980386,
+      "eventCount": 1186940851,
+      "checksum": -1677173944,
+      "memory": {
+        "startRss": 57458688,
+        "endRss": 582615040,
+        "maxRss": 582615040,
+        "startHeapUsed": 4967056,
+        "endHeapUsed": 59201088,
+        "maxHeapUsed": 59201088,
+        "heapDelta": 54234032,
+        "rssDelta": 525156352
+      }
+    }
+  ]
+}
