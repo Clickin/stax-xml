@@ -1,0 +1,18 @@
+{
+  "entry": "/tmp/stax/wasm-before-dist/index.js",
+  "bytes": 13584398,
+  "records": 18432,
+  "counts": {
+    "next": 1447127,
+    "reserve": 209,
+    "commit": 209,
+    "fieldLen": 442369,
+    "fieldPtr": 442369,
+    "attributeCount": 55296,
+    "dispose": 1
+  },
+  "decodeCalls": 442369,
+  "decodedBytes": 2691076,
+  "ingressDecodeCalls": 0,
+  "note": "Instrumented call counts only; no throughput attribution from proxy overhead."
+}

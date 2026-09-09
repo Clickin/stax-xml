@@ -1,0 +1,16 @@
+{
+  "entry": "/Users/senghyunjo/github/stax-xml/packages/wasm/dist/index.js",
+  "bytes": 13584398,
+  "records": 18432,
+  "counts": {
+    "next": 1447127,
+    "reserve": 209,
+    "commit": 209,
+    "tokenView": 405505,
+    "dispose": 1
+  },
+  "decodeCalls": 442369,
+  "decodedBytes": 2691076,
+  "ingressDecodeCalls": 0,
+  "note": "Instrumented call counts only; no throughput attribution from proxy overhead."
+}

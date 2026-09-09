@@ -1,0 +1,1741 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-09T08:28:39.767Z",
+  "invocation": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node /Users/senghyunjo/github/stax-xml/packages/benchmark/wasm-backend.mjs --out=/tmp/stax/wasm-after.json",
+  "command": "node --expose-gc packages/benchmark/wasm-backend.mjs",
+  "options": {
+    "sizeMib": 4,
+    "warmups": 2,
+    "runs": 5,
+    "gcBeforeSample": true,
+    "fixtures": false,
+    "out": "/tmp/stax/wasm-after.json"
+  },
+  "metadata": {
+    "node": "v24.21.0",
+    "v8": "13.6.233.17-node.53",
+    "platform": "darwin 25.5.0",
+    "arch": "arm64",
+    "cpu": "Apple M4",
+    "commit": "6e7b89fdf161574b98555557a4b6e1bb5af7298c",
+    "baselineCommit": null
+  },
+  "backendPolicy": {
+    "byteEncoding": "utf-8",
+    "js": "jsTokenBackendFactory",
+    "scalar": "wasmTokenBackendFactory after initWasm({variant:'scalar'})",
+    "simd": "wasmTokenBackendFactory after initWasm({variant:'simd'})",
+    "directStrings": "not routed through Wasm; factory delegates to JS",
+    "nonUtf8": "not routed through Wasm; factory delegates to JS",
+    "uninitializedUtf8": "fails clearly rather than falling back"
+  },
+  "artifacts": {
+    "js": null,
+    "scalar": {
+      "path": "/Users/senghyunjo/github/stax-xml/packages/wasm/dist/tokenizer.scalar.wasm",
+      "bytes": 21353,
+      "sha256": "b204925e7f7ce3489571058f5107a3561712d474d418f11a4b6895a252074891"
+    },
+    "simd": {
+      "path": "/Users/senghyunjo/github/stax-xml/packages/wasm/dist/tokenizer.simd.wasm",
+      "bytes": 21855,
+      "sha256": "286567bead618f7d648eba5244399e20160b03893298159ce46755e3fac789c1"
+    }
+  },
+  "cold": {
+    "js": {
+      "wasmBytes": null,
+      "compileMs": null,
+      "initMs": null,
+      "instanceMs": null,
+      "firstParseMs": 0.5867089999999848
+    },
+    "scalar": {
+      "wasmBytes": 21353,
+      "compileMs": 1.3177919999999972,
+      "initMs": 0.03412500000001728,
+      "instanceMs": 0.03145799999998644,
+      "instanceSamplesMs": [
+        0.31312500000001364,
+        0.03929100000001995,
+        0.03145799999998644,
+        0.03099999999997749,
+        0.030624999999986358
+      ],
+      "firstParseMs": 0.36991699999998673,
+      "memory": {
+        "pages": 1,
+        "inputCapacity": 0
+      }
+    },
+    "simd": {
+      "wasmBytes": 21855,
+      "compileMs": 0.11795800000001577,
+      "initMs": 0.0034169999999846823,
+      "instanceMs": 0.035750000000007276,
+      "instanceSamplesMs": [
+        0.2019160000000113,
+        0.04137500000001637,
+        0.029541999999992186,
+        0.035750000000007276,
+        0.026249999999976126
+      ],
+      "firstParseMs": 0.5804170000000113,
+      "memory": {
+        "pages": 1,
+        "inputCapacity": 0
+      }
+    }
+  },
+  "workloads": [
+    {
+      "id": "simple-ascii",
+      "source": "generated-4MiB",
+      "bytes": 4194335,
+      "bytesMiB": 4.000029563903809,
+      "checksum": -678173120,
+      "eventCount": 358102,
+      "typeChecksum": 1674942948,
+      "modes": {
+        "tokenizer-type-only": {
+          "js": {
+            "samplesMs": [
+              29.73149999999987,
+              29.886417000000165,
+              29.747957999999926,
+              28.300000000000182,
+              29.818958999999722
+            ],
+            "medianMs": 29.747957999999926,
+            "throughputMiBPerSec": 134.4640046857609,
+            "memory": {
+              "heapUsedBeforeMedian": 8589824,
+              "heapUsedAfterMedian": 30779536,
+              "rssBeforeMedian": 202457088,
+              "rssAfterMedian": 202457088,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              35.417541000000256,
+              35.354207999999744,
+              36.3715000000002,
+              36.15979100000004,
+              36.88833399999976
+            ],
+            "medianMs": 36.15979100000004,
+            "throughputMiBPerSec": 110.62092598665198,
+            "memory": {
+              "heapUsedBeforeMedian": 8618128,
+              "heapUsedAfterMedian": 8702648,
+              "rssBeforeMedian": 202539008,
+              "rssAfterMedian": 202735616,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              35.31245799999988,
+              35.32900000000063,
+              35.1499160000003,
+              35.14287499999955,
+              34.47595799999999
+            ],
+            "medianMs": 35.1499160000003,
+            "throughputMiBPerSec": 113.7991215655757,
+            "memory": {
+              "heapUsedBeforeMedian": 8631024,
+              "heapUsedAfterMedian": 8711416,
+              "rssBeforeMedian": 202555392,
+              "rssAfterMedian": 202752000,
+              "wasmAfter": null
+            }
+          }
+        },
+        "stream-sync-type-only": {
+          "js": {
+            "samplesMs": [
+              44.75279200000023,
+              40.89604099999997,
+              40.1244999999999,
+              40.528041999999914,
+              40.38104099999964
+            ],
+            "medianMs": 40.528041999999914,
+            "throughputMiBPerSec": 98.69782418562971,
+            "memory": {
+              "heapUsedBeforeMedian": 8659984,
+              "heapUsedAfterMedian": 31810856,
+              "rssBeforeMedian": 203046912,
+              "rssAfterMedian": 203161600,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              34.319791999999325,
+              33.91308300000037,
+              33.80033300000014,
+              33.89483300000029,
+              33.869290999999976
+            ],
+            "medianMs": 33.89483300000029,
+            "throughputMiBPerSec": 118.01295978958723,
+            "memory": {
+              "heapUsedBeforeMedian": 8658752,
+              "heapUsedAfterMedian": 8738712,
+              "rssBeforeMedian": 202915840,
+              "rssAfterMedian": 203112448,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              32.78095799999937,
+              32.20970799999941,
+              32.76904200000081,
+              32.71629099999973,
+              32.795624999999745
+            ],
+            "medianMs": 32.76904200000081,
+            "throughputMiBPerSec": 122.06733306099427,
+            "memory": {
+              "heapUsedBeforeMedian": 8659816,
+              "heapUsedAfterMedian": 8739064,
+              "rssBeforeMedian": 202915840,
+              "rssAfterMedian": 203112448,
+              "wasmAfter": null
+            }
+          }
+        },
+        "stream-sync-accessors": {
+          "js": {
+            "samplesMs": [
+              58.55816700000014,
+              56.49749999999949,
+              57.65850000000046,
+              56.1371250000002,
+              55.94091600000047
+            ],
+            "medianMs": 56.49749999999949,
+            "throughputMiBPerSec": 70.80011618043001,
+            "memory": {
+              "heapUsedBeforeMedian": 8710184,
+              "heapUsedAfterMedian": 10958680,
+              "rssBeforeMedian": 203227136,
+              "rssAfterMedian": 203407360,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              166.68587500000012,
+              165.31537500000013,
+              163.74516700000004,
+              162.61862500000007,
+              166.38324999999986
+            ],
+            "medianMs": 165.31537500000013,
+            "throughputMiBPerSec": 24.196355383785722,
+            "memory": {
+              "heapUsedBeforeMedian": 8767144,
+              "heapUsedAfterMedian": 24827560,
+              "rssBeforeMedian": 203161600,
+              "rssAfterMedian": 203358208,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              162.84079199999996,
+              165.03433399999994,
+              164.13329200000044,
+              165.48891699999967,
+              164.77675
+            ],
+            "medianMs": 164.77675,
+            "throughputMiBPerSec": 24.275448835492924,
+            "memory": {
+              "heapUsedBeforeMedian": 8772576,
+              "heapUsedAfterMedian": 24848160,
+              "rssBeforeMedian": 203161600,
+              "rssAfterMedian": 203358208,
+              "wasmAfter": null
+            }
+          }
+        },
+        "stream-sync-chunked": {
+          "js": {
+            "samplesMs": [
+              61.463292000000365,
+              58.45591599999989,
+              58.377292000000125,
+              58.19708300000002,
+              57.513042000000496
+            ],
+            "medianMs": 58.377292000000125,
+            "throughputMiBPerSec": 68.52030004926917,
+            "memory": {
+              "heapUsedBeforeMedian": 8745920,
+              "heapUsedAfterMedian": 15120104,
+              "rssBeforeMedian": 203489280,
+              "rssAfterMedian": 203489280,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              167.63816599999882,
+              165.56895799999984,
+              184.75079200000073,
+              165.96541699999943,
+              165.75895799999853
+            ],
+            "medianMs": 165.96541699999943,
+            "throughputMiBPerSec": 24.101584753068302,
+            "memory": {
+              "heapUsedBeforeMedian": 8791792,
+              "heapUsedAfterMedian": 24864376,
+              "rssBeforeMedian": 203440128,
+              "rssAfterMedian": 203636736,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              169.36529100000007,
+              168.56191600000056,
+              166.87591599999905,
+              164.20191700000032,
+              167.97116599999936
+            ],
+            "medianMs": 167.97116599999936,
+            "throughputMiBPerSec": 23.813786968078936,
+            "memory": {
+              "heapUsedBeforeMedian": 8802600,
+              "heapUsedAfterMedian": 24889248,
+              "rssBeforeMedian": 203341824,
+              "rssAfterMedian": 203538432,
+              "wasmAfter": null
+            }
+          }
+        },
+        "stream-async": {
+          "js": {
+            "samplesMs": [
+              76.06312499999876,
+              71.92562499999985,
+              70.35154200000034,
+              71.84245799999917,
+              72.63899999999921
+            ],
+            "medianMs": 71.92562499999985,
+            "throughputMiBPerSec": 55.61341404963553,
+            "memory": {
+              "heapUsedBeforeMedian": 8822480,
+              "heapUsedAfterMedian": 36306472,
+              "rssBeforeMedian": 203522048,
+              "rssAfterMedian": 203603968,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              190.58737500000097,
+              198.42812500000036,
+              188.91970800000126,
+              186.81395800000064,
+              185.53345799999988
+            ],
+            "medianMs": 188.91970800000126,
+            "throughputMiBPerSec": 21.173172488196847,
+            "memory": {
+              "heapUsedBeforeMedian": 8879896,
+              "heapUsedAfterMedian": 13165400,
+              "rssBeforeMedian": 203522048,
+              "rssAfterMedian": 203718656,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              190.8821250000001,
+              190.75308399999994,
+              185.34187500000007,
+              187.48524999999972,
+              187.536415999999
+            ],
+            "medianMs": 187.536415999999,
+            "throughputMiBPerSec": 21.329348449870288,
+            "memory": {
+              "heapUsedBeforeMedian": 8882352,
+              "heapUsedAfterMedian": 13208144,
+              "rssBeforeMedian": 203423744,
+              "rssAfterMedian": 203620352,
+              "wasmAfter": null
+            }
+          }
+        }
+      },
+      "memoryProbe": {
+        "js": null,
+        "scalar": {
+          "pushes": 65,
+          "eventCount": 358102,
+          "beforeDispose": {
+            "pages": 6,
+            "inputCapacity": 0
+          },
+          "maximum": {
+            "pages": 6,
+            "inputCapacity": 131072
+          },
+          "afterDispose": {
+            "pages": 0,
+            "inputCapacity": 0
+          }
+        },
+        "simd": {
+          "pushes": 65,
+          "eventCount": 358102,
+          "beforeDispose": {
+            "pages": 6,
+            "inputCapacity": 0
+          },
+          "maximum": {
+            "pages": 6,
+            "inputCapacity": 131072
+          },
+          "afterDispose": {
+            "pages": 0,
+            "inputCapacity": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "attribute-heavy",
+      "source": "generated-4MiB",
+      "bytes": 4194341,
+      "bytesMiB": 4.000035285949707,
+      "checksum": -1660797310,
+      "eventCount": 64543,
+      "typeChecksum": -1679968219,
+      "modes": {
+        "tokenizer-type-only": {
+          "js": {
+            "samplesMs": [
+              27.805458000000726,
+              27.301666999999725,
+              27.27925000000141,
+              27.66424999999981,
+              27.500083999999333
+            ],
+            "medianMs": 27.500083999999333,
+            "throughputMiBPerSec": 145.45538427990996,
+            "memory": {
+              "heapUsedBeforeMedian": 8855776,
+              "heapUsedAfterMedian": 19998192,
+              "rssBeforeMedian": 203423744,
+              "rssAfterMedian": 203423744,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              34.81554099999994,
+              34.46404100000109,
+              34.91270799999984,
+              35.01274999999987,
+              35.17249999999876
+            ],
+            "medianMs": 34.91270799999984,
+            "throughputMiBPerSec": 114.57247274974274,
+            "memory": {
+              "heapUsedBeforeMedian": 8868128,
+              "heapUsedAfterMedian": 8941808,
+              "rssBeforeMedian": 203423744,
+              "rssAfterMedian": 203620352,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              33.19829200000095,
+              32.27624999999898,
+              32.76933300000019,
+              33.18149999999878,
+              33.1529589999991
+            ],
+            "medianMs": 33.1529589999991,
+            "throughputMiBPerSec": 120.65394482434631,
+            "memory": {
+              "heapUsedBeforeMedian": 8869600,
+              "heapUsedAfterMedian": 8943216,
+              "rssBeforeMedian": 203423744,
+              "rssAfterMedian": 203620352,
+              "wasmAfter": null
+            }
+          }
+        },
+        "stream-sync-type-only": {
+          "js": {
+            "samplesMs": [
+              28.20629199999894,
+              45.79387499999939,
+              30.244666000000507,
+              27.763167000000976,
+              46.662874999999985
+            ],
+            "medianMs": 30.244666000000507,
+            "throughputMiBPerSec": 132.25589219433402,
+            "memory": {
+              "heapUsedBeforeMedian": 8941000,
+              "heapUsedAfterMedian": 20222488,
+              "rssBeforeMedian": 203522048,
+              "rssAfterMedian": 203767808,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              34.304041999999754,
+              34.37970800000039,
+              34.50316699999894,
+              34.48408299999937,
+              34.414959000001545
+            ],
+            "medianMs": 34.414959000001545,
+            "throughputMiBPerSec": 116.2295525602552,
+            "memory": {
+              "heapUsedBeforeMedian": 8867536,
+              "heapUsedAfterMedian": 8936696,
+              "rssBeforeMedian": 205209600,
+              "rssAfterMedian": 205406208,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              32.20366699999795,
+              32.364166999999725,
+              32.95708299999751,
+              32.36650000000009,
+              32.11962499999936
+            ],
+            "medianMs": 32.364166999999725,
+            "throughputMiBPerSec": 123.59456944928449,
+            "memory": {
+              "heapUsedBeforeMedian": 8867376,
+              "heapUsedAfterMedian": 8937560,
+              "rssBeforeMedian": 205209600,
+              "rssAfterMedian": 205406208,
+              "wasmAfter": null
+            }
+          }
+        },
+        "stream-sync-accessors": {
+          "js": {
+            "samplesMs": [
+              67.81808300000193,
+              47.87450000000172,
+              67.74799999999959,
+              48.132958999998664,
+              67.5402920000015
+            ],
+            "medianMs": 67.5402920000015,
+            "throughputMiBPerSec": 59.224429855139185,
+            "memory": {
+              "heapUsedBeforeMedian": 8971480,
+              "heapUsedAfterMedian": 16545472,
+              "rssBeforeMedian": 205783040,
+              "rssAfterMedian": 205881344,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              140.14337499999965,
+              142.67395899999974,
+              139.75720799999908,
+              139.66583399999945,
+              139.432334000001
+            ],
+            "medianMs": 139.75720799999908,
+            "throughputMiBPerSec": 28.621316518785445,
+            "memory": {
+              "heapUsedBeforeMedian": 8939624,
+              "heapUsedAfterMedian": 19023400,
+              "rssBeforeMedian": 205815808,
+              "rssAfterMedian": 206012416,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              136.64741700000013,
+              136.59775000000081,
+              137.00374999999985,
+              136.8114999999998,
+              138.73749999999927
+            ],
+            "medianMs": 136.8114999999998,
+            "throughputMiBPerSec": 29.23756618376169,
+            "memory": {
+              "heapUsedBeforeMedian": 8940976,
+              "heapUsedAfterMedian": 19022408,
+              "rssBeforeMedian": 205815808,
+              "rssAfterMedian": 206012416,
+              "wasmAfter": null
+            }
+          }
+        },
+        "stream-sync-chunked": {
+          "js": {
+            "samplesMs": [
+              65.73975000000064,
+              45.5022089999984,
+              63.39349999999831,
+              44.90816700000141,
+              64.51641599999857
+            ],
+            "medianMs": 63.39349999999831,
+            "throughputMiBPerSec": 63.0985083005326,
+            "memory": {
+              "heapUsedBeforeMedian": 8970768,
+              "heapUsedAfterMedian": 16546088,
+              "rssBeforeMedian": 205897728,
+              "rssAfterMedian": 205897728,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              138.00645900000018,
+              138.42904199999975,
+              138.6839170000021,
+              137.83016599999974,
+              139.1649580000012
+            ],
+            "medianMs": 138.42904199999975,
+            "throughputMiBPerSec": 28.89592550925632,
+            "memory": {
+              "heapUsedBeforeMedian": 8940360,
+              "heapUsedAfterMedian": 19039888,
+              "rssBeforeMedian": 205832192,
+              "rssAfterMedian": 206028800,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              136.67445800000132,
+              135.48016700000153,
+              137.00374999999985,
+              139.85929199999737,
+              138.5869590000002
+            ],
+            "medianMs": 137.00374999999985,
+            "throughputMiBPerSec": 29.196538678318745,
+            "memory": {
+              "heapUsedBeforeMedian": 8940416,
+              "heapUsedAfterMedian": 19046488,
+              "rssBeforeMedian": 205848576,
+              "rssAfterMedian": 206045184,
+              "wasmAfter": null
+            }
+          }
+        },
+        "stream-async": {
+          "js": {
+            "samplesMs": [
+              68.71162499999991,
+              49.689000000002125,
+              67.81037500000093,
+              49.85779199999888,
+              67.1976250000007
+            ],
+            "medianMs": 67.1976250000007,
+            "throughputMiBPerSec": 59.5264384113228,
+            "memory": {
+              "heapUsedBeforeMedian": 8976008,
+              "heapUsedAfterMedian": 28229480,
+              "rssBeforeMedian": 206028800,
+              "rssAfterMedian": 206028800,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              145.0806249999987,
+              144.53233300000284,
+              142.65620899999703,
+              144.8677499999976,
+              142.72962499999994
+            ],
+            "medianMs": 144.53233300000284,
+            "throughputMiBPerSec": 27.675712436950896,
+            "memory": {
+              "heapUsedBeforeMedian": 8944240,
+              "heapUsedAfterMedian": 35121400,
+              "rssBeforeMedian": 206192640,
+              "rssAfterMedian": 206389248,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              144.93724999999904,
+              142.50508400000035,
+              143.18537500000093,
+              142.1096660000003,
+              142.0361669999984
+            ],
+            "medianMs": 142.50508400000035,
+            "throughputMiBPerSec": 28.069421621124036,
+            "memory": {
+              "heapUsedBeforeMedian": 8941368,
+              "heapUsedAfterMedian": 35086448,
+              "rssBeforeMedian": 205979648,
+              "rssAfterMedian": 206176256,
+              "wasmAfter": null
+            }
+          }
+        },
+        "event-sync-materialized": {
+          "js": {
+            "samplesMs": [
+              68.06329199999891,
+              48.05829199999789,
+              68.65729099999953,
+              47.32758300000205,
+              69.44004199999836
+            ],
+            "medianMs": 68.06329199999891,
+            "throughputMiBPerSec": 58.769347887988886,
+            "memory": {
+              "heapUsedBeforeMedian": 8969576,
+              "heapUsedAfterMedian": 37112072,
+              "rssBeforeMedian": 206602240,
+              "rssAfterMedian": 206864384,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              139.30999999999767,
+              142.05087500000081,
+              139.63704099999813,
+              143.05795800000124,
+              148.69029200000296
+            ],
+            "medianMs": 142.05087500000081,
+            "throughputMiBPerSec": 28.159173859011315,
+            "memory": {
+              "heapUsedBeforeMedian": 8952080,
+              "heapUsedAfterMedian": 13072432,
+              "rssBeforeMedian": 206979072,
+              "rssAfterMedian": 207175680,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              141.05295800000022,
+              138.0089169999992,
+              147.90441599999758,
+              139.4019159999989,
+              138.68683299999975
+            ],
+            "medianMs": 139.4019159999989,
+            "throughputMiBPerSec": 28.694263326694436,
+            "memory": {
+              "heapUsedBeforeMedian": 8957424,
+              "heapUsedAfterMedian": 13079840,
+              "rssBeforeMedian": 206798848,
+              "rssAfterMedian": 206995456,
+              "wasmAfter": null
+            }
+          }
+        }
+      },
+      "memoryProbe": {
+        "js": null,
+        "scalar": {
+          "pushes": 65,
+          "eventCount": 64543,
+          "beforeDispose": {
+            "pages": 6,
+            "inputCapacity": 0
+          },
+          "maximum": {
+            "pages": 6,
+            "inputCapacity": 131072
+          },
+          "afterDispose": {
+            "pages": 0,
+            "inputCapacity": 0
+          }
+        },
+        "simd": {
+          "pushes": 65,
+          "eventCount": 64543,
+          "beforeDispose": {
+            "pages": 6,
+            "inputCapacity": 0
+          },
+          "maximum": {
+            "pages": 6,
+            "inputCapacity": 131072
+          },
+          "afterDispose": {
+            "pages": 0,
+            "inputCapacity": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "namespace-heavy",
+      "source": "generated-4MiB",
+      "bytes": 4194377,
+      "bytesMiB": 4.000069618225098,
+      "checksum": -1526167758,
+      "eventCount": 177169,
+      "typeChecksum": 1056676878,
+      "modes": {
+        "tokenizer-type-only": {
+          "js": {
+            "samplesMs": [
+              33.914333000000624,
+              33.21470799999952,
+              32.72045800000342,
+              34.14666700000089,
+              33.4485829999976
+            ],
+            "medianMs": 33.4485829999976,
+            "throughputMiBPerSec": 119.58861211625572,
+            "memory": {
+              "heapUsedBeforeMedian": 8928904,
+              "heapUsedAfterMedian": 36489168,
+              "rssBeforeMedian": 206585856,
+              "rssAfterMedian": 206585856,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              48.92504199999894,
+              46.05020799999693,
+              45.4886660000011,
+              45.08504200000243,
+              45.69141700000182
+            ],
+            "medianMs": 45.69141700000182,
+            "throughputMiBPerSec": 87.54531771743778,
+            "memory": {
+              "heapUsedBeforeMedian": 8939464,
+              "heapUsedAfterMedian": 9014400,
+              "rssBeforeMedian": 206602240,
+              "rssAfterMedian": 206798848,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              44.952666000001045,
+              45.894749999999476,
+              45.7354579999992,
+              45.99291599999924,
+              46.2265830000033
+            ],
+            "medianMs": 45.894749999999476,
+            "throughputMiBPerSec": 87.15745522581871,
+            "memory": {
+              "heapUsedBeforeMedian": 8941616,
+              "heapUsedAfterMedian": 9015368,
+              "rssBeforeMedian": 206602240,
+              "rssAfterMedian": 206798848,
+              "wasmAfter": null
+            }
+          }
+        },
+        "stream-sync-type-only": {
+          "js": {
+            "samplesMs": [
+              49.880582999998296,
+              45.679416999999376,
+              46.84083299999838,
+              46.28545900000245,
+              46.0892500000009
+            ],
+            "medianMs": 46.28545900000245,
+            "throughputMiBPerSec": 86.42173383707583,
+            "memory": {
+              "heapUsedBeforeMedian": 8951816,
+              "heapUsedAfterMedian": 41618656,
+              "rssBeforeMedian": 206831616,
+              "rssAfterMedian": 206864384,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              43.47637499999837,
+              45.289082999999664,
+              44.07025000000067,
+              44.30945799999972,
+              44.26841600000262
+            ],
+            "medianMs": 44.26841600000262,
+            "throughputMiBPerSec": 90.35944765281101,
+            "memory": {
+              "heapUsedBeforeMedian": 8939496,
+              "heapUsedAfterMedian": 9015512,
+              "rssBeforeMedian": 206602240,
+              "rssAfterMedian": 206798848,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              43.44000000000233,
+              44.62933299999713,
+              43.310999999997875,
+              43.6574580000015,
+              44.42162499999904
+            ],
+            "medianMs": 43.6574580000015,
+            "throughputMiBPerSec": 91.62396991196695,
+            "memory": {
+              "heapUsedBeforeMedian": 8942824,
+              "heapUsedAfterMedian": 9015144,
+              "rssBeforeMedian": 206602240,
+              "rssAfterMedian": 206798848,
+              "wasmAfter": null
+            }
+          }
+        },
+        "stream-sync-accessors": {
+          "js": {
+            "samplesMs": [
+              70.10783299999821,
+              67.71912499999962,
+              66.06291699999929,
+              64.90279100000043,
+              67.0645829999994
+            ],
+            "medianMs": 67.0645829999994,
+            "throughputMiBPerSec": 59.64503824955019,
+            "memory": {
+              "heapUsedBeforeMedian": 8963192,
+              "heapUsedAfterMedian": 22952504,
+              "rssBeforeMedian": 206995456,
+              "rssAfterMedian": 206995456,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              199.67258299999958,
+              199.79187499999898,
+              198.0951669999995,
+              201.11499999999796,
+              199.86537500000122
+            ],
+            "medianMs": 199.79187499999898,
+            "throughputMiBPerSec": 20.021182634304413,
+            "memory": {
+              "heapUsedBeforeMedian": 8996064,
+              "heapUsedAfterMedian": 33949192,
+              "rssBeforeMedian": 206995456,
+              "rssAfterMedian": 207192064,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              199.69141700000182,
+              199.11179200000333,
+              198.4331250000032,
+              195.23104199999943,
+              200.07845899999666
+            ],
+            "medianMs": 199.11179200000333,
+            "throughputMiBPerSec": 20.08956666024597,
+            "memory": {
+              "heapUsedBeforeMedian": 8998216,
+              "heapUsedAfterMedian": 33933600,
+              "rssBeforeMedian": 206733312,
+              "rssAfterMedian": 206929920,
+              "wasmAfter": null
+            }
+          }
+        },
+        "stream-sync-chunked": {
+          "js": {
+            "samplesMs": [
+              70.12333300000319,
+              66.30683300000237,
+              66.22045800000342,
+              65.45074999999633,
+              66.72608400000172
+            ],
+            "medianMs": 66.30683300000237,
+            "throughputMiBPerSec": 60.32665770999732,
+            "memory": {
+              "heapUsedBeforeMedian": 8965688,
+              "heapUsedAfterMedian": 22956752,
+              "rssBeforeMedian": 207060992,
+              "rssAfterMedian": 207093760,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              200.92620899999747,
+              199.14279100000567,
+              198.76854199999798,
+              199.6264169999995,
+              200.7700829999958
+            ],
+            "medianMs": 199.6264169999995,
+            "throughputMiBPerSec": 20.037776955266935,
+            "memory": {
+              "heapUsedBeforeMedian": 8997232,
+              "heapUsedAfterMedian": 33987584,
+              "rssBeforeMedian": 206864384,
+              "rssAfterMedian": 207060992,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              206.265625,
+              197.81037500000093,
+              198.66474999999627,
+              198.8013340000034,
+              201.72387500000332
+            ],
+            "medianMs": 198.8013340000034,
+            "throughputMiBPerSec": 20.120939521588063,
+            "memory": {
+              "heapUsedBeforeMedian": 8999240,
+              "heapUsedAfterMedian": 33928752,
+              "rssBeforeMedian": 206848000,
+              "rssAfterMedian": 207044608,
+              "wasmAfter": null
+            }
+          }
+        },
+        "stream-async": {
+          "js": {
+            "samplesMs": [
+              80.218541000002,
+              75.22958300000028,
+              75.08270800000173,
+              74.76920799999789,
+              75.44879200000287
+            ],
+            "medianMs": 75.22958300000028,
+            "throughputMiBPerSec": 53.17149794948462,
+            "memory": {
+              "heapUsedBeforeMedian": 8964864,
+              "heapUsedAfterMedian": 33157752,
+              "rssBeforeMedian": 207077376,
+              "rssAfterMedian": 207110144,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              212.69491700000071,
+              210.70108400000026,
+              210.39195800000016,
+              207.8896659999955,
+              209.51345800000126
+            ],
+            "medianMs": 210.39195800000016,
+            "throughputMiBPerSec": 19.012464431863382,
+            "memory": {
+              "heapUsedBeforeMedian": 9010520,
+              "heapUsedAfterMedian": 10838808,
+              "rssBeforeMedian": 207028224,
+              "rssAfterMedian": 207224832,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              210.314750000005,
+              210.99833399999625,
+              207.8128330000036,
+              210.03170800000225,
+              210.42725000000064
+            ],
+            "medianMs": 210.314750000005,
+            "throughputMiBPerSec": 19.019444039112816,
+            "memory": {
+              "heapUsedBeforeMedian": 9006352,
+              "heapUsedAfterMedian": 10869512,
+              "rssBeforeMedian": 206880768,
+              "rssAfterMedian": 207077376,
+              "wasmAfter": null
+            }
+          }
+        }
+      },
+      "memoryProbe": {
+        "js": null,
+        "scalar": {
+          "pushes": 65,
+          "eventCount": 177169,
+          "beforeDispose": {
+            "pages": 6,
+            "inputCapacity": 0
+          },
+          "maximum": {
+            "pages": 6,
+            "inputCapacity": 131072
+          },
+          "afterDispose": {
+            "pages": 0,
+            "inputCapacity": 0
+          }
+        },
+        "simd": {
+          "pushes": 65,
+          "eventCount": 177169,
+          "beforeDispose": {
+            "pages": 6,
+            "inputCapacity": 0
+          },
+          "maximum": {
+            "pages": 6,
+            "inputCapacity": 131072
+          },
+          "afterDispose": {
+            "pages": 0,
+            "inputCapacity": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-heavy",
+      "source": "generated-4MiB",
+      "bytes": 4194371,
+      "bytesMiB": 4.000063896179199,
+      "checksum": -1352623913,
+      "eventCount": 124021,
+      "typeChecksum": 75479969,
+      "modes": {
+        "tokenizer-type-only": {
+          "js": {
+            "samplesMs": [
+              19.40533399999549,
+              19.222459000004164,
+              19.112750000000233,
+              19.346125000003667,
+              19.400375000004715
+            ],
+            "medianMs": 19.346125000003667,
+            "throughputMiBPerSec": 206.7630544193445,
+            "memory": {
+              "heapUsedBeforeMedian": 8969856,
+              "heapUsedAfterMedian": 28389056,
+              "rssBeforeMedian": 206651392,
+              "rssAfterMedian": 206651392,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              23.573583000004874,
+              23.98858299999847,
+              23.758625000002212,
+              23.66895900000236,
+              23.657208999997238
+            ],
+            "medianMs": 23.66895900000236,
+            "throughputMiBPerSec": 169.00041510819298,
+            "memory": {
+              "heapUsedBeforeMedian": 8980576,
+              "heapUsedAfterMedian": 9057488,
+              "rssBeforeMedian": 206651392,
+              "rssAfterMedian": 190676992,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              25.248915999996825,
+              24.855041999995592,
+              25.633374999997613,
+              25.38995799999975,
+              25.484333000000333
+            ],
+            "medianMs": 25.38995799999975,
+            "throughputMiBPerSec": 157.54511670240802,
+            "memory": {
+              "heapUsedBeforeMedian": 8980048,
+              "heapUsedAfterMedian": 9054192,
+              "rssBeforeMedian": 167018496,
+              "rssAfterMedian": 166658048,
+              "wasmAfter": null
+            }
+          }
+        },
+        "stream-sync-type-only": {
+          "js": {
+            "samplesMs": [
+              32.615749999997206,
+              24.98491600000125,
+              34.29849999999715,
+              24.57800000000134,
+              30.851999999998952
+            ],
+            "medianMs": 30.851999999998952,
+            "throughputMiBPerSec": 129.65330922401577,
+            "memory": {
+              "heapUsedBeforeMedian": 9048192,
+              "heapUsedAfterMedian": 29932600,
+              "rssBeforeMedian": 167460864,
+              "rssAfterMedian": 167510016,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              22.341667000000598,
+              21.764374999998836,
+              22.507416000000376,
+              21.814542000000074,
+              22.132958000001963
+            ],
+            "medianMs": 22.132958000001963,
+            "throughputMiBPerSec": 180.72884321105403,
+            "memory": {
+              "heapUsedBeforeMedian": 8993504,
+              "heapUsedAfterMedian": 9068848,
+              "rssBeforeMedian": 167297024,
+              "rssAfterMedian": 167493632,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              24.16729199999827,
+              23.796875,
+              24.14433299999655,
+              24.05045799999789,
+              24.537583000004815
+            ],
+            "medianMs": 24.14433299999655,
+            "throughputMiBPerSec": 165.67299234067767,
+            "memory": {
+              "heapUsedBeforeMedian": 8993904,
+              "heapUsedAfterMedian": 9066360,
+              "rssBeforeMedian": 167297024,
+              "rssAfterMedian": 167493632,
+              "wasmAfter": null
+            }
+          }
+        },
+        "stream-sync-accessors": {
+          "js": {
+            "samplesMs": [
+              44.05591700000514,
+              35.0812919999953,
+              43.69458399999712,
+              33.99462499999936,
+              54.56754099999671
+            ],
+            "medianMs": 43.69458399999712,
+            "throughputMiBPerSec": 91.5459887701291,
+            "memory": {
+              "heapUsedBeforeMedian": 9079728,
+              "heapUsedAfterMedian": 41023728,
+              "rssBeforeMedian": 167968768,
+              "rssAfterMedian": 168083456,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              86.78058299999975,
+              85.85237499999494,
+              82.9706659999938,
+              87.7255839999998,
+              85.97116599999572
+            ],
+            "medianMs": 85.97116599999572,
+            "throughputMiBPerSec": 46.52797074055502,
+            "memory": {
+              "heapUsedBeforeMedian": 9063456,
+              "heapUsedAfterMedian": 20491016,
+              "rssBeforeMedian": 168607744,
+              "rssAfterMedian": 168804352,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              88.78108300000167,
+              89.71825000000536,
+              86.16012500000215,
+              89.95783300000039,
+              90.67787500000122
+            ],
+            "medianMs": 89.71825000000536,
+            "throughputMiBPerSec": 44.58472937422387,
+            "memory": {
+              "heapUsedBeforeMedian": 9062552,
+              "heapUsedAfterMedian": 20315736,
+              "rssBeforeMedian": 168460288,
+              "rssAfterMedian": 168656896,
+              "wasmAfter": null
+            }
+          }
+        },
+        "stream-sync-chunked": {
+          "js": {
+            "samplesMs": [
+              53.34395800000493,
+              37.67583299999387,
+              58.19437499999913,
+              48.67920800000138,
+              33.2734580000033
+            ],
+            "medianMs": 48.67920800000138,
+            "throughputMiBPerSec": 82.1719181663573,
+            "memory": {
+              "heapUsedBeforeMedian": 9087152,
+              "heapUsedAfterMedian": 40496800,
+              "rssBeforeMedian": 169623552,
+              "rssAfterMedian": 169738240,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              93.77216600000247,
+              96.46045900000172,
+              93.61679200000071,
+              96.39425000000483,
+              89.20270799999707
+            ],
+            "medianMs": 93.77216600000247,
+            "throughputMiBPerSec": 42.65726245652781,
+            "memory": {
+              "heapUsedBeforeMedian": 9063528,
+              "heapUsedAfterMedian": 20406032,
+              "rssBeforeMedian": 170147840,
+              "rssAfterMedian": 170328064,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              92.60175000000163,
+              88.22741600000154,
+              90.19541599999502,
+              88.75708399999712,
+              90.43733400000201
+            ],
+            "medianMs": 90.19541599999502,
+            "throughputMiBPerSec": 44.34886021457476,
+            "memory": {
+              "heapUsedBeforeMedian": 9070384,
+              "heapUsedAfterMedian": 20572032,
+              "rssBeforeMedian": 169525248,
+              "rssAfterMedian": 169721856,
+              "wasmAfter": null
+            }
+          }
+        },
+        "stream-async": {
+          "js": {
+            "samplesMs": [
+              67.81087500000285,
+              40.60620899999776,
+              54.91737500000454,
+              42.428500000001804,
+              58.30045799999789
+            ],
+            "medianMs": 54.91737500000454,
+            "throughputMiBPerSec": 72.83785680176571,
+            "memory": {
+              "heapUsedBeforeMedian": 9089216,
+              "heapUsedAfterMedian": 38162616,
+              "rssBeforeMedian": 170262528,
+              "rssAfterMedian": 170393600,
+              "wasmAfter": null
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              102.5069580000054,
+              95.05083300000115,
+              95.40062500000204,
+              97.34250000000611,
+              96.38895899999625
+            ],
+            "medianMs": 96.38895899999625,
+            "throughputMiBPerSec": 41.49919179207397,
+            "memory": {
+              "heapUsedBeforeMedian": 9078184,
+              "heapUsedAfterMedian": 17674752,
+              "rssBeforeMedian": 171311104,
+              "rssAfterMedian": 171507712,
+              "wasmAfter": null
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              97.76699999999983,
+              94.92949999999837,
+              96.5147500000021,
+              95.98987500000658,
+              96.72591699999612
+            ],
+            "medianMs": 96.5147500000021,
+            "throughputMiBPerSec": 41.445104465163226,
+            "memory": {
+              "heapUsedBeforeMedian": 9073672,
+              "heapUsedAfterMedian": 17631600,
+              "rssBeforeMedian": 171311104,
+              "rssAfterMedian": 171507712,
+              "wasmAfter": null
+            }
+          }
+        }
+      },
+      "memoryProbe": {
+        "js": null,
+        "scalar": {
+          "pushes": 65,
+          "eventCount": 124021,
+          "beforeDispose": {
+            "pages": 6,
+            "inputCapacity": 0
+          },
+          "maximum": {
+            "pages": 6,
+            "inputCapacity": 131072
+          },
+          "afterDispose": {
+            "pages": 0,
+            "inputCapacity": 0
+          }
+        },
+        "simd": {
+          "pushes": 65,
+          "eventCount": 124021,
+          "beforeDispose": {
+            "pages": 6,
+            "inputCapacity": 0
+          },
+          "maximum": {
+            "pages": 6,
+            "inputCapacity": 131072
+          },
+          "afterDispose": {
+            "pages": 0,
+            "inputCapacity": 0
+          }
+        }
+      }
+    }
+  ],
+  "converter": {
+    "bytes": 4194339,
+    "records": 35168,
+    "checksum": 1796842149,
+    "variants": {
+      "js": {
+        "samplesMs": [
+          64.22091699999874,
+          60.19604199999594,
+          60.969374999993306,
+          59.44987499999843,
+          61.00100000000384
+        ],
+        "medianMs": 60.969374999993306,
+        "throughputMiBPerSec": 65.60725575096536,
+        "memory": {
+          "heapUsedBeforeMedian": 9725544,
+          "heapUsedAfterMedian": 42749608,
+          "rssBeforeMedian": 281575424,
+          "rssAfterMedian": 282525696,
+          "wasmAfter": null
+        }
+      },
+      "scalar": {
+        "samplesMs": [
+          109.92395800000668,
+          111.28020799999649,
+          106.09479100000317,
+          105.4543330000015,
+          106.59112499999901
+        ],
+        "medianMs": 106.59112499999901,
+        "throughputMiBPerSec": 37.526889584860946,
+        "memory": {
+          "heapUsedBeforeMedian": 9700424,
+          "heapUsedAfterMedian": 60112960,
+          "rssBeforeMedian": 282099712,
+          "rssAfterMedian": 283181056,
+          "wasmAfter": null
+        }
+      },
+      "simd": {
+        "samplesMs": [
+          105.39833400000498,
+          104.11274999999296,
+          106.72979199999827,
+          103.46429199999693,
+          103.47466600000189
+        ],
+        "medianMs": 104.11274999999296,
+        "throughputMiBPerSec": 38.42020673357821,
+        "memory": {
+          "heapUsedBeforeMedian": 9710808,
+          "heapUsedAfterMedian": 60112208,
+          "rssBeforeMedian": 282148864,
+          "rssAfterMedian": 283230208,
+          "wasmAfter": null
+        }
+      }
+    }
+  },
+  "retention": {
+    "js": {
+      "repeats": 5,
+      "before": {
+        "heapUsed": 59934672,
+        "rss": 283246592,
+        "wasm": null
+      },
+      "after": {
+        "heapUsed": 9766776,
+        "rss": 282787840,
+        "wasm": null
+      },
+      "wasmProbes": null
+    },
+    "scalar": {
+      "repeats": 5,
+      "before": {
+        "heapUsed": 9768904,
+        "rss": 282787840,
+        "wasm": null
+      },
+      "after": {
+        "heapUsed": 9670976,
+        "rss": 283312128,
+        "wasm": null
+      },
+      "wasmProbes": [
+        {
+          "pushes": 65,
+          "eventCount": 358102,
+          "beforeDispose": {
+            "pages": 6,
+            "inputCapacity": 0
+          },
+          "maximum": {
+            "pages": 6,
+            "inputCapacity": 131072
+          },
+          "afterDispose": {
+            "pages": 0,
+            "inputCapacity": 0
+          }
+        },
+        {
+          "pushes": 65,
+          "eventCount": 358102,
+          "beforeDispose": {
+            "pages": 6,
+            "inputCapacity": 0
+          },
+          "maximum": {
+            "pages": 6,
+            "inputCapacity": 131072
+          },
+          "afterDispose": {
+            "pages": 0,
+            "inputCapacity": 0
+          }
+        },
+        {
+          "pushes": 65,
+          "eventCount": 358102,
+          "beforeDispose": {
+            "pages": 6,
+            "inputCapacity": 0
+          },
+          "maximum": {
+            "pages": 6,
+            "inputCapacity": 131072
+          },
+          "afterDispose": {
+            "pages": 0,
+            "inputCapacity": 0
+          }
+        },
+        {
+          "pushes": 65,
+          "eventCount": 358102,
+          "beforeDispose": {
+            "pages": 6,
+            "inputCapacity": 0
+          },
+          "maximum": {
+            "pages": 6,
+            "inputCapacity": 131072
+          },
+          "afterDispose": {
+            "pages": 0,
+            "inputCapacity": 0
+          }
+        },
+        {
+          "pushes": 65,
+          "eventCount": 358102,
+          "beforeDispose": {
+            "pages": 6,
+            "inputCapacity": 0
+          },
+          "maximum": {
+            "pages": 6,
+            "inputCapacity": 131072
+          },
+          "afterDispose": {
+            "pages": 0,
+            "inputCapacity": 0
+          }
+        }
+      ]
+    },
+    "simd": {
+      "repeats": 5,
+      "before": {
+        "heapUsed": 19326792,
+        "rss": 283508736,
+        "wasm": null
+      },
+      "after": {
+        "heapUsed": 9591328,
+        "rss": 284295168,
+        "wasm": null
+      },
+      "wasmProbes": [
+        {
+          "pushes": 65,
+          "eventCount": 358102,
+          "beforeDispose": {
+            "pages": 6,
+            "inputCapacity": 0
+          },
+          "maximum": {
+            "pages": 6,
+            "inputCapacity": 131072
+          },
+          "afterDispose": {
+            "pages": 0,
+            "inputCapacity": 0
+          }
+        },
+        {
+          "pushes": 65,
+          "eventCount": 358102,
+          "beforeDispose": {
+            "pages": 6,
+            "inputCapacity": 0
+          },
+          "maximum": {
+            "pages": 6,
+            "inputCapacity": 131072
+          },
+          "afterDispose": {
+            "pages": 0,
+            "inputCapacity": 0
+          }
+        },
+        {
+          "pushes": 65,
+          "eventCount": 358102,
+          "beforeDispose": {
+            "pages": 6,
+            "inputCapacity": 0
+          },
+          "maximum": {
+            "pages": 6,
+            "inputCapacity": 131072
+          },
+          "afterDispose": {
+            "pages": 0,
+            "inputCapacity": 0
+          }
+        },
+        {
+          "pushes": 65,
+          "eventCount": 358102,
+          "beforeDispose": {
+            "pages": 6,
+            "inputCapacity": 0
+          },
+          "maximum": {
+            "pages": 6,
+            "inputCapacity": 131072
+          },
+          "afterDispose": {
+            "pages": 0,
+            "inputCapacity": 0
+          }
+        },
+        {
+          "pushes": 65,
+          "eventCount": 358102,
+          "beforeDispose": {
+            "pages": 6,
+            "inputCapacity": 0
+          },
+          "maximum": {
+            "pages": 6,
+            "inputCapacity": 131072
+          },
+          "afterDispose": {
+            "pages": 0,
+            "inputCapacity": 0
+          }
+        }
+      ]
+    }
+  },
+  "comparisons": {
+    "simple-ascii": {
+      "scalarVsJsMedian": 2.926065312624481,
+      "simdVsJsMedian": 2.916531704942723,
+      "simdVsScalarMedian": 0.9967418336013808
+    },
+    "attribute-heavy": {
+      "scalarVsJsMedian": 2.069241986694342,
+      "simdVsJsMedian": 2.0256279022305197,
+      "simdVsScalarMedian": 0.978922675673377
+    },
+    "namespace-heavy": {
+      "scalarVsJsMedian": 2.9790966567256634,
+      "simdVsJsMedian": 2.968955939083452,
+      "simdVsScalarMedian": 0.9965960427570157
+    },
+    "unicode-heavy": {
+      "scalarVsJsMedian": 1.9675474196070017,
+      "simdVsJsMedian": 2.0533036771791044,
+      "simdVsScalarMedian": 1.0435853574442602
+    }
+  }
+}

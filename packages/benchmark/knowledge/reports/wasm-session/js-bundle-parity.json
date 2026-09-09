@@ -1,0 +1,9 @@
+{
+  "identical": true,
+  "sha256": {
+    "converter.js": "9dd8dd2e76133f213a5b017870eca544dda12d9ca0d49eb729e094ec538b1154",
+    "converter.d.ts": "ca65dfa3008f2afdcad151b33d57efd56a75d0f46bb333af6cb3e7722b45b204",
+    "index.js": "6887b93249e98a5bdc73d05a43737aa4bf680940bc35cf54221cef2939c4d9d1",
+    "index.d.ts": "a53cbfdaeaabd53d5e5601ededa004df44a185039aad4882c99036c11c45f06c"
+  }
+}

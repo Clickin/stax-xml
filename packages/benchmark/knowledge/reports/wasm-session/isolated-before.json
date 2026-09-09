@@ -1,0 +1,1201 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-09T08:12:23.236Z",
+  "invocation": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node /Users/senghyunjo/github/stax-xml/packages/benchmark/wasm-isolated.mjs --wasm-entry=/tmp/stax/wasm-before-dist/index.js --out=/tmp/stax/isolated-before.json",
+  "command": "node --expose-gc packages/benchmark/wasm-isolated.mjs",
+  "options": {
+    "fixtures": [
+      "13",
+      "98"
+    ],
+    "runs": 5,
+    "warmups": 2,
+    "out": "/tmp/stax/isolated-before.json",
+    "wasmEntry": "file:///tmp/stax/wasm-before-dist/index.js"
+  },
+  "metadata": {
+    "node": "v24.21.0",
+    "v8": "13.6.233.17-node.53",
+    "platform": "darwin 25.5.0",
+    "arch": "arm64",
+    "execPath": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+    "gcExposed": true
+  },
+  "backendPolicy": {
+    "js": "stax-xml JavaScript byte backend",
+    "scalar": "wasmTokenBackendFactory after initWasm({ variant: \"scalar\" })",
+    "simd": "wasmTokenBackendFactory after initWasm({ variant: \"simd\" })"
+  },
+  "measurementNotes": [
+    "StreamReaderSync and Converter rows consume the fixture Uint8Array directly.",
+    "Only byte-input surfaces are measured; no string fallback is labeled Wasm acceleration.",
+    "RSS values are process.memoryUsage() before/after endpoints, not peak RSS."
+  ],
+  "parity": {
+    "completeResultDigestsAndCounts": true,
+    "surfaces": {
+      "13/stream-reader-sync-bytes": {
+        "digest": "2320a6368610e3ae798a9d1597f8476383bdea71e4e38698a1b9f3a0fce9ab98",
+        "count": 18432
+      },
+      "13/converter-bytes": {
+        "digest": "2320a6368610e3ae798a9d1597f8476383bdea71e4e38698a1b9f3a0fce9ab98",
+        "count": 18432
+      },
+      "98/stream-reader-sync-bytes": {
+        "digest": "e44319c4ca26c76e5395cf82cf1bb62776de17de6aad36d923577e0bfb7db53e",
+        "count": 138240
+      },
+      "98/converter-bytes": {
+        "digest": "e44319c4ca26c76e5395cf82cf1bb62776de17de6aad36d923577e0bfb7db53e",
+        "count": 138240
+      }
+    }
+  },
+  "fixtures": {
+    "13": {
+      "stream-reader-sync-bytes": {
+        "bytes": 13584398,
+        "bytesMiB": 12.95509147644043,
+        "variants": {
+          "js": {
+            "samplesMs": [
+              100.60241699999997,
+              82.24937500000004,
+              98.24529100000001,
+              96.67879200000004,
+              97.28033300000004
+            ],
+            "medianMs": 97.28033300000004,
+            "throughputMiBPerSec": 133.17277066105873,
+            "resultDigest": "2320a6368610e3ae798a9d1597f8476383bdea71e4e38698a1b9f3a0fce9ab98",
+            "resultCount": 18432,
+            "memory": {
+              "samples": [
+                {
+                  "before": {
+                    "heapUsed": 10378096,
+                    "rss": 108052480
+                  },
+                  "after": {
+                    "heapUsed": 29276440,
+                    "rss": 124370944
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 12882472,
+                    "rss": 124665856
+                  },
+                  "after": {
+                    "heapUsed": 30933224,
+                    "rss": 125927424
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 12933280,
+                    "rss": 125550592
+                  },
+                  "after": {
+                    "heapUsed": 31821848,
+                    "rss": 126746624
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 12879704,
+                    "rss": 126550016
+                  },
+                  "after": {
+                    "heapUsed": 31085608,
+                    "rss": 144572416
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 12871704,
+                    "rss": 144441344
+                  },
+                  "after": {
+                    "heapUsed": 31005752,
+                    "rss": 160972800
+                  }
+                }
+              ],
+              "heapUsedBeforeMedian": 12879704,
+              "heapUsedAfterMedian": 31005752,
+              "rssBeforeMedian": 125550592,
+              "rssAfterMedian": 126746624
+            },
+            "backend": "js",
+            "initVariant": "js-default",
+            "invocation": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node /Users/senghyunjo/github/stax-xml/packages/benchmark/wasm-isolated.mjs --worker --backend=js --fixture=13 --runs=5 --warmups=2 --wasm-entry=file:///tmp/stax/wasm-before-dist/index.js",
+            "runtime": {
+              "node": "v24.21.0",
+              "v8": "13.6.233.17-node.53",
+              "platform": "darwin 25.5.0",
+              "arch": "arm64",
+              "execPath": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+              "gcExposed": true
+            },
+            "cpu": {
+              "model": "Apple M4",
+              "logicalCores": 10,
+              "userCPUTimeMicros": 2266781,
+              "systemCPUTimeMicros": 36995
+            },
+            "parity": {
+              "digestMatchesReference": true,
+              "countMatchesReference": true,
+              "completeResultMatchesReference": true
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              212.475708,
+              206.95741599999997,
+              219.26725,
+              226.66062499999998,
+              219.573709
+            ],
+            "medianMs": 219.26725,
+            "throughputMiBPerSec": 59.08356800407005,
+            "resultDigest": "2320a6368610e3ae798a9d1597f8476383bdea71e4e38698a1b9f3a0fce9ab98",
+            "resultCount": 18432,
+            "memory": {
+              "samples": [
+                {
+                  "before": {
+                    "heapUsed": 9201232,
+                    "rss": 142704640
+                  },
+                  "after": {
+                    "heapUsed": 25671720,
+                    "rss": 143114240
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 11748688,
+                    "rss": 143081472
+                  },
+                  "after": {
+                    "heapUsed": 19165504,
+                    "rss": 143474688
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 11753376,
+                    "rss": 143081472
+                  },
+                  "after": {
+                    "heapUsed": 18978504,
+                    "rss": 143491072
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 11747872,
+                    "rss": 143310848
+                  },
+                  "after": {
+                    "heapUsed": 18757808,
+                    "rss": 160759808
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 11759688,
+                    "rss": 160432128
+                  },
+                  "after": {
+                    "heapUsed": 35053552,
+                    "rss": 161382400
+                  }
+                }
+              ],
+              "heapUsedBeforeMedian": 11748688,
+              "heapUsedAfterMedian": 19165504,
+              "rssBeforeMedian": 143081472,
+              "rssAfterMedian": 143491072
+            },
+            "backend": "scalar",
+            "initVariant": "scalar",
+            "invocation": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node /Users/senghyunjo/github/stax-xml/packages/benchmark/wasm-isolated.mjs --worker --backend=scalar --fixture=13 --runs=5 --warmups=2 --wasm-entry=file:///tmp/stax/wasm-before-dist/index.js",
+            "runtime": {
+              "node": "v24.21.0",
+              "v8": "13.6.233.17-node.53",
+              "platform": "darwin 25.5.0",
+              "arch": "arm64",
+              "execPath": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+              "gcExposed": true
+            },
+            "cpu": {
+              "model": "Apple M4",
+              "logicalCores": 10,
+              "userCPUTimeMicros": 3513788,
+              "systemCPUTimeMicros": 40087
+            },
+            "parity": {
+              "digestMatchesReference": true,
+              "countMatchesReference": true,
+              "completeResultMatchesReference": true
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              206.58466599999997,
+              210.45100000000002,
+              215.26595900000007,
+              218.2506249999999,
+              213.203166
+            ],
+            "medianMs": 213.203166,
+            "throughputMiBPerSec": 60.76406706099491,
+            "resultDigest": "2320a6368610e3ae798a9d1597f8476383bdea71e4e38698a1b9f3a0fce9ab98",
+            "resultCount": 18432,
+            "memory": {
+              "samples": [
+                {
+                  "before": {
+                    "heapUsed": 9201160,
+                    "rss": 142721024
+                  },
+                  "after": {
+                    "heapUsed": 25567256,
+                    "rss": 143196160
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 11748616,
+                    "rss": 143163392
+                  },
+                  "after": {
+                    "heapUsed": 19162952,
+                    "rss": 143572992
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 11753304,
+                    "rss": 143179776
+                  },
+                  "after": {
+                    "heapUsed": 19252552,
+                    "rss": 143572992
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 11747800,
+                    "rss": 143212544
+                  },
+                  "after": {
+                    "heapUsed": 18783728,
+                    "rss": 161103872
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 11759616,
+                    "rss": 160743424
+                  },
+                  "after": {
+                    "heapUsed": 34986264,
+                    "rss": 161660928
+                  }
+                }
+              ],
+              "heapUsedBeforeMedian": 11748616,
+              "heapUsedAfterMedian": 19252552,
+              "rssBeforeMedian": 143179776,
+              "rssAfterMedian": 143572992
+            },
+            "backend": "simd",
+            "initVariant": "simd",
+            "invocation": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node /Users/senghyunjo/github/stax-xml/packages/benchmark/wasm-isolated.mjs --worker --backend=simd --fixture=13 --runs=5 --warmups=2 --wasm-entry=file:///tmp/stax/wasm-before-dist/index.js",
+            "runtime": {
+              "node": "v24.21.0",
+              "v8": "13.6.233.17-node.53",
+              "platform": "darwin 25.5.0",
+              "arch": "arm64",
+              "execPath": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+              "gcExposed": true
+            },
+            "cpu": {
+              "model": "Apple M4",
+              "logicalCores": 10,
+              "userCPUTimeMicros": 3437172,
+              "systemCPUTimeMicros": 37851
+            },
+            "parity": {
+              "digestMatchesReference": true,
+              "countMatchesReference": true,
+              "completeResultMatchesReference": true
+            }
+          }
+        }
+      },
+      "converter-bytes": {
+        "bytes": 13584398,
+        "bytesMiB": 12.95509147644043,
+        "variants": {
+          "js": {
+            "samplesMs": [
+              99.08287499999994,
+              95.83812499999999,
+              98.12654199999997,
+              94.03595900000005,
+              95.85070799999994
+            ],
+            "medianMs": 95.85070799999994,
+            "throughputMiBPerSec": 135.159058777536,
+            "resultDigest": "2320a6368610e3ae798a9d1597f8476383bdea71e4e38698a1b9f3a0fce9ab98",
+            "resultCount": 18432,
+            "memory": {
+              "samples": [
+                {
+                  "before": {
+                    "heapUsed": 10843488,
+                    "rss": 166789120
+                  },
+                  "after": {
+                    "heapUsed": 44298016,
+                    "rss": 167002112
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 13323328,
+                    "rss": 166985728
+                  },
+                  "after": {
+                    "heapUsed": 48884000,
+                    "rss": 167182336
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 13322424,
+                    "rss": 166985728
+                  },
+                  "after": {
+                    "heapUsed": 48896200,
+                    "rss": 167886848
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 13310640,
+                    "rss": 167706624
+                  },
+                  "after": {
+                    "heapUsed": 49155736,
+                    "rss": 167985152
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 13343128,
+                    "rss": 167788544
+                  },
+                  "after": {
+                    "heapUsed": 48884288,
+                    "rss": 168116224
+                  }
+                }
+              ],
+              "heapUsedBeforeMedian": 13322424,
+              "heapUsedAfterMedian": 48884288,
+              "rssBeforeMedian": 166985728,
+              "rssAfterMedian": 167886848
+            },
+            "backend": "js",
+            "initVariant": "js-default",
+            "invocation": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node /Users/senghyunjo/github/stax-xml/packages/benchmark/wasm-isolated.mjs --worker --backend=js --fixture=13 --runs=5 --warmups=2 --wasm-entry=file:///tmp/stax/wasm-before-dist/index.js",
+            "runtime": {
+              "node": "v24.21.0",
+              "v8": "13.6.233.17-node.53",
+              "platform": "darwin 25.5.0",
+              "arch": "arm64",
+              "execPath": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+              "gcExposed": true
+            },
+            "cpu": {
+              "model": "Apple M4",
+              "logicalCores": 10,
+              "userCPUTimeMicros": 2266781,
+              "systemCPUTimeMicros": 36995
+            },
+            "parity": {
+              "digestMatchesReference": true,
+              "countMatchesReference": true,
+              "completeResultMatchesReference": true
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              218.59433299999978,
+              222.2808329999998,
+              217.66916699999956,
+              216.0454160000004,
+              221.67058399999996
+            ],
+            "medianMs": 218.59433299999978,
+            "throughputMiBPerSec": 59.265449834147546,
+            "resultDigest": "2320a6368610e3ae798a9d1597f8476383bdea71e4e38698a1b9f3a0fce9ab98",
+            "resultCount": 18432,
+            "memory": {
+              "samples": [
+                {
+                  "before": {
+                    "heapUsed": 9559448,
+                    "rss": 165920768
+                  },
+                  "after": {
+                    "heapUsed": 13882000,
+                    "rss": 166412288
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 12080264,
+                    "rss": 166215680
+                  },
+                  "after": {
+                    "heapUsed": 20462520,
+                    "rss": 166641664
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 12066520,
+                    "rss": 166248448
+                  },
+                  "after": {
+                    "heapUsed": 20313392,
+                    "rss": 166641664
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 12049088,
+                    "rss": 166248448
+                  },
+                  "after": {
+                    "heapUsed": 20311960,
+                    "rss": 166641664
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 12083096,
+                    "rss": 166248448
+                  },
+                  "after": {
+                    "heapUsed": 19949040,
+                    "rss": 166658048
+                  }
+                }
+              ],
+              "heapUsedBeforeMedian": 12066520,
+              "heapUsedAfterMedian": 20311960,
+              "rssBeforeMedian": 166248448,
+              "rssAfterMedian": 166641664
+            },
+            "backend": "scalar",
+            "initVariant": "scalar",
+            "invocation": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node /Users/senghyunjo/github/stax-xml/packages/benchmark/wasm-isolated.mjs --worker --backend=scalar --fixture=13 --runs=5 --warmups=2 --wasm-entry=file:///tmp/stax/wasm-before-dist/index.js",
+            "runtime": {
+              "node": "v24.21.0",
+              "v8": "13.6.233.17-node.53",
+              "platform": "darwin 25.5.0",
+              "arch": "arm64",
+              "execPath": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+              "gcExposed": true
+            },
+            "cpu": {
+              "model": "Apple M4",
+              "logicalCores": 10,
+              "userCPUTimeMicros": 3513788,
+              "systemCPUTimeMicros": 40087
+            },
+            "parity": {
+              "digestMatchesReference": true,
+              "countMatchesReference": true,
+              "completeResultMatchesReference": true
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              211.682458,
+              214.00095799999963,
+              211.45062499999995,
+              213.06950000000006,
+              213.84379200000012
+            ],
+            "medianMs": 213.06950000000006,
+            "throughputMiBPerSec": 60.802186499899925,
+            "resultDigest": "2320a6368610e3ae798a9d1597f8476383bdea71e4e38698a1b9f3a0fce9ab98",
+            "resultCount": 18432,
+            "memory": {
+              "samples": [
+                {
+                  "before": {
+                    "heapUsed": 9557760,
+                    "rss": 166248448
+                  },
+                  "after": {
+                    "heapUsed": 13888568,
+                    "rss": 166477824
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 12079600,
+                    "rss": 166297600
+                  },
+                  "after": {
+                    "heapUsed": 20216720,
+                    "rss": 166723584
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 12065400,
+                    "rss": 166330368
+                  },
+                  "after": {
+                    "heapUsed": 20234960,
+                    "rss": 166854656
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 12046512,
+                    "rss": 166461440
+                  },
+                  "after": {
+                    "heapUsed": 20058024,
+                    "rss": 166854656
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 12081272,
+                    "rss": 166461440
+                  },
+                  "after": {
+                    "heapUsed": 20030144,
+                    "rss": 166871040
+                  }
+                }
+              ],
+              "heapUsedBeforeMedian": 12065400,
+              "heapUsedAfterMedian": 20058024,
+              "rssBeforeMedian": 166330368,
+              "rssAfterMedian": 166854656
+            },
+            "backend": "simd",
+            "initVariant": "simd",
+            "invocation": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node /Users/senghyunjo/github/stax-xml/packages/benchmark/wasm-isolated.mjs --worker --backend=simd --fixture=13 --runs=5 --warmups=2 --wasm-entry=file:///tmp/stax/wasm-before-dist/index.js",
+            "runtime": {
+              "node": "v24.21.0",
+              "v8": "13.6.233.17-node.53",
+              "platform": "darwin 25.5.0",
+              "arch": "arm64",
+              "execPath": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+              "gcExposed": true
+            },
+            "cpu": {
+              "model": "Apple M4",
+              "logicalCores": 10,
+              "userCPUTimeMicros": 3437172,
+              "systemCPUTimeMicros": 37851
+            },
+            "parity": {
+              "digestMatchesReference": true,
+              "countMatchesReference": true,
+              "completeResultMatchesReference": true
+            }
+          }
+        }
+      }
+    },
+    "98": {
+      "stream-reader-sync-bytes": {
+        "bytes": 101882907,
+        "bytesMiB": 97.16311168670654,
+        "variants": {
+          "js": {
+            "samplesMs": [
+              665.2254590000002,
+              657.452041,
+              654.3843340000003,
+              659.3426669999999,
+              679.4415829999998
+            ],
+            "medianMs": 659.3426669999999,
+            "throughputMiBPerSec": 147.36360401003225,
+            "resultDigest": "e44319c4ca26c76e5395cf82cf1bb62776de17de6aad36d923577e0bfb7db53e",
+            "resultCount": 138240,
+            "memory": {
+              "samples": [
+                {
+                  "before": {
+                    "heapUsed": 27023208,
+                    "rss": 364740608
+                  },
+                  "after": {
+                    "heapUsed": 63704328,
+                    "rss": 370851840
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 46032848,
+                    "rss": 369393664
+                  },
+                  "after": {
+                    "heapUsed": 82968288,
+                    "rss": 389857280
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 46044200,
+                    "rss": 386056192
+                  },
+                  "after": {
+                    "heapUsed": 82967072,
+                    "rss": 390545408
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 46036416,
+                    "rss": 386744320
+                  },
+                  "after": {
+                    "heapUsed": 82558744,
+                    "rss": 390561792
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 46043776,
+                    "rss": 386760704
+                  },
+                  "after": {
+                    "heapUsed": 82984912,
+                    "rss": 390578176
+                  }
+                }
+              ],
+              "heapUsedBeforeMedian": 46036416,
+              "heapUsedAfterMedian": 82967072,
+              "rssBeforeMedian": 386056192,
+              "rssAfterMedian": 390545408
+            },
+            "backend": "js",
+            "initVariant": "js-default",
+            "invocation": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node /Users/senghyunjo/github/stax-xml/packages/benchmark/wasm-isolated.mjs --worker --backend=js --fixture=98 --runs=5 --warmups=2 --wasm-entry=file:///tmp/stax/wasm-before-dist/index.js",
+            "runtime": {
+              "node": "v24.21.0",
+              "v8": "13.6.233.17-node.53",
+              "platform": "darwin 25.5.0",
+              "arch": "arm64",
+              "execPath": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+              "gcExposed": true
+            },
+            "cpu": {
+              "model": "Apple M4",
+              "logicalCores": 10,
+              "userCPUTimeMicros": 10972973,
+              "systemCPUTimeMicros": 120596
+            },
+            "parity": {
+              "digestMatchesReference": true,
+              "countMatchesReference": true,
+              "completeResultMatchesReference": true
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              1627.352625,
+              1646.6074580000004,
+              1685.4275839999991,
+              1694.8203749999993,
+              1686.4828749999997
+            ],
+            "medianMs": 1685.4275839999991,
+            "throughputMiBPerSec": 57.64893882661564,
+            "resultDigest": "e44319c4ca26c76e5395cf82cf1bb62776de17de6aad36d923577e0bfb7db53e",
+            "resultCount": 138240,
+            "memory": {
+              "samples": [
+                {
+                  "before": {
+                    "heapUsed": 25755168,
+                    "rss": 551829504
+                  },
+                  "after": {
+                    "heapUsed": 47429960,
+                    "rss": 572325888
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 44819488,
+                    "rss": 569704448
+                  },
+                  "after": {
+                    "heapUsed": 67071928,
+                    "rss": 573718528
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 44824560,
+                    "rss": 569720832
+                  },
+                  "after": {
+                    "heapUsed": 132351728,
+                    "rss": 573734912
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 44827136,
+                    "rss": 569737216
+                  },
+                  "after": {
+                    "heapUsed": 132006968,
+                    "rss": 568262656
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 44829720,
+                    "rss": 564346880
+                  },
+                  "after": {
+                    "heapUsed": 132251448,
+                    "rss": 568426496
+                  }
+                }
+              ],
+              "heapUsedBeforeMedian": 44824560,
+              "heapUsedAfterMedian": 132006968,
+              "rssBeforeMedian": 569704448,
+              "rssAfterMedian": 572325888
+            },
+            "backend": "scalar",
+            "initVariant": "scalar",
+            "invocation": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node /Users/senghyunjo/github/stax-xml/packages/benchmark/wasm-isolated.mjs --worker --backend=scalar --fixture=98 --runs=5 --warmups=2 --wasm-entry=file:///tmp/stax/wasm-before-dist/index.js",
+            "runtime": {
+              "node": "v24.21.0",
+              "v8": "13.6.233.17-node.53",
+              "platform": "darwin 25.5.0",
+              "arch": "arm64",
+              "execPath": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+              "gcExposed": true
+            },
+            "cpu": {
+              "model": "Apple M4",
+              "logicalCores": 10,
+              "userCPUTimeMicros": 23999465,
+              "systemCPUTimeMicros": 163512
+            },
+            "parity": {
+              "digestMatchesReference": true,
+              "countMatchesReference": true,
+              "completeResultMatchesReference": true
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              1558.4693340000003,
+              1567.6391670000003,
+              1678.7627499999999,
+              1681.9330410000002,
+              1680.6506250000002
+            ],
+            "medianMs": 1678.7627499999999,
+            "throughputMiBPerSec": 57.87781012338196,
+            "resultDigest": "e44319c4ca26c76e5395cf82cf1bb62776de17de6aad36d923577e0bfb7db53e",
+            "resultCount": 138240,
+            "memory": {
+              "samples": [
+                {
+                  "before": {
+                    "heapUsed": 25754720,
+                    "rss": 547913728
+                  },
+                  "after": {
+                    "heapUsed": 47525328,
+                    "rss": 570179584
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 44819040,
+                    "rss": 567787520
+                  },
+                  "after": {
+                    "heapUsed": 66751184,
+                    "rss": 571834368
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 44824112,
+                    "rss": 567836672
+                  },
+                  "after": {
+                    "heapUsed": 132307536,
+                    "rss": 571834368
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 44826304,
+                    "rss": 568033280
+                  },
+                  "after": {
+                    "heapUsed": 132115824,
+                    "rss": 572030976
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 44830120,
+                    "rss": 568033280
+                  },
+                  "after": {
+                    "heapUsed": 132062608,
+                    "rss": 572030976
+                  }
+                }
+              ],
+              "heapUsedBeforeMedian": 44824112,
+              "heapUsedAfterMedian": 132062608,
+              "rssBeforeMedian": 567836672,
+              "rssAfterMedian": 571834368
+            },
+            "backend": "simd",
+            "initVariant": "simd",
+            "invocation": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node /Users/senghyunjo/github/stax-xml/packages/benchmark/wasm-isolated.mjs --worker --backend=simd --fixture=98 --runs=5 --warmups=2 --wasm-entry=file:///tmp/stax/wasm-before-dist/index.js",
+            "runtime": {
+              "node": "v24.21.0",
+              "v8": "13.6.233.17-node.53",
+              "platform": "darwin 25.5.0",
+              "arch": "arm64",
+              "execPath": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+              "gcExposed": true
+            },
+            "cpu": {
+              "model": "Apple M4",
+              "logicalCores": 10,
+              "userCPUTimeMicros": 23487459,
+              "systemCPUTimeMicros": 186227
+            },
+            "parity": {
+              "digestMatchesReference": true,
+              "countMatchesReference": true,
+              "completeResultMatchesReference": true
+            }
+          }
+        }
+      },
+      "converter-bytes": {
+        "bytes": 101882907,
+        "bytesMiB": 97.16311168670654,
+        "variants": {
+          "js": {
+            "samplesMs": [
+              712.868375,
+              632.4851250000002,
+              629.808833,
+              636.029458,
+              685.5529580000002
+            ],
+            "medianMs": 636.029458,
+            "throughputMiBPerSec": 152.76511247173482,
+            "resultDigest": "e44319c4ca26c76e5395cf82cf1bb62776de17de6aad36d923577e0bfb7db53e",
+            "resultCount": 138240,
+            "memory": {
+              "samples": [
+                {
+                  "before": {
+                    "heapUsed": 27519192,
+                    "rss": 419430400
+                  },
+                  "after": {
+                    "heapUsed": 70750576,
+                    "rss": 422772736
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 46494224,
+                    "rss": 420397056
+                  },
+                  "after": {
+                    "heapUsed": 92269872,
+                    "rss": 423673856
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 46497680,
+                    "rss": 420069376
+                  },
+                  "after": {
+                    "heapUsed": 91774824,
+                    "rss": 423755776
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 46490656,
+                    "rss": 420151296
+                  },
+                  "after": {
+                    "heapUsed": 91744104,
+                    "rss": 423510016
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 46513376,
+                    "rss": 419905536
+                  },
+                  "after": {
+                    "heapUsed": 91783048,
+                    "rss": 423526400
+                  }
+                }
+              ],
+              "heapUsedBeforeMedian": 46494224,
+              "heapUsedAfterMedian": 91774824,
+              "rssBeforeMedian": 420069376,
+              "rssAfterMedian": 423526400
+            },
+            "backend": "js",
+            "initVariant": "js-default",
+            "invocation": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node /Users/senghyunjo/github/stax-xml/packages/benchmark/wasm-isolated.mjs --worker --backend=js --fixture=98 --runs=5 --warmups=2 --wasm-entry=file:///tmp/stax/wasm-before-dist/index.js",
+            "runtime": {
+              "node": "v24.21.0",
+              "v8": "13.6.233.17-node.53",
+              "platform": "darwin 25.5.0",
+              "arch": "arm64",
+              "execPath": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+              "gcExposed": true
+            },
+            "cpu": {
+              "model": "Apple M4",
+              "logicalCores": 10,
+              "userCPUTimeMicros": 10972973,
+              "systemCPUTimeMicros": 120596
+            },
+            "parity": {
+              "digestMatchesReference": true,
+              "countMatchesReference": true,
+              "completeResultMatchesReference": true
+            }
+          },
+          "scalar": {
+            "samplesMs": [
+              1639.517749999999,
+              1705.5806250000023,
+              1627.1125420000026,
+              1621.9158749999988,
+              1644.2620419999985
+            ],
+            "medianMs": 1639.517749999999,
+            "throughputMiBPerSec": 59.263226449793905,
+            "resultDigest": "e44319c4ca26c76e5395cf82cf1bb62776de17de6aad36d923577e0bfb7db53e",
+            "resultCount": 138240,
+            "memory": {
+              "samples": [
+                {
+                  "before": {
+                    "heapUsed": 26076160,
+                    "rss": 562462720
+                  },
+                  "after": {
+                    "heapUsed": 65341184,
+                    "rss": 566591488
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 45149672,
+                    "rss": 563970048
+                  },
+                  "after": {
+                    "heapUsed": 88535280,
+                    "rss": 567984128
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 45137448,
+                    "rss": 563986432
+                  },
+                  "after": {
+                    "heapUsed": 88257576,
+                    "rss": 567885824
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 45126424,
+                    "rss": 563888128
+                  },
+                  "after": {
+                    "heapUsed": 88294216,
+                    "rss": 567885824
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 45155672,
+                    "rss": 563707904
+                  },
+                  "after": {
+                    "heapUsed": 88069472,
+                    "rss": 567787520
+                  }
+                }
+              ],
+              "heapUsedBeforeMedian": 45137448,
+              "heapUsedAfterMedian": 88257576,
+              "rssBeforeMedian": 563888128,
+              "rssAfterMedian": 567885824
+            },
+            "backend": "scalar",
+            "initVariant": "scalar",
+            "invocation": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node /Users/senghyunjo/github/stax-xml/packages/benchmark/wasm-isolated.mjs --worker --backend=scalar --fixture=98 --runs=5 --warmups=2 --wasm-entry=file:///tmp/stax/wasm-before-dist/index.js",
+            "runtime": {
+              "node": "v24.21.0",
+              "v8": "13.6.233.17-node.53",
+              "platform": "darwin 25.5.0",
+              "arch": "arm64",
+              "execPath": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+              "gcExposed": true
+            },
+            "cpu": {
+              "model": "Apple M4",
+              "logicalCores": 10,
+              "userCPUTimeMicros": 23999465,
+              "systemCPUTimeMicros": 163512
+            },
+            "parity": {
+              "digestMatchesReference": true,
+              "countMatchesReference": true,
+              "completeResultMatchesReference": true
+            }
+          },
+          "simd": {
+            "samplesMs": [
+              1647.189875,
+              1632.0735000000022,
+              1624.714541999998,
+              1667.5784999999996,
+              1629.272667000001
+            ],
+            "medianMs": 1632.0735000000022,
+            "throughputMiBPerSec": 59.5335391982692,
+            "resultDigest": "e44319c4ca26c76e5395cf82cf1bb62776de17de6aad36d923577e0bfb7db53e",
+            "resultCount": 138240,
+            "memory": {
+              "samples": [
+                {
+                  "before": {
+                    "heapUsed": 26071824,
+                    "rss": 562675712
+                  },
+                  "after": {
+                    "heapUsed": 65380896,
+                    "rss": 560906240
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 45148848,
+                    "rss": 558153728
+                  },
+                  "after": {
+                    "heapUsed": 88322992,
+                    "rss": 562151424
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 45135384,
+                    "rss": 558022656
+                  },
+                  "after": {
+                    "heapUsed": 88555400,
+                    "rss": 562380800
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 45127616,
+                    "rss": 558383104
+                  },
+                  "after": {
+                    "heapUsed": 88211872,
+                    "rss": 562331648
+                  }
+                },
+                {
+                  "before": {
+                    "heapUsed": 45155224,
+                    "rss": 558333952
+                  },
+                  "after": {
+                    "heapUsed": 88098024,
+                    "rss": 561610752
+                  }
+                }
+              ],
+              "heapUsedBeforeMedian": 45135384,
+              "heapUsedAfterMedian": 88211872,
+              "rssBeforeMedian": 558333952,
+              "rssAfterMedian": 562151424
+            },
+            "backend": "simd",
+            "initVariant": "simd",
+            "invocation": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node /Users/senghyunjo/github/stax-xml/packages/benchmark/wasm-isolated.mjs --worker --backend=simd --fixture=98 --runs=5 --warmups=2 --wasm-entry=file:///tmp/stax/wasm-before-dist/index.js",
+            "runtime": {
+              "node": "v24.21.0",
+              "v8": "13.6.233.17-node.53",
+              "platform": "darwin 25.5.0",
+              "arch": "arm64",
+              "execPath": "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+              "gcExposed": true
+            },
+            "cpu": {
+              "model": "Apple M4",
+              "logicalCores": 10,
+              "userCPUTimeMicros": 23487459,
+              "systemCPUTimeMicros": 186227
+            },
+            "parity": {
+              "digestMatchesReference": true,
+              "countMatchesReference": true,
+              "completeResultMatchesReference": true
+            }
+          }
+        }
+      }
+    }
+  }
+}
