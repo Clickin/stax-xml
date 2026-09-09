@@ -1,9 +1,14 @@
 import {
   NEED_INPUT,
-  TokenCursor,
+  attributeValueOf,
   materializeTokenEvent,
+  tokenBackendOf,
+  withTokenBackend,
   type AnyXmlEvent,
   type DocumentMode,
+  type TokenBackendFactory,
+  type TokenCursorSpi,
+  type TokenInputSessionSpi,
   type XmlEventType,
 } from "@stax-xml/core";
 
@@ -29,24 +34,22 @@ export interface StreamReaderOptions {
  * Call `next()` before accessing the current token through the accessor methods.
  */
 export class StreamReader {
-  private readonly cursor: TokenCursor;
+  private readonly cursor: TokenCursorSpi;
+  private readonly session: TokenInputSessionSpi;
   private readonly iterator: AsyncIterator<Uint8Array>;
-  private readonly decoder: TextDecoder;
   private inFlight = false;
   private closed = false;
   private closing: Promise<void> | undefined;
 
   constructor(source: StreamReaderSource, options: StreamReaderOptions = {}) {
-    this.cursor = new TokenCursor("", false, options);
-    this.decoder = new TextDecoder(options.encoding ?? "utf-8", {
-      fatal: true,
-    });
+    const backend = tokenBackendOf(options);
+    this.session = backend.createByteSession(byteOptions(options, backend));
+    this.cursor = this.session.cursor;
     this.iterator = isReadableStream(source)
       ? streamIterator(source)
       : source[Symbol.asyncIterator]();
     // The package-internal pump accesses these private fields through ReaderState.
     void this.iterator;
-    void this.decoder;
     void this.inFlight;
     void this.closed;
     void this.closing;
@@ -89,26 +92,26 @@ export class StreamReader {
   }
   /** Return an attribute's qualified name by zero-based index. */
   attributeName(index: number): string | undefined {
-    return this.cursor.attribute(index)?.name;
+    return this.cursor.attributeName(index);
   }
   /** Return an attribute's local name by zero-based index. */
   attributeLocalName(index: number): string | undefined {
-    return this.cursor.attribute(index)?.localName;
+    return this.cursor.attributeLocalName(index);
   }
   /** Return an attribute's namespace prefix by zero-based index. */
   attributePrefix(index: number): string | undefined {
-    return this.cursor.attribute(index)?.prefix;
+    return this.cursor.attributePrefix(index);
   }
   /** Return an attribute's namespace URI by zero-based index. */
   attributeNamespaceURI(index: number): string | undefined {
-    return this.cursor.attribute(index)?.namespaceURI;
+    return this.cursor.attributeNamespaceURI(index);
   }
   /** Return an attribute value by index, qualified name, or namespace URI plus local name. */
   attributeValue(
     indexOrNameOrNamespace: number | string,
     localName?: string,
   ): string | undefined {
-    return this.cursor.attribute(indexOrNameOrNamespace, localName)?.value;
+    return attributeValueOf(this.cursor, indexOrNameOrNamespace, localName);
   }
   /** Resolve a namespace prefix in the current element scope. */
   namespaceURIForPrefix(prefix: string): string {
@@ -124,9 +127,9 @@ export function nextMaterialized(
 }
 
 interface ReaderState {
-  cursor: TokenCursor;
+  cursor: TokenCursorSpi;
+  session: TokenInputSessionSpi;
   iterator: AsyncIterator<Uint8Array>;
-  decoder: TextDecoder;
   inFlight: boolean;
   closed: boolean;
   closing: Promise<void> | undefined;
@@ -170,11 +173,12 @@ async function refill(
     while (true) {
       const part = await state.iterator.next();
       if (state.closed) return project(state.cursor, null, event);
-      if (part.done) state.cursor.push(state.decoder.decode(), true);
-      else {
+      if (part.done) {
+        state.session.pushBytes(EMPTY_BYTES, true);
+      } else {
         if (!(part.value instanceof Uint8Array))
           throw new Error("Reader chunks must be Uint8Array values.");
-        state.cursor.push(state.decoder.decode(part.value, { stream: true }));
+        state.session.pushBytes(part.value);
       }
       const result = state.cursor.next();
       if (result !== NEED_INPUT) return project(state.cursor, result, event);
@@ -189,7 +193,7 @@ async function refill(
 function closeReader(state: ReaderState): Promise<void> {
   if (state.closing) return state.closing;
   state.closed = true;
-  state.cursor.dispose();
+  state.session.dispose();
   state.closing = closeIterator(state.iterator);
   return state.closing;
 }
@@ -210,13 +214,27 @@ async function fail(state: ReaderState, error: unknown): Promise<never> {
 }
 
 function project(
-  cursor: TokenCursor,
+  cursor: TokenCursorSpi,
   type: XmlEventType | null,
   event: boolean,
 ): XmlEventType | null | IteratorResult<AnyXmlEvent> {
   if (!event) return type;
   if (type === null) return { value: undefined, done: true };
   return { value: materializeTokenEvent(cursor, type), done: false };
+}
+
+const EMPTY_BYTES = new Uint8Array(0);
+
+function byteOptions(
+  options: StreamReaderOptions,
+  backend: TokenBackendFactory,
+): StreamReaderOptions & { encoding: string } {
+  if (options.encoding !== undefined)
+    return options as StreamReaderOptions & { encoding: string };
+  return withTokenBackend(
+    { ...options, encoding: "utf-8" },
+    backend,
+  );
 }
 
 function isReadableStream(

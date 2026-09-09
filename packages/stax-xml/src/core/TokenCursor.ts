@@ -3,16 +3,15 @@ import {
   type DocumentMode,
   type XmlEventType as XmlEventTypeValue,
 } from "./types.js";
-
-export const NEED_INPUT = Symbol("stax-xml.need-input");
-export type TokenCursorResult = XmlEventTypeValue | typeof NEED_INPUT | null;
-
-export interface TokenCursorOptions {
-  documentMode?: DocumentMode;
-  namespaceAware?: boolean;
-  autoDecodeEntities?: boolean;
-  addEntities?: { entity: string; value: string }[];
-}
+import {
+  NEED_INPUT,
+  type TokenCursorOptions,
+  type TokenCursorResult,
+  type TokenCursorSpi,
+  type XmlDeclaration,
+} from "./TokenCursorSpi.js";
+export { NEED_INPUT };
+export type { TokenCursorOptions, TokenCursorResult, XmlDeclaration };
 export interface TokenAttribute {
   name: string;
   value: string;
@@ -27,11 +26,6 @@ interface ElementFrame {
   prefix: string;
   namespaceURI: string;
   namespaceUndoStart: number;
-}
-interface XmlDeclaration {
-  version: "1.0";
-  encoding?: string;
-  standalone?: boolean;
 }
 interface DuplicateTable {
   slots: Int32Array;
@@ -65,7 +59,7 @@ const enum DoctypeState {
 }
 
 /** One tokenizer shared by direct strings and incrementally decoded text. */
-export class TokenCursor {
+export class TokenCursor implements TokenCursorSpi {
   private buffer: string;
   private pos = 0;
   private final: boolean;
@@ -247,6 +241,24 @@ export class TokenCursor {
     const end = this.attributeNameEnds[index]!;
     const colon = this.attributeColons[index]!;
     return this.buffer.slice(colon < 0 ? start : colon + 1, end);
+  }
+  attributeName(index: number): string | undefined {
+    if (index < 0 || index >= this.currentAttributeCount) return undefined;
+    return this.buffer.slice(
+      this.attributeNameStarts[index]!,
+      this.attributeNameEnds[index]!,
+    );
+  }
+  attributePrefix(index: number): string | undefined {
+    if (index < 0 || index >= this.currentAttributeCount) return undefined;
+    const colon = this.attributeColons[index]!;
+    return colon < 0
+      ? ""
+      : this.buffer.slice(this.attributeNameStarts[index]!, colon);
+  }
+  attributeNamespaceURI(index: number): string | undefined {
+    if (index < 0 || index >= this.currentAttributeCount) return undefined;
+    return this.attributeNamespaceURIs[index]!;
   }
   attributeValue(index: number): string | undefined {
     if (index < 0 || index >= this.currentAttributeCount) return undefined;
@@ -789,7 +801,19 @@ export class TokenCursor {
       this.leadingBOMPending = false;
       if (this.buffer.charCodeAt(this.pos) === 0xfeff) this.pos++;
     }
-    if (!this.buffer.startsWith("<?xml", this.pos)) return true;
+    const xmlDeclarationTarget = "<?xml";
+    const available = this.buffer.length - this.pos;
+    if (available < xmlDeclarationTarget.length) {
+      // Delay START_DOCUMENT while the available bytes could still become an
+      // XML declaration. This is essential when an incremental feed splits
+      // the declaration target (and is harmless for a partial ordinary PI).
+      return this.final
+        ? true
+        : !xmlDeclarationTarget.startsWith(
+            this.buffer.slice(this.pos),
+          );
+    }
+    if (!this.buffer.startsWith(xmlDeclarationTarget, this.pos)) return true;
     const targetEnd = this.pos + 5;
     if (targetEnd >= this.buffer.length && !this.final) return false;
     if (!isXmlWhitespace(this.buffer.charCodeAt(targetEnd))) return true;
@@ -921,8 +945,9 @@ export class TokenCursor {
         generation: 0,
       };
       this.duplicateTable = table;
-    } else {
-      // Duplicate tables are only requested for wide tags, so any reusable table is ready as-is.
+    } else if (count !== DUPLICATE_TABLE_THRESHOLD) {
+      // Later attributes in this tag reuse its generation; the first wide
+      // attribute must rebuild it after a previous tag or a partial parse.
       return table;
     }
 
@@ -950,7 +975,7 @@ export class TokenCursor {
     if (this.resumeKind === ResumeKind.COMMENT) return this.parseComment();
     if (this.resumeKind === ResumeKind.CDATA) return this.parseCdata();
     if (this.resumeKind === ResumeKind.PI)
-      return this.parseProcessingInstruction() ?? this.next();
+      return this.parseProcessingInstruction()!;
     return this.parseDoctype();
   }
 

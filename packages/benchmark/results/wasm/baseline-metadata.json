@@ -1,0 +1,14 @@
+{
+  "commit": "5990c034a97f6dc6cc651d40b57cfe15d5dd0a2e",
+  "node": "24.21.0",
+  "pnpm": "11.13.1",
+  "platform": "darwin arm64 Apple M4",
+  "unitTests": 658,
+  "w3c": {
+    "passed": 805,
+    "skipped": 203,
+    "failed": 0
+  },
+  "releaseSurfaces": "passed",
+  "userChanges": "Existing large-cross-runtime benchmark work preserved"
+}

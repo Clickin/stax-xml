@@ -1,0 +1,374 @@
+{
+  "layout": [
+    {
+      "name": null,
+      "types": []
+    },
+    {
+      "name": null,
+      "types": [
+        "b"
+      ]
+    },
+    {
+      "name": null,
+      "types": [
+        "s",
+        "b"
+      ]
+    },
+    {
+      "name": null,
+      "types": [
+        "b"
+      ]
+    },
+    {
+      "name": null,
+      "types": []
+    }
+  ],
+  "benchmarks": [
+    {
+      "kind": "static",
+      "args": {},
+      "alias": "stax-xml EventReaderSync (JS object)",
+      "group": 2,
+      "baseline": false,
+      "runs": [
+        {
+          "stats": {
+            "kind": "fn",
+            "samples": [
+              111611167,
+              112828125,
+              113351709,
+              114123333,
+              114348833,
+              114374917,
+              114596167,
+              114741583,
+              114759458
+            ],
+            "min": 111611167,
+            "max": 114759458,
+            "p25": 113351709,
+            "p50": 114348833,
+            "p75": 114596167,
+            "p99": 114741583,
+            "p999": 114741583,
+            "avg": 113859476.8888889,
+            "ticks": 9,
+            "heap": {
+              "_": 13,
+              "total": 102573648,
+              "min": 7737824,
+              "max": 8336488,
+              "avg": 7890280.615384615
+            },
+            "gc": {
+              "total": 18600710,
+              "min": 1275000,
+              "max": 1750834,
+              "avg": 1430823.8461538462
+            }
+          },
+          "args": {},
+          "name": "stax-xml EventReaderSync (JS object)"
+        }
+      ],
+      "style": {
+        "highlight": false,
+        "compact": false
+      }
+    },
+    {
+      "kind": "static",
+      "args": {},
+      "alias": "stax-xml StreamReaderSync (JS object)",
+      "group": 2,
+      "baseline": false,
+      "runs": [
+        {
+          "stats": {
+            "kind": "fn",
+            "samples": [
+              97358709,
+              97513833.00000095,
+              97573625,
+              97692875,
+              98131834,
+              98137709,
+              98354125,
+              98733625.00000095,
+              98979625,
+              99980500
+            ],
+            "min": 97358709,
+            "max": 99980500,
+            "p25": 97573625,
+            "p50": 98131834,
+            "p75": 98354125,
+            "p99": 98979625,
+            "p999": 98979625,
+            "avg": 98245646.0000002,
+            "ticks": 10,
+            "heap": {
+              "_": 14,
+              "total": 246656528,
+              "min": 17352080,
+              "max": 17888920,
+              "avg": 17618323.42857143
+            },
+            "gc": {
+              "total": 21030289,
+              "min": 1315666,
+              "max": 1976541,
+              "avg": 1502163.5
+            }
+          },
+          "args": {},
+          "name": "stax-xml StreamReaderSync (JS object)"
+        }
+      ],
+      "style": {
+        "highlight": false,
+        "compact": false
+      }
+    },
+    {
+      "kind": "static",
+      "args": {},
+      "alias": "stax-xml Converter API (JS object)",
+      "group": 2,
+      "baseline": false,
+      "runs": [
+        {
+          "stats": {
+            "kind": "fn",
+            "samples": [
+              94314667,
+              94320582.99999905,
+              94779084,
+              94978000,
+              95170875,
+              95445458,
+              95518084,
+              95836000,
+              95873459,
+              95958667,
+              96066917
+            ],
+            "min": 94314667,
+            "max": 96066917,
+            "p25": 94779084,
+            "p50": 95445458,
+            "p75": 95836000,
+            "p99": 95958667,
+            "p999": 95958667,
+            "avg": 95296526.72727264,
+            "ticks": 11,
+            "heap": {
+              "_": 15,
+              "total": 570882528,
+              "min": 37531392,
+              "max": 38329280,
+              "avg": 38058835.2
+            },
+            "gc": {
+              "total": 21855582,
+              "min": 1341791,
+              "max": 1874166,
+              "avg": 1457038.8
+            }
+          },
+          "args": {},
+          "name": "stax-xml Converter API (JS object)"
+        }
+      ],
+      "style": {
+        "highlight": false,
+        "compact": false
+      }
+    },
+    {
+      "kind": "static",
+      "args": {},
+      "alias": "fast-xml-parser XMLParser (JS object)",
+      "group": 2,
+      "baseline": false,
+      "runs": [
+        {
+          "stats": {
+            "kind": "fn",
+            "samples": [
+              468509792,
+              471258167,
+              471368125,
+              472076708,
+              472270875,
+              472312167,
+              473126959,
+              473702250,
+              479660000,
+              479909875,
+              481475583,
+              485153333
+            ],
+            "min": 468509792,
+            "max": 485153333,
+            "p25": 471368125,
+            "p50": 472312167,
+            "p75": 479660000,
+            "p99": 481475583,
+            "p999": 481475583,
+            "avg": 475068652.8333333,
+            "ticks": 12,
+            "heap": {
+              "_": 12,
+              "total": 1872687336,
+              "min": 153078688,
+              "max": 163166592,
+              "avg": 156057278
+            },
+            "gc": {
+              "total": 20755669,
+              "min": 1610625,
+              "max": 2205666,
+              "avg": 1729639.0833333333
+            }
+          },
+          "args": {},
+          "name": "fast-xml-parser XMLParser (JS object)"
+        }
+      ],
+      "style": {
+        "highlight": false,
+        "compact": false
+      }
+    },
+    {
+      "kind": "static",
+      "args": {},
+      "alias": "txml parse (JS object)",
+      "group": 2,
+      "baseline": false,
+      "runs": [
+        {
+          "stats": {
+            "kind": "fn",
+            "samples": [
+              89375750,
+              89552292.0000019,
+              89570124.9999981,
+              89606416.9999981,
+              89820875,
+              89922375,
+              89941959,
+              90370792,
+              90444749.9999981,
+              90683375,
+              90787125.0000019,
+              90955666.9999981
+            ],
+            "min": 89375750,
+            "max": 90955666.9999981,
+            "p25": 89570124.9999981,
+            "p50": 89922375,
+            "p75": 90444749.9999981,
+            "p99": 90787125.0000019,
+            "p999": 90787125.0000019,
+            "avg": 90085958.49999969,
+            "ticks": 12,
+            "heap": {
+              "_": 16,
+              "total": 2401271936,
+              "min": 149906272,
+              "max": 151249568,
+              "avg": 150079496
+            },
+            "gc": {
+              "total": 27295832.999996185,
+              "min": 1582333,
+              "max": 2190249.9999980927,
+              "avg": 1705989.5624997616
+            }
+          },
+          "args": {},
+          "name": "txml parse (JS object)"
+        }
+      ],
+      "style": {
+        "highlight": false,
+        "compact": false
+      }
+    },
+    {
+      "kind": "static",
+      "args": {},
+      "alias": "xml2js parseString (JS object)",
+      "group": 2,
+      "baseline": false,
+      "runs": [
+        {
+          "stats": {
+            "kind": "fn",
+            "samples": [
+              444928625,
+              445488834,
+              445673750,
+              445924333,
+              446412083,
+              447747208,
+              448116209,
+              448230875,
+              448811708,
+              449086667,
+              449420875,
+              449465042
+            ],
+            "min": 444928625,
+            "max": 449465042,
+            "p25": 445673750,
+            "p50": 447747208,
+            "p75": 448811708,
+            "p99": 449420875,
+            "p999": 449420875,
+            "avg": 447442184.0833333,
+            "ticks": 12,
+            "heap": {
+              "_": 12,
+              "total": 1435543568,
+              "min": 93034560,
+              "max": 127241688,
+              "avg": 119628630.66666667
+            },
+            "gc": {
+              "total": 31571417,
+              "min": 2090083,
+              "max": 3718167,
+              "avg": 2630951.4166666665
+            }
+          },
+          "args": {},
+          "name": "xml2js parseString (JS object)"
+        }
+      ],
+      "style": {
+        "highlight": false,
+        "compact": false
+      }
+    }
+  ],
+  "context": {
+    "now": 1788925475869,
+    "arch": "arm64-darwin",
+    "version": "24.21.0",
+    "runtime": "node",
+    "cpu": {
+      "name": "Apple M4",
+      "freq": 3.8828292843789667
+    }
+  },
+  "evidenceNotes": "Omitted mitata noop calibration arrays and generated debug source only; measured benchmark samples and statistics are preserved."
+}

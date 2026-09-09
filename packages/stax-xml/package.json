@@ -21,6 +21,10 @@
     "./converter": {
       "types": "./dist/converter.d.ts",
       "import": "./dist/converter.js"
+    },
+    "./experimental/backend": {
+      "types": "./dist/experimental/backend.d.ts",
+      "import": "./dist/experimental/backend.js"
     }
   },
   "bugs": "https://github.com/Clickin/stax-xml/issues",

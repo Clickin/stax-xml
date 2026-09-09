@@ -1,0 +1,38 @@
+{
+  "command": "pnpm --dir packages/wasm test:js test/memory.test.ts --reporter=verbose --silent=false",
+  "documentBytes": 134217741,
+  "chunkBytes": 1048576,
+  "scalar": {
+    "maxInputCapacity": 1048576,
+    "retainedPages": 19,
+    "beforeDispose": {
+      "pages": 19,
+      "inputCapacity": 0,
+      "heap": 15143688,
+      "rss": 173375488
+    },
+    "afterDispose": {
+      "pages": 0,
+      "inputCapacity": 0,
+      "heap": 15190568,
+      "rss": 173391872
+    }
+  },
+  "simd": {
+    "maxInputCapacity": 1048576,
+    "retainedPages": 19,
+    "beforeDispose": {
+      "pages": 19,
+      "inputCapacity": 0,
+      "heap": 16395224,
+      "rss": 175915008
+    },
+    "afterDispose": {
+      "pages": 0,
+      "inputCapacity": 0,
+      "heap": 16428904,
+      "rss": 175915008
+    }
+  },
+  "assertion": "Input capacity and linear-memory pages stayed at the 8 MiB warm point through 128 MiB; disposal drops facade references, not a claim that OS RSS immediately falls."
+}

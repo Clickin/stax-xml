@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added the experimental `stax-xml/experimental/backend` cursor/session SPI and
+  an opt-in `@stax-xml/wasm` workspace package with scalar and fixed-SIMD
+  AssemblyScript tokenizers. The normal package still defaults to pure JS.
 - Added `writeEvent()` to `Writer`, `WriterSync`, and `WriterSyncSink`, enabling
   event-reader → transform → writer pipelines for every standard StAX event
   represented by `AnyXmlEvent`.
@@ -20,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Byte sessions now own input decoding, and readers/converters consume indexed
+  attribute primitives rather than requiring cursor-created attribute objects.
 - Start-element events now retain namespace declarations in their ordered
   `EventAttributes`, allowing namespace-aware reader/writer round trips.
   Elements without attributes expose `attributes` as `undefined`.
@@ -43,6 +48,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Quality
 
+- Added shared JS/Wasm contracts, exhaustive byte splits, deterministic
+  differential cases, streaming-retention checks, and dedicated AssemblyScript
+  tests through `vitest-pool-assemblyscript`.
 - Raised the maintained unit-test coverage gate to 100% for statements,
   branches, functions, and lines, excluding only documented unreachable paths.
 

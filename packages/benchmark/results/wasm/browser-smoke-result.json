@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+  "noWasmJsFallback": true,
+  "rows": [
+    {
+      "variant": "scalar",
+      "result": {
+        "title": "😀&東京",
+        "count": 7
+      },
+      "events": 10
+    },
+    {
+      "variant": "simd",
+      "result": {
+        "title": "😀&東京",
+        "count": 7
+      },
+      "events": 10
+    }
+  ]
+}

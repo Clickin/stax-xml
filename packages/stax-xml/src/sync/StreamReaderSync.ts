@@ -1,7 +1,12 @@
 import {
   NEED_INPUT,
-  TokenCursor,
+  attributeValueOf,
+  tokenBackendOf,
+  withTokenBackend,
   type DocumentMode,
+  type TokenBackendFactory,
+  type TokenCursorSpi,
+  type TokenInputSessionSpi,
   type XmlEventType,
 } from "@stax-xml/core";
 
@@ -20,42 +25,41 @@ export interface StreamReaderSyncOptions {
   encoding?: string;
 }
 const BYTE_CHUNK_SIZE = 64 * 1024;
+const EMPTY_BYTES = new Uint8Array(0);
 
 /**
  * Synchronous current-token reader. Strings are scanned directly without
  * encoding; byte inputs are decoded in fatal mode with the configured encoding.
  */
 export class StreamReaderSync {
-  private readonly cursor: TokenCursor;
+  private readonly cursor: TokenCursorSpi;
+  private readonly session: TokenInputSessionSpi | undefined;
   private iterator: Iterator<Uint8Array> | undefined;
-  private readonly decoder: TextDecoder | undefined;
   private closed = false;
 
   constructor(
     input: StreamReaderSyncInput,
     options: StreamReaderSyncOptions = {},
   ) {
+    const backend = tokenBackendOf(options);
     if (typeof input === "string") {
-      this.cursor = new TokenCursor(input, true, options);
+      this.cursor = backend.createStringCursor(input, options);
+      this.session = undefined;
     } else if (input instanceof Uint8Array) {
-      this.cursor = new TokenCursor("", false, options);
+      this.session = backend.createByteSession(byteOptions(options, backend));
+      this.cursor = this.session.cursor;
       this.iterator = fixedByteChunks(input);
-      this.decoder = new TextDecoder(options.encoding ?? "utf-8", {
-        fatal: true,
-      });
     } else {
-      this.cursor = new TokenCursor("", false, options);
+      this.session = backend.createByteSession(byteOptions(options, backend));
+      this.cursor = this.session.cursor;
       // Re-batch caller-supplied byte chunks up to BYTE_CHUNK_SIZE before decoding.
-      // Tiny chunks (e.g. per-row iterables, small stream frames) otherwise pay a
-      // full TextDecoder + cursor.push round-trip per few bytes; batching recovers
-      // that overhead. Same fatal/stream contract as the single-Uint8Array path.
+      // Tiny chunks (e.g. per-row iterables, small stream frames) otherwise pay
+      // a full backend push round-trip per few bytes; batching recovers that
+      // overhead. The backend session owns decoding/tokenization.
       this.iterator = batchByteChunks(
         input[Symbol.iterator](),
         BYTE_CHUNK_SIZE,
       );
-      this.decoder = new TextDecoder(options.encoding ?? "utf-8", {
-        fatal: true,
-      });
     }
   }
 
@@ -67,14 +71,8 @@ export class StreamReaderSync {
         const result = this.cursor.next();
         if (result !== NEED_INPUT) return result;
         const part = this.iterator!.next();
-        if (part.done) {
-          this.cursor.push(this.decoder!.decode(), true);
-        } else {
-          this.cursor.push(
-            this.decoder!.decode(part.value, { stream: true }),
-            false,
-          );
-        }
+        if (part.done) this.session!.pushBytes(EMPTY_BYTES, true);
+        else this.session!.pushBytes(part.value);
       }
     } catch (error) {
       try {
@@ -89,7 +87,8 @@ export class StreamReaderSync {
   close(): void {
     if (this.closed) return;
     this.closed = true;
-    this.cursor.dispose();
+    if (this.session) this.session.dispose();
+    else this.cursor.dispose();
     const iterator = this.iterator;
     this.iterator = undefined;
     iterator?.return?.();
@@ -124,7 +123,7 @@ export class StreamReaderSync {
   }
   /** Return an attribute's qualified name by zero-based index. */
   attributeName(index: number): string | undefined {
-    return this.cursor.attribute(index)?.name;
+    return this.cursor.attributeName(index);
   }
   /** Return an attribute's local name by zero-based index. */
   attributeLocalName(index: number): string | undefined {
@@ -132,20 +131,18 @@ export class StreamReaderSync {
   }
   /** Return an attribute's namespace prefix by zero-based index. */
   attributePrefix(index: number): string | undefined {
-    return this.cursor.attribute(index)?.prefix;
+    return this.cursor.attributePrefix(index);
   }
   /** Return an attribute's namespace URI by zero-based index. */
   attributeNamespaceURI(index: number): string | undefined {
-    return this.cursor.attribute(index)?.namespaceURI;
+    return this.cursor.attributeNamespaceURI(index);
   }
   /** Return an attribute value by index, qualified name, or namespace URI plus local name. */
   attributeValue(
     indexOrNameOrNamespace: number | string,
     localName?: string,
   ): string | undefined {
-    return typeof indexOrNameOrNamespace === "number" && localName === undefined
-      ? this.cursor.attributeValue(indexOrNameOrNamespace)
-      : this.cursor.attribute(indexOrNameOrNamespace, localName)?.value;
+    return attributeValueOf(this.cursor, indexOrNameOrNamespace, localName);
   }
   /** Resolve a namespace prefix in the current element scope. */
   namespaceURIForPrefix(prefix: string): string {
@@ -231,7 +228,19 @@ function fixedByteChunks(input: Uint8Array): Iterator<Uint8Array> {
   };
 }
 
+function byteOptions(
+  options: StreamReaderSyncOptions,
+  backend: TokenBackendFactory,
+): StreamReaderSyncOptions & { encoding: string } {
+  if (options.encoding !== undefined)
+    return options as StreamReaderSyncOptions & { encoding: string };
+  return withTokenBackend(
+    { ...options, encoding: "utf-8" },
+    backend,
+  );
+}
+
 /** @internal */
-export function tokenCursorOf(reader: StreamReaderSync): TokenCursor {
-  return (reader as unknown as { cursor: TokenCursor }).cursor;
+export function tokenCursorOf(reader: StreamReaderSync): TokenCursorSpi {
+  return (reader as unknown as { cursor: TokenCursorSpi }).cursor;
 }

@@ -1,0 +1,384 @@
+{
+  "source": "packages/benchmark/results/release/latest-summary.json",
+  "documentation": "packages/docs/src/content/docs/resources/benchmarks.mdx",
+  "statistic": "arithmetic mean (avgNs), not median",
+  "environment": {
+    "arch": "arm64-darwin",
+    "runtime": "node",
+    "version": "26.5.0",
+    "cpuName": "Apple M4",
+    "cpuGHz": 2.4,
+    "packageManager": "pnpm@11.12.0",
+    "packages": [
+      {
+        "name": "fast-xml-parser",
+        "declared": "^5.2.5",
+        "version": "5.7.2",
+        "source": "npm",
+        "status": "ok"
+      },
+      {
+        "name": "htmlparser2",
+        "declared": "^12.0.0",
+        "version": "12.0.0",
+        "source": "npm",
+        "status": "ok"
+      },
+      {
+        "name": "mitata",
+        "declared": "^1.0.34",
+        "version": "1.0.34",
+        "source": "npm",
+        "status": "ok"
+      },
+      {
+        "name": "sax",
+        "declared": "^1.4.1",
+        "version": "1.6.0",
+        "source": "npm",
+        "status": "ok"
+      },
+      {
+        "name": "saxes",
+        "declared": "^6.0.0",
+        "version": "6.0.0",
+        "source": "npm",
+        "status": "ok"
+      },
+      {
+        "name": "saxophone",
+        "declared": "^0.8.0",
+        "version": "0.8.0",
+        "source": "npm",
+        "status": "ok"
+      },
+      {
+        "name": "stax-xml",
+        "declared": "workspace:*",
+        "version": "1.1.0",
+        "source": "workspace",
+        "status": "ok"
+      },
+      {
+        "name": "txml",
+        "declared": "^5.1.1",
+        "version": "5.2.1",
+        "source": "npm",
+        "status": "ok"
+      },
+      {
+        "name": "xml-stream",
+        "declared": "^0.4.5",
+        "version": "0.4.5",
+        "source": "npm",
+        "status": "ok"
+      },
+      {
+        "name": "xml2js",
+        "declared": "^0.6.2",
+        "version": "0.6.2",
+        "source": "npm",
+        "status": "ok"
+      }
+    ],
+    "nodeComponents": [
+      {
+        "name": "acorn",
+        "version": "8.17.0"
+      },
+      {
+        "name": "ada",
+        "version": "3.4.4"
+      },
+      {
+        "name": "amaro",
+        "version": "1.1.10"
+      },
+      {
+        "name": "ares",
+        "version": "1.34.6"
+      },
+      {
+        "name": "brotli",
+        "version": "1.2.0"
+      },
+      {
+        "name": "cldr",
+        "version": "48.0"
+      },
+      {
+        "name": "icu",
+        "version": "78.3"
+      },
+      {
+        "name": "libffi",
+        "version": "3.6.0"
+      },
+      {
+        "name": "lief",
+        "version": "0.17.0"
+      },
+      {
+        "name": "llhttp",
+        "version": "9.4.2"
+      },
+      {
+        "name": "merve",
+        "version": "1.2.2"
+      },
+      {
+        "name": "modules",
+        "version": "147"
+      },
+      {
+        "name": "napi",
+        "version": "10"
+      },
+      {
+        "name": "nbytes",
+        "version": "0.1.4"
+      },
+      {
+        "name": "ncrypto",
+        "version": "0.0.1"
+      },
+      {
+        "name": "nghttp2",
+        "version": "1.69.0"
+      },
+      {
+        "name": "nghttp3",
+        "version": ""
+      },
+      {
+        "name": "ngtcp2",
+        "version": ""
+      },
+      {
+        "name": "node",
+        "version": "26.5.0"
+      },
+      {
+        "name": "openssl",
+        "version": "3.5.7"
+      },
+      {
+        "name": "simdjson",
+        "version": "4.6.4"
+      },
+      {
+        "name": "simdutf",
+        "version": "7.7.0"
+      },
+      {
+        "name": "sqlite",
+        "version": "3.53.3"
+      },
+      {
+        "name": "tz",
+        "version": "2026b"
+      },
+      {
+        "name": "undici",
+        "version": "8.7.0"
+      },
+      {
+        "name": "unicode",
+        "version": "17.0"
+      },
+      {
+        "name": "uv",
+        "version": "1.52.1"
+      },
+      {
+        "name": "uvwasi",
+        "version": "0.0.23"
+      },
+      {
+        "name": "v8",
+        "version": "14.6.202.34-node.24"
+      },
+      {
+        "name": "zlib",
+        "version": "1.3.2.1-motley-3246f1b"
+      },
+      {
+        "name": "zstd",
+        "version": "1.5.7"
+      }
+    ]
+  },
+  "suites": {
+    "parser-13mb": {
+      "id": "parser-13mb",
+      "title": "Parser 13MB (midsize.xml)",
+      "context": {
+        "arch": "arm64-darwin",
+        "runtime": "node",
+        "version": "26.5.0",
+        "cpuName": "Apple M4",
+        "cpuGHz": 3.91
+      },
+      "cases": [
+        {
+          "label": "stax-xml EventReaderSync (JS object)",
+          "avgNs": 124748413.08333333,
+          "minNs": 120399708,
+          "p75Ns": 126461417,
+          "p99Ns": 129054916,
+          "maxNs": 129694375,
+          "heapAvgBytes": 8765474.666666666
+        },
+        {
+          "label": "stax-xml StreamReaderSync (JS object)",
+          "avgNs": 115810229.0833327,
+          "minNs": 109815750,
+          "p75Ns": 117393500,
+          "p99Ns": 121998874.99999619,
+          "maxNs": 128903665.99999619,
+          "heapAvgBytes": 18669550
+        },
+        {
+          "label": "stax-xml Converter API (JS object)",
+          "avgNs": 113799232.58333366,
+          "minNs": 107206749.99999619,
+          "p75Ns": 115481417.00000381,
+          "p99Ns": 117482875,
+          "maxNs": 122499292,
+          "heapAvgBytes": 12357354.666666666
+        },
+        {
+          "label": "fast-xml-parser XMLParser (JS object)",
+          "avgNs": 542044920.0833334,
+          "minNs": 486606792,
+          "p75Ns": 506397166,
+          "p99Ns": 626873458,
+          "maxNs": 897576458,
+          "heapAvgBytes": 141822750
+        },
+        {
+          "label": "txml parse (JS object)",
+          "avgNs": 91544265.0909091,
+          "minNs": 91178334,
+          "p75Ns": 91700166,
+          "p99Ns": 91841083,
+          "maxNs": 91844375,
+          "heapAvgBytes": 132984314.66666667
+        },
+        {
+          "label": "xml2js parseString (JS object)",
+          "avgNs": 463212694.25,
+          "minNs": 451260000,
+          "p75Ns": 464312333,
+          "p99Ns": 474679750,
+          "maxNs": 502827833,
+          "heapAvgBytes": 110634562.66666667
+        }
+      ]
+    },
+    "parser-98mb": {
+      "id": "parser-98mb",
+      "title": "Parser 98MB (large.xml)",
+      "context": {
+        "arch": "arm64-darwin",
+        "runtime": "node",
+        "version": "26.5.0",
+        "cpuName": "Apple M4",
+        "cpuGHz": 3.48
+      },
+      "cases": [
+        {
+          "label": "stax-xml EventReaderSync (JS object)",
+          "avgNs": 825551159.7499994,
+          "minNs": 810802874.9999924,
+          "p75Ns": 833024666,
+          "p99Ns": 838050333,
+          "maxNs": 838544667,
+          "heapAvgBytes": 22477462.666666668
+        },
+        {
+          "label": "stax-xml StreamReaderSync (JS object)",
+          "avgNs": 691877590.25,
+          "minNs": 685411875,
+          "p75Ns": 693960792,
+          "p99Ns": 695868792,
+          "maxNs": 697384292,
+          "heapAvgBytes": 42584470.666666664
+        },
+        {
+          "label": "stax-xml Converter API (JS object)",
+          "avgNs": 635837003.6666666,
+          "minNs": 631441833,
+          "p75Ns": 636030833,
+          "p99Ns": 641085708,
+          "maxNs": 643327084,
+          "heapAvgBytes": 54087261.333333336
+        },
+        {
+          "label": "fast-xml-parser XMLParser (JS object)",
+          "avgNs": 3590689347.333336,
+          "minNs": 3531592584,
+          "p75Ns": 3607604042,
+          "p99Ns": 3627684833,
+          "maxNs": 3635525709,
+          "heapAvgBytes": 1009549393.3333334
+        },
+        {
+          "label": "txml parse (JS object)",
+          "avgNs": 704221739.75,
+          "minNs": 688432000,
+          "p75Ns": 706625417,
+          "p99Ns": 722268917,
+          "maxNs": 725766042,
+          "heapAvgBytes": 916742124.6666666
+        },
+        {
+          "label": "xml2js parseString (JS object)",
+          "avgNs": 3435352632,
+          "minNs": 3395043000,
+          "p75Ns": 3426683792,
+          "p99Ns": 3509555625,
+          "maxNs": 3574599000,
+          "heapAvgBytes": 669748849.3333334
+        }
+      ]
+    },
+    "converter-parity": {
+      "id": "converter-parity",
+      "title": "Converter compiled batch-plan comparison",
+      "context": {
+        "nodeVersion": "26.5.0",
+        "v8Version": "14.6.202.34-node.24",
+        "collectedAt": "2026-07-19T07:37:29.869Z"
+      },
+      "cases": [
+        {
+          "label": "Manual StreamReaderSync projection",
+          "avgNs": 147493991.79999998,
+          "minNs": 138719207.99999997,
+          "p75Ns": 147493991.79999998,
+          "p99Ns": 160534167.00000003,
+          "maxNs": 160534167.00000003,
+          "heapAvgBytes": 60486628.8,
+          "rssDeltaBytes": 3506176,
+          "throughputMiBs": 108.47957046758947,
+          "books": 139458,
+          "checksum": -1845341048
+        },
+        {
+          "label": "Converter schema.parseSync(bytes)",
+          "avgNs": 184210250.20000002,
+          "minNs": 179273457.99999988,
+          "p75Ns": 184210250.20000002,
+          "p99Ns": 188849374.9999998,
+          "maxNs": 188849374.9999998,
+          "heapAvgBytes": 63786134.4,
+          "rssDeltaBytes": 3686400,
+          "throughputMiBs": 86.8577338103749,
+          "books": 139458,
+          "checksum": -1845341048
+        }
+      ]
+    }
+  }
+}

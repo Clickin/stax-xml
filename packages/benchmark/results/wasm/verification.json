@@ -1,0 +1,147 @@
+{
+  "planReviewedRevision": "9a839ffb6824a25c4cc2fa6698e860daea5b5816",
+  "actualBaselineRevision": "5990c034a97f6dc6cc651d40b57cfe15d5dd0a2e",
+  "implementation": "uncommitted working-tree changes on the actual baseline; existing user changes preserved",
+  "tests": {
+    "baselineJs": 658,
+    "finalJs": 662,
+    "jsCoverage": {
+      "statements": "3400/3400",
+      "branches": "2501/2501",
+      "functions": "508/508",
+      "lines": "3135/3135"
+    },
+    "wasmIntegration": 29,
+    "assemblyNative": {
+      "runner": "vitest-pool-assemblyscript",
+      "scalar": 9,
+      "simd": 9
+    },
+    "assemblyCoverage": {
+      "statements": "1508/1794 (84.05%)",
+      "branches": "1080/1390 (77.69%)",
+      "functions": "80/86 (93.02%)",
+      "lines": "1016/1068 (95.13%)"
+    },
+    "w3c": {
+      "variants": [
+        "js",
+        "scalar",
+        "simd"
+      ],
+      "passedEach": 805,
+      "skippedEach": 203,
+      "failedEach": 0,
+      "wasmUtf8Each": 800,
+      "nonUtf8JsFallbackEach": 5,
+      "skipCategories": {
+        "named entity reference": 78,
+        "unsupported declaration": 2,
+        "not-wf DTD": 117,
+        "namespace-incompatible name": 4,
+        "strict document mode": 2
+      }
+    },
+    "differentialFuzzCasesPerBackend": 300,
+    "byteSplits": "Every byte boundary of the shared fixtures, including UTF-8 sequences",
+    "retention": "retention-128mib.json"
+  },
+  "runtimeProof": {
+    "node": "24.21.0",
+    "browser": "Chrome 150.0.0.0",
+    "packageConsumerPnpm": "12.3.4",
+    "browserEvidence": "browser-smoke-result.json",
+    "packedConsumerEvidence": "packed-consumer-result.json",
+    "packedLocalDependencyOverride": "pnpm-workspace.yaml overrides stax-xml to the packed local tarball; no registry publication performed"
+  },
+  "tools": {
+    "assemblyscript": "0.28.20",
+    "vitest-pool-assemblyscript": "0.18.0",
+    "vitest": "4.1.4"
+  },
+  "compiler": {
+    "runtime": "minimal",
+    "optimizeLevel": 3,
+    "shrinkLevel": 2,
+    "noAssert": true,
+    "simd": "--enable simd only for tokenizer.simd.wasm"
+  },
+  "simdProof": {
+    "matchingProfileArtifact": true,
+    "sourceFunctions": [
+      "utf8AppendValid",
+      "decodeSpan"
+    ],
+    "emittedInstructions": [
+      "v128.load",
+      "v128.store",
+      "i8x16.bitmask",
+      "i8x16.eq",
+      "i8x16.lt_u"
+    ]
+  },
+  "artifacts": {
+    "packages/stax-xml/dist/index.js": {
+      "bytes": 56009,
+      "sha256": "6887b93249e98a5bdc73d05a43737aa4bf680940bc35cf54221cef2939c4d9d1"
+    },
+    "packages/stax-xml/dist/converter.js": {
+      "bytes": 98466,
+      "sha256": "9dd8dd2e76133f213a5b017870eca544dda12d9ca0d49eb729e094ec538b1154"
+    },
+    "packages/stax-xml/dist/experimental/backend.js": {
+      "bytes": 28694,
+      "sha256": "3de7d3742585ed627e8e613a9c5de30605b540a908aaff68f967ef99693bc6d2"
+    },
+    "packages/wasm/dist/tokenizer.scalar.wasm": {
+      "bytes": 20990,
+      "sha256": "8b3469872d3a9d15da70f444e221a7a16da9d0bed916a3fcb908373db082c974"
+    },
+    "packages/wasm/dist/tokenizer.simd.wasm": {
+      "bytes": 21216,
+      "sha256": "77d54da7b8811571d4e8054408e58cfb89a4fa7814ae62e509d55ad4c0b83c09"
+    }
+  },
+  "commands": [
+    "pnpm install",
+    "pnpm build",
+    "pnpm test",
+    "pnpm test:w3c",
+    "pnpm coverage",
+    "pnpm verify:release-surfaces",
+    "pnpm build:wasm",
+    "pnpm test:wasm",
+    "pnpm --dir packages/wasm coverage:assembly",
+    "pnpm --dir packages/wasm test:js test/memory.test.ts --reporter=verbose --silent=false",
+    "pnpm --dir packages/benchmark bench:parser:13mb --json --out=/tmp/stax/baseline-parser-13mb.json",
+    "pnpm --dir packages/benchmark bench:parser:98mb --json --out=/tmp/stax/baseline-parser-98mb.json",
+    "pnpm --dir packages/benchmark bench:converter:compiled-batch --json-out=/tmp/stax/baseline-converter.json",
+    "pnpm --dir packages/stax-xml pack --pack-destination /tmp/stax/pack",
+    "pnpm --dir packages/wasm pack --pack-destination /tmp/stax/pack",
+    "pnpm install --offline && node smoke.mjs",
+    "node --cpu-prof --cpu-prof-dir=/tmp/stax --cpu-prof-name=simd-reader-final.cpuprofile /tmp/stax/profile-docs-wasm.mjs",
+    "node /tmp/stax/profile-docs-wasm.mjs --counts",
+    "pnpm benchmark:wasm --size-mib=16 --runs=5 --warmups=2 --fixtures=13,98 --baseline-commit=5990c034a97f6dc6cc651d40b57cfe15d5dd0a2e --out=/tmp/stax/wasm-final-controlled.json"
+  ],
+  "browserProbeSource": "import { createServer } from 'node:http';\nimport { readFile } from 'node:fs/promises';\nconst root = '/Users/senghyunjo/github/stax-xml';\nconst html = `<!doctype html><meta charset=\"utf-8\"><title>Wasm package smoke</title><pre id=\"output\">Loading</pre>\n<script type=\"importmap\">{\"imports\":{\"stax-xml\":\"/packages/stax-xml/dist/index.js\",\"stax-xml/converter\":\"/packages/stax-xml/dist/converter.js\",\"stax-xml/experimental/backend\":\"/packages/stax-xml/dist/experimental/backend.js\",\"@stax-xml/wasm\":\"/packages/wasm/dist/index.js\",\"@stax-xml/wasm/converter\":\"/packages/wasm/dist/converter.js\"}}</script>\n<script type=\"module\">\nimport * as wasm from '@stax-xml/wasm';\nimport { EventReaderSync as JsEventReaderSync } from 'stax-xml';\nimport { x } from 'stax-xml/converter';\nimport { withWasmBackend } from '@stax-xml/wasm/converter';\nconst check = (condition, message) => { if (!condition) throw new Error(message); };\ntry {\n  const native = globalThis.WebAssembly;\n  globalThis.WebAssembly = undefined;\n  try {\n    check([...new JsEventReaderSync(new TextEncoder().encode('<r/>'))].length === 4, 'JS must work without Wasm');\n    check([...new wasm.EventReaderSync('<r/>')].length === 4, 'string fallback must work without Wasm');\n  } finally { globalThis.WebAssembly = native; }\n  const rows = [];\n  for (const variant of ['scalar', 'simd']) {\n    await wasm.initWasm({ variant });\n    const bytes = new TextEncoder().encode('<book><title>\ud83d\ude00&amp;\u6771\u4eac</title><count>7</count></book>');\n    const schema = x.object({ title: x.string('/book/title'), count: x.number('/book/count') });\n    const result = schema.parseSync(bytes, withWasmBackend({}));\n    check(result.title === '\ud83d\ude00&\u6771\u4eac' && result.count === 7, variant + ' converter');\n    async function* chunks() { for (const byte of bytes) yield Uint8Array.of(byte); }\n    const events = [];\n    for await (const event of new wasm.EventReader(chunks())) events.push(event);\n    check(events.filter(e => e.type === wasm.XmlEventType.CHARACTERS).map(e => e.value).join('') === '\ud83d\ude00&\u6771\u4eac7', variant + ' split UTF-8');\n    rows.push({ variant, result, events: events.length });\n  }\n  window.smoke = { status: 'passed', browser: navigator.userAgent, noWasmJsFallback: true, rows };\n} catch (error) { window.smoke = { status: 'failed', error: String(error), stack: error.stack }; }\ndocument.querySelector('#output').textContent = JSON.stringify(window.smoke, null, 2);\ndocument.querySelector('#output').dataset.status = window.smoke.status;\n</script>`;\ncreateServer(async (req, res) => {\n  try {\n    const path = new URL(req.url, 'http://localhost').pathname;\n    if (path === '/') { res.setHeader('content-type', 'text/html'); res.end(html); return; }\n    if (!/^\\/packages\\/(stax-xml|wasm)\\/dist\\//.test(path) || path.includes('..')) { res.writeHead(404); res.end(); return; }\n    res.setHeader('content-type', path.endsWith('.wasm') ? 'application/wasm' : 'text/javascript');\n    res.end(await readFile(root + path));\n  } catch (error) { res.writeHead(404); res.end(String(error)); }\n}).listen(4179, '127.0.0.1', () => console.log('Wasm smoke ready on 4179'));\n",
+  "packedConsumerProbeSource": "import assert from 'node:assert/strict';\nimport { readFile, writeFile } from 'node:fs/promises';\nimport { initWasm, EventReaderSync, XmlEventType } from '@stax-xml/wasm';\nimport { withWasmBackend } from '@stax-xml/wasm/converter';\nimport { x } from 'stax-xml/converter';\nconst input = new TextEncoder().encode('<r>\ud83d\ude00&amp;\u6771\u4eac</r>');\nconst assets = [];\nfor (const variant of ['scalar', 'simd']) {\n  const specifier = `@stax-xml/wasm/tokenizer.${variant}.wasm`;\n  const bytes = await readFile(new URL(import.meta.resolve(specifier)));\n  assert(WebAssembly.validate(bytes));\n  await initWasm({ variant });\n  assert.equal(x.string('/r').parseSync(input, withWasmBackend({})), '\ud83d\ude00&\u6771\u4eac');\n  const events = [...new EventReaderSync(input)];\n  assert.equal(events.find(event => event.type === XmlEventType.CHARACTERS).value, '\ud83d\ude00&\u6771\u4eac');\n  assets.push({ specifier, bytes: bytes.length });\n}\nconst result = { status: 'passed', variants: ['scalar', 'simd'], assets };\nawait writeFile('/tmp/stax/packed-consumer-result.json', JSON.stringify(result, null, 2));\nconsole.log(JSON.stringify(result));\n",
+  "packedConsumerConfiguration": {
+    "package.json": {
+      "name": "stax-packed-smoke",
+      "private": true,
+      "type": "module",
+      "dependencies": {
+        "stax-xml": "file:/tmp/stax/pack/stax-xml-1.1.0.tgz",
+        "@stax-xml/wasm": "file:/tmp/stax/pack/stax-xml-wasm-1.1.0.tgz"
+      }
+    },
+    "pnpm-workspace.yaml": "overrides:\n  stax-xml: file:/tmp/stax/pack/stax-xml-1.1.0.tgz\n"
+  },
+  "decision": {
+    "outcome": 3,
+    "defaultBackend": "JS",
+    "automaticPromotion": false,
+    "wasmPackage": "retained as opt-in experiment",
+    "futurePromotionCriteria": "Evaluated individually in REPORT.md section 13; not current implementation acceptance criteria. Performance and full runtime matrix gates are not met."
+  }
+}

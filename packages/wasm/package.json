@@ -1,0 +1,46 @@
+{
+  "name": "@stax-xml/wasm",
+  "version": "1.1.0",
+  "description": "Experimental UTF-8 WebAssembly tokenizer backend for stax-xml",
+  "author": "Clickin <josh87786@gmail.com>",
+  "license": "MIT",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./converter": {
+      "types": "./dist/converter.d.ts",
+      "import": "./dist/converter.js"
+    },
+    "./tokenizer.scalar.wasm": "./dist/tokenizer.scalar.wasm",
+    "./tokenizer.simd.wasm": "./dist/tokenizer.simd.wasm"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "build": "tsdown && pnpm run build:assets",
+    "build:assets": "pnpm exec asc assembly/tokenizer.ts --config asconfig.json --outFile dist/tokenizer.scalar.wasm && pnpm exec asc assembly/tokenizer.ts --config asconfig.json --enable simd --outFile dist/tokenizer.simd.wasm",
+    "test": "pnpm run test:js && pnpm run test:assembly",
+    "test:js": "vitest run --config vitest.config.ts",
+    "test:assembly": "vitest run --config vitest.assembly.config.ts",
+    "coverage:assembly": "pnpm run test:assembly --coverage"
+  },
+  "dependencies": {
+    "stax-xml": "workspace:*"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.4",
+    "assemblyscript": "^0.28.20",
+    "tsdown": "^0.22.5",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.4",
+    "vitest-pool-assemblyscript": "^0.18.0"
+  }
+}

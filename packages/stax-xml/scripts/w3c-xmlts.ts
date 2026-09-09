@@ -7,6 +7,17 @@ import { pipeline } from 'node:stream/promises';
 import { get } from 'node:https';
 import { EventReaderSync } from '../src/sync/index.js';
 
+// The stable gate never imports or probes the opt-in package.
+const wasmVariant = process.env.STAX_XML_WASM;
+let Reader = EventReaderSync;
+if (wasmVariant) {
+  if (wasmVariant !== 'scalar' && wasmVariant !== 'simd')
+    throw new Error('STAX_XML_WASM must be scalar or simd.');
+  const wasm = await import(new URL('../../wasm/dist/index.js', import.meta.url).href);
+  await wasm.initWasm({ variant: wasmVariant });
+  Reader = wasm.EventReaderSync;
+}
+
 const XMLTS_URL = 'https://www.w3.org/XML/Test/xmlts20130923.zip';
 const XMLTS_SHA256 = 'f9510b3532926e1b4c2e54855b021e4b8a66ec98a5337dcf4ff07e8a41968deb';
 const CACHE_DIR = resolve(import.meta.dirname, '../.cache/w3c');
@@ -60,6 +71,8 @@ interface RunResult {
   failed: Array<{ test: W3cCase; error: string }>;
   skipped: number;
   skippedReasons: Map<string, number>;
+  utf8: number;
+  otherEncoding: number;
 }
 
 await main();
@@ -70,6 +83,7 @@ async function main(): Promise<void> {
   const result = runTests(tests);
 
   console.log(`W3C XML TS 20130923 document-mode subset`);
+  console.log(`backend: ${wasmVariant ?? 'js'}`);
   console.log(`archive: ${XMLTS_URL}`);
   console.log(`sha256: ${XMLTS_SHA256}`);
   console.log(`passed: ${result.passed}`);
@@ -78,6 +92,7 @@ async function main(): Promise<void> {
     console.log(`skipped (${reason}): ${count}`);
   }
   console.log(`failed: ${result.failed.length}`);
+  console.log(`exercised UTF-8: ${result.utf8}; non-UTF-8 JS fallback: ${result.otherEncoding}`);
 
   for (const failure of result.failed.slice(0, 20)) {
     console.log(`FAIL ${failure.test.id} ${failure.test.type} ${failure.test.uri}: ${failure.error}`);
@@ -238,7 +253,7 @@ function isInGateScope(test: W3cCase): boolean {
 }
 
 function runTests(tests: W3cCase[]): RunResult {
-  const result: RunResult = { passed: 0, failed: [], skipped: 0, skippedReasons: new Map() };
+  const result: RunResult = { passed: 0, failed: [], skipped: 0, skippedReasons: new Map(), utf8: 0, otherEncoding: 0 };
 
   for (const test of tests) {
     let bytes: Buffer;
@@ -259,7 +274,14 @@ function runTests(tests: W3cCase[]): RunResult {
       xml = decode(bytes, encoding);
     } catch (error) {
       if (test.type === 'not-wf') {
-        result.passed++;
+        if (encoding === 'utf-8') result.utf8++;
+        else result.otherEncoding++;
+        try {
+          Array.from(new Reader(bytes, { documentMode: 'document', encoding }));
+          result.failed.push({ test, error: 'expected invalid encoding failure, but parsing succeeded' });
+        } catch {
+          result.passed++;
+        }
         continue;
       }
       result.failed.push({
@@ -291,8 +313,10 @@ function runTests(tests: W3cCase[]): RunResult {
 
     let threw = false;
     let error = '';
+    if (encoding === 'utf-8') result.utf8++;
+    else result.otherEncoding++;
     try {
-      Array.from(new EventReaderSync(bytes, { documentMode: 'document', encoding }));
+      Array.from(new Reader(bytes, { documentMode: 'document', encoding }));
     } catch (cause) {
       threw = true;
       error = cause instanceof Error ? cause.message : String(cause);

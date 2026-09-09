@@ -1,0 +1,155 @@
+{
+  "workload": "docs-13mib / StreamReaderSync JS-object projection",
+  "inputBytes": 13584398,
+  "passes": 12,
+  "decoderProbe": {
+    "passes": 1,
+    "calls": 442369,
+    "decodedBytes": 2691076
+  },
+  "profiledTotalMicroseconds": 2999125,
+  "functions": [
+    {
+      "function": "parseWithStreamReader",
+      "url": "file:///Users/senghyunjo/github/stax-xml/packages/benchmark/common/parser-scenarios.mjs",
+      "microseconds": 634697,
+      "percent": 21.16,
+      "sourceFunction": "parseWithStreamReader"
+    },
+    {
+      "function": "wasm-function[63]",
+      "url": "wasm://wasm/00014b82",
+      "microseconds": 339005,
+      "percent": 11.3,
+      "sourceFunction": "$assembly/tokenizer/parseStart"
+    },
+    {
+      "function": "wasm-function[71]",
+      "url": "wasm://wasm/00014b82",
+      "microseconds": 266503,
+      "percent": 8.89,
+      "sourceFunction": "$assembly/tokenizer/nextInternal"
+    },
+    {
+      "function": "readField",
+      "url": "file:///Users/senghyunjo/github/stax-xml/packages/wasm/dist/backend-B8u2Pw7b.js",
+      "microseconds": 261542,
+      "percent": 8.72,
+      "sourceFunction": "readField"
+    },
+    {
+      "function": "decodeUTF8",
+      "url": "",
+      "microseconds": 243251,
+      "percent": 8.11,
+      "sourceFunction": "decodeUTF8"
+    },
+    {
+      "function": "clearCaches",
+      "url": "file:///Users/senghyunjo/github/stax-xml/packages/wasm/dist/backend-B8u2Pw7b.js",
+      "microseconds": 194664,
+      "percent": 6.49,
+      "sourceFunction": "clearCaches"
+    },
+    {
+      "function": "wasm-function[19]",
+      "url": "wasm://wasm/00014b82",
+      "microseconds": 157333,
+      "percent": 5.25,
+      "sourceFunction": "$assembly/tokenizer/decodeSpan"
+    },
+    {
+      "function": "refreshMemory",
+      "url": "file:///Users/senghyunjo/github/stax-xml/packages/wasm/dist/backend-B8u2Pw7b.js",
+      "microseconds": 108835,
+      "percent": 3.63,
+      "sourceFunction": "refreshMemory"
+    },
+    {
+      "function": "decode",
+      "url": "node:internal/encoding",
+      "microseconds": 83501,
+      "percent": 2.78,
+      "sourceFunction": "decode"
+    },
+    {
+      "function": "(garbage collector)",
+      "url": "",
+      "microseconds": 75458,
+      "percent": 2.52,
+      "sourceFunction": "(garbage collector)"
+    },
+    {
+      "function": "wasm-function[64]",
+      "url": "wasm://wasm/00014b82",
+      "microseconds": 75085,
+      "percent": 2.5,
+      "sourceFunction": "$assembly/tokenizer/parseEnd"
+    },
+    {
+      "function": "wasm-function[28]",
+      "url": "wasm://wasm/00014b82",
+      "microseconds": 66502,
+      "percent": 2.22,
+      "sourceFunction": "$assembly/tokenizer/nameStart"
+    },
+    {
+      "function": "run",
+      "url": "file:///Users/senghyunjo/github/stax-xml/packages/benchmark/common/parser-scenarios.mjs",
+      "microseconds": 65751,
+      "percent": 2.19,
+      "sourceFunction": "run"
+    },
+    {
+      "function": "name",
+      "url": "file:///Users/senghyunjo/github/stax-xml/packages/wasm/dist/backend-B8u2Pw7b.js",
+      "microseconds": 53416,
+      "percent": 1.78,
+      "sourceFunction": "name"
+    },
+    {
+      "function": "wasm-function[57]",
+      "url": "wasm://wasm/00014b82",
+      "microseconds": 42665,
+      "percent": 1.42,
+      "sourceFunction": "$assembly/tokenizer/utf8AppendValid"
+    },
+    {
+      "function": "get buffer",
+      "url": "",
+      "microseconds": 40499,
+      "percent": 1.35,
+      "sourceFunction": "get buffer"
+    },
+    {
+      "function": "(program)",
+      "url": "",
+      "microseconds": 31165,
+      "percent": 1.04,
+      "sourceFunction": "(program)"
+    },
+    {
+      "function": "createEmptyRow",
+      "url": "file:///Users/senghyunjo/github/stax-xml/packages/benchmark/common/parser-scenarios.mjs",
+      "microseconds": 27291,
+      "percent": 0.91,
+      "sourceFunction": "createEmptyRow"
+    },
+    {
+      "function": "wasm-function[12]",
+      "url": "wasm://wasm/00014b82",
+      "microseconds": 26959,
+      "percent": 0.9,
+      "sourceFunction": "$assembly/tokenizer/resetEvent"
+    },
+    {
+      "function": "wasm-function[23]",
+      "url": "wasm://wasm/00014b82",
+      "microseconds": 26751,
+      "percent": 0.89,
+      "sourceFunction": "$assembly/tokenizer/ensureState"
+    }
+  ],
+  "command": "node --cpu-prof --cpu-prof-dir=/tmp/stax --cpu-prof-name=simd-reader-final.cpuprofile /tmp/stax/profile-docs-wasm.mjs",
+  "probeSource": "import { readFileSync } from 'node:fs';\nimport { initWasm, wasmTokenBackendFactory } from '/Users/senghyunjo/github/stax-xml/packages/wasm/dist/index.js';\nimport { createStaxParserSurfaceRunners } from '/Users/senghyunjo/github/stax-xml/packages/benchmark/common/parser-scenarios.mjs';\nconst variant = process.argv.includes('--scalar') ? 'scalar' : 'simd';\nawait initWasm({ variant });\nconst assetPath = '/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml';\nconst inputBuffer = readFileSync(assetPath);\nconst runners = createStaxParserSurfaceRunners({ assetPath, inputBuffer, xmlString: inputBuffer.toString('utf8'), backend: wasmTokenBackendFactory });\nconst count = process.argv.includes('--counts');\nconst original = TextDecoder.prototype.decode;\nlet calls = 0;\nlet decodedBytes = 0;\nif (count) TextDecoder.prototype.decode = function (input, options) { calls++; decodedBytes += input?.byteLength ?? 0; return original.call(this, input, options); };\nlet records = 0;\nconst passes = count ? 1 : 12;\ntry { for (let i = 0; i < passes; i++) records = runners[1].run().length; }\nfinally { TextDecoder.prototype.decode = original; }\nconsole.log(JSON.stringify({ variant, bytes: inputBuffer.byteLength, passes, records, decoderCalls: count ? calls : undefined, decodedBytes: count ? decodedBytes : undefined }));\n"
+}

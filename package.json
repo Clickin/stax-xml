@@ -13,7 +13,9 @@
   "bugs": "https://github.com/Clickin/stax-xml/issues",
   "scripts": {
     "build": "pnpm -r --filter='./packages/stax-xml*' build",
+    "build:wasm": "pnpm --filter @stax-xml/wasm build",
     "test": "pnpm --filter=stax-xml test",
+    "test:wasm": "pnpm --filter @stax-xml/wasm test && STAX_XML_WASM=scalar pnpm test:w3c && STAX_XML_WASM=simd pnpm test:w3c",
     "test:w3c": "pnpm --filter=stax-xml test:w3c",
     "verify:release-surfaces": "node packages/stax-xml/scripts/verify-release-surfaces.mjs",
     "test:watch": "pnpm --filter=stax-xml test:watch",
@@ -24,7 +26,8 @@
     "docs:preview": "pnpm --filter=stax-xml-docs preview",
     "docs:snapshot:release": "pnpm --filter=stax-xml-docs snapshot:release",
     "benchmark": "pnpm --filter=benchmark dev:bench:all",
-    "benchmark:release": "pnpm --filter=benchmark run release:expanded"
+    "benchmark:release": "pnpm --filter=benchmark run release:expanded",
+    "benchmark:wasm": "node --expose-gc packages/benchmark/wasm-backend.mjs"
   },
   "devDependencies": {
     "@types/node": "^24.12.2",

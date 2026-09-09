@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import * as stax from 'stax-xml';
 import { x } from 'stax-xml/converter';
+import * as experimentalBackend from 'stax-xml/experimental/backend';
 
 const EXPECTED_ROOT_EXPORTS = [
   'EventReader',
@@ -23,9 +24,28 @@ const EXPECTED_ROOT_EXPORTS = [
 ].sort();
 
 assert.deepEqual(Object.keys(stax).sort(), EXPECTED_ROOT_EXPORTS);
+assert.deepEqual(Object.keys(experimentalBackend).sort(), [
+  'NEED_INPUT',
+  'jsTokenBackendFactory',
+  'tokenBackendFactorySymbol',
+  'tokenBackendOf',
+  'withTokenBackend',
+].sort());
+assert.equal(
+  experimentalBackend.NEED_INPUT,
+  Symbol.for('stax-xml.need-input'),
+);
+assert.equal(
+  experimentalBackend.tokenBackendFactorySymbol,
+  Symbol.for('stax-xml.experimental.tokenBackendFactory'),
+);
 
 const packageJson = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
-assert.deepEqual(Object.keys(packageJson.exports).sort(), ['.', './converter']);
+assert.deepEqual(Object.keys(packageJson.exports).sort(), [
+  '.',
+  './converter',
+  './experimental/backend',
+]);
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -50,6 +70,26 @@ function verifyStreamReaderSync() {
     if (reader.eventType() === stax.XmlEventType.START_ELEMENT) starts.push(reader.name());
   }
   assert.deepEqual(starts, ['catalog', 'book', 'title']);
+}
+
+function verifyExperimentalBackendInjection() {
+  const options = experimentalBackend.withTokenBackend(
+    {},
+    experimentalBackend.jsTokenBackendFactory,
+  );
+  const reader = new stax.StreamReaderSync(
+    encoder.encode(xml),
+    options,
+  );
+  let starts = 0;
+  while (reader.next() !== null) {
+    if (reader.eventType() === stax.XmlEventType.START_ELEMENT) starts++;
+  }
+  assert.equal(starts, 3);
+  assert.equal(
+    experimentalBackend.tokenBackendOf(options),
+    experimentalBackend.jsTokenBackendFactory,
+  );
 }
 
 function verifyEventReaderSync() {
@@ -132,6 +172,7 @@ function concatBytes(chunks) {
 }
 
 verifyStreamReaderSync();
+verifyExperimentalBackendInjection();
 verifyEventReaderSync();
 await verifyStreamReader();
 await verifyEventReader();
@@ -150,5 +191,6 @@ console.log(JSON.stringify({
     'WriterSyncSink',
     'Writer',
     'converter',
+    'experimental/backend',
   ],
 }, null, 2));

@@ -20,3 +20,4 @@ allowBuilds:
   iconv: false
   node-expat: false
   sharp: false
+  vitest-pool-assemblyscript: true

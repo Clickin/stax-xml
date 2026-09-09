@@ -1,4 +1,11 @@
-import { NEED_INPUT, TokenCursor, XmlEventType } from "@stax-xml/core";
+import {
+  NEED_INPUT,
+  attributeValueOf,
+  tokenBackendOf,
+  type TokenCursorSpi,
+  type TokenInputSessionSpi,
+  XmlEventType,
+} from "@stax-xml/core";
 import {
   isCdata,
   isCharacters,
@@ -24,6 +31,7 @@ import type { ParseInput } from "./XmlSchema.js";
 import type { ParseOptions } from "./types.js";
 
 const DECODE_CHUNK_BYTES = 64 * 1024;
+const EMPTY_BYTES = new Uint8Array(0);
 
 type ParentBinding =
   | { kind: "root" }
@@ -93,7 +101,7 @@ type RuntimeState = {
   captures: CaptureState[];
   positionScopes?: Array<Map<string, number>>;
   currentAttributes?: Record<string, string>;
-  currentTokenCursor?: TokenCursor;
+  currentTokenCursor?: TokenCursorSpi;
   attributeLookupCount: number;
   attributeLookupCache?: Record<string, string | undefined>;
   processingStart?: boolean;
@@ -116,7 +124,7 @@ type EndExecutor = (
 type CursorExecutor = (
   processor: CompiledRootProcessor,
   runtime: RuntimeState,
-  cursor: TokenCursor,
+  cursor: TokenCursorSpi,
 ) => void;
 type StartConstant =
   | DispatchValuePlan
@@ -327,29 +335,40 @@ export class CompiledRootProcessor {
   }
 
   private processString(runtime: RuntimeState, input: string): void {
-    const cursor = new TokenCursor(input, true, {
+    const cursor = tokenBackendOf(runtime.options).createStringCursor(input, {
       documentMode: runtime.options?.documentMode ?? "fragment",
     });
-    this.cursorExecutor(this, runtime, cursor);
+    let completed = false;
+    try {
+      this.cursorExecutor(this, runtime, cursor);
+      completed = true;
+    } finally {
+      disposePreservingPrimary(cursor, completed);
+    }
   }
 
   private processBytes(runtime: RuntimeState, bytes: Uint8Array): void {
-    const cursor = this.createIncrementalCursor(runtime);
-    const decoder = createTextDecoder(runtime.options);
-    this.processByteChunk(runtime, cursor, decoder, bytes);
-    this.finishByteInput(runtime, cursor, decoder);
+    const session = this.createIncrementalSession(runtime);
+    let completed = false;
+    try {
+      this.processByteChunk(runtime, session, bytes);
+      this.finishByteInput(runtime, session);
+      completed = true;
+    } finally {
+      disposePreservingPrimary(session, completed);
+    }
   }
 
-  private createIncrementalCursor(runtime: RuntimeState): TokenCursor {
-    return new TokenCursor("", false, {
+  private createIncrementalSession(runtime: RuntimeState): TokenInputSessionSpi {
+    return tokenBackendOf(runtime.options).createByteSession({
       documentMode: runtime.options?.documentMode ?? "fragment",
+      encoding: runtime.options?.encoding ?? "utf-8",
     });
   }
 
   private processByteChunk(
     runtime: RuntimeState,
-    cursor: TokenCursor,
-    decoder: TextDecoder,
+    session: TokenInputSessionSpi,
     bytes: Uint8Array,
   ): void {
     for (
@@ -358,32 +377,27 @@ export class CompiledRootProcessor {
       offset += DECODE_CHUNK_BYTES
     ) {
       const end = Math.min(offset + DECODE_CHUNK_BYTES, bytes.byteLength);
-      const text = decoder.decode(bytes.subarray(offset, end), {
-        stream: true,
-      });
-      if (text.length === 0) continue;
-      cursor.push(text, false);
-      this.drainIncrementalCursor(runtime, cursor);
+      session.pushBytes(bytes.subarray(offset, end));
+      this.drainIncrementalCursor(runtime, session.cursor);
     }
   }
 
   private finishByteInput(
     runtime: RuntimeState,
-    cursor: TokenCursor,
-    decoder: TextDecoder,
+    session: TokenInputSessionSpi,
   ): void {
-    cursor.push(decoder.decode(), true);
-    this.drainIncrementalCursor(runtime, cursor);
+    session.pushBytes(EMPTY_BYTES, true);
+    this.drainIncrementalCursor(runtime, session.cursor);
   }
 
   private drainIncrementalCursor(
     runtime: RuntimeState,
-    cursor: TokenCursor,
+    cursor: TokenCursorSpi,
   ): void {
     this.cursorExecutor(this, runtime, cursor);
   }
 
-  private processCursor(runtime: RuntimeState, cursor: TokenCursor): void {
+  private processCursor(runtime: RuntimeState, cursor: TokenCursorSpi): void {
     while (true) {
       const type = cursor.next();
       if (type === NEED_INPUT || type === null) return;
@@ -393,7 +407,7 @@ export class CompiledRootProcessor {
 
   private processTokenCursorEvent(
     runtime: RuntimeState,
-    cursor: TokenCursor,
+    cursor: TokenCursorSpi,
     type: XmlEventType,
   ): void {
     if (
@@ -451,17 +465,22 @@ export class CompiledRootProcessor {
         return;
       }
       if (isByteSourceItem(first.value)) {
-        const cursor = this.createIncrementalCursor(runtime);
-        const decoder = createTextDecoder(runtime.options);
-        this.processByteSourceItem(runtime, cursor, decoder, first.value);
-        for (let next = iterator.next(); !next.done; next = iterator.next()) {
-          if (!isByteSourceItem(next.value))
-            throw new Error(
-              "Byte iterables must contain only Uint8Array values or byte batches.",
-            );
-          this.processByteSourceItem(runtime, cursor, decoder, next.value);
+        const session = this.createIncrementalSession(runtime);
+        let inputCompleted = false;
+        try {
+          this.processByteSourceItem(runtime, session, first.value);
+          for (let next = iterator.next(); !next.done; next = iterator.next()) {
+            if (!isByteSourceItem(next.value))
+              throw new Error(
+                "Byte iterables must contain only Uint8Array values or byte batches.",
+              );
+            this.processByteSourceItem(runtime, session, next.value);
+          }
+          this.finishByteInput(runtime, session);
+          inputCompleted = true;
+        } finally {
+          disposePreservingPrimary(session, inputCompleted);
         }
-        this.finishByteInput(runtime, cursor, decoder);
         completed = true;
         return;
       }
@@ -499,22 +518,27 @@ export class CompiledRootProcessor {
         return;
       }
       if (isByteSourceItem(first.value)) {
-        const cursor = this.createIncrementalCursor(runtime);
-        const decoder = createTextDecoder(runtime.options);
-        this.processByteSourceItem(runtime, cursor, decoder, first.value);
-        for (
-          let next = await iterator.next();
-          !next.done;
-          next = await iterator.next()
-        ) {
-          if (!isByteSourceItem(next.value)) {
-            throw new Error(
-              "Byte iterables must contain only Uint8Array values or byte batches.",
-            );
+        const session = this.createIncrementalSession(runtime);
+        let inputCompleted = false;
+        try {
+          this.processByteSourceItem(runtime, session, first.value);
+          for (
+            let next = await iterator.next();
+            !next.done;
+            next = await iterator.next()
+          ) {
+            if (!isByteSourceItem(next.value)) {
+              throw new Error(
+                "Byte iterables must contain only Uint8Array values or byte batches.",
+              );
+            }
+            this.processByteSourceItem(runtime, session, next.value);
           }
-          this.processByteSourceItem(runtime, cursor, decoder, next.value);
+          this.finishByteInput(runtime, session);
+          inputCompleted = true;
+        } finally {
+          disposePreservingPrimary(session, inputCompleted);
         }
-        this.finishByteInput(runtime, cursor, decoder);
       } else {
         const validator = new EventInputValidator(
           runtime.options?.documentMode ?? "fragment",
@@ -543,16 +567,15 @@ export class CompiledRootProcessor {
 
   private processByteSourceItem(
     runtime: RuntimeState,
-    cursor: TokenCursor,
-    decoder: TextDecoder,
+    session: TokenInputSessionSpi,
     item: Uint8Array | readonly Uint8Array[],
   ): void {
     if (item instanceof Uint8Array) {
-      this.processByteChunk(runtime, cursor, decoder, item);
+      this.processByteChunk(runtime, session, item);
       return;
     }
     for (const bytes of item)
-      this.processByteChunk(runtime, cursor, decoder, bytes);
+      this.processByteChunk(runtime, session, bytes);
   }
 
   private processStart(runtime: RuntimeState, currentName: string): void {
@@ -1129,25 +1152,36 @@ export class CompiledRootProcessor {
     runtime: RuntimeState,
     stream: ReadableStream<Uint8Array>,
   ): Promise<void> {
-    const cursor = this.createIncrementalCursor(runtime);
-    const decoder = createTextDecoder(runtime.options);
-    const reader = stream.getReader();
+    const session = this.createIncrementalSession(runtime);
+    let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
     let completed = false;
     try {
+      reader = stream.getReader();
       while (true) {
         const item = await reader.read();
         if (item.done) {
-          completed = true;
           break;
         }
         if (!(item.value instanceof Uint8Array))
           throw new Error("Reader chunks must be Uint8Array values.");
-        this.processByteChunk(runtime, cursor, decoder, item.value);
+        this.processByteChunk(runtime, session, item.value);
       }
-      this.finishByteInput(runtime, cursor, decoder);
+      this.finishByteInput(runtime, session);
+      completed = true;
     } finally {
-      if (!completed) await reader.cancel().catch(() => undefined);
-      reader.releaseLock();
+      if (!reader) {
+        disposePreservingPrimary(session, completed);
+      } else {
+        try {
+          if (!completed) await reader.cancel().catch(() => undefined);
+        } finally {
+          try {
+            reader.releaseLock();
+          } finally {
+            disposePreservingPrimary(session, completed);
+          }
+        }
+      }
     }
   }
 }
@@ -1764,13 +1798,13 @@ function currentAttributeValue(
     if (++runtime.attributeLookupCount > 1) {
       const indexed: Record<string, string | undefined> = Object.create(null);
       for (let index = 0; index < tokenCursor.attributeCount(); index++) {
-        const attribute = tokenCursor.attribute(index)!;
-        indexed[attribute.name] = attribute.value;
+        indexed[tokenCursor.attributeName(index)!] =
+          tokenCursor.attributeValue(index);
       }
       runtime.attributeLookupCache = indexed;
       return indexed[name];
     }
-    return tokenCursor.attribute(name)?.value;
+    return attributeValueOf(tokenCursor, name);
   }
   return runtime.currentAttributes?.[name];
 }
@@ -1867,8 +1901,15 @@ function markObjectFieldCompleted(object: ObjectState, id: number): void {
   object.activeFields?.delete(id);
 }
 
-function createTextDecoder(options?: ParseOptions): TextDecoder {
-  return new TextDecoder(options?.encoding ?? "utf-8", { fatal: true });
+function disposePreservingPrimary(
+  resource: { dispose(): void },
+  completed: boolean,
+): void {
+  try {
+    resource.dispose();
+  } catch (error) {
+    if (completed) throw error;
+  }
 }
 
 function isSyncIterable(

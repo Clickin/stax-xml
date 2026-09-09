@@ -1,4 +1,5 @@
 import { EventReaderSync, StreamReaderSync, XmlEventType } from 'stax-xml';
+import { withTokenBackend } from 'stax-xml/experimental/backend';
 import { x } from 'stax-xml/converter';
 import { XMLParser } from 'fast-xml-parser';
 import * as txml from 'txml';
@@ -72,20 +73,20 @@ export function parserFixtureContractForAssetPath(assetPath) {
   return contract;
 }
 
-export function createStaxParserSurfaceRunners({ assetPath, xmlString, inputBuffer }) {
+export function createStaxParserSurfaceRunners({ assetPath, xmlString, inputBuffer, backend }) {
   const contract = parserFixtureContractForAssetPath(assetPath);
   return [
     {
       label: 'stax-xml EventReaderSync (JS object)',
-      run: () => parseWithEventReader(xmlString, contract),
+      run: () => parseWithEventReader(xmlString, contract, backend),
     },
     {
       label: 'stax-xml StreamReaderSync (JS object)',
-      run: () => parseWithStreamReader(inputBuffer, contract),
+      run: () => parseWithStreamReader(inputBuffer, contract, backend),
     },
     {
       label: 'stax-xml Converter API (JS object)',
-      run: () => parseWithConverter(inputBuffer, contract),
+      run: () => parseWithConverter(inputBuffer, contract, backend),
     },
     {
       label: 'fast-xml-parser XMLParser (JS object)',
@@ -230,10 +231,11 @@ function appendFieldText(target, fieldName, text) {
   target[fieldName] = target[fieldName] ? `${target[fieldName]}${text}` : text;
 }
 
-function parseWithEventReader(xmlString, contract) {
+function parseWithEventReader(xmlString, contract, backend) {
+  const options = { autoDecodeEntities: false, ...BENCHMARK_PARSE_OPTIONS };
   const parser = new EventReaderSync(
     xmlString,
-    { autoDecodeEntities: false, ...BENCHMARK_PARSE_OPTIONS },
+    backend ? withTokenBackend(options, backend) : options,
   );
   const rows = [];
   const elementStack = [];
@@ -287,8 +289,11 @@ function parseWithEventReader(xmlString, contract) {
   return rows;
 }
 
-function parseWithStreamReader(inputBuffer, contract) {
-  const parser = new StreamReaderSync(inputBuffer, BENCHMARK_PARSE_OPTIONS);
+function parseWithStreamReader(inputBuffer, contract, backend) {
+  const options = backend
+    ? withTokenBackend({ ...BENCHMARK_PARSE_OPTIONS }, backend)
+    : BENCHMARK_PARSE_OPTIONS;
+  const parser = new StreamReaderSync(inputBuffer, options);
   const rows = [];
   const elementStack = [];
   let currentRow = null;
@@ -338,9 +343,13 @@ function parseWithStreamReader(inputBuffer, contract) {
   return rows;
 }
 
-function parseWithConverter(inputBuffer, contract) {
-  return contract.converterSchema.parseSync(inputBuffer, {
+function parseWithConverter(inputBuffer, contract, backend) {
+  const options = {
     ...BENCHMARK_PARSE_OPTIONS,
     maxEvents: 20_000_000,
-  });
+  };
+  return contract.converterSchema.parseSync(
+    inputBuffer,
+    backend ? withTokenBackend(options, backend) : options,
+  );
 }

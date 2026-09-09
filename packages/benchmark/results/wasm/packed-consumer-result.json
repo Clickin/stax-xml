@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "variants": [
+    "scalar",
+    "simd"
+  ],
+  "assets": [
+    {
+      "specifier": "@stax-xml/wasm/tokenizer.scalar.wasm",
+      "bytes": 20990
+    },
+    {
+      "specifier": "@stax-xml/wasm/tokenizer.simd.wasm",
+      "bytes": 21216
+    }
+  ]
+}

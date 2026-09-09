@@ -23,5 +23,17 @@ export default defineConfig([
     platform: "neutral",
     logLevel: 'error',
     minify: true,
+  },
+  {
+    entry: {
+      'experimental/backend': 'src/experimental/backend.ts',
+    },
+    format: ['esm'],
+    dts: true,
+    outDir: 'dist',
+    clean: false,
+    platform: "neutral",
+    logLevel: 'error',
+    minify: true,
   }
 ]);

@@ -1,0 +1,65 @@
+{
+  "label": "converter-compiled-batch-plan",
+  "fixture": {
+    "source": "buffer",
+    "actualBytes": 16777305,
+    "sizeGiB": 0.01562508288770914
+  },
+  "variants": {
+    "manual-cursor-reader-sync": {
+      "id": "manual-cursor-reader-sync",
+      "family": "converter",
+      "implementation": "manual StreamReaderSync object projection",
+      "contractScope": "catalog-records",
+      "fullStringParity": true,
+      "eventCountKind": "parsed-elements",
+      "avgMs": 143.96234180000005,
+      "minMs": 141.81766599999992,
+      "maxMs": 145.50283400000012,
+      "mibPerSec": 111.14076554299392,
+      "eventCount": 139458,
+      "checksum": -1845341048,
+      "samplesMs": [
+        144.784083,
+        144.709209,
+        141.81766599999992,
+        142.99791700000014,
+        145.50283400000012
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 68487780.8,
+        "avgRssDeltaBytes": 2906521.6
+      }
+    },
+    "converter-auto-compiled-batch-plan": {
+      "id": "converter-auto-compiled-batch-plan",
+      "family": "converter",
+      "implementation": "converter parseSync (IR JIT)",
+      "contractScope": "catalog-records",
+      "fullStringParity": true,
+      "eventCountKind": "parsed-elements",
+      "avgMs": 189.37240819999997,
+      "minMs": 187.77654199999984,
+      "maxMs": 191.16004199999998,
+      "mibPerSec": 84.49005337734394,
+      "eventCount": 139458,
+      "checksum": -1845341048,
+      "samplesMs": [
+        191.16004199999998,
+        189.27420800000004,
+        187.77654199999984,
+        189.99104099999977,
+        188.66020800000024
+      ],
+      "memory": {
+        "avgHeapUsedDeltaBytes": 64303936,
+        "avgRssDeltaBytes": 3234201.6
+      }
+    }
+  },
+  "metadata": {
+    "nodeVersion": "24.21.0",
+    "v8Version": "13.6.233.17-node.53",
+    "collectedAt": "2026-09-09T03:47:29.448Z"
+  }
+}

@@ -22,6 +22,7 @@ export default defineConfig({
   },
   test: {
     include: [
+      "test/backend-contract.test.ts",
       "test/v1-reader-contract.test.ts",
       "test/token-cursor-resume.test.ts",
       "test/token-cursor-options-coverage.test.ts",
