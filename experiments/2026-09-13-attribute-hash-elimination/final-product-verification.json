@@ -1,0 +1,11 @@
+{
+  "R1": "adc2cb7d0a64152725a5c43b2233676a79fec646",
+  "distByteIdenticalToR1": true,
+  "files": {
+    "converter.js": "66c225f40aa8aa731863f78f70e42cc6944808bd6a96ca878d235076074ccf9d",
+    "converter.d.ts": "ca65dfa3008f2afdcad151b33d57efd56a75d0f46bb333af6cb3e7722b45b204",
+    "index.js": "d4a6dedd012b5d1cd0a7f3caaa1b18cdcc30fd64a220b4d873e5d91ec6480744",
+    "index.d.ts": "2269f64cba5c424073de3935e1f678599f3945f11cb5e76ce094075c461d986f"
+  },
+  "optimizationProductPatch": "empty; H1B patch reversed"
+}

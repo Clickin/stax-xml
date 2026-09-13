@@ -1,0 +1,292 @@
+{
+  "rows": [
+    {
+      "build": "/tmp/stax-attribute-hash-20260913/builds/H1A",
+      "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+      "access": "full",
+      "namespaceAware": true,
+      "bytes": 4600013,
+      "checksum": 7440066,
+      "samples": [
+        55.97591699999998,
+        56.22108400000002,
+        55.51320800000002
+      ],
+      "counters": null,
+      "block": 0,
+      "variant": "H1A"
+    },
+    {
+      "build": "/tmp/stax-attribute-hash-20260913/builds/H1A",
+      "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+      "access": "lookup",
+      "namespaceAware": true,
+      "bytes": 4600013,
+      "checksum": 8400066,
+      "samples": [
+        94.814708,
+        94.93445799999995,
+        94.64837499999999
+      ],
+      "counters": null,
+      "block": 0,
+      "variant": "H1A"
+    },
+    {
+      "build": "/tmp/stax-attribute-hash-20260913/builds/H1A",
+      "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+      "access": "event",
+      "namespaceAware": true,
+      "bytes": 4600013,
+      "checksum": 10323137,
+      "samples": [
+        61.123084000000006,
+        60.57937499999997,
+        59.863292
+      ],
+      "counters": null,
+      "block": 0,
+      "variant": "H1A"
+    },
+    {
+      "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+      "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+      "access": "full",
+      "namespaceAware": true,
+      "bytes": 4600013,
+      "checksum": 7440066,
+      "samples": [
+        30.135666000000015,
+        30.50324999999998,
+        29.758499999999998
+      ],
+      "counters": null,
+      "block": 0,
+      "variant": "R1"
+    },
+    {
+      "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+      "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+      "access": "lookup",
+      "namespaceAware": true,
+      "bytes": 4600013,
+      "checksum": 8400066,
+      "samples": [
+        46.05049999999997,
+        45.88062500000001,
+        45.93033399999996
+      ],
+      "counters": null,
+      "block": 0,
+      "variant": "R1"
+    },
+    {
+      "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+      "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+      "access": "event",
+      "namespaceAware": true,
+      "bytes": 4600013,
+      "checksum": 10323137,
+      "samples": [
+        35.299042000000014,
+        34.88175000000001,
+        34.207583
+      ],
+      "counters": null,
+      "block": 0,
+      "variant": "R1"
+    },
+    {
+      "build": "/tmp/stax-attribute-hash-20260913/builds/H1A",
+      "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+      "access": "full",
+      "namespaceAware": true,
+      "bytes": 4600013,
+      "checksum": 7440066,
+      "samples": [
+        55.82000000000005,
+        56.001666,
+        55.20670899999999
+      ],
+      "counters": null,
+      "block": 1,
+      "variant": "H1A"
+    },
+    {
+      "build": "/tmp/stax-attribute-hash-20260913/builds/H1A",
+      "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+      "access": "lookup",
+      "namespaceAware": true,
+      "bytes": 4600013,
+      "checksum": 8400066,
+      "samples": [
+        93.85312499999998,
+        91.68266599999998,
+        91.06691599999999
+      ],
+      "counters": null,
+      "block": 1,
+      "variant": "H1A"
+    },
+    {
+      "build": "/tmp/stax-attribute-hash-20260913/builds/H1A",
+      "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+      "access": "event",
+      "namespaceAware": true,
+      "bytes": 4600013,
+      "checksum": 10323137,
+      "samples": [
+        60.87745799999999,
+        61.64191699999998,
+        59.97179199999999
+      ],
+      "counters": null,
+      "block": 1,
+      "variant": "H1A"
+    },
+    {
+      "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+      "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+      "access": "full",
+      "namespaceAware": true,
+      "bytes": 4600013,
+      "checksum": 7440066,
+      "samples": [
+        30.062792,
+        30.109250000000003,
+        30.27045799999999
+      ],
+      "counters": null,
+      "block": 1,
+      "variant": "R1"
+    },
+    {
+      "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+      "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+      "access": "lookup",
+      "namespaceAware": true,
+      "bytes": 4600013,
+      "checksum": 8400066,
+      "samples": [
+        45.52812499999999,
+        45.76358300000004,
+        46.14387500000004
+      ],
+      "counters": null,
+      "block": 1,
+      "variant": "R1"
+    },
+    {
+      "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+      "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+      "access": "event",
+      "namespaceAware": true,
+      "bytes": 4600013,
+      "checksum": 10323137,
+      "samples": [
+        35.21354200000002,
+        34.338750000000005,
+        33.577125000000024
+      ],
+      "counters": null,
+      "block": 1,
+      "variant": "R1"
+    },
+    {
+      "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+      "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+      "access": "full",
+      "namespaceAware": true,
+      "bytes": 4600013,
+      "checksum": 7440066,
+      "samples": [
+        30.06375,
+        30.16312499999998,
+        30.296583
+      ],
+      "counters": null,
+      "block": 2,
+      "variant": "R1"
+    },
+    {
+      "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+      "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+      "access": "lookup",
+      "namespaceAware": true,
+      "bytes": 4600013,
+      "checksum": 8400066,
+      "samples": [
+        45.448083,
+        46.05370800000003,
+        45.238541
+      ],
+      "counters": null,
+      "block": 2,
+      "variant": "R1"
+    },
+    {
+      "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+      "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+      "access": "event",
+      "namespaceAware": true,
+      "bytes": 4600013,
+      "checksum": 10323137,
+      "samples": [
+        35.992625000000004,
+        35.296042,
+        34.54804200000001
+      ],
+      "counters": null,
+      "block": 2,
+      "variant": "R1"
+    },
+    {
+      "build": "/tmp/stax-attribute-hash-20260913/builds/H1A",
+      "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+      "access": "full",
+      "namespaceAware": true,
+      "bytes": 4600013,
+      "checksum": 7440066,
+      "samples": [
+        55.540666999999985,
+        56.582333000000006,
+        56.38262500000002
+      ],
+      "counters": null,
+      "block": 2,
+      "variant": "H1A"
+    },
+    {
+      "build": "/tmp/stax-attribute-hash-20260913/builds/H1A",
+      "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+      "access": "lookup",
+      "namespaceAware": true,
+      "bytes": 4600013,
+      "checksum": 8400066,
+      "samples": [
+        91.30899999999997,
+        93.49883299999999,
+        94.332583
+      ],
+      "counters": null,
+      "block": 2,
+      "variant": "H1A"
+    },
+    {
+      "build": "/tmp/stax-attribute-hash-20260913/builds/H1A",
+      "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+      "access": "event",
+      "namespaceAware": true,
+      "bytes": 4600013,
+      "checksum": 10323137,
+      "samples": [
+        61.288832999999954,
+        61.26825000000002,
+        60.21270800000002
+      ],
+      "counters": null,
+      "block": 2,
+      "variant": "H1A"
+    }
+  ]
+}

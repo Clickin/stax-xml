@@ -1,0 +1,6 @@
+$ pnpm -r --filter='./packages/stax-xml*' build
+$ tsdown
+ℹ tsdown v0.22.5 powered by rolldown v1.1.5
+ℹ config file: /Users/senghyunjo/github/stax-xml/packages/stax-xml/tsdown.config.ts 
+ℹ Build start
+ℹ Cleaning 4 files

@@ -1,0 +1,1 @@
+{"build":"/tmp/stax-attribute-hash-20260913/builds/R1","fixture":"/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml","access":"type","namespaceAware":true,"bytes":101882907,"checksum":119577580,"samples":[561.0741250000001,556.585333,558.7345829999999],"counters":null}

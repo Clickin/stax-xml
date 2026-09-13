@@ -1,0 +1,326 @@
+{
+  "prefix-0.xml": {
+    "bytes": 4913
+  },
+  "cardinality-24.xml": {
+    "bytes": 412394
+  },
+  "duplicate-prefix-8.xml": {
+    "bytes": 234
+  },
+  "duplicate-unicode-32.xml": {
+    "bytes": 665
+  },
+  "duplicate-cardinality-32.xml": {
+    "bytes": 731
+  },
+  "prefix-1.xml": {
+    "bytes": 21603
+  },
+  "duplicate-first-15.xml": {
+    "bytes": 213
+  },
+  "duplicate-cardinality-1.xml": {
+    "bytes": 67
+  },
+  "duplicate-first-17.xml": {
+    "bytes": 239
+  },
+  "duplicate-cardinality-24.xml": {
+    "bytes": 555
+  },
+  "catalog.xml": {
+    "bytes": 2257799
+  },
+  "duplicate-unicode-24.xml": {
+    "bytes": 505
+  },
+  "duplicate-first-8.xml": {
+    "bytes": 126
+  },
+  "cardinality-32.xml": {
+    "bytes": 550934
+  },
+  "prefix-2.xml": {
+    "bytes": 38995
+  },
+  "ends-8.xml": {
+    "bytes": 59389
+  },
+  "duplicate-first-16.xml": {
+    "bytes": 226
+  },
+  "duplicate-cardinality-2.xml": {
+    "bytes": 87
+  },
+  "prefix-32.xml": {
+    "bytes": 576854
+  },
+  "duplicate-prefix-24.xml": {
+    "bytes": 630
+  },
+  "attribute-heavy.xml": {
+    "bytes": 4600013
+  },
+  "first-32.xml": {
+    "bytes": 308054
+  },
+  "first-24.xml": {
+    "bytes": 230234
+  },
+  "first-8.xml": {
+    "bytes": 76189
+  },
+  "duplicate-prefix-32.xml": {
+    "bytes": 830
+  },
+  "prefix-24.xml": {
+    "bytes": 431834
+  },
+  "unicode-64.xml": {
+    "bytes": 933574
+  },
+  "prefix-4.xml": {
+    "bytes": 73785
+  },
+  "duplicate-cardinality-4.xml": {
+    "bytes": 127
+  },
+  "unicode-17.xml": {
+    "bytes": 245494
+  },
+  "unicode-8.xml": {
+    "bytes": 115389
+  },
+  "ends-32.xml": {
+    "bytes": 240854
+  },
+  "unicode-16.xml": {
+    "bytes": 230878
+  },
+  "duplicate-ends-4.xml": {
+    "bytes": 67
+  },
+  "cardinality-4.xml": {
+    "bytes": 70545
+  },
+  "ends-24.xml": {
+    "bytes": 179834
+  },
+  "duplicate-unicode-8.xml": {
+    "bytes": 189
+  },
+  "unicode-15.xml": {
+    "bytes": 216263
+  },
+  "duplicate-ends-1.xml": {
+    "bytes": 43
+  },
+  "cardinality-1.xml": {
+    "bytes": 20793
+  },
+  "duplicate-ends-32.xml": {
+    "bytes": 335
+  },
+  "cardinality-0.xml": {
+    "bytes": 4913
+  },
+  "duplicate-first-64.xml": {
+    "bytes": 850
+  },
+  "duplicate-ends-2.xml": {
+    "bytes": 51
+  },
+  "cardinality-2.xml": {
+    "bytes": 37375
+  },
+  "duplicate-ends-24.xml": {
+    "bytes": 255
+  },
+  "unicode-1.xml": {
+    "bytes": 18103
+  },
+  "duplicate-ends-15.xml": {
+    "bytes": 165
+  },
+  "duplicate-unicode-64.xml": {
+    "bytes": 1305
+  },
+  "duplicate-unicode-2.xml": {
+    "bytes": 81
+  },
+  "unicode-0.xml": {
+    "bytes": 4913
+  },
+  "duplicate-cardinality-64.xml": {
+    "bytes": 1435
+  },
+  "unicode-2.xml": {
+    "bytes": 31995
+  },
+  "duplicate-ends-17.xml": {
+    "bytes": 185
+  },
+  "mixed-utf8.xml": {
+    "bytes": 3030013
+  },
+  "duplicate-ends-16.xml": {
+    "bytes": 175
+  },
+  "cardinality-64.xml": {
+    "bytes": 1105734
+  },
+  "duplicate-unicode-1.xml": {
+    "bytes": 63
+  },
+  "duplicate-ends-8.xml": {
+    "bytes": 99
+  },
+  "cardinality-8.xml": {
+    "bytes": 136909
+  },
+  "unicode-24.xml": {
+    "bytes": 347834
+  },
+  "prefix-64.xml": {
+    "bytes": 1157574
+  },
+  "ends-15.xml": {
+    "bytes": 111263
+  },
+  "duplicate-unicode-4.xml": {
+    "bytes": 117
+  },
+  "first-64.xml": {
+    "bytes": 619974
+  },
+  "unicode-4.xml": {
+    "bytes": 59785
+  },
+  "ends-16.xml": {
+    "bytes": 118878
+  },
+  "ends-17.xml": {
+    "bytes": 126494
+  },
+  "duplicate-prefix-64.xml": {
+    "bytes": 1630
+  },
+  "unicode-32.xml": {
+    "bytes": 464854
+  },
+  "prefix-15.xml": {
+    "bytes": 268763
+  },
+  "duplicate-prefix-17.xml": {
+    "bytes": 455
+  },
+  "duplicate-first-2.xml": {
+    "bytes": 60
+  },
+  "ends-64.xml": {
+    "bytes": 485574
+  },
+  "first-4.xml": {
+    "bytes": 40185
+  },
+  "duplicate-prefix-1.xml": {
+    "bytes": 73
+  },
+  "duplicate-prefix-16.xml": {
+    "bytes": 430
+  },
+  "first-15.xml": {
+    "bytes": 142763
+  },
+  "prefix-8.xml": {
+    "bytes": 143389
+  },
+  "ends-2.xml": {
+    "bytes": 17995
+  },
+  "duplicate-cardinality-8.xml": {
+    "bytes": 207
+  },
+  "ends-0.xml": {
+    "bytes": 4913
+  },
+  "first-17.xml": {
+    "bytes": 162194
+  },
+  "prefix-16.xml": {
+    "bytes": 286878
+  },
+  "duplicate-first-1.xml": {
+    "bytes": 49
+  },
+  "duplicate-prefix-2.xml": {
+    "bytes": 96
+  },
+  "duplicate-prefix-15.xml": {
+    "bytes": 405
+  },
+  "prefix-17.xml": {
+    "bytes": 304994
+  },
+  "first-16.xml": {
+    "bytes": 152478
+  },
+  "ends-1.xml": {
+    "bytes": 11103
+  },
+  "cardinality-17.xml": {
+    "bytes": 291224
+  },
+  "duplicate-first-4.xml": {
+    "bytes": 82
+  },
+  "duplicate-ends-64.xml": {
+    "bytes": 655
+  },
+  "first-2.xml": {
+    "bytes": 22195
+  },
+  "duplicate-unicode-15.xml": {
+    "bytes": 325
+  },
+  "cardinality-16.xml": {
+    "bytes": 273918
+  },
+  "duplicate-cardinality-15.xml": {
+    "bytes": 357
+  },
+  "duplicate-first-32.xml": {
+    "bytes": 434
+  },
+  "ends-4.xml": {
+    "bytes": 31785
+  },
+  "duplicate-first-24.xml": {
+    "bytes": 330
+  },
+  "duplicate-cardinality-17.xml": {
+    "bytes": 401
+  },
+  "duplicate-unicode-17.xml": {
+    "bytes": 365
+  },
+  "first-0.xml": {
+    "bytes": 4913
+  },
+  "duplicate-prefix-4.xml": {
+    "bytes": 142
+  },
+  "first-1.xml": {
+    "bytes": 13203
+  },
+  "duplicate-unicode-16.xml": {
+    "bytes": 345
+  },
+  "cardinality-15.xml": {
+    "bytes": 256613
+  },
+  "duplicate-cardinality-16.xml": {
+    "bytes": 379
+  }
+}

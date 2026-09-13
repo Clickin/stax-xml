@@ -1,0 +1,59 @@
+{
+  "R1": {
+    "parseStartInstructionBytes": [
+      15128,
+      15232,
+      15488,
+      15000,
+      15112,
+      15112
+    ],
+    "deoptimizations": {
+      "Insufficient type feedback for generic named access": 8,
+      "prepare for on stack replacement (OSR": 2,
+      "Insufficient type feedback for compare operation": 1,
+      "(unknown": 1,
+      "not a Smi": 1,
+      "wrong map": 1
+    },
+    "bundleBytes": 54301
+  },
+  "H1A": {
+    "parseStartInstructionBytes": [
+      18304,
+      18392,
+      18656,
+      18568,
+      18696,
+      18696
+    ],
+    "deoptimizations": {
+      "Insufficient type feedback for generic named access": 9,
+      "prepare for on stack replacement (OSR": 2,
+      "Insufficient type feedback for compare operation": 1,
+      "(unknown": 1,
+      "not a Smi": 1,
+      "wrong map": 1
+    },
+    "bundleBytes": 54413
+  },
+  "H1B": {
+    "parseStartInstructionBytes": [
+      17536,
+      17880,
+      18136,
+      17800,
+      17904,
+      17904
+    ],
+    "deoptimizations": {
+      "Insufficient type feedback for generic named access": 9,
+      "prepare for on stack replacement (OSR": 2,
+      "Insufficient type feedback for compare operation": 1,
+      "(unknown": 1,
+      "not a Smi": 1,
+      "wrong map": 1
+    },
+    "bundleBytes": 54746
+  }
+}

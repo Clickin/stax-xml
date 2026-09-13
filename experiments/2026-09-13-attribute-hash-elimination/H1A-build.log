@@ -1,0 +1,12 @@
+Scope: all 4 workspace projects
+✓ Lockfile passes supply-chain policies (verified 50d ago)
+Lockfile is up to date, resolution step is skipped
+Already up to date
+
+Done in 305ms using pnpm v11.13.1
+$ pnpm -r --filter='./packages/stax-xml*' build
+$ tsdown
+ℹ tsdown v0.22.5 powered by rolldown v1.1.5
+ℹ config file: /Users/senghyunjo/github/stax-xml/packages/stax-xml/tsdown.config.ts 
+ℹ Build start
+ℹ Cleaning 4 files

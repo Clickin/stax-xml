@@ -1,0 +1,2 @@
+{"build":"/tmp/stax-attribute-hash-20260913/builds/R1","fixture":"/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml","access":"lookup","namespaceAware":true,"bytes":4600013,"checksum":8400066,"samples":[66.480333],"counters":null}
+{"imulCalls":5765302,"instrumented":true,"timingValid":false}

@@ -1,0 +1,2 @@
+{"build":"/tmp/stax-attribute-hash-20260913/builds/H1B","fixture":"/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml","access":"full","namespaceAware":true,"bytes":4600013,"checksum":7440066,"samples":[48.457750000000004],"counters":null}
+{"imulCalls":0,"instrumented":true,"timingValid":false}

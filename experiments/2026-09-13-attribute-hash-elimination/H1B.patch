@@ -1,0 +1,76 @@
+diff --git a/packages/stax-xml/src/core/TokenCursor.ts b/packages/stax-xml/src/core/TokenCursor.ts
+index 8e907af1..67e8a56f 100644
+--- a/packages/stax-xml/src/core/TokenCursor.ts
++++ b/packages/stax-xml/src/core/TokenCursor.ts
+@@ -284,10 +284,16 @@ export class TokenCursor {
+     const indexOrName = indexOrNameOrNamespace;
+     if (typeof indexOrName === "number")
+       return this.materializeAttribute(indexOrName);
+-    const hash = hashString(indexOrName);
++    const narrow = this.currentAttributeCount <= DUPLICATE_TABLE_THRESHOLD;
++    const hash = narrow ? HASH_OFFSET : hashSpan(indexOrName, 0, indexOrName.length);
++    const first = indexOrName.charCodeAt(0);
++    const last = indexOrName.charCodeAt(indexOrName.length - 1);
+     for (let index = 0; index < this.currentAttributeCount; index++) {
+       if (
+-        this.attributeHashes[index] === hash &&
++        (narrow
++          ? this.buffer.charCodeAt(this.attributeNameStarts[index]!) === first &&
++            this.buffer.charCodeAt(this.attributeNameEnds[index]! - 1) === last
++          : this.attributeHashes[index] === hash) &&
+         spanEqualsString(
+           this.buffer,
+           this.attributeNameStarts[index]!,
+@@ -520,9 +526,6 @@ export class TokenCursor {
+           attrColon = cursor;
+           attrColons++;
+         }
+-        attrHash = hashCode(attrHash, attrCode);
+-        if (width === 2)
+-          attrHash = hashCode(attrHash, this.buffer.charCodeAt(cursor + 1));
+         cursor += width;
+       }
+       if (cursor === length) return this.waitForStartTag("start tag");
+@@ -575,9 +578,12 @@ export class TokenCursor {
+       }
+ 
+       if (rawCount < DUPLICATE_TABLE_THRESHOLD) {
++        const first = this.buffer.charCodeAt(attrStart);
++        const last = this.buffer.charCodeAt(attrEnd - 1);
+         for (let previous = 0; previous < rawCount; previous++) {
+           if (
+-            this.attributeHashes[previous] === attrHash &&
++            this.buffer.charCodeAt(this.attributeNameStarts[previous]!) === first &&
++            this.buffer.charCodeAt(this.attributeNameEnds[previous]! - 1) === last &&
+             spansEqual(
+               this.buffer,
+               this.attributeNameStarts[previous]!,
+@@ -591,6 +597,16 @@ export class TokenCursor {
+             );
+         }
+       } else {
++        if (rawCount === DUPLICATE_TABLE_THRESHOLD) {
++          for (let previous = 0; previous < rawCount; previous++) {
++            this.attributeHashes[previous] = hashSpan(
++              this.buffer,
++              this.attributeNameStarts[previous]!,
++              this.attributeNameEnds[previous]!,
++            );
++          }
++        }
++        attrHash = hashSpan(this.buffer, attrStart, attrEnd);
+         const table = this.prepareDuplicateTable(rawCount);
+         const mask = table.slots.length - 1;
+         let slot = attrHash & mask;
+@@ -1601,9 +1617,9 @@ const HASH_OFFSET = 2166136261 >>> 0;
+ function hashCode(hash: number, code: number): number {
+   return Math.imul(hash ^ code, 16777619) >>> 0;
+ }
+-function hashString(value: string): number {
++function hashSpan(value: string, start: number, end: number): number {
+   let hash = HASH_OFFSET;
+-  for (let index = 0; index < value.length; index++)
++  for (let index = start; index < end; index++)
+     hash = hashCode(hash, value.charCodeAt(index));
+   return hash;
+ }

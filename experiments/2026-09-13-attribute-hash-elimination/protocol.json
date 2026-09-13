@@ -1,0 +1,19 @@
+{
+  "experiment": "2026-09-13-attribute-hash-elimination",
+  "baseline": "R1: independently committed duplicate-generation fix",
+  "seed": 20260913,
+  "primaryBlocks": 9,
+  "warmupsPerFreshProcess": 4,
+  "samplesPerFreshProcess": 3,
+  "pairing": "same workload / namespace mode / block; fresh process per build; seeded shuffled workload and build order",
+  "statistic": "geometric mean of paired block-median time ratios; percentile paired bootstrap 10000 resamples, seed 20260913",
+  "ordinaryGate": "95% CI upper bound <= 1.02 for every protected case",
+  "positiveGate": ">=5% E2E attribute-heavy public workload improvement plus actual XML guards OR >=3% broader full-accessor geometric mean, without protected regression",
+  "variants": ["R1", "H1A", "H1B only if H1A establishes span-comparison blocker"],
+  "seriesBlocks": 5,
+  "seriesPurpose": "crossover diagnostic, never substitutes actual XML guards",
+  "instrumentation": "separate untimed build; never used for performance comparisons",
+  "extensions": "none; stop after fixed evidence budget; no post-hoc threshold tuning",
+  "secondaryRuntime": "Bun and Deno correctness/performance smokes only after Node survival",
+  "cold": "report fresh import and constructor separately; large regression is a cost"
+}

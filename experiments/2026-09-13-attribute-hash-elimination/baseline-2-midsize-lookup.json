@@ -1,0 +1,1 @@
+{"build":"/tmp/stax-attribute-hash-20260913/builds/R1","fixture":"/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml","access":"lookup","namespaceAware":true,"bytes":13584398,"checksum":33371213,"samples":[95.42158399999994,95.21054199999992,96.53587500000003],"counters":null}

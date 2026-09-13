@@ -25,3 +25,14 @@ Avoid runtime side-state, semantic envelopes, token-to-materializer result trans
 ## Preservation corrections
 
 - [2026-09-13 Git EOL correction](corrections/2026-09-13-entity-single-eval-git-eol.json): restores original CSV bytes after Git's initial CRLF-to-LF conversion. Initial commit retained; no experimental values, gates or candidate patches changed.
+
+## [2026-09-13-attribute-hash-elimination](experiments/2026-09-13-attribute-hash-elimination/README.md)
+
+- **R1 baseline:** `adc2cb7d0a64152725a5c43b2233676a79fec646`, the independent successful wide-table generation fix atop `9a839ffb`. Its reconstruction patch is included as evidence, not failed product work.
+- **Result:** NO-GO for H1A direct narrow comparison and H1B first/last-code-unit prefilter. Both removed from the product branch.
+- **Novelty:** operation elimination at the existing narrow/wide boundary, not cache/classifier/semantic-result transport. No equivalent located in searched history; missing prior research ZIP limits universal novelty claims.
+- **Headroom:** query hash loop 9.266% of source-attributed lookup samples; parse/full hash-related positions only 1.323%. Attribute-heavy full/lookup Math.imul calls fell from 2,885,302/5,765,302 to zero in both candidates.
+- **Decisive rejection:** H1A full-access time ratio 1.9132 [1.8397, 2.0475]; H1B 1.0766 [1.0279, 1.1710]. H1B also credibly regressed name/text access. Nine paired blocks cover 50 public workload/namespace cases; all raw samples and failed/inconclusive gates are retained.
+- **Cost learned:** removing cheap inlined hash arithmetic can add much more exact-span work and generated code. H1A's comparison loop received 44.53% of samples; final observed production `parseStart` code grew from 15,112 B to 18,696/17,904 B.
+- **Do not retry unless:** a different measured mechanism eliminates hashing without the demonstrated comparison/code-size cost, with exact validation and public E2E gates preserved. Short-width wins, zero Math.imul count, or threshold tuning are not promotion evidence.
+- **Correctness:** R1 and both candidates passed 668 unit cases, 100% coverage, W3C 805 with unchanged skips, and release surfaces. Final dist is byte-identical to R1. Secondary runtimes were not run after Node rejection.

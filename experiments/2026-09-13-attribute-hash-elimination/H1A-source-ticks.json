@@ -1,0 +1,130 @@
+{
+  "totalSamples": 41698,
+  "top": [
+    {
+      "line": 1099,
+      "ticks": 18567,
+      "source": "\tfor (let index = 0; index < length; index++) if (text.charCodeAt(aStart + index) !== text.charCodeAt(bStart + index)) return false;"
+    },
+    {
+      "line": 400,
+      "ticks": 2460,
+      "source": "\t\t\t\tconst attrCode = this.buffer.charCodeAt(cursor);"
+    },
+    {
+      "line": 1031,
+      "ticks": 1347,
+      "source": "\treturn code === 32 || code === 9 || code === 10 || code === 13;"
+    },
+    {
+      "line": 401,
+      "ticks": 1157,
+      "source": "\t\t\t\tif (isXmlWhitespace(attrCode) || attrCode === 61 || attrCode === 47 || attrCode === 62) break;"
+    },
+    {
+      "line": 1061,
+      "ticks": 1153,
+      "source": "\treturn code === 58 || code === 95 || isAsciiLetter(code) || code >= 192 && code <= 214 || code >= 216 && code <= 246 || code >= 248 && code <= 767 || code >= 880 && code <= 893 || code >= 895 && code <= 8191 || code >= 8204 && code <= 8205 || code >= 8304 && code <= 8591 || code >= 11264 && code <= 12271 || code >= 12289 && code <= 55295 || code >= 63744 && code <= 64975 || code >= 65008 && code <= 65533 || code >= 65536 && code <= 983039;"
+    },
+    {
+      "line": 1021,
+      "ticks": 1103,
+      "source": "\tconst end = text.indexOf(String.fromCharCode(quote), start);"
+    },
+    {
+      "line": 426,
+      "ticks": 1033,
+      "source": "\t\t\t\tfor (let previous = 0; previous < rawCount; previous++) if (spansEqual(this.buffer, this.attributeNameStarts[previous], this.attributeNameEnds[previous], attrStart, attrEnd)) throw new Error(`Duplicate attribute: ${this.buffer.slice(attrStart, attrEnd)}`);"
+    },
+    {
+      "line": 961,
+      "ticks": 801,
+      "source": "\tif (!value.includes(\"&\")) return value;"
+    },
+    {
+      "line": 985,
+      "ticks": 704,
+      "source": "\t\tconst code = text.charCodeAt(index);"
+    },
+    {
+      "line": 2211,
+      "ticks": 638,
+      "source": "\t\treturn this.cursor.attribute(index)?.name;"
+    },
+    {
+      "line": 1057,
+      "ticks": 630,
+      "source": "\tif (isXmlNameStartCodePoint(codePoint) || !start && isXmlNamePartCodePoint(codePoint)) return width;"
+    },
+    {
+      "line": 402,
+      "ticks": 560,
+      "source": "\t\t\t\tconst width = xmlNameCharWidth(this.buffer, cursor, cursor === attrStart);"
+    },
+    {
+      "line": 379,
+      "ticks": 377,
+      "source": "\t\t\twhile (cursor < length && isXmlWhitespace(this.buffer.charCodeAt(cursor))) cursor++;"
+    },
+    {
+      "line": 399,
+      "ticks": 372,
+      "source": "\t\t\twhile (cursor < length) {"
+    },
+    {
+      "line": 984,
+      "ticks": 357,
+      "source": "\tfor (let index = start; index < end; index++) {"
+    },
+    {
+      "line": 408,
+      "ticks": 315,
+      "source": "\t\t\t\tcursor += width;"
+    },
+    {
+      "line": 394,
+      "ticks": 285,
+      "source": "\t\t\tthis.ensureAttributeCapacity(rawCount + 1);"
+    },
+    {
+      "line": 1051,
+      "ticks": 275,
+      "source": "\tif (first >= 55296 && first <= 56319) {"
+    },
+    {
+      "line": 250,
+      "ticks": 241,
+      "source": "\t\tif (typeof indexOrName === \"number\") return this.materializeAttribute(indexOrName);"
+    },
+    {
+      "line": 615,
+      "ticks": 235,
+      "source": "\t\t\tvalue: this.autoDecodeEntities ? decodeEntities(this.buffer.slice(this.attributeValueStarts[index], this.attributeValueEnds[index]), this.customEntities, true) : this.buffer.slice(this.attributeValueStarts[index], this.attributeValueEnds[index]),"
+    },
+    {
+      "line": 1064,
+      "ticks": 228,
+      "source": "\treturn code >= 48 && code <= 57 || code === 45 || code === 46 || code === 183 || code >= 768 && code <= 879 || code >= 8255 && code <= 8256;"
+    },
+    {
+      "line": 424,
+      "ticks": 190,
+      "source": "\t\t\tif (cursor < length && !isXmlWhitespace(this.buffer.charCodeAt(cursor)) && this.buffer.charCodeAt(cursor) !== 47 && this.buffer.charCodeAt(cursor) !== 62) throw new Error(\"Attributes must be separated by whitespace.\");"
+    },
+    {
+      "line": 986,
+      "ticks": 178,
+      "source": "\t\tif (code >= 32 && code < 55296) {"
+    },
+    {
+      "line": 381,
+      "ticks": 177,
+      "source": "\t\t\tconst code = this.buffer.charCodeAt(cursor);"
+    },
+    {
+      "line": 413,
+      "ticks": 175,
+      "source": "\t\t\twhile (cursor < length && isXmlWhitespace(this.buffer.charCodeAt(cursor))) cursor++;"
+    }
+  ]
+}

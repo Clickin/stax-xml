@@ -1,0 +1,174 @@
+{
+  "totalSamples": 26378,
+  "hashLines": [
+    [
+      407,
+      1
+    ],
+    [
+      1088,
+      337
+    ],
+    [
+      408,
+      1
+    ],
+    [
+      1087,
+      10
+    ]
+  ],
+  "hashFraction": 0.01323072257184017,
+  "top": [
+    {
+      "line": 399,
+      "ticks": 2975,
+      "source": "\t\t\t\tconst attrCode = this.buffer.charCodeAt(cursor);"
+    },
+    {
+      "line": 1060,
+      "ticks": 1397,
+      "source": "\treturn code === 58 || code === 95 || isAsciiLetter(code) || code >= 192 && code <= 214 || code >= 216 && code <= 246 || code >= 248 && code <= 767 || code >= 880 && code <= 893 || code >= 895 && code <= 8191 || code >= 8204 && code <= 8205 || code >= 8304 && code <= 8591 || code >= 11264 && code <= 12271 || code >= 12289 && code <= 55295 || code >= 63744 && code <= 64975 || code >= 65008 && code <= 65533 || code >= 65536 && code <= 983039;"
+    },
+    {
+      "line": 400,
+      "ticks": 1315,
+      "source": "\t\t\t\tif (isXmlWhitespace(attrCode) || attrCode === 61 || attrCode === 47 || attrCode === 62) break;"
+    },
+    {
+      "line": 1020,
+      "ticks": 1309,
+      "source": "\tconst end = text.indexOf(String.fromCharCode(quote), start);"
+    },
+    {
+      "line": 1030,
+      "ticks": 1278,
+      "source": "\treturn code === 32 || code === 9 || code === 10 || code === 13;"
+    },
+    {
+      "line": 427,
+      "ticks": 931,
+      "source": "\t\t\t\tfor (let previous = 0; previous < rawCount; previous++) if (this.attributeHashes[previous] === attrHash && spansEqual(this.buffer, this.attributeNameStarts[previous], this.attributeNameEnds[previous], attrStart, attrEnd)) throw new Error(`Duplicate attribute: ${this.buffer.slice(attrStart, attrEnd)}`);"
+    },
+    {
+      "line": 984,
+      "ticks": 883,
+      "source": "\t\tconst code = text.charCodeAt(index);"
+    },
+    {
+      "line": 960,
+      "ticks": 851,
+      "source": "\tif (!value.includes(\"&\")) return value;"
+    },
+    {
+      "line": 398,
+      "ticks": 737,
+      "source": "\t\t\twhile (cursor < length) {"
+    },
+    {
+      "line": 1056,
+      "ticks": 707,
+      "source": "\tif (isXmlNameStartCodePoint(codePoint) || !start && isXmlNamePartCodePoint(codePoint)) return width;"
+    },
+    {
+      "line": 2210,
+      "ticks": 698,
+      "source": "\t\treturn this.cursor.attribute(index)?.name;"
+    },
+    {
+      "line": 401,
+      "ticks": 667,
+      "source": "\t\t\t\tconst width = xmlNameCharWidth(this.buffer, cursor, cursor === attrStart);"
+    },
+    {
+      "line": 378,
+      "ticks": 493,
+      "source": "\t\t\twhile (cursor < length && isXmlWhitespace(this.buffer.charCodeAt(cursor))) cursor++;"
+    },
+    {
+      "line": 983,
+      "ticks": 405,
+      "source": "\tfor (let index = start; index < end; index++) {"
+    },
+    {
+      "line": 1050,
+      "ticks": 373,
+      "source": "\tif (first >= 55296 && first <= 56319) {"
+    },
+    {
+      "line": 409,
+      "ticks": 348,
+      "source": "\t\t\t\tcursor += width;"
+    },
+    {
+      "line": 1063,
+      "ticks": 338,
+      "source": "\treturn code >= 48 && code <= 57 || code === 45 || code === 46 || code === 183 || code >= 768 && code <= 879 || code >= 8255 && code <= 8256;"
+    },
+    {
+      "line": 1088,
+      "ticks": 337,
+      "source": "\treturn Math.imul(hash ^ code, 16777619) >>> 0;"
+    },
+    {
+      "line": 250,
+      "ticks": 305,
+      "source": "\t\tif (typeof indexOrName === \"number\") return this.materializeAttribute(indexOrName);"
+    },
+    {
+      "line": 614,
+      "ticks": 280,
+      "source": "\t\t\tvalue: this.autoDecodeEntities ? decodeEntities(this.buffer.slice(this.attributeValueStarts[index], this.attributeValueEnds[index]), this.customEntities, true) : this.buffer.slice(this.attributeValueStarts[index], this.attributeValueEnds[index]),"
+    },
+    {
+      "line": 606,
+      "ticks": 249,
+      "source": "\t\tconst memo = this.attributeMemos[index];"
+    },
+    {
+      "line": 425,
+      "ticks": 229,
+      "source": "\t\t\tif (cursor < length && !isXmlWhitespace(this.buffer.charCodeAt(cursor)) && this.buffer.charCodeAt(cursor) !== 47 && this.buffer.charCodeAt(cursor) !== 62) throw new Error(\"Attributes must be separated by whitespace.\");"
+    },
+    {
+      "line": 985,
+      "ticks": 218,
+      "source": "\t\tif (code >= 32 && code < 55296) {"
+    },
+    {
+      "line": 414,
+      "ticks": 214,
+      "source": "\t\t\twhile (cursor < length && isXmlWhitespace(this.buffer.charCodeAt(cursor))) cursor++;"
+    },
+    {
+      "line": 474,
+      "ticks": 201,
+      "source": "\t\t\t\tif (!isNamespaceDeclaration(this.buffer, start, end, colon)) continue;"
+    },
+    {
+      "line": 416,
+      "ticks": 190,
+      "source": "\t\t\tif (this.buffer.charCodeAt(cursor++) !== 61) throw new Error(`Attribute ${this.buffer.slice(attrStart, attrEnd)} requires a value.`);"
+    },
+    {
+      "line": 361,
+      "ticks": 181,
+      "source": "\t\t\tconst code = this.buffer.charCodeAt(cursor);"
+    },
+    {
+      "line": 417,
+      "ticks": 181,
+      "source": "\t\t\twhile (cursor < length && isXmlWhitespace(this.buffer.charCodeAt(cursor))) cursor++;"
+    },
+    {
+      "line": 380,
+      "ticks": 181,
+      "source": "\t\t\tconst code = this.buffer.charCodeAt(cursor);"
+    },
+    {
+      "line": 619,
+      "ticks": 154,
+      "source": "\t\tthis.attributeMemos[index] = attribute;"
+    }
+  ]
+}

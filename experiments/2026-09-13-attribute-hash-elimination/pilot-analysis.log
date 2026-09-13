@@ -1,0 +1,3 @@
+attribute-heavy.xml       full       ns=True  H1A 1.8602 [1.8539,1.8693] FAIL
+attribute-heavy.xml       lookup     ns=True  H1A 2.0415 [2.0034,2.0643] FAIL
+attribute-heavy.xml       event      ns=True  H1A 1.7484 [1.7358,1.7729] FAIL

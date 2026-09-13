@@ -1,0 +1,1 @@
+{"build":"/tmp/stax-attribute-hash-20260913/builds/R1-diagnostic","fixture":"/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml","access":"name","namespaceAware":true,"bytes":4600013,"checksum":600058,"samples":[28.680125000000004,22.051625,21.879917000000006],"counters":null}

@@ -1,0 +1,164 @@
+[
+  {
+    "importMs": 1.4400829999999996,
+    "constructorMs": 0.128582999999999,
+    "variant": "H1A",
+    "block": 0
+  },
+  {
+    "importMs": 1.418209000000001,
+    "constructorMs": 0.09987499999999905,
+    "variant": "H1B",
+    "block": 0
+  },
+  {
+    "importMs": 1.4558750000000007,
+    "constructorMs": 0.10220900000000022,
+    "variant": "R1",
+    "block": 0
+  },
+  {
+    "importMs": 1.383750000000001,
+    "constructorMs": 0.09587500000000126,
+    "variant": "H1B",
+    "block": 1
+  },
+  {
+    "importMs": 1.4894169999999995,
+    "constructorMs": 0.1013749999999991,
+    "variant": "H1A",
+    "block": 1
+  },
+  {
+    "importMs": 1.3798750000000002,
+    "constructorMs": 0.10037500000000144,
+    "variant": "R1",
+    "block": 1
+  },
+  {
+    "importMs": 1.3621669999999995,
+    "constructorMs": 0.09499999999999886,
+    "variant": "R1",
+    "block": 2
+  },
+  {
+    "importMs": 1.405291,
+    "constructorMs": 0.11004100000000072,
+    "variant": "H1B",
+    "block": 2
+  },
+  {
+    "importMs": 1.3947500000000002,
+    "constructorMs": 0.09699999999999953,
+    "variant": "H1A",
+    "block": 2
+  },
+  {
+    "importMs": 1.406333,
+    "constructorMs": 0.09916699999999956,
+    "variant": "H1B",
+    "block": 3
+  },
+  {
+    "importMs": 1.4199169999999999,
+    "constructorMs": 0.09941599999999973,
+    "variant": "R1",
+    "block": 3
+  },
+  {
+    "importMs": 1.4101669999999995,
+    "constructorMs": 0.09929200000000016,
+    "variant": "H1A",
+    "block": 3
+  },
+  {
+    "importMs": 1.4154169999999997,
+    "constructorMs": 0.10100000000000087,
+    "variant": "R1",
+    "block": 4
+  },
+  {
+    "importMs": 1.3885000000000005,
+    "constructorMs": 0.09691600000000022,
+    "variant": "H1B",
+    "block": 4
+  },
+  {
+    "importMs": 1.3970000000000002,
+    "constructorMs": 0.09829199999999894,
+    "variant": "H1A",
+    "block": 4
+  },
+  {
+    "importMs": 1.467708,
+    "constructorMs": 0.09829200000000071,
+    "variant": "H1A",
+    "block": 5
+  },
+  {
+    "importMs": 1.3780000000000001,
+    "constructorMs": 0.0988749999999996,
+    "variant": "H1B",
+    "block": 5
+  },
+  {
+    "importMs": 1.3879579999999994,
+    "constructorMs": 0.09549999999999947,
+    "variant": "R1",
+    "block": 5
+  },
+  {
+    "importMs": 1.4092909999999996,
+    "constructorMs": 0.106541,
+    "variant": "H1A",
+    "block": 6
+  },
+  {
+    "importMs": 1.409917,
+    "constructorMs": 0.09799999999999898,
+    "variant": "R1",
+    "block": 6
+  },
+  {
+    "importMs": 1.3807500000000008,
+    "constructorMs": 0.09570800000000013,
+    "variant": "H1B",
+    "block": 6
+  },
+  {
+    "importMs": 1.427791000000001,
+    "constructorMs": 0.10854100000000066,
+    "variant": "H1A",
+    "block": 7
+  },
+  {
+    "importMs": 1.4014159999999993,
+    "constructorMs": 0.09737499999999955,
+    "variant": "R1",
+    "block": 7
+  },
+  {
+    "importMs": 1.3995829999999998,
+    "constructorMs": 0.0988749999999996,
+    "variant": "H1B",
+    "block": 7
+  },
+  {
+    "importMs": 1.3817500000000003,
+    "constructorMs": 0.09795800000000021,
+    "variant": "R1",
+    "block": 8
+  },
+  {
+    "importMs": 1.426874999999999,
+    "constructorMs": 0.10183299999999917,
+    "variant": "H1B",
+    "block": 8
+  },
+  {
+    "importMs": 1.4161669999999997,
+    "constructorMs": 0.09891700000000014,
+    "variant": "H1A",
+    "block": 8
+  }
+]

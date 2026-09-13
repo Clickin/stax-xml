@@ -1,0 +1,33 @@
+{
+  "R1": "adc2cb7d0a64152725a5c43b2233676a79fec646",
+  "node": "v24.21.0",
+  "buildTool": "tsdown 0.22.5 / rolldown 1.1.5",
+  "variants": {
+    "R1": {
+      "files": {
+        "converter.js": "66c225f40aa8aa731863f78f70e42cc6944808bd6a96ca878d235076074ccf9d",
+        "converter.d.ts": "ca65dfa3008f2afdcad151b33d57efd56a75d0f46bb333af6cb3e7722b45b204",
+        "index.js": "d4a6dedd012b5d1cd0a7f3caaa1b18cdcc30fd64a220b4d873e5d91ec6480744",
+        "index.d.ts": "2269f64cba5c424073de3935e1f678599f3945f11cb5e76ce094075c461d986f"
+      }
+    },
+    "H1A": {
+      "files": {
+        "converter.js": "c4ec0fd95f2ed285fba4f048d3484a4f9eaf1acc446c2dc6d55fd93ed6c3ad73",
+        "converter.d.ts": "ca65dfa3008f2afdcad151b33d57efd56a75d0f46bb333af6cb3e7722b45b204",
+        "index.js": "59662271d84651315b6c0fcf14a0a6388e2c7f8afeae74728d3839af9af1b1a5",
+        "index.d.ts": "2269f64cba5c424073de3935e1f678599f3945f11cb5e76ce094075c461d986f"
+      },
+      "patchSHA256": "d2a3e2e696997506e395a998a8fc2c0df675ae30208f738a8b166cc3b29b4b79"
+    },
+    "H1B": {
+      "files": {
+        "converter.js": "9758dfc77078c50d9b4e60d21b9897d581f4601cacb7c6a9c0a41be84aa894b0",
+        "converter.d.ts": "ca65dfa3008f2afdcad151b33d57efd56a75d0f46bb333af6cb3e7722b45b204",
+        "index.js": "b8e65c9781558bb2c4c7de7b3ba6949b6073bd867bd430f807c115b8b4675fc1",
+        "index.d.ts": "2269f64cba5c424073de3935e1f678599f3945f11cb5e76ce094075c461d986f"
+      },
+      "patchSHA256": "936ef080ceedf4acccb59b32c3adddd688fb82ae406989c222a6ca814ebc92fd"
+    }
+  }
+}

@@ -1,0 +1,100 @@
+[
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 32919629,
+    "counters": {
+      "hashes": 313406,
+      "scanCodeUnits": 313406,
+      "narrowCodeUnits": 313406,
+      "duplicateCandidates": 9217,
+      "directSpanCharacters": 0,
+      "equalLengthCandidates": 0,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 313345,
+        "1": 46080,
+        "2": 9216
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 246896629,
+    "counters": {
+      "hashes": 2350647,
+      "scanCodeUnits": 2350647,
+      "narrowCodeUnits": 2350647,
+      "duplicateCandidates": 69121,
+      "directSpanCharacters": 0,
+      "equalLengthCandidates": 0,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 2350081,
+        "1": 345600,
+        "2": 69120
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 7440066,
+    "counters": {
+      "hashes": 2885302,
+      "scanCodeUnits": 2885302,
+      "narrowCodeUnits": 2885302,
+      "duplicateCandidates": 560537,
+      "directSpanCharacters": 10089666,
+      "equalLengthCandidates": 560537,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "8": 20000
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 2550066,
+    "counters": {
+      "hashes": 330125,
+      "scanCodeUnits": 330125,
+      "narrowCodeUnits": 330125,
+      "duplicateCandidates": 90007,
+      "directSpanCharacters": 0,
+      "equalLengthCandidates": 0,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "3": 30000
+      }
+    }
+  }
+]

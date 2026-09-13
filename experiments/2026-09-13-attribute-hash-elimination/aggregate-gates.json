@@ -1,0 +1,24 @@
+{
+  "H1A": {
+    "cases": 34,
+    "ratio": 1.1293089401137626,
+    "lo": 1.1090604604877798,
+    "hi": 1.1533025619841937,
+    "primaryGateCounts": {
+      "PASS": 17,
+      "FAIL": 10,
+      "INCONCLUSIVE": 23
+    }
+  },
+  "H1B": {
+    "cases": 34,
+    "ratio": 1.0080344329020625,
+    "lo": 0.9995953356542951,
+    "hi": 1.0177700605788196,
+    "primaryGateCounts": {
+      "PASS": 22,
+      "INCONCLUSIVE": 26,
+      "FAIL": 2
+    }
+  }
+}

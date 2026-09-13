@@ -1,0 +1,45 @@
+{
+  "text": "{\n  \"findings\": [\n    {\n      \"title\": \"Separate lookup hash ticks from parser hash ticks\",\n      \"body\": \"The 4,306/40,553 headline combines query-hash work with the parser's shared `hashCode` helper: line 1088 contributes 432 ticks, while parser call sites 407/408 contribute 3 ticks and the query loop line 1092 contributes 3,758 ticks. Report the 9.266% loop attribution (plus the 1090/251 query-side ticks) separately; otherwise the evidence overstates the attributable lookup operation, even though the dedicated loop still clears the 5% screening gate.\",\n      \"priority\": 2,\n      \"confidence\": 0.98,\n      \"file_path\": \"/tmp/stax-attribute-hash-20260913/lookup-headroom-source-ticks.json\",\n      \"line_start\": 3,\n      \"line_end\": 33\n    },\n    {\n      \"title\": \"Do not use duplicate-span counts as query fallback timing\",\n      \"body\": \"`counterfactual-counts.json` records 10,089,666 direct span characters for 560,537 parser duplicate candidates, not the comparisons that a hash-free `attributeValue(name)` lookup would execute. It demonstrates existing duplicate-check work and a possible parser-side comparison blocker, but cannot establish a lookup candidate's speedup or payback; a lookup-specific implementation still needs end-to-end timing with the exact checksum-preserving query workload.\",\n      \"priority\": 1,\n      \"confidence\": 0.99,\n      \"file_path\": \"/tmp/stax-attribute-hash-20260913/counterfactual-counts.json\",\n      \"line_start\": 59,\n      \"line_end\": 65\n    }\n  ],\n  \"overall_correctness\": \"correct\",\n  \"explanation\": \"The new lookup profile changes the decision for the public name-lookup path: its dedicated hashString loop is 3,758/40,553 = 9.266% source-attributed samples, and the full hash-related attribution is 10.618%, so a lookup-specific candidate clears the >=5% screening gate. The parser-wide scan remains only 349/26,378 = 1.323%; duplicate-span counts are not a causal speed bound, so proceed only with a narrowly scoped lookup experiment and measure its end-to-end result rather than implementing H1A wholesale.\",\n  \"confidence\": 0.97\n}",
+  "details": {
+    "resolvedPath": "/Users/senghyunjo/.omp/agent/sessions/-github-stax-xml/2026-09-13T10-28-38-123Z_01a09a4f-d46b-70fa-b4df-11a3b0e3a227/HeadroomReview.md",
+    "contentType": "text/markdown",
+    "totalLines": 25,
+    "displayContent": {
+      "text": "{\n  \"findings\": [\n    {\n      \"title\": \"Separate lookup hash ticks from parser hash ticks\",\n      \"body\": \"The 4,306/40,553 headline combines query-hash work with the parser's shared `hashCode` helper: line 1088 contributes 432 ticks, while parser call sites 407/408 contribute 3 ticks and the query loop line 1092 contributes 3,758 ticks. Report the 9.266% loop attribution (plus the 1090/251 query-side ticks) separately; otherwise the evidence overstates the attributable lookup operation, even though the dedicated loop still clears the 5% screening gate.\",\n      \"priority\": 2,\n      \"confidence\": 0.98,\n      \"file_path\": \"/tmp/stax-attribute-hash-20260913/lookup-headroom-source-ticks.json\",\n      \"line_start\": 3,\n      \"line_end\": 33\n    },\n    {\n      \"title\": \"Do not use duplicate-span counts as query fallback timing\",\n      \"body\": \"`counterfactual-counts.json` records 10,089,666 direct span characters for 560,537 parser duplicate candidates, not the comparisons that a hash-free `attributeValue(name)` lookup would execute. It demonstrates existing duplicate-check work and a possible parser-side comparison blocker, but cannot establish a lookup candidate's speedup or payback; a lookup-specific implementation still needs end-to-end timing with the exact checksum-preserving query workload.\",\n      \"priority\": 1,\n      \"confidence\": 0.99,\n      \"file_path\": \"/tmp/stax-attribute-hash-20260913/counterfactual-counts.json\",\n      \"line_start\": 59,\n      \"line_end\": 65\n    }\n  ],\n  \"overall_correctness\": \"correct\",\n  \"explanation\": \"The new lookup profile changes the decision for the public name-lookup path: its dedicated hashString loop is 3,758/40,553 = 9.266% source-attributed samples, and the full hash-related attribution is 10.618%, so a lookup-specific candidate clears the >=5% screening gate. The parser-wide scan remains only 349/26,378 = 1.323%; duplicate-span counts are not a causal speed bound, so proceed only with a narrowly scoped lookup experiment and measure its end-to-end result rather than implementing H1A wholesale.\",\n  \"confidence\": 0.97\n}",
+      "startLine": 1,
+      "lineNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25
+      ]
+    },
+    "meta": {
+      "source": {
+        "type": "internal",
+        "value": "agent://HeadroomReview"
+      }
+    }
+  }
+}

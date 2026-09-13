@@ -1,0 +1,113 @@
+Scope: all 4 workspace projects
+✓ Lockfile passes supply-chain policies (verified 50d ago)
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +14 -20
+++++++++++++++--------------------
+Progress: resolved 14, reused 14, downloaded 0, added 13, done
+
+devDependencies:
+- @vitest/coverage-v8 4.1.4
++ @vitest/coverage-v8 4.1.5
+- @vitest/ui 4.1.4
++ @vitest/ui 4.1.5
+- vitest 4.1.4
++ vitest 4.1.5
+
+Done in 354ms using pnpm v11.13.1
+$ pnpm --dir packages/stax-xml coverage
+$ vitest run --config vitest.unit.config.ts --coverage
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90m/Users/senghyunjo/github/stax-xml/packages/stax-xml[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+ [32m✓[39m test/converter/large-file.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 111[2mms[22m[39m
+ [32m✓[39m test/token-cursor-resume.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+ [32m✓[39m test/v1-reader-contract.test.ts [2m([22m[2m81 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+ [32m✓[39m test/writer-async.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32m✓[39m test/converter/xpath-contract.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m test/root-import-host-api.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m test/converter/streaming-only.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m test/converter/writer.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m test/converter/parser-internal.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m test/converter/parser-position-coverage.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+[90mstderr[2m | test/converter/dispatch-combinations.test.ts[2m > [22m[2mcompiled converter dispatch combinations[2m > [22m[2muses interpreter fallbacks when dynamic function construction is blocked
+[22m[39m[stax-xml] Runtime code generation is unavailable; using the slower compiled-plan executor.
+
+ [32m✓[39m test/converter/dispatch-combinations.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m test/converter/parser-edge-cases.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m test/converter/event-input-validation.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m test/converter/number-validation.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m test/namespace.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m test/converter/parser-collectors.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m test/io-coverage.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m test/converter/string-position-parsing.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m test/token-cursor-options-coverage.test.ts [2m([22m[2m36 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m test/converter/parser-helpers.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m test/converter/basic.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m test/converter/object-position.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m test/converter/transform.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m test/converter/writer-combinations.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/event-writer.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/parser-async-regression.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/converter/transform-errors.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/writer-core-regression.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/writer-options-contract.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/writer.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/converter/internal-branches.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/writer-core.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/xml-validation-coverage.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/writeoptions.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m test/selfclosing.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m35 passed[39m[22m[90m (35)[39m
+[2m      Tests [22m [1m[32m668 passed[39m[22m[90m (668)[39m
+[2m   Start at [22m 19:35:46
+[2m   Duration [22m 3.18s[2m (transform 180ms, setup 0ms, import 611ms, tests 508ms, environment 1ms)[22m
+
+[34m % [39m[2mCoverage report from [22m[33mv8[39m
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |     100 |      100 |     100 |     100 |                   
+ src               |     100 |      100 |     100 |     100 |                   
+  WriterCore.ts    |     100 |      100 |     100 |     100 |                   
+  converter.ts     |       0 |        0 |       0 |       0 |                   
+ src/async         |     100 |      100 |     100 |     100 |                   
+  EventReader.ts   |     100 |      100 |     100 |     100 |                   
+  StreamReader.ts  |     100 |      100 |     100 |     100 |                   
+  Writer.ts        |     100 |      100 |     100 |     100 |                   
+  index.ts         |       0 |        0 |       0 |       0 |                   
+ src/converter     |       0 |        0 |       0 |       0 |                   
+  index.ts         |       0 |        0 |       0 |       0 |                   
+ ...rter/converter |     100 |      100 |     100 |     100 |                   
+  ...tProcessor.ts |     100 |      100 |     100 |     100 |                   
+  ...dXmlSchema.ts |     100 |      100 |     100 |     100 |                   
+  XPathEngine.ts   |     100 |      100 |     100 |     100 |                   
+  ...rraySchema.ts |     100 |      100 |     100 |     100 |                   
+  XmlBuilder.ts    |     100 |      100 |     100 |     100 |                   
+  ...mberSchema.ts |     100 |      100 |     100 |     100 |                   
+  ...jectSchema.ts |     100 |      100 |     100 |     100 |                   
+  ...onalSchema.ts |     100 |      100 |     100 |     100 |                   
+  XmlSchema.ts     |       0 |        0 |       0 |       0 |                   
+  ...ringSchema.ts |     100 |      100 |     100 |     100 |                   
+  ...formSchema.ts |     100 |      100 |     100 |     100 |                   
+  base.ts          |     100 |      100 |     100 |     100 |                   
+  compiled-plan.ts |       0 |        0 |       0 |       0 |                   
+  errors.ts        |     100 |      100 |     100 |     100 |                   
+  index.ts         |     100 |      100 |     100 |     100 |                   
+  types.ts         |     100 |      100 |     100 |     100 |                   
+  write-utils.ts   |     100 |      100 |     100 |     100 |                   
+ src/core          |     100 |      100 |     100 |     100 |                   
+  TokenCursor.ts   |     100 |      100 |     100 |     100 |                   
+  index.ts         |       0 |        0 |       0 |       0 |                   
+  types.ts         |     100 |      100 |     100 |     100 |                   
+  ...validation.ts |     100 |      100 |     100 |     100 |                   
+ src/core/internal |     100 |      100 |     100 |     100 |                   
+  ...oken-event.ts |     100 |      100 |     100 |     100 |                   
+ src/sync          |     100 |      100 |     100 |     100 |                   
+  ...ReaderSync.ts |     100 |      100 |     100 |     100 |                   
+  ...ReaderSync.ts |     100 |      100 |     100 |     100 |                   
+  WriterSync.ts    |     100 |      100 |     100 |     100 |                   
+  index.ts         |       0 |        0 |       0 |       0 |                   
+-------------------|---------|----------|---------|---------|-------------------

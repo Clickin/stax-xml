@@ -1,0 +1,17 @@
+{
+  "decision": "Admit prescribed H1A as a combined operation-elimination experiment; do not claim a hash-only causal speedup bound",
+  "chronology": [
+    "Historical audit found no equivalent in searched archive, evidence refs and TokenCursor history; unavailable historical ZIP explicitly limits novelty claim.",
+    "Initial full-access attribute-heavy profile attributed 349/26378 samples (1.323%) to hash-related positions: insufficient by itself for the 5% screen.",
+    "Dedicated public attributeValue(name) profile attributed 3758/40553 samples (9.266%) to hashString loop, 3866/40553 (9.533%) including query-only entry/callsite positions; 4306/40553 (10.618%) including shared hashCode/parser positions. This supplied material public-path headroom before H1A implementation.",
+    "Untimed counterfactual duplicate comparisons predicted 10089666 character pairs versus 2885302 removed parser hashes on common-prefix width8. This is parser duplicate work, not query fallback timing.",
+    "Independent reviewers preferred a lookup-only scope. Main retained the user's explicitly specified H1A experiment rather than introducing a third/replacement mechanism; measured lookup headroom justified testing the combined cost tradeoff, not claiming scan-only benefit.",
+    "H1A passed correctness; three-pair diagnostic pilot had full1.8602,lookup2.0415,event1.7484 time ratios. H1A profile assigned18567/41698 samples (44.53%) to exact spansEqual loop. This demonstrated the blocker required to admit H1B.",
+    "H1B uses one first/last-code-unit prefilter followed by exact span equality, whose length check remains mandatory. No cache, persistent fingerprint state, threshold change, or runtime variant switch was added."
+  ],
+  "expectedUpperBoundE2EBenefit": {
+    "H1A": "Attribution-only optimistic screening estimate ~9.5% lookup query hashing, ~1.3% parse/full hashing. Not a rigorous causal upper bound; direct comparison costs may overwhelm removal.",
+    "H1B": "Can remove much of H1A's measured comparison penalty; no measured positive-benefit bound beyond the same lookup headroom. Must pass actual E2E gates."
+  },
+  "inferenceLimits": "Source-position samples are not instruction-cycle attribution. Inlining, interleaving, generated code size, guards, materialization and code shape can move costs. Counters are from an untimed build and never enter timing comparisons."
+}

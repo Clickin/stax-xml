@@ -1,0 +1,1317 @@
+[
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/cardinality-0.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 4913,
+    "checksum": 25266,
+    "counters": {
+      "hashes": 0,
+      "scanCodeUnits": 0,
+      "narrowCodeUnits": 0,
+      "duplicateCandidates": 0,
+      "directSpanCharacters": 0,
+      "equalLengthCandidates": 0,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 701
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/cardinality-1.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 20793,
+    "checksum": 50836,
+    "counters": {
+      "hashes": 11790,
+      "scanCodeUnits": 11790,
+      "narrowCodeUnits": 11790,
+      "duplicateCandidates": 0,
+      "directSpanCharacters": 0,
+      "equalLengthCandidates": 0,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "1": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/cardinality-15.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 256613,
+    "checksum": 416016,
+    "counters": {
+      "hashes": 180848,
+      "scanCodeUnits": 180848,
+      "narrowCodeUnits": 180848,
+      "duplicateCandidates": 73633,
+      "directSpanCharacters": 657037,
+      "equalLengthCandidates": 38593,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "15": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/cardinality-16.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 273918,
+    "checksum": 443011,
+    "counters": {
+      "hashes": 193452,
+      "scanCodeUnits": 193452,
+      "narrowCodeUnits": 193452,
+      "duplicateCandidates": 84144,
+      "directSpanCharacters": 719670,
+      "equalLengthCandidates": 42104,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "16": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/cardinality-17.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 291224,
+    "checksum": 470007,
+    "counters": {
+      "hashes": 206153,
+      "scanCodeUnits": 206153,
+      "narrowCodeUnits": 193660,
+      "duplicateCandidates": 84291,
+      "directSpanCharacters": 720837,
+      "equalLengthCandidates": 42171,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 700,
+      "widths": {
+        "0": 1,
+        "17": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/cardinality-2.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 37375,
+    "checksum": 76408,
+    "counters": {
+      "hashes": 23580,
+      "scanCodeUnits": 23580,
+      "narrowCodeUnits": 23580,
+      "duplicateCandidates": 700,
+      "directSpanCharacters": 11790,
+      "equalLengthCandidates": 700,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "2": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/cardinality-24.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 412394,
+    "checksum": 659007,
+    "counters": {
+      "hashes": 294709,
+      "scanCodeUnits": 294709,
+      "narrowCodeUnits": 194246,
+      "duplicateCandidates": 84600,
+      "directSpanCharacters": 723075,
+      "equalLengthCandidates": 42300,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 5629,
+      "widths": {
+        "0": 1,
+        "24": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/cardinality-32.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 550934,
+    "checksum": 875067,
+    "counters": {
+      "hashes": 395209,
+      "scanCodeUnits": 395209,
+      "narrowCodeUnits": 194724,
+      "duplicateCandidates": 84750,
+      "directSpanCharacters": 724560,
+      "equalLengthCandidates": 42390,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 11233,
+      "widths": {
+        "0": 1,
+        "32": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/cardinality-4.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 70545,
+    "checksum": 127558,
+    "counters": {
+      "hashes": 47228,
+      "scanCodeUnits": 47228,
+      "narrowCodeUnits": 47228,
+      "duplicateCandidates": 4203,
+      "directSpanCharacters": 70791,
+      "equalLengthCandidates": 4203,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "4": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/cardinality-64.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 1105734,
+    "checksum": 1739947,
+    "counters": {
+      "hashes": 801297,
+      "scanCodeUnits": 801297,
+      "narrowCodeUnits": 196408,
+      "duplicateCandidates": 85430,
+      "directSpanCharacters": 730746,
+      "equalLengthCandidates": 42750,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 33896,
+      "widths": {
+        "0": 1,
+        "64": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/cardinality-8.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 136909,
+    "checksum": 229882,
+    "counters": {
+      "hashes": 94476,
+      "scanCodeUnits": 94476,
+      "narrowCodeUnits": 94476,
+      "duplicateCandidates": 19612,
+      "directSpanCharacters": 330324,
+      "equalLengthCandidates": 19612,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "8": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/ends-0.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 4913,
+    "checksum": 25266,
+    "counters": {
+      "hashes": 0,
+      "scanCodeUnits": 0,
+      "narrowCodeUnits": 0,
+      "duplicateCandidates": 0,
+      "directSpanCharacters": 0,
+      "equalLengthCandidates": 0,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 701
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/ends-1.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 11103,
+    "checksum": 31456,
+    "counters": {
+      "hashes": 2100,
+      "scanCodeUnits": 2100,
+      "narrowCodeUnits": 2100,
+      "duplicateCandidates": 0,
+      "directSpanCharacters": 0,
+      "equalLengthCandidates": 0,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "1": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/ends-15.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 111263,
+    "checksum": 125316,
+    "counters": {
+      "hashes": 35000,
+      "scanCodeUnits": 35000,
+      "narrowCodeUnits": 35000,
+      "duplicateCandidates": 73500,
+      "directSpanCharacters": 84000,
+      "equalLengthCandidates": 38500,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "15": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/ends-16.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 118878,
+    "checksum": 132931,
+    "counters": {
+      "hashes": 37850,
+      "scanCodeUnits": 37850,
+      "narrowCodeUnits": 37850,
+      "duplicateCandidates": 84091,
+      "directSpanCharacters": 94608,
+      "equalLengthCandidates": 42051,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "16": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/ends-17.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 126494,
+    "checksum": 140547,
+    "counters": {
+      "hashes": 40654,
+      "scanCodeUnits": 40654,
+      "narrowCodeUnits": 37854,
+      "duplicateCandidates": 84120,
+      "directSpanCharacters": 94635,
+      "equalLengthCandidates": 42060,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 700,
+      "widths": {
+        "0": 1,
+        "17": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/ends-2.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 17995,
+    "checksum": 37648,
+    "counters": {
+      "hashes": 4200,
+      "scanCodeUnits": 4200,
+      "narrowCodeUnits": 4200,
+      "duplicateCandidates": 700,
+      "directSpanCharacters": 1400,
+      "equalLengthCandidates": 700,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "2": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/ends-24.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 179834,
+    "checksum": 193887,
+    "counters": {
+      "hashes": 60272,
+      "scanCodeUnits": 60272,
+      "narrowCodeUnits": 37872,
+      "duplicateCandidates": 84100,
+      "directSpanCharacters": 94680,
+      "equalLengthCandidates": 42090,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 5600,
+      "widths": {
+        "0": 1,
+        "24": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/ends-32.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 240854,
+    "checksum": 254907,
+    "counters": {
+      "hashes": 82790,
+      "scanCodeUnits": 82790,
+      "narrowCodeUnits": 37932,
+      "duplicateCandidates": 84261,
+      "directSpanCharacters": 94812,
+      "equalLengthCandidates": 42141,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 11214,
+      "widths": {
+        "0": 1,
+        "32": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/ends-4.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 31785,
+    "checksum": 50038,
+    "counters": {
+      "hashes": 8400,
+      "scanCodeUnits": 8400,
+      "narrowCodeUnits": 8400,
+      "duplicateCandidates": 4200,
+      "directSpanCharacters": 8400,
+      "equalLengthCandidates": 4200,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "4": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/ends-64.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 485574,
+    "checksum": 499627,
+    "counters": {
+      "hashes": 173116,
+      "scanCodeUnits": 173116,
+      "narrowCodeUnits": 38130,
+      "duplicateCandidates": 84684,
+      "directSpanCharacters": 95286,
+      "equalLengthCandidates": 42354,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 33744,
+      "widths": {
+        "0": 1,
+        "64": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/ends-8.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 59389,
+    "checksum": 74842,
+    "counters": {
+      "hashes": 16800,
+      "scanCodeUnits": 16800,
+      "narrowCodeUnits": 16800,
+      "duplicateCandidates": 19600,
+      "directSpanCharacters": 39200,
+      "equalLengthCandidates": 19600,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "8": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/first-0.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 4913,
+    "checksum": 25266,
+    "counters": {
+      "hashes": 0,
+      "scanCodeUnits": 0,
+      "narrowCodeUnits": 0,
+      "duplicateCandidates": 0,
+      "directSpanCharacters": 0,
+      "equalLengthCandidates": 0,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 701
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/first-1.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 13203,
+    "checksum": 35656,
+    "counters": {
+      "hashes": 4200,
+      "scanCodeUnits": 4200,
+      "narrowCodeUnits": 4200,
+      "duplicateCandidates": 0,
+      "directSpanCharacters": 0,
+      "equalLengthCandidates": 0,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "1": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/first-15.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 142763,
+    "checksum": 188316,
+    "counters": {
+      "hashes": 66537,
+      "scanCodeUnits": 66537,
+      "narrowCodeUnits": 66537,
+      "duplicateCandidates": 73507,
+      "directSpanCharacters": 38507,
+      "equalLengthCandidates": 38507,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "15": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/first-16.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 152478,
+    "checksum": 200131,
+    "counters": {
+      "hashes": 71562,
+      "scanCodeUnits": 71562,
+      "narrowCodeUnits": 71562,
+      "duplicateCandidates": 84133,
+      "directSpanCharacters": 42093,
+      "equalLengthCandidates": 42093,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "16": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/first-17.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 162194,
+    "checksum": 211947,
+    "counters": {
+      "hashes": 76410,
+      "scanCodeUnits": 76410,
+      "narrowCodeUnits": 71504,
+      "duplicateCandidates": 84120,
+      "directSpanCharacters": 42060,
+      "equalLengthCandidates": 42060,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 700,
+      "widths": {
+        "0": 1,
+        "17": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/first-2.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 22195,
+    "checksum": 46048,
+    "counters": {
+      "hashes": 8400,
+      "scanCodeUnits": 8400,
+      "narrowCodeUnits": 8400,
+      "duplicateCandidates": 700,
+      "directSpanCharacters": 700,
+      "equalLengthCandidates": 700,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "2": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/first-24.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 230234,
+    "checksum": 294687,
+    "counters": {
+      "hashes": 110919,
+      "scanCodeUnits": 110919,
+      "narrowCodeUnits": 71656,
+      "duplicateCandidates": 84268,
+      "directSpanCharacters": 42148,
+      "equalLengthCandidates": 42148,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 5607,
+      "widths": {
+        "0": 1,
+        "24": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/first-32.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 308054,
+    "checksum": 389307,
+    "counters": {
+      "hashes": 150187,
+      "scanCodeUnits": 150187,
+      "narrowCodeUnits": 71689,
+      "duplicateCandidates": 84318,
+      "directSpanCharacters": 42168,
+      "equalLengthCandidates": 42168,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 11212,
+      "widths": {
+        "0": 1,
+        "32": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/first-4.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 40185,
+    "checksum": 66838,
+    "counters": {
+      "hashes": 16800,
+      "scanCodeUnits": 16800,
+      "narrowCodeUnits": 16800,
+      "duplicateCandidates": 4200,
+      "directSpanCharacters": 4200,
+      "equalLengthCandidates": 4200,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "4": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/first-64.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 619974,
+    "checksum": 768427,
+    "counters": {
+      "hashes": 308619,
+      "scanCodeUnits": 308619,
+      "narrowCodeUnits": 72271,
+      "duplicateCandidates": 84973,
+      "directSpanCharacters": 42513,
+      "equalLengthCandidates": 42513,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 33760,
+      "widths": {
+        "0": 1,
+        "64": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/first-8.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 76189,
+    "checksum": 108442,
+    "counters": {
+      "hashes": 33612,
+      "scanCodeUnits": 33612,
+      "narrowCodeUnits": 33612,
+      "duplicateCandidates": 19600,
+      "directSpanCharacters": 19600,
+      "equalLengthCandidates": 19600,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "8": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/prefix-0.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 4913,
+    "checksum": 25266,
+    "counters": {
+      "hashes": 0,
+      "scanCodeUnits": 0,
+      "narrowCodeUnits": 0,
+      "duplicateCandidates": 0,
+      "directSpanCharacters": 0,
+      "equalLengthCandidates": 0,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 701
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/prefix-1.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 21603,
+    "checksum": 52456,
+    "counters": {
+      "hashes": 12600,
+      "scanCodeUnits": 12600,
+      "narrowCodeUnits": 12600,
+      "duplicateCandidates": 0,
+      "directSpanCharacters": 0,
+      "equalLengthCandidates": 0,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "1": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/prefix-15.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 268763,
+    "checksum": 440316,
+    "counters": {
+      "hashes": 192991,
+      "scanCodeUnits": 192991,
+      "narrowCodeUnits": 192991,
+      "duplicateCandidates": 73605,
+      "directSpanCharacters": 701353,
+      "equalLengthCandidates": 38575,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "15": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/prefix-16.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 286878,
+    "checksum": 468931,
+    "counters": {
+      "hashes": 206853,
+      "scanCodeUnits": 206853,
+      "narrowCodeUnits": 206853,
+      "duplicateCandidates": 84340,
+      "directSpanCharacters": 770120,
+      "equalLengthCandidates": 42200,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "16": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/prefix-17.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 304994,
+    "checksum": 497547,
+    "counters": {
+      "hashes": 219721,
+      "scanCodeUnits": 219721,
+      "narrowCodeUnits": 206421,
+      "duplicateCandidates": 84154,
+      "directSpanCharacters": 768382,
+      "equalLengthCandidates": 42104,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 700,
+      "widths": {
+        "0": 1,
+        "17": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/prefix-2.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 38995,
+    "checksum": 79648,
+    "counters": {
+      "hashes": 25200,
+      "scanCodeUnits": 25200,
+      "narrowCodeUnits": 25200,
+      "duplicateCandidates": 700,
+      "directSpanCharacters": 12600,
+      "equalLengthCandidates": 700,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "2": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/prefix-24.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 431834,
+    "checksum": 697887,
+    "counters": {
+      "hashes": 313449,
+      "scanCodeUnits": 313449,
+      "narrowCodeUnits": 206904,
+      "duplicateCandidates": 84362,
+      "directSpanCharacters": 770172,
+      "equalLengthCandidates": 42202,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 5606,
+      "widths": {
+        "0": 1,
+        "24": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/prefix-32.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 576854,
+    "checksum": 926907,
+    "counters": {
+      "hashes": 420863,
+      "scanCodeUnits": 420863,
+      "narrowCodeUnits": 207532,
+      "duplicateCandidates": 84604,
+      "directSpanCharacters": 772753,
+      "equalLengthCandidates": 42344,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 11225,
+      "widths": {
+        "0": 1,
+        "32": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/prefix-4.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 73785,
+    "checksum": 134038,
+    "counters": {
+      "hashes": 50418,
+      "scanCodeUnits": 50418,
+      "narrowCodeUnits": 50418,
+      "duplicateCandidates": 4200,
+      "directSpanCharacters": 75600,
+      "equalLengthCandidates": 4200,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "4": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/prefix-64.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 1157574,
+    "checksum": 1843627,
+    "counters": {
+      "hashes": 854574,
+      "scanCodeUnits": 854574,
+      "narrowCodeUnits": 209966,
+      "duplicateCandidates": 85597,
+      "directSpanCharacters": 781401,
+      "equalLengthCandidates": 42817,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 33918,
+      "widths": {
+        "0": 1,
+        "64": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/prefix-8.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 143389,
+    "checksum": 242842,
+    "counters": {
+      "hashes": 100853,
+      "scanCodeUnits": 100853,
+      "narrowCodeUnits": 100853,
+      "duplicateCandidates": 19600,
+      "directSpanCharacters": 352800,
+      "equalLengthCandidates": 19600,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "8": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/unicode-0.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 4913,
+    "checksum": 25266,
+    "counters": {
+      "hashes": 0,
+      "scanCodeUnits": 0,
+      "narrowCodeUnits": 0,
+      "duplicateCandidates": 0,
+      "directSpanCharacters": 0,
+      "equalLengthCandidates": 0,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 701
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/unicode-1.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 18103,
+    "checksum": 34256,
+    "counters": {
+      "hashes": 3500,
+      "scanCodeUnits": 3500,
+      "narrowCodeUnits": 3500,
+      "duplicateCandidates": 0,
+      "directSpanCharacters": 0,
+      "equalLengthCandidates": 0,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "1": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/unicode-15.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 216263,
+    "checksum": 167316,
+    "counters": {
+      "hashes": 56101,
+      "scanCodeUnits": 56101,
+      "narrowCodeUnits": 56101,
+      "duplicateCandidates": 73576,
+      "directSpanCharacters": 122669,
+      "equalLengthCandidates": 38556,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "15": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/unicode-16.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 230878,
+    "checksum": 177731,
+    "counters": {
+      "hashes": 60301,
+      "scanCodeUnits": 60301,
+      "narrowCodeUnits": 60301,
+      "duplicateCandidates": 84081,
+      "directSpanCharacters": 136684,
+      "equalLengthCandidates": 42061,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "16": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/unicode-17.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 245494,
+    "checksum": 188147,
+    "counters": {
+      "hashes": 64546,
+      "scanCodeUnits": 64546,
+      "narrowCodeUnits": 60346,
+      "duplicateCandidates": 84144,
+      "directSpanCharacters": 136792,
+      "equalLengthCandidates": 42094,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 700,
+      "widths": {
+        "0": 1,
+        "17": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/unicode-2.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 31995,
+    "checksum": 43248,
+    "counters": {
+      "hashes": 7000,
+      "scanCodeUnits": 7000,
+      "narrowCodeUnits": 7000,
+      "duplicateCandidates": 700,
+      "directSpanCharacters": 2100,
+      "equalLengthCandidates": 700,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "2": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/unicode-24.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 347834,
+    "checksum": 261087,
+    "counters": {
+      "hashes": 94161,
+      "scanCodeUnits": 94161,
+      "narrowCodeUnits": 60555,
+      "duplicateCandidates": 84403,
+      "directSpanCharacters": 137287,
+      "equalLengthCandidates": 42253,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 5601,
+      "widths": {
+        "0": 1,
+        "24": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/unicode-32.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 464854,
+    "checksum": 344507,
+    "counters": {
+      "hashes": 128085,
+      "scanCodeUnits": 128085,
+      "narrowCodeUnits": 60716,
+      "duplicateCandidates": 84647,
+      "directSpanCharacters": 137637,
+      "equalLengthCandidates": 42357,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 11226,
+      "widths": {
+        "0": 1,
+        "32": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/unicode-4.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 59785,
+    "checksum": 61238,
+    "counters": {
+      "hashes": 14000,
+      "scanCodeUnits": 14000,
+      "narrowCodeUnits": 14000,
+      "duplicateCandidates": 4200,
+      "directSpanCharacters": 12600,
+      "equalLengthCandidates": 4200,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "4": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/unicode-64.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 933574,
+    "checksum": 678827,
+    "counters": {
+      "hashes": 263891,
+      "scanCodeUnits": 263891,
+      "narrowCodeUnits": 61131,
+      "duplicateCandidates": 85189,
+      "directSpanCharacters": 138523,
+      "equalLengthCandidates": 42629,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 33788,
+      "widths": {
+        "0": 1,
+        "64": 700
+      }
+    }
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1-instrumented",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/unicode-8.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 115389,
+    "checksum": 97242,
+    "counters": {
+      "hashes": 28030,
+      "scanCodeUnits": 28030,
+      "narrowCodeUnits": 28030,
+      "duplicateCandidates": 19610,
+      "directSpanCharacters": 58830,
+      "equalLengthCandidates": 19610,
+      "spanCalls": 0,
+      "spanCharacters": 0,
+      "lookupCalls": 0,
+      "wideCalls": 0,
+      "widths": {
+        "0": 1,
+        "8": 700
+      }
+    }
+  }
+]

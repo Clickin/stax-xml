@@ -1,0 +1,1196 @@
+{
+  "id": "2026-09-13-attribute-hash-elimination",
+  "classification": "NO-GO",
+  "baseline": "adc2cb7d0a64152725a5c43b2233676a79fec646",
+  "originalBaseline": "9a839ffb6824a25c4cc2fa6698e860daea5b5816",
+  "closestPrior": "2026-09-13-entity-single-eval @ 4eb355c54f20cf6f0e6c91f2952f4244b71bfa33",
+  "sourceToArchive": {
+    "evidence-refs.txt": {
+      "source": "/tmp/stax-attribute-hash-20260913/evidence-refs.txt",
+      "sha256": "f2b859b92234bd7af4c8ec288184a72bf4de988cb42f6eb755f5ca6860cd780b"
+    },
+    "pilot-0-H1A-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-0-H1A-full.json",
+      "sha256": "a46676f7a69d317d1eca0aa706bdd7dc57a277056ed0d9d76e531bde2ecaaf5d"
+    },
+    "H1B-parity.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1B-parity.json",
+      "sha256": "cea80e560368332bbc20feb8c9c8f60e09f559b7fa41eb0f3d4a70796f43f745"
+    },
+    "H1A-imul-full.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1A-imul-full.log",
+      "sha256": "aba453aeae84602ffee0f2ea2f5bcbefd90d891710b19f255a4b4bfd5227bc6a"
+    },
+    "baseline-0-mixed-utf8-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-mixed-utf8-lookup.json",
+      "sha256": "8c6b5a8bacd3d272ca9485de7482b14c6746527e78ece117254ed27fedd1da07"
+    },
+    "baseline-2-mixed-utf8-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-mixed-utf8-event.json",
+      "sha256": "38e6fa1347890182e4f8fc95f30f11a28528cb7b8cee408542412186f9da7622"
+    },
+    "pilot-1-H1A-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-1-H1A-lookup.json",
+      "sha256": "055ce8c3a608234cddd00e74a2b7c034cc9e486785e1e506fa6ee634d8ed120d"
+    },
+    "counts-mixed-utf8-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-mixed-utf8-event.json",
+      "sha256": "43cff47506b0ff364957dd8f2a66ccd18fa20579db0aef82016bc2da290eb221"
+    },
+    "baseline-2-mixed-utf8-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-mixed-utf8-type.json",
+      "sha256": "d285007708f4a3a974692e839502a84e7b26baf9d56fdcf2564da3e44c1e5ac1"
+    },
+    "baseline-3-large-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-large-type.json",
+      "sha256": "f133a949bbdcd5efa2b7adae0d949ca76c374175395b0b4a6f235fb4d13e0db2"
+    },
+    "R1-production-opt-code.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/R1-production-opt-code.log",
+      "sha256": "cb45541e5c45ea72bd17b9fe35c9a680ea0a301c6b5bd2d3166b1a608c37fdd4"
+    },
+    "counterfactual-counts.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counterfactual-counts.json",
+      "sha256": "019ec91fe006011a8c765178d5171969f937198e8493b52fe91028c0ebace10e"
+    },
+    "baseline-1-attribute-heavy-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-attribute-heavy-type.json",
+      "sha256": "f79f08edbeb96180beebab99c94a07b64300d02fd33f437ae1625965bd3ee865"
+    },
+    "profile-R1-midsize-name.cpuprofile.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/profile-R1-midsize-name.cpuprofile.log",
+      "sha256": "835d17ec0d327c8b0fb6c85d005e04a88cbdcba917eb78c66a2ffa33567db303"
+    },
+    "baseline-4-midsize-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-midsize-event.json",
+      "sha256": "329d2c029b52428a35db3b95d369649982e36cc12af94b26904b6b0d95f53e76"
+    },
+    "profile-R1-catalog-converter.cpuprofile.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/profile-R1-catalog-converter.cpuprofile.log",
+      "sha256": "8a4522a47beade3e001cb11011a51e90865d145a85211793a30362683d2c1796"
+    },
+    "baseline-4-catalog-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-catalog-event.json",
+      "sha256": "a7673837280d217de5e54b726a32a6e26b5cca2e02b6663693e98adb8df13e9a"
+    },
+    "baseline-3-mixed-utf8-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-mixed-utf8-full.json",
+      "sha256": "d5d5e00649e47cc66430ccabaadc9c4ed8165575f56a64f0c1f93fff7b304bb1"
+    },
+    "baseline-2-catalog-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-catalog-full.json",
+      "sha256": "00fec59b9e2ebb3c0c730bfe20fb8b4ec78548fc65c38a105baf43549a144af4"
+    },
+    "H1A-parity-final.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1A-parity-final.json",
+      "sha256": "cea80e560368332bbc20feb8c9c8f60e09f559b7fa41eb0f3d4a70796f43f745"
+    },
+    "R1-stage.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/R1-stage.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "counts-large-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-large-name.json",
+      "sha256": "c3299e1674a56fb83861656a3973f402477b81e5fa0476368327286e68ebefec"
+    },
+    "count-imul.mjs": {
+      "source": "/tmp/stax-attribute-hash-20260913/count-imul.mjs",
+      "sha256": "93f993d26ee2d9cd751e67419a53103bad6fb734d14a3b9660754098af3126a5"
+    },
+    "cold-raw.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/cold-raw.json",
+      "sha256": "d1bb069f1a87110229c5f3fba76646841c21c23f2b65f5347ca41145ee1e4cee"
+    },
+    "pilot-1-H1A-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-1-H1A-event.json",
+      "sha256": "195a1ce87cb7ac2090a3d851348168ee5f0128961461d06ea09728b3051837d6"
+    },
+    "counts-attribute-heavy-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-attribute-heavy-event.json",
+      "sha256": "a3ef4270c6e2250bbd12047e64c5f49c344d591f23d931b46bf30cbdd0dd02e6"
+    },
+    "pilot-1-R1-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-1-R1-event.json",
+      "sha256": "421016a8fbc5a645605299445a89dac1aa6ad6ee03372d8e29167264c13d7c97"
+    },
+    "baseline-3-attribute-heavy-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-attribute-heavy-full.json",
+      "sha256": "6386545302ebae36b4e8647e111d74e317d2a998947a7f4550f75a80f9da5b93"
+    },
+    "baseline-0-midsize-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-midsize-name.json",
+      "sha256": "22bff2374c1d7db082ab1ac3ed193c4e21bc30e5507cbf6eaa8e664708853ab6"
+    },
+    "counts-attribute-heavy-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-attribute-heavy-name.json",
+      "sha256": "266231665d8394d487fd7821e3c36cfaa595e61381a8ef66e41d250cc53f29f0"
+    },
+    "profile-R1-attribute-heavy-name.cpuprofile.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/profile-R1-attribute-heavy-name.cpuprofile.log",
+      "sha256": "b2842ab4ef2fda71802fc52f61d9616e27562a7971fddff5845e9c41243c5aa4"
+    },
+    "baseline-3-attribute-heavy-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-attribute-heavy-event.json",
+      "sha256": "cb8deb3d237d9a380588597bf4252d82d101e4afc94455dfdc74217e7b608b3c"
+    },
+    "H1A-build.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1A-build.log",
+      "sha256": "722ae33c9736b89e6f98ae082e46f397c3278bd789eb06b676c63e68048282b5"
+    },
+    "baseline-4-attribute-heavy-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-attribute-heavy-event.json",
+      "sha256": "6416c36739959d49c53c40b4969df8318e8110961264176d284fe7e9f8c55be7"
+    },
+    "baseline-4-mixed-utf8-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-mixed-utf8-lookup.json",
+      "sha256": "79e3d8057c2459615d440e1e6a5af2d8d9051272b4868ea969b109949295eb4c"
+    },
+    "baseline-2-attribute-heavy-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-attribute-heavy-name.json",
+      "sha256": "eecf6af6cbf2eb02c5e3d7fc82ba83001edac48b27498b6062c8362ac573db36"
+    },
+    "pilot-2-R1-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-2-R1-event.json",
+      "sha256": "a063434eae86dccbbd7132943374b81500f4e653a103449b9fd0db9934ae27a2"
+    },
+    "diagnostic-build.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/diagnostic-build.log",
+      "sha256": "ea5f5e2526b7340eb4b308a06a2ec06b437af55481f18012a807a6570cb634eb"
+    },
+    "H1A-release.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1A-release.log",
+      "sha256": "eb580e666d259c58ede840358bd320f0394ab8fa589a95a9484b927523a7b387"
+    },
+    "baseline-4-midsize-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-midsize-name.json",
+      "sha256": "b8b73a39c230d09d34477e46c4e23b5434c1c57fad567ed95a71b9316af47ee0"
+    },
+    "baseline-4-attribute-heavy-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-attribute-heavy-full.json",
+      "sha256": "317b5fb76f7c3b5c678ecc89ca75aef025cd772a8e3cae7120d8ffd5675851fa"
+    },
+    "R1-long-lookup-headroom.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/R1-long-lookup-headroom.log",
+      "sha256": "33a8edc33a88ee4312ae7d42448a69c00927de61ac868ba85875f1576f5161d2"
+    },
+    "H1B-coverage.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1B-coverage.log",
+      "sha256": "48c4e611241b7a0a39a09ccfcf67240ad0b89b7edf35fe997941bbda8b24bf6e"
+    },
+    "baseline-0-mixed-utf8-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-mixed-utf8-event.json",
+      "sha256": "25c6e5593bd69d9caea0f85418baad928c96b618f54d591ef9534ec981dd67c3"
+    },
+    "H1A-w3c.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1A-w3c.log",
+      "sha256": "1c6dee443be7bac18f54b052b36c0e823197de378c64dce7b5086f13d7a74323"
+    },
+    "diagnostics.mjs": {
+      "source": "/tmp/stax-attribute-hash-20260913/diagnostics.mjs",
+      "sha256": "1f2c7d3e32db8fc8800d7cae7aae7e90f4485b2edb30ded130459870907d563b"
+    },
+    "profile-R1-large-type.cpuprofile.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/profile-R1-large-type.cpuprofile.log",
+      "sha256": "203c8bf6314965b63fee9e0fd1fe4f7dc680c5fd4b57554fa45edd972de30e78"
+    },
+    "H1A-production-opt-code.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1A-production-opt-code.log",
+      "sha256": "341817564f53d19f22f6fd106d66e83331a68f0c961d914a550ec84afed6f469"
+    },
+    "pilot-0-H1A-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-0-H1A-event.json",
+      "sha256": "0a6284bd96653b2399dd4c154f53482486e72c5e69808e3f240938db1306f829"
+    },
+    "cold-summary.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/cold-summary.json",
+      "sha256": "e2b2e0cd652a1d513c96cfe987639967e0b6e343d4aad964c4c8f4210428966f"
+    },
+    "baseline-3-catalog-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-catalog-full.json",
+      "sha256": "a2e768040bee32d1e1c911163c88ee7c26c1d044d2390f4fff35bcded7dc893e"
+    },
+    "profile-R1-large-event.cpuprofile.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/profile-R1-large-event.cpuprofile.log",
+      "sha256": "3ebbbd19b27fc73fa8f89e894138eab74afb8c126286e3d16a27e9f87f5492dc"
+    },
+    "H1B-imul-full.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1B-imul-full.log",
+      "sha256": "6d77d2c1de4b5a47448f2ee1767d30780a69762ed244674228da3935743e5cb6"
+    },
+    "pilot-2-R1-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-2-R1-full.json",
+      "sha256": "1205222a046459b354b3f01430f3e0ec50a03004539e2c5f859812d57f8ed238"
+    },
+    "baseline-3-large-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-large-event.json",
+      "sha256": "d00e43d4faec651508f90092d561fd3ffca5430f4038196c01cbeebcdb04ca30"
+    },
+    "baseline-3-mixed-utf8-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-mixed-utf8-lookup.json",
+      "sha256": "d7e3477cf3e659a879df1084f061e54ab4c26cb560dda89a847036329fdf9ae7"
+    },
+    "correctness-fix.patch": {
+      "source": "/tmp/stax-attribute-hash-20260913/correctness-fix.patch",
+      "sha256": "0f243ad3e3ebca53b96f6f3d71bc79590dcf7a0fee3f5b1224d48b7421ec6eaf"
+    },
+    "counts-mixed-utf8-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-mixed-utf8-full.json",
+      "sha256": "3ca98e45fa24b57e7e4baf784ee340a50a413f25a296290ffa8e8bedeeed981a"
+    },
+    "baseline-1-midsize-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-midsize-name.json",
+      "sha256": "ad98f6f7743cf19425987ade2a49bcdee093b3c4e296a73fb4b9ac959df1aaa4"
+    },
+    "hypothesis-matrix.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/hypothesis-matrix.json",
+      "sha256": "3fa5d00ab8d47f9299aa6d5e6eb92b0835b9481891d7a1e88721dff97976a23e"
+    },
+    "baseline-4-large-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-large-type.json",
+      "sha256": "c8df8429263bbd09651f2970a986daeb6633621d91349bda4eff874375ba8933"
+    },
+    "baseline-2-attribute-heavy-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-attribute-heavy-lookup.json",
+      "sha256": "972815c4499a91924afa0526f42ece225436d88538301b1b9f765fdb78afb26e"
+    },
+    "baseline-2-large-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-large-full.json",
+      "sha256": "dc70eb7411996e444914c11dc56f1eeafb5402d6c761b0bada7256c9bad1c585"
+    },
+    "baseline-0-mixed-utf8-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-mixed-utf8-name.json",
+      "sha256": "39e5290dc0cfddbe125db1a77a9851f0df24275582a7635e6520bc6bef324b5e"
+    },
+    "baseline-0-large-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-large-name.json",
+      "sha256": "6609245165bd0c5dd61e44ba5ca4cae28ec9fa9e7f91205e329596f47660c857"
+    },
+    "counts-midsize-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-midsize-name.json",
+      "sha256": "ea8f76bb0356afd0af403202317fdf64c8c874c3269eb89485c535585ce38150"
+    },
+    "H1A-imul-lookup.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1A-imul-lookup.log",
+      "sha256": "20462e8a478141e19bf3d7a21a0ed13baa9752fa4a22e6bd8d704695cb75a5fd"
+    },
+    "baseline-1-midsize-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-midsize-event.json",
+      "sha256": "67938a5d81cc71617a7bc361ab8919725f7c8da3bf355f8fc41e59c14628512e"
+    },
+    "generate-fixtures.py": {
+      "source": "/tmp/stax-attribute-hash-20260913/generate-fixtures.py",
+      "sha256": "3163e6f38e5e5722128e3ab109278fe747f7d3f0400eb315a59b562f536229ad"
+    },
+    "baseline-1-catalog-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-catalog-event.json",
+      "sha256": "5f8ff536f497149dd1778c996333bb1d698e54c5d675fc42012df61ed156403a"
+    },
+    "profile-R1-midsize-event.cpuprofile.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/profile-R1-midsize-event.cpuprofile.log",
+      "sha256": "ac60592cbd06505c50900967e8785f8c9a45234adb9481fda833464a765254e8"
+    },
+    "primary-raw-analysis.csv": {
+      "source": "/tmp/stax-attribute-hash-20260913/primary-raw-analysis.csv",
+      "sha256": "7452322d6c30e447dca007eb741c832d27d4dd3ccabbbbf6d7c595b6ad314601"
+    },
+    "instrumentation.patch": {
+      "source": "/tmp/stax-attribute-hash-20260913/instrumentation.patch",
+      "sha256": "1eb2c038e0a0222cbce00439f0add06ef2f9737a68d24784e704de4fb9f01d45"
+    },
+    "R1-commit.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/R1-commit.log",
+      "sha256": "8cba25debc8b689709a25f14f4d6bb67966c6bae4a51f92038b3ee1eaca84224"
+    },
+    "profile-R1-large-full.cpuprofile.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/profile-R1-large-full.cpuprofile.log",
+      "sha256": "e8bc96fdf8941fe0585b7dba0b5755f448e6831a618b96bc0ec4fddd96f7ac9c"
+    },
+    "counts-catalog-converter.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-catalog-converter.json",
+      "sha256": "cd260e97aab5012a99c00449ff8f31eb82d41315a232276b8b294a3c741353f0"
+    },
+    "baseline-2-mixed-utf8-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-mixed-utf8-lookup.json",
+      "sha256": "a674db2a030f696ab4643afdc5fb7f4d3a45072ae77d4fc70172b667c5338764"
+    },
+    "baseline-3-attribute-heavy-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-attribute-heavy-type.json",
+      "sha256": "86b2589b6c4079413fccfafea4511bffbe2bded84d66aeb05c88215ff74a4fbb"
+    },
+    "final-product-verification.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/final-product-verification.json",
+      "sha256": "e43ff7d51719136ec4d43d874bea286036cf784aaf9ca4622da31739e167853f"
+    },
+    "baseline-0-catalog-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-catalog-full.json",
+      "sha256": "19a24a4aa22193d9281fa583cfa1340786ff212d6b93a01bae526a763703e24e"
+    },
+    "profile-R1-mixed-utf8-name.cpuprofile.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/profile-R1-mixed-utf8-name.cpuprofile.log",
+      "sha256": "17504d78fb15e4d4811b77a9f2e91562302f437f3c924ab07ee96400ab8ed5fa"
+    },
+    "instrument-setup.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/instrument-setup.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "series-raw-analysis.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/series-raw-analysis.json",
+      "sha256": "3ddeb26fef4500d61ade30c7238141aae32f7119e8def6f74b48094b2c8b450e"
+    },
+    "baseline-3-mixed-utf8-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-mixed-utf8-type.json",
+      "sha256": "94d3c5240b2607cd53e757c6a849176c59ef052213abaa2eeac0a5ab8f0db770"
+    },
+    "baseline-1-attribute-heavy-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-attribute-heavy-full.json",
+      "sha256": "2b7a5904f12eceecb25fd6b701484eb021d8cc0845dde94a779b2d23bc12bb28"
+    },
+    "H1B-release.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1B-release.log",
+      "sha256": "eb580e666d259c58ede840358bd320f0394ab8fa589a95a9484b927523a7b387"
+    },
+    "R1-sha.txt": {
+      "source": "/tmp/stax-attribute-hash-20260913/R1-sha.txt",
+      "sha256": "f6b8ac4b3407ca9308f9c8dd431946b8f6834b9c327dbbe66b67bea11e534cf8"
+    },
+    "H1B-diagnostic-build.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1B-diagnostic-build.log",
+      "sha256": "3daf2b7924d02310a31ffb1a850bac32745f3351713a2de34b2abce41d79c5bf"
+    },
+    "baseline-3-large-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-large-full.json",
+      "sha256": "92b38f4575d7f8681b09fcd59edbdc010bfb739bfb6ef25f8d3909ad3009c8f2"
+    },
+    "baseline-2-mixed-utf8-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-mixed-utf8-full.json",
+      "sha256": "17d34d8949528f852345c0a5c7257c067cabfd3ec5ad875f87cd3b296f5e448b"
+    },
+    "pilot-2-H1A-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-2-H1A-event.json",
+      "sha256": "350efdb90edd7eb027463bce5b2d6fda3cd3f5c017185bab53c5533e10e04167"
+    },
+    "profile-R1-attribute-heavy-event.cpuprofile.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/profile-R1-attribute-heavy-event.cpuprofile.log",
+      "sha256": "e33e02cb7d93cb53da2ff7fca1b360308149d280c4122ae1abe9db2746c055c0"
+    },
+    "baseline-1-large-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-large-name.json",
+      "sha256": "b049fcb3e4a8130b3a265d08618f741e2c8ffe221bee1ac91f4ad8ea15515359"
+    },
+    "baseline-2-midsize-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-midsize-name.json",
+      "sha256": "24caef6c183a6f19da26a55b51bcee07d634275dc23e797f87f27f753e48c8a5"
+    },
+    "final-R1-release.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/final-R1-release.log",
+      "sha256": "eb580e666d259c58ede840358bd320f0394ab8fa589a95a9484b927523a7b387"
+    },
+    "headroom-source-ticks.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/headroom-source-ticks.json",
+      "sha256": "2e3f596d5a389043ea0dbf8d7d4c61df08e12ed2a7bd29d8f34b6013fae7fec6"
+    },
+    "H1B-production-opt-code.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1B-production-opt-code.log",
+      "sha256": "9f6affb2a197c39c338b4706e8b42f548e232c99ce114d252cd31ef59d6efc50"
+    },
+    "novelty-audit.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/novelty-audit.json",
+      "sha256": "8b6e5637840280a32a641b948d56f1e6fa5ceef7df7acc8a97d5261e4a91da75"
+    },
+    "baseline-2-large-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-large-type.json",
+      "sha256": "0e21e8eb6edeb10811931f4e8e26baa0b02ce596c6fde3b5e8ea72b2b49193aa"
+    },
+    "baseline-4-mixed-utf8-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-mixed-utf8-name.json",
+      "sha256": "4fdd791533523b380a6be050c5eb309045096ec17ac181ad31e13253d99a17e4"
+    },
+    "counts-large-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-large-event.json",
+      "sha256": "23735ff1d5d1535ef7ace2cb081084f1b307215f584a8a18458a80f5a7305bea"
+    },
+    "profile-R1-mixed-utf8-event.cpuprofile.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/profile-R1-mixed-utf8-event.cpuprofile.log",
+      "sha256": "3dbc43d8e54a6b8b3b4e09c865980aa77c7be84e460d235b9f9759b23d3b259a"
+    },
+    "counts-mixed-utf8-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-mixed-utf8-type.json",
+      "sha256": "badaec03e98204bc148347045879305fd2baabb9d9fb057ac65949e529bb4361"
+    },
+    "baseline-4-large-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-large-full.json",
+      "sha256": "fe312a0c9e1d1d4ad8c28f5084fdbe4c01225a74b07e6e70028497261545642e"
+    },
+    "baseline-0-attribute-heavy-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-attribute-heavy-name.json",
+      "sha256": "d8236a48477bf55efa0ef157c1c19ea21de0b647b2dda3bd556ea5f8df8ba716"
+    },
+    "pilot-0-H1A-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-0-H1A-lookup.json",
+      "sha256": "a2811aa72b8b00b8f7b2095dfdc41d06d8f226816679b2f629a47e8e7f7b5ee9"
+    },
+    "baseline-1-mixed-utf8-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-mixed-utf8-name.json",
+      "sha256": "d6295179c4a23a916ddf87f4a9375b1fdd9e205d7313d83ff548833520bda7b2"
+    },
+    "build-manifest.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/build-manifest.json",
+      "sha256": "62ab9e2cf8a05f51691e6dfd27b7f4480ee085d025ca0fd22babe2335d2d83e9"
+    },
+    "codegen-summary.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/codegen-summary.json",
+      "sha256": "fad31a32518cca04c0d5f289171a087b604ceff1835f9f344711c2da8233b513"
+    },
+    "baseline-3-attribute-heavy-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-attribute-heavy-lookup.json",
+      "sha256": "775cbf49526618f350fc18d25638c08929d5a6ac223c42218bd2057ab27fc82f"
+    },
+    "baseline-1-catalog-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-catalog-full.json",
+      "sha256": "d37d0898d2435c92531ab111ea93478e93f843c9e3e40b33053c1957f9e604c0"
+    },
+    "H1B-parity-final.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1B-parity-final.json",
+      "sha256": "cea80e560368332bbc20feb8c9c8f60e09f559b7fa41eb0f3d4a70796f43f745"
+    },
+    "baseline-4-attribute-heavy-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-attribute-heavy-type.json",
+      "sha256": "fa16c5730a61252474f0c6c96f1af4f4f055e2244ecf7759d8c18f087aedb570"
+    },
+    "baseline-2-catalog-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-catalog-event.json",
+      "sha256": "94bb54bb1099a3589b5f493ca7447fcd761c5171656ccf1adb3b571e7f4e4bf7"
+    },
+    "baseline-4-mixed-utf8-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-mixed-utf8-event.json",
+      "sha256": "07b8fe1b00fd763e651c430d80bf7891d18cec8898d90e473b9cc445646aba80"
+    },
+    "baseline-2-midsize-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-midsize-event.json",
+      "sha256": "983637c87fdc968bf47bb4631f7c5b609a0ce8ca7d9cd7698fd0b3b6c5d289da"
+    },
+    "series-raw.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/series-raw.json",
+      "sha256": "6823c52c441aa47f9f6423f08f6068dc75d556cbb6651d7e4e636fa411a09f03"
+    },
+    "baseline-2-attribute-heavy-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-attribute-heavy-event.json",
+      "sha256": "009a50264ecaf083f1962e4967be162125f74a5e6ddb2a49a0767ae0e4d94b1b"
+    },
+    "baseline-3-midsize-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-midsize-name.json",
+      "sha256": "8d806ed97e7e578a998769dc2036ba4b2878a37af2e85472a1c464db08bfedb1"
+    },
+    "H1B-w3c.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1B-w3c.log",
+      "sha256": "1c6dee443be7bac18f54b052b36c0e823197de378c64dce7b5086f13d7a74323"
+    },
+    "H1A-parity.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1A-parity.json",
+      "sha256": "cea80e560368332bbc20feb8c9c8f60e09f559b7fa41eb0f3d4a70796f43f745"
+    },
+    "baseline-4-catalog-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-catalog-full.json",
+      "sha256": "086746dbf9e1ab9b62f425a516cf56484f7f8e62633cc83e0aa1777a78751ffb"
+    },
+    "baseline-2-large-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-large-event.json",
+      "sha256": "b7c324389be18b5f44743b8f6f7582e73331b0cedbbd6b797f894673c71c73c1"
+    },
+    "baseline-1-mixed-utf8-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-mixed-utf8-lookup.json",
+      "sha256": "a9694a9b913cceba9f3d26c18cee1ccbfcb3e37feb740a35ac883d6d5b8950fa"
+    },
+    "bench.py": {
+      "source": "/tmp/stax-attribute-hash-20260913/bench.py",
+      "sha256": "9379f87629f57239e9e1828bf991fca0f6a529356e3e5da6c8da2876e30e9d4c"
+    },
+    "counts-large-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-large-type.json",
+      "sha256": "89f4cec103a351f97d58a54c5b4687d6240e0b7fd6a4dbaff9084ddddc808eca"
+    },
+    "baseline-4-catalog-converter.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-catalog-converter.json",
+      "sha256": "a214f3ae6348b4cf89817cf5c46cc96b93b1d789e533921dceb4f4a4deab0de9"
+    },
+    "baseline-4-large-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-large-lookup.json",
+      "sha256": "b2be51debaa38389a629e4dcd088ee0553117faf1c725eace578d3515a0c1e7c"
+    },
+    "profile-R1-midsize-full.cpuprofile.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/profile-R1-midsize-full.cpuprofile.log",
+      "sha256": "a0bef3be1651a880f858777aeef2696028498c7884359fa97b37c57a2f659cd8"
+    },
+    "counts-midsize-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-midsize-full.json",
+      "sha256": "88f8c024d9aa148fb0abc81a594e20d1cfc949037991d8d28e47e497224dbb63"
+    },
+    "counts-attribute-heavy-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-attribute-heavy-type.json",
+      "sha256": "609ee3ba97cade95a381218c8d3c0200d85ed09104c711e72498c74b84c3c26f"
+    },
+    "baseline-0-midsize-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-midsize-type.json",
+      "sha256": "886fc5adf0a8c699db28ba9e113bd1a1e9a01e8a42450fe94418ce78c841201d"
+    },
+    "primary-raw.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/primary-raw.json",
+      "sha256": "f2e7fae18ff9eb20d2894276eb6514588a8c1ef40e4ade6aa710dd12520976d9"
+    },
+    "workload.mjs": {
+      "source": "/tmp/stax-attribute-hash-20260913/workload.mjs",
+      "sha256": "6b57e63489f337b0e4b170cd5e79d6d8d8662f3b7e1bba249167952eb1ebb344"
+    },
+    "baseline-1-large-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-large-full.json",
+      "sha256": "78c1e3f74f0b21378882e536b838ffa083d3826f3d2f3582cd82e415505c1f68"
+    },
+    "baseline-3-midsize-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-midsize-event.json",
+      "sha256": "e8bf6f56b47c138f9515c853bb37ed009e1d487e326792cd220c5c3bca6ac803"
+    },
+    "baseline-2-midsize-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-midsize-full.json",
+      "sha256": "0651d751876ad0e4eaa8e6e2b8afbeeb13a1524ad13ee3ae603a72f008cf40eb"
+    },
+    "baseline-3-catalog-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-catalog-event.json",
+      "sha256": "d1b7261aa9be37a7312ca6219a1b83d4249a9a7bc074c8a8e19cfc7564451217"
+    },
+    "final-R1-build.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/final-R1-build.log",
+      "sha256": "28236f1554b6ec5188c517deeb7ac37c73bb3e093d667d71e77a825f0203d652"
+    },
+    "R1-baseline-raw.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/R1-baseline-raw.json",
+      "sha256": "cefe4d42a0ffc72471ed4eb13718e9123783e66472246e66c4fedf90ee80b965"
+    },
+    "baseline-2-mixed-utf8-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-mixed-utf8-name.json",
+      "sha256": "3021a60c42852fd1678bdbf941d4e2a05c712c4bbf8973b0978b92eaa3b4f538"
+    },
+    "baseline-3-large-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-large-name.json",
+      "sha256": "cfe0f82b27259d7434a6c753b6b14bdf9e339a753482d60f55813c72cabcc1de"
+    },
+    "baseline-1-large-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-large-lookup.json",
+      "sha256": "8dd9b172baac160b257ac8f437a4d877550b3720a27659f920d45745eeea4ad3"
+    },
+    "baseline-3-catalog-converter.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-catalog-converter.json",
+      "sha256": "e74f1bdfec58dc60b0429742b6d63b59ac4aba29893e4c21574c39cf1bee2f37"
+    },
+    "baseline-3-mixed-utf8-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-mixed-utf8-event.json",
+      "sha256": "05c30dbca54d0ddef90fc1dd16ce05d4f17c594cfd25d1552e9b42cbdb58ec2d"
+    },
+    "headroom-counts.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/headroom-counts.json",
+      "sha256": "7213e1636cc4bdc3f80ff80c0accb9f670e2e1a5d23eb29bcbf9e81f70fd9230"
+    },
+    "R1-release.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/R1-release.log",
+      "sha256": "eb580e666d259c58ede840358bd320f0394ab8fa589a95a9484b927523a7b387"
+    },
+    "profile-R1-attribute-heavy-full.cpuprofile.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/profile-R1-attribute-heavy-full.cpuprofile.log",
+      "sha256": "69dcef32158f50a6f6298e9aa8bcdb9a29ed8ba625bb349996d023ae446776e2"
+    },
+    "baseline-1-attribute-heavy-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-attribute-heavy-name.json",
+      "sha256": "d2c1e98d358fbcd9bb08f8689792dbbc62077dd29d154237cf2bc2162d1902d1"
+    },
+    "baseline-0-attribute-heavy-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-attribute-heavy-lookup.json",
+      "sha256": "aff09306224b75fce7b4ac3fb17c15e53615b983ebd53b2548e3259f14220c59"
+    },
+    "H1B-profile-full.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1B-profile-full.log",
+      "sha256": "b753962cfd34d651931b64bbbbd8f15ea1878f09dc07a5c98e594718837d7722"
+    },
+    "baseline-1-mixed-utf8-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-mixed-utf8-full.json",
+      "sha256": "8e06808ab477412a7611e7799b5278f5d2c8bbbf57fa035db11a975b1227ff5c"
+    },
+    "R1-long-headroom.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/R1-long-headroom.log",
+      "sha256": "507908dc2f911df41758b2b0e0887bf99858b68edb8f02ce869b29d4767563e8"
+    },
+    "H1A-diagnostic-build.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1A-diagnostic-build.log",
+      "sha256": "3daf2b7924d02310a31ffb1a850bac32745f3351713a2de34b2abce41d79c5bf"
+    },
+    "closest-prior.txt": {
+      "source": "/tmp/stax-attribute-hash-20260913/closest-prior.txt",
+      "sha256": "25c7fd0ba42d25d3e18eb91fdf0d1130d3229dfa81813205a9c36a0fd2233852"
+    },
+    "baseline-0-catalog-converter.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-catalog-converter.json",
+      "sha256": "b52d451365fb12a179372e596dd522332709a24f7d757e3cb0298f0765011c6a"
+    },
+    "aggregate-gates.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/aggregate-gates.json",
+      "sha256": "3d6007a56e561b87d3a52d0d09bc7d0997ab33a4d8f9e886ffe3b8eb1fa2c5bb"
+    },
+    "baseline-0-large-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-large-type.json",
+      "sha256": "e7d03da659c924acd632d1ded358dc8294983f008609f8f7710689105d6e876a"
+    },
+    "baseline-0-mixed-utf8-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-mixed-utf8-type.json",
+      "sha256": "27712252a25fa29bdd67e6648815970b35794ccb90652b79f8393e918e25dc75"
+    },
+    "baseline-0-catalog-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-catalog-event.json",
+      "sha256": "ab9984056a0b619ce3b8adf6c176c611677486c02da3c3f3ebb40e29225a0a93"
+    },
+    "baseline-4-mixed-utf8-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-mixed-utf8-full.json",
+      "sha256": "f9630bc96046980bf9850e39ddcaf816c679448ccb0db824fe3c7ebdab36f10a"
+    },
+    "baseline-0-midsize-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-midsize-event.json",
+      "sha256": "09090899713882d030dbacbee6789dd9340bcfc59728d287b1111c454a27b27d"
+    },
+    "baseline-4-large-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-large-name.json",
+      "sha256": "45ce9fd417de80ec13e00b65082ebaf8ab3931e9902353225e1e200209050e95"
+    },
+    "baseline-0-attribute-heavy-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-attribute-heavy-full.json",
+      "sha256": "844ee0d6edc08b4705633f075dc835f722ddd6f3ab86d6899ba451dd4b2fd27b"
+    },
+    "baseline-1-midsize-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-midsize-type.json",
+      "sha256": "5ea439db5215372204bbed45c87aebbf4579a38e6f41baecc5363b7beca06f08"
+    },
+    "pilot-2-H1A-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-2-H1A-lookup.json",
+      "sha256": "702f7ce43e423d99823e86a2cbf3feb45cea67674d951c84653ff6394361c9d6"
+    },
+    "baseline-1-large-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-large-event.json",
+      "sha256": "a2f0703186a76a4d5bc4625785512c6d42a83c887f524c322086657b7179ba5c"
+    },
+    "counts-attribute-heavy-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-attribute-heavy-lookup.json",
+      "sha256": "817ba7a96d2ace89dee37785fdf82d1a8f7d3dcca1b1177256481ecb03a2ab9a"
+    },
+    "baseline-3-midsize-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-midsize-full.json",
+      "sha256": "91576289916bbeefb6d8ce417b740b037a1df9ce3dd3ee56670fb02e53cc293e"
+    },
+    "baseline-2-attribute-heavy-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-attribute-heavy-type.json",
+      "sha256": "fbba127b735e9890ba8874b6de21afd07b500d795ed7fb2cde715034c2b18e75"
+    },
+    "pilot-2-R1-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-2-R1-lookup.json",
+      "sha256": "a0cecffdaa03d4698a628dd40c06c7a303f47eaf95ce2ebce8fe7d2f860e78c5"
+    },
+    "baseline-0-attribute-heavy-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-attribute-heavy-event.json",
+      "sha256": "39a2f191156e6976f3ddb25f6710dc8ea2e3b426d83a43b76cc21becc1baf0ee"
+    },
+    "parity.mjs": {
+      "source": "/tmp/stax-attribute-hash-20260913/parity.mjs",
+      "sha256": "93f2dfe6c5243b0d64329b7c1b0f26c4e405dd7ced996285663a93c84e68eaa0"
+    },
+    "baseline-0-large-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-large-lookup.json",
+      "sha256": "3243f477816f01163e1a046e86aac151165645104280c35299b266d6a4d26a25"
+    },
+    "primary-raw-analysis.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/primary-raw-analysis.json",
+      "sha256": "c2753b38adcbc8014bac4e5786c3cf4f8731921efbd48aea9d72eddf9fb54f49"
+    },
+    "counterfactual-attribute-heavy.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counterfactual-attribute-heavy.json",
+      "sha256": "d6459a38833c47f863417bd2304d9b1c87edab9bd71c1c6946feefab830f212c"
+    },
+    "protocol.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/protocol.json",
+      "sha256": "fa3478584bd646ab08f5ba7641a304f570ab120cc8fdbf510eba51539caeb594"
+    },
+    "series-raw-analysis.csv": {
+      "source": "/tmp/stax-attribute-hash-20260913/series-raw-analysis.csv",
+      "sha256": "f46f0de36b37c418781ed3c33a372088fe62d40ce6dbed82467a22f96a422581"
+    },
+    "H1B-source-ticks.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1B-source-ticks.json",
+      "sha256": "59d736a8fc030064aced6d3270e538848aa9a96d7b603ff7f927e6040947e583"
+    },
+    "H1B.patch": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1B.patch",
+      "sha256": "936ef080ceedf4acccb59b32c3adddd688fb82ae406989c222a6ca814ebc92fd"
+    },
+    "fixture-inventory.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/fixture-inventory.json",
+      "sha256": "994614972070d7f3a15b65d497266ab8a31d58b3077c23ee284bd8ebc0666242"
+    },
+    "R1-coverage.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/R1-coverage.log",
+      "sha256": "8d6ff78ac22be949edf3c58db012e8bc8de88d5ed59d6ace560e053c7b3bf797"
+    },
+    "lookup-headroom-source-ticks.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/lookup-headroom-source-ticks.json",
+      "sha256": "1e828694dfa45381b919eeb5e789b4ac7184e8c66e57db896e30a1a387ce9565"
+    },
+    "node-version.txt": {
+      "source": "/tmp/stax-attribute-hash-20260913/node-version.txt",
+      "sha256": "f2ec568164f99546161909b0189b57bb5be3e80f8e2ccd8a51a4aed8c4055a04"
+    },
+    "R1-imul-full.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/R1-imul-full.log",
+      "sha256": "4e085a0a0ba7c4c42c30346b34da027488fd6e2a679bc12c52fe5e4afcb86b25"
+    },
+    "profile-R1-mixed-utf8-type.cpuprofile.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/profile-R1-mixed-utf8-type.cpuprofile.log",
+      "sha256": "bcf92b85448e6abfab24a50a9ec19ba164a4006e5a0502c6db777161008aaafc"
+    },
+    "R1-profile-summary.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/R1-profile-summary.json",
+      "sha256": "d05cd6a16d72c3610a9360f83595d85e27cae8c9c47dd8fb4dcd4ba2d13e2032"
+    },
+    "baseline-4-midsize-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-midsize-type.json",
+      "sha256": "960505e88977e83495bdd47df7ea5b7664e7d6f8dd4a84209c3767f733b5e068"
+    },
+    "baseline-1-mixed-utf8-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-mixed-utf8-event.json",
+      "sha256": "34209edab2f874cf85afc1bbfba06354b8666093718275ae6cb8e56dc62840d7"
+    },
+    "width-series-counts.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/width-series-counts.json",
+      "sha256": "46b9eb3106d5a7ed175b8ea89bf7e2a3f5817609d7b7718ac6a410e0b681b524"
+    },
+    "baseline-3-mixed-utf8-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-mixed-utf8-name.json",
+      "sha256": "d8a9404bbb9886685a017a5926f56406e5bd589123ba08a426627567e24349cd"
+    },
+    "pilot-0-R1-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-0-R1-lookup.json",
+      "sha256": "912533824ebf1e8e9d1d9ee7daa70d8df082bc35ce4c0fa00b99f228216f3178"
+    },
+    "baseline-3-midsize-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-midsize-lookup.json",
+      "sha256": "2e8f5bf1cdda402abea6323c968d25bd6b0d369110bb101ea1b0ccfa5d2c7aa4"
+    },
+    "R1-fixture-validation.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/R1-fixture-validation.json",
+      "sha256": "cea80e560368332bbc20feb8c9c8f60e09f559b7fa41eb0f3d4a70796f43f745"
+    },
+    "pilot-raw-analysis.csv": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-raw-analysis.csv",
+      "sha256": "9d5eac124f8c729519b0a26eed4f45c4158cb6413d2b2f13138a573066be654c"
+    },
+    "counts-midsize-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-midsize-event.json",
+      "sha256": "32bd880089ed32b11b44fd5594f3f819033b127ad74ba837a16aa4f2ffed7ca0"
+    },
+    "profile-R1-large-name.cpuprofile.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/profile-R1-large-name.cpuprofile.log",
+      "sha256": "adb15cb9116a8c106709fb4078a11c3aea3521c27c21e7fbf66837e367d7e554"
+    },
+    "headroom-decision.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/headroom-decision.json",
+      "sha256": "ae7026a0af25af8979c0614bdeb777d25e87c0b1bfb6088f72c5c6a1761623d9"
+    },
+    "baseline-2-midsize-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-midsize-type.json",
+      "sha256": "2229dd04a3c1c2ef0138788271945f278635b56168949c034ee47372853b34bf"
+    },
+    "series-analysis.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/series-analysis.log",
+      "sha256": "3048c485c894acc470f9c1ca16b3f1aaa663b65fe46afa5b49d7e6b632836560"
+    },
+    "baseline-1-large-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-large-type.json",
+      "sha256": "94bc1b337c7faa75defe098615618ad1bc2baab113af5369443e436484e49b84"
+    },
+    "baseline-2-midsize-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-midsize-lookup.json",
+      "sha256": "5d293f4ef5b4af2db075ce9c0745b5bbd40495fcdab94486935303a2a877e01c"
+    },
+    "baseline-1-attribute-heavy-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-attribute-heavy-lookup.json",
+      "sha256": "7c39db1249d7dc421b799e7cd23e47ac04bd74564b204789741fd0a1f0ba266f"
+    },
+    "counts-midsize-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-midsize-lookup.json",
+      "sha256": "f5977f487dc07fdf42c7b1a2d2f6379a3def2aa63cad5cd8d383e17f5bd4e629"
+    },
+    "HeadroomReview.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/HeadroomReview.json",
+      "sha256": "86db3de8c17020fceade7d7d7347823c7eee8f53202d91f0bd2eff368601bf86"
+    },
+    "baseline-0-midsize-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-midsize-full.json",
+      "sha256": "65db3863cbc893a91b761bad95eebe2197f614e61f6cd792fcede7c681330729"
+    },
+    "instrument.py": {
+      "source": "/tmp/stax-attribute-hash-20260913/instrument.py",
+      "sha256": "be5c4dcf9d750e9ec8205662bbe5119929910124df053fefd88b4d17e6ec44c9"
+    },
+    "profile-R1-mixed-utf8-full.cpuprofile.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/profile-R1-mixed-utf8-full.cpuprofile.log",
+      "sha256": "a4b3a192ca989594647722081ccaaccca670586ade267d12b550470306411443"
+    },
+    "instrument-build.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/instrument-build.log",
+      "sha256": "11fdcb8156a2f738de882c9f3736a6cd4dfe49eff3040a0b5d54980e0a4ae1f4"
+    },
+    "counts-attribute-heavy-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-attribute-heavy-full.json",
+      "sha256": "15fe1dd1609a094ee1a0f15e9158b6278b97af52fb99a25a68123c2a8e25cd74"
+    },
+    "H1B-build.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1B-build.log",
+      "sha256": "28236f1554b6ec5188c517deeb7ac37c73bb3e093d667d71e77a825f0203d652"
+    },
+    "CodegenReview.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/CodegenReview.json",
+      "sha256": "1127f1f1f78dc0104193834e655faab9e9fbc422ffb0d079f08b707973168e6c"
+    },
+    "baseline-1-midsize-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-midsize-lookup.json",
+      "sha256": "fe8bcc9e650c4829d4807f1a13a42e5cc50e342e4c1ba7850561c8ebafd85e72"
+    },
+    "baseline-3-large-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-large-lookup.json",
+      "sha256": "ccbef3e73a653a7d55068b9d4eb1dc91a96f78d7849964504f654af1094361cb"
+    },
+    "counterfactual-midsize.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counterfactual-midsize.json",
+      "sha256": "2e05e7d808df214dfa3908beca961ea63f9af7c95676f99f694dc32472ae7dc2"
+    },
+    "pilot-0-R1-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-0-R1-full.json",
+      "sha256": "9920d5516a6f682cf7030a00b91a6319f9b0fb9de5da67e699feef463d0cdd4d"
+    },
+    "counts-midsize-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-midsize-type.json",
+      "sha256": "816819ed9ffff06e84dc4c6a63d3a15f0e31d9ee3a4a20a0ed58ef43eb14b0ef"
+    },
+    "baseline-1-attribute-heavy-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-attribute-heavy-event.json",
+      "sha256": "f98afdd02afe349a19cea64893e19b7c562315b4a1dbd98f1e011611fdc83241"
+    },
+    "counts-large-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-large-full.json",
+      "sha256": "e0bd92f4ee10fc35ee2210d9d2fef8af2ee953a595a73e7c0d5bc90a21acbd6e"
+    },
+    "baseline-4-attribute-heavy-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-attribute-heavy-lookup.json",
+      "sha256": "5151caa910732c2d42b829ee62a33dc40ab06a8cc4c039f7f85cc4ba43b968d4"
+    },
+    "baseline-0-midsize-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-midsize-lookup.json",
+      "sha256": "f0bf2c4a8e4ed7220b28aef8dd797132f05b39294844a697c8dcc55c8a79be0e"
+    },
+    "H1A-source-ticks.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1A-source-ticks.json",
+      "sha256": "0acba0ba560e8407cce9a51974397351c8e9c7a60645e47edf465239b4a69f5f"
+    },
+    "counterfactual-large.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counterfactual-large.json",
+      "sha256": "088f5a0963b610cf471e77f321e2faacc21d7464b2d790cb67eeee4e07a14a18"
+    },
+    "baseline-4-large-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-large-event.json",
+      "sha256": "0c888f3d804ac7480e891fbb2600bcd641e169ab92cb9a5ece51b4835a6632b8"
+    },
+    "R1-imul-lookup.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/R1-imul-lookup.log",
+      "sha256": "3ad96d1b05d7e989e0e1f9dbfba1cec295bd5aab2c97ec92350c2288b051de64"
+    },
+    "pilot-2-H1A-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-2-H1A-full.json",
+      "sha256": "3475fa7dbfb41234df97fa5ab842f0773363c2259e99e3895c3440f3ca3e7977"
+    },
+    "baseline-3-attribute-heavy-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-attribute-heavy-name.json",
+      "sha256": "23569b0e3c3c4a2e8a214e65ea999265fc7f94b155022ff97506a69ae5a1b1df"
+    },
+    "baseline-1-catalog-converter.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-catalog-converter.json",
+      "sha256": "113626990ec4b010ae4575569c6d60d94db763413a5342e8a2cd65ffaf0c6e33"
+    },
+    "baseline-0-large-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-large-event.json",
+      "sha256": "c17183a4865460acfd01ac77368e836bb94943f9076b013b92ca7ef1e5d41e40"
+    },
+    "H1A-long-headroom.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1A-long-headroom.log",
+      "sha256": "e76d00ecba2f3190f6f17b94e1e856516f6a5cb0cafcc9b43a433dc51260adc4"
+    },
+    "baseline-4-midsize-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-midsize-full.json",
+      "sha256": "a335ebb4586809f1d038ace0c0e1c7c01356c36a0d12323e91fe3fcef9590331"
+    },
+    "baseline-4-attribute-heavy-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-attribute-heavy-name.json",
+      "sha256": "fcb9b45227f76459c70133a861d5e7ee022b5ccc2b194146e2042a0befb3d9b0"
+    },
+    "profile-R1-midsize-type.cpuprofile.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/profile-R1-midsize-type.cpuprofile.log",
+      "sha256": "1bd1de5337f7f92501b665fa576b95698b435d6a5c0f70734263f5185a90756c"
+    },
+    "pilot-raw-analysis.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-raw-analysis.json",
+      "sha256": "0cdf68fb05969e857198877ad45c2e1cae8bd602660a913c103dda11c2d36879"
+    },
+    "counts-mixed-utf8-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-mixed-utf8-lookup.json",
+      "sha256": "7dc180bf91710927d1971a7ad08add99a637553855ab006ece1aebeb959ef414"
+    },
+    "H1A-coverage.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1A-coverage.log",
+      "sha256": "7f575b33cd623b09c0d296b6bade2c27e5d2e0ed13690cb77744735d762777fe"
+    },
+    "baseline-2-catalog-converter.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-catalog-converter.json",
+      "sha256": "b6f356ad90a0a39be0ebc2956c9f9f26a823dff46985304421079f642270a886"
+    },
+    "duplicate-series.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/duplicate-series.json",
+      "sha256": "5ccbef5efe084bea60a336fd791e53e1a79a4266b060bd2e8c1a91c0bbb3a587"
+    },
+    "pilot-analysis.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-analysis.log",
+      "sha256": "d82bf12f91c63d509105ffe71b6b851d40797c56defee8aec728f86f20bfbb20"
+    },
+    "baseline-3-midsize-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-3-midsize-type.json",
+      "sha256": "468f8005301547dc450c72bc00c44406ee733527e9ef86e06a0f43af621c496f"
+    },
+    "H1B-imul-lookup.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1B-imul-lookup.log",
+      "sha256": "f3c9b603e20a68baabbdd406f5e513b47820946a3c46853e503f62d31d6758c0"
+    },
+    "counts-large-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-large-lookup.json",
+      "sha256": "c0a58f012cc3268cfac242a591a7514719d1c7339df72b024e6000fb4185261d"
+    },
+    "baseline-2-attribute-heavy-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-attribute-heavy-full.json",
+      "sha256": "466d7ba33746f43779dd93f41f07ecb16818bd6b7449464dfa9a87bba5e91014"
+    },
+    "counterfactual-build.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/counterfactual-build.log",
+      "sha256": "11fdcb8156a2f738de882c9f3736a6cd4dfe49eff3040a0b5d54980e0a4ae1f4"
+    },
+    "pilot-1-H1A-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-1-H1A-full.json",
+      "sha256": "25079310779cd4f1815e654679ec07ffaa5a80c86200a8ee421c0d8d6dfedd94"
+    },
+    "counterfactual-mixed-utf8.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counterfactual-mixed-utf8.json",
+      "sha256": "f1e813de1c2da694f918eb84cc4ee4afcf449ce454a4c5c02fc839fad92b6176"
+    },
+    "baseline-1-midsize-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-midsize-full.json",
+      "sha256": "cc2a75014fe76aab95fc54af43581ec545c405992383d1ba34cd997e91e37119"
+    },
+    "profile-R1-attribute-heavy-type.cpuprofile.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/profile-R1-attribute-heavy-type.cpuprofile.log",
+      "sha256": "8277c0872b0cd5a1c98438d1710d9dbc0f4cf561990d4cd2f344b0ae881415ae"
+    },
+    "baseline-0-attribute-heavy-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-attribute-heavy-type.json",
+      "sha256": "c2e5c02ec40546f39b49b840bed3259102e516c8dbe0f30b8ed9c9ba3ed08b9d"
+    },
+    "analyze.py": {
+      "source": "/tmp/stax-attribute-hash-20260913/analyze.py",
+      "sha256": "3d1df852ef006cb59caf555c98cecf92edb8e0b3b2c615e55d5d45b94a2d5b66"
+    },
+    "H1B-profile-lookup.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1B-profile-lookup.log",
+      "sha256": "453eb0a90a66ffafabc6f3d723069ca0db5d59b9b05e2c14f17e08a56ae9a296"
+    },
+    "R1-build.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/R1-build.log",
+      "sha256": "993a9b17aa41be0937c594190c95eaba6b7d1d102fbe5d234d27a1f51cb62929"
+    },
+    "counts-mixed-utf8-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/counts-mixed-utf8-name.json",
+      "sha256": "9e3a7259866df5b24969172ed087b0f57a815c318820cff6e231ff0882069720"
+    },
+    "H1A.patch": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1A.patch",
+      "sha256": "d2a3e2e696997506e395a998a8fc2c0df675ae30208f738a8b166cc3b29b4b79"
+    },
+    "baseline-0-large-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-large-full.json",
+      "sha256": "049b75ea7360ebd5a50ab7fcf0f170eded04bde7c10994fe1b631075dfeb6ec2"
+    },
+    "baseline-4-midsize-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-midsize-lookup.json",
+      "sha256": "28622f66aee7a0978c53c5c5e6f08b1e793bc0a8aa0e3eb775a7e7b7f9bead86"
+    },
+    "baseline-2-large-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-large-lookup.json",
+      "sha256": "2eed309ae38a3d062738748cf6f9702ef03e33de712646aa159db54f6c690511"
+    },
+    "baseline-4-mixed-utf8-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-4-mixed-utf8-type.json",
+      "sha256": "76fb3a812e1bdc8c55e9f6a62aa2f75766f7726e24a249bb2c118203dac5dc2e"
+    },
+    "R1-opt-code.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/R1-opt-code.log",
+      "sha256": "7d376d33dda32821110d2f4c79104ea391566e4394cc6a463f3c51bec538fc37"
+    },
+    "baseline-2-large-name.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-2-large-name.json",
+      "sha256": "e7ff348dcae80dde3806db2bc1e8d2347c13958b545b56bd274e58a24d42d885"
+    },
+    "baseline-0-mixed-utf8-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-0-mixed-utf8-full.json",
+      "sha256": "9637de41df7bd957000801e40dcde37c9a24c48417a54234ec8c8d1c6edfe78e"
+    },
+    "pilot-0-R1-event.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-0-R1-event.json",
+      "sha256": "0e5d1f2308f33df96b6d15ec235e821baeed739b21c5936d3d6f092316dbbe90"
+    },
+    "R1-w3c.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/R1-w3c.log",
+      "sha256": "1c6dee443be7bac18f54b052b36c0e823197de378c64dce7b5086f13d7a74323"
+    },
+    "pilot-1-R1-full.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-1-R1-full.json",
+      "sha256": "b7e9e258052f24e3f3bcc81a75c9dbec60a92915f20d3d7ca23dcb5d0eff5ca9"
+    },
+    "baseline-1-mixed-utf8-type.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/baseline-1-mixed-utf8-type.json",
+      "sha256": "f784325cd342a607a75b60666abecdf72c4ce634ab04adcf0b1b89112c0d3e42"
+    },
+    "R1-public-smoke.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/R1-public-smoke.json",
+      "sha256": "590855b93546b566eae65f1ab87c4292e68abbd1969bc85aa726feec0071b18d"
+    },
+    "H1B-diagnostic-patch.log": {
+      "source": "/tmp/stax-attribute-hash-20260913/H1B-diagnostic-patch.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "pilot-raw.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-raw.json",
+      "sha256": "b22e21f86b38bd28591b08e8b2ec93dd93ad903097bd157959472b9592a1445e"
+    },
+    "pilot-1-R1-lookup.json": {
+      "source": "/tmp/stax-attribute-hash-20260913/pilot-1-R1-lookup.json",
+      "sha256": "b35ef2d5a71d8283275a8d52f9bb97feb9ff03abe12f410080dbb67a6512460d"
+    },
+    "profiles/R1-attribute-heavy-event.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/R1-attribute-heavy-event.cpuprofile",
+      "sha256": "a422063eb1e673ba8a5be7e1edf62b14fbc6b1c86ea8b71e95652be1f741939f"
+    },
+    "profiles/R1-attribute-heavy-name.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/R1-attribute-heavy-name.cpuprofile",
+      "sha256": "1ac4741fc80e82f795e29b183bccd94cad36dbc32ae3d58c3a7f58d5225b9012"
+    },
+    "profiles/H1B-attribute-full.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/H1B-attribute-full.cpuprofile",
+      "sha256": "5be33396c499e379c8909f7d9078acf164286d2d51c36c7a0602645167857083"
+    },
+    "profiles/R1-mixed-utf8-full.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/R1-mixed-utf8-full.cpuprofile",
+      "sha256": "b49c19c307ad89d814fe87aafddeaf6604023dd86b54e918ae716cdf674ce7fd"
+    },
+    "profiles/R1-attribute-lookup-headroom.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/R1-attribute-lookup-headroom.cpuprofile",
+      "sha256": "b5a695710e224d76e4bb0ef85f0bc80c16af18a6a4345093595486c63bd68dd3"
+    },
+    "profiles/R1-large-event.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/R1-large-event.cpuprofile",
+      "sha256": "6b655acdfd9051cfa7f3a132559e81225e88ca67eea1ebed1791b246825bc8e7"
+    },
+    "profiles/H1A-attribute-headroom.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/H1A-attribute-headroom.cpuprofile",
+      "sha256": "0252d92e439a311cd4a5c43721ac396830c352b248790cca6dc78844ce211030"
+    },
+    "profiles/R1-attribute-heavy-type.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/R1-attribute-heavy-type.cpuprofile",
+      "sha256": "b1ac0f70add2d53918fa5e4dd5a294ad97a19cce2d32a98ea5ac51d4fea306a1"
+    },
+    "profiles/R1-large-full.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/R1-large-full.cpuprofile",
+      "sha256": "ba7d7489db7458eb7c0848bdf86ba2ca32adeb33a709fc0fc7293a4855a91b28"
+    },
+    "profiles/R1-midsize-full.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/R1-midsize-full.cpuprofile",
+      "sha256": "023315417ebbae1f096cc10de914db503fb6a766f2e44cbcc851faa153794a85"
+    },
+    "profiles/R1-attribute-headroom.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/R1-attribute-headroom.cpuprofile",
+      "sha256": "5c2998ed3a179c75a6f525f424caa1845e5b4185fa6e99162f3d82ec93366007"
+    },
+    "profiles/R1-mixed-utf8-name.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/R1-mixed-utf8-name.cpuprofile",
+      "sha256": "f73ee3bdaee9728cd001abed9e4b3590e0216726ed4455661c7e7f746b147255"
+    },
+    "profiles/R1-midsize-name.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/R1-midsize-name.cpuprofile",
+      "sha256": "fdc013807c067559faf889788d122c43b49658090c2fc0f5d955b9bb7f51dfd3"
+    },
+    "profiles/R1-large-name.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/R1-large-name.cpuprofile",
+      "sha256": "bfefd4dce41caf404cddc207de2d3ad9f3f637b5366248eed47a030fc677d927"
+    },
+    "profiles/R1-midsize-event.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/R1-midsize-event.cpuprofile",
+      "sha256": "62187ed56946a9ec9e5a6d5b453cc981cf2077f107297bb2a512d2f114765197"
+    },
+    "profiles/R1-mixed-utf8-type.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/R1-mixed-utf8-type.cpuprofile",
+      "sha256": "962e1ea208829fd9ad036cf8b9ec14492e42e0a6a5999c82db136ee0d5da92cf"
+    },
+    "profiles/R1-catalog-converter.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/R1-catalog-converter.cpuprofile",
+      "sha256": "240a1d375d4edcc48b1115dc6ba9a51ab6035b8f0ccaa1c00f42fee076bddad6"
+    },
+    "profiles/R1-mixed-utf8-event.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/R1-mixed-utf8-event.cpuprofile",
+      "sha256": "a55ad3da97f6c8fa2403a5cf398015aabf8060274bd44d141b610c9ae69aed6b"
+    },
+    "profiles/H1B-attribute-lookup.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/H1B-attribute-lookup.cpuprofile",
+      "sha256": "adf56ed03ffd75f1836663d44714f5e11a625fbfb8628968c9ebec5d9127f993"
+    },
+    "profiles/R1-attribute-heavy-full.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/R1-attribute-heavy-full.cpuprofile",
+      "sha256": "ceea018c6bc88213b3ed9d99e370874fff3fe01efbca7282d08297888d82f548"
+    },
+    "profiles/R1-large-type.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/R1-large-type.cpuprofile",
+      "sha256": "3f1f7633e89212e97103ee66bdf21c2de7b08ae37309b1ef4c6487becb16a560"
+    },
+    "profiles/R1-midsize-type.cpuprofile": {
+      "source": "/tmp/stax-attribute-hash-20260913/profiles/R1-midsize-type.cpuprofile",
+      "sha256": "cdbc02f019f6c16bd269496fbd8aa5e983fc6e53a1cacde0accc197056c26f17"
+    }
+  },
+  "generatedInArchive": [
+    "README.md",
+    "gates.json",
+    "fixture-hashes.json",
+    "manifest.json",
+    "SHA256SUMS"
+  ],
+  "deliberateOmissions": [
+    "Rebuildable minified and diagnostic dist/source directories",
+    "Regenerable synthetic XML and repository large XML assets; fixture-hashes.json identifies bytes",
+    "Secondary runtimes not run after primary rejection"
+  ],
+  "unavailable": [
+    "Previously unavailable historical research ZIP",
+    "Overwritten incidental preliminary harness diagnostic outputs, as disclosed in README"
+  ],
+  "rawSampleCounts": {
+    "primaryProcesses": 1350,
+    "seriesProcesses": 2475,
+    "coldProcesses": 27,
+    "duplicateCases": 300
+  },
+  "preservation": "Append-only new entry; no previous experiment files modified"
+}

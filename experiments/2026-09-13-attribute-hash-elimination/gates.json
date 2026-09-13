@@ -1,0 +1,63 @@
+{
+  "decision": "NO-GO",
+  "correctnessFix": "adc2cb7d0a64152725a5c43b2233676a79fec646",
+  "R1": "adc2cb7d0a64152725a5c43b2233676a79fec646",
+  "candidates": {
+    "H1A": {
+      "cases": 34,
+      "ratio": 1.1293089401137626,
+      "lo": 1.1090604604877798,
+      "hi": 1.1533025619841937,
+      "primaryGateCounts": {
+        "PASS": 17,
+        "FAIL": 10,
+        "INCONCLUSIVE": 23
+      }
+    },
+    "H1B": {
+      "cases": 34,
+      "ratio": 1.0080344329020625,
+      "lo": 0.9995953356542951,
+      "hi": 1.0177700605788196,
+      "primaryGateCounts": {
+        "PASS": 22,
+        "INCONCLUSIVE": 26,
+        "FAIL": 2
+      }
+    }
+  },
+  "ordinaryGate": "Every protected case CI upper <= 1.02; both candidates fail",
+  "positiveGate": "Neither 5% representative attribute-heavy improvement nor 3% broader full-consuming mean achieved",
+  "unit": {
+    "R1": 668,
+    "H1A": 668,
+    "H1B": 668,
+    "status": "PASS"
+  },
+  "coverage": {
+    "statements": 100,
+    "branches": 100,
+    "functions": 100,
+    "lines": 100,
+    "status": "PASS for all builds"
+  },
+  "w3c": {
+    "passed": 805,
+    "skipped": 203,
+    "failed": 0,
+    "status": "unchanged for all builds"
+  },
+  "releaseSurfaces": "PASS for all builds; final R1 reverified",
+  "candidateDifferentialCases": 880,
+  "duplicateDiagnosticCases": 300,
+  "secondaryRuntimes": "NOT RUN: neither candidate survived Node",
+  "candidateProductCommits": null,
+  "candidatePatchIds": {
+    "H1A": "d2a3e2e696997506e395a998a8fc2c0df675ae30208f738a8b166cc3b29b4b79",
+    "H1B": "936ef080ceedf4acccb59b32c3adddd688fb82ae406989c222a6ca814ebc92fd"
+  },
+  "finalProduct": "R1; dist byte-identical; no performance patch retained",
+  "thresholdTuning": false,
+  "thirdCandidate": false,
+  "evidenceExtension": false
+}

@@ -1,0 +1,1727 @@
+[
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/catalog.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 2257799,
+    "checksum": 4537858,
+    "samples": [
+      19.28029099999999,
+      19.266207999999978,
+      19.31033400000001
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "type",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 1020050,
+    "samples": [
+      12.636499999999998,
+      12.634332999999998,
+      12.493082999999999
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 33235788,
+    "samples": [
+      108.81841700000007,
+      107.90229099999999,
+      108.79108399999996
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "name",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 1470058,
+    "samples": [
+      17.90804200000001,
+      17.835082999999997,
+      18.134749999999997
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "name",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 26883141,
+    "samples": [
+      91.03816699999999,
+      91.04445799999996,
+      91.03166599999997
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 2550066,
+    "samples": [
+      24.015209,
+      24.640084,
+      23.952958999999993
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 2850066,
+    "samples": [
+      26.431207999999998,
+      26.811207999999993,
+      25.848415999999986
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 10323137,
+    "samples": [
+      35.41991700000003,
+      34.84004199999998,
+      33.871959000000004
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 249249524,
+    "samples": [
+      859.7337079999998,
+      876.6232500000006,
+      870.4172090000002
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 32919629,
+    "samples": [
+      96.90462500000007,
+      96.65274999999997,
+      97.13699999999994
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 250283509,
+    "samples": [
+      752.5811250000002,
+      759.1585829999995,
+      734.9410420000004
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/catalog.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 2257799,
+    "checksum": 5040799,
+    "samples": [
+      20.79008300000001,
+      20.390832999999986,
+      20.639375
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/catalog.xml",
+    "access": "converter",
+    "namespaceAware": true,
+    "bytes": 2257799,
+    "checksum": 377780,
+    "samples": [
+      22.755875000000003,
+      23.516875,
+      22.335499999999996
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "type",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 119577580,
+    "samples": [
+      563.7084169999998,
+      561.6888750000003,
+      566.4972499999999
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "type",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 15943740,
+    "samples": [
+      75.7645,
+      74.702,
+      74.24224999999996
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "type",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 480050,
+    "samples": [
+      21.72758300000001,
+      21.98275000000001,
+      21.89737500000001
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 8400066,
+    "samples": [
+      44.662915999999996,
+      46.17170900000002,
+      46.12025
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 7440066,
+    "samples": [
+      30.05362500000001,
+      30.60174999999998,
+      30.216499999999996
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "name",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 600058,
+    "samples": [
+      22.16916599999999,
+      21.926833000000016,
+      21.929790999999994
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 246896629,
+    "samples": [
+      735.0998749999999,
+      734.0895,
+      737.3696250000003
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "name",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 201623021,
+    "samples": [
+      685.7387920000001,
+      683.1595000000002,
+      684.1089590000001
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 2882966,
+    "samples": [
+      23.792750000000012,
+      23.793207999999993,
+      23.871125000000006
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 33371213,
+    "samples": [
+      95.86008300000003,
+      96.06987500000002,
+      96.07941600000004
+    ],
+    "counters": null,
+    "block": 0
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "type",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 480050,
+    "samples": [
+      21.856374999999986,
+      21.72116699999998,
+      21.835041999999987
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "type",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 119577580,
+    "samples": [
+      564.9819170000001,
+      562.0591250000002,
+      560.4503329999998
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "name",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 26883141,
+    "samples": [
+      91.271208,
+      90.58354100000003,
+      90.91375000000005
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 246896629,
+    "samples": [
+      733.253792,
+      732.3716659999995,
+      736.6945829999995
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "type",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 1020050,
+    "samples": [
+      12.897499999999994,
+      12.667541999999997,
+      12.666833000000011
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/catalog.xml",
+    "access": "converter",
+    "namespaceAware": true,
+    "bytes": 2257799,
+    "checksum": 377780,
+    "samples": [
+      22.01325,
+      21.558250000000015,
+      23.67679100000001
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 2550066,
+    "samples": [
+      24.106458000000003,
+      24.736209000000002,
+      23.933250000000015
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 33235788,
+    "samples": [
+      110.101834,
+      109.56787499999996,
+      109.77937499999996
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "type",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 15943740,
+    "samples": [
+      75.10383300000001,
+      73.835375,
+      73.41395799999998
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 7440066,
+    "samples": [
+      29.934958999999992,
+      30.547832999999997,
+      29.891999999999996
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 2850066,
+    "samples": [
+      26.693708000000015,
+      30.686500000000024,
+      26.326707999999996
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/catalog.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 2257799,
+    "checksum": 4537858,
+    "samples": [
+      19.230625000000003,
+      19.305124999999975,
+      19.33058300000002
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 2882966,
+    "samples": [
+      23.865207999999996,
+      24.24641699999998,
+      24.96629200000001
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/catalog.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 2257799,
+    "checksum": 5040799,
+    "samples": [
+      20.950792000000007,
+      20.78725,
+      20.997333999999995
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 8400066,
+    "samples": [
+      46.56879100000003,
+      46.654042000000004,
+      46.55695800000001
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 10323137,
+    "samples": [
+      34.650457999999986,
+      35.235375000000005,
+      34.00625000000002
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "name",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 201623021,
+    "samples": [
+      680.4780420000002,
+      681.2280419999997,
+      681.9279160000006
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "name",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 1470058,
+    "samples": [
+      18.249125000000006,
+      18.532792,
+      18.377792
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "name",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 600058,
+    "samples": [
+      21.96641600000001,
+      21.89416700000001,
+      21.841667
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 249249524,
+    "samples": [
+      833.023541,
+      843.8092500000002,
+      833.4014999999999
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 32919629,
+    "samples": [
+      97.77566700000006,
+      96.41920800000003,
+      96.55875000000003
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 250283509,
+    "samples": [
+      732.4407080000001,
+      723.8861669999997,
+      735.2348339999999
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 33371213,
+    "samples": [
+      97.99266599999999,
+      95.957,
+      95.857166
+    ],
+    "counters": null,
+    "block": 1
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "name",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 600058,
+    "samples": [
+      22.094333000000006,
+      21.851583000000005,
+      21.82858299999998
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 246896629,
+    "samples": [
+      737.2445000000002,
+      742.7838750000001,
+      742.1369999999997
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 7440066,
+    "samples": [
+      30.365291000000013,
+      30.312166999999988,
+      30.104415999999986
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "name",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 201623021,
+    "samples": [
+      731.4757500000001,
+      731.9881250000003,
+      733.8064169999998
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 32919629,
+    "samples": [
+      96.562208,
+      96.87549999999999,
+      97.03758400000004
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 2882966,
+    "samples": [
+      23.856625000000008,
+      23.907083,
+      23.836291000000017
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/catalog.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 2257799,
+    "checksum": 4537858,
+    "samples": [
+      19.38270899999999,
+      19.395792,
+      19.372292000000016
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 8400066,
+    "samples": [
+      46.926041,
+      47.32404200000002,
+      47.07487500000002
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/catalog.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 2257799,
+    "checksum": 5040799,
+    "samples": [
+      20.822874999999982,
+      20.663959000000006,
+      20.920874999999995
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 2550066,
+    "samples": [
+      24.239959,
+      24.771874999999994,
+      24.023207999999983
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 33371213,
+    "samples": [
+      95.42158399999994,
+      95.21054199999992,
+      96.53587500000003
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 249249524,
+    "samples": [
+      832.3730420000002,
+      852.1945839999998,
+      831.2408330000007
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "type",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 480050,
+    "samples": [
+      21.958874999999978,
+      21.780124999999998,
+      21.731292000000025
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 2850066,
+    "samples": [
+      26.2885,
+      26.702500000000015,
+      25.97954199999998
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/catalog.xml",
+    "access": "converter",
+    "namespaceAware": true,
+    "bytes": 2257799,
+    "checksum": 377780,
+    "samples": [
+      21.656374999999997,
+      23.368082999999984,
+      23.307041999999996
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 33235788,
+    "samples": [
+      111.16566700000004,
+      110.43033300000002,
+      110.74520800000005
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "type",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 1020050,
+    "samples": [
+      12.896790999999993,
+      12.744083000000003,
+      12.752416999999994
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 10323137,
+    "samples": [
+      35.698958000000005,
+      34.736125000000015,
+      34.26245899999998
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "type",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 15943740,
+    "samples": [
+      76.087625,
+      74.75554100000005,
+      75.46712500000001
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 250283509,
+    "samples": [
+      730.6088749999999,
+      729.7437499999996,
+      729.6677920000002
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "type",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 119577580,
+    "samples": [
+      561.0741250000001,
+      556.585333,
+      558.7345829999999
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "name",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 1470058,
+    "samples": [
+      18.313333999999998,
+      18.28045800000001,
+      18.276832999999982
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "name",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 26883141,
+    "samples": [
+      90.16904200000005,
+      90.91383299999995,
+      89.84312499999999
+    ],
+    "counters": null,
+    "block": 2
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/catalog.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 2257799,
+    "checksum": 4537858,
+    "samples": [
+      19.656125000000017,
+      19.57850000000002,
+      19.484083
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 2550066,
+    "samples": [
+      24.274417,
+      25.051417000000015,
+      24.13095900000002
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 246896629,
+    "samples": [
+      738.4034590000001,
+      738.4390830000002,
+      738.2729159999999
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 2882966,
+    "samples": [
+      24.18395799999999,
+      23.836375000000004,
+      23.964915999999988
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "type",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 119577580,
+    "samples": [
+      560.7977089999999,
+      566.3930840000003,
+      563.0193749999999
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 33235788,
+    "samples": [
+      110.95349999999996,
+      110.09416699999997,
+      110.33041700000001
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 8400066,
+    "samples": [
+      46.333708,
+      46.72891600000003,
+      45.952833
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "name",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 201623021,
+    "samples": [
+      684.741125,
+      686.6775409999996,
+      706.7157500000003
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "type",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 1020050,
+    "samples": [
+      12.973417000000012,
+      12.879374999999996,
+      12.750875000000008
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 10323137,
+    "samples": [
+      35.43991700000001,
+      34.84466699999999,
+      34.742166999999995
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "name",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 600058,
+    "samples": [
+      21.971082999999993,
+      21.948499999999996,
+      21.914416999999986
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "type",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 480050,
+    "samples": [
+      21.781542,
+      21.837417000000016,
+      21.670124999999985
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/catalog.xml",
+    "access": "converter",
+    "namespaceAware": true,
+    "bytes": 2257799,
+    "checksum": 377780,
+    "samples": [
+      22.70595799999998,
+      23.34408400000001,
+      22.255540999999994
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 33371213,
+    "samples": [
+      95.217041,
+      96.23916600000007,
+      96.38554199999999
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 2850066,
+    "samples": [
+      26.255833000000024,
+      26.76358300000001,
+      26.53450000000001
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "type",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 15943740,
+    "samples": [
+      75.22800000000001,
+      73.84254199999998,
+      74.17016699999999
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 32919629,
+    "samples": [
+      97.17012499999998,
+      98.43116699999996,
+      97.32429200000001
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/catalog.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 2257799,
+    "checksum": 5040799,
+    "samples": [
+      20.599999999999994,
+      20.683042,
+      20.86945799999998
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 250283509,
+    "samples": [
+      729.8897499999998,
+      730.911834,
+      734.6203340000002
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 249249524,
+    "samples": [
+      844.6188330000004,
+      850.8316670000004,
+      837.5509999999995
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "name",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 26883141,
+    "samples": [
+      90.09741700000001,
+      91.441667,
+      91.16366600000003
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 7440066,
+    "samples": [
+      29.86212500000002,
+      30.707250000000016,
+      29.83125000000001
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "name",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 1470058,
+    "samples": [
+      18.270792000000014,
+      18.297583000000003,
+      18.109667
+    ],
+    "counters": null,
+    "block": 3
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 2550066,
+    "samples": [
+      24.385542000000015,
+      25.062332999999995,
+      24.91066699999999
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/catalog.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 2257799,
+    "checksum": 5040799,
+    "samples": [
+      21.10529100000001,
+      21.008667000000003,
+      20.91425000000001
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "type",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 119577580,
+    "samples": [
+      560.5914579999999,
+      563.4245410000003,
+      563.248
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 249249524,
+    "samples": [
+      834.8909999999996,
+      832.6403330000003,
+      835.7867919999999
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "name",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 201623021,
+    "samples": [
+      698.3499580000002,
+      689.1768750000001,
+      691.0662919999995
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "type",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 480050,
+    "samples": [
+      21.861084000000005,
+      21.648083000000014,
+      21.67349999999999
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "name",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 600058,
+    "samples": [
+      22.105083000000008,
+      22.001041999999984,
+      21.914957999999984
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 2850066,
+    "samples": [
+      26.47229200000001,
+      26.811166999999983,
+      26.13508299999998
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 250283509,
+    "samples": [
+      726.19875,
+      726.95525,
+      730.1132500000003
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "name",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 26883141,
+    "samples": [
+      89.56995799999999,
+      89.32520800000003,
+      90.51350000000002
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/catalog.xml",
+    "access": "converter",
+    "namespaceAware": true,
+    "bytes": 2257799,
+    "checksum": 377780,
+    "samples": [
+      22.146333,
+      22.003500000000003,
+      23.76525000000001
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 8400066,
+    "samples": [
+      46.446417000000025,
+      46.66858400000001,
+      46.507750000000044
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "name",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 1470058,
+    "samples": [
+      18.270792,
+      18.241625,
+      18.079166999999984
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 2882966,
+    "samples": [
+      23.708166000000006,
+      23.582458000000003,
+      23.69745800000001
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 33235788,
+    "samples": [
+      110.07945799999999,
+      111.11649999999997,
+      110.8308750000001
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "type",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 15943740,
+    "samples": [
+      75.54837500000002,
+      75.30454200000003,
+      76.85179200000005
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/mixed-utf8.xml",
+    "access": "type",
+    "namespaceAware": true,
+    "bytes": 3030013,
+    "checksum": 1020050,
+    "samples": [
+      12.941333,
+      12.663457999999991,
+      12.769499999999994
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/large.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 101882907,
+    "checksum": 246896629,
+    "samples": [
+      735.869334,
+      730.6749579999996,
+      736.1977500000003
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 33371213,
+    "samples": [
+      96.575083,
+      96.188625,
+      96.60945900000002
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 10323137,
+    "samples": [
+      36.044624999999996,
+      35.043542,
+      34.40420799999998
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/catalog.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 2257799,
+    "checksum": 4537858,
+    "samples": [
+      19.204166999999998,
+      19.363332999999983,
+      19.387541999999996
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/tmp/stax-attribute-hash-20260913/fixtures/attribute-heavy.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 4600013,
+    "checksum": 7440066,
+    "samples": [
+      30.12408400000001,
+      30.31116700000001,
+      30.22312500000004
+    ],
+    "counters": null,
+    "block": 4
+  },
+  {
+    "build": "/tmp/stax-attribute-hash-20260913/builds/R1",
+    "fixture": "/Users/senghyunjo/github/stax-xml/packages/benchmark/assets/midsize.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "bytes": 13584398,
+    "checksum": 32919629,
+    "samples": [
+      97.59366699999998,
+      97.73887500000001,
+      97.64420799999994
+    ],
+    "counters": null,
+    "block": 4
+  }
+]

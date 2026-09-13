@@ -1,0 +1,76 @@
+--- a/packages/stax-xml/src/core/TokenCursor.ts
++++ b/packages/stax-xml/src/core/TokenCursor.ts
+@@ -1,3 +1,4 @@
++const work = (globalThis as typeof globalThis & { __hashWork: Record<string, any> }).__hashWork ??= { hashes: 0, scanCodeUnits: 0, narrowCodeUnits: 0, duplicateCandidates: 0, directSpanCharacters: 0, equalLengthCandidates: 0, spanCalls: 0, spanCharacters: 0, lookupCalls: 0, wideCalls: 0, widths: {} as Record<string, number> };
+ import {
+   XmlEventType,
+   type DocumentMode,
+@@ -284,6 +285,7 @@
+     const indexOrName = indexOrNameOrNamespace;
+     if (typeof indexOrName === "number")
+       return this.materializeAttribute(indexOrName);
++    work.lookupCalls++;
+     const hash = hashString(indexOrName);
+     for (let index = 0; index < this.currentAttributeCount; index++) {
+       if (
+@@ -520,6 +522,8 @@
+           attrColon = cursor;
+           attrColons++;
+         }
++        work.scanCodeUnits += width;
++        if (rawCount < DUPLICATE_TABLE_THRESHOLD) work.narrowCodeUnits += width;
+         attrHash = hashCode(attrHash, attrCode);
+         if (width === 2)
+           attrHash = hashCode(attrHash, this.buffer.charCodeAt(cursor + 1));
+@@ -576,6 +580,14 @@
+ 
+       if (rawCount < DUPLICATE_TABLE_THRESHOLD) {
+         for (let previous = 0; previous < rawCount; previous++) {
++          work.duplicateCandidates++;
++          if (this.attributeNameEnds[previous]! - this.attributeNameStarts[previous]! === attrEnd - attrStart) {
++            work.equalLengthCandidates++;
++            for (let offset = 0; offset < attrEnd - attrStart; offset++) {
++              work.directSpanCharacters++;
++              if (this.buffer.charCodeAt(this.attributeNameStarts[previous]! + offset) !== this.buffer.charCodeAt(attrStart + offset)) break;
++            }
++          }
+           if (
+             this.attributeHashes[previous] === attrHash &&
+             spansEqual(
+@@ -624,6 +636,7 @@
+     }
+     if (tagEnd < 0) return this.incomplete("start tag");
+ 
++    work.widths[rawCount] = (work.widths[rawCount] ?? 0) + 1;
+     const namespaceUndoStart = this.namespaceUndoLength;
+     let name: string;
+     let prefix: string;
+@@ -910,6 +923,7 @@
+   }
+ 
+   private prepareDuplicateTable(count: number): DuplicateTable {
++    work.wideCalls++;
+     const required = (count + 1) * 2;
+     let table = this.duplicateTable;
+     const needsGrowth = table === undefined || table.slots.length < required;
+@@ -1599,6 +1613,7 @@
+ 
+ const HASH_OFFSET = 2166136261 >>> 0;
+ function hashCode(hash: number, code: number): number {
++  work.hashes++;
+   return Math.imul(hash ^ code, 16777619) >>> 0;
+ }
+ function hashString(value: string): number {
+@@ -1614,10 +1629,11 @@
+   bStart: number,
+   bEnd: number,
+ ): boolean {
++  work.spanCalls++;
+   const length = aEnd - aStart;
+   if (length !== bEnd - bStart) return false;
+   for (let index = 0; index < length; index++)
+-    if (text.charCodeAt(aStart + index) !== text.charCodeAt(bStart + index))
++    if ((work.spanCharacters++, text.charCodeAt(aStart + index)) !== text.charCodeAt(bStart + index))
+       return false;
+   return true;
+ }

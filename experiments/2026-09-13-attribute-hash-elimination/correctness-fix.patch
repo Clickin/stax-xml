@@ -1,0 +1,168 @@
+From adc2cb7d0a64152725a5c43b2233676a79fec646 Mon Sep 17 00:00:00 2001
+From: clickin <josh87786@gmail.com>
+Date: Sun, 13 Sep 2026 19:36:26 +0900
+Subject: [PATCH] fix: advance duplicate attribute generations for reused wide
+ tables
+
+---
+ CHANGELOG.md                                  |  7 ++
+ packages/stax-xml/src/core/TokenCursor.ts     |  9 +-
+ .../token-cursor-options-coverage.test.ts     | 93 +++++++++++++++++++
+ 3 files changed, 106 insertions(+), 3 deletions(-)
+
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index fee0809b..2119381b 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
+ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+ 
++## [Unreleased]
++
++### Fixed
++
++- Reset duplicate-attribute table generations between wide start elements,
++  preserving exact duplicate detection when tables are reused or grown.
++
+ ## [1.1.0] - 2026-07-19
+ 
+ ### Added
+diff --git a/packages/stax-xml/src/core/TokenCursor.ts b/packages/stax-xml/src/core/TokenCursor.ts
+index 429fbd47..8e907af1 100644
+--- a/packages/stax-xml/src/core/TokenCursor.ts
++++ b/packages/stax-xml/src/core/TokenCursor.ts
+@@ -912,7 +912,8 @@ export class TokenCursor {
+   private prepareDuplicateTable(count: number): DuplicateTable {
+     const required = (count + 1) * 2;
+     let table = this.duplicateTable;
+-    if (table === undefined || table.slots.length < required) {
++    const needsGrowth = table === undefined || table.slots.length < required;
++    if (needsGrowth) {
+       let capacity = 32;
+       while (capacity < required) capacity *= 2;
+       table = {
+@@ -921,8 +922,10 @@ export class TokenCursor {
+         generation: 0,
+       };
+       this.duplicateTable = table;
+-    } else {
+-      // Duplicate tables are only requested for wide tags, so any reusable table is ready as-is.
++    }
++    // A tag's first table lookup starts at the threshold. Later lookups reuse
++    // the generation; growth still needs a fresh generation and re-seed.
++    if (!needsGrowth && count !== DUPLICATE_TABLE_THRESHOLD) {
+       return table;
+     }
+ 
+diff --git a/packages/stax-xml/test/token-cursor-options-coverage.test.ts b/packages/stax-xml/test/token-cursor-options-coverage.test.ts
+index 7ed23add..58e8f878 100644
+--- a/packages/stax-xml/test/token-cursor-options-coverage.test.ts
++++ b/packages/stax-xml/test/token-cursor-options-coverage.test.ts
+@@ -262,6 +262,62 @@ describe("TokenCursor option and accessor coverage", () => {
+     );
+   });
+ 
++  it.each([15, 16, 17, 32, 33])(
++    "reuses duplicate tracking across consecutive %i-attribute elements",
++    (width) => {
++      const first = attributeNames(width, "a");
++      const second = attributeNames(width, "a");
++      const third = attributeNames(width, "b").reverse();
++      const xml = [
++        `<first ${first.map((name, index) => `${name}="${index}"`).join(" ")}/>`,
++        `<second ${second.map((name, index) => `${name}="${index}"`).join(" ")}/>`,
++        `<third ${third.map((name, index) => `${name}="${index}"`).join(" ")}/>`,
++      ].join("");
++
++      for (const namespaceAware of [true, false]) {
++        expect(
++          collectAttributeNames(xml, { namespaceAware }, 1),
++        ).toEqual([first, second, third]);
++      }
++    },
++  );
++
++  it.each([15, 16, 17, 32])(
++    "rejects a real duplicate in a %i-attribute element",
++    (width) => {
++      const names = attributeNames(width);
++      names[width - 1] = names[0]!;
++      const xml = `<root ${names
++        .map((name, index) => `${name}="${index}"`)
++        .join(" ")}/>`;
++
++      for (const namespaceAware of [true, false]) {
++        expect(() =>
++          collectAttributeNames(xml, { namespaceAware }, 1),
++        ).toThrow(/duplicate attribute/i);
++      }
++    },
++  );
++
++  it("preserves expanded-name duplicate semantics and attribute ordering", () => {
++    const expandedNames = attributeNames(17, "a:x");
++    const attributes = [
++      'xmlns:a="urn:test"',
++      'xmlns:b="urn:test"',
++      ...expandedNames.map((name, index) => `${name}="${index}"`),
++      'b:x0="duplicate"',
++    ];
++    const xml = `<root ${attributes.join(" ")}/>`;
++
++    expect(() =>
++      collectAttributeNames(xml, { namespaceAware: true }, 1),
++    ).toThrow(/duplicate expanded attribute/i);
++
++    expect(
++      collectAttributeNames(xml, { namespaceAware: false }, 1)[0],
++    ).toEqual(["xmlns:a", "xmlns:b", ...expandedNames, "b:x0"]);
++  });
++
+   it("validates entity and Unicode edge cases in text, attributes, and lexical nodes", () => {
+     const entities = new TokenCursor(
+       "<root>&lt;&gt;&amp;&quot;&apos;&#65;&#x42;</root>",
+@@ -375,3 +431,40 @@ function collectTypes(cursor: TokenCursor): unknown[] {
+     types.push(type);
+   }
+ }
++
++function attributeNames(width: number, prefix = "a"): string[] {
++  return Array.from({ length: width }, (_, index) => `${prefix}${index}`);
++}
++
++function collectAttributeNames(
++  xml: string,
++  options: { namespaceAware?: boolean },
++  chunkSize?: number,
++): string[][] {
++  const cursor =
++    chunkSize === undefined
++      ? new TokenCursor(xml, true, options)
++      : new TokenCursor("", false, options);
++  const result: string[][] = [];
++  let offset = 0;
++  while (true) {
++    const type = cursor.next();
++    if (type === NEED_INPUT) {
++      if (chunkSize === undefined || offset >= xml.length)
++        throw new Error("cursor requested unexpected input");
++      const nextOffset = Math.min(xml.length, offset + chunkSize);
++      cursor.push(xml.slice(offset, nextOffset), nextOffset === xml.length);
++      offset = nextOffset;
++      continue;
++    }
++    if (type === null) return result;
++    if (type === XmlEventType.START_ELEMENT) {
++      result.push(
++        Array.from(
++          { length: cursor.attributeCount() },
++          (_, index) => cursor.attribute(index)!.name,
++        ),
++      );
++    }
++  }
++}
+-- 
+2.39.5 (Apple Git-154)
+

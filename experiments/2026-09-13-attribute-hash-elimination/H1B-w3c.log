@@ -1,0 +1,13 @@
+$ pnpm --filter=stax-xml test:w3c
+$ tsx ./scripts/w3c-xmlts.ts
+W3C XML TS 20130923 document-mode subset
+archive: https://www.w3.org/XML/Test/xmlts20130923.zip
+sha256: f9510b3532926e1b4c2e54855b021e4b8a66ec98a5337dcf4ff07e8a41968deb
+passed: 805
+skipped: 203
+skipped (named entity reference): 78
+skipped (unsupported declaration): 2
+skipped (not-wf DTD): 117
+skipped (namespace-incompatible name): 4
+skipped (strict document mode): 2
+failed: 0

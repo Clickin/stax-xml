@@ -1,0 +1,41 @@
+[
+  {
+    "candidate": "H1A",
+    "targetedOperation": "Per-code-unit FNV attribute-name scan and attribute(name) query hashing",
+    "whyExpensive": "One serial xor/Math.imul dependency per UTF-16 code unit plus hash stores; measured contribution pending R1 profile/counters",
+    "closestPrior": "entity-single-eval at 4eb355c54f20cf6f0e6c91f2952f4244b71bfa33; linear entity validation 015f15b7a93707fa42aa0dadf518cd3ae879e0e9",
+    "structuralDifference": "Eliminate scan arithmetic under already-existing width threshold; no semantic result transport/cache/classifier",
+    "newRuntimeState": false,
+    "newLookup": false,
+    "newBranch": "Existing narrow/wide decision reused; scan hash condition or wide post-scan loop required",
+    "newAllocation": false,
+    "operationRemoved": "narrow attribute-name hashCode/Math.imul and query hashString",
+    "expectedUpperBoundE2EBenefit": "Unknown until R1 measurement; not inferred from source"
+  },
+  {
+    "candidate": "H1B",
+    "targetedOperation": "Narrow exact span comparison candidates",
+    "whyExpensive": "Only if H1A establishes span comparisons as blocker",
+    "closestPrior": "H1A; historical generic classifier/fast-path family excluded",
+    "structuralDifference": "Constant-time equality prefilter at existing duplicate comparison, not workload dispatch or cache",
+    "newRuntimeState": false,
+    "newLookup": false,
+    "newBranch": true,
+    "newAllocation": false,
+    "operationRemoved": "Failed candidate span character iterations",
+    "expectedUpperBoundE2EBenefit": "Contingent on measured comparison blocker"
+  },
+  {
+    "candidate": "lazy hash cache / semantic hash transport / cheaper classifier",
+    "targetedOperation": "Previously rejected cache/classifier/side-state families",
+    "whyExpensive": "Additional lookup, representation and lifetime cost",
+    "closestPrior": "entity-single-eval, iterable dossier",
+    "structuralDifference": "None sufficient",
+    "newRuntimeState": true,
+    "newLookup": true,
+    "newBranch": true,
+    "newAllocation": "Possible",
+    "operationRemoved": "Deferred/reused computation, not eliminated",
+    "expectedUpperBoundE2EBenefit": "Rejected before implementation"
+  }
+]

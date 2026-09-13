@@ -1,0 +1,41 @@
+[
+  {
+    "fixture": "attribute-heavy.xml",
+    "access": "full",
+    "namespaceAware": true,
+    "variant": "H1A",
+    "blocks": 3,
+    "R1ms": 30.136005639599887,
+    "candidateMs": 56.05901296453061,
+    "ratio": 1.8602005068271852,
+    "lo": 1.8539153250247031,
+    "hi": 1.869256749756534,
+    "gate": "FAIL"
+  },
+  {
+    "fixture": "attribute-heavy.xml",
+    "access": "lookup",
+    "namespaceAware": true,
+    "variant": "H1A",
+    "blocks": 3,
+    "R1ms": 45.71356214483539,
+    "candidateMs": 93.3232192947273,
+    "ratio": 2.041477734748588,
+    "lo": 2.003397898280821,
+    "hi": 2.064315665546871,
+    "gate": "FAIL"
+  },
+  {
+    "fixture": "attribute-heavy.xml",
+    "access": "event",
+    "namespaceAware": true,
+    "variant": "H1A",
+    "blocks": 3,
+    "R1ms": 34.83663927461202,
+    "candidateMs": 60.90770813591028,
+    "ratio": 1.7483807107736171,
+    "lo": 1.7358391062657967,
+    "hi": 1.7728501474281966,
+    "gate": "FAIL"
+  }
+]
