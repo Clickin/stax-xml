@@ -1,0 +1,24 @@
+{
+  "id": "2026-09-13-entity-single-eval-git-eol",
+  "experiment": "2026-09-13-entity-single-eval",
+  "type": "archival byte-preservation correction",
+  "initialArchiveCommit": "c576c76113f09c6ed4f2505bba5839c68b71581a",
+  "cause": "Git converted the original CSV CRLF line endings to LF during initial staging. Post-push blob-to-source verification detected this.",
+  "affectedArtifacts": [
+    {
+      "path": "experiments/2026-09-13-entity-single-eval/performance-table.csv",
+      "publishedBytes": 42102,
+      "originalBytes": 42349,
+      "publishedSha256": "97ca5549eb5c21b2d4ecb6b1b417cc4db33fbcdec95ef7c3ee5a14ce3dd8e29c",
+      "originalSha256": "50d948ca8305cb0208f3d48f063f86825a09dea2e5a735607874952cdbe5d891",
+      "onlyCRLFConversion": true
+    }
+  ],
+  "resolution": "Disable Git text conversion in archive-only .gitattributes and re-stage the original unchanged CSV. Preserve initial commit in history; no amendment or force push.",
+  "originalEvidenceModified": false,
+  "candidateModified": false,
+  "benchmarkRerun": false,
+  "gatesChanged": false,
+  "experimentDecision": "NO-GO",
+  "checksumManifestChanged": false
+}

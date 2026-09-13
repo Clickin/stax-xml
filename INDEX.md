@@ -21,3 +21,7 @@ Before proposing a performance hypothesis, search this branch and read the close
 Reducing repeated semantic computation is not sufficient if the result must be transported through new per-token runtime state. [entity-single-eval](experiments/2026-09-13-entity-single-eval/README.md) reduced resolver calls from 13 to 6 but regressed actual EventReader workloads by roughly 7–9%.
 
 Avoid runtime side-state, semantic envelopes, token-to-materializer result transport, or similar bookkeeping merely to reuse previously computed semantic values unless the producer eliminates materially more work than the transport costs. This is a scoped cost-model result, not a claim that all reuse is bad.
+
+## Preservation corrections
+
+- [2026-09-13 Git EOL correction](corrections/2026-09-13-entity-single-eval-git-eol.json): restores original CSV bytes after Git's initial CRLF-to-LF conversion. Initial commit retained; no experimental values, gates or candidate patches changed.

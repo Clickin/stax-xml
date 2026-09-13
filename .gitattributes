@@ -1,0 +1,2 @@
+# Preserve evidence bytes, including original CRLF, exactly as archived.
+* -text

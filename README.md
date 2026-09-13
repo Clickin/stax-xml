@@ -25,3 +25,5 @@ Existing experiment entries are immutable. Add a separately identified correctio
 Use a dedicated archive worktree. Commit and push only the archive branch, by ordinary fast-forward pushes. Never merge this branch into master, open a PR from it to master, put these archive files into a product branch, or merge master here to keep the archive current. Do not mix product fixes into archive commits. Source patches are evidence, not adopted code.
 
 Each experiment's SHA256SUMS covers every file beneath its directory except SHA256SUMS itself. The Git commit identifies the checksum file and top-level policy/index. Verify checksums before publishing and verify the remote ref after pushing.
+
+The archive's `.gitattributes` disables text conversion so Git preserves original line endings. Compare staged/committed blobs with source hashes, not only working files. Transport-corruption repairs must restore the original bytes and add an indexed correction record retaining the prior commit; they must not reinterpret experimental results.
