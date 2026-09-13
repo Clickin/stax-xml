@@ -1,0 +1,22 @@
+[
+  {
+    "path": "converter.d.ts",
+    "bytes": 30326,
+    "sha256": "ca65dfa3008f2afdcad151b33d57efd56a75d0f46bb333af6cb3e7722b45b204"
+  },
+  {
+    "path": "converter.js",
+    "bytes": 96950,
+    "sha256": "f773bcc89d2784d9d51a1efa8dbe791ab9ecf3ac58cb424417bd1106551ad938"
+  },
+  {
+    "path": "index.d.ts",
+    "bytes": 21950,
+    "sha256": "2269f64cba5c424073de3935e1f678599f3945f11cb5e76ce094075c461d986f"
+  },
+  {
+    "path": "index.js",
+    "bytes": 62332,
+    "sha256": "9e286a2d195997bf5276a1e097a14ecfff140da21e38e1813c438908084a55e2"
+  }
+]

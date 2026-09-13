@@ -1,0 +1,46 @@
+[
+  {
+    "check": "final-build",
+    "command": [
+      "pnpm",
+      "--filter=stax-xml",
+      "build"
+    ],
+    "exitCode": 0
+  },
+  {
+    "check": "final-unit",
+    "command": [
+      "pnpm",
+      "--filter=stax-xml",
+      "test"
+    ],
+    "exitCode": 0
+  },
+  {
+    "check": "final-w3c",
+    "command": [
+      "pnpm",
+      "--filter=stax-xml",
+      "test:w3c"
+    ],
+    "exitCode": 0
+  },
+  {
+    "check": "final-coverage",
+    "command": [
+      "pnpm",
+      "--filter=stax-xml",
+      "coverage"
+    ],
+    "exitCode": 0
+  },
+  {
+    "check": "final-release-surfaces",
+    "command": [
+      "pnpm",
+      "verify:release-surfaces"
+    ],
+    "exitCode": 0
+  }
+]

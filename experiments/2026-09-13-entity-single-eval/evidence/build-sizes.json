@@ -1,0 +1,30 @@
+[
+  {
+    "variant": "R0",
+    "indexJsBytes": 54288,
+    "converterJsBytes": 96927,
+    "totalDistBytes": 203491,
+    "distSha256": "8474ddd7ba97c0debfb80b4439d75c6c9db9009c5914281cac40598ea784e0c9"
+  },
+  {
+    "variant": "W0",
+    "indexJsBytes": 54549,
+    "converterJsBytes": 96950,
+    "totalDistBytes": 203775,
+    "distSha256": "5ebb7ce72a9f21825d724819ba832dee1fb178f912d3a90084db78360276410d"
+  },
+  {
+    "variant": "A1",
+    "indexJsBytes": 62332,
+    "converterJsBytes": 96950,
+    "totalDistBytes": 211558,
+    "distSha256": "31ec017538d8a9bd5b263bf38bc1a7ada78effd6974e5d3fd1d881cad6134280"
+  },
+  {
+    "variant": "AT1",
+    "indexJsBytes": 66938,
+    "converterJsBytes": 96950,
+    "totalDistBytes": 216164,
+    "distSha256": "d653a200935e2eaf35e4e351e0d1a8043f6976fa91504277e4bcb51f19443055"
+  }
+]

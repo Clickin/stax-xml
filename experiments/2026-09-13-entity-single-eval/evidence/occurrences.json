@@ -1,0 +1,469 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-13T05:57:07.523Z",
+  "rows": [
+    {
+      "fixture": "named-attr",
+      "variant": "R0",
+      "counters": {
+        "cursorReference": 1,
+        "decodeEntity": 13,
+        "validation": 6,
+        "namespace": 1,
+        "materializer": 6
+      },
+      "eventCount": 5,
+      "rawOccurrences": 6,
+      "resolverCalls": 13,
+      "namespaceCalls": 1,
+      "materializerCalls": 6,
+      "assertion": {
+        "rawOccurrenceObserved": true,
+        "fusedConsumersZero": true,
+        "singleEvaluation": true,
+        "correctCursor": true
+      }
+    },
+    {
+      "fixture": "named-attr",
+      "variant": "W0",
+      "counters": {
+        "cursorMaterializing": 1,
+        "decodeEntity": 13,
+        "validation": 6,
+        "namespace": 1,
+        "materializer": 6
+      },
+      "eventCount": 5,
+      "rawOccurrences": 6,
+      "resolverCalls": 13,
+      "namespaceCalls": 1,
+      "materializerCalls": 6,
+      "assertion": {
+        "rawOccurrenceObserved": true,
+        "fusedConsumersZero": true,
+        "singleEvaluation": true,
+        "correctCursor": true
+      }
+    },
+    {
+      "fixture": "named-attr",
+      "variant": "A1",
+      "counters": {
+        "cursorMaterializing": 1,
+        "builder": 2,
+        "fragments": 14,
+        "decodeEntity": 6,
+        "validation": 6,
+        "completedValues": 2,
+        "outputUnits": 12,
+        "normalizedConsumed": 2
+      },
+      "eventCount": 5,
+      "rawOccurrences": 6,
+      "resolverCalls": 6,
+      "namespaceCalls": 0,
+      "materializerCalls": 0,
+      "assertion": {
+        "rawOccurrenceObserved": true,
+        "fusedConsumersZero": true,
+        "singleEvaluation": true,
+        "correctCursor": true
+      }
+    },
+    {
+      "fixture": "named-attr",
+      "variant": "AT1",
+      "counters": {
+        "cursorMaterializing": 1,
+        "builder": 2,
+        "fragments": 14,
+        "decodeEntity": 6,
+        "validation": 6,
+        "completedValues": 2,
+        "outputUnits": 12,
+        "normalizedConsumed": 2
+      },
+      "eventCount": 5,
+      "rawOccurrences": 6,
+      "resolverCalls": 6,
+      "namespaceCalls": 0,
+      "materializerCalls": 0,
+      "assertion": {
+        "rawOccurrenceObserved": true,
+        "fusedConsumersZero": true,
+        "singleEvaluation": true,
+        "correctCursor": true
+      }
+    },
+    {
+      "fixture": "numeric-attr",
+      "variant": "R0",
+      "counters": {
+        "cursorReference": 1,
+        "decodeEntity": 4,
+        "validation": 2,
+        "materializer": 2
+      },
+      "eventCount": 5,
+      "rawOccurrences": 2,
+      "resolverCalls": 4,
+      "namespaceCalls": 0,
+      "materializerCalls": 2,
+      "assertion": {
+        "rawOccurrenceObserved": true,
+        "fusedConsumersZero": true,
+        "singleEvaluation": true,
+        "correctCursor": true
+      }
+    },
+    {
+      "fixture": "numeric-attr",
+      "variant": "W0",
+      "counters": {
+        "cursorMaterializing": 1,
+        "decodeEntity": 4,
+        "validation": 2,
+        "materializer": 2
+      },
+      "eventCount": 5,
+      "rawOccurrences": 2,
+      "resolverCalls": 4,
+      "namespaceCalls": 0,
+      "materializerCalls": 2,
+      "assertion": {
+        "rawOccurrenceObserved": true,
+        "fusedConsumersZero": true,
+        "singleEvaluation": true,
+        "correctCursor": true
+      }
+    },
+    {
+      "fixture": "numeric-attr",
+      "variant": "A1",
+      "counters": {
+        "cursorMaterializing": 1,
+        "builder": 1,
+        "fragments": 5,
+        "decodeEntity": 2,
+        "validation": 2,
+        "completedValues": 1,
+        "outputUnits": 3,
+        "normalizedConsumed": 1
+      },
+      "eventCount": 5,
+      "rawOccurrences": 2,
+      "resolverCalls": 2,
+      "namespaceCalls": 0,
+      "materializerCalls": 0,
+      "assertion": {
+        "rawOccurrenceObserved": true,
+        "fusedConsumersZero": true,
+        "singleEvaluation": true,
+        "correctCursor": true
+      }
+    },
+    {
+      "fixture": "numeric-attr",
+      "variant": "AT1",
+      "counters": {
+        "cursorMaterializing": 1,
+        "builder": 1,
+        "fragments": 5,
+        "decodeEntity": 2,
+        "validation": 2,
+        "completedValues": 1,
+        "outputUnits": 3,
+        "normalizedConsumed": 1
+      },
+      "eventCount": 5,
+      "rawOccurrences": 2,
+      "resolverCalls": 2,
+      "namespaceCalls": 0,
+      "materializerCalls": 0,
+      "assertion": {
+        "rawOccurrenceObserved": true,
+        "fusedConsumersZero": true,
+        "singleEvaluation": true,
+        "correctCursor": true
+      }
+    },
+    {
+      "fixture": "custom-attr",
+      "variant": "R0",
+      "counters": {
+        "cursorReference": 1,
+        "decodeEntity": 6,
+        "validation": 3,
+        "materializer": 3
+      },
+      "eventCount": 5,
+      "rawOccurrences": 3,
+      "resolverCalls": 6,
+      "namespaceCalls": 0,
+      "materializerCalls": 3,
+      "assertion": {
+        "rawOccurrenceObserved": true,
+        "fusedConsumersZero": true,
+        "singleEvaluation": true,
+        "correctCursor": true
+      }
+    },
+    {
+      "fixture": "custom-attr",
+      "variant": "W0",
+      "counters": {
+        "cursorMaterializing": 1,
+        "decodeEntity": 6,
+        "validation": 3,
+        "materializer": 3
+      },
+      "eventCount": 5,
+      "rawOccurrences": 3,
+      "resolverCalls": 6,
+      "namespaceCalls": 0,
+      "materializerCalls": 3,
+      "assertion": {
+        "rawOccurrenceObserved": true,
+        "fusedConsumersZero": true,
+        "singleEvaluation": true,
+        "correctCursor": true
+      }
+    },
+    {
+      "fixture": "custom-attr",
+      "variant": "A1",
+      "counters": {
+        "cursorMaterializing": 1,
+        "builder": 1,
+        "fragments": 7,
+        "decodeEntity": 3,
+        "validation": 3,
+        "completedValues": 1,
+        "outputUnits": 16,
+        "normalizedConsumed": 1
+      },
+      "eventCount": 5,
+      "rawOccurrences": 3,
+      "resolverCalls": 3,
+      "namespaceCalls": 0,
+      "materializerCalls": 0,
+      "assertion": {
+        "rawOccurrenceObserved": true,
+        "fusedConsumersZero": true,
+        "singleEvaluation": true,
+        "correctCursor": true
+      }
+    },
+    {
+      "fixture": "custom-attr",
+      "variant": "AT1",
+      "counters": {
+        "cursorMaterializing": 1,
+        "builder": 1,
+        "fragments": 7,
+        "decodeEntity": 3,
+        "validation": 3,
+        "completedValues": 1,
+        "outputUnits": 16,
+        "normalizedConsumed": 1
+      },
+      "eventCount": 5,
+      "rawOccurrences": 3,
+      "resolverCalls": 3,
+      "namespaceCalls": 0,
+      "materializerCalls": 0,
+      "assertion": {
+        "rawOccurrenceObserved": true,
+        "fusedConsumersZero": true,
+        "singleEvaluation": true,
+        "correctCursor": true
+      }
+    },
+    {
+      "fixture": "named-text",
+      "variant": "R0",
+      "counters": {
+        "cursorReference": 1,
+        "decodeEntity": 10,
+        "validation": 5,
+        "materializer": 5
+      },
+      "eventCount": 5,
+      "rawOccurrences": 5,
+      "resolverCalls": 10,
+      "namespaceCalls": 0,
+      "materializerCalls": 5,
+      "assertion": {
+        "rawOccurrenceObserved": true,
+        "fusedConsumersZero": true,
+        "singleEvaluation": true,
+        "correctCursor": true
+      }
+    },
+    {
+      "fixture": "named-text",
+      "variant": "W0",
+      "counters": {
+        "cursorMaterializing": 1,
+        "decodeEntity": 10,
+        "validation": 5,
+        "materializer": 5
+      },
+      "eventCount": 5,
+      "rawOccurrences": 5,
+      "resolverCalls": 10,
+      "namespaceCalls": 0,
+      "materializerCalls": 5,
+      "assertion": {
+        "rawOccurrenceObserved": true,
+        "fusedConsumersZero": true,
+        "singleEvaluation": true,
+        "correctCursor": true
+      }
+    },
+    {
+      "fixture": "named-text",
+      "variant": "A1",
+      "counters": {
+        "cursorMaterializing": 1,
+        "completedValues": 1,
+        "entityFreeValues": 1,
+        "normalizedConsumed": 1,
+        "decodeEntity": 10,
+        "validation": 5,
+        "materializer": 5
+      },
+      "eventCount": 5,
+      "rawOccurrences": 5,
+      "resolverCalls": 10,
+      "namespaceCalls": 0,
+      "materializerCalls": 5,
+      "assertion": {
+        "rawOccurrenceObserved": true,
+        "fusedConsumersZero": true,
+        "singleEvaluation": true,
+        "correctCursor": true
+      }
+    },
+    {
+      "fixture": "named-text",
+      "variant": "AT1",
+      "counters": {
+        "cursorMaterializing": 1,
+        "completedValues": 1,
+        "entityFreeValues": 1,
+        "normalizedConsumed": 1,
+        "builder": 1,
+        "fragments": 11,
+        "decodeEntity": 5,
+        "validation": 5
+      },
+      "eventCount": 5,
+      "rawOccurrences": 5,
+      "resolverCalls": 5,
+      "namespaceCalls": 0,
+      "materializerCalls": 0,
+      "assertion": {
+        "rawOccurrenceObserved": true,
+        "fusedConsumersZero": true,
+        "singleEvaluation": true,
+        "correctCursor": true
+      }
+    },
+    {
+      "fixture": "mixed",
+      "variant": "R0",
+      "counters": {
+        "cursorReference": 1,
+        "decodeEntity": 8,
+        "validation": 4,
+        "materializer": 4
+      },
+      "eventCount": 5,
+      "rawOccurrences": 4,
+      "resolverCalls": 8,
+      "namespaceCalls": 0,
+      "materializerCalls": 4,
+      "assertion": {
+        "rawOccurrenceObserved": true,
+        "fusedConsumersZero": true,
+        "singleEvaluation": true,
+        "correctCursor": true
+      }
+    },
+    {
+      "fixture": "mixed",
+      "variant": "W0",
+      "counters": {
+        "cursorMaterializing": 1,
+        "decodeEntity": 8,
+        "validation": 4,
+        "materializer": 4
+      },
+      "eventCount": 5,
+      "rawOccurrences": 4,
+      "resolverCalls": 8,
+      "namespaceCalls": 0,
+      "materializerCalls": 4,
+      "assertion": {
+        "rawOccurrenceObserved": true,
+        "fusedConsumersZero": true,
+        "singleEvaluation": true,
+        "correctCursor": true
+      }
+    },
+    {
+      "fixture": "mixed",
+      "variant": "A1",
+      "counters": {
+        "cursorMaterializing": 1,
+        "builder": 1,
+        "fragments": 5,
+        "decodeEntity": 6,
+        "validation": 4,
+        "completedValues": 1,
+        "outputUnits": 3,
+        "normalizedConsumed": 1,
+        "materializer": 2
+      },
+      "eventCount": 5,
+      "rawOccurrences": 4,
+      "resolverCalls": 6,
+      "namespaceCalls": 0,
+      "materializerCalls": 2,
+      "assertion": {
+        "rawOccurrenceObserved": true,
+        "fusedConsumersZero": true,
+        "singleEvaluation": true,
+        "correctCursor": true
+      }
+    },
+    {
+      "fixture": "mixed",
+      "variant": "AT1",
+      "counters": {
+        "cursorMaterializing": 1,
+        "builder": 2,
+        "fragments": 10,
+        "decodeEntity": 4,
+        "validation": 4,
+        "completedValues": 1,
+        "outputUnits": 3,
+        "normalizedConsumed": 1
+      },
+      "eventCount": 5,
+      "rawOccurrences": 4,
+      "resolverCalls": 4,
+      "namespaceCalls": 0,
+      "materializerCalls": 0,
+      "assertion": {
+        "rawOccurrenceObserved": true,
+        "fusedConsumersZero": true,
+        "singleEvaluation": true,
+        "correctCursor": true
+      }
+    }
+  ],
+  "pass": true
+}

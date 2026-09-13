@@ -1,0 +1,247 @@
+case,API,input,fixture,options,candidate,metric,blocks,R0_ms,candidate_ms,ratio,CI_low,CI_high,status
+P1/ascii-none,event-sync,bytes,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P1/ascii-none,event-sync,bytes,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P1/ascii-none,event-sync,bytes,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P1/unicode-none,event-sync,bytes,unicode-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P1/unicode-none,event-sync,bytes,unicode-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P1/unicode-none,event-sync,bytes,unicode-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P1/astral-none,event-sync,bytes,astral-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P1/astral-none,event-sync,bytes,astral-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P1/astral-none,event-sync,bytes,astral-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P1/rare,event-sync,bytes,rare,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P1/rare,event-sync,bytes,rare,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P1/rare,event-sync,bytes,rare,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P1/named-attr,event-sync,bytes,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P1/named-attr,event-sync,bytes,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P1/named-attr,event-sync,bytes,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P1/numeric-attr,event-sync,bytes,numeric-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P1/numeric-attr,event-sync,bytes,numeric-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P1/numeric-attr,event-sync,bytes,numeric-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P1/custom-attr,event-sync,bytes,custom-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P1/custom-attr,event-sync,bytes,custom-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P1/custom-attr,event-sync,bytes,custom-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P1/named-text,event-sync,bytes,named-text,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P1/named-text,event-sync,bytes,named-text,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P1/named-text,event-sync,bytes,named-text,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P1/mixed,event-sync,bytes,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P1/mixed,event-sync,bytes,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P1/mixed,event-sync,bytes,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P1/xmlns,event-sync,bytes,xmlns,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P1/xmlns,event-sync,bytes,xmlns,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P1/xmlns,event-sync,bytes,xmlns,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P2/ascii-none,event-async,chunks,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P2/ascii-none,event-async,chunks,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P2/ascii-none,event-async,chunks,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P2/unicode-none,event-async,chunks,unicode-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P2/unicode-none,event-async,chunks,unicode-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P2/unicode-none,event-async,chunks,unicode-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P2/rare,event-async,chunks,rare,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P2/rare,event-async,chunks,rare,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P2/rare,event-async,chunks,rare,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P2/named-attr,event-async,chunks,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P2/named-attr,event-async,chunks,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P2/named-attr,event-async,chunks,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P2/numeric-attr,event-async,chunks,numeric-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P2/numeric-attr,event-async,chunks,numeric-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P2/numeric-attr,event-async,chunks,numeric-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P2/named-text,event-async,chunks,named-text,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P2/named-text,event-async,chunks,named-text,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P2/named-text,event-async,chunks,named-text,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P2/mixed,event-async,chunks,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P2/mixed,event-async,chunks,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P2/mixed,event-async,chunks,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P3/ascii-none,event-sync,string,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P3/ascii-none,event-sync,string,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P3/ascii-none,event-sync,string,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P3/rare,event-sync,string,rare,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P3/rare,event-sync,string,rare,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P3/rare,event-sync,string,rare,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P3/named-attr,event-sync,string,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P3/named-attr,event-sync,string,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P3/named-attr,event-sync,string,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P3/numeric-attr,event-sync,string,numeric-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P3/numeric-attr,event-sync,string,numeric-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P3/numeric-attr,event-sync,string,numeric-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P3/named-text,event-sync,string,named-text,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P3/named-text,event-sync,string,named-text,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P3/named-text,event-sync,string,named-text,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P3/mixed,event-sync,string,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+P3/mixed,event-sync,string,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+P3/mixed,event-sync,string,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+P4/midsize,event-sync,bytes,midsize.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,7,358.8814571831905,353.9747886998736,0.9863278851968872,0.9730122960514924,0.9987400768019594,PASS
+P4/midsize,event-sync,bytes,midsize.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,7,358.8814571831905,386.5367977084667,1.0770598200930717,1.06039270234837,1.0924520391281476,FAIL
+P4/midsize,event-sync,bytes,midsize.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,7,358.8814571831905,383.3130732653808,1.0680771201553585,1.0559526148040426,1.0797265424465698,FAIL
+P4/large,event-sync,bytes,large.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,14,2705.097969833976,2741.991778100555,1.0136386218458626,0.9968539577125837,1.034627649529873,INCONCLUSIVE
+P4/large,event-sync,bytes,large.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,14,2705.097969833976,2937.1362077627023,1.0857781272679614,1.0788887732965524,1.0922448693509532,FAIL
+P4/large,event-sync,bytes,large.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,14,2705.097969833976,2945.516725104378,1.088876173044911,1.0805767101292545,1.0957300275813577,FAIL
+G1-sync/named-attr,event-sync,bytes,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": false}",W0,fullMs,0,,,,,,NOT RUN
+G1-sync/named-attr,event-sync,bytes,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": false}",A1,fullMs,0,,,,,,NOT RUN
+G1-sync/named-attr,event-sync,bytes,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": false}",AT1,fullMs,0,,,,,,NOT RUN
+G1-async/named-attr,event-async,chunks,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": false}",W0,fullMs,0,,,,,,NOT RUN
+G1-async/named-attr,event-async,chunks,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": false}",A1,fullMs,0,,,,,,NOT RUN
+G1-async/named-attr,event-async,chunks,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": false}",AT1,fullMs,0,,,,,,NOT RUN
+G1-sync/named-text,event-sync,bytes,named-text,"{""namespaceAware"": true, ""autoDecodeEntities"": false}",W0,fullMs,0,,,,,,NOT RUN
+G1-sync/named-text,event-sync,bytes,named-text,"{""namespaceAware"": true, ""autoDecodeEntities"": false}",A1,fullMs,0,,,,,,NOT RUN
+G1-sync/named-text,event-sync,bytes,named-text,"{""namespaceAware"": true, ""autoDecodeEntities"": false}",AT1,fullMs,0,,,,,,NOT RUN
+G1-async/named-text,event-async,chunks,named-text,"{""namespaceAware"": true, ""autoDecodeEntities"": false}",W0,fullMs,0,,,,,,NOT RUN
+G1-async/named-text,event-async,chunks,named-text,"{""namespaceAware"": true, ""autoDecodeEntities"": false}",A1,fullMs,0,,,,,,NOT RUN
+G1-async/named-text,event-async,chunks,named-text,"{""namespaceAware"": true, ""autoDecodeEntities"": false}",AT1,fullMs,0,,,,,,NOT RUN
+G1-sync/mixed,event-sync,bytes,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": false}",W0,fullMs,0,,,,,,NOT RUN
+G1-sync/mixed,event-sync,bytes,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": false}",A1,fullMs,0,,,,,,NOT RUN
+G1-sync/mixed,event-sync,bytes,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": false}",AT1,fullMs,0,,,,,,NOT RUN
+G1-async/mixed,event-async,chunks,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": false}",W0,fullMs,0,,,,,,NOT RUN
+G1-async/mixed,event-async,chunks,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": false}",A1,fullMs,0,,,,,,NOT RUN
+G1-async/mixed,event-async,chunks,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": false}",AT1,fullMs,0,,,,,,NOT RUN
+G2-aware/named-attr,event-sync,bytes,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+G2-aware/named-attr,event-sync,bytes,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+G2-aware/named-attr,event-sync,bytes,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+G2-raw/named-attr,event-sync,bytes,named-attr,"{""namespaceAware"": false, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+G2-raw/named-attr,event-sync,bytes,named-attr,"{""namespaceAware"": false, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+G2-raw/named-attr,event-sync,bytes,named-attr,"{""namespaceAware"": false, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+G2-aware/xmlns,event-sync,bytes,xmlns,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+G2-aware/xmlns,event-sync,bytes,xmlns,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+G2-aware/xmlns,event-sync,bytes,xmlns,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+G2-raw/xmlns,event-sync,bytes,xmlns,"{""namespaceAware"": false, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+G2-raw/xmlns,event-sync,bytes,xmlns,"{""namespaceAware"": false, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+G2-raw/xmlns,event-sync,bytes,xmlns,"{""namespaceAware"": false, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+G3-sync-full/ascii-none,stream-sync,bytes,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+G3-sync-full/ascii-none,stream-sync,bytes,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+G3-sync-full/ascii-none,stream-sync,bytes,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+G3-sync-type/ascii-none,stream-sync,bytes,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+G3-sync-type/ascii-none,stream-sync,bytes,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+G3-sync-type/ascii-none,stream-sync,bytes,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+G3-async-full/ascii-none,stream-async,chunks,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+G3-async-full/ascii-none,stream-async,chunks,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+G3-async-full/ascii-none,stream-async,chunks,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+G3-async-type/ascii-none,stream-async,chunks,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+G3-async-type/ascii-none,stream-async,chunks,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+G3-async-type/ascii-none,stream-async,chunks,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+G3-sync-full/mixed,stream-sync,bytes,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+G3-sync-full/mixed,stream-sync,bytes,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+G3-sync-full/mixed,stream-sync,bytes,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+G3-sync-type/mixed,stream-sync,bytes,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+G3-sync-type/mixed,stream-sync,bytes,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+G3-sync-type/mixed,stream-sync,bytes,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+G3-async-full/mixed,stream-async,chunks,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+G3-async-full/mixed,stream-async,chunks,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+G3-async-full/mixed,stream-async,chunks,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+G3-async-type/mixed,stream-async,chunks,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+G3-async-type/mixed,stream-async,chunks,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+G3-async-type/mixed,stream-async,chunks,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+G3-sync-full/named-attr,stream-sync,bytes,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+G3-sync-full/named-attr,stream-sync,bytes,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+G3-sync-full/named-attr,stream-sync,bytes,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+G3-sync-type/named-attr,stream-sync,bytes,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+G3-sync-type/named-attr,stream-sync,bytes,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+G3-sync-type/named-attr,stream-sync,bytes,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+G3-async-full/named-attr,stream-async,chunks,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+G3-async-full/named-attr,stream-async,chunks,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+G3-async-full/named-attr,stream-async,chunks,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+G3-async-type/named-attr,stream-async,chunks,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+G3-async-type/named-attr,stream-async,chunks,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+G3-async-type/named-attr,stream-async,chunks,named-attr,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+G4/converter-catalog,converter,string,converter-catalog,"{""documentMode"": ""fragment"", ""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,14,185.2740468198536,184.1701927684094,0.9940420470627629,0.9583258939198815,1.0207083093461498,INCONCLUSIVE
+G4/converter-catalog,converter,string,converter-catalog,"{""documentMode"": ""fragment"", ""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,14,185.2740468198536,183.1834478986756,0.9887161803983763,0.9481845819160912,1.0200140453758917,INCONCLUSIVE
+G4/converter-catalog,converter,string,converter-catalog,"{""documentMode"": ""fragment"", ""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,14,185.2740468198536,186.8995146253191,1.008773316248908,0.9611346499798156,1.051914607880277,INCONCLUSIVE
+G5/event-sync-2KiB,event-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,constructorMs,7,0.09455329998977158,0.11452309348418047,1.211201444016964,1.1804240403759998,1.2485351589430151,FAIL
+G5/event-sync-2KiB,event-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,firstNextMs,7,0.35246879240314005,0.3512137110775108,0.9964391703530061,0.9658482153924393,1.028916537474965,PASS
+G5/event-sync-2KiB,event-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,firstNextCloseMs,7,0.486379079352917,0.5046474772373485,1.037559999309049,1.009790464943792,1.0662609612104696,PASS
+G5/event-sync-2KiB,event-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,7,1.2851446817807677,1.307363247924174,1.017288766361013,1.0005592595719879,1.03479397624984,PASS
+G5/event-sync-2KiB,event-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,constructorMs,7,0.09455329998977158,0.11316572938981002,1.1968458996359923,1.1485470743358728,1.2407169527879245,FAIL
+G5/event-sync-2KiB,event-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,firstNextMs,7,0.35246879240314005,0.35935297039735575,1.0195313121121428,0.9922788213858021,1.04714151248261,PASS
+G5/event-sync-2KiB,event-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,firstNextCloseMs,7,0.486379079352917,0.514682476317863,1.0581920525911621,1.0287397919945203,1.0854319062521263,PASS
+G5/event-sync-2KiB,event-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,7,1.2851446817807677,1.3049760501353211,1.0154312340359017,1.0081212903780021,1.0234982615227026,PASS
+G5/event-sync-2KiB,event-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,constructorMs,7,0.09455329998977158,0.11508026738083357,1.217094140482485,1.164742236825438,1.275375910810275,FAIL
+G5/event-sync-2KiB,event-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,firstNextMs,7,0.35246879240314005,0.35866376735169153,1.017575953054777,0.9996467027711672,1.0344423222920394,PASS
+G5/event-sync-2KiB,event-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,firstNextCloseMs,7,0.486379079352917,0.5166917298757048,1.0623230969619746,1.0393867716204972,1.085476178460215,PASS
+G5/event-sync-2KiB,event-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,7,1.2851446817807677,1.32391057115927,1.0301646109796652,1.0242528306995107,1.0361881891603002,PASS
+G5/event-sync-4KiB,event-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,constructorMs,14,0.0964786848489786,0.11313099623051322,1.1726009367519994,1.13654549225515,1.2107330096852644,FAIL
+G5/event-sync-4KiB,event-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,firstNextMs,14,0.3530675192614779,0.35160441266569575,0.9958560147394964,0.9796976667567686,1.0119632547117994,PASS
+G5/event-sync-4KiB,event-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,firstNextCloseMs,14,0.4895865442295702,0.5045363077048345,1.0305354868336707,1.0101775807268203,1.0510823066848323,PASS
+G5/event-sync-4KiB,event-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,14,1.6059507775344457,1.598995982842647,0.9956693599896779,0.9806064190770162,1.0114868872918636,PASS
+G5/event-sync-4KiB,event-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,constructorMs,14,0.0964786848489786,0.11434505309300537,1.1851846163947364,1.1505777427418373,1.2230193100612774,FAIL
+G5/event-sync-4KiB,event-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,firstNextMs,14,0.3530675192614779,0.3601924810880772,1.0201801679222797,1.0037192379556272,1.0367454463732175,PASS
+G5/event-sync-4KiB,event-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,firstNextCloseMs,14,0.4895865442295702,0.5166623675577184,1.0553034466475293,1.0365747799977194,1.0749559974612048,PASS
+G5/event-sync-4KiB,event-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,14,1.6059507775344457,1.6262562200927437,1.012643876040505,0.999444913767038,1.0240273812738934,PASS
+G5/event-sync-4KiB,event-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,constructorMs,14,0.0964786848489786,0.11638148556146093,1.2062922058238756,1.1745632541210556,1.23938636129937,FAIL
+G5/event-sync-4KiB,event-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,firstNextMs,14,0.3530675192614779,0.3594374051094294,1.0180415515459353,1.003509688004026,1.0331851286588036,PASS
+G5/event-sync-4KiB,event-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,firstNextCloseMs,14,0.4895865442295702,0.5188751748637594,1.0598231936302065,1.0428547330472475,1.0773774785331462,PASS
+G5/event-sync-4KiB,event-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,14,1.6059507775344457,1.6669978540564705,1.0380130433485317,1.0234756346892888,1.0525664278554605,PASS
+G5/stream-sync-2KiB,stream-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,constructorMs,14,0.09117158197235019,0.09856788405558982,1.0811250822156702,1.0375210241164603,1.1207979855357504,INCONCLUSIVE
+G5/stream-sync-2KiB,stream-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,firstNextMs,14,0.308289451209609,0.3046083210058155,0.9880594999622915,0.9647409675658664,1.0093287778742808,PASS
+G5/stream-sync-2KiB,stream-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,firstNextCloseMs,14,0.43608337608949355,0.43946782453746475,1.0077610123053087,0.9818259584972444,1.0311386190519516,PASS
+G5/stream-sync-2KiB,stream-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,14,1.2336052494183527,1.2180628773634434,0.9874008544773641,0.975253371233166,0.9991145111392082,PASS
+G5/stream-sync-2KiB,stream-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,constructorMs,14,0.09117158197235019,0.09987381621108567,1.0954489770877793,1.0398996741127513,1.157790107714723,INCONCLUSIVE
+G5/stream-sync-2KiB,stream-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,firstNextMs,14,0.308289451209609,0.30568735136070563,0.9915595559994229,0.9648396899734247,1.020906711042734,PASS
+G5/stream-sync-2KiB,stream-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,firstNextCloseMs,14,0.43608337608949355,0.44191309447292815,1.013368357298349,0.9819477521582082,1.048618030365007,PASS
+G5/stream-sync-2KiB,stream-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,14,1.2336052494183527,1.2155824374356519,0.9853901302777379,0.9711713990078112,0.9989666452524407,PASS
+G5/stream-sync-2KiB,stream-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,constructorMs,14,0.09117158197235019,0.0985672337123208,1.0811179490360663,1.0358183628164184,1.1282551571478832,INCONCLUSIVE
+G5/stream-sync-2KiB,stream-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,firstNextMs,14,0.308289451209609,0.3065629872007259,0.9943998602543517,0.9708144414515066,1.0190478562776513,PASS
+G5/stream-sync-2KiB,stream-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,firstNextCloseMs,14,0.43608337608949355,0.4414382266882221,1.0122794192403004,0.9869498775255272,1.0388090925626756,PASS
+G5/stream-sync-2KiB,stream-sync,bytes,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,14,1.2336052494183527,1.2231330837239534,0.9915109264496589,0.9790734419163389,1.004029814739317,PASS
+G5/stream-sync-4KiB,stream-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,constructorMs,14,0.08888718092666091,0.09983299981107577,1.1231428285867906,1.1022078561826927,1.144656096298154,FAIL
+G5/stream-sync-4KiB,stream-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,firstNextMs,14,0.30271577956268103,0.3066900124166102,1.0131285949469522,0.9968475802051144,1.0314923300518846,PASS
+G5/stream-sync-4KiB,stream-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,firstNextCloseMs,14,0.4273977806064248,0.4427551749322812,1.0359323211834797,1.0209721228590933,1.0532736621010466,PASS
+G5/stream-sync-4KiB,stream-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,14,1.4982422387844982,1.4974456932349212,0.9994683466204882,0.9891884255373833,1.0085632804848697,PASS
+G5/stream-sync-4KiB,stream-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,constructorMs,14,0.08888718092666091,0.10278041164529803,1.1563018488582755,1.1138966400323849,1.1953037529829005,FAIL
+G5/stream-sync-4KiB,stream-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,firstNextMs,14,0.30271577956268103,0.3081635290647783,1.017996252160913,0.9979187228235804,1.037817727462993,PASS
+G5/stream-sync-4KiB,stream-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,firstNextCloseMs,14,0.4273977806064248,0.44717159837081943,1.0462656070331906,1.0229336224068704,1.068491437563527,PASS
+G5/stream-sync-4KiB,stream-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,14,1.4982422387844982,1.5066545267288893,1.0056147715814072,0.9905215260330685,1.0228389515531793,PASS
+G5/stream-sync-4KiB,stream-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,constructorMs,14,0.08888718092666091,0.10296956662337428,1.15842988325091,1.1261826386496667,1.1893979663421175,FAIL
+G5/stream-sync-4KiB,stream-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,firstNextMs,14,0.30271577956268103,0.30685877396255934,1.0136860866845578,0.9955243507519539,1.029033299891536,PASS
+G5/stream-sync-4KiB,stream-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,firstNextCloseMs,14,0.4273977806064248,0.4459684855167913,1.0434506348723127,1.024497599724621,1.0598316667203462,PASS
+G5/stream-sync-4KiB,stream-sync,bytes,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,14,1.4982422387844982,1.5112084870932176,1.0086543070092848,0.9919650330864586,1.0244624122746708,PASS
+G5/event-async-2KiB,event-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,constructorMs,7,0.08748651252769328,0.10679806441384744,1.2207374751627138,1.151554740118761,1.3067621858250105,FAIL
+G5/event-async-2KiB,event-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,firstNextMs,7,0.3632810281030076,0.35900738524052556,0.9882359866552944,0.9505633150048888,1.0198345131271447,PASS
+G5/event-async-2KiB,event-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,firstNextCloseMs,7,0.4942043512173456,0.5072173664304142,1.026331243707212,0.9815429625267987,1.0676397881658426,PASS
+G5/event-async-2KiB,event-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,7,1.359020146028047,1.3536475707364184,0.9960467287351619,0.976142964085108,1.0171215992469234,PASS
+G5/event-async-2KiB,event-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,constructorMs,7,0.08748651252769328,0.10614461105810931,1.2132682854915484,1.1441281073732519,1.2698544048839877,FAIL
+G5/event-async-2KiB,event-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,firstNextMs,7,0.3632810281030076,0.3631712115124432,0.9996977089854158,0.9606609745061373,1.0300041174536247,PASS
+G5/event-async-2KiB,event-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,firstNextCloseMs,7,0.4942043512173456,0.5133588827378238,1.0387583222877257,0.9930254747391476,1.0726798726502913,PASS
+G5/event-async-2KiB,event-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,7,1.359020146028047,1.3798597875167073,1.0153343138801638,0.9944242935406308,1.0365934255030076,PASS
+G5/event-async-2KiB,event-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,constructorMs,7,0.08748651252769328,0.10772638425146884,1.231348480342827,1.1653263771857396,1.2960829139177301,FAIL
+G5/event-async-2KiB,event-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,firstNextMs,7,0.3632810281030076,0.36476157092726674,1.0040754752098953,0.9641254539209653,1.0338086546064047,PASS
+G5/event-async-2KiB,event-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,firstNextCloseMs,7,0.4942043512173456,0.5173532939745372,1.046840831530864,1.0010542714337198,1.0822316788835755,PASS
+G5/event-async-2KiB,event-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,7,1.359020146028047,1.3798602306980081,1.0153346399837189,1.003243069988622,1.0283967336018756,PASS
+G5/event-async-4KiB,event-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,constructorMs,7,0.08984949944495636,0.10633134146336141,1.183438328763336,1.1554139196260491,1.2110448102233207,FAIL
+G5/event-async-4KiB,event-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,firstNextMs,7,0.36188681982511495,0.35623118037980317,0.9843718004207921,0.9702717253346821,0.9974751402866685,PASS
+G5/event-async-4KiB,event-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,firstNextCloseMs,7,0.4944074873357519,0.5053730021843185,1.0221791035319008,1.0116423051321506,1.032917586268977,PASS
+G5/event-async-4KiB,event-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,7,1.7075348465132425,1.6875079431849176,0.9882714526328882,0.9813203495439725,0.9951328294611917,PASS
+G5/event-async-4KiB,event-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,constructorMs,7,0.08984949944495636,0.11304002544096074,1.2581041201037677,1.2085389780931803,1.3009154039597666,FAIL
+G5/event-async-4KiB,event-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,firstNextMs,7,0.36188681982511495,0.3736366104352122,1.0324681363520656,1.0230912481593522,1.0410133638751384,PASS
+G5/event-async-4KiB,event-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,firstNextCloseMs,7,0.4944074873357519,0.5316080952152856,1.0752428084776775,1.0591956037850832,1.0901224161810155,PASS
+G5/event-async-4KiB,event-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,7,1.7075348465132425,1.7537901103084401,1.0270889135232877,1.015667977743703,1.0392812432848952,PASS
+G5/event-async-4KiB,event-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,constructorMs,7,0.08984949944495636,0.10995748978732797,1.223796353531053,1.1733181968067274,1.2724818694240256,FAIL
+G5/event-async-4KiB,event-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,firstNextMs,7,0.36188681982511495,0.3706263915154319,1.0241500137930981,0.9975931365964834,1.0561631134398068,PASS
+G5/event-async-4KiB,event-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,firstNextCloseMs,7,0.4944074873357519,0.5267915582524296,1.0655007696003718,1.036022556512312,1.0995318025517782,PASS
+G5/event-async-4KiB,event-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,7,1.7075348465132425,1.7632850303234304,1.0326495145466748,1.0243270014617527,1.0408567726310782,PASS
+G5/stream-async-2KiB,stream-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,constructorMs,14,0.08197869074924329,0.09385965300880773,1.1449274457908334,1.1053895908875437,1.1914169367405887,FAIL
+G5/stream-async-2KiB,stream-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,firstNextMs,14,0.32063406112884785,0.32399105807152073,1.0104698700158492,0.990646636064446,1.030128075609675,PASS
+G5/stream-async-2KiB,stream-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,firstNextCloseMs,14,0.44140327210844593,0.45760813370398534,1.036712146509775,1.0145148187388382,1.0598974297534995,PASS
+G5/stream-async-2KiB,stream-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,14,1.2697214191235533,1.2753246529851396,1.004412963172232,0.9907478234342416,1.017979943019954,PASS
+G5/stream-async-2KiB,stream-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,constructorMs,14,0.08197869074924329,0.09393282335005979,1.1458199989724385,1.104534321565803,1.1876249506784915,FAIL
+G5/stream-async-2KiB,stream-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,firstNextMs,14,0.32063406112884785,0.32528261941379244,1.014498017673414,0.9903472987999908,1.038778947603233,PASS
+G5/stream-async-2KiB,stream-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,firstNextCloseMs,14,0.44140327210844593,0.45859410916979554,1.0389458759089716,1.0127575395739838,1.0650663525680595,PASS
+G5/stream-async-2KiB,stream-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,14,1.2697214191235533,1.2768806613944481,1.005638435457627,0.9957078513183114,1.0163742078813847,PASS
+G5/stream-async-2KiB,stream-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,constructorMs,14,0.08197869074924329,0.09300464152404904,1.1344977661150015,1.0950170275095872,1.1734712910737348,INCONCLUSIVE
+G5/stream-async-2KiB,stream-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,firstNextMs,14,0.32063406112884785,0.3249385737941396,1.0134250012308017,0.993098977782251,1.032908986544915,PASS
+G5/stream-async-2KiB,stream-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,firstNextCloseMs,14,0.44140327210844593,0.45774860414369534,1.0370303825732257,1.0134664220894678,1.059979119303169,PASS
+G5/stream-async-2KiB,stream-async,chunks,complex.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,14,1.2697214191235533,1.2772104022876776,1.005898130921737,0.9932881424983593,1.0168876999833993,PASS
+G5/stream-async-4KiB,stream-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,constructorMs,14,0.08336751973529462,0.09436289506116606,1.1318903976126853,1.1033022002089448,1.1601755111572356,FAIL
+G5/stream-async-4KiB,stream-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,firstNextMs,14,0.3235877763927864,0.32442150601994907,1.0025765176807875,0.9887035626622515,1.016273638314913,PASS
+G5/stream-async-4KiB,stream-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,firstNextCloseMs,14,0.44596902906245117,0.45804165478619724,1.0270705473631792,1.01302701675603,1.0402512443753542,PASS
+G5/stream-async-4KiB,stream-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,14,1.6007026565912605,1.6064510323436998,1.0035911577511094,0.9906564994863869,1.0157093673160378,PASS
+G5/stream-async-4KiB,stream-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,constructorMs,14,0.08336751973529462,0.09516443990771928,1.1415049915108635,1.1067965009439011,1.1761111491718135,FAIL
+G5/stream-async-4KiB,stream-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,firstNextMs,14,0.3235877763927864,0.32546596000392664,1.0058042477131781,0.9823957836610886,1.0294627864448804,PASS
+G5/stream-async-4KiB,stream-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,firstNextCloseMs,14,0.44596902906245117,0.4596134879033216,1.0305950816126286,1.0077030151665987,1.0530334041166707,PASS
+G5/stream-async-4KiB,stream-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,14,1.6007026565912605,1.5998018468552078,0.9994372410563926,0.9834292463679666,1.0141329888994246,PASS
+G5/stream-async-4KiB,stream-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,constructorMs,14,0.08336751973529462,0.09324785138630995,1.1185153604471731,1.095639206421978,1.141069086050628,INCONCLUSIVE
+G5/stream-async-4KiB,stream-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,firstNextMs,14,0.3235877763927864,0.32396967912272373,1.001180213709537,0.9852301987898076,1.0160748223370497,PASS
+G5/stream-async-4KiB,stream-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,firstNextCloseMs,14,0.44596902906245117,0.45739345078301386,1.0256170742272843,1.0097191166081332,1.0410048776557908,PASS
+G5/stream-async-4KiB,stream-async,chunks,books.xml,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,14,1.6007026565912605,1.5921180602053713,0.9946369824835735,0.9812877338188356,1.0066793697320429,PASS
+G6/ascii-none,mixed-process,bytes,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+G6/ascii-none,mixed-process,bytes,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+G6/ascii-none,mixed-process,bytes,ascii-none,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN
+G6/mixed,mixed-process,bytes,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",W0,fullMs,0,,,,,,NOT RUN
+G6/mixed,mixed-process,bytes,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",A1,fullMs,0,,,,,,NOT RUN
+G6/mixed,mixed-process,bytes,mixed,"{""namespaceAware"": true, ""autoDecodeEntities"": true}",AT1,fullMs,0,,,,,,NOT RUN

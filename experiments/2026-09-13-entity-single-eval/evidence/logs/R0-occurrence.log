@@ -1,0 +1,4 @@
+{"id":"R0","api":"sync","c":{"cursorReference":1,"decodeEntity":13,"validation":6,"namespace":1,"materializer":6}}
+{"id":"R0","api":"async","c":{"cursorReference":1,"decodeEntity":13,"validation":6,"namespace":1,"materializer":6}}
+{"id":"R0","api":"raw","c":{"cursorReference":1,"rawPolicy":1,"decodeEntity":7,"validation":6,"namespace":1}}
+{"id":"R0","api":"stream","c":{"cursorReference":1,"decodeEntity":7,"validation":6,"namespace":1}}

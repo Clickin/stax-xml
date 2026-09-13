@@ -1,0 +1,105 @@
+{
+  "baselineSha": "9a839ffb6824a25c4cc2fa6698e860daea5b5816",
+  "worktree": "/tmp/stax-entity-single-eval",
+  "baselineWorktree": "/tmp/stax-entity-single-eval-r0",
+  "evidence": "/tmp/stax-entity-single-eval-evidence",
+  "sourceFingerprints": {
+    "packages/stax-xml/src/WriterCore.ts": "514ee30e2b168965c180acac9efefbac7b83514035a8d30755aed66faa7e5f09",
+    "packages/stax-xml/src/async/EventReader.ts": "a2d8e6bad38ff60cf337c76a51637aba01e84296719ad11b23dbe6ef0fed83b8",
+    "packages/stax-xml/src/async/StreamReader.ts": "35e3542ada0e53462d0caf52a220bc76251fcc07b6baa1ec9b44f6895ac97a73",
+    "packages/stax-xml/src/async/Writer.ts": "636e48f4edd3fb874e107cd3c965b7744518698186625addd637bfbecdb3937b",
+    "packages/stax-xml/src/async/index.ts": "63d9e904517295af8865f11637c4e7bbfc8e15ee9f6fff1ed6336e142f9f3949",
+    "packages/stax-xml/src/converter/converter/CompiledRootProcessor.ts": "747d5fae41e337a744bb31463d3c40f0ebe91edb21fe0b40f0cce5abe01e6507",
+    "packages/stax-xml/src/converter/converter/CompiledXmlSchema.ts": "224430ef962889f0541c493b81f5e86cc71c6e140ef6faecad4d45fa2b44261d",
+    "packages/stax-xml/src/converter/converter/XPathEngine.ts": "e418515a3496e0e6c21c57d35598b579a07c932ec7861132faf6df98963886e2",
+    "packages/stax-xml/src/converter/converter/XmlArraySchema.ts": "98e8ebe970ee9363259272cff1c2a330a222d202e0836f7fe611cb2142a646a4",
+    "packages/stax-xml/src/converter/converter/XmlBuilder.ts": "7f57a16000ec4502f67bc3ac9068aa0bb53d760265e70d18736d27b90fff84ce",
+    "packages/stax-xml/src/converter/converter/XmlNumberSchema.ts": "ae1de72c265b50155f26186a8375cd1cd38eee410cb6bd348e32f169bfb29078",
+    "packages/stax-xml/src/converter/converter/XmlObjectSchema.ts": "f5c614dff5824ae9b3f0bab1d1ff5e8aaf403e1c38a003d29dbb4dabd3c7bb8c",
+    "packages/stax-xml/src/converter/converter/XmlOptionalSchema.ts": "2c82a386321bf155749f962f7151743a92104423512c1c6ec7615982ed8cc510",
+    "packages/stax-xml/src/converter/converter/XmlSchema.ts": "2a869ec8c26b0ebf6078e1dbbde1475a93c08c59f0dda77f80c7697d07512bcf",
+    "packages/stax-xml/src/converter/converter/XmlStringSchema.ts": "0479039d216a42f8d256059501f005c6345838badf12bf12ea7d42115f304820",
+    "packages/stax-xml/src/converter/converter/XmlTransformSchema.ts": "83d661ef88e6166ea62c877e69ddd5af8823e0cee1d8d5a7b35d7b24fe03cde4",
+    "packages/stax-xml/src/converter/converter/base.ts": "205d5947738a886c4c36e67a1242c5e8981181056c0b92fe90ee24370b694af0",
+    "packages/stax-xml/src/converter/converter/compiled-plan.ts": "a25d981a42aff6289c5979c9140df906349b0f4b526d27c8665226a5c3bcef91",
+    "packages/stax-xml/src/converter/converter/errors.ts": "1d66d69d02c0a1be9d51af7b8991259cc16c621ed736b8aa2f46b9512d430b0a",
+    "packages/stax-xml/src/converter/converter/index.ts": "9c6251c1077dcffea47a46d0b3a669a2e1c20a6d9526ed5e135dbaa5dd4248df",
+    "packages/stax-xml/src/converter/converter/types.ts": "4cea200f9fd668f57a2ead851bc229166527390a250e06d34ce16b165791a9dd",
+    "packages/stax-xml/src/converter/converter/write-utils.ts": "63c91ae5844bc820b42f373bd26454095b794819bf27f6dd27e77814e8fb165b",
+    "packages/stax-xml/src/converter/index.ts": "e719fc8dc705193881c327c183b32846f4f28137db2c3de8c47100de763b050e",
+    "packages/stax-xml/src/converter.ts": "55cd0efb1c45459eef5f60f30ab2aa57bea4960c22d3bf9ff333883bcb451580",
+    "packages/stax-xml/src/core/TokenCursor.ts": "ce0cf378a9a3b695788f7655ec5a4cac87383a21e47ce1c14d4af3c528319bf0",
+    "packages/stax-xml/src/core/index.ts": "6ad5d8de4ac0ded7f186303053bccd94ac4bd29680db8f1cfb35cd518f232f11",
+    "packages/stax-xml/src/core/internal/materialize-token-event.ts": "5023b0e5c7ca49e45aec0cb0f989d5209a0660dec6e71a34062a779b7d67e077",
+    "packages/stax-xml/src/core/types.ts": "80e19afffa5fa2b9e6fbc1742950a7dfed114edfcacd3c6d87e83991c538f4ad",
+    "packages/stax-xml/src/core/xml-validation.ts": "f548b67c68f0f71bd5e04c5b676a2d40389e5c8fe3f81f00d5ef89e7ad93c035",
+    "packages/stax-xml/src/index.ts": "78090b76d4a4ea906ae328973f63b6d61c3c406d3b7ee6a1f41db04e6aaf686a",
+    "packages/stax-xml/src/sync/EventReaderSync.ts": "8e8cbff989caed58c01ed6afad1b14b8e5fb2cfdc2dbc7882e22614134db44af",
+    "packages/stax-xml/src/sync/StreamReaderSync.ts": "68533a24f060a0ede37bb0caac30aa57595300f670b5b3e855e67e8b40ee7415",
+    "packages/stax-xml/src/sync/WriterSync.ts": "892730fe56bda531dd821acdf34169d802e194ad3911f92510528465530e14b1",
+    "packages/stax-xml/src/sync/index.ts": "8c273239a2f193093f2173c8d2ded7117f99d4e7efef272a461985d0e26427ac"
+  },
+  "commands": {
+    "node": "v24.21.0",
+    "pnpm": "11.13.1"
+  },
+  "researchZip": "NOT FOUND in inputs, /tmp/stax, Downloads matching frontier",
+  "finalChecks": [
+    {
+      "check": "final-build",
+      "command": [
+        "pnpm",
+        "--filter=stax-xml",
+        "build"
+      ],
+      "exitCode": 0
+    },
+    {
+      "check": "final-unit",
+      "command": [
+        "pnpm",
+        "--filter=stax-xml",
+        "test"
+      ],
+      "exitCode": 0
+    },
+    {
+      "check": "final-w3c",
+      "command": [
+        "pnpm",
+        "--filter=stax-xml",
+        "test:w3c"
+      ],
+      "exitCode": 0
+    },
+    {
+      "check": "final-coverage",
+      "command": [
+        "pnpm",
+        "--filter=stax-xml",
+        "coverage"
+      ],
+      "exitCode": 0
+    },
+    {
+      "check": "final-release-surfaces",
+      "command": [
+        "pnpm",
+        "verify:release-surfaces"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "finalDistSha256": "8474ddd7ba97c0debfb80b4439d75c6c9db9009c5914281cac40598ea784e0c9",
+  "adopted": [],
+  "harnessPatchSha256": "a58942c7e8c8ebf132a47da8dad4b1e85ced01a94701fee5b9e58e3721346386",
+  "harnessFiles": [
+    "packages/benchmark/entity-single-eval.mjs",
+    "packages/benchmark/entity-single-eval/consume.mjs",
+    "packages/benchmark/entity-single-eval/fixtures.mjs",
+    "packages/benchmark/entity-single-eval/analyze.mjs",
+    "packages/benchmark/entity-single-eval/retention.mjs",
+    "packages/benchmark/test/entity-single-eval-contract.test.mjs"
+  ],
+  "candidateSourceIdentity": "baselineSha + patchSha256; no candidate commits were created"
+}

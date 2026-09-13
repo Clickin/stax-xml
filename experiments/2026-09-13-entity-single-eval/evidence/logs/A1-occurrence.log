@@ -1,0 +1,4 @@
+{"id":"A1","api":"sync","c":{"cursorMaterializing":1,"builder":3,"fragments":13,"decodeEntity":7,"validation":6,"completedValues":4,"outputUnits":10,"normalizedConsumed":4,"entityFreeValues":1,"materializer":1}}
+{"id":"A1","api":"async","c":{"cursorMaterializing":1,"builder":3,"fragments":13,"decodeEntity":7,"validation":6,"completedValues":4,"outputUnits":10,"normalizedConsumed":4,"entityFreeValues":1,"materializer":1}}
+{"id":"A1","api":"raw","c":{"cursorMaterializing":1,"rawPolicy":1,"decodeEntity":7,"validation":6,"namespace":1}}
+{"id":"A1","api":"stream","c":{"cursorReference":1,"decodeEntity":7,"validation":6,"namespace":1}}

@@ -1,0 +1,1 @@
+["bun", "packages/benchmark/entity-single-eval.mjs", "retention", "--manifest", "/tmp/stax-entity-single-eval-evidence/builds.json", "--counts", "16", "--repeats", "1", "--out", "/tmp/stax-entity-single-eval-evidence/bun-retention-smoke.json"]

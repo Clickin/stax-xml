@@ -1,0 +1,22 @@
+[
+  {
+    "variant": "R0",
+    "index.d.ts": "2269f64cba5c424073de3935e1f678599f3945f11cb5e76ce094075c461d986f",
+    "converter.d.ts": "ca65dfa3008f2afdcad151b33d57efd56a75d0f46bb333af6cb3e7722b45b204"
+  },
+  {
+    "variant": "W0",
+    "index.d.ts": "2269f64cba5c424073de3935e1f678599f3945f11cb5e76ce094075c461d986f",
+    "converter.d.ts": "ca65dfa3008f2afdcad151b33d57efd56a75d0f46bb333af6cb3e7722b45b204"
+  },
+  {
+    "variant": "A1",
+    "index.d.ts": "2269f64cba5c424073de3935e1f678599f3945f11cb5e76ce094075c461d986f",
+    "converter.d.ts": "ca65dfa3008f2afdcad151b33d57efd56a75d0f46bb333af6cb3e7722b45b204"
+  },
+  {
+    "variant": "AT1",
+    "index.d.ts": "2269f64cba5c424073de3935e1f678599f3945f11cb5e76ce094075c461d986f",
+    "converter.d.ts": "ca65dfa3008f2afdcad151b33d57efd56a75d0f46bb333af6cb3e7722b45b204"
+  }
+]

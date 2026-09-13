@@ -1,0 +1,1378 @@
+{
+  "baselineContract": {
+    "status": "FAIL",
+    "validXml": "/tmp/stax-entity-single-eval-evidence/tests/wide-baseline.xml",
+    "reproduction": [
+      "node",
+      "/tmp/stax-entity-single-eval-evidence/wide-baseline-repro.mjs",
+      "/tmp/stax-entity-single-eval-evidence/builds/R0/dist/index.js"
+    ],
+    "xmllintExitCode": 0
+  },
+  "blockedCases": [
+    {
+      "case": "P1/ascii-none",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P1/ascii-none",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P1/unicode-none",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P1/unicode-none",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P1/astral-none",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P1/astral-none",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P1/rare",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P1/rare",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P1/named-attr",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P1/named-attr",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P1/numeric-attr",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P1/numeric-attr",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P1/custom-attr",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P1/custom-attr",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P1/named-text",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P1/named-text",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P1/mixed",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P1/mixed",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P1/xmlns",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P1/xmlns",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P2/ascii-none",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P2/ascii-none",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P2/unicode-none",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P2/unicode-none",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P2/rare",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P2/rare",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P2/named-attr",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P2/named-attr",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P2/numeric-attr",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P2/numeric-attr",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P2/named-text",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P2/named-text",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P2/mixed",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P2/mixed",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P3/ascii-none",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P3/ascii-none",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P3/rare",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P3/rare",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P3/named-attr",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P3/named-attr",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P3/numeric-attr",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P3/numeric-attr",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P3/named-text",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P3/named-text",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "P3/mixed",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "primary",
+        "--cases",
+        "P3/mixed",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G1-sync/named-attr",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G1-sync/named-attr",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G1-async/named-attr",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G1-async/named-attr",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G1-sync/named-text",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G1-sync/named-text",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G1-async/named-text",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G1-async/named-text",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G1-sync/mixed",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G1-sync/mixed",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G1-async/mixed",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G1-async/mixed",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G2-aware/named-attr",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G2-aware/named-attr",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G2-raw/named-attr",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G2-raw/named-attr",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G2-aware/xmlns",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n",
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G2-aware/xmlns",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G2-raw/xmlns",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n",
+        "AT1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G2-raw/xmlns",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G3-sync-full/ascii-none",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "W0": "entity-single-eval worker failed (1): W0/ascii-none warmup parse failed: Error: Duplicate attribute: a15\n",
+        "AT1": "entity-single-eval worker failed (1): AT1/ascii-none warmup parse failed: Error: Duplicate attribute: a15\n",
+        "A1": "entity-single-eval worker failed (1): A1/ascii-none warmup parse failed: Error: Duplicate attribute: a15\n",
+        "R0": "entity-single-eval worker failed (1): R0/ascii-none warmup parse failed: Error: Duplicate attribute: a15\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G3-sync-full/ascii-none",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G3-sync-type/ascii-none",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "W0": "entity-single-eval worker failed (1): W0/ascii-none warmup parse failed: Error: Duplicate attribute: a15\n",
+        "AT1": "entity-single-eval worker failed (1): AT1/ascii-none warmup parse failed: Error: Duplicate attribute: a15\n",
+        "A1": "entity-single-eval worker failed (1): A1/ascii-none warmup parse failed: Error: Duplicate attribute: a15\n",
+        "R0": "entity-single-eval worker failed (1): R0/ascii-none warmup parse failed: Error: Duplicate attribute: a15\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G3-sync-type/ascii-none",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G3-async-full/ascii-none",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "A1": "entity-single-eval worker failed (1): A1/ascii-none warmup parse failed: Error: Duplicate attribute: a15\n",
+        "AT1": "entity-single-eval worker failed (1): AT1/ascii-none warmup parse failed: Error: Duplicate attribute: a15\n",
+        "R0": "entity-single-eval worker failed (1): R0/ascii-none warmup parse failed: Error: Duplicate attribute: a15\n",
+        "W0": "entity-single-eval worker failed (1): W0/ascii-none warmup parse failed: Error: Duplicate attribute: a15\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G3-async-full/ascii-none",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G3-async-type/ascii-none",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "A1": "entity-single-eval worker failed (1): A1/ascii-none warmup parse failed: Error: Duplicate attribute: a15\n",
+        "AT1": "entity-single-eval worker failed (1): AT1/ascii-none warmup parse failed: Error: Duplicate attribute: a15\n",
+        "R0": "entity-single-eval worker failed (1): R0/ascii-none warmup parse failed: Error: Duplicate attribute: a15\n",
+        "W0": "entity-single-eval worker failed (1): W0/ascii-none warmup parse failed: Error: Duplicate attribute: a15\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G3-async-type/ascii-none",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G3-sync-full/mixed",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "R0": "entity-single-eval worker failed (1): R0/mixed warmup parse failed: Error: Duplicate attribute: a15\n",
+        "A1": "entity-single-eval worker failed (1): A1/mixed warmup parse failed: Error: Duplicate attribute: a15\n",
+        "W0": "entity-single-eval worker failed (1): W0/mixed warmup parse failed: Error: Duplicate attribute: a15\n",
+        "AT1": "entity-single-eval worker failed (1): AT1/mixed warmup parse failed: Error: Duplicate attribute: a15\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G3-sync-full/mixed",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G3-sync-type/mixed",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "R0": "entity-single-eval worker failed (1): R0/mixed warmup parse failed: Error: Duplicate attribute: a15\n",
+        "A1": "entity-single-eval worker failed (1): A1/mixed warmup parse failed: Error: Duplicate attribute: a15\n",
+        "W0": "entity-single-eval worker failed (1): W0/mixed warmup parse failed: Error: Duplicate attribute: a15\n",
+        "AT1": "entity-single-eval worker failed (1): AT1/mixed warmup parse failed: Error: Duplicate attribute: a15\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G3-sync-type/mixed",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G3-async-full/mixed",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "W0": "entity-single-eval worker failed (1): W0/mixed warmup parse failed: Error: Duplicate attribute: a15\n",
+        "AT1": "entity-single-eval worker failed (1): AT1/mixed warmup parse failed: Error: Duplicate attribute: a15\n",
+        "A1": "entity-single-eval worker failed (1): A1/mixed warmup parse failed: Error: Duplicate attribute: a15\n",
+        "R0": "entity-single-eval worker failed (1): R0/mixed warmup parse failed: Error: Duplicate attribute: a15\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G3-async-full/mixed",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G3-async-type/mixed",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "W0": "entity-single-eval worker failed (1): W0/mixed warmup parse failed: Error: Duplicate attribute: a15\n",
+        "AT1": "entity-single-eval worker failed (1): AT1/mixed warmup parse failed: Error: Duplicate attribute: a15\n",
+        "A1": "entity-single-eval worker failed (1): A1/mixed warmup parse failed: Error: Duplicate attribute: a15\n",
+        "R0": "entity-single-eval worker failed (1): R0/mixed warmup parse failed: Error: Duplicate attribute: a15\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G3-async-type/mixed",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G3-sync-full/named-attr",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "W0": "entity-single-eval worker failed (1): W0/named-attr warmup parse failed: Error: Duplicate attribute: a15\n",
+        "AT1": "entity-single-eval worker failed (1): AT1/named-attr warmup parse failed: Error: Duplicate attribute: a15\n",
+        "A1": "entity-single-eval worker failed (1): A1/named-attr warmup parse failed: Error: Duplicate attribute: a15\n",
+        "R0": "entity-single-eval worker failed (1): R0/named-attr warmup parse failed: Error: Duplicate attribute: a15\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G3-sync-full/named-attr",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G3-sync-type/named-attr",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "W0": "entity-single-eval worker failed (1): W0/named-attr warmup parse failed: Error: Duplicate attribute: a15\n",
+        "AT1": "entity-single-eval worker failed (1): AT1/named-attr warmup parse failed: Error: Duplicate attribute: a15\n",
+        "A1": "entity-single-eval worker failed (1): A1/named-attr warmup parse failed: Error: Duplicate attribute: a15\n",
+        "R0": "entity-single-eval worker failed (1): R0/named-attr warmup parse failed: Error: Duplicate attribute: a15\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G3-sync-type/named-attr",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G3-async-full/named-attr",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "A1": "entity-single-eval worker failed (1): A1/named-attr warmup parse failed: Error: Duplicate attribute: a15\n",
+        "AT1": "entity-single-eval worker failed (1): AT1/named-attr warmup parse failed: Error: Duplicate attribute: a15\n",
+        "R0": "entity-single-eval worker failed (1): R0/named-attr warmup parse failed: Error: Duplicate attribute: a15\n",
+        "W0": "entity-single-eval worker failed (1): W0/named-attr warmup parse failed: Error: Duplicate attribute: a15\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G3-async-full/named-attr",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G3-async-type/named-attr",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "A1": "entity-single-eval worker failed (1): A1/named-attr warmup parse failed: Error: Duplicate attribute: a15\n",
+        "AT1": "entity-single-eval worker failed (1): AT1/named-attr warmup parse failed: Error: Duplicate attribute: a15\n",
+        "R0": "entity-single-eval worker failed (1): R0/named-attr warmup parse failed: Error: Duplicate attribute: a15\n",
+        "W0": "entity-single-eval worker failed (1): W0/named-attr warmup parse failed: Error: Duplicate attribute: a15\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G3-async-type/named-attr",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G6/ascii-none",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "AT1": "entity-single-eval worker failed (1): AT1/ascii-none warmup parse failed: Error: Duplicate attribute: a15\n",
+        "R0": "entity-single-eval worker failed (1): R0/ascii-none warmup parse failed: Error: Duplicate attribute: a15\n",
+        "W0": "entity-single-eval worker failed (1): W0/ascii-none warmup parse failed: Error: Duplicate attribute: a15\n",
+        "A1": "entity-single-eval worker failed (1): A1/ascii-none warmup parse failed: Error: Duplicate attribute: a15\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G6/ascii-none",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    },
+    {
+      "case": "G6/mixed",
+      "status": "NOT RUN",
+      "cause": "R0 rejects valid repeated elements with id plus 16 general attributes; duplicate-table state persists across tags.",
+      "errors": {
+        "AT1": "entity-single-eval worker failed (1): AT1/mixed warmup parse failed: Error: Duplicate attribute: a15\n",
+        "A1": "entity-single-eval worker failed (1): A1/mixed warmup parse failed: Error: Duplicate attribute: a15\n",
+        "R0": "entity-single-eval worker failed (1): R0/mixed warmup parse failed: Error: Duplicate attribute: a15\n",
+        "W0": "entity-single-eval worker failed (1): W0/mixed warmup parse failed: Error: Duplicate attribute: a15\n"
+      },
+      "command": [
+        "node",
+        "packages/benchmark/entity-single-eval.mjs",
+        "bench",
+        "--manifest",
+        "/tmp/stax-entity-single-eval-evidence/builds.json",
+        "--suite",
+        "guards",
+        "--cases",
+        "G6/mixed",
+        "--blocks",
+        "7",
+        "--warmups",
+        "6",
+        "--runs",
+        "5"
+      ]
+    }
+  ],
+  "candidateCoverage": {
+    "A1": {
+      "status": "FAIL",
+      "lines": 98.88,
+      "statements": 98.67,
+      "branches": 97.66,
+      "functions": 100
+    },
+    "AT1": {
+      "status": "FAIL",
+      "lines": 97.62,
+      "statements": 97.45,
+      "branches": 95.3,
+      "functions": 100
+    }
+  },
+  "researchZip": {
+    "status": "NOT RUN",
+    "missing": "inputs/stax-purejs-new-frontier-research.zip",
+    "searches": [
+      "repository inputs",
+      "conversation accessible attachments",
+      "/tmp/stax/**/*.zip",
+      "/tmp/*frontier*",
+      "Downloads/*.zip",
+      ".ai-internal/*.zip"
+    ]
+  },
+  "additionalRuntimeDiscovery": {
+    "status": "PASS",
+    "initialLookup": "which jsc js firefox found no PATH commands",
+    "actualPaths": [
+      "/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc",
+      "/Applications/Firefox.app/Contents/MacOS/firefox"
+    ],
+    "evidence": [
+      "jsc-smoke.json",
+      "firefox-smoke.json",
+      "firefox-smoke-replay.json"
+    ]
+  },
+  "standaloneJscBytesAsync": {
+    "status": "NOT RUN",
+    "reason": "Standalone JSC shell has no TextDecoder; native byte/async behavior covered by Bun/JSC and Firefox, without polyfills."
+  },
+  "smokeHarnessErrors": [
+    "logs/firefox-initial-driver-error.json"
+  ]
+}

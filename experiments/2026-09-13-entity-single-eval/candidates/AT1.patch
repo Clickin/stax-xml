@@ -1,0 +1,2442 @@
+diff --git a/packages/stax-xml/package.json b/packages/stax-xml/package.json
+index f002193d..8c9a86ec 100644
+--- a/packages/stax-xml/package.json
++++ b/packages/stax-xml/package.json
+@@ -41,7 +41,7 @@
+   "license": "MIT",
+   "scripts": {
+     "build": "tsdown",
+-    "test": "vitest run --config vitest.unit.config.ts",
++    "test": "node scripts/generate-entity-materializing-cursor.mjs --check && vitest run --config vitest.unit.config.ts",
+     "test:w3c": "tsx ./scripts/w3c-xmlts.ts",
+     "test:watch": "vitest --config vitest.unit.config.ts",
+     "test:perf": "vitest run --config vitest.perf.config.ts",
+diff --git a/packages/stax-xml/src/async/EventReader.ts b/packages/stax-xml/src/async/EventReader.ts
+index d9cc3b50..b6a6413d 100644
+--- a/packages/stax-xml/src/async/EventReader.ts
++++ b/packages/stax-xml/src/async/EventReader.ts
+@@ -1,4 +1,5 @@
+ import { type AnyXmlEvent } from '@stax-xml/core';
++import { requestMaterialized } from '../core/internal/materialized-reader-options.js';
+ import { StreamReader, nextMaterialized, type StreamReaderOptions, type StreamReaderSource } from './StreamReader.js';
+ 
+ /** Options for the asynchronous materialized-event reader. */
+@@ -12,7 +13,7 @@ export interface EventReaderOptions extends StreamReaderOptions {}
+  */
+ export class EventReader implements AsyncIterable<AnyXmlEvent>, AsyncIterator<AnyXmlEvent> {
+   private readonly reader: StreamReader;
+-  constructor(input: StreamReaderSource, options: EventReaderOptions = {}) { this.reader = new StreamReader(input, options); }
++  constructor(input: StreamReaderSource, options: EventReaderOptions = {}) { this.reader = new StreamReader(input, requestMaterialized(options)); }
+   /** Return this reader as its async iterator. */
+   [Symbol.asyncIterator](): AsyncIterator<AnyXmlEvent> { return this; }
+   /** Read the next materialized event. */
+diff --git a/packages/stax-xml/src/async/StreamReader.ts b/packages/stax-xml/src/async/StreamReader.ts
+index b24c3143..2854a416 100644
+--- a/packages/stax-xml/src/async/StreamReader.ts
++++ b/packages/stax-xml/src/async/StreamReader.ts
+@@ -6,6 +6,8 @@ import {
+   type DocumentMode,
+   type XmlEventType,
+ } from "@stax-xml/core";
++import { MaterializingTokenCursor } from "../core/internal/MaterializingTokenCursor.js";
++import { isMaterializedRequest } from "../core/internal/materialized-reader-options.js";
+ 
+ /** Byte-stream sources accepted by `StreamReader`. */
+ export type StreamReaderSource =
+@@ -37,7 +39,11 @@ export class StreamReader {
+   private closing: Promise<void> | undefined;
+ 
+   constructor(source: StreamReaderSource, options: StreamReaderOptions = {}) {
+-    this.cursor = new TokenCursor("", false, options);
++    const materialized = isMaterializedRequest(options);
++    if (materialized) options = options.options;
++    this.cursor = materialized
++      ? new MaterializingTokenCursor("", false, options)
++      : new TokenCursor("", false, options);
+     this.decoder = new TextDecoder(options.encoding ?? "utf-8", {
+       fatal: true,
+     });
+diff --git a/packages/stax-xml/src/core/TokenCursor.ts b/packages/stax-xml/src/core/TokenCursor.ts
+index 429fbd47..03e9b7fc 100644
+--- a/packages/stax-xml/src/core/TokenCursor.ts
++++ b/packages/stax-xml/src/core/TokenCursor.ts
+@@ -39,12 +39,12 @@ interface DuplicateTable {
+   generation: number;
+ }
+ 
+-const NO_SPAN = -1;
++export const NO_SPAN = -1;
+ const XMLNS = "xmlns";
+ const XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
+-const XMLNS_NAMESPACE_URI = "http://www.w3.org/2000/xmlns/";
+-const DUPLICATE_TABLE_THRESHOLD = 16;
+-const enum ResumeKind {
++export const XMLNS_NAMESPACE_URI = "http://www.w3.org/2000/xmlns/";
++export const DUPLICATE_TABLE_THRESHOLD = 16;
++export const enum ResumeKind {
+   NONE,
+   TEXT,
+   START_TAG,
+@@ -66,11 +66,11 @@ const enum DoctypeState {
+ 
+ /** One tokenizer shared by direct strings and incrementally decoded text. */
+ export class TokenCursor {
+-  private buffer: string;
+-  private pos = 0;
+-  private final: boolean;
+-  private resumeKind = ResumeKind.NONE;
+-  private resumeOffset = 0;
++  protected buffer: string;
++  protected pos = 0;
++  protected final: boolean;
++  protected resumeKind = ResumeKind.NONE;
++  protected resumeOffset = 0;
+   private resumeQuote = 0;
+   private resumeBrackets = 0;
+   private resumeDoctypeState = DoctypeState.TEXT;
+@@ -79,49 +79,49 @@ export class TokenCursor {
+   private leadingBOMPending = true;
+   private started = false;
+   private ended = false;
+-  private pendingEnd: ElementFrame | undefined;
++  protected pendingEnd: ElementFrame | undefined;
+   private pendingNamespaceUndoStart = NO_SPAN;
+-  private readonly stack: ElementFrame[] = [];
+-  private readonly namespaces = new Map<string, string>([
++  protected readonly stack: ElementFrame[] = [];
++  protected readonly namespaces = new Map<string, string>([
+     ["xml", XML_NAMESPACE_URI],
+   ]);
+   private namespaceUndoCapacity = 8;
+-  private namespaceUndoLength = 0;
++  protected namespaceUndoLength = 0;
+   private namespaceUndoPrefixes: Array<string | undefined> = [];
+   private namespaceUndoPrevious: Array<string | undefined> = [];
+   private namespaceUndoHad = new Uint8Array(this.namespaceUndoCapacity);
+-  private roots = 0;
+-  private xmlDeclarationAllowed = true;
++  protected roots = 0;
++  protected xmlDeclarationAllowed = true;
+   private xmlDeclaration: XmlDeclaration | undefined;
+   private seenDoctype = false;
+-  private doctypeRootName: string | undefined;
+-  private currentType: XmlEventTypeValue = XmlEventType.START_DOCUMENT;
+-  private currentNameValue: string | undefined;
+-  private currentTextStart = NO_SPAN;
+-  private currentTextEnd = NO_SPAN;
+-  private currentTextMemo: string | undefined;
+-  private currentFrame: ElementFrame | undefined;
+-  private currentAttributeCount = 0;
+-  private currentSelfClosing = false;
++  protected doctypeRootName: string | undefined;
++  protected currentType: XmlEventTypeValue = XmlEventType.START_DOCUMENT;
++  protected currentNameValue: string | undefined;
++  protected currentTextStart = NO_SPAN;
++  protected currentTextEnd = NO_SPAN;
++  protected currentTextMemo: string | undefined;
++  protected currentFrame: ElementFrame | undefined;
++  protected currentAttributeCount = 0;
++  protected currentSelfClosing = false;
+   private attributeCapacity = 8;
+-  private attributeNameStarts = new Int32Array(this.attributeCapacity);
+-  private attributeNameEnds = new Int32Array(this.attributeCapacity);
+-  private attributeValueStarts = new Int32Array(this.attributeCapacity);
+-  private attributeValueEnds = new Int32Array(this.attributeCapacity);
+-  private attributeColons = new Int32Array(this.attributeCapacity).fill(
++  protected attributeNameStarts = new Int32Array(this.attributeCapacity);
++  protected attributeNameEnds = new Int32Array(this.attributeCapacity);
++  protected attributeValueStarts = new Int32Array(this.attributeCapacity);
++  protected attributeValueEnds = new Int32Array(this.attributeCapacity);
++  protected attributeColons = new Int32Array(this.attributeCapacity).fill(
+     NO_SPAN,
+   );
+-  private attributeHashes = new Uint32Array(this.attributeCapacity);
+-  private attributeNamespaceURIs: string[] = [];
+-  private attributeMemos: Array<TokenAttribute | undefined> = [];
+-  private attributeMemoEvents = new Int32Array(this.attributeCapacity);
+-  private attributeMemoHighWater = 0;
++  protected attributeHashes = new Uint32Array(this.attributeCapacity);
++  protected attributeNamespaceURIs: string[] = [];
++  protected attributeMemos: Array<TokenAttribute | undefined> = [];
++  protected attributeMemoEvents = new Int32Array(this.attributeCapacity);
++  protected attributeMemoHighWater = 0;
+   private duplicateTable: DuplicateTable | undefined;
+-  private currentEvent = 0;
+-  private readonly documentMode: DocumentMode;
+-  private readonly namespaceAware: boolean;
+-  private readonly autoDecodeEntities: boolean;
+-  private readonly customEntities: ReadonlyMap<string, string> | undefined;
++  protected currentEvent = 0;
++  protected readonly documentMode: DocumentMode;
++  protected readonly namespaceAware: boolean;
++  protected readonly autoDecodeEntities: boolean;
++  protected readonly customEntities: ReadonlyMap<string, string> | undefined;
+ 
+   constructor(input = "", final = false, options: TokenCursorOptions = {}) {
+     this.buffer = input;
+@@ -320,7 +320,7 @@ export class TokenCursor {
+     this.releaseRetainedInput();
+   }
+ 
+-  private parseText(): TokenCursorResult {
++  protected parseText(): TokenCursorResult {
+     if (this.xmlDeclarationAllowed && !this.stack.length && this.roots === 0) {
+       this.xmlDeclarationAllowed = false;
+     }
+@@ -433,7 +433,7 @@ export class TokenCursor {
+     return this.set(XmlEventType.DTD);
+   }
+ 
+-  private parseStart(): TokenCursorResult {
++  protected parseStart(): TokenCursorResult {
+     if (this.resumeKind === ResumeKind.START_TAG && this.findStartTagEnd() < 0)
+       return this.incomplete("start tag");
+     const length = this.buffer.length;
+@@ -819,7 +819,7 @@ export class TokenCursor {
+     return this.set(XmlEventType.END_ELEMENT);
+   }
+ 
+-  private bindNamespace(prefix: string, value: string): void {
++  protected bindNamespace(prefix: string, value: string): void {
+     if (prefix === "xmlns" || value === XMLNS_NAMESPACE_URI)
+       throw new Error("The xmlns namespace is reserved.");
+     if ((prefix === "xml") !== (value === XML_NAMESPACE_URI))
+@@ -837,7 +837,7 @@ export class TokenCursor {
+     this.namespaces.set(prefix, value);
+   }
+ 
+-  private restoreNamespaces(start: number): void {
++  protected restoreNamespaces(start: number): void {
+     for (let index = this.namespaceUndoLength - 1; index >= start; index--) {
+       const prefix = this.namespaceUndoPrefixes[index]!;
+       if (this.namespaceUndoHad[index] === 1)
+@@ -857,7 +857,7 @@ export class TokenCursor {
+     this.namespaceUndoCapacity = capacity;
+   }
+ 
+-  private materializeAttribute(index: number): TokenAttribute | undefined {
++  protected materializeAttribute(index: number): TokenAttribute | undefined {
+     if (index < 0 || index >= this.currentAttributeCount) return undefined;
+     const memo = this.attributeMemos[index];
+     if (
+@@ -895,7 +895,7 @@ export class TokenCursor {
+     return attribute;
+   }
+ 
+-  private ensureAttributeCapacity(required: number): void {
++  protected ensureAttributeCapacity(required: number): void {
+     if (required <= this.attributeCapacity) return;
+     let capacity = this.attributeCapacity;
+     while (capacity < required) capacity *= 2;
+@@ -909,7 +909,7 @@ export class TokenCursor {
+     this.attributeCapacity = capacity;
+   }
+ 
+-  private prepareDuplicateTable(count: number): DuplicateTable {
++  protected prepareDuplicateTable(count: number): DuplicateTable {
+     const required = (count + 1) * 2;
+     let table = this.duplicateTable;
+     if (table === undefined || table.slots.length < required) {
+@@ -954,13 +954,13 @@ export class TokenCursor {
+     return this.parseDoctype();
+   }
+ 
+-  private waitForStartTag(kind: string): TokenCursorResult {
++  protected waitForStartTag(kind: string): TokenCursorResult {
+     if (this.final) return this.incomplete(kind);
+     this.findStartTagEnd();
+     return NEED_INPUT;
+   }
+ 
+-  private findDelimiter(
++  protected findDelimiter(
+     kind: ResumeKind,
+     delimiter: string,
+     start: number,
+@@ -997,7 +997,7 @@ export class TokenCursor {
+     return -1;
+   }
+ 
+-  private findTextEndValidated(start: number): number {
++  protected findTextEndValidated(start: number): number {
+     if (this.resumeKind === ResumeKind.TEXT) {
+       const end = this.findDelimiter(ResumeKind.TEXT, "<", start);
+       if (end >= 0 || this.final)
+@@ -1071,7 +1071,7 @@ export class TokenCursor {
+     return -1;
+   }
+ 
+-  private findStartTagEnd(): number {
++  protected findStartTagEnd(): number {
+     if (this.resumeKind === ResumeKind.START_TAG) {
+       if (this.resumeEnd >= 0) {
+         const end = this.resumeEnd;
+@@ -1254,7 +1254,7 @@ export class TokenCursor {
+     this.resumeTail = "";
+   }
+ 
+-  private releaseRetainedInput(): void {
++  protected releaseRetainedInput(): void {
+     this.clearResume();
+     this.buffer = "";
+     this.pos = 0;
+@@ -1276,11 +1276,11 @@ export class TokenCursor {
+     this.duplicateTable = undefined;
+   }
+ 
+-  private incomplete(kind: string): typeof NEED_INPUT {
++  protected incomplete(kind: string): typeof NEED_INPUT {
+     if (this.final) throw new Error(`Unterminated ${kind}.`);
+     return NEED_INPUT;
+   }
+-  private set(
++  protected set(
+     type: XmlEventTypeValue,
+     preserveTextMemo = false,
+   ): XmlEventTypeValue {
+@@ -1364,7 +1364,7 @@ function decodeEntities(
+   );
+ }
+ 
+-function decodeEntity(
++export function decodeEntity(
+   entity: string,
+   customEntities?: ReadonlyMap<string, string>,
+   attribute = false,
+@@ -1475,7 +1475,7 @@ function findValidatedAttributeEnd(
+   return end;
+ }
+ 
+-function validateCharDataSpan(
++export function validateCharDataSpan(
+   text: string,
+   start: number,
+   end: number,
+@@ -1487,7 +1487,7 @@ function validateCharDataSpan(
+   }
+ }
+ 
+-function isXmlWhitespace(code: number): boolean {
++export function isXmlWhitespace(code: number): boolean {
+   return code === 32 || code === 9 || code === 10 || code === 13;
+ }
+ function isAsciiLetter(code: number): boolean {
+@@ -1505,7 +1505,7 @@ function isValidName(value: string): boolean {
+   return true;
+ }
+ 
+-function xmlNameCharWidth(
++export function xmlNameCharWidth(
+   value: string,
+   index: number,
+   start: boolean,
+@@ -1594,8 +1594,8 @@ function parseDoctypeRootName(
+   return name;
+ }
+ 
+-const HASH_OFFSET = 2166136261 >>> 0;
+-function hashCode(hash: number, code: number): number {
++export const HASH_OFFSET = 2166136261 >>> 0;
++export function hashCode(hash: number, code: number): number {
+   return Math.imul(hash ^ code, 16777619) >>> 0;
+ }
+ function hashString(value: string): number {
+@@ -1604,7 +1604,7 @@ function hashString(value: string): number {
+     hash = hashCode(hash, value.charCodeAt(index));
+   return hash;
+ }
+-function spansEqual(
++export function spansEqual(
+   text: string,
+   aStart: number,
+   aEnd: number,
+@@ -1638,7 +1638,7 @@ function spanEqualsLiteral(
+ ): boolean {
+   return spanEqualsString(text, start, end, value);
+ }
+-function isNamespaceDeclaration(
++export function isNamespaceDeclaration(
+   text: string,
+   start: number,
+   end: number,
+@@ -1649,7 +1649,7 @@ function isNamespaceDeclaration(
+     : colon === start + XMLNS.length &&
+         spanEqualsLiteral(text, start, colon, XMLNS);
+ }
+-function requireNamespace(
++export function requireNamespace(
+   namespaces: Map<string, string>,
+   prefix: string,
+ ): string {
+@@ -1658,7 +1658,7 @@ function requireNamespace(
+     throw new Error(`Undeclared namespace prefix: ${prefix}`);
+   return uri;
+ }
+-function scanInvalidName(text: string, start: number): string {
++export function scanInvalidName(text: string, start: number): string {
+   let end = start;
+   while (end < text.length) {
+     const code = text.charCodeAt(end);
+diff --git a/packages/stax-xml/src/core/index.ts b/packages/stax-xml/src/core/index.ts
+index a0f199ed..9a5522e0 100644
+--- a/packages/stax-xml/src/core/index.ts
++++ b/packages/stax-xml/src/core/index.ts
+@@ -2,6 +2,7 @@
+ // Internal module consumed by the reader, writer, and converter layers.
+ 
+ export * from './types.js';
+-export * from './TokenCursor.js';
++export { NEED_INPUT, TokenCursor } from './TokenCursor.js';
++export type { TokenCursorResult, TokenCursorOptions, TokenAttribute } from './TokenCursor.js';
+ export * from './xml-validation.js';
+ export { materializeTokenEvent } from './internal/materialize-token-event.js';
+diff --git a/packages/stax-xml/src/sync/EventReaderSync.ts b/packages/stax-xml/src/sync/EventReaderSync.ts
+index 47fe413f..ca1fe161 100644
+--- a/packages/stax-xml/src/sync/EventReaderSync.ts
++++ b/packages/stax-xml/src/sync/EventReaderSync.ts
+@@ -1,4 +1,5 @@
+ import { materializeTokenEvent, type AnyXmlEvent } from '@stax-xml/core';
++import { requestMaterialized } from '../core/internal/materialized-reader-options.js';
+ import { StreamReaderSync, tokenCursorOf, type StreamReaderSyncInput, type StreamReaderSyncOptions } from './StreamReaderSync.js';
+ 
+ /** Options for the synchronous materialized-event reader. */
+@@ -8,7 +9,7 @@ export interface EventReaderSyncOptions extends StreamReaderSyncOptions {}
+ export class EventReaderSync implements Iterable<AnyXmlEvent>, Iterator<AnyXmlEvent> {
+   private readonly reader: StreamReaderSync;
+   private finished = false;
+-  constructor(input: StreamReaderSyncInput, options: EventReaderSyncOptions = {}) { this.reader = new StreamReaderSync(input, options); }
++  constructor(input: StreamReaderSyncInput, options: EventReaderSyncOptions = {}) { this.reader = new StreamReaderSync(input, requestMaterialized(options)); }
+   /** Return this reader as its iterator. */
+   [Symbol.iterator](): Iterator<AnyXmlEvent> { return this; }
+   /** Read the next materialized event. */
+diff --git a/packages/stax-xml/src/sync/StreamReaderSync.ts b/packages/stax-xml/src/sync/StreamReaderSync.ts
+index a3898bee..c44b0972 100644
+--- a/packages/stax-xml/src/sync/StreamReaderSync.ts
++++ b/packages/stax-xml/src/sync/StreamReaderSync.ts
+@@ -4,6 +4,8 @@ import {
+   type DocumentMode,
+   type XmlEventType,
+ } from "@stax-xml/core";
++import { MaterializingTokenCursor } from "../core/internal/MaterializingTokenCursor.js";
++import { isMaterializedRequest } from "../core/internal/materialized-reader-options.js";
+ 
+ /** Inputs accepted by `StreamReaderSync`. */
+ export type StreamReaderSyncInput = string | Uint8Array | Iterable<Uint8Array>;
+@@ -35,16 +37,19 @@ export class StreamReaderSync {
+     input: StreamReaderSyncInput,
+     options: StreamReaderSyncOptions = {},
+   ) {
++    const materialized = isMaterializedRequest(options);
++    if (materialized) options = options.options;
++    const Cursor = materialized ? MaterializingTokenCursor : TokenCursor;
+     if (typeof input === "string") {
+-      this.cursor = new TokenCursor(input, true, options);
++      this.cursor = new Cursor(input, true, options);
+     } else if (input instanceof Uint8Array) {
+-      this.cursor = new TokenCursor("", false, options);
++      this.cursor = new Cursor("", false, options);
+       this.iterator = fixedByteChunks(input);
+       this.decoder = new TextDecoder(options.encoding ?? "utf-8", {
+         fatal: true,
+       });
+     } else {
+-      this.cursor = new TokenCursor("", false, options);
++      this.cursor = new Cursor("", false, options);
+       // Re-batch caller-supplied byte chunks up to BYTE_CHUNK_SIZE before decoding.
+       // Tiny chunks (e.g. per-row iterables, small stream frames) otherwise pay a
+       // full TextDecoder + cursor.push round-trip per few bytes; batching recovers
+diff --git a/packages/stax-xml/vitest.unit.config.ts b/packages/stax-xml/vitest.unit.config.ts
+index 66541517..3ec5bb9b 100644
+--- a/packages/stax-xml/vitest.unit.config.ts
++++ b/packages/stax-xml/vitest.unit.config.ts
+@@ -22,6 +22,7 @@ export default defineConfig({
+   },
+   test: {
+     include: [
++      "test/entity-single-eval*.test.ts",
+       "test/v1-reader-contract.test.ts",
+       "test/token-cursor-resume.test.ts",
+       "test/token-cursor-options-coverage.test.ts",
+diff --git a/packages/stax-xml/scripts/generate-entity-materializing-cursor.mjs b/packages/stax-xml/scripts/generate-entity-materializing-cursor.mjs
+new file mode 100644
+index 00000000..9748eae3
+--- /dev/null
++++ b/packages/stax-xml/scripts/generate-entity-materializing-cursor.mjs
+@@ -0,0 +1,181 @@
++import ts from 'typescript';
++import { readFileSync, writeFileSync } from 'node:fs';
++import { createHash } from 'node:crypto';
++import { fileURLToPath } from 'node:url';
++const sourcePath = fileURLToPath(new URL('../src/core/TokenCursor.ts', import.meta.url));
++const outputPath = fileURLToPath(new URL('../src/core/internal/MaterializingTokenCursor.ts', import.meta.url));
++const args = process.argv.slice(2);
++let variant;
++let check = false;
++for (let i = 0; i < args.length; i++) {
++  if (args[i] === '--variant') variant = args[++i];
++  else if (args[i] === '--check') check = true;
++  else throw new Error(`Unknown option: ${args[i]}`);
++}
++if (!variant) {
++  try { variant = /variant: ([a-z-]+)/.exec(readFileSync(outputPath, 'utf8'))?.[1]; } catch {}
++}
++variant ??= 'attributes';
++if (!['wiring', 'attributes', 'attributes-text'].includes(variant)) throw new Error(`Invalid variant: ${variant}`);
++const source = readFileSync(sourcePath, 'utf8');
++const sf = ts.createSourceFile(sourcePath, source, ts.ScriptTarget.Latest, true);
++const klass = sf.statements.find(n => ts.isClassDeclaration(n) && n.name.text === 'TokenCursor');
++const members = new Map(klass.members.map(n => [n.name?.getText(sf), n]));
++const fingerprints = {};
++function specialize(name, changes = []) {
++  const node = members.get(name);
++  if (!node) throw new Error(`Missing member ${name}`);
++  fingerprints[name] = createHash('sha256').update(node.getText(sf)).digest('hex');
++  const edits = [];
++  for (const [predicate, replacement] of changes) {
++    const matches = [];
++    function visit(n) { if (predicate(n)) matches.push(n); ts.forEachChild(n, visit); }
++    visit(node);
++    if (matches.length !== 1) throw new Error(`${name}: expected one anchor, found ${matches.length}`);
++    const hit = matches[0];
++    edits.push([hit.getStart(sf), hit.end, typeof replacement === 'function' ? replacement(hit) : replacement]);
++  }
++  const visibility = node.modifiers?.find(n => n.kind === ts.SyntaxKind.PrivateKeyword || n.kind === ts.SyntaxKind.ProtectedKeyword);
++  if (visibility) edits.push([visibility.getStart(sf), visibility.end, 'protected override']);
++  else edits.push([node.getStart(sf), node.getStart(sf), 'override ']);
++  let text = node.getText(sf);
++  for (const [start, end, value] of edits.sort((a,b) => b[0]-a[0])) text = text.slice(0,start-node.getStart(sf)) + value + text.slice(end-node.getStart(sf));
++  return text;
++}
++const call = name => n => ts.isCallExpression(n) && n.expression.getText(sf) === name;
++const expr = text => n => ts.isExpressionStatement(n) && n.expression.getText(sf) === text;
++// Changes inside a method are disjoint AST anchors; no global text replacement.
++let methods = [];
++if (variant !== 'wiring') {
++  const parse = members.get('parseStart');
++  const changes = [
++    [call('findValidatedAttributeEnd'), 'this.buffer.indexOf(String.fromCharCode(quote), cursor)'],
++    [expr('cursor = valueEnd + 1'), 'this.normalizedAttributeValues[rawCount] = validateAndNormalizeAttributeSpan(this.buffer, valueStart, valueEnd, this.customEntities);\n      cursor = valueEnd + 1;'],
++    [call('decodeEntities'), 'this.normalizedAttributeValues[index] ??= this.buffer.slice(this.attributeValueStarts[index]!, this.attributeValueEnds[index]!)'],
++  ];
++  // Insert entry guard at the first existing statement, preserving its AST body.
++  changes.push([n => n === parse.body.statements[0], n => `if (!this.autoDecodeEntities) return super.parseStart();\nthis.normalizedAttributeValues.length = 0;\n${n.getText(sf)}`]);
++  methods.push(specialize('parseStart', changes));
++  methods.push(specialize('materializeAttribute', [
++    [n => ts.isPropertyAssignment(n) && n.name.getText(sf) === 'value', 'value: this.attributeValue(index)'],
++    [n => n === members.get('materializeAttribute').body.statements[0], n => `if (!this.autoDecodeEntities) return super.materializeAttribute(index);\n${n.getText(sf)}`],
++  ]));
++  fingerprints.attributeValue = createHash('sha256').update(members.get('attributeValue').getText(sf)).digest('hex');
++  methods.push(`override attributeValue(index: number): string | undefined {
++    if (!this.autoDecodeEntities) return super.attributeValue(index);
++    if (index < 0 || index >= this.currentAttributeCount) return undefined;
++    return this.normalizedAttributeValues[index] ??= this.buffer.slice(this.attributeValueStarts[index]!, this.attributeValueEnds[index]!);
++  }`);
++  methods.push(`protected override set(type: XmlEventTypeValue, preserveTextMemo = false): XmlEventTypeValue {
++    if (type !== XmlEventType.START_ELEMENT) this.normalizedAttributeValues.length = 0;
++    return super.set(type, preserveTextMemo);
++  }`);
++  methods.push(`protected override releaseRetainedInput(): void {
++    this.normalizedAttributeValues.length = 0;
++    super.releaseRetainedInput();
++  }`);
++  methods.push(`protected override waitForStartTag(kind: string): TokenCursorResult {
++    this.normalizedAttributeValues.length = 0;
++    return super.waitForStartTag(kind);
++  }`);
++}
++if (variant === 'attributes-text') {
++  function rewrite(node, changes) {
++    const edits = [];
++    for (const [predicate, replacement] of changes) {
++      const hits = [];
++      function walk(n) { if (predicate(n)) hits.push(n); ts.forEachChild(n, walk); }
++      walk(node);
++      if (hits.length !== 1) throw new Error(`Text anchor expected once, found ${hits.length}`);
++      const hit = hits[0];
++      edits.push([hit.getStart(sf), hit.end, typeof replacement === 'function' ? replacement(hit) : replacement]);
++    }
++    let text = node.getText(sf);
++    for (const [a,b,value] of edits.sort((a,b) => b[0]-a[0])) text = text.slice(0,a-node.getStart(sf)) + value + text.slice(b-node.getStart(sf));
++    return text;
++  }
++  const finder = members.get('findTextEndValidated');
++  const firstLoop = finder.body.statements.find(ts.isForStatement);
++  const validator = sf.statements.find(n => ts.isFunctionDeclaration(n) && n.name.text === 'validateEntitiesSpan');
++  fingerprints.validateEntitiesSpan = createHash('sha256').update(validator.getText(sf)).digest('hex');
++  const validationLoop = validator.body.statements.find(ts.isForStatement);
++  const decoderStatement = n => ts.isExpressionStatement(n) && ts.isCallExpression(n.expression) && n.expression.expression.getText(sf) === 'decodeEntity';
++  const indexDeclaration = n => ts.isVariableDeclaration(n) && n.name.getText(sf) === 'index';
++  const entityParts = n => `parts.push(text.slice(segment, index), ${n.expression.getText(sf)}); segment = semi + 1;`;
++  methods.push(`private normalizedText: string | undefined;`);
++  methods.push(`private normalizeResumedText(start: number, end: number): string | undefined {
++    const text = this.buffer, customEntities = this.customEntities, attribute = false;
++    ${rewrite(validationLoop, [[decoderStatement, 'return this.normalizeResumedTail(start, end, index);']])}
++    return undefined;
++  }`);
++  methods.push(`private normalizeResumedTail(start: number, end: number, firstEntity: number): string {
++    const text = this.buffer, customEntities = this.customEntities, attribute = false;
++    const parts: string[] = []; let segment = start;
++    ${rewrite(validationLoop, [[indexDeclaration, 'index = firstEntity'], [decoderStatement, entityParts]])}
++    parts.push(text.slice(segment, end)); return parts.join("");
++  }`);
++  methods.push(`private normalizeTextTail(start: number, firstEntity: number, boundary: number): string {
++    const outsideDocumentRoot = this.documentMode === "document" && this.stack.length === 0;
++    const parts: string[] = []; let segment = start;
++    ${rewrite(firstLoop, [
++      [indexDeclaration, 'index = firstEntity'],
++      [n => ts.isIfStatement(n) && n.expression.getText(sf) === 'code === 60', 'if (code === 60) break;'],
++      [n => ts.isIfStatement(n) && n.expression.getText(sf) === 'semi < 0', 'if (semi < 0) throw new Error("Unterminated entity reference.");'],
++      [decoderStatement, n => `parts.push(this.buffer.slice(segment, index), ${n.expression.getText(sf)}); segment = semi + 1;`],
++    ])}
++    parts.push(this.buffer.slice(segment, boundary < 0 ? this.buffer.length : boundary)); return parts.join("");
++  }`);
++  // The resumed validator checks entity/Unicode errors before the lexical ]]>
++  // test. Keep that order; the first scan deliberately has a different order.
++  const resumedIf = finder.body.statements[0];
++  const resumedCall = [];
++  function locate(n) { if (call('validateCharDataSpan')(n)) resumedCall.push(n); ts.forEachChild(n, locate); }
++  locate(resumedIf);
++  if (resumedCall.length !== 1) throw new Error('Resumed validation anchor changed.');
++  const resumedStatement = resumedCall[0].parent;
++  methods.push(specialize('findTextEndValidated', [
++    [n => n === resumedIf, n => `if (!this.autoDecodeEntities) return super.findTextEndValidated(start);
++      if (this.resumeKind !== ResumeKind.TEXT && !this.final && this.buffer.indexOf("<", start) < 0) return super.findTextEndValidated(start);
++      ${rewrite(n, [[x => x === resumedStatement, `{
++        const textEnd = end < 0 ? this.buffer.length : end;
++        const value = this.normalizeResumedText(start, textEnd);
++        const forbidden = this.buffer.indexOf("]]>", start);
++        if (forbidden >= 0 && forbidden < textEnd) throw new Error("Character data cannot contain ]]>");
++        this.normalizedText = value;
++      }`]])}`],
++    [decoderStatement, 'this.normalizedText = this.normalizeTextTail(start, index, boundary); return boundary;'],
++  ]));
++  methods.push(specialize('parseText', [
++    [n => n === members.get('parseText').body.statements[0], n => `this.normalizedText = undefined;\n${n.getText(sf)}`],
++    [n => ts.isReturnStatement(n) && n.expression?.getText(sf) === 'this.set(XmlEventType.CHARACTERS)', `const type = this.set(XmlEventType.CHARACTERS);
++      this.currentTextMemo = this.normalizedText;
++      this.normalizedText = undefined;
++      return type;`],
++  ]));
++  methods.push(specialize('text', [
++    [n => n === members.get('text').body.statements[0], n => `if (!this.autoDecodeEntities || this.currentType !== XmlEventType.CHARACTERS) return super.text();\n${n.getText(sf)}`],
++    [n => ts.isConditionalExpression(n) && n.whenTrue.getText(sf).startsWith('decodeEntities('), 'value'],
++  ]));
++  const releaseIndex = methods.findIndex(text => text.startsWith('protected override releaseRetainedInput'));
++  methods[releaseIndex] = `protected override releaseRetainedInput(): void {
++    this.normalizedAttributeValues.length = 0;
++    this.normalizedText = undefined;
++    super.releaseRetainedInput();
++  }`;
++}
++// Import only parent module bindings actually referenced by the generated methods.
++const moduleBindings = new Set();
++for (const n of sf.statements) {
++  if (n.name) moduleBindings.add(n.name.getText(sf));
++  if (ts.isVariableStatement(n)) for (const d of n.declarationList.declarations) moduleBindings.add(d.name.getText(sf));
++}
++const needed = new Set(['TokenCursor']);
++const methodSource = ts.createSourceFile('generated.ts', `class X { ${methods.join('\n')} }`, ts.ScriptTarget.Latest, true);
++function collect(n) { if (ts.isIdentifier(n) && moduleBindings.has(n.text)) needed.add(n.text); ts.forEachChild(n, collect); }
++collect(methodSource);
++const imports = [...needed].sort().join(', ');
++const output = `// Generated by scripts/generate-entity-materializing-cursor.mjs; do not edit.\n// variant: ${variant}\n// source-members: ${JSON.stringify(fingerprints)}\nimport { ${imports} } from '../TokenCursor.js';\nimport { XmlEventType, type XmlEventType as XmlEventTypeValue } from '../types.js';\n${variant === 'wiring' ? '' : "import { validateAndNormalizeAttributeSpan } from './entity-normalizer.js';\n"}export class MaterializingTokenCursor extends TokenCursor {\n${variant === 'wiring' ? '' : 'private readonly normalizedAttributeValues: Array<string | undefined> = [];\n'}${methods.join('\n\n')}\n}\n`;
++if (check) {
++  if (readFileSync(outputPath, 'utf8') !== output) throw new Error('Generated cursor is stale.');
++} else writeFileSync(outputPath, output);
++console.log(`${check ? 'Checked' : 'Generated'} ${variant}`);
+diff --git a/packages/stax-xml/src/core/internal/MaterializingTokenCursor.ts b/packages/stax-xml/src/core/internal/MaterializingTokenCursor.ts
+new file mode 100644
+index 00000000..2abf7a41
+--- /dev/null
++++ b/packages/stax-xml/src/core/internal/MaterializingTokenCursor.ts
+@@ -0,0 +1,628 @@
++// Generated by scripts/generate-entity-materializing-cursor.mjs; do not edit.
++// variant: attributes-text
++// source-members: {"parseStart":"a5ed0ab03f3626aaba618909ef01e53c5d135a343a8eb04ee9ce77938d122ba7","materializeAttribute":"55370464e44b9f89561414c4b36d26dac9e81742eebb5c925d30f3da3a75ed8f","attributeValue":"fd7e53c2e0bd066bc26f788076cff766b141e5e3f0d71ae19bd18966dc1fe4ec","validateEntitiesSpan":"ec00693728de6b145062ed787a9b89eaad5a97094467f3569993b1bff066388a","findTextEndValidated":"e38ef2db8d75aea216eee441e5fb06adf9c1ef2dd8386a220c01d58959b9b039","parseText":"35a4bf499d0a24627144737e0822275a35fabb6caf146d602c3ac3710348cfd2","text":"9b319ec52f7965a8b2a9e369991482c3413404e5f6f28195b84690ba5a19851c"}
++import { DUPLICATE_TABLE_THRESHOLD, HASH_OFFSET, NEED_INPUT, NO_SPAN, ResumeKind, TokenAttribute, TokenCursor, TokenCursorResult, XMLNS_NAMESPACE_URI, decodeEntity, hashCode, isNamespaceDeclaration, isXmlWhitespace, requireNamespace, scanInvalidName, spansEqual, validateCharDataSpan, xmlNameCharWidth } from '../TokenCursor.js';
++import { XmlEventType, type XmlEventType as XmlEventTypeValue } from '../types.js';
++import { validateAndNormalizeAttributeSpan } from './entity-normalizer.js';
++export class MaterializingTokenCursor extends TokenCursor {
++private readonly normalizedAttributeValues: Array<string | undefined> = [];
++protected override parseStart(): TokenCursorResult {
++    if (!this.autoDecodeEntities) return super.parseStart();
++this.normalizedAttributeValues.length = 0;
++if (this.resumeKind === ResumeKind.START_TAG && this.findStartTagEnd() < 0)
++      return this.incomplete("start tag");
++    const length = this.buffer.length;
++    let cursor = this.pos + 1;
++    const nameStart = cursor;
++    let nameColon = NO_SPAN;
++    let colonCount = 0;
++
++    while (cursor < length) {
++      const code = this.buffer.charCodeAt(cursor);
++      if (isXmlWhitespace(code) || code === 47 || code === 62) break;
++      const width = xmlNameCharWidth(this.buffer, cursor, cursor === nameStart);
++      if (width === 0) {
++        throw new Error(
++          `Invalid XML name: ${scanInvalidName(this.buffer, nameStart)}`,
++        );
++      }
++      if (code === 58) {
++        nameColon = cursor;
++        colonCount++;
++      }
++      cursor += width;
++    }
++    if (cursor === length) return this.waitForStartTag("start tag");
++    const nameEnd = cursor;
++    if (
++      cursor === nameStart ||
++      colonCount > 1 ||
++      nameColon === nameStart ||
++      nameColon === nameEnd - 1
++    ) {
++      throw new Error(
++        `Invalid XML name: ${this.buffer.slice(nameStart, cursor)}`,
++      );
++    }
++
++    let rawCount = 0;
++    let selfClosing = false;
++    let tagEnd = NO_SPAN;
++    while (cursor < length) {
++      while (cursor < length && isXmlWhitespace(this.buffer.charCodeAt(cursor)))
++        cursor++;
++      if (cursor === length) return this.waitForStartTag("start tag");
++      const code = this.buffer.charCodeAt(cursor);
++      if (code === 62) {
++        tagEnd = cursor;
++        break;
++      }
++      if (code === 47) {
++        selfClosing = true;
++        cursor++;
++        if (cursor === length) return this.waitForStartTag("start tag");
++        if (this.buffer.charCodeAt(cursor) !== 62)
++          throw new Error("Invalid start tag.");
++        tagEnd = cursor;
++        break;
++      }
++
++      this.ensureAttributeCapacity(rawCount + 1);
++      const attrStart = cursor;
++      let attrHash = HASH_OFFSET;
++      let attrColon = NO_SPAN;
++      let attrColons = 0;
++      while (cursor < length) {
++        const attrCode = this.buffer.charCodeAt(cursor);
++        if (
++          isXmlWhitespace(attrCode) ||
++          attrCode === 61 ||
++          attrCode === 47 ||
++          attrCode === 62
++        )
++          break;
++        const width = xmlNameCharWidth(
++          this.buffer,
++          cursor,
++          cursor === attrStart,
++        );
++        if (width === 0) {
++          throw new Error(
++            `Invalid XML name: ${scanInvalidName(this.buffer, attrStart)}`,
++          );
++        }
++        if (attrCode === 58) {
++          attrColon = cursor;
++          attrColons++;
++        }
++        attrHash = hashCode(attrHash, attrCode);
++        if (width === 2)
++          attrHash = hashCode(attrHash, this.buffer.charCodeAt(cursor + 1));
++        cursor += width;
++      }
++      if (cursor === length) return this.waitForStartTag("start tag");
++      const attrEnd = cursor;
++      if (
++        attrEnd === attrStart ||
++        attrColons > 1 ||
++        attrColon === attrStart ||
++        attrColon === attrEnd - 1
++      ) {
++        throw new Error(
++          `Invalid XML name: ${this.buffer.slice(attrStart, attrEnd)}`,
++        );
++      }
++      while (cursor < length && isXmlWhitespace(this.buffer.charCodeAt(cursor)))
++        cursor++;
++      if (cursor === length) return this.waitForStartTag("start tag");
++      if (this.buffer.charCodeAt(cursor++) !== 61) {
++        throw new Error(
++          `Attribute ${this.buffer.slice(attrStart, attrEnd)} requires a value.`,
++        );
++      }
++      while (cursor < length && isXmlWhitespace(this.buffer.charCodeAt(cursor)))
++        cursor++;
++      if (cursor === length) return this.waitForStartTag("start tag");
++      const quote = this.buffer.charCodeAt(cursor++);
++      if (quote !== 34 && quote !== 39)
++        throw new Error(
++          `Attribute ${this.buffer.slice(attrStart, attrEnd)} must be quoted.`,
++        );
++      const valueStart = cursor;
++      const valueEnd = this.buffer.indexOf(String.fromCharCode(quote), cursor);
++      if (valueEnd < 0)
++        return this.waitForStartTag(
++          `attribute ${this.buffer.slice(attrStart, attrEnd)}`,
++        );
++      this.normalizedAttributeValues[rawCount] = validateAndNormalizeAttributeSpan(this.buffer, valueStart, valueEnd, this.customEntities);
++      cursor = valueEnd + 1;
++      if (
++        cursor < length &&
++        !isXmlWhitespace(this.buffer.charCodeAt(cursor)) &&
++        this.buffer.charCodeAt(cursor) !== 47 &&
++        this.buffer.charCodeAt(cursor) !== 62
++      ) {
++        throw new Error("Attributes must be separated by whitespace.");
++      }
++
++      if (rawCount < DUPLICATE_TABLE_THRESHOLD) {
++        for (let previous = 0; previous < rawCount; previous++) {
++          if (
++            this.attributeHashes[previous] === attrHash &&
++            spansEqual(
++              this.buffer,
++              this.attributeNameStarts[previous]!,
++              this.attributeNameEnds[previous]!,
++              attrStart,
++              attrEnd,
++            )
++          )
++            throw new Error(
++              `Duplicate attribute: ${this.buffer.slice(attrStart, attrEnd)}`,
++            );
++        }
++      } else {
++        const table = this.prepareDuplicateTable(rawCount);
++        const mask = table.slots.length - 1;
++        let slot = attrHash & mask;
++        while (table.generations[slot] === table.generation) {
++          const previous = table.slots[slot]!;
++          if (
++            this.attributeHashes[previous] === attrHash &&
++            spansEqual(
++              this.buffer,
++              this.attributeNameStarts[previous]!,
++              this.attributeNameEnds[previous]!,
++              attrStart,
++              attrEnd,
++            )
++          )
++            throw new Error(
++              `Duplicate attribute: ${this.buffer.slice(attrStart, attrEnd)}`,
++            );
++          slot = (slot + 1) & mask;
++        }
++        table.slots[slot] = rawCount;
++        table.generations[slot] = table.generation;
++      }
++      this.attributeNameStarts[rawCount] = attrStart;
++      this.attributeNameEnds[rawCount] = attrEnd;
++      this.attributeValueStarts[rawCount] = valueStart;
++      this.attributeValueEnds[rawCount] = valueEnd;
++      this.attributeColons[rawCount] = attrColon;
++      this.attributeHashes[rawCount] = attrHash;
++      rawCount++;
++    }
++    if (tagEnd < 0) return this.incomplete("start tag");
++
++    const namespaceUndoStart = this.namespaceUndoLength;
++    let name: string;
++    let prefix: string;
++    let localName: string;
++    let namespaceURI: string;
++    let publicCount = 0;
++    if (!this.namespaceAware) {
++      // Namespace processing disabled: report raw qualified names and expose
++      // xmlns attributes as ordinary attributes. Mirrors quick-xml's plain Reader
++      // and Woodstox's isNamespaceAware(false).
++      name = this.buffer.slice(nameStart, nameEnd);
++      prefix = nameColon < 0 ? "" : this.buffer.slice(nameStart, nameColon);
++      localName =
++        nameColon < 0 ? name : this.buffer.slice(nameColon + 1, nameEnd);
++      namespaceURI = "";
++      for (let index = 0; index < rawCount; index++) {
++        this.attributeNamespaceURIs[publicCount] = "";
++        publicCount++;
++      }
++      if (!this.stack.length) {
++        this.xmlDeclarationAllowed = false;
++        if (this.doctypeRootName !== undefined && this.doctypeRootName !== name)
++          throw new Error(
++            `DOCTYPE root ${this.doctypeRootName} does not match root element ${name}.`,
++          );
++        this.roots++;
++      }
++    } else {
++      try {
++        for (let index = 0; index < rawCount; index++) {
++          const start = this.attributeNameStarts[index]!;
++          const end = this.attributeNameEnds[index]!;
++          const colon = this.attributeColons[index]!;
++          if (!isNamespaceDeclaration(this.buffer, start, end, colon)) continue;
++          const declaredPrefix =
++            colon < 0 ? "" : this.buffer.slice(colon + 1, end);
++          const value = this.normalizedAttributeValues[index] ??= this.buffer.slice(this.attributeValueStarts[index]!, this.attributeValueEnds[index]!);
++          this.bindNamespace(declaredPrefix, value);
++        }
++
++        name = this.buffer.slice(nameStart, nameEnd);
++        prefix = nameColon < 0 ? "" : this.buffer.slice(nameStart, nameColon);
++        localName =
++          nameColon < 0 ? name : this.buffer.slice(nameColon + 1, nameEnd);
++        namespaceURI = prefix
++          ? requireNamespace(this.namespaces, prefix)
++          : (this.namespaces.get("") ?? "");
++
++        let qualifiedCount = 0;
++        let qualifiedIndices: number[] | undefined;
++        let expandedNames: Set<string> | undefined;
++        for (let index = 0; index < rawCount; index++) {
++          const start = this.attributeNameStarts[index]!;
++          const end = this.attributeNameEnds[index]!;
++          const colon = this.attributeColons[index]!;
++          if (isNamespaceDeclaration(this.buffer, start, end, colon)) {
++            this.attributeNamespaceURIs[publicCount] = XMLNS_NAMESPACE_URI;
++            publicCount++;
++            continue;
++          }
++          const publicColon = this.attributeColons[publicCount]!;
++          const attrPrefix =
++            publicColon < 0
++              ? ""
++              : this.buffer.slice(
++                  this.attributeNameStarts[publicCount]!,
++                  publicColon,
++                );
++          const attributeNamespaceURI = attrPrefix
++            ? requireNamespace(this.namespaces, attrPrefix)
++            : "";
++          this.attributeNamespaceURIs[publicCount] = attributeNamespaceURI;
++          if (attrPrefix) {
++            qualifiedIndices ??= [];
++            if (qualifiedCount < DUPLICATE_TABLE_THRESHOLD) {
++              for (const previous of qualifiedIndices) {
++                const previousColon = this.attributeColons[previous]!;
++                if (
++                  this.attributeNamespaceURIs[previous] ===
++                    attributeNamespaceURI &&
++                  spansEqual(
++                    this.buffer,
++                    previousColon + 1,
++                    this.attributeNameEnds[previous]!,
++                    publicColon + 1,
++                    this.attributeNameEnds[publicCount]!,
++                  )
++                ) {
++                  throw new Error(
++                    `Duplicate expanded attribute: ${this.buffer.slice(this.attributeNameStarts[publicCount]!, this.attributeNameEnds[publicCount]!)}`,
++                  );
++                }
++              }
++            } else {
++              if (!expandedNames) {
++                expandedNames = new Set<string>();
++                for (const previous of qualifiedIndices) {
++                  const previousColon = this.attributeColons[previous]!;
++                  expandedNames.add(
++                    `${this.attributeNamespaceURIs[previous]}\0${this.buffer.slice(previousColon + 1, this.attributeNameEnds[previous]!)}`,
++                  );
++                }
++              }
++              const expandedName = `${attributeNamespaceURI}\0${this.buffer.slice(publicColon + 1, this.attributeNameEnds[publicCount]!)}`;
++              if (expandedNames.has(expandedName))
++                throw new Error(
++                  `Duplicate expanded attribute: ${this.buffer.slice(this.attributeNameStarts[publicCount]!, this.attributeNameEnds[publicCount]!)}`,
++                );
++              expandedNames.add(expandedName);
++            }
++            qualifiedIndices.push(publicCount);
++            qualifiedCount++;
++          }
++          publicCount++;
++        }
++
++        if (!this.stack.length) {
++          this.xmlDeclarationAllowed = false;
++          if (
++            this.doctypeRootName !== undefined &&
++            this.doctypeRootName !== name
++          )
++            throw new Error(
++              `DOCTYPE root ${this.doctypeRootName} does not match root element ${name}.`,
++            );
++          this.roots++;
++        }
++      } catch (error) {
++        this.restoreNamespaces(namespaceUndoStart);
++        throw error;
++      }
++    }
++    const frame = {
++      name,
++      prefix,
++      localName,
++      namespaceURI,
++      namespaceUndoStart:
++        this.namespaceUndoLength === namespaceUndoStart
++          ? NO_SPAN
++          : namespaceUndoStart,
++    };
++    if (!selfClosing) this.stack.push(frame);
++    else this.pendingEnd = frame;
++    this.pos = tagEnd + 1;
++    this.currentFrame = frame;
++    this.currentNameValue = name;
++    this.currentAttributeCount = publicCount;
++    this.currentSelfClosing = selfClosing;
++    return this.set(XmlEventType.START_ELEMENT);
++  }
++
++protected override materializeAttribute(index: number): TokenAttribute | undefined {
++    if (!this.autoDecodeEntities) return super.materializeAttribute(index);
++if (index < 0 || index >= this.currentAttributeCount) return undefined;
++    const memo = this.attributeMemos[index];
++    if (
++      memo !== undefined &&
++      this.attributeMemoEvents[index] === this.currentEvent
++    )
++      return memo;
++    const start = this.attributeNameStarts[index]!;
++    const end = this.attributeNameEnds[index]!;
++    const colon = this.attributeColons[index]!;
++    const name = this.buffer.slice(start, end);
++    const attribute = {
++      name,
++      value: this.attributeValue(index),
++      localName: colon < 0 ? name : this.buffer.slice(colon + 1, end),
++      prefix: colon < 0 ? "" : this.buffer.slice(start, colon),
++      namespaceURI: this.attributeNamespaceURIs[index]!,
++    };
++    this.attributeMemos[index] = attribute;
++    this.attributeMemoEvents[index] = this.currentEvent;
++    if (index >= this.attributeMemoHighWater)
++      this.attributeMemoHighWater = index + 1;
++    return attribute;
++  }
++
++override attributeValue(index: number): string | undefined {
++    if (!this.autoDecodeEntities) return super.attributeValue(index);
++    if (index < 0 || index >= this.currentAttributeCount) return undefined;
++    return this.normalizedAttributeValues[index] ??= this.buffer.slice(this.attributeValueStarts[index]!, this.attributeValueEnds[index]!);
++  }
++
++protected override set(type: XmlEventTypeValue, preserveTextMemo = false): XmlEventTypeValue {
++    if (type !== XmlEventType.START_ELEMENT) this.normalizedAttributeValues.length = 0;
++    return super.set(type, preserveTextMemo);
++  }
++
++protected override releaseRetainedInput(): void {
++    this.normalizedAttributeValues.length = 0;
++    this.normalizedText = undefined;
++    super.releaseRetainedInput();
++  }
++
++protected override waitForStartTag(kind: string): TokenCursorResult {
++    this.normalizedAttributeValues.length = 0;
++    return super.waitForStartTag(kind);
++  }
++
++private normalizedText: string | undefined;
++
++private normalizeResumedText(start: number, end: number): string | undefined {
++    const text = this.buffer, customEntities = this.customEntities, attribute = false;
++    for (let index = start; index < end; index++) {
++    const code = text.charCodeAt(index);
++    if (code >= 32 && code < 0xd800) {
++      if (attribute && code === 60)
++        throw new Error("Attribute values cannot contain <.");
++      if (code !== 38) continue;
++    } else if (code < 32) {
++      if (code !== 9 && code !== 10 && code !== 13)
++        throw new Error("Invalid XML character.");
++    } else if (code >= 0xd800 && code <= 0xdfff) {
++      if (code > 0xdbff || index + 1 >= end)
++        throw new Error("Invalid XML character.");
++      const low = text.charCodeAt(index + 1);
++      if (low < 0xdc00 || low > 0xdfff)
++        throw new Error("Invalid XML character.");
++      index++;
++      continue;
++    } else if (code < 0xfffe) {
++      continue;
++    } else {
++      throw new Error("Invalid XML character.");
++    }
++    if (code === 38) {
++      const semi = text.indexOf(";", index + 1);
++      if (semi < 0 || semi >= end)
++        throw new Error("Unterminated entity reference.");
++      return this.normalizeResumedTail(start, end, index);
++      index = semi;
++    }
++  }
++    return undefined;
++  }
++
++private normalizeResumedTail(start: number, end: number, firstEntity: number): string {
++    const text = this.buffer, customEntities = this.customEntities, attribute = false;
++    const parts: string[] = []; let segment = start;
++    for (let index = firstEntity; index < end; index++) {
++    const code = text.charCodeAt(index);
++    if (code >= 32 && code < 0xd800) {
++      if (attribute && code === 60)
++        throw new Error("Attribute values cannot contain <.");
++      if (code !== 38) continue;
++    } else if (code < 32) {
++      if (code !== 9 && code !== 10 && code !== 13)
++        throw new Error("Invalid XML character.");
++    } else if (code >= 0xd800 && code <= 0xdfff) {
++      if (code > 0xdbff || index + 1 >= end)
++        throw new Error("Invalid XML character.");
++      const low = text.charCodeAt(index + 1);
++      if (low < 0xdc00 || low > 0xdfff)
++        throw new Error("Invalid XML character.");
++      index++;
++      continue;
++    } else if (code < 0xfffe) {
++      continue;
++    } else {
++      throw new Error("Invalid XML character.");
++    }
++    if (code === 38) {
++      const semi = text.indexOf(";", index + 1);
++      if (semi < 0 || semi >= end)
++        throw new Error("Unterminated entity reference.");
++      parts.push(text.slice(segment, index), decodeEntity(text.slice(index + 1, semi), customEntities, attribute)); segment = semi + 1;
++      index = semi;
++    }
++  }
++    parts.push(text.slice(segment, end)); return parts.join("");
++  }
++
++private normalizeTextTail(start: number, firstEntity: number, boundary: number): string {
++    const outsideDocumentRoot = this.documentMode === "document" && this.stack.length === 0;
++    const parts: string[] = []; let segment = start;
++    for (let index = firstEntity; index < this.buffer.length; index++) {
++      const code = this.buffer.charCodeAt(index);
++      if (code === 60) break;
++      if (outsideDocumentRoot && !isXmlWhitespace(code)) {
++        throw new Error(
++          "Character data is not allowed outside the root element.",
++        );
++      }
++      if (
++        code === 93 &&
++        this.buffer.charCodeAt(index + 1) === 93 &&
++        this.buffer.charCodeAt(index + 2) === 62
++      ) {
++        throw new Error("Character data cannot contain ]]>");
++      }
++      if (code >= 32 && code < 0xd800) {
++        if (code !== 38) continue;
++      } else if (code < 32) {
++        if (code !== 9 && code !== 10 && code !== 13)
++          throw new Error("Invalid XML character.");
++        continue;
++      } else if (code >= 0xd800 && code <= 0xdfff) {
++        if (code > 0xdbff || index + 1 >= this.buffer.length)
++          throw new Error("Invalid XML character.");
++        const low = this.buffer.charCodeAt(index + 1);
++        if (low < 0xdc00 || low > 0xdfff)
++          throw new Error("Invalid XML character.");
++        index++;
++        continue;
++      } else if (code === 0xfffe || code === 0xffff) {
++        throw new Error("Invalid XML character.");
++      } else {
++        continue;
++      }
++      const semi = this.buffer.indexOf(";", index + 1);
++      const lt = boundary;
++      if (lt >= 0 && (semi < 0 || semi > lt))
++        throw new Error("Unterminated entity reference.");
++      if (semi < 0) throw new Error("Unterminated entity reference.");
++      parts.push(this.buffer.slice(segment, index), decodeEntity(this.buffer.slice(index + 1, semi), this.customEntities)); segment = semi + 1;
++      index = semi;
++    }
++    parts.push(this.buffer.slice(segment, boundary < 0 ? this.buffer.length : boundary)); return parts.join("");
++  }
++
++protected override findTextEndValidated(start: number): number {
++    if (!this.autoDecodeEntities) return super.findTextEndValidated(start);
++      if (this.resumeKind !== ResumeKind.TEXT && !this.final && this.buffer.indexOf("<", start) < 0) return super.findTextEndValidated(start);
++      if (this.resumeKind === ResumeKind.TEXT) {
++      const end = this.findDelimiter(ResumeKind.TEXT, "<", start);
++      if (end >= 0 || this.final)
++        {
++        const textEnd = end < 0 ? this.buffer.length : end;
++        const value = this.normalizeResumedText(start, textEnd);
++        const forbidden = this.buffer.indexOf("]]>", start);
++        if (forbidden >= 0 && forbidden < textEnd) throw new Error("Character data cannot contain ]]>");
++        this.normalizedText = value;
++      }
++      return end;
++    }
++    // The first '<' terminates this text node. Entity references such as
++    // '&lt;' contain no literal '<', so this single lookup is the real boundary.
++    // Reusing it below avoids an O(n^2) per-entity forward scan.
++    const boundary = this.buffer.indexOf("<", start);
++    const outsideDocumentRoot =
++      this.documentMode === "document" && this.stack.length === 0;
++    for (let index = start; index < this.buffer.length; index++) {
++      const code = this.buffer.charCodeAt(index);
++      if (code === 60) return index;
++      if (outsideDocumentRoot && !isXmlWhitespace(code)) {
++        throw new Error(
++          "Character data is not allowed outside the root element.",
++        );
++      }
++      if (
++        code === 93 &&
++        this.buffer.charCodeAt(index + 1) === 93 &&
++        this.buffer.charCodeAt(index + 2) === 62
++      ) {
++        throw new Error("Character data cannot contain ]]>");
++      }
++      if (code >= 32 && code < 0xd800) {
++        if (code !== 38) continue;
++      } else if (code < 32) {
++        if (code !== 9 && code !== 10 && code !== 13)
++          throw new Error("Invalid XML character.");
++        continue;
++      } else if (code >= 0xd800 && code <= 0xdfff) {
++        if (code > 0xdbff || index + 1 >= this.buffer.length)
++          throw new Error("Invalid XML character.");
++        const low = this.buffer.charCodeAt(index + 1);
++        if (low < 0xdc00 || low > 0xdfff)
++          throw new Error("Invalid XML character.");
++        index++;
++        continue;
++      } else if (code === 0xfffe || code === 0xffff) {
++        throw new Error("Invalid XML character.");
++      } else {
++        continue;
++      }
++      const semi = this.buffer.indexOf(";", index + 1);
++      const lt = boundary;
++      if (lt >= 0 && (semi < 0 || semi > lt))
++        throw new Error("Unterminated entity reference.");
++      if (semi < 0) break;
++      this.normalizedText = this.normalizeTextTail(start, index, boundary); return boundary;
++      index = semi;
++    }
++    if (this.final) {
++      validateCharDataSpan(
++        this.buffer,
++        start,
++        this.buffer.length,
++        this.customEntities,
++      );
++      return -1;
++    }
++    this.resumeKind = ResumeKind.TEXT;
++    this.resumeOffset = this.buffer.length;
++    return -1;
++  }
++
++protected override parseText(): TokenCursorResult {
++    this.normalizedText = undefined;
++if (this.xmlDeclarationAllowed && !this.stack.length && this.roots === 0) {
++      this.xmlDeclarationAllowed = false;
++    }
++    const start = this.pos;
++    const lt = this.findTextEndValidated(start);
++    if (lt < 0 && !this.final) return NEED_INPUT;
++    const end = lt < 0 ? this.buffer.length : lt;
++    this.pos = end;
++    this.currentTextStart = start;
++    this.currentTextEnd = end;
++    const type = this.set(XmlEventType.CHARACTERS);
++      this.currentTextMemo = this.normalizedText;
++      this.normalizedText = undefined;
++      return type;
++  }
++
++override text(): string | undefined {
++    if (!this.autoDecodeEntities || this.currentType !== XmlEventType.CHARACTERS) return super.text();
++if (this.currentTextStart < 0) return undefined;
++    if (this.currentTextMemo === undefined) {
++      const value = this.buffer.slice(
++        this.currentTextStart,
++        this.currentTextEnd,
++      );
++      this.currentTextMemo =
++        value;
++    }
++    return this.currentTextMemo;
++  }
++}
+diff --git a/packages/stax-xml/src/core/internal/entity-normalizer.ts b/packages/stax-xml/src/core/internal/entity-normalizer.ts
+new file mode 100644
+index 00000000..198dec0a
+--- /dev/null
++++ b/packages/stax-xml/src/core/internal/entity-normalizer.ts
+@@ -0,0 +1,65 @@
++import { decodeEntity } from "../TokenCursor.js";
++
++/** undefined means validation completed without an entity; empty is a valid result. */
++export function validateAndNormalizeAttributeSpan(
++  source: string, start: number, end: number,
++  customEntities: ReadonlyMap<string, string> | undefined,
++): string | undefined {
++  for (let index = start; index < end; index++) {
++    const code = source.charCodeAt(index);
++    if (code >= 32 && code < 0xd800) {
++      if (code === 60) throw new Error("Attribute values cannot contain <.");
++      if (code !== 38) continue;
++    } else if (code < 32) {
++      if (code !== 9 && code !== 10 && code !== 13) throw new Error("Invalid XML character.");
++    } else if (code >= 0xd800 && code <= 0xdfff) {
++      if (code > 0xdbff || index + 1 >= end) throw new Error("Invalid XML character.");
++      const low = source.charCodeAt(index + 1);
++      if (low < 0xdc00 || low > 0xdfff) throw new Error("Invalid XML character.");
++      index++;
++      continue;
++    } else if (code < 0xfffe) {
++      continue;
++    } else {
++      throw new Error("Invalid XML character.");
++    }
++    if (code === 38) return normalizeAttributeTail(source, start, end, index, customEntities);
++  }
++  return undefined;
++}
++
++function normalizeAttributeTail(
++  source: string, start: number, end: number, firstEntity: number,
++  customEntities: ReadonlyMap<string, string> | undefined,
++): string {
++  const parts: string[] = [];
++  let segment = start;
++  for (let index = firstEntity; index < end; index++) {
++    const code = source.charCodeAt(index);
++    if (code >= 32 && code < 0xd800) {
++      if (code === 60) throw new Error("Attribute values cannot contain <.");
++      if (code !== 38) continue;
++    } else if (code < 32) {
++      if (code !== 9 && code !== 10 && code !== 13) throw new Error("Invalid XML character.");
++    } else if (code >= 0xd800 && code <= 0xdfff) {
++      if (code > 0xdbff || index + 1 >= end) throw new Error("Invalid XML character.");
++      const low = source.charCodeAt(index + 1);
++      if (low < 0xdc00 || low > 0xdfff) throw new Error("Invalid XML character.");
++      index++;
++      continue;
++    } else if (code < 0xfffe) {
++      continue;
++    } else {
++      throw new Error("Invalid XML character.");
++    }
++    if (code === 38) {
++      const semi = source.indexOf(";", index + 1);
++      if (semi < 0 || semi >= end) throw new Error("Unterminated entity reference.");
++      parts.push(source.slice(segment, index), decodeEntity(source.slice(index + 1, semi), customEntities, true));
++      segment = semi + 1;
++      index = semi;
++    }
++  }
++  parts.push(source.slice(segment, end));
++  return parts.join("");
++}
+diff --git a/packages/stax-xml/src/core/internal/materialized-reader-options.ts b/packages/stax-xml/src/core/internal/materialized-reader-options.ts
+new file mode 100644
+index 00000000..e40e8f6c
+--- /dev/null
++++ b/packages/stax-xml/src/core/internal/materialized-reader-options.ts
+@@ -0,0 +1,14 @@
++const materializedRequest = Symbol("materialized-reader-request");
++interface InternalMaterializedRequest<O> {
++  readonly [materializedRequest]: true;
++  readonly options: O;
++}
++
++/** Internal envelope is assignable to the unchanged public constructor type. */
++export function requestMaterialized<O extends object>(options: O): O {
++  return { [materializedRequest]: true, options } as unknown as O;
++}
++
++export function isMaterializedRequest<O extends object>(options: O): options is O & InternalMaterializedRequest<O> {
++  return (options as Partial<InternalMaterializedRequest<O>>)[materializedRequest] === true;
++}
+diff --git a/packages/stax-xml/test/entity-single-eval-lifecycle.test.ts b/packages/stax-xml/test/entity-single-eval-lifecycle.test.ts
+new file mode 100644
+index 00000000..204ab722
+--- /dev/null
++++ b/packages/stax-xml/test/entity-single-eval-lifecycle.test.ts
+@@ -0,0 +1,383 @@
++import { describe, expect, it } from "vitest";
++import {
++  EventReader,
++  EventReaderSync,
++  XmlEventType,
++  type AnyXmlEvent,
++  type EventReaderOptions,
++  type EventReaderSyncOptions,
++  type StartElementEvent,
++} from "stax-xml";
++
++const encoder = new TextEncoder();
++
++function bytes(value: string): Uint8Array {
++  return encoder.encode(value);
++}
++
++async function* chunks(
++  value: string,
++  size = 1,
++): AsyncGenerator<Uint8Array> {
++  const input = bytes(value);
++  for (let offset = 0; offset < input.length; offset += size)
++    yield input.slice(offset, offset + size);
++}
++
++function startEvents(events: AnyXmlEvent[]): StartElementEvent[] {
++  return events.filter(
++    (event): event is StartElementEvent =>
++      event.type === XmlEventType.START_ELEMENT,
++  );
++}
++
++function eventDigest(event: AnyXmlEvent): string {
++  if (event.type === XmlEventType.START_ELEMENT) {
++    return JSON.stringify([
++      event.type,
++      event.name,
++      event.localName,
++      event.prefix,
++      event.namespaceURI,
++      event.selfClosing,
++      Array.from(event.attributes?.values() ?? [], (attribute) => [
++        attribute.name,
++        attribute.localName,
++        attribute.prefix,
++        attribute.namespaceURI,
++        attribute.value,
++      ]),
++    ]);
++  }
++  if (event.type === XmlEventType.END_ELEMENT)
++    return JSON.stringify([
++      event.type,
++      event.name,
++      event.localName,
++      event.prefix,
++      event.namespaceURI,
++    ]);
++  if (
++    event.type === XmlEventType.CHARACTERS ||
++    event.type === XmlEventType.CDATA ||
++    event.type === XmlEventType.COMMENT ||
++    event.type === XmlEventType.DTD
++  )
++    return JSON.stringify([event.type, event.value]);
++  if (event.type === XmlEventType.PROCESSING_INSTRUCTION)
++    return JSON.stringify([event.type, event.target, event.data]);
++  if (event.type === XmlEventType.START_DOCUMENT)
++    return JSON.stringify([
++      event.type,
++      event.version,
++      event.encoding,
++      event.standalone,
++    ]);
++  return JSON.stringify([event.type]);
++}
++
++describe("materialized event and attribute lifetimes", () => {
++  it("keeps a synchronous event, its Map, and attributes stable through thousands of later tokens and close", () => {
++    const tail = Array.from(
++      { length: 2500 },
++      (_, index) => `<small n="${index}">v${index}</small>`,
++    ).join("");
++    const reader = new EventReaderSync(
++      `<root><large id="first" empty="">&amp;😀</large>${tail}</root>`,
++    );
++    let saved!: StartElementEvent;
++    let savedAttribute!: { value: string };
++    let savedMap!: NonNullable<StartElementEvent["attributes"]>;
++    const all: AnyXmlEvent[] = [];
++
++    while (true) {
++      const result = reader.next();
++      if (result.done) break;
++      all.push(result.value);
++      if (
++        result.value.type === XmlEventType.START_ELEMENT &&
++        result.value.name === "large"
++      ) {
++        saved = result.value;
++        savedMap = result.value.attributes!;
++        savedAttribute = savedMap.get("id")!;
++      }
++    }
++    reader.close();
++
++    expect(saved).toBeDefined();
++    expect(savedMap).toBeDefined();
++    expect(savedAttribute).toEqual({
++      name: "id",
++      localName: "id",
++      prefix: "",
++      namespaceURI: "",
++      value: "first",
++    });
++    expect(savedMap.get("empty")?.value).toBe("");
++    expect(saved.attributes).toBe(savedMap);
++    expect(savedMap.get("id")).toBe(savedAttribute);
++    expect(eventDigest(saved)).toContain("first");
++    expect(all.length).toBeGreaterThan(5000);
++  });
++
++  it("does not reuse async event objects or attribute Maps", async () => {
++    const reader = new EventReader(
++      chunks("<root><item id='one'/><item id='two'/></root>", 1),
++    );
++    const saved: StartElementEvent[] = [];
++    for await (const event of reader) {
++      if (event.type === XmlEventType.START_ELEMENT && event.name === "item")
++        saved.push(event);
++    }
++
++    expect(saved).toHaveLength(2);
++    expect(saved[0]).not.toBe(saved[1]);
++    expect(saved[0]?.attributes).not.toBe(saved[1]?.attributes);
++    expect(saved[0]?.attributes?.get("id")?.value).toBe("one");
++    expect(saved[1]?.attributes?.get("id")?.value).toBe("two");
++  });
++
++  it("keeps retained async events unchanged after later advancement and close", async () => {
++    const reader = new EventReader(
++      chunks("<root><item id='first'>one</item><item id='second'>two</item></root>", 1),
++    );
++    let saved!: IteratorYieldResult<AnyXmlEvent>;
++    while (true) {
++      const result = await reader.next();
++      if (result.done) throw new Error("missing item");
++      if (
++        result.value.type === XmlEventType.START_ELEMENT &&
++        result.value.name === "item"
++      ) {
++        saved = result;
++        break;
++      }
++    }
++    const before = eventDigest(saved.value);
++    const map =
++      saved.value.type === XmlEventType.START_ELEMENT
++        ? saved.value.attributes
++        : undefined;
++    const attribute = map?.get("id");
++
++    while (!(await reader.next()).done) {
++      /* exhaust */
++    }
++    await reader.close();
++
++    expect(eventDigest(saved.value)).toBe(before);
++    expect(saved.value).toMatchObject({
++      type: XmlEventType.START_ELEMENT,
++      name: "item",
++    });
++    expect(map?.get("id")).toBe(attribute);
++    expect(attribute?.value).toBe("first");
++  });
++
++  it("honors non-enumerable option properties and evaluates option getters on the original object", async () => {
++    const definitions = [{ entity: "empty", value: "" }];
++    let syncReads = 0;
++    const syncOptions = {} as EventReaderSyncOptions;
++    Object.defineProperty(syncOptions, "addEntities", {
++      configurable: true,
++      enumerable: false,
++      get() {
++        syncReads++;
++        return definitions;
++      },
++    });
++    const sync = Array.from(
++      new EventReaderSync('<root value="&empty;"/>', syncOptions),
++    ).find((event) => event.type === XmlEventType.START_ELEMENT);
++    if (sync?.type !== XmlEventType.START_ELEMENT)
++      throw new Error("expected sync start element");
++    expect(sync.attributes?.get("value")?.value).toBe("");
++    expect(syncReads).toBeGreaterThan(0);
++
++    let asyncReads = 0;
++    const asyncOptions = {} as EventReaderOptions;
++    Object.defineProperty(asyncOptions, "autoDecodeEntities", {
++      configurable: true,
++      enumerable: false,
++      get() {
++        asyncReads++;
++        return false;
++      },
++    });
++    const asyncReader = new EventReader(
++      chunks('<root value="&amp;"/>', 1),
++      asyncOptions,
++    );
++    let asyncStart!: StartElementEvent;
++    for await (const event of asyncReader) {
++      if (event.type === XmlEventType.START_ELEMENT) asyncStart = event;
++    }
++    expect(asyncStart.attributes?.get("value")?.value).toBe("&amp;");
++    expect(asyncReads).toBeGreaterThan(0);
++  });
++
++  it("retries a partial start tag without mixing values from the previous attempt", async () => {
++    const xml = '<root first="before&amp;after" second="😀"/>';
++    const expected = Array.from(new EventReaderSync(xml)).map(eventDigest);
++    const actual: string[] = [];
++    for await (const event of new EventReader(chunks(xml, 1)))
++      actual.push(eventDigest(event));
++    expect(actual).toEqual(expected);
++
++    const starts = actual.filter((value) => value.includes("START_ELEMENT"));
++    expect(starts).toHaveLength(1);
++    expect(starts[0]).toContain("before&after");
++    expect(starts[0]).toContain("😀");
++  });
++
++  it("handles a large attribute set followed by a small token without stale normalized values", () => {
++    const attributes = Array.from(
++      { length: 256 },
++      (_, index) => `a${index}="${"v".repeat(512)}"`,
++    ).join(" ");
++    const reader = new EventReaderSync(
++      `<root ${attributes}><small value="&amp;"/></root>`,
++    );
++    const starts = startEvents(Array.from(reader));
++    const large = starts.find((event) => event.name === "root")!;
++    const small = starts.find((event) => event.name === "small")!;
++
++    expect(large.attributes).toBeDefined();
++    expect(large.attributes?.size).toBe(256);
++    expect(large.attributes?.get("a0")?.value).toBe("v".repeat(512));
++    expect(large.attributes?.get("a255")?.value).toBe("v".repeat(512));
++    expect(small.attributes?.size).toBe(1);
++    expect(small.attributes?.get("value")?.value).toBe("&");
++    expect(large.attributes?.get("a0")?.value).toBe("v".repeat(512));
++  });
++});
++
++describe("EventReader close, failure, and pending-input lifecycle", () => {
++  it("closes an async source exactly once after first-next close", async () => {
++    let returned = 0;
++    async function* source(): AsyncGenerator<Uint8Array> {
++      try {
++        yield bytes("<root><child/></root>");
++      } finally {
++        returned++;
++      }
++    }
++    const reader = new EventReader(source());
++    await reader.next();
++    await reader.close();
++    await reader.close();
++    expect(returned).toBe(1);
++    await expect(reader.next()).resolves.toEqual({
++      value: undefined,
++      done: true,
++    });
++  });
++
++  it("resolves a pending next as done when close interrupts input", async () => {
++    let returned = 0;
++    let resolvePending!: (
++      result: IteratorResult<Uint8Array>,
++    ) => void;
++    const pending = new Promise<IteratorResult<Uint8Array>>((resolve) => {
++      resolvePending = resolve;
++    });
++    const source: AsyncIterable<Uint8Array> = {
++      [Symbol.asyncIterator]() {
++        let first = true;
++        return {
++          next: () => {
++            if (first) {
++              first = false;
++              return Promise.resolve({
++                value: bytes("<root/>"),
++                done: false,
++              });
++            }
++            return pending;
++          },
++          return: () => {
++            returned++;
++            resolvePending({ value: undefined, done: true });
++            return Promise.resolve({ value: undefined, done: true });
++          },
++        };
++      },
++    };
++    const reader = new EventReader(source);
++    await reader.next();
++    await reader.next();
++    expect((await reader.next()).value).toMatchObject({ type: XmlEventType.END_ELEMENT });
++    const next = reader.next();
++    await reader.close();
++    await expect(next).resolves.toEqual({ value: undefined, done: true });
++    expect(returned).toBe(1);
++  });
++
++  it("preserves a primary parse error when iterator cleanup also throws", async () => {
++    let returned = 0;
++    const source: AsyncIterable<Uint8Array> = {
++      [Symbol.asyncIterator]() {
++        let yielded = false;
++        return {
++          next: () => {
++            if (yielded)
++              return Promise.resolve({ value: undefined, done: true });
++            yielded = true;
++            return Promise.resolve({
++              value: bytes('<root value="&unknown;"/>'),
++              done: false,
++            });
++          },
++          return: () => {
++            returned++;
++            throw new Error("cleanup failed");
++          },
++        };
++      },
++    };
++    const reader = new EventReader(source);
++    await reader.next();
++    await expect(reader.next()).rejects.toThrow(/unknown or invalid entity/i);
++    expect(returned).toBe(1);
++    await expect(reader.next()).resolves.toEqual({
++      value: undefined,
++      done: true,
++    });
++  });
++
++  it("exposes a cleanup error from iterator.return when no primary parse error exists", async () => {
++    const source: AsyncIterable<Uint8Array> = {
++      [Symbol.asyncIterator]() {
++        return {
++          next: () =>
++            Promise.resolve({
++              value: bytes("<root/>"),
++              done: false,
++            }),
++          return: () => {
++            throw new Error("close failed");
++          },
++        };
++      },
++    };
++    const reader = new EventReader(source);
++    await reader.next();
++    await expect(reader.return()).rejects.toThrow("close failed");
++  });
++
++  it("can recreate a parser after close without retaining the previous event state", () => {
++    const first = Array.from(new EventReaderSync("<root a='one'/>"));
++    const second = Array.from(new EventReaderSync("<root a='two'/>"));
++    const firstStart = first.find(
++      (event): event is StartElementEvent =>
++        event.type === XmlEventType.START_ELEMENT,
++    );
++    const secondStart = second.find(
++      (event): event is StartElementEvent =>
++        event.type === XmlEventType.START_ELEMENT,
++    );
++    expect(firstStart?.attributes?.get("a")?.value).toBe("one");
++    expect(secondStart?.attributes?.get("a")?.value).toBe("two");
++  });
++});
+diff --git a/packages/stax-xml/test/entity-single-eval-readers.test.ts b/packages/stax-xml/test/entity-single-eval-readers.test.ts
+new file mode 100644
+index 00000000..e6bff632
+--- /dev/null
++++ b/packages/stax-xml/test/entity-single-eval-readers.test.ts
+@@ -0,0 +1,358 @@
++import { describe, expect, it } from "vitest";
++import {
++  EventReader,
++  EventReaderSync,
++  XmlEventType,
++  type AnyXmlEvent,
++  type EventReaderOptions,
++} from "stax-xml";
++
++const encoder = new TextEncoder();
++
++function bytes(xml: string): Uint8Array {
++  return encoder.encode(xml);
++}
++
++function fixedChunks(input: Uint8Array, size: number): Uint8Array[] {
++  const result: Uint8Array[] = [];
++  for (let offset = 0; offset < input.length; offset += size)
++    result.push(input.slice(offset, offset + size));
++  return result;
++}
++
++async function* asyncChunks(
++  xml: string,
++  size: number,
++): AsyncGenerator<Uint8Array> {
++  yield* fixedChunks(bytes(xml), size);
++}
++
++function eventShape(event: AnyXmlEvent): unknown {
++  if (event.type === XmlEventType.START_ELEMENT) {
++    return [
++      event.type,
++      event.name,
++      event.localName,
++      event.prefix,
++      event.namespaceURI,
++      event.selfClosing,
++      Array.from(event.attributes?.values() ?? [], (attribute) => [
++        attribute.name,
++        attribute.localName,
++        attribute.prefix,
++        attribute.namespaceURI,
++        attribute.value,
++      ]),
++    ];
++  }
++  if (event.type === XmlEventType.END_ELEMENT) {
++    return [
++      event.type,
++      event.name,
++      event.localName,
++      event.prefix,
++      event.namespaceURI,
++    ];
++  }
++  if (
++    event.type === XmlEventType.CHARACTERS ||
++    event.type === XmlEventType.CDATA ||
++    event.type === XmlEventType.COMMENT ||
++    event.type === XmlEventType.DTD
++  ) {
++    return [event.type, event.value];
++  }
++  if (event.type === XmlEventType.PROCESSING_INSTRUCTION)
++    return [event.type, event.target, event.data];
++  if (event.type === XmlEventType.START_DOCUMENT)
++    return [
++      event.type,
++      event.version,
++      event.encoding,
++      event.standalone,
++    ];
++  return [event.type];
++}
++
++function transcript(events: AnyXmlEvent[]): string {
++  return JSON.stringify(events.map(eventShape));
++}
++
++function collectSync(
++  xml: string,
++  options: EventReaderOptions = {},
++): AnyXmlEvent[] {
++  return Array.from(new EventReaderSync(xml, options));
++}
++
++async function collectAsync(
++  xml: string,
++  size: number,
++  options: EventReaderOptions = {},
++): Promise<AnyXmlEvent[]> {
++  const result: AnyXmlEvent[] = [];
++  for await (const event of new EventReader(asyncChunks(xml, size), options))
++    result.push(event);
++  return result;
++}
++
++function byteOffset(xml: string, codeUnitOffset: number): number {
++  return bytes(xml.slice(0, codeUnitOffset)).length;
++}
++
++async function* markerChunks(xml: string): AsyncGenerator<Uint8Array> {
++  const input = bytes(xml);
++  const cuts = new Set<number>([0, input.length]);
++  for (const marker of ["&amp;", "&#x1F600;", "]]>", "\"", "'"]) {
++    let from = 0;
++    while (true) {
++      const index = xml.indexOf(marker, from);
++      if (index < 0) break;
++      const start = byteOffset(xml, index);
++      const end = byteOffset(xml, index + marker.length);
++      for (const cut of [start - 1, start, start + 1, end - 1, end, end + 1])
++        if (cut > 0 && cut < input.length) cuts.add(cut);
++      from = index + marker.length;
++    }
++  }
++  const ordered = Array.from(cuts).sort((left, right) => left - right);
++  for (let index = 1; index < ordered.length; index++)
++    yield input.slice(ordered[index - 1]!, ordered[index]!);
++}
++
++interface ParseFailure {
++  prefix: string;
++  name: string;
++  message: string;
++}
++
++function syncFailure(xml: string): ParseFailure {
++  const prefix: AnyXmlEvent[] = [];
++  try {
++    const reader = new EventReaderSync(xml);
++    while (true) {
++      const result = reader.next();
++      if (result.done) break;
++      prefix.push(result.value);
++    }
++  } catch (error) {
++    const failure = error as Error;
++    return {
++      prefix: transcript(prefix),
++      name: failure.constructor.name,
++      message: failure.message,
++    };
++  }
++  throw new Error("expected synchronous parse failure");
++}
++
++async function asyncFailure(
++  xml: string,
++  size: number,
++): Promise<ParseFailure> {
++  const prefix: AnyXmlEvent[] = [];
++  const reader = new EventReader(asyncChunks(xml, size));
++  try {
++    while (true) {
++      const result = await reader.next();
++      if (result.done) break;
++      prefix.push(result.value);
++    }
++  } catch (error) {
++    const failure = error as Error;
++    return {
++      prefix: transcript(prefix),
++      name: failure.constructor.name,
++      message: failure.message,
++    };
++  }
++  throw new Error("expected asynchronous parse failure");
++}
++
++describe("single-evaluation reader parity", () => {
++  it("matches complete synchronous event output across 1, 2, and 3 byte chunks", async () => {
++    const xml =
++      '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE root><!--&amp;--><?work &amp;?><root xmlns:p="urn:one&amp;two" p:id="&#x1F600;" plain="&amp;lt;">한글😀&amp;lt;<![CDATA[&amp;]]><?inner &name;?><item empty=""/></root>';
++    const expected = transcript(collectSync(xml));
++
++    for (const size of [1, 2, 3]) {
++      const actual = await collectAsync(xml, size);
++      // R0 publishes START_DOCUMENT before a split declaration is complete.
++      expect(eventShape(actual[0]!)).toEqual(["START_DOCUMENT", undefined, undefined, undefined]);
++      expect(transcript(actual.slice(1))).toBe(transcript(collectSync(xml).slice(1)));
++    }
++    expect(transcript(await (async () => {
++      const result: AnyXmlEvent[] = [];
++      for await (const event of new EventReader(markerChunks(xml))) result.push(event);
++      return result;
++    })())).toBe(expected);
++  });
++
++  it("keeps the full raw event output equivalent when entity decoding is disabled", async () => {
++    const xml =
++      '<root xmlns:p="urn:one&amp;two" p:id="&amp;lt;" plain="&amp;"><p:item>&amp;lt;</p:item></root>';
++    const options = { autoDecodeEntities: false };
++    const expected = transcript(collectSync(xml, options));
++    expect(transcript(await collectAsync(xml, 1, options))).toBe(expected);
++    expect(collectSync(xml, options).find(
++      (event) => event.type === XmlEventType.CHARACTERS,
++    )).toMatchObject({ value: "&amp;lt;" });
++  });
++
++  it("preserves declaration, BOM, fragment, self-closing, and mixed token semantics", async () => {
++    const xml =
++      "\uFEFF<?xml version=\"1.0\" standalone=\"yes\"?><root><empty/><text>before&amp;after</text><![CDATA[&amp;]]><!--note--><?pi &amp;?></root>";
++    const actual = await collectAsync(xml, 1);
++    expect(eventShape(actual[0]!)).toEqual(["START_DOCUMENT", undefined, undefined, undefined]);
++    expect(transcript(actual.slice(1))).toBe(transcript(collectSync(xml).slice(1)));
++
++    const types = collectSync(xml).map((event) => event.type);
++    expect(types).toEqual([
++      XmlEventType.START_DOCUMENT,
++      XmlEventType.START_ELEMENT,
++      XmlEventType.START_ELEMENT,
++      XmlEventType.END_ELEMENT,
++      XmlEventType.START_ELEMENT,
++      XmlEventType.CHARACTERS,
++      XmlEventType.END_ELEMENT,
++      XmlEventType.CDATA,
++      XmlEventType.COMMENT,
++      XmlEventType.PROCESSING_INSTRUCTION,
++      XmlEventType.END_ELEMENT,
++      XmlEventType.END_DOCUMENT,
++    ]);
++  });
++
++  it("keeps document-mode root and trailing-whitespace rules distinct from fragments", async () => {
++    const document = '<?xml version="1.0"?><root/> \n\t';
++    const options = { documentMode: "document" as const };
++    const actual = await collectAsync(document, 1, options);
++    expect(eventShape(actual[0]!)).toEqual(["START_DOCUMENT", undefined, undefined, undefined]);
++    expect(transcript(actual.slice(1))).toBe(transcript(collectSync(document, options).slice(1)));
++    expect(
++      collectSync("<one/><two/>").filter(
++        (event) => event.type === XmlEventType.START_ELEMENT,
++      ),
++    ).toHaveLength(2);
++    expect(() => collectSync("<root/>tail", options)).toThrow(
++      /outside the root|exactly one root/i,
++    );
++  });
++
++  it.each([
++    ["unknown attribute entity", '<root value="&unknown;"/>', /unknown or invalid entity/i],
++    ["invalid numeric attribute entity", '<root value="&#0;"/>', /unknown or invalid entity/i],
++    ["unterminated attribute entity", '<root value="&amp"/>', /unterminated entity/i],
++    ["unknown text entity", "<root>&unknown;</root>", /unknown or invalid entity/i],
++    ["unterminated text entity", "<root>&amp</root>", /unterminated entity/i],
++    ["literal less-than attribute", '<root value="literal <"/>', /attribute values cannot contain </i],
++  ] as const)(
++    "reports %s at the same event boundary for sync and async readers",
++    async (_name, xml, error) => {
++      const sync = syncFailure(xml);
++      expect(sync.message).toMatch(error);
++
++      for (const size of [1, 2, 3]) {
++        const asyncResult = await asyncFailure(xml, size);
++        expect(asyncResult).toEqual(sync);
++      }
++    },
++  );
++
++  it("does not return a START_ELEMENT before rejecting its malformed attribute", async () => {
++    const reader = new EventReader(asyncChunks('<root value="&unknown;"/>', 1));
++    await expect(reader.next()).resolves.toMatchObject({
++      done: false,
++      value: { type: XmlEventType.START_DOCUMENT },
++    });
++    await expect(reader.next()).rejects.toThrow(/unknown or invalid entity/i);
++  });
++
++  it("does not turn a decoded ]]> into a lexical CDATA error", async () => {
++    const xml = "<root>left]]&gt;right</root>";
++    const expected = collectSync(xml);
++    expect(
++      expected.find((event) => event.type === XmlEventType.CHARACTERS),
++    ).toMatchObject({ value: "left]]>right" });
++    expect(transcript(await collectAsync(xml, 1))).toBe(transcript(expected));
++    expect(() => collectSync("<root>left]]>right</root>")).toThrow(
++      /cannot contain \]\]>/i,
++    );
++  });
++
++  it("keeps the last valid event before a malformed fragment tail", async () => {
++    const xml = "<root><ok/></root>&unknown;";
++    const sync = syncFailure(xml);
++    expect(sync.prefix).toBe(
++      JSON.stringify([
++        [XmlEventType.START_DOCUMENT, null, null, null],
++        [XmlEventType.START_ELEMENT, "root", "root", "", "", false, []],
++        [XmlEventType.START_ELEMENT, "ok", "ok", "", "", true, []],
++        [XmlEventType.END_ELEMENT, "ok", "ok", "", ""],
++        [XmlEventType.END_ELEMENT, "root", "root", "", ""],
++      ]),
++    );
++    expect(sync.message).toMatch(/unknown or invalid entity/i);
++    expect(await asyncFailure(xml, 1)).toEqual(sync);
++  });
++
++  it("keeps a valid result after a large entity-bearing value is followed by a small token", async () => {
++    const large = `${"a".repeat(1024 * 1024 - 32)}😀&amp;tail`;
++    const xml = `<root><large value="${large}"/><small value="&empty;"/></root>`;
++    const options = {
++      addEntities: [{ entity: "empty", value: "" }],
++    };
++    const expected = transcript(collectSync(xml, options));
++    for (const size of [1024, 64 * 1024, 1024 * 1024])
++      expect(transcript(await collectAsync(xml, size, options))).toBe(expected);
++  });
++});
++
++describe("single-evaluation async reader coordination", () => {
++  it("rejects concurrent next calls without changing the successful result", async () => {
++    let release!: () => void;
++    const gate = new Promise<void>((resolve) => {
++      release = resolve;
++    });
++    async function* source(): AsyncGenerator<Uint8Array> {
++      await gate;
++      yield bytes("<root/>");
++    }
++    const reader = new EventReader(source());
++    const first = reader.next();
++    await expect(reader.next()).rejects.toThrow(/concurrent|pending|progress/i);
++    release();
++    await expect(first).resolves.toMatchObject({
++      done: false,
++      value: { type: XmlEventType.START_DOCUMENT },
++    });
++  });
++
++  it("does not read beyond the event that is needed from an async source", async () => {
++    let pulls = 0;
++    let release!: () => void;
++    const gate = new Promise<void>((resolve) => {
++      release = resolve;
++    });
++    async function* source(): AsyncGenerator<Uint8Array> {
++      pulls++;
++      yield bytes("<root><item/></root>");
++      await gate;
++      pulls++;
++      yield bytes("");
++    }
++    const reader = new EventReader(source());
++    await reader.next();
++    await reader.next();
++    await reader.next();
++    await reader.next();
++    expect(pulls).toBe(1);
++    const pending = reader.next();
++    await Promise.resolve();
++    expect(pulls).toBe(1);
++    release();
++    await expect(pending).resolves.toMatchObject({
++      value: { type: XmlEventType.END_ELEMENT, name: "root" },
++    });
++  });
++});
+diff --git a/packages/stax-xml/test/entity-single-eval.test.ts b/packages/stax-xml/test/entity-single-eval.test.ts
+new file mode 100644
+index 00000000..9026f29e
+--- /dev/null
++++ b/packages/stax-xml/test/entity-single-eval.test.ts
+@@ -0,0 +1,312 @@
++import { describe, expect, it } from "vitest";
++import {
++  EventReaderSync,
++  XmlEventType,
++  type AnyXmlEvent,
++  type EventAttribute,
++  type EventReaderSyncOptions,
++  type StartElementEvent,
++} from "stax-xml";
++import { validateAndNormalizeAttributeSpan } from "../src/core/internal/entity-normalizer.js";
++
++function normalize(
++  value: string,
++  customEntities?: ReadonlyMap<string, string>,
++): string | undefined {
++  return validateAndNormalizeAttributeSpan(
++    value,
++    0,
++    value.length,
++    customEntities,
++  );
++}
++
++function startEvent(
++  xml: string,
++  options: EventReaderSyncOptions = {},
++): StartElementEvent {
++  const event = Array.from(new EventReaderSync(xml, options)).find(
++    (candidate) => candidate.type === XmlEventType.START_ELEMENT,
++  );
++  if (event?.type !== XmlEventType.START_ELEMENT)
++    throw new Error("expected START_ELEMENT");
++  return event;
++}
++
++function events(xml: string, options: EventReaderSyncOptions = {}): AnyXmlEvent[] {
++  return Array.from(new EventReaderSync(xml, options));
++}
++
++function attributeValues(event: StartElementEvent): Array<[string, string]> {
++  return Array.from(
++    event.attributes?.values() ?? [],
++    (attribute): [string, string] => [attribute.name, attribute.value],
++  );
++}
++
++describe("single-evaluation entity normalization", () => {
++  it("distinguishes a validated entity-free span from an empty replacement", () => {
++    const custom = new Map([
++      ["empty", ""],
++      ["wrapped", "&amp;"],
++    ]);
++
++    expect(normalize("plain text", custom)).toBeUndefined();
++    expect(normalize("&empty;", custom)).toBe("");
++    expect(normalize("&wrapped;", custom)).toBe("&amp;");
++  });
++
++  it("normalizes predefined, decimal, hexadecimal, and astral references", () => {
++    expect(
++      normalize("&lt;&gt;&amp;&quot;&apos;&#65;&#x41;&#x1F600;"),
++    ).toBe('<>&"\'AA😀');
++    expect(normalize("&#00065;&#x00041;")).toBe("AA");
++    expect(normalize("000 plain 001")).toBeUndefined();
++  });
++
++  it.each([
++    ["tab", "&#9;", "\t"],
++    ["line feed", "&#10;", "\n"],
++    ["carriage return", "&#13;", "\r"],
++    ["space", "&#32;", " "],
++    ["last BMP before surrogate", "&#xD7FF;", "\uD7FF"],
++    ["first BMP after surrogate", "&#xE000;", "\uE000"],
++    ["last valid BMP", "&#xFFFD;", "\uFFFD"],
++    ["first valid astral", "&#x10000;", "\u{10000}"],
++    ["last valid code point", "&#x10FFFF;", "\u{10FFFF}"],
++  ] as const)("accepts the XML 1.0 boundary %s", (_name, reference, value) => {
++    expect(normalize(reference)).toBe(value);
++  });
++
++  it.each([
++    "&#0;",
++    "&#8;",
++    "&#11;",
++    "&#xB;",
++    "&#xD800;",
++    "&#xDFFF;",
++    "&#x110000;",
++    "&unknown;",
++    "&missing",
++  ])("rejects invalid or incomplete reference %s", (value) => {
++    expect(() => normalize(value)).toThrow();
++  });
++
++  it("performs one non-recursive replacement pass", () => {
++    const custom = new Map([
++      ["word", "StAX"],
++      ["wrapped", "&amp;"],
++      ["empty", ""],
++    ]);
++
++    expect(normalize("&amp;lt;&amp;#65;&wrapped;", custom)).toBe(
++      "&lt;&#65;&amp;",
++    );
++    expect(normalize("&word;&empty;", custom)).toBe("StAX");
++  });
++
++  it("retains Unicode validation for direct strings, including lone surrogates", () => {
++    expect(normalize("한글\uE000\u{1F600}")).toBeUndefined();
++    expect(() => normalize("\uD800")).toThrow(/invalid XML character/i);
++    expect(() => normalize("\uDC00")).toThrow(/invalid XML character/i);
++  });
++
++  it("uses attribute-specific validation for literal less-than and custom expansion", () => {
++    expect(() => normalize("literal <")).toThrow(
++      /attribute values cannot contain </i,
++    );
++    expect(normalize("&lt;")).toBe("<");
++    expect(normalize("&#60;")).toBe("<");
++
++    const custom = new Map([["less", "<"]]);
++    expect(() => normalize("&less;", custom)).toThrow(
++      /cannot expand to </i,
++    );
++  });
++
++  it("returns complete decoded values for both quote styles and preserves source order", () => {
++    const event = startEvent(
++      `<root first="&amp;lt;" empty="" second='&quot;&apos;&#65;' third="한글😀"/>`,
++    );
++
++    expect(attributeValues(event)).toEqual([
++      ["first", "&lt;"],
++      ["empty", ""],
++      ["second", "\"'A"],
++      ["third", "한글😀"],
++    ]);
++    expect(event.attributes?.get("empty")?.value).toBe("");
++  });
++
++  it("keeps raw values when decoding is disabled while resolving namespaces", () => {
++    const event = startEvent(
++      '<p:root xmlns:p="urn:one&amp;two" p:value="&amp;lt;" plain="&amp;"/>',
++      { autoDecodeEntities: false },
++    );
++
++    expect(event.name).toBe("p:root");
++    expect(event.namespaceURI).toBe("urn:one&two");
++    expect(attributeValues(event)).toEqual([
++      ["xmlns:p", "urn:one&amp;two"],
++      ["p:value", "&amp;lt;"],
++      ["plain", "&amp;"],
++    ]);
++    expect(event.attributes?.get("p:value")?.namespaceURI).toBe("urn:one&two");
++    expect(() =>
++      events('<root value="&unknown;"/>', { autoDecodeEntities: false }),
++    ).toThrow(/unknown or invalid entity/i);
++  });
++
++  it("uses an empty custom replacement for both an attribute and a default namespace", () => {
++    const event = startEvent(
++      '<root xmlns="&empty;" value="&empty;"/>',
++      { addEntities: [{ entity: "empty", value: "" }] },
++    );
++    expect(event.namespaceURI).toBe("");
++    expect(event.attributes?.get("value")?.value).toBe("");
++  });
++
++  it("resolves default namespaces, shadowing, and undeclaration in materialized events", () => {
++    const parsed = events(
++      '<root xmlns="urn:base" xmlns:p="urn:one"><p:outer p:id="1"><p:inner xmlns:p="urn:two" p:id="2"/><inner xmlns=""><leaf/></inner></p:outer></root>',
++    );
++    const starts = parsed.filter(
++      (event): event is StartElementEvent =>
++        event.type === XmlEventType.START_ELEMENT,
++    );
++
++    expect(
++      starts.map((event) => [event.name, event.namespaceURI]),
++    ).toEqual([
++      ["root", "urn:base"],
++      ["p:outer", "urn:one"],
++      ["p:inner", "urn:two"],
++      ["inner", ""],
++      ["leaf", ""],
++    ]);
++    expect(starts[1]?.attributes?.get("p:id")).toMatchObject({
++      namespaceURI: "urn:one",
++      value: "1",
++    });
++    expect(starts[2]?.attributes?.get("p:id")).toMatchObject({
++      namespaceURI: "urn:two",
++      value: "2",
++    });
++  });
++
++  it("keeps namespace declarations in source order and serializes reserved names safely", () => {
++    const event = startEvent(
++      '<root first="1" __proto__="safe" xmlns:p="urn:p" constructor="safe-too" p:id="7"/>',
++    );
++    const attributes = event.attributes;
++    if (!attributes) throw new Error("expected attributes");
++
++    expect(Array.from(attributes.keys())).toEqual([
++      "first",
++      "__proto__",
++      "xmlns:p",
++      "constructor",
++      "p:id",
++    ]);
++    expect(attributes.get("__proto__")).toMatchObject({
++      name: "__proto__",
++      value: "safe",
++      namespaceURI: "",
++    });
++    expect(attributes.get("constructor")?.value).toBe("safe-too");
++
++    const json = JSON.parse(JSON.stringify(event)) as {
++      attributes: Record<string, EventAttribute>;
++    };
++    expect(Object.keys(json.attributes)).toEqual([
++      "first",
++      "__proto__",
++      "xmlns:p",
++      "constructor",
++      "p:id",
++    ]);
++    expect(Object.hasOwn(json.attributes, "__proto__")).toBe(true);
++    expect(json.attributes.__proto__?.value).toBe("safe");
++    expect(json.attributes.constructor?.value).toBe("safe-too");
++  });
++
++  it.each([
++    ["duplicate raw name", '<root id="1" id="2"/>', /duplicate attribute/i],
++    [
++      "duplicate expanded name",
++      '<root xmlns:x="urn" xmlns:y="urn" x:id="1" y:id="2"/>',
++      /duplicate expanded attribute/i,
++    ],
++    [
++      "undeclared prefix",
++      '<root p:id="1"/>',
++      /undeclared namespace prefix/i,
++    ],
++    [
++      "prefixed undeclaration",
++      '<root xmlns:p=""/>',
++      /cannot be undeclared/i,
++    ],
++  ] as const)("rejects %s before returning its START_ELEMENT", (_name, xml, error) => {
++    expect(() => events(xml)).toThrow(error);
++  });
++
++  it("does not decode entity syntax in CDATA, comments, processing instructions, or DTD", () => {
++    const parsed = events(
++      '<!DOCTYPE root><!--&amp;--><?work &amp;?><root><![CDATA[&amp;]]><!--&name;--><?inner &name;?></root>',
++    );
++
++    expect(
++      parsed
++        .filter(
++          (event) =>
++            event.type === XmlEventType.CDATA ||
++            event.type === XmlEventType.COMMENT ||
++            event.type === XmlEventType.DTD,
++        )
++        .map((event) => event.type === XmlEventType.PROCESSING_INSTRUCTION ? "" : event.value),
++    ).toEqual(["DOCTYPE root", "&amp;", "&amp;", "&name;"]);
++    expect(
++      parsed.filter(
++        (event): event is Extract<AnyXmlEvent, { type: "PROCESSING_INSTRUCTION" }> =>
++          event.type === XmlEventType.PROCESSING_INSTRUCTION,
++      ).map((event) => [event.target, event.data]),
++    ).toEqual([
++      ["work", "&amp;"],
++      ["inner", "&name;"],
++    ]);
++  });
++
++  it("preserves the canonical event property order and undefined/empty distinctions", () => {
++    const parsed = events("<root empty=''/>");
++    const document = parsed[0];
++    const root = parsed.find(
++      (event): event is StartElementEvent =>
++        event.type === XmlEventType.START_ELEMENT,
++    );
++    if (!document || !root) throw new Error("expected document and root events");
++
++    expect(Object.keys(document)).toEqual([
++      "type",
++      "name",
++      "localName",
++      "prefix",
++      "namespaceURI",
++      "attributes",
++      "selfClosing",
++      "value",
++      "target",
++      "data",
++      "version",
++      "encoding",
++      "standalone",
++    ]);
++    expect(root.attributes).toBeDefined();
++    expect(root.attributes?.get("empty")?.value).toBe("");
++    expect(
++      Array.from(new EventReaderSync("<root/>")).find(
++        (event) => event.type === XmlEventType.START_ELEMENT,
++      ),
++    ).toMatchObject({ attributes: undefined });
++  });
++});

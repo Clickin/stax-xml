@@ -1,0 +1,1 @@
+["bun", "packages/benchmark/entity-single-eval.mjs", "bench", "--manifest", "/tmp/stax-entity-single-eval-evidence/builds.json", "--suite", "primary", "--cases", "P4/midsize", "--blocks", "1", "--warmups", "1", "--runs", "1", "--out", "/tmp/stax-entity-single-eval-evidence/bun-ordinary-smoke.json"]

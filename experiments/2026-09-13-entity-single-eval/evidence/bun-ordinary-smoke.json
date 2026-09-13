@@ -1,0 +1,360 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-13T06:43:25.062Z",
+  "suite": "primary",
+  "builds": {
+    "schemaVersion": 1,
+    "baselineSha": "9a839ffb6824a25c4cc2fa6698e860daea5b5816",
+    "variants": [
+      {
+        "id": "R0",
+        "entry": "/tmp/stax-entity-single-eval-evidence/builds/R0/dist/index.js",
+        "converterEntry": "/tmp/stax-entity-single-eval-evidence/builds/R0/dist/converter.js",
+        "sourceSha": "9a839ffb6824a25c4cc2fa6698e860daea5b5816",
+        "patchSha256": null,
+        "distSha256": "8474ddd7ba97c0debfb80b4439d75c6c9db9009c5914281cac40598ea784e0c9",
+        "normalization": "reference",
+        "instrumented": false
+      },
+      {
+        "id": "W0",
+        "entry": "/tmp/stax-entity-single-eval-evidence/builds/W0/dist/index.js",
+        "converterEntry": "/tmp/stax-entity-single-eval-evidence/builds/W0/dist/converter.js",
+        "sourceSha": "9a839ffb6824a25c4cc2fa6698e860daea5b5816",
+        "patchSha256": "25a23fa696febbf8cd59014d2ff7d3d57a74efa18f2c3c0d4e36271df16af166",
+        "distSha256": "5ebb7ce72a9f21825d724819ba832dee1fb178f912d3a90084db78360276410d",
+        "normalization": "wiring",
+        "instrumented": false
+      },
+      {
+        "id": "A1",
+        "entry": "/tmp/stax-entity-single-eval-evidence/builds/A1/dist/index.js",
+        "converterEntry": "/tmp/stax-entity-single-eval-evidence/builds/A1/dist/converter.js",
+        "sourceSha": "9a839ffb6824a25c4cc2fa6698e860daea5b5816",
+        "patchSha256": "615b11b0bd40a008b8bf47b07ec5c4931b1389ef66200f9c53979bb9a6074cdd",
+        "distSha256": "31ec017538d8a9bd5b263bf38bc1a7ada78effd6974e5d3fd1d881cad6134280",
+        "normalization": "attributes",
+        "instrumented": false
+      },
+      {
+        "id": "AT1",
+        "entry": "/tmp/stax-entity-single-eval-evidence/builds/AT1/dist/index.js",
+        "converterEntry": "/tmp/stax-entity-single-eval-evidence/builds/AT1/dist/converter.js",
+        "sourceSha": "9a839ffb6824a25c4cc2fa6698e860daea5b5816",
+        "patchSha256": "512039dea33e030eb45a9ecf6646006af21e6cea48e5152c155b323859186234",
+        "distSha256": "d653a200935e2eaf35e4e351e0d1a8043f6976fa91504277e4bcb51f19443055",
+        "normalization": "attributes-text",
+        "instrumented": false
+      }
+    ],
+    "fixtureSeed": 260913,
+    "processOrderSeed": 90317
+  },
+  "options": {
+    "blocks": 1,
+    "startBlock": 0,
+    "warmups": 1,
+    "runs": 1,
+    "sizeMib": 16
+  },
+  "environment": {
+    "node": "v24.3.0",
+    "versions": {
+      "node": "24.3.0",
+      "bun": "1.3.14",
+      "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+      "openssl": "1.1.0",
+      "llhttp": "9.3.0",
+      "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+      "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+      "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+      "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+      "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+      "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+      "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+      "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+      "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+      "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+      "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+      "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+      "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+      "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+      "v8": "13.6.233.10-node.18",
+      "uv": "1.48.0",
+      "napi": "10",
+      "icu": "74.2",
+      "unicode": "15.1",
+      "modules": "137"
+    },
+    "platform": "darwin",
+    "osRelease": "25.5.0",
+    "cpu": "Apple M4",
+    "arch": "arm64",
+    "argv": [
+      "/Users/senghyunjo/.bun/bin/bun",
+      "/private/tmp/stax-entity-single-eval/packages/benchmark/entity-single-eval.mjs",
+      "bench",
+      "--manifest",
+      "/tmp/stax-entity-single-eval-evidence/builds.json",
+      "--suite",
+      "primary",
+      "--cases",
+      "P4/midsize",
+      "--blocks",
+      "1",
+      "--warmups",
+      "1",
+      "--runs",
+      "1",
+      "--out",
+      "/tmp/stax-entity-single-eval-evidence/bun-ordinary-smoke.json"
+    ]
+  },
+  "fixtureSeed": 260913,
+  "processOrderSeed": 90317,
+  "fixtures": [
+    {
+      "id": "midsize.xml",
+      "kind": "actual",
+      "path": "/private/tmp/stax-entity-single-eval/packages/benchmark/assets/midsize.xml",
+      "bytes": 13584398,
+      "sha256": "ee298a5d02cf404b309c63162605465c34e7315e5a9152051d2e79b7474a3fce",
+      "entityStats": {
+        "targetValues": 755713,
+        "valuesWithEntities": 0,
+        "entityDensity": 0,
+        "rawOccurrences": 0,
+        "targetRawOccurrences": 0,
+        "targetValuesWithEntities": 0,
+        "attributeValues": 46080,
+        "textValues": 709633,
+        "entityAttributeValues": 0,
+        "entityTextValues": 0,
+        "namespaceValues": 0,
+        "idValues": 18432,
+        "namespaceAttributeValues": 0,
+        "idAttributeValues": 18432,
+        "namespaceValuesWithEntities": 0,
+        "idValuesWithEntities": 0,
+        "namespaceRawOccurrences": 0,
+        "idRawOccurrences": 0,
+        "entityOccurrences": {
+          "target": 0,
+          "namespace": 0,
+          "id": 0,
+          "all": 0
+        },
+        "allEntityAttributeValues": 0,
+        "allEntityTextValues": 0,
+        "rawValueLengths": {
+          "1": 64513,
+          "2": 64512,
+          "3": 27648,
+          "4": 27648,
+          "5": 82944,
+          "6": 27648,
+          "7": 18432,
+          "8": 18432,
+          "9": 211968,
+          "13": 184320,
+          "28": 9216,
+          "31": 18432
+        },
+        "semanticValueLengths": {
+          "1": 64513,
+          "2": 64512,
+          "3": 27648,
+          "4": 27648,
+          "5": 82944,
+          "6": 27648,
+          "7": 18432,
+          "8": 18432,
+          "9": 211968,
+          "13": 184320,
+          "28": 9216,
+          "31": 18432
+        },
+        "valueLengths": {
+          "1": 64513,
+          "2": 64512,
+          "3": 27648,
+          "4": 27648,
+          "5": 82944,
+          "6": 27648,
+          "7": 18432,
+          "8": 18432,
+          "9": 211968,
+          "13": 184320,
+          "28": 9216,
+          "31": 18432
+        },
+        "rawCodeUnits": 6377473,
+        "semanticCodeUnits": 6377473,
+        "outputCodeUnits": 6377473,
+        "allRawCodeUnits": 6432769,
+        "allSemanticCodeUnits": 6432769,
+        "uniqueValueCount": 36,
+        "uniqueSemanticValues": 36,
+        "invalidSurrogates": 0,
+        "targetGroupSize": 100,
+        "completeGroups": 7557,
+        "remainderValues": 13
+      }
+    }
+  ],
+  "rows": [
+    {
+      "case": "P4/midsize",
+      "lane": "P4",
+      "fixture": "midsize.xml",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 0,
+      "order": [
+        "W0",
+        "R0",
+        "A1",
+        "AT1"
+      ],
+      "variants": {
+        "W0": {
+          "mode": "warm",
+          "variant": "W0",
+          "lane": "P4",
+          "fixture": "midsize.xml",
+          "kind": "event-sync",
+          "encoding": "bytes",
+          "block": 0,
+          "samples": [
+            {
+              "ms": 264.3580000000002,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            }
+          ],
+          "canonicalDigest": "640e942c51eb5a3a34b2a152e1e43bd88feb52ec0c73076c5eb2502d4539014a",
+          "fixtureSha256": "ee298a5d02cf404b309c63162605465c34e7315e5a9152051d2e79b7474a3fce",
+          "fixtureBytes": 13584398,
+          "options": {
+            "namespaceAware": true,
+            "autoDecodeEntities": true
+          },
+          "argv": [
+            "/Users/senghyunjo/.bun/bin/bun",
+            "/private/tmp/stax-entity-single-eval/packages/benchmark/entity-single-eval.mjs",
+            "--worker"
+          ]
+        },
+        "R0": {
+          "mode": "warm",
+          "variant": "R0",
+          "lane": "P4",
+          "fixture": "midsize.xml",
+          "kind": "event-sync",
+          "encoding": "bytes",
+          "block": 0,
+          "samples": [
+            {
+              "ms": 268.8833750000001,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            }
+          ],
+          "canonicalDigest": "640e942c51eb5a3a34b2a152e1e43bd88feb52ec0c73076c5eb2502d4539014a",
+          "fixtureSha256": "ee298a5d02cf404b309c63162605465c34e7315e5a9152051d2e79b7474a3fce",
+          "fixtureBytes": 13584398,
+          "options": {
+            "namespaceAware": true,
+            "autoDecodeEntities": true
+          },
+          "argv": [
+            "/Users/senghyunjo/.bun/bin/bun",
+            "/private/tmp/stax-entity-single-eval/packages/benchmark/entity-single-eval.mjs",
+            "--worker"
+          ]
+        },
+        "A1": {
+          "mode": "warm",
+          "variant": "A1",
+          "lane": "P4",
+          "fixture": "midsize.xml",
+          "kind": "event-sync",
+          "encoding": "bytes",
+          "block": 0,
+          "samples": [
+            {
+              "ms": 273.7075,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            }
+          ],
+          "canonicalDigest": "640e942c51eb5a3a34b2a152e1e43bd88feb52ec0c73076c5eb2502d4539014a",
+          "fixtureSha256": "ee298a5d02cf404b309c63162605465c34e7315e5a9152051d2e79b7474a3fce",
+          "fixtureBytes": 13584398,
+          "options": {
+            "namespaceAware": true,
+            "autoDecodeEntities": true
+          },
+          "argv": [
+            "/Users/senghyunjo/.bun/bin/bun",
+            "/private/tmp/stax-entity-single-eval/packages/benchmark/entity-single-eval.mjs",
+            "--worker"
+          ]
+        },
+        "AT1": {
+          "mode": "warm",
+          "variant": "AT1",
+          "lane": "P4",
+          "fixture": "midsize.xml",
+          "kind": "event-sync",
+          "encoding": "bytes",
+          "block": 0,
+          "samples": [
+            {
+              "ms": 276.84354099999996,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            }
+          ],
+          "canonicalDigest": "640e942c51eb5a3a34b2a152e1e43bd88feb52ec0c73076c5eb2502d4539014a",
+          "fixtureSha256": "ee298a5d02cf404b309c63162605465c34e7315e5a9152051d2e79b7474a3fce",
+          "fixtureBytes": 13584398,
+          "options": {
+            "namespaceAware": true,
+            "autoDecodeEntities": true
+          },
+          "argv": [
+            "/Users/senghyunjo/.bun/bin/bun",
+            "/private/tmp/stax-entity-single-eval/packages/benchmark/entity-single-eval.mjs",
+            "--worker"
+          ]
+        }
+      },
+      "status": "PASS"
+    }
+  ],
+  "processOrder": [
+    {
+      "case": "P4/midsize",
+      "block": 0,
+      "order": [
+        "W0",
+        "R0",
+        "A1",
+        "AT1"
+      ]
+    }
+  ]
+}

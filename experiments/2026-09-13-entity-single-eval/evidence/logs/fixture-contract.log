@@ -1,0 +1,39 @@
+✔ fixture catalog is complete, seeded, and density counts values rather than bytes (7.490416ms)
+✔ entity density scanner distinguishes occurrence count from values containing entities (0.136125ms)
+✔ synthetic entity groups have exact target density, references, lengths, and unique values (18.986375ms)
+✔ xmlns fixture has escaped URI bindings without duplicate declarations (3.618167ms)
+✔ dist fingerprint includes sorted relative paths and file bytes (7.39125ms)
+✔ paired bootstrap is deterministic and uses geometric block ratios (0.453375ms)
+✖ public consumer records full event transcript and stable string digest (3.783375ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 6
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 119.041875
+
+✖ failing tests:
+
+test at packages/benchmark/test/entity-single-eval-contract.test.mjs:108:1
+✖ public consumer records full event transcript and stable string digest (3.783375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + {
+  +   message: 'Duplicate attribute: a15',
+  +   name: 'Error'
+  + }
+  - undefined
+  
+      at TestContext.<anonymous> (file:///private/tmp/stax-entity-single-eval/packages/benchmark/test/entity-single-eval-contract.test.mjs:112:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { name: 'Error', message: 'Duplicate attribute: a15' },
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "restoredTrackedFiles": 8,
+  "removedOwnCandidateFiles": 7,
+  "preservedHarnessFiles": 6,
+  "productPatchBytes": 0,
+  "candidatePatchHashesMatch": true,
+  "publicDeclarationsIdentical": true,
+  "cases": 58,
+  "blockedCases": 47,
+  "metricRows": 246,
+  "finalDistSha256": "8474ddd7ba97c0debfb80b4439d75c6c9db9009c5914281cac40598ea784e0c9"
+}

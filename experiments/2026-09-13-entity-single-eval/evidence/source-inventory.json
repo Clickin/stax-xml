@@ -1,0 +1,2424 @@
+[
+  {
+    "sourcePath": "HANDOFF.md",
+    "bytes": 12510,
+    "sha256": "ecf3580710959af5a97ec4ed96fe94417511baafbe30e660ffc821263f010b59",
+    "archivePath": "HANDOFF.md",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "SHA256SUMS",
+    "bytes": 33707,
+    "sha256": "10dc0afd4f05e639d993a637fb9cf916d7213bac052e35551ce05734c72c6295",
+    "archivePath": "evidence/original-SHA256SUMS",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "browser-server.mjs",
+    "bytes": 925,
+    "sha256": "e196cc3b4787ecbd591bbdc54582eadccec36527a25ca9353d9a390ca5804437",
+    "archivePath": "harness/reproduction/browser-server.mjs",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "browser-smoke.mjs",
+    "bytes": 3967,
+    "sha256": "7027b728dc868f5858b6e99a9da81c6c44f2c2d1f1410ad323643c4cfeaf97c8",
+    "archivePath": "harness/reproduction/browser-smoke.mjs",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "build-sizes.json",
+    "bytes": 815,
+    "sha256": "a0d124656f47e8743624199e4609da6af57fc96108c3839e2cd6b891d4ceeec8",
+    "archivePath": "evidence/build-sizes.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "builds/A1/dist/converter.d.ts",
+    "bytes": 30326,
+    "sha256": "ca65dfa3008f2afdcad151b33d57efd56a75d0f46bb333af6cb3e7722b45b204",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/dist/converter.js",
+    "bytes": 96950,
+    "sha256": "f773bcc89d2784d9d51a1efa8dbe791ab9ecf3ac58cb424417bd1106551ad938",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/dist/index.d.ts",
+    "bytes": 21950,
+    "sha256": "2269f64cba5c424073de3935e1f678599f3945f11cb5e76ce094075c461d986f",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/dist/index.js",
+    "bytes": 62332,
+    "sha256": "9e286a2d195997bf5276a1e097a14ecfff140da21e38e1813c438908084a55e2",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/dist-files.json",
+    "bytes": 550,
+    "sha256": "979c7afb678217f07c7d9b6b7466228fd962a8d17f56c1687b3e2a2e5439f237",
+    "archivePath": "evidence/build-files/A1.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "builds/A1/scripts/branch-coverage-report.mjs",
+    "bytes": 1740,
+    "sha256": "97ffb95fff14b21a120cd95a3932e537c1fa991b86fcd41dd685ae3b8ed60b82",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/scripts/generate-entity-materializing-cursor.mjs",
+    "bytes": 6596,
+    "sha256": "8bede7667a91ab21b2c7aa0483e37416a28412ab5d07b9c52add195065c0d6b8",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/scripts/verify-release-surfaces.mjs",
+    "bytes": 4732,
+    "sha256": "223d5bfeb28a8629876cad5e4df3e5c60af12197c34c2380afe52cc96d31be0d",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/scripts/w3c-xmlts.ts",
+    "bytes": 11872,
+    "sha256": "1756cd0944e194be0c737d587acb596eb3d0adb896252df3d3f1d1febf0ef637",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/WriterCore.ts",
+    "bytes": 18321,
+    "sha256": "514ee30e2b168965c180acac9efefbac7b83514035a8d30755aed66faa7e5f09",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/async/EventReader.ts",
+    "bytes": 1437,
+    "sha256": "9e804cf27e847882253d56591cd6301c24d881f2687befee02cfc11bd601ad1d",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/async/StreamReader.ts",
+    "bytes": 8631,
+    "sha256": "b615211d4c7012428fb26dd65c11be60af015ac5af3ca41a1122dc441cb8bdfb",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/async/Writer.ts",
+    "bytes": 9057,
+    "sha256": "636e48f4edd3fb874e107cd3c965b7744518698186625addd637bfbecdb3937b",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/async/index.ts",
+    "bytes": 420,
+    "sha256": "63d9e904517295af8865f11637c4e7bbfc8e15ee9f6fff1ed6336e142f9f3949",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/converter/converter/CompiledRootProcessor.ts",
+    "bytes": 63517,
+    "sha256": "747d5fae41e337a744bb31463d3c40f0ebe91edb21fe0b40f0cce5abe01e6507",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/converter/converter/CompiledXmlSchema.ts",
+    "bytes": 20119,
+    "sha256": "224430ef962889f0541c493b81f5e86cc71c6e140ef6faecad4d45fa2b44261d",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/converter/converter/XPathEngine.ts",
+    "bytes": 5329,
+    "sha256": "e418515a3496e0e6c21c57d35598b579a07c932ec7861132faf6df98963886e2",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/converter/converter/XmlArraySchema.ts",
+    "bytes": 6411,
+    "sha256": "98e8ebe970ee9363259272cff1c2a330a222d202e0836f7fe611cb2142a646a4",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/converter/converter/XmlBuilder.ts",
+    "bytes": 1628,
+    "sha256": "7f57a16000ec4502f67bc3ac9068aa0bb53d760265e70d18736d27b90fff84ce",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/converter/converter/XmlNumberSchema.ts",
+    "bytes": 7383,
+    "sha256": "ae1de72c265b50155f26186a8375cd1cd38eee410cb6bd348e32f169bfb29078",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/converter/converter/XmlObjectSchema.ts",
+    "bytes": 9331,
+    "sha256": "f5c614dff5824ae9b3f0bab1d1ff5e8aaf403e1c38a003d29dbb4dabd3c7bb8c",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/converter/converter/XmlOptionalSchema.ts",
+    "bytes": 1906,
+    "sha256": "2c82a386321bf155749f962f7151743a92104423512c1c6ec7615982ed8cc510",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/converter/converter/XmlSchema.ts",
+    "bytes": 439,
+    "sha256": "2a869ec8c26b0ebf6078e1dbbde1475a93c08c59f0dda77f80c7697d07512bcf",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/converter/converter/XmlStringSchema.ts",
+    "bytes": 6532,
+    "sha256": "0479039d216a42f8d256059501f005c6345838badf12bf12ea7d42115f304820",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/converter/converter/XmlTransformSchema.ts",
+    "bytes": 1699,
+    "sha256": "83d661ef88e6166ea62c877e69ddd5af8823e0cee1d8d5a7b35d7b24fe03cde4",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/converter/converter/base.ts",
+    "bytes": 8644,
+    "sha256": "205d5947738a886c4c36e67a1242c5e8981181056c0b92fe90ee24370b694af0",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/converter/converter/compiled-plan.ts",
+    "bytes": 2737,
+    "sha256": "a25d981a42aff6289c5979c9140df906349b0f4b526d27c8665226a5c3bcef91",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/converter/converter/errors.ts",
+    "bytes": 639,
+    "sha256": "1d66d69d02c0a1be9d51af7b8991259cc16c621ed736b8aa2f46b9512d430b0a",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/converter/converter/index.ts",
+    "bytes": 2805,
+    "sha256": "9c6251c1077dcffea47a46d0b3a669a2e1c20a6d9526ed5e135dbaa5dd4248df",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/converter/converter/types.ts",
+    "bytes": 5519,
+    "sha256": "4cea200f9fd668f57a2ead851bc229166527390a250e06d34ce16b165791a9dd",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/converter/converter/write-utils.ts",
+    "bytes": 2700,
+    "sha256": "63c91ae5844bc820b42f373bd26454095b794819bf27f6dd27e77814e8fb165b",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/converter/index.ts",
+    "bytes": 120,
+    "sha256": "e719fc8dc705193881c327c183b32846f4f28137db2c3de8c47100de763b050e",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/converter.ts",
+    "bytes": 38,
+    "sha256": "55cd0efb1c45459eef5f60f30ab2aa57bea4960c22d3bf9ff333883bcb451580",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/core/TokenCursor.ts",
+    "bytes": 57703,
+    "sha256": "00388a823fbe95121ab86ba0df1417f2656482d6d93193d81bc6668e10f064fa",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/core/index.ts",
+    "bytes": 442,
+    "sha256": "7d907cb05d8dc142c82ea23ec4414c7a0f77035916823c0b824f4caac1cea40e",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/core/internal/MaterializingTokenCursor.ts",
+    "bytes": 15611,
+    "sha256": "b58332c48e12ccaa30d6aeeb30503cd3dd5ed84833aca92ed847241e95c5cbfe",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/core/internal/entity-normalizer.ts",
+    "bytes": 2637,
+    "sha256": "10c3e7dd50c0907cd54c0cbe24306e50d67e0e1556e7ce727624fa397a3f8a2a",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/core/internal/materialize-token-event.ts",
+    "bytes": 2536,
+    "sha256": "5023b0e5c7ca49e45aec0cb0f989d5209a0660dec6e71a34062a779b7d67e077",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/core/internal/materialized-reader-options.ts",
+    "bytes": 610,
+    "sha256": "10206b3736a37a72a7b892ac4da1611d2497238a06220ea055f29210140abd24",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/core/types.ts",
+    "bytes": 6018,
+    "sha256": "80e19afffa5fa2b9e6fbc1742950a7dfed114edfcacd3c6d87e83991c538f4ad",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/core/xml-validation.ts",
+    "bytes": 7813,
+    "sha256": "f548b67c68f0f71bd5e04c5b676a2d40389e5c8fe3f81f00d5ef89e7ad93c035",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/index.ts",
+    "bytes": 1095,
+    "sha256": "78090b76d4a4ea906ae328973f63b6d61c3c406d3b7ee6a1f41db04e6aaf686a",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/sync/EventReaderSync.ts",
+    "bytes": 1727,
+    "sha256": "1d4809081ff6bd7787000812b00ce21584dd4e19c0d11c62023138aa40e978f3",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/sync/StreamReaderSync.ts",
+    "bytes": 8525,
+    "sha256": "0b9675afd96925d993e078c5b99ac8ebd036c9ff06b20113d8fcc1c61fddfc08",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/sync/WriterSync.ts",
+    "bytes": 7742,
+    "sha256": "892730fe56bda531dd821acdf34169d802e194ad3911f92510528465530e14b1",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/A1/src/sync/index.ts",
+    "bytes": 502,
+    "sha256": "8c273239a2f193093f2173c8d2ded7117f99d4e7efef272a461985d0e26427ac",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/dist/converter.d.ts",
+    "bytes": 30326,
+    "sha256": "ca65dfa3008f2afdcad151b33d57efd56a75d0f46bb333af6cb3e7722b45b204",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/dist/converter.js",
+    "bytes": 96950,
+    "sha256": "f773bcc89d2784d9d51a1efa8dbe791ab9ecf3ac58cb424417bd1106551ad938",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/dist/index.d.ts",
+    "bytes": 21950,
+    "sha256": "2269f64cba5c424073de3935e1f678599f3945f11cb5e76ce094075c461d986f",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/dist/index.js",
+    "bytes": 66938,
+    "sha256": "e6b630cce301fce46b7f1e2817e32151d297f6f9fa89529f6c84ff90cfaebcd6",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/dist-files.json",
+    "bytes": 550,
+    "sha256": "8d6ed9dad1165e7dc92ca292c63e92320d0a0e03a2bf757df8adf42bacc34e15",
+    "archivePath": "evidence/build-files/AT1.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "builds/AT1/scripts/branch-coverage-report.mjs",
+    "bytes": 1740,
+    "sha256": "97ffb95fff14b21a120cd95a3932e537c1fa991b86fcd41dd685ae3b8ed60b82",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/scripts/generate-entity-materializing-cursor.mjs",
+    "bytes": 12035,
+    "sha256": "725804bd1cc714257303ea49ef8ad9ca5adcf007edf6af729a93b7b5bd64c2b8",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/scripts/verify-release-surfaces.mjs",
+    "bytes": 4732,
+    "sha256": "223d5bfeb28a8629876cad5e4df3e5c60af12197c34c2380afe52cc96d31be0d",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/scripts/w3c-xmlts.ts",
+    "bytes": 11872,
+    "sha256": "1756cd0944e194be0c737d587acb596eb3d0adb896252df3d3f1d1febf0ef637",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/WriterCore.ts",
+    "bytes": 18321,
+    "sha256": "514ee30e2b168965c180acac9efefbac7b83514035a8d30755aed66faa7e5f09",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/async/EventReader.ts",
+    "bytes": 1437,
+    "sha256": "9e804cf27e847882253d56591cd6301c24d881f2687befee02cfc11bd601ad1d",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/async/StreamReader.ts",
+    "bytes": 8631,
+    "sha256": "b615211d4c7012428fb26dd65c11be60af015ac5af3ca41a1122dc441cb8bdfb",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/async/Writer.ts",
+    "bytes": 9057,
+    "sha256": "636e48f4edd3fb874e107cd3c965b7744518698186625addd637bfbecdb3937b",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/async/index.ts",
+    "bytes": 420,
+    "sha256": "63d9e904517295af8865f11637c4e7bbfc8e15ee9f6fff1ed6336e142f9f3949",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/converter/converter/CompiledRootProcessor.ts",
+    "bytes": 63517,
+    "sha256": "747d5fae41e337a744bb31463d3c40f0ebe91edb21fe0b40f0cce5abe01e6507",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/converter/converter/CompiledXmlSchema.ts",
+    "bytes": 20119,
+    "sha256": "224430ef962889f0541c493b81f5e86cc71c6e140ef6faecad4d45fa2b44261d",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/converter/converter/XPathEngine.ts",
+    "bytes": 5329,
+    "sha256": "e418515a3496e0e6c21c57d35598b579a07c932ec7861132faf6df98963886e2",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/converter/converter/XmlArraySchema.ts",
+    "bytes": 6411,
+    "sha256": "98e8ebe970ee9363259272cff1c2a330a222d202e0836f7fe611cb2142a646a4",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/converter/converter/XmlBuilder.ts",
+    "bytes": 1628,
+    "sha256": "7f57a16000ec4502f67bc3ac9068aa0bb53d760265e70d18736d27b90fff84ce",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/converter/converter/XmlNumberSchema.ts",
+    "bytes": 7383,
+    "sha256": "ae1de72c265b50155f26186a8375cd1cd38eee410cb6bd348e32f169bfb29078",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/converter/converter/XmlObjectSchema.ts",
+    "bytes": 9331,
+    "sha256": "f5c614dff5824ae9b3f0bab1d1ff5e8aaf403e1c38a003d29dbb4dabd3c7bb8c",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/converter/converter/XmlOptionalSchema.ts",
+    "bytes": 1906,
+    "sha256": "2c82a386321bf155749f962f7151743a92104423512c1c6ec7615982ed8cc510",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/converter/converter/XmlSchema.ts",
+    "bytes": 439,
+    "sha256": "2a869ec8c26b0ebf6078e1dbbde1475a93c08c59f0dda77f80c7697d07512bcf",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/converter/converter/XmlStringSchema.ts",
+    "bytes": 6532,
+    "sha256": "0479039d216a42f8d256059501f005c6345838badf12bf12ea7d42115f304820",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/converter/converter/XmlTransformSchema.ts",
+    "bytes": 1699,
+    "sha256": "83d661ef88e6166ea62c877e69ddd5af8823e0cee1d8d5a7b35d7b24fe03cde4",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/converter/converter/base.ts",
+    "bytes": 8644,
+    "sha256": "205d5947738a886c4c36e67a1242c5e8981181056c0b92fe90ee24370b694af0",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/converter/converter/compiled-plan.ts",
+    "bytes": 2737,
+    "sha256": "a25d981a42aff6289c5979c9140df906349b0f4b526d27c8665226a5c3bcef91",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/converter/converter/errors.ts",
+    "bytes": 639,
+    "sha256": "1d66d69d02c0a1be9d51af7b8991259cc16c621ed736b8aa2f46b9512d430b0a",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/converter/converter/index.ts",
+    "bytes": 2805,
+    "sha256": "9c6251c1077dcffea47a46d0b3a669a2e1c20a6d9526ed5e135dbaa5dd4248df",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/converter/converter/types.ts",
+    "bytes": 5519,
+    "sha256": "4cea200f9fd668f57a2ead851bc229166527390a250e06d34ce16b165791a9dd",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/converter/converter/write-utils.ts",
+    "bytes": 2700,
+    "sha256": "63c91ae5844bc820b42f373bd26454095b794819bf27f6dd27e77814e8fb165b",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/converter/index.ts",
+    "bytes": 120,
+    "sha256": "e719fc8dc705193881c327c183b32846f4f28137db2c3de8c47100de763b050e",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/converter.ts",
+    "bytes": 38,
+    "sha256": "55cd0efb1c45459eef5f60f30ab2aa57bea4960c22d3bf9ff333883bcb451580",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/core/TokenCursor.ts",
+    "bytes": 57730,
+    "sha256": "80277b5c5e3bbd59f7e521ea86702200a055dbce63cb739e34f3f83645171696",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/core/index.ts",
+    "bytes": 442,
+    "sha256": "7d907cb05d8dc142c82ea23ec4414c7a0f77035916823c0b824f4caac1cea40e",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/core/internal/MaterializingTokenCursor.ts",
+    "bytes": 25005,
+    "sha256": "2a04e6a68394f0d92398305c0c1d137ccfb9fe1ccd5d50c46978eaa0c9350173",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/core/internal/entity-normalizer.ts",
+    "bytes": 2637,
+    "sha256": "10c3e7dd50c0907cd54c0cbe24306e50d67e0e1556e7ce727624fa397a3f8a2a",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/core/internal/materialize-token-event.ts",
+    "bytes": 2536,
+    "sha256": "5023b0e5c7ca49e45aec0cb0f989d5209a0660dec6e71a34062a779b7d67e077",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/core/internal/materialized-reader-options.ts",
+    "bytes": 610,
+    "sha256": "10206b3736a37a72a7b892ac4da1611d2497238a06220ea055f29210140abd24",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/core/types.ts",
+    "bytes": 6018,
+    "sha256": "80e19afffa5fa2b9e6fbc1742950a7dfed114edfcacd3c6d87e83991c538f4ad",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/core/xml-validation.ts",
+    "bytes": 7813,
+    "sha256": "f548b67c68f0f71bd5e04c5b676a2d40389e5c8fe3f81f00d5ef89e7ad93c035",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/index.ts",
+    "bytes": 1095,
+    "sha256": "78090b76d4a4ea906ae328973f63b6d61c3c406d3b7ee6a1f41db04e6aaf686a",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/sync/EventReaderSync.ts",
+    "bytes": 1727,
+    "sha256": "1d4809081ff6bd7787000812b00ce21584dd4e19c0d11c62023138aa40e978f3",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/sync/StreamReaderSync.ts",
+    "bytes": 8525,
+    "sha256": "0b9675afd96925d993e078c5b99ac8ebd036c9ff06b20113d8fcc1c61fddfc08",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/sync/WriterSync.ts",
+    "bytes": 7742,
+    "sha256": "892730fe56bda531dd821acdf34169d802e194ad3911f92510528465530e14b1",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/AT1/src/sync/index.ts",
+    "bytes": 502,
+    "sha256": "8c273239a2f193093f2173c8d2ded7117f99d4e7efef272a461985d0e26427ac",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/R0/dist/converter.d.ts",
+    "bytes": 30326,
+    "sha256": "ca65dfa3008f2afdcad151b33d57efd56a75d0f46bb333af6cb3e7722b45b204",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/R0/dist/converter.js",
+    "bytes": 96927,
+    "sha256": "a2d05a90b20ef85199d69d67a2dd9d217df28973d3e354899d3c0670d26852fa",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/R0/dist/index.d.ts",
+    "bytes": 21950,
+    "sha256": "2269f64cba5c424073de3935e1f678599f3945f11cb5e76ce094075c461d986f",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/R0/dist/index.js",
+    "bytes": 54288,
+    "sha256": "5ac2d8c39022f3ccd78fb0ddf64e94bcc862c20e979c199233ceb0885a41fa84",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/R0/dist-files.json",
+    "bytes": 550,
+    "sha256": "2520d766c8ccdbd69bf9d70a0c7648851bedaf9e6fe454248770e46b54d97995",
+    "archivePath": "evidence/build-files/R0.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "builds/W0/dist/converter.d.ts",
+    "bytes": 30326,
+    "sha256": "ca65dfa3008f2afdcad151b33d57efd56a75d0f46bb333af6cb3e7722b45b204",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/dist/converter.js",
+    "bytes": 96950,
+    "sha256": "f773bcc89d2784d9d51a1efa8dbe791ab9ecf3ac58cb424417bd1106551ad938",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/dist/index.d.ts",
+    "bytes": 21950,
+    "sha256": "2269f64cba5c424073de3935e1f678599f3945f11cb5e76ce094075c461d986f",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/dist/index.js",
+    "bytes": 54549,
+    "sha256": "21743587629d1c29d859f3ebbc5e96135be72d033e3c42cdac2d419614b3107f",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/dist-files.json",
+    "bytes": 550,
+    "sha256": "3dd1d2dd2c8e9a528a811668805ba8e60d791cec11f483d3f176110e0f7dddf1",
+    "archivePath": "evidence/build-files/W0.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "builds/W0/scripts/branch-coverage-report.mjs",
+    "bytes": 1740,
+    "sha256": "97ffb95fff14b21a120cd95a3932e537c1fa991b86fcd41dd685ae3b8ed60b82",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/scripts/generate-entity-materializing-cursor.mjs",
+    "bytes": 6506,
+    "sha256": "87c9fba5d1cbe3125f907bef798f297cad94bfc94aafa3e2a73ad73e086e615b",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/scripts/verify-release-surfaces.mjs",
+    "bytes": 4732,
+    "sha256": "223d5bfeb28a8629876cad5e4df3e5c60af12197c34c2380afe52cc96d31be0d",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/scripts/w3c-xmlts.ts",
+    "bytes": 11872,
+    "sha256": "1756cd0944e194be0c737d587acb596eb3d0adb896252df3d3f1d1febf0ef637",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/WriterCore.ts",
+    "bytes": 18321,
+    "sha256": "514ee30e2b168965c180acac9efefbac7b83514035a8d30755aed66faa7e5f09",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/async/EventReader.ts",
+    "bytes": 1437,
+    "sha256": "9e804cf27e847882253d56591cd6301c24d881f2687befee02cfc11bd601ad1d",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/async/StreamReader.ts",
+    "bytes": 8631,
+    "sha256": "b615211d4c7012428fb26dd65c11be60af015ac5af3ca41a1122dc441cb8bdfb",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/async/Writer.ts",
+    "bytes": 9057,
+    "sha256": "636e48f4edd3fb874e107cd3c965b7744518698186625addd637bfbecdb3937b",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/async/index.ts",
+    "bytes": 420,
+    "sha256": "63d9e904517295af8865f11637c4e7bbfc8e15ee9f6fff1ed6336e142f9f3949",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/converter/converter/CompiledRootProcessor.ts",
+    "bytes": 63517,
+    "sha256": "747d5fae41e337a744bb31463d3c40f0ebe91edb21fe0b40f0cce5abe01e6507",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/converter/converter/CompiledXmlSchema.ts",
+    "bytes": 20119,
+    "sha256": "224430ef962889f0541c493b81f5e86cc71c6e140ef6faecad4d45fa2b44261d",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/converter/converter/XPathEngine.ts",
+    "bytes": 5329,
+    "sha256": "e418515a3496e0e6c21c57d35598b579a07c932ec7861132faf6df98963886e2",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/converter/converter/XmlArraySchema.ts",
+    "bytes": 6411,
+    "sha256": "98e8ebe970ee9363259272cff1c2a330a222d202e0836f7fe611cb2142a646a4",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/converter/converter/XmlBuilder.ts",
+    "bytes": 1628,
+    "sha256": "7f57a16000ec4502f67bc3ac9068aa0bb53d760265e70d18736d27b90fff84ce",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/converter/converter/XmlNumberSchema.ts",
+    "bytes": 7383,
+    "sha256": "ae1de72c265b50155f26186a8375cd1cd38eee410cb6bd348e32f169bfb29078",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/converter/converter/XmlObjectSchema.ts",
+    "bytes": 9331,
+    "sha256": "f5c614dff5824ae9b3f0bab1d1ff5e8aaf403e1c38a003d29dbb4dabd3c7bb8c",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/converter/converter/XmlOptionalSchema.ts",
+    "bytes": 1906,
+    "sha256": "2c82a386321bf155749f962f7151743a92104423512c1c6ec7615982ed8cc510",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/converter/converter/XmlSchema.ts",
+    "bytes": 439,
+    "sha256": "2a869ec8c26b0ebf6078e1dbbde1475a93c08c59f0dda77f80c7697d07512bcf",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/converter/converter/XmlStringSchema.ts",
+    "bytes": 6532,
+    "sha256": "0479039d216a42f8d256059501f005c6345838badf12bf12ea7d42115f304820",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/converter/converter/XmlTransformSchema.ts",
+    "bytes": 1699,
+    "sha256": "83d661ef88e6166ea62c877e69ddd5af8823e0cee1d8d5a7b35d7b24fe03cde4",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/converter/converter/base.ts",
+    "bytes": 8644,
+    "sha256": "205d5947738a886c4c36e67a1242c5e8981181056c0b92fe90ee24370b694af0",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/converter/converter/compiled-plan.ts",
+    "bytes": 2737,
+    "sha256": "a25d981a42aff6289c5979c9140df906349b0f4b526d27c8665226a5c3bcef91",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/converter/converter/errors.ts",
+    "bytes": 639,
+    "sha256": "1d66d69d02c0a1be9d51af7b8991259cc16c621ed736b8aa2f46b9512d430b0a",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/converter/converter/index.ts",
+    "bytes": 2805,
+    "sha256": "9c6251c1077dcffea47a46d0b3a669a2e1c20a6d9526ed5e135dbaa5dd4248df",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/converter/converter/types.ts",
+    "bytes": 5519,
+    "sha256": "4cea200f9fd668f57a2ead851bc229166527390a250e06d34ce16b165791a9dd",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/converter/converter/write-utils.ts",
+    "bytes": 2700,
+    "sha256": "63c91ae5844bc820b42f373bd26454095b794819bf27f6dd27e77814e8fb165b",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/converter/index.ts",
+    "bytes": 120,
+    "sha256": "e719fc8dc705193881c327c183b32846f4f28137db2c3de8c47100de763b050e",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/converter.ts",
+    "bytes": 38,
+    "sha256": "55cd0efb1c45459eef5f60f30ab2aa57bea4960c22d3bf9ff333883bcb451580",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/core/TokenCursor.ts",
+    "bytes": 57703,
+    "sha256": "00388a823fbe95121ab86ba0df1417f2656482d6d93193d81bc6668e10f064fa",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/core/index.ts",
+    "bytes": 442,
+    "sha256": "7d907cb05d8dc142c82ea23ec4414c7a0f77035916823c0b824f4caac1cea40e",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/core/internal/MaterializingTokenCursor.ts",
+    "bytes": 316,
+    "sha256": "b455a0407294ec500736117d9d196204efa523305f06eb17c86f9c574a9ab9b8",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/core/internal/entity-normalizer.ts",
+    "bytes": 2637,
+    "sha256": "10c3e7dd50c0907cd54c0cbe24306e50d67e0e1556e7ce727624fa397a3f8a2a",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/core/internal/materialize-token-event.ts",
+    "bytes": 2536,
+    "sha256": "5023b0e5c7ca49e45aec0cb0f989d5209a0660dec6e71a34062a779b7d67e077",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/core/internal/materialized-reader-options.ts",
+    "bytes": 610,
+    "sha256": "10206b3736a37a72a7b892ac4da1611d2497238a06220ea055f29210140abd24",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/core/types.ts",
+    "bytes": 6018,
+    "sha256": "80e19afffa5fa2b9e6fbc1742950a7dfed114edfcacd3c6d87e83991c538f4ad",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/core/xml-validation.ts",
+    "bytes": 7813,
+    "sha256": "f548b67c68f0f71bd5e04c5b676a2d40389e5c8fe3f81f00d5ef89e7ad93c035",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/index.ts",
+    "bytes": 1095,
+    "sha256": "78090b76d4a4ea906ae328973f63b6d61c3c406d3b7ee6a1f41db04e6aaf686a",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/sync/EventReaderSync.ts",
+    "bytes": 1727,
+    "sha256": "1d4809081ff6bd7787000812b00ce21584dd4e19c0d11c62023138aa40e978f3",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/sync/StreamReaderSync.ts",
+    "bytes": 8525,
+    "sha256": "0b9675afd96925d993e078c5b99ac8ebd036c9ff06b20113d8fcc1c61fddfc08",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/sync/WriterSync.ts",
+    "bytes": 7742,
+    "sha256": "892730fe56bda531dd821acdf34169d802e194ad3911f92510528465530e14b1",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds/W0/src/sync/index.ts",
+    "bytes": 502,
+    "sha256": "8c273239a2f193093f2173c8d2ded7117f99d4e7efef272a461985d0e26427ac",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "builds.json",
+    "bytes": 2136,
+    "sha256": "a576d5ecd17d1ff737b69f70465887228ce6270efb4e4b37cc4392cecbf5a21e",
+    "archivePath": "evidence/builds.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "bun-ordinary-smoke.json",
+    "bytes": 11402,
+    "sha256": "722ab5904a786cbd47aff040392dcd74353e9cf81e1473495a90ce059708b435",
+    "archivePath": "evidence/bun-ordinary-smoke.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "bun-ordinary-smoke.json.partial",
+    "bytes": 4664,
+    "sha256": "0b9d518460cc2f79c97155a474d5f7f4cd8c1548eae61826fdbf9aebef4bbb64",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "bun-retention-smoke.json",
+    "bytes": 69025,
+    "sha256": "3e643d61c681069cbf944b15d324c08a4be5a9544b7ec3683d2f47b6cd981e15",
+    "archivePath": "evidence/bun-retention-smoke.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "candidates/A1.patch",
+    "bytes": 81482,
+    "sha256": "615b11b0bd40a008b8bf47b07ec5c4931b1389ef66200f9c53979bb9a6074cdd",
+    "archivePath": "candidates/A1.patch",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "candidates/AT1.patch",
+    "bytes": 97972,
+    "sha256": "512039dea33e030eb45a9ecf6646006af21e6cea48e5152c155b323859186234",
+    "archivePath": "candidates/AT1.patch",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "candidates/W0.patch",
+    "bytes": 64629,
+    "sha256": "25a23fa696febbf8cd59014d2ff7d3d57a74efa18f2c3c0d4e36271df16af166",
+    "archivePath": "candidates/W0.patch",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "cold-check-smoke.json",
+    "bytes": 8948,
+    "sha256": "4a15d41ce6d0b58d9abc12941e9b5f22f7c03bd788963edd9aa0d1374b211300",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "cold-check-smoke.json.partial",
+    "bytes": 2735,
+    "sha256": "13cd81038545c76f92f72f03e32b6cf0b5f29acc8459d6b99643bd28c838032e",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "declaration-trace.mjs",
+    "bytes": 393,
+    "sha256": "d53068ab735fd8a7bba2add5748c94fa0f2f13f7333cc44723d45fd146e7b1a9",
+    "archivePath": "harness/reproduction/declaration-trace.mjs",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "dossier.txt",
+    "bytes": 45578,
+    "sha256": "5d4f92085beed75498cdbd1a628f185af69ec27f1d695ed63d8f8b449340e760",
+    "archivePath": "evidence/history/dossier.txt",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "failures.json",
+    "bytes": 52909,
+    "sha256": "d0695f03259aa3d1745791b68c5d2a688278044966c1ea64dc4dbc0e375d4658",
+    "archivePath": "failures.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "firefox-profile/user.js",
+    "bytes": 130,
+    "sha256": "35b0e190f30451be93fed778a6ce2c39293c3635839e6f3cca26a31a433d6c44",
+    "archivePath": null,
+    "omissionReason": "temporary browser profile"
+  },
+  {
+    "sourcePath": "firefox-smoke-replay.json",
+    "bytes": 1686473,
+    "sha256": "f90ba1c0087d0ebc756326dc1f140a0c444ef6c4fed6b16aee83f4f9c5814ccd",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "firefox-smoke.json",
+    "bytes": 1677111,
+    "sha256": "335b6fea2c4771aa2421de790a9c96cbba8291892f1d730ea7886288c8f08394",
+    "archivePath": "evidence/firefox-smoke.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "firefox-smoke.py",
+    "bytes": 3583,
+    "sha256": "c07ab944b70c04dae8a12c1eb9cb31a2a42ae2d9da69becf9f40002ca9982f36",
+    "archivePath": "harness/reproduction/firefox-smoke.py",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "fixtures.json",
+    "bytes": 33511,
+    "sha256": "7d308158aa9f84d3c4ca674a51e0c15fbe2800a3420d791a0dee90df8631ab91",
+    "archivePath": "evidence/fixtures.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "gates-measured.json",
+    "bytes": 3518737,
+    "sha256": "aa5b9ee127c3aface9f83b69b970e5567f0ded9fbb8ac5bb42606ae29c2dfd1e",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "gates-seven.json",
+    "bytes": 2565009,
+    "sha256": "8e3f59ff296b0e03d37052b204b053821ef397d550839d19c466622df0f784d1",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "gates.json",
+    "bytes": 3607785,
+    "sha256": "120fb290e319ccac665c2b673e85b1016a021900308bd4e01856b997d56c211e",
+    "archivePath": "gates.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "guards-extension.json",
+    "bytes": 159240,
+    "sha256": "e338b8da35d39ea37755bf132c9de0b9d63a3244cfae70018ebd4051aae63ec6",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "guards-extension.json.partial",
+    "bytes": 149491,
+    "sha256": "c2cb6f904414bf0d90cb259118554cbb1b5243c88f1e007e474407fc7d12bde0",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "guards-final.json",
+    "bytes": 523320,
+    "sha256": "67068586e7d2b424c79352dbafee43ab430c224e5cb8c671248d5f6d817a32a6",
+    "archivePath": "evidence/guards-final.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "guards.json",
+    "bytes": 373642,
+    "sha256": "baf0b7c1dc49d5bb8992d85fad69e54fedd46900bdbfead90eb9736519e7bf00",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "guards.json.partial",
+    "bytes": 350115,
+    "sha256": "c773f71ddcfeea027e46e3477a26496e242773d1531b2287e078f26e26203078",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "harness/packages/benchmark/entity-single-eval/analyze.mjs",
+    "bytes": 30468,
+    "sha256": "b88bd5fd2e4a1f578eb4b535d7bce457d4b0cbc10fcefdc8ea17d2d2f4a045d1",
+    "archivePath": "harness/packages/benchmark/entity-single-eval/analyze.mjs",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "harness/packages/benchmark/entity-single-eval/consume.mjs",
+    "bytes": 13814,
+    "sha256": "ef76e4fd323cb9848c636ae7fd59de735dde34037b27d80e8191d99c1285df7f",
+    "archivePath": "harness/packages/benchmark/entity-single-eval/consume.mjs",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "harness/packages/benchmark/entity-single-eval/fixtures.mjs",
+    "bytes": 21961,
+    "sha256": "af3f5a27aca1d36964b08caa7eb937d17644fc0eb6b96ee02137f7eae2198c19",
+    "archivePath": "harness/packages/benchmark/entity-single-eval/fixtures.mjs",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "harness/packages/benchmark/entity-single-eval/retention.mjs",
+    "bytes": 12102,
+    "sha256": "a95c56cf600b209d6cf843297826ed24d86358cf611f921a6243e5baef3d93f6",
+    "archivePath": "harness/packages/benchmark/entity-single-eval/retention.mjs",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "harness/packages/benchmark/entity-single-eval.mjs",
+    "bytes": 32820,
+    "sha256": "b7d74184cdb550d2fcd6c04f219efd67ff73648a037a9e31fbb6f5172b596f9e",
+    "archivePath": "harness/packages/benchmark/entity-single-eval.mjs",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "harness/packages/benchmark/test/entity-single-eval-contract.test.mjs",
+    "bytes": 6718,
+    "sha256": "3126257b183c285c6964cbd0b025c583d721ba21e734cd727aedc320f10a1148",
+    "archivePath": "harness/packages/benchmark/test/entity-single-eval-contract.test.mjs",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "harness.patch",
+    "bytes": 121779,
+    "sha256": "a58942c7e8c8ebf132a47da8dad4b1e85ced01a94701fee5b9e58e3721346386",
+    "archivePath": "harness/harness.patch",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "instrument.mjs",
+    "bytes": 4072,
+    "sha256": "3872455ef7a3488f11ea89ea742e8e1691553e5edab080c5156e229c92a6af30",
+    "archivePath": "harness/reproduction/instrument.mjs",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "instrumented/A1/build.log",
+    "bytes": 182,
+    "sha256": "8180500b4710e7d09f1df5ebe26904a17fa32f0f5768302c94d029e26ed70026",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "instrumented/A1/dist/converter.d.ts",
+    "bytes": 30326,
+    "sha256": "ca65dfa3008f2afdcad151b33d57efd56a75d0f46bb333af6cb3e7722b45b204",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "instrumented/A1/dist/converter.js",
+    "bytes": 98224,
+    "sha256": "81fc157a52dc2a3322791cd557f0209741797d0702a6ed6b0ecff74aee8ebf8d",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "instrumented/A1/dist/index.d.ts",
+    "bytes": 21950,
+    "sha256": "2269f64cba5c424073de3935e1f678599f3945f11cb5e76ce094075c461d986f",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "instrumented/A1/dist/index.js",
+    "bytes": 64404,
+    "sha256": "61d9b8d94febd067cd5946f4b75e75e6e6b52cade51345d99824e76de5da4969",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "instrumented/A1/dist-files.json",
+    "bytes": 550,
+    "sha256": "7d695a1422de60e132d5c0c8b6ebaee207bd2e21612d4926f13ee54b2c5388fd",
+    "archivePath": "evidence/build-files/A1-instrumented.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "instrumented/AT1/build.log",
+    "bytes": 182,
+    "sha256": "8180500b4710e7d09f1df5ebe26904a17fa32f0f5768302c94d029e26ed70026",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "instrumented/AT1/dist/converter.d.ts",
+    "bytes": 30326,
+    "sha256": "ca65dfa3008f2afdcad151b33d57efd56a75d0f46bb333af6cb3e7722b45b204",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "instrumented/AT1/dist/converter.js",
+    "bytes": 98224,
+    "sha256": "81fc157a52dc2a3322791cd557f0209741797d0702a6ed6b0ecff74aee8ebf8d",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "instrumented/AT1/dist/index.d.ts",
+    "bytes": 21950,
+    "sha256": "2269f64cba5c424073de3935e1f678599f3945f11cb5e76ce094075c461d986f",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "instrumented/AT1/dist/index.js",
+    "bytes": 69524,
+    "sha256": "1fe3881ffc7ecf6dffa741ea266ad35842cb042f72f1529ef4e51afff51146bc",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "instrumented/AT1/dist-files.json",
+    "bytes": 550,
+    "sha256": "a39ac50cc19b18e03aaa7ab509f2c0015054bcc991e4e68f98cdfdac0b9708f6",
+    "archivePath": "evidence/build-files/AT1-instrumented.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "instrumented/R0/build.log",
+    "bytes": 185,
+    "sha256": "2146abb1d6142b1a2b345a6f23707e1eff3b5be7c1bdd21f71b699915dd7f763",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "instrumented/R0/dist/converter.d.ts",
+    "bytes": 30326,
+    "sha256": "ca65dfa3008f2afdcad151b33d57efd56a75d0f46bb333af6cb3e7722b45b204",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "instrumented/R0/dist/converter.js",
+    "bytes": 98201,
+    "sha256": "9270c1af94a3662bcb0d459c632b61885fac9d49dd1340c11f59222b3d41053f",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "instrumented/R0/dist/index.d.ts",
+    "bytes": 21950,
+    "sha256": "2269f64cba5c424073de3935e1f678599f3945f11cb5e76ce094075c461d986f",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "instrumented/R0/dist/index.js",
+    "bytes": 55562,
+    "sha256": "8d869a95535113307cee22305e063fc33bd145e14468d4f714a7233371972633",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "instrumented/R0/dist-files.json",
+    "bytes": 550,
+    "sha256": "cc2f9c071fbc3c0d0bd68d664a77b4f550763e9c2120155c163fc7f398bbcf04",
+    "archivePath": "evidence/build-files/R0-instrumented.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "instrumented/W0/build.log",
+    "bytes": 182,
+    "sha256": "8180500b4710e7d09f1df5ebe26904a17fa32f0f5768302c94d029e26ed70026",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "instrumented/W0/dist/converter.d.ts",
+    "bytes": 30326,
+    "sha256": "ca65dfa3008f2afdcad151b33d57efd56a75d0f46bb333af6cb3e7722b45b204",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "instrumented/W0/dist/converter.js",
+    "bytes": 98224,
+    "sha256": "81fc157a52dc2a3322791cd557f0209741797d0702a6ed6b0ecff74aee8ebf8d",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "instrumented/W0/dist/index.d.ts",
+    "bytes": 21950,
+    "sha256": "2269f64cba5c424073de3935e1f678599f3945f11cb5e76ce094075c461d986f",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "instrumented/W0/dist/index.js",
+    "bytes": 55823,
+    "sha256": "197ae3637555df7e5821de35300e038dbacc13b96e3bb2dee354d294c7397f79",
+    "archivePath": null,
+    "omissionReason": "reproducible compiled build or duplicated source tree"
+  },
+  {
+    "sourcePath": "instrumented/W0/dist-files.json",
+    "bytes": 550,
+    "sha256": "e4b50e7d4de5c9d62e650f443c84f716ce34739daaaff4d813b039bdb9a2ae1b",
+    "archivePath": "evidence/build-files/W0-instrumented.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "instrumented-builds.json",
+    "bytes": 2180,
+    "sha256": "a3f850d85cb2fd4463c17d94669af24702f27e183b2a51dd49b0a88e93eb23a8",
+    "archivePath": "evidence/instrumented-builds.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "jsc-A1.mjs",
+    "bytes": 1120,
+    "sha256": "849bfccad9c5e83e13514fc6821dac7e6026a969c9cbc7d9e1077b576391312d",
+    "archivePath": "harness/reproduction/jsc-A1.mjs",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "jsc-AT1.mjs",
+    "bytes": 1121,
+    "sha256": "eb63871d15d8df25f71c52d057e61d982270fdfb7b4e72193189e01c415ea823",
+    "archivePath": "harness/reproduction/jsc-AT1.mjs",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "jsc-R0.mjs",
+    "bytes": 1120,
+    "sha256": "22c618ba8b27da877edffdf29131c7db6c39f1b7e86260f15cde8035ac01f3e8",
+    "archivePath": "harness/reproduction/jsc-R0.mjs",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "jsc-W0.mjs",
+    "bytes": 1120,
+    "sha256": "047674eb93e4aa8fd0e17b7ec910df65a6b238642a15b6aad51470d04484328f",
+    "archivePath": "harness/reproduction/jsc-W0.mjs",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "jsc-smoke.json",
+    "bytes": 5803,
+    "sha256": "f475a324c40e18f70eb30e9f38508d80152ed9a4700125929f9834c935627f36",
+    "archivePath": "evidence/jsc-smoke.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/A1-build.log",
+    "bytes": 182,
+    "sha256": "8180500b4710e7d09f1df5ebe26904a17fa32f0f5768302c94d029e26ed70026",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/A1-coverage.log",
+    "bytes": 9605,
+    "sha256": "e724934b159682562840a4f2faddd691e60226c97faf5caadee21be13536cd35",
+    "archivePath": "evidence/logs/A1-coverage.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/A1-declaration-trace.log",
+    "bytes": 240,
+    "sha256": "5736a475b5bedaf34c7e699da2c48515a83b503063cca4b223ed080d1fe79d50",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/A1-generate.log",
+    "bytes": 21,
+    "sha256": "13a1f6b4c44570c9e2ac23dd4b912fbdbdeb01f23cae161ed831449f4fb1b390",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/A1-occurrence.log",
+    "bytes": 638,
+    "sha256": "4ce14f6b60ea1522e9044b1d65c8b222cfd604f967345d899d7056f8e5da31d2",
+    "archivePath": "evidence/logs/A1-occurrence.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/A1-unit-expanded.log",
+    "bytes": 20959,
+    "sha256": "05aee45c9818045959545d52e69bc5cee8975350505b89547de78ec495b5eea2",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/A1-unit-final.log",
+    "bytes": 5068,
+    "sha256": "3f3a69e097a8751746b5eeab0a2b204e96a6892fb6f0a1024414f248672a52bc",
+    "archivePath": "evidence/logs/A1-unit-final.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/A1-unit.log",
+    "bytes": 4725,
+    "sha256": "1b29fa39cc329c8422b922e8c2f7e3c4c12acbcefa9e9f5f2a4044ff4ad9b844",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/A1-w3c.log",
+    "bytes": 408,
+    "sha256": "08d5657d0d1d14ae8e8c7fe8e942a909cb5a4b329018a9a8c6a4e785da394040",
+    "archivePath": "evidence/logs/A1-w3c.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/A1-wide-baseline.log",
+    "bytes": 466,
+    "sha256": "40e0e58a26dae25afe0408836c98352d5f8cf324b0def083e975f036febb0905",
+    "archivePath": "evidence/logs/A1-wide-baseline.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/AT1-Bun-public.log",
+    "bytes": 386,
+    "sha256": "5bf8a19cf43ec7dbe43d663dc556ef06cf6ab567dab3e24a0974486a9c783dc6",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/AT1-CSP.log",
+    "bytes": 386,
+    "sha256": "5bf8a19cf43ec7dbe43d663dc556ef06cf6ab567dab3e24a0974486a9c783dc6",
+    "archivePath": "evidence/logs/AT1-CSP.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/AT1-build.log",
+    "bytes": 182,
+    "sha256": "8180500b4710e7d09f1df5ebe26904a17fa32f0f5768302c94d029e26ed70026",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/AT1-coverage.log",
+    "bytes": 9410,
+    "sha256": "a88a64fee0fce63a7a60c80737b6f9681a515fcfad88aa820f3ee927c6e579e8",
+    "archivePath": "evidence/logs/AT1-coverage.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/AT1-generate.log",
+    "bytes": 26,
+    "sha256": "8524640ce5fd2898afcd2279ea2f85bd66afca50a851f22f71a837409d703784",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/AT1-occurrence.log",
+    "bytes": 608,
+    "sha256": "9440d30d0bd84cbfd1f28de5e37146abddf6c0d6bbca01e12d90b1fa0384b826",
+    "archivePath": "evidence/logs/AT1-occurrence.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/AT1-release-surfaces.log",
+    "bytes": 335,
+    "sha256": "bd1ccfe9436f77d33b521ef9a425fbcef7ad550744a702f055476153b317deb8",
+    "archivePath": "evidence/logs/AT1-release-surfaces.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/AT1-unit.log",
+    "bytes": 5074,
+    "sha256": "51ce9798ea423189a07a5670e30a3a6a00a749029357e968d31c3ec000c7ea66",
+    "archivePath": "evidence/logs/AT1-unit.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/AT1-w3c.log",
+    "bytes": 408,
+    "sha256": "08d5657d0d1d14ae8e8c7fe8e942a909cb5a4b329018a9a8c6a4e785da394040",
+    "archivePath": "evidence/logs/AT1-w3c.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/Bun-ordinary-smoke-command.json",
+    "bytes": 299,
+    "sha256": "6ed32334c07f7c0d7eb3a39c7a263b9fd3031d022c9b08e6e5ffafaabde928ad",
+    "archivePath": "evidence/logs/Bun-ordinary-smoke-command.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/Bun-ordinary-smoke.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/Bun-retention-smoke-command.json",
+    "bytes": 243,
+    "sha256": "968acd6493d328ae57b529a328ae0995ccdf144448f3ce586396f515656413c0",
+    "archivePath": "evidence/logs/Bun-retention-smoke-command.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/Bun-retention-smoke.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/R0-build.log",
+    "bytes": 383,
+    "sha256": "4386f5b9834b417eeb6cb726688757cc0d0a5b0e13d35b012e98fa865a360cbe",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/R0-coverage.log",
+    "bytes": 8410,
+    "sha256": "bdafe9f6b76501e066a28318bd8fa9a4964e418105e7d8ed09cce26a52c1a930",
+    "archivePath": "evidence/logs/R0-coverage.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/R0-declaration-trace.log",
+    "bytes": 240,
+    "sha256": "5736a475b5bedaf34c7e699da2c48515a83b503063cca4b223ed080d1fe79d50",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/R0-occurrence.log",
+    "bytes": 440,
+    "sha256": "78a70528c01e2438694c338b774c70d691d9b79bb072973549db2f6778229b39",
+    "archivePath": "evidence/logs/R0-occurrence.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/R0-test.log",
+    "bytes": 4643,
+    "sha256": "7b3e1dc238f711098f96abaf4366613da7e4a76347c83e94a52b3a0084f8eae8",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/R0-w3c.log",
+    "bytes": 408,
+    "sha256": "08d5657d0d1d14ae8e8c7fe8e942a909cb5a4b329018a9a8c6a4e785da394040",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/R0-wide-baseline.log",
+    "bytes": 466,
+    "sha256": "40e0e58a26dae25afe0408836c98352d5f8cf324b0def083e975f036febb0905",
+    "archivePath": "evidence/logs/R0-wide-baseline.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/W0-build.log",
+    "bytes": 359,
+    "sha256": "58ee06bf2debfb737f977d6cd8eb5528c28fbf46ef93980787a540371c1d4144",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/W0-occurrence.log",
+    "bytes": 426,
+    "sha256": "bbbf68f4bd7a940180afad9842e924b68ec52cca8d04e3a5cdbd27ff5af8ebbd",
+    "archivePath": "evidence/logs/W0-occurrence.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/bun-A1-public-smoke.log",
+    "bytes": 386,
+    "sha256": "5bf8a19cf43ec7dbe43d663dc556ef06cf6ab567dab3e24a0974486a9c783dc6",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/bun-R0-public-smoke.log",
+    "bytes": 386,
+    "sha256": "5bf8a19cf43ec7dbe43d663dc556ef06cf6ab567dab3e24a0974486a9c783dc6",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/bun-W0-public-smoke.log",
+    "bytes": 386,
+    "sha256": "5bf8a19cf43ec7dbe43d663dc556ef06cf6ab567dab3e24a0974486a9c783dc6",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/cold-check-smoke.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/final-build.log",
+    "bytes": 182,
+    "sha256": "8180500b4710e7d09f1df5ebe26904a17fa32f0f5768302c94d029e26ed70026",
+    "archivePath": "evidence/logs/final-build.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/final-coverage.log",
+    "bytes": 8409,
+    "sha256": "6409106ac318289d74f17d640fb0c1666b9daaec8710718c530cb6491aa6f5af",
+    "archivePath": "evidence/logs/final-coverage.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/final-release-surfaces.log",
+    "bytes": 335,
+    "sha256": "bd1ccfe9436f77d33b521ef9a425fbcef7ad550744a702f055476153b317deb8",
+    "archivePath": "evidence/logs/final-release-surfaces.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/final-unit.log",
+    "bytes": 4641,
+    "sha256": "c6296eb49883e52de8df99c29de951e5839586f1395903d841673601b1758e0f",
+    "archivePath": "evidence/logs/final-unit.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/final-w3c.log",
+    "bytes": 408,
+    "sha256": "08d5657d0d1d14ae8e8c7fe8e942a909cb5a4b329018a9a8c6a4e785da394040",
+    "archivePath": "evidence/logs/final-w3c.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/firefox-initial-driver-error.json",
+    "bytes": 509,
+    "sha256": "7c02fe6f65b7b9de3d6028667482d3a90bba765a17e0abf7cd67dd1ee685d03c",
+    "archivePath": "evidence/logs/firefox-initial-driver-error.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/firefox-replay.log",
+    "bytes": 20,
+    "sha256": "e155f612bfa733171960f102964b0ba64f0b20463719302cb717b2b4607d1daf",
+    "archivePath": "evidence/logs/firefox-replay.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/fixture-contract.log",
+    "bytes": 1629,
+    "sha256": "d1c062b563051b5a76092f8e888db07d709f5b4a05b69bb72f56b60c565b07a6",
+    "archivePath": "evidence/logs/fixture-contract.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/guards-command.json",
+    "bytes": 262,
+    "sha256": "48369f98907cdf8aec1ec36429d89b37308f33267dbedfe91755576b73a6750b",
+    "archivePath": "evidence/logs/guards-command.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/guards-extension-command.json",
+    "bytes": 430,
+    "sha256": "34021ed8ae113d8b23ef727912d87ec926d03bbb3cf5d4812a23654d86df14fa",
+    "archivePath": "evidence/logs/guards-extension-command.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/guards-extension.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/guards.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/jsc-A1.log",
+    "bytes": 25211,
+    "sha256": "dd496baba202d86c440ccc1b7073716bfc038d32b93ec57dad326d1914e62698",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/jsc-AT1.log",
+    "bytes": 25211,
+    "sha256": "fd80dfe4162f70b9d5698d6fee31eb455e15f6a397dca274119fa825207f0c83",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/jsc-R0.log",
+    "bytes": 25211,
+    "sha256": "06c7f6eae28f28fb429ef0cc4a3f6108e9da413e49e0a59395f5db5596ba6f85",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/jsc-W0.log",
+    "bytes": 25211,
+    "sha256": "0139bf6935903e104721dafb8bc03a2ad3000ee7b0fa0303544694cdd8371fbb",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/node-A1-public-smoke.log",
+    "bytes": 386,
+    "sha256": "5bf8a19cf43ec7dbe43d663dc556ef06cf6ab567dab3e24a0974486a9c783dc6",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/node-R0-public-smoke.log",
+    "bytes": 386,
+    "sha256": "5bf8a19cf43ec7dbe43d663dc556ef06cf6ab567dab3e24a0974486a9c783dc6",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/node-W0-public-smoke.log",
+    "bytes": 386,
+    "sha256": "5bf8a19cf43ec7dbe43d663dc556ef06cf6ab567dab3e24a0974486a9c783dc6",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/occurrences.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/parity.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/pilot-command.json",
+    "bytes": 260,
+    "sha256": "1c6cfc7fdbafaa517b4eee5b173b61d38bcf19793f2d2827403455d6374a2bcd",
+    "archivePath": "evidence/logs/pilot-command.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/pilot.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/primary-command.json",
+    "bytes": 264,
+    "sha256": "8ce8f197847d1233015e80f0485d6c3782370d52ee33f30ac01d2aa6a64e1b66",
+    "archivePath": "evidence/logs/primary-command.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/primary-extension-command.json",
+    "bytes": 319,
+    "sha256": "e28528baf6bfae57dda1eaa34f59a25dfb8fe83e42c704dc05f396405a02200e",
+    "archivePath": "evidence/logs/primary-extension-command.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/primary-extension.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/primary.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/regular-cursor-runtime.log",
+    "bytes": 427,
+    "sha256": "4b546d8c40b112dedfb36d400512f90bbac7b1a1880c16fd43dfba0e1df35e75",
+    "archivePath": "evidence/logs/regular-cursor-runtime.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/retention-smoke-command.json",
+    "bytes": 240,
+    "sha256": "e504afcfa9700466dcfa6a93ea3a6e4dc40d8498be5aa8c73cc13e81e70c4541",
+    "archivePath": "evidence/logs/retention-smoke-command.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "logs/retention-smoke.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "logs/wide-xmllint.log",
+    "bytes": 7,
+    "sha256": "19eaf43821a7660ec323a87c8457bf74823beb296c39f5e01aa8a683aa50f061",
+    "archivePath": "evidence/logs/wide-xmllint.log",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "manifest.json",
+    "bytes": 6084,
+    "sha256": "ad54b699c5d5416e2eaa3c0c2c797661bb7bde5216733750c4a796fd7fdd922a",
+    "archivePath": "evidence/original-manifest.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "mixed-runtime-smoke.mjs",
+    "bytes": 1432,
+    "sha256": "dc53af2823dddb9cc60c9f255c1470e0e2e0e3d2e4bf3b977f91a9d0cf4a585f",
+    "archivePath": "harness/reproduction/mixed-runtime-smoke.mjs",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "occurrence-check.mjs",
+    "bytes": 1474,
+    "sha256": "7e0f2494bebb8094f5c0a13e585d442f5c4ba318b8dcce0ce0942b9e66541894",
+    "archivePath": "harness/reproduction/occurrence-check.mjs",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "occurrences.json",
+    "bytes": 11423,
+    "sha256": "2453c7bf1810effe42bcc198d5d88be05b371d05123bbe5284a63951aabacf75",
+    "archivePath": "evidence/occurrences.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "performance-table.csv",
+    "bytes": 42349,
+    "sha256": "50d948ca8305cb0208f3d48f063f86825a09dea2e5a735607874952cdbe5d891",
+    "archivePath": "performance-table.csv",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "performance-table.json",
+    "bytes": 105836,
+    "sha256": "43e33c5fca3a5baac5de8d6de6b22c5351208c975a048da9488495c5f340663a",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "pilot-builds.json",
+    "bytes": 1619,
+    "sha256": "28ec43c078d36dcd96621dd2a4d63af4abe952ec901772f4630119482dff96cd",
+    "archivePath": "evidence/pilot-builds.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "pilot.json",
+    "bytes": 80987,
+    "sha256": "99e3e0220aab9294bce7cc57c74a19575bc50b966f7816fe846bd302fcdf104e",
+    "archivePath": "evidence/pilot.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "pilot.json.partial",
+    "bytes": 56103,
+    "sha256": "36ed179da9a099bd4a7bd9b2ec37e92ec7ff59fa009c6fcb9cd5ae5b548c05eb",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "primary-extension.json",
+    "bytes": 65789,
+    "sha256": "8432c83dc5c6e2ce7a13876dce75a81377ddd8c8bb71da9c7691389400385872",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "primary-extension.json.partial",
+    "bytes": 59374,
+    "sha256": "3a385339f73b567a701b1de0d96a74fbbea5bf0b67be9c836c781dc8136953d4",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "primary-final.json",
+    "bytes": 346586,
+    "sha256": "57a31bdc459a404cdb3c4899e77f3f17ce400c9c0a95e33efeed170776329aec",
+    "archivePath": "evidence/primary-final.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "primary.json",
+    "bytes": 287183,
+    "sha256": "2ff55674e9e6a7609343d583e1e4bcf9ac7528f0874725d1273109fe2947c13c",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "primary.json.partial",
+    "bytes": 259103,
+    "sha256": "d4d6f64a3a5fab398671a95192c10b1b5cd0eec3a674dd286ac11ed6d1a1e537",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "product.patch",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archivePath": "product.patch",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "public-smoke.mjs",
+    "bytes": 645,
+    "sha256": "83f72b247449643aa87173b83de85ce0677790cdf5691535643690942c895791",
+    "archivePath": "harness/reproduction/public-smoke.mjs",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "record-builds.mjs",
+    "bytes": 1321,
+    "sha256": "e4ad166e5e9c7e6e103a8bd15bc29490d3781c38fed5f3f1372c91182ebe475c",
+    "archivePath": "harness/reproduction/record-builds.mjs",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "retention-history.txt",
+    "bytes": 4728,
+    "sha256": "f52b7d4ce4ac94d501a74e7b9f24651f2fd55f56fd7fe88f2c3175259d05b50d",
+    "archivePath": "evidence/history/retention-history.txt",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "retention-smoke.json",
+    "bytes": 68934,
+    "sha256": "05dfa2e842a5bc40f042ebfd70330d194ade379b1a6881a3965134abdd3d1b52",
+    "archivePath": "evidence/retention-smoke.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "retention.json",
+    "bytes": 603,
+    "sha256": "331e83f02bcf4148602f952a705c78c84c066654324549d3820797064f12bcd9",
+    "archivePath": "evidence/retention.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "runtimes.json",
+    "bytes": 3644,
+    "sha256": "6369cc047c7737e802a76ce8360f8a54a076027c0c6c10d997973dd0f0b6db3d",
+    "archivePath": "evidence/runtimes.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "sample-trends.json",
+    "bytes": 48710,
+    "sha256": "4b81d655415ee9eb9d8a37dc267e16de42021cc1fc09ea08525373ff3c3432f5",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/A1-trace.json",
+    "bytes": 1386239,
+    "sha256": "0d63d7c590d168a8c11aaa7e8753168a41eefbe6c47d31dc6e14d9df449eb6fa",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/AT1-trace.json",
+    "bytes": 1386239,
+    "sha256": "0d63d7c590d168a8c11aaa7e8753168a41eefbe6c47d31dc6e14d9df449eb6fa",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/R0-trace.json",
+    "bytes": 1386239,
+    "sha256": "0d63d7c590d168a8c11aaa7e8753168a41eefbe6c47d31dc6e14d9df449eb6fa",
+    "archivePath": "evidence/tests/R0-trace.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "tests/W0-trace.json",
+    "bytes": 1386239,
+    "sha256": "0d63d7c590d168a8c11aaa7e8753168a41eefbe6c47d31dc6e14d9df449eb6fa",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/bun-A1-mixed.json",
+    "bytes": 1809,
+    "sha256": "d98c7e1519f9fae333c691962f4495fec28d9b4fcc8593956660dee210fbdf24",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/bun-A1-trace.json",
+    "bytes": 1386239,
+    "sha256": "0d63d7c590d168a8c11aaa7e8753168a41eefbe6c47d31dc6e14d9df449eb6fa",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/bun-AT1-mixed.json",
+    "bytes": 1809,
+    "sha256": "d98c7e1519f9fae333c691962f4495fec28d9b4fcc8593956660dee210fbdf24",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/bun-AT1-trace.json",
+    "bytes": 1386239,
+    "sha256": "0d63d7c590d168a8c11aaa7e8753168a41eefbe6c47d31dc6e14d9df449eb6fa",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/bun-R0-mixed.json",
+    "bytes": 1809,
+    "sha256": "d98c7e1519f9fae333c691962f4495fec28d9b4fcc8593956660dee210fbdf24",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/bun-R0-trace.json",
+    "bytes": 1386239,
+    "sha256": "0d63d7c590d168a8c11aaa7e8753168a41eefbe6c47d31dc6e14d9df449eb6fa",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/bun-W0-mixed.json",
+    "bytes": 1809,
+    "sha256": "d98c7e1519f9fae333c691962f4495fec28d9b4fcc8593956660dee210fbdf24",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/bun-W0-trace.json",
+    "bytes": 1386239,
+    "sha256": "0d63d7c590d168a8c11aaa7e8753168a41eefbe6c47d31dc6e14d9df449eb6fa",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/candidate-regressions/entity-single-eval-lifecycle.test.ts",
+    "bytes": 12360,
+    "sha256": "af78739439a08e22c79a4838bbd7e7be4ca3cd9f94bc68db1f247aeb46d54ba0",
+    "archivePath": "tests/candidate-regressions/entity-single-eval-lifecycle.test.ts",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "tests/candidate-regressions/entity-single-eval-readers.test.ts",
+    "bytes": 12283,
+    "sha256": "1a0d5dd43d6ebe3b482c9296713541a4a8cddfe2ee9ddeac499e15f246f0156b",
+    "archivePath": "tests/candidate-regressions/entity-single-eval-readers.test.ts",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "tests/candidate-regressions/entity-single-eval.test.ts",
+    "bytes": 9838,
+    "sha256": "587d432866df8188fd74b48cb8c0a6041489dcfc3425c5fad3a90e254934c7c2",
+    "archivePath": "tests/candidate-regressions/entity-single-eval.test.ts",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "tests/cold-consumer-consistency.json",
+    "bytes": 142,
+    "sha256": "fcc3627952e6680a927594002c8f58a21a3f6bd04afda023addc82fbcdc7ad0d",
+    "archivePath": "evidence/tests/cold-consumer-consistency.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "tests/declaration-parity.json",
+    "bytes": 823,
+    "sha256": "0a7e9718dc408bc3d6273c453ddcfc687aa7101819808049388370254de0f6d4",
+    "archivePath": "evidence/tests/declaration-parity.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "tests/final-dist-fingerprint.json",
+    "bytes": 1082,
+    "sha256": "bf04a40692be66a7a2f64005bc5f5d35d6983dd7af9f9b293b5e8018cd8b8c22",
+    "archivePath": "evidence/tests/final-dist-fingerprint.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "tests/final-product-checks.json",
+    "bytes": 679,
+    "sha256": "6aa0a3f7879798d39fbb03c7cbe2f6d86524e6a34b1c059fb1d5f0bb8a599871",
+    "archivePath": "evidence/tests/final-product-checks.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "tests/firefox-A1-replay.json",
+    "bytes": 106957,
+    "sha256": "b1fb5673a34d376b6e252ad21e08b2fdc64427f4ac00440afd16793e9f3cca80",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/firefox-A1.json",
+    "bytes": 106957,
+    "sha256": "c6df391b9e83d11657f3bf4792f129e3dc4b8e584b2c7727cbe3e27ede11d041",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/firefox-AT1-replay.json",
+    "bytes": 106957,
+    "sha256": "55761d2016604b543d5dd2dd4f3edd27f00249898777168e057e77b6479f33d4",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/firefox-AT1.json",
+    "bytes": 106957,
+    "sha256": "d8b98ed98e48fbcf354f516f8ffe7b016a001ca85e02e294ce9cafa7c74a7749",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/firefox-R0-replay.json",
+    "bytes": 106957,
+    "sha256": "713607c5b876deec09987211f37220ce47b86d657379e010148688888137adcc",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/firefox-R0.json",
+    "bytes": 106957,
+    "sha256": "727547ca5d77bb3bdd3e9547749b9b30a135c51eadba5dfab31cc5b0f80a9016",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/firefox-W0-replay.json",
+    "bytes": 106957,
+    "sha256": "475b076b76fd83c1f55cce357ad32027304ced6cab3b0dda642450bbcfc2d6e3",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/firefox-W0.json",
+    "bytes": 106957,
+    "sha256": "223555df1826af54d55182c4e2bd5275270de1876e9d2f51f718dc19f4459722",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/handoff-integrity.json",
+    "bytes": 363,
+    "sha256": "93a1f55de648e80327a9c8dda40391c6ccf43b10f58c3d3b1222db0c60a84c52",
+    "archivePath": "evidence/tests/handoff-integrity.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "tests/jsc-A1.json",
+    "bytes": 27776,
+    "sha256": "25b1a395d3088b1fa5dac5eabc68bb2aa915815adf862f8af05da6efe95b5866",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/jsc-AT1.json",
+    "bytes": 27776,
+    "sha256": "e45460216991af9ff50235564e6a17601e3f05746a5a7d8b2b5c1022e015ebaa",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/jsc-R0.json",
+    "bytes": 27776,
+    "sha256": "47b94ec21e62214999887b795a4c4bbf238bcc2e20fdcfe12d947755f64b6a61",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/jsc-W0.json",
+    "bytes": 27776,
+    "sha256": "832064e0b3f6beca4b435191ef1b1c48ac79f4e88e3396240ccde2aeb254e8ff",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/mixed-runtime-parity.json",
+    "bytes": 1300,
+    "sha256": "49e837d1c03ae64390bb4aae54ed391bc7367dcdeb665912402ccd3893b8555d",
+    "archivePath": "evidence/tests/mixed-runtime-parity.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "tests/node-A1-mixed.json",
+    "bytes": 1809,
+    "sha256": "d98c7e1519f9fae333c691962f4495fec28d9b4fcc8593956660dee210fbdf24",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/node-AT1-mixed.json",
+    "bytes": 1809,
+    "sha256": "d98c7e1519f9fae333c691962f4495fec28d9b4fcc8593956660dee210fbdf24",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/node-R0-mixed.json",
+    "bytes": 1809,
+    "sha256": "d98c7e1519f9fae333c691962f4495fec28d9b4fcc8593956660dee210fbdf24",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/node-W0-mixed.json",
+    "bytes": 1809,
+    "sha256": "d98c7e1519f9fae333c691962f4495fec28d9b4fcc8593956660dee210fbdf24",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/parity.json",
+    "bytes": 218029,
+    "sha256": "2b2f023d2683ff38d8e1a71b3ef665c6cc44b8a81b89f52b3feca54a07367759",
+    "archivePath": "evidence/tests/parity.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "tests/regular-cursor-runtime.json",
+    "bytes": 115,
+    "sha256": "a02a9fb7168705d8309fe7df93644b073767bd0c0acfff738b6e9201c40acda7",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "tests/retention-smoke-consistency.json",
+    "bytes": 315,
+    "sha256": "2558e60519af0e39bdf6b881fc752c390f7bab934574b0a25a2d8563137d4ede",
+    "archivePath": "evidence/tests/retention-smoke-consistency.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "tests/trace-differential.json",
+    "bytes": 463,
+    "sha256": "dbe5f0310c071827309c79d1877c88d07d94bb2abbc7faa49de367294d1df559",
+    "archivePath": "evidence/tests/trace-differential.json",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "tests/wide-baseline.xml",
+    "bytes": 319,
+    "sha256": "af0a99d0c87d9c5d2367538d6033ed11160be47efde051763794490c766fb9e0",
+    "archivePath": "evidence/baseline-defect/wide-baseline.xml",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "trace-worker.mjs",
+    "bytes": 4618,
+    "sha256": "3b796516f41427a0c9de66996af2b3f3044d734eb92283d2e6da0c4ce54a8dcd",
+    "archivePath": "harness/reproduction/trace-worker.mjs",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "verify-runtime.mjs",
+    "bytes": 1594,
+    "sha256": "154a750932e39f74449d484ec0f0d7caad83c5d2bf61aa716aca9e29ccdd7010",
+    "archivePath": "harness/reproduction/verify-runtime.mjs",
+    "omissionReason": null
+  },
+  {
+    "sourcePath": "visibility.patch",
+    "bytes": 5428,
+    "sha256": "04b6c8bde9bd7dc30f5fd1b1e90d192b3fb19e738bd3def5848cce9b45d69565",
+    "archivePath": null,
+    "omissionReason": "redundant trace, log, intermediate statistical output or working artifact; original hash retained"
+  },
+  {
+    "sourcePath": "wide-baseline-repro.mjs",
+    "bytes": 528,
+    "sha256": "d9825a186cc2deae32d1574e5d2b1cd9b013a5875dc1d5373b4cd325f5bf89df",
+    "archivePath": "harness/reproduction/wide-baseline-repro.mjs",
+    "omissionReason": null
+  }
+]

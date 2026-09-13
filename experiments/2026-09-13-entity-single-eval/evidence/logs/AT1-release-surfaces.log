@@ -1,0 +1,18 @@
+{
+  "status": "ok",
+  "packageSubpaths": [
+    "stax-xml",
+    "stax-xml/converter"
+  ],
+  "runtimeSurfaces": [
+    "StreamReaderSync",
+    "EventReaderSync",
+    "StreamReader",
+    "EventReader",
+    "WriterSync",
+    "WriterSyncSink",
+    "Writer",
+    "converter"
+  ]
+}
+$ node packages/stax-xml/scripts/verify-release-surfaces.mjs

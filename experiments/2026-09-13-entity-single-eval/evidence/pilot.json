@@ -1,0 +1,2562 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-13T05:52:49.719Z",
+  "suite": "pilot",
+  "builds": {
+    "schemaVersion": 1,
+    "baselineSha": "9a839ffb6824a25c4cc2fa6698e860daea5b5816",
+    "variants": [
+      {
+        "id": "R0",
+        "entry": "/tmp/stax-entity-single-eval-evidence/builds/R0/dist/index.js",
+        "converterEntry": "/tmp/stax-entity-single-eval-evidence/builds/R0/dist/converter.js",
+        "sourceSha": "9a839ffb6824a25c4cc2fa6698e860daea5b5816",
+        "patchSha256": null,
+        "distSha256": "8474ddd7ba97c0debfb80b4439d75c6c9db9009c5914281cac40598ea784e0c9",
+        "normalization": "reference",
+        "instrumented": false
+      },
+      {
+        "id": "W0",
+        "entry": "/tmp/stax-entity-single-eval-evidence/builds/W0/dist/index.js",
+        "converterEntry": "/tmp/stax-entity-single-eval-evidence/builds/W0/dist/converter.js",
+        "sourceSha": "9a839ffb6824a25c4cc2fa6698e860daea5b5816",
+        "patchSha256": "25a23fa696febbf8cd59014d2ff7d3d57a74efa18f2c3c0d4e36271df16af166",
+        "distSha256": "5ebb7ce72a9f21825d724819ba832dee1fb178f912d3a90084db78360276410d",
+        "normalization": "wiring",
+        "instrumented": false
+      },
+      {
+        "id": "A1",
+        "entry": "/tmp/stax-entity-single-eval-evidence/builds/A1/dist/index.js",
+        "converterEntry": "/tmp/stax-entity-single-eval-evidence/builds/A1/dist/converter.js",
+        "sourceSha": "9a839ffb6824a25c4cc2fa6698e860daea5b5816",
+        "patchSha256": "615b11b0bd40a008b8bf47b07ec5c4931b1389ef66200f9c53979bb9a6074cdd",
+        "distSha256": "31ec017538d8a9bd5b263bf38bc1a7ada78effd6974e5d3fd1d881cad6134280",
+        "normalization": "attributes",
+        "instrumented": false
+      }
+    ],
+    "fixtureSeed": 260913,
+    "processOrderSeed": 90317
+  },
+  "options": {
+    "blocks": 3,
+    "warmups": 3,
+    "runs": 5,
+    "sizeMib": 4
+  },
+  "environment": {
+    "node": "v24.21.0",
+    "versions": {
+      "node": "24.21.0",
+      "acorn": "8.18.0",
+      "ada": "4.0.0",
+      "amaro": "1.1.11",
+      "ares": "1.34.8",
+      "brotli": "1.2.0",
+      "cldr": "48.0",
+      "icu": "78.3",
+      "llhttp": "9.4.3",
+      "merve": "1.2.2",
+      "modules": "137",
+      "napi": "10",
+      "nbytes": "0.1.4",
+      "ncrypto": "0.0.1",
+      "nghttp2": "1.70.0",
+      "nghttp3": "",
+      "ngtcp2": "",
+      "openssl": "3.5.8",
+      "simdjson": "4.6.7",
+      "simdutf": "6.4.0",
+      "sqlite": "3.53.4",
+      "tz": "2026c",
+      "undici": "7.29.1",
+      "unicode": "17.0",
+      "uv": "1.52.1",
+      "uvwasi": "0.0.23",
+      "v8": "13.6.233.17-node.53",
+      "zlib": "1.3.2.1-motley-8002e91",
+      "zstd": "1.5.7"
+    },
+    "platform": "darwin",
+    "osRelease": "25.5.0",
+    "cpu": "Apple M4",
+    "arch": "arm64",
+    "argv": [
+      "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+      "/private/tmp/stax-entity-single-eval/packages/benchmark/entity-single-eval.mjs",
+      "bench",
+      "--manifest",
+      "/tmp/stax-entity-single-eval-evidence/builds.json",
+      "--suite",
+      "pilot",
+      "--blocks",
+      "3",
+      "--warmups",
+      "3",
+      "--runs",
+      "5",
+      "--out",
+      "/tmp/stax-entity-single-eval-evidence/pilot.json"
+    ]
+  },
+  "fixtureSeed": 260913,
+  "processOrderSeed": 90317,
+  "fixtures": [
+    {
+      "id": "ascii-none",
+      "kind": "synthetic",
+      "bytes": 4194589,
+      "sha256": "a02715f0875191330fdfce83fae5e0cfabf58f8e2a3afddbb14dd72ac92a51b0",
+      "rows": 14641,
+      "entityStats": {
+        "targetValues": 61500,
+        "valuesWithEntities": 0,
+        "entityDensity": 0,
+        "rawOccurrences": 0,
+        "targetRawOccurrences": 0,
+        "targetValuesWithEntities": 0,
+        "attributeValues": 46859,
+        "textValues": 14641,
+        "entityAttributeValues": 0,
+        "entityTextValues": 0,
+        "namespaceValues": 0,
+        "idValues": 14641,
+        "namespaceAttributeValues": 0,
+        "idAttributeValues": 14641,
+        "namespaceValuesWithEntities": 0,
+        "idValuesWithEntities": 0,
+        "namespaceRawOccurrences": 0,
+        "idRawOccurrences": 0,
+        "entityOccurrences": {
+          "target": 0,
+          "namespace": 0,
+          "id": 0,
+          "all": 0
+        },
+        "allEntityAttributeValues": 0,
+        "allEntityTextValues": 0,
+        "rawValueLengths": {
+          "8": 20508,
+          "32": 20496,
+          "128": 20496
+        },
+        "semanticValueLengths": {
+          "8": 20508,
+          "32": 20496,
+          "128": 20496
+        },
+        "valueLengths": {
+          "8": 20508,
+          "32": 20496,
+          "128": 20496
+        },
+        "rawCodeUnits": 3443424,
+        "semanticCodeUnits": 3443424,
+        "outputCodeUnits": 3443424,
+        "allRawCodeUnits": 3611817,
+        "allSemanticCodeUnits": 3611817,
+        "uniqueValueCount": 61500,
+        "uniqueSemanticValues": 61500,
+        "invalidSurrogates": 0,
+        "targetGroupSize": 100,
+        "completeGroups": 615,
+        "remainderValues": 0
+      },
+      "targetBytes": 4194304
+    },
+    {
+      "id": "unicode-none",
+      "kind": "synthetic",
+      "bytes": 4202609,
+      "sha256": "453fc817fd4b7f36558474e390c7bb4246afe885b09275f07f7fe4125529b452",
+      "rows": 6731,
+      "entityStats": {
+        "targetValues": 28300,
+        "valuesWithEntities": 0,
+        "entityDensity": 0,
+        "rawOccurrences": 0,
+        "targetRawOccurrences": 0,
+        "targetValuesWithEntities": 0,
+        "attributeValues": 21569,
+        "textValues": 6731,
+        "entityAttributeValues": 0,
+        "entityTextValues": 0,
+        "namespaceValues": 0,
+        "idValues": 6731,
+        "namespaceAttributeValues": 0,
+        "idAttributeValues": 6731,
+        "namespaceValuesWithEntities": 0,
+        "idValuesWithEntities": 0,
+        "namespaceRawOccurrences": 0,
+        "idRawOccurrences": 0,
+        "entityOccurrences": {
+          "target": 0,
+          "namespace": 0,
+          "id": 0,
+          "all": 0
+        },
+        "allEntityAttributeValues": 0,
+        "allEntityTextValues": 0,
+        "rawValueLengths": {
+          "8": 9432,
+          "32": 9437,
+          "128": 9431
+        },
+        "semanticValueLengths": {
+          "8": 9432,
+          "32": 9437,
+          "128": 9431
+        },
+        "valueLengths": {
+          "8": 9432,
+          "32": 9437,
+          "128": 9431
+        },
+        "rawCodeUnits": 1584608,
+        "semanticCodeUnits": 1584608,
+        "outputCodeUnits": 1584608,
+        "allRawCodeUnits": 1657539,
+        "allSemanticCodeUnits": 1657539,
+        "uniqueValueCount": 28300,
+        "uniqueSemanticValues": 28300,
+        "invalidSurrogates": 0,
+        "targetGroupSize": 100,
+        "completeGroups": 283,
+        "remainderValues": 0
+      },
+      "targetBytes": 4194304
+    },
+    {
+      "id": "astral-none",
+      "kind": "synthetic",
+      "bytes": 4202055,
+      "sha256": "97ffdca65467f1bbc00eea972f6f7ed9d6609bb267ff1411fd204b0dcf14c5c7",
+      "rows": 8060,
+      "entityStats": {
+        "targetValues": 33900,
+        "valuesWithEntities": 0,
+        "entityDensity": 0,
+        "rawOccurrences": 0,
+        "targetRawOccurrences": 0,
+        "targetValuesWithEntities": 0,
+        "attributeValues": 25840,
+        "textValues": 8060,
+        "entityAttributeValues": 0,
+        "entityTextValues": 0,
+        "namespaceValues": 0,
+        "idValues": 8060,
+        "namespaceAttributeValues": 0,
+        "idAttributeValues": 8060,
+        "namespaceValuesWithEntities": 0,
+        "idValuesWithEntities": 0,
+        "namespaceRawOccurrences": 0,
+        "idRawOccurrences": 0,
+        "entityOccurrences": {
+          "target": 0,
+          "namespace": 0,
+          "id": 0,
+          "all": 0
+        },
+        "allEntityAttributeValues": 0,
+        "allEntityTextValues": 0,
+        "rawValueLengths": {
+          "8": 11315,
+          "32": 11299,
+          "128": 11286
+        },
+        "semanticValueLengths": {
+          "8": 11315,
+          "32": 11299,
+          "128": 11286
+        },
+        "valueLengths": {
+          "8": 11315,
+          "32": 11299,
+          "128": 11286
+        },
+        "rawCodeUnits": 1896696,
+        "semanticCodeUnits": 1896696,
+        "outputCodeUnits": 1896696,
+        "allRawCodeUnits": 1984246,
+        "allSemanticCodeUnits": 1984246,
+        "uniqueValueCount": 33900,
+        "uniqueSemanticValues": 33900,
+        "invalidSurrogates": 0,
+        "targetGroupSize": 100,
+        "completeGroups": 339,
+        "remainderValues": 0
+      },
+      "targetBytes": 4194304
+    },
+    {
+      "id": "rare",
+      "kind": "synthetic",
+      "bytes": 4197315,
+      "sha256": "cf12d53b98986db71320c826f91d1b865b48666d9383ded6d86cf0a877c7d8ac",
+      "rows": 14640,
+      "entityStats": {
+        "targetValues": 61500,
+        "valuesWithEntities": 615,
+        "entityDensity": 0.01,
+        "rawOccurrences": 615,
+        "targetRawOccurrences": 615,
+        "targetValuesWithEntities": 615,
+        "attributeValues": 46860,
+        "textValues": 14640,
+        "entityAttributeValues": 469,
+        "entityTextValues": 146,
+        "namespaceValues": 0,
+        "idValues": 14640,
+        "namespaceAttributeValues": 0,
+        "idAttributeValues": 14640,
+        "namespaceValuesWithEntities": 0,
+        "idValuesWithEntities": 0,
+        "namespaceRawOccurrences": 0,
+        "idRawOccurrences": 0,
+        "entityOccurrences": {
+          "target": 615,
+          "namespace": 0,
+          "id": 0,
+          "all": 615
+        },
+        "allEntityAttributeValues": 469,
+        "allEntityTextValues": 146,
+        "rawValueLengths": {
+          "8": 20290,
+          "12": 206,
+          "32": 20306,
+          "36": 202,
+          "128": 20289,
+          "132": 207
+        },
+        "semanticValueLengths": {
+          "8": 20496,
+          "32": 20508,
+          "128": 20496
+        },
+        "valueLengths": {
+          "8": 20290,
+          "12": 206,
+          "32": 20306,
+          "36": 202,
+          "128": 20289,
+          "132": 207
+        },
+        "rawCodeUnits": 3446172,
+        "semanticCodeUnits": 3443712,
+        "outputCodeUnits": 3443712,
+        "allRawCodeUnits": 3614552,
+        "allSemanticCodeUnits": 3612092,
+        "uniqueValueCount": 61500,
+        "uniqueSemanticValues": 61500,
+        "invalidSurrogates": 0,
+        "targetGroupSize": 100,
+        "completeGroups": 615,
+        "remainderValues": 0
+      },
+      "targetBytes": 4194304
+    },
+    {
+      "id": "named-attr",
+      "kind": "synthetic",
+      "bytes": 4202201,
+      "sha256": "d8717e5fe97776c87fcf10b7e99d701bfcc9a4b5090a82b00707ece101991380",
+      "rows": 11985,
+      "entityStats": {
+        "targetValues": 50400,
+        "valuesWithEntities": 38415,
+        "entityDensity": 0.7622023809523809,
+        "rawOccurrences": 192075,
+        "targetRawOccurrences": 192075,
+        "targetValuesWithEntities": 38415,
+        "attributeValues": 38415,
+        "textValues": 11985,
+        "entityAttributeValues": 38415,
+        "entityTextValues": 0,
+        "namespaceValues": 0,
+        "idValues": 11985,
+        "namespaceAttributeValues": 0,
+        "idAttributeValues": 11985,
+        "namespaceValuesWithEntities": 0,
+        "idValuesWithEntities": 0,
+        "namespaceRawOccurrences": 0,
+        "idRawOccurrences": 0,
+        "entityOccurrences": {
+          "target": 192075,
+          "namespace": 0,
+          "id": 0,
+          "all": 192075
+        },
+        "allEntityAttributeValues": 38415,
+        "allEntityTextValues": 0,
+        "rawValueLengths": {
+          "8": 3995,
+          "28": 12804,
+          "32": 3995,
+          "52": 12804,
+          "128": 3995,
+          "148": 12807
+        },
+        "semanticValueLengths": {
+          "8": 16799,
+          "32": 16799,
+          "128": 16802
+        },
+        "valueLengths": {
+          "8": 3995,
+          "28": 12804,
+          "32": 3995,
+          "52": 12804,
+          "128": 3995,
+          "148": 12807
+        },
+        "rawCodeUnits": 3590916,
+        "semanticCodeUnits": 2822616,
+        "outputCodeUnits": 2822616,
+        "allRawCodeUnits": 3724781,
+        "allSemanticCodeUnits": 2956481,
+        "uniqueValueCount": 50400,
+        "uniqueSemanticValues": 50400,
+        "invalidSurrogates": 0,
+        "targetGroupSize": 100,
+        "completeGroups": 504,
+        "remainderValues": 0
+      },
+      "targetBytes": 4194304
+    },
+    {
+      "id": "numeric-attr",
+      "kind": "synthetic",
+      "bytes": 4199843,
+      "sha256": "55966c8af853e966a26285c7edcbd0151b24ace6c6b350985253ca7f7b35a508",
+      "rows": 13322,
+      "entityStats": {
+        "targetValues": 56000,
+        "valuesWithEntities": 42678,
+        "entityDensity": 0.7621071428571429,
+        "rawOccurrences": 85356,
+        "targetRawOccurrences": 85356,
+        "targetValuesWithEntities": 42678,
+        "attributeValues": 42678,
+        "textValues": 13322,
+        "entityAttributeValues": 42678,
+        "entityTextValues": 0,
+        "namespaceValues": 0,
+        "idValues": 13322,
+        "namespaceAttributeValues": 0,
+        "idAttributeValues": 13322,
+        "namespaceValuesWithEntities": 0,
+        "idValuesWithEntities": 0,
+        "namespaceRawOccurrences": 0,
+        "idRawOccurrences": 0,
+        "entityOccurrences": {
+          "target": 85356,
+          "namespace": 0,
+          "id": 0,
+          "all": 85356
+        },
+        "allEntityAttributeValues": 42678,
+        "allEntityTextValues": 0,
+        "rawValueLengths": {
+          "8": 4441,
+          "17": 14236,
+          "32": 4441,
+          "41": 14234,
+          "128": 4440,
+          "137": 14208
+        },
+        "semanticValueLengths": {
+          "8": 18677,
+          "32": 18675,
+          "128": 18648
+        },
+        "valueLengths": {
+          "8": 4441,
+          "17": 14236,
+          "32": 4441,
+          "41": 14234,
+          "128": 4440,
+          "137": 14208
+        },
+        "rawCodeUnits": 3518062,
+        "semanticCodeUnits": 3133960,
+        "outputCodeUnits": 3133960,
+        "allRawCodeUnits": 3669308,
+        "allSemanticCodeUnits": 3285206,
+        "uniqueValueCount": 56000,
+        "uniqueSemanticValues": 56000,
+        "invalidSurrogates": 0,
+        "targetGroupSize": 100,
+        "completeGroups": 560,
+        "remainderValues": 0
+      },
+      "targetBytes": 4194304
+    },
+    {
+      "id": "custom-attr",
+      "kind": "synthetic",
+      "bytes": 4201632,
+      "sha256": "8ad704a6d300854db968c50a1123a66204c516f309aeea8668c046bf4f2b22dd",
+      "rows": 6732,
+      "entityStats": {
+        "targetValues": 28300,
+        "valuesWithEntities": 21568,
+        "entityDensity": 0.7621201413427562,
+        "rawOccurrences": 21568,
+        "targetRawOccurrences": 21568,
+        "targetValuesWithEntities": 21568,
+        "attributeValues": 21568,
+        "textValues": 6732,
+        "entityAttributeValues": 21568,
+        "entityTextValues": 0,
+        "namespaceValues": 0,
+        "idValues": 6732,
+        "namespaceAttributeValues": 0,
+        "idAttributeValues": 6732,
+        "namespaceValuesWithEntities": 0,
+        "idValuesWithEntities": 0,
+        "namespaceRawOccurrences": 0,
+        "idRawOccurrences": 0,
+        "entityOccurrences": {
+          "target": 21568,
+          "namespace": 0,
+          "id": 0,
+          "all": 21568
+        },
+        "allEntityAttributeValues": 21568,
+        "allEntityTextValues": 0,
+        "rawValueLengths": {
+          "8": 2244,
+          "15": 3594,
+          "17": 3594,
+          "28": 2248,
+          "32": 2244,
+          "39": 2470,
+          "41": 2470,
+          "124": 2247,
+          "128": 2244,
+          "135": 2471,
+          "137": 2474
+        },
+        "semanticValueLengths": {
+          "8": 9432,
+          "32": 9432,
+          "128": 9436
+        },
+        "valueLengths": {
+          "8": 2244,
+          "15": 3594,
+          "17": 3594,
+          "28": 2248,
+          "32": 2244,
+          "39": 2470,
+          "41": 2470,
+          "124": 2247,
+          "128": 2244,
+          "135": 2471,
+          "137": 2474
+        },
+        "rawCodeUnits": 1703695,
+        "semanticCodeUnits": 1585088,
+        "outputCodeUnits": 1585088,
+        "allRawCodeUnits": 1776637,
+        "allSemanticCodeUnits": 1658030,
+        "uniqueValueCount": 28300,
+        "uniqueSemanticValues": 28300,
+        "invalidSurrogates": 0,
+        "targetGroupSize": 100,
+        "completeGroups": 283,
+        "remainderValues": 0
+      },
+      "targetBytes": 4194304
+    },
+    {
+      "id": "named-text",
+      "kind": "synthetic",
+      "bytes": 4194331,
+      "sha256": "1f05517169898cc35fcf38acee232e8cbdddb6b2304a8faae67c6484de709f9e",
+      "rows": 13692,
+      "entityStats": {
+        "targetValues": 57500,
+        "valuesWithEntities": 13692,
+        "entityDensity": 0.23812173913043477,
+        "rawOccurrences": 68460,
+        "targetRawOccurrences": 68460,
+        "targetValuesWithEntities": 13692,
+        "attributeValues": 43808,
+        "textValues": 13692,
+        "entityAttributeValues": 0,
+        "entityTextValues": 13692,
+        "namespaceValues": 0,
+        "idValues": 13692,
+        "namespaceAttributeValues": 0,
+        "idAttributeValues": 13692,
+        "namespaceValuesWithEntities": 0,
+        "idValuesWithEntities": 0,
+        "namespaceRawOccurrences": 0,
+        "idRawOccurrences": 0,
+        "entityOccurrences": {
+          "target": 68460,
+          "namespace": 0,
+          "id": 0,
+          "all": 68460
+        },
+        "allEntityAttributeValues": 0,
+        "allEntityTextValues": 13692,
+        "rawValueLengths": {
+          "8": 14612,
+          "28": 4564,
+          "32": 14596,
+          "52": 4564,
+          "128": 14600,
+          "148": 4564
+        },
+        "semanticValueLengths": {
+          "8": 19176,
+          "32": 19160,
+          "128": 19164
+        },
+        "valueLengths": {
+          "8": 14612,
+          "28": 4564,
+          "32": 14596,
+          "52": 4564,
+          "128": 14600,
+          "148": 4564
+        },
+        "rawCodeUnits": 3493360,
+        "semanticCodeUnits": 3219520,
+        "outputCodeUnits": 3219520,
+        "allRawCodeUnits": 3649416,
+        "allSemanticCodeUnits": 3375576,
+        "uniqueValueCount": 57500,
+        "uniqueSemanticValues": 57500,
+        "invalidSurrogates": 0,
+        "targetGroupSize": 100,
+        "completeGroups": 575,
+        "remainderValues": 0
+      },
+      "targetBytes": 4194304
+    },
+    {
+      "id": "mixed",
+      "kind": "synthetic",
+      "bytes": 4196801,
+      "sha256": "0db3c3afc554d62d6b22fc25dddc98202439a6566a2bef2b5bf5d2bfdd75d91e",
+      "rows": 7923,
+      "entityStats": {
+        "targetValues": 33300,
+        "valuesWithEntities": 3330,
+        "entityDensity": 0.1,
+        "rawOccurrences": 4440,
+        "targetRawOccurrences": 4440,
+        "targetValuesWithEntities": 3330,
+        "attributeValues": 25377,
+        "textValues": 7923,
+        "entityAttributeValues": 2538,
+        "entityTextValues": 792,
+        "namespaceValues": 0,
+        "idValues": 7923,
+        "namespaceAttributeValues": 0,
+        "idAttributeValues": 7923,
+        "namespaceValuesWithEntities": 0,
+        "idValuesWithEntities": 0,
+        "namespaceRawOccurrences": 0,
+        "idRawOccurrences": 0,
+        "entityOccurrences": {
+          "target": 4440,
+          "namespace": 0,
+          "id": 0,
+          "all": 4440
+        },
+        "allEntityAttributeValues": 2538,
+        "allEntityTextValues": 792,
+        "rawValueLengths": {
+          "8": 9993,
+          "12": 370,
+          "15": 370,
+          "17": 372,
+          "32": 9996,
+          "36": 371,
+          "41": 738,
+          "128": 9981,
+          "132": 369,
+          "135": 370,
+          "137": 370
+        },
+        "semanticValueLengths": {
+          "8": 11105,
+          "32": 11105,
+          "128": 11090
+        },
+        "valueLengths": {
+          "8": 9993,
+          "12": 370,
+          "15": 370,
+          "17": 372,
+          "32": 9996,
+          "36": 371,
+          "41": 738,
+          "128": 9981,
+          "132": 369,
+          "135": 370,
+          "137": 370
+        },
+        "rawCodeUnits": 1886660,
+        "semanticCodeUnits": 1863720,
+        "outputCodeUnits": 1863720,
+        "allRawCodeUnits": 1972703,
+        "allSemanticCodeUnits": 1949763,
+        "uniqueValueCount": 33300,
+        "uniqueSemanticValues": 33300,
+        "invalidSurrogates": 0,
+        "targetGroupSize": 100,
+        "completeGroups": 333,
+        "remainderValues": 0
+      },
+      "targetBytes": 4194304
+    },
+    {
+      "id": "xmlns",
+      "kind": "synthetic",
+      "bytes": 4196645,
+      "sha256": "a770e8426946e18c8f00e83851c3d7badaa7274451c0efe155c947651dd7943b",
+      "rows": 11042,
+      "entityStats": {
+        "targetValues": 57442,
+        "valuesWithEntities": 0,
+        "entityDensity": 0,
+        "rawOccurrences": 11045,
+        "targetRawOccurrences": 0,
+        "targetValuesWithEntities": 0,
+        "attributeValues": 46400,
+        "textValues": 11042,
+        "entityAttributeValues": 0,
+        "entityTextValues": 0,
+        "namespaceValues": 22087,
+        "idValues": 11042,
+        "namespaceAttributeValues": 22087,
+        "idAttributeValues": 11042,
+        "namespaceValuesWithEntities": 11045,
+        "idValuesWithEntities": 0,
+        "namespaceRawOccurrences": 11045,
+        "idRawOccurrences": 0,
+        "entityOccurrences": {
+          "target": 0,
+          "namespace": 11045,
+          "id": 0,
+          "all": 11045
+        },
+        "allEntityAttributeValues": 11045,
+        "allEntityTextValues": 0,
+        "rawValueLengths": {
+          "8": 15473,
+          "32": 26513,
+          "128": 15456
+        },
+        "semanticValueLengths": {
+          "8": 15473,
+          "32": 26513,
+          "128": 15456
+        },
+        "valueLengths": {
+          "8": 15473,
+          "32": 26513,
+          "128": 15456
+        },
+        "rawCodeUnits": 2950568,
+        "semanticCodeUnits": 2950568,
+        "outputCodeUnits": 2950568,
+        "allRawCodeUnits": 3436761,
+        "allSemanticCodeUnits": 3392581,
+        "uniqueValueCount": 57442,
+        "uniqueSemanticValues": 57442,
+        "invalidSurrogates": 0,
+        "targetGroupSize": 100,
+        "completeGroups": 574,
+        "remainderValues": 42
+      },
+      "targetBytes": 4194304
+    },
+    {
+      "id": "midsize.xml",
+      "kind": "actual",
+      "path": "/private/tmp/stax-entity-single-eval/packages/benchmark/assets/midsize.xml",
+      "bytes": 13584398,
+      "sha256": "ee298a5d02cf404b309c63162605465c34e7315e5a9152051d2e79b7474a3fce",
+      "entityStats": {
+        "targetValues": 755713,
+        "valuesWithEntities": 0,
+        "entityDensity": 0,
+        "rawOccurrences": 0,
+        "targetRawOccurrences": 0,
+        "targetValuesWithEntities": 0,
+        "attributeValues": 46080,
+        "textValues": 709633,
+        "entityAttributeValues": 0,
+        "entityTextValues": 0,
+        "namespaceValues": 0,
+        "idValues": 18432,
+        "namespaceAttributeValues": 0,
+        "idAttributeValues": 18432,
+        "namespaceValuesWithEntities": 0,
+        "idValuesWithEntities": 0,
+        "namespaceRawOccurrences": 0,
+        "idRawOccurrences": 0,
+        "entityOccurrences": {
+          "target": 0,
+          "namespace": 0,
+          "id": 0,
+          "all": 0
+        },
+        "allEntityAttributeValues": 0,
+        "allEntityTextValues": 0,
+        "rawValueLengths": {
+          "1": 64513,
+          "2": 64512,
+          "3": 27648,
+          "4": 27648,
+          "5": 82944,
+          "6": 27648,
+          "7": 18432,
+          "8": 18432,
+          "9": 211968,
+          "13": 184320,
+          "28": 9216,
+          "31": 18432
+        },
+        "semanticValueLengths": {
+          "1": 64513,
+          "2": 64512,
+          "3": 27648,
+          "4": 27648,
+          "5": 82944,
+          "6": 27648,
+          "7": 18432,
+          "8": 18432,
+          "9": 211968,
+          "13": 184320,
+          "28": 9216,
+          "31": 18432
+        },
+        "valueLengths": {
+          "1": 64513,
+          "2": 64512,
+          "3": 27648,
+          "4": 27648,
+          "5": 82944,
+          "6": 27648,
+          "7": 18432,
+          "8": 18432,
+          "9": 211968,
+          "13": 184320,
+          "28": 9216,
+          "31": 18432
+        },
+        "rawCodeUnits": 6377473,
+        "semanticCodeUnits": 6377473,
+        "outputCodeUnits": 6377473,
+        "allRawCodeUnits": 6432769,
+        "allSemanticCodeUnits": 6432769,
+        "uniqueValueCount": 36,
+        "uniqueSemanticValues": 36,
+        "invalidSurrogates": 0,
+        "targetGroupSize": 100,
+        "completeGroups": 7557,
+        "remainderValues": 13
+      }
+    }
+  ],
+  "rows": [
+    {
+      "case": "P1/ascii-none",
+      "lane": "P1",
+      "fixture": "ascii-none",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 0,
+      "order": [
+        "R0",
+        "A1",
+        "W0"
+      ],
+      "variants": {
+        "R0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "A1": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "W0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        }
+      },
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      }
+    },
+    {
+      "case": "P1/ascii-none",
+      "lane": "P1",
+      "fixture": "ascii-none",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 1,
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P1/ascii-none",
+      "lane": "P1",
+      "fixture": "ascii-none",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 2,
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P1/unicode-none",
+      "lane": "P1",
+      "fixture": "unicode-none",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 0,
+      "order": [
+        "R0",
+        "A1",
+        "W0"
+      ],
+      "variants": {
+        "R0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "A1": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "W0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        }
+      },
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      }
+    },
+    {
+      "case": "P1/unicode-none",
+      "lane": "P1",
+      "fixture": "unicode-none",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 1,
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P1/unicode-none",
+      "lane": "P1",
+      "fixture": "unicode-none",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 2,
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P1/astral-none",
+      "lane": "P1",
+      "fixture": "astral-none",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 0,
+      "order": [
+        "W0",
+        "R0",
+        "A1"
+      ],
+      "variants": {
+        "W0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "R0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "A1": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        }
+      },
+      "status": "NOT RUN",
+      "reason": {
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      }
+    },
+    {
+      "case": "P1/astral-none",
+      "lane": "P1",
+      "fixture": "astral-none",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 1,
+      "status": "NOT RUN",
+      "reason": {
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P1/astral-none",
+      "lane": "P1",
+      "fixture": "astral-none",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 2,
+      "status": "NOT RUN",
+      "reason": {
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P1/rare",
+      "lane": "P1",
+      "fixture": "rare",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 0,
+      "order": [
+        "A1",
+        "R0",
+        "W0"
+      ],
+      "variants": {
+        "A1": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "R0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "W0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        }
+      },
+      "status": "NOT RUN",
+      "reason": {
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      }
+    },
+    {
+      "case": "P1/rare",
+      "lane": "P1",
+      "fixture": "rare",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 1,
+      "status": "NOT RUN",
+      "reason": {
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P1/rare",
+      "lane": "P1",
+      "fixture": "rare",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 2,
+      "status": "NOT RUN",
+      "reason": {
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P1/named-attr",
+      "lane": "P1",
+      "fixture": "named-attr",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 0,
+      "order": [
+        "R0",
+        "A1",
+        "W0"
+      ],
+      "variants": {
+        "R0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "A1": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "W0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        }
+      },
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      }
+    },
+    {
+      "case": "P1/named-attr",
+      "lane": "P1",
+      "fixture": "named-attr",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 1,
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P1/named-attr",
+      "lane": "P1",
+      "fixture": "named-attr",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 2,
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P1/numeric-attr",
+      "lane": "P1",
+      "fixture": "numeric-attr",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 0,
+      "order": [
+        "R0",
+        "A1",
+        "W0"
+      ],
+      "variants": {
+        "R0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "A1": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "W0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        }
+      },
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      }
+    },
+    {
+      "case": "P1/numeric-attr",
+      "lane": "P1",
+      "fixture": "numeric-attr",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 1,
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P1/numeric-attr",
+      "lane": "P1",
+      "fixture": "numeric-attr",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 2,
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P1/custom-attr",
+      "lane": "P1",
+      "fixture": "custom-attr",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 0,
+      "order": [
+        "W0",
+        "R0",
+        "A1"
+      ],
+      "variants": {
+        "W0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "R0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "A1": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        }
+      },
+      "status": "NOT RUN",
+      "reason": {
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      }
+    },
+    {
+      "case": "P1/custom-attr",
+      "lane": "P1",
+      "fixture": "custom-attr",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 1,
+      "status": "NOT RUN",
+      "reason": {
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P1/custom-attr",
+      "lane": "P1",
+      "fixture": "custom-attr",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 2,
+      "status": "NOT RUN",
+      "reason": {
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P1/named-text",
+      "lane": "P1",
+      "fixture": "named-text",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 0,
+      "order": [
+        "R0",
+        "A1",
+        "W0"
+      ],
+      "variants": {
+        "R0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "A1": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "W0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        }
+      },
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      }
+    },
+    {
+      "case": "P1/named-text",
+      "lane": "P1",
+      "fixture": "named-text",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 1,
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P1/named-text",
+      "lane": "P1",
+      "fixture": "named-text",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 2,
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P1/mixed",
+      "lane": "P1",
+      "fixture": "mixed",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 0,
+      "order": [
+        "A1",
+        "W0",
+        "R0"
+      ],
+      "variants": {
+        "A1": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "W0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "R0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        }
+      },
+      "status": "NOT RUN",
+      "reason": {
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      }
+    },
+    {
+      "case": "P1/mixed",
+      "lane": "P1",
+      "fixture": "mixed",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 1,
+      "status": "NOT RUN",
+      "reason": {
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P1/mixed",
+      "lane": "P1",
+      "fixture": "mixed",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 2,
+      "status": "NOT RUN",
+      "reason": {
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P1/xmlns",
+      "lane": "P1",
+      "fixture": "xmlns",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 0,
+      "order": [
+        "A1",
+        "W0",
+        "R0"
+      ],
+      "variants": {
+        "A1": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n",
+          "samples": []
+        },
+        "W0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n",
+          "samples": []
+        },
+        "R0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n",
+          "samples": []
+        }
+      },
+      "status": "NOT RUN",
+      "reason": {
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n"
+      }
+    },
+    {
+      "case": "P1/xmlns",
+      "lane": "P1",
+      "fixture": "xmlns",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 1,
+      "status": "NOT RUN",
+      "reason": {
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P1/xmlns",
+      "lane": "P1",
+      "fixture": "xmlns",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 2,
+      "status": "NOT RUN",
+      "reason": {
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a12\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P2/ascii-none",
+      "lane": "P2",
+      "fixture": "ascii-none",
+      "kind": "event-async",
+      "encoding": "chunks",
+      "block": 0,
+      "order": [
+        "R0",
+        "A1",
+        "W0"
+      ],
+      "variants": {
+        "R0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "A1": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "W0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        }
+      },
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      }
+    },
+    {
+      "case": "P2/ascii-none",
+      "lane": "P2",
+      "fixture": "ascii-none",
+      "kind": "event-async",
+      "encoding": "chunks",
+      "block": 1,
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P2/ascii-none",
+      "lane": "P2",
+      "fixture": "ascii-none",
+      "kind": "event-async",
+      "encoding": "chunks",
+      "block": 2,
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P2/unicode-none",
+      "lane": "P2",
+      "fixture": "unicode-none",
+      "kind": "event-async",
+      "encoding": "chunks",
+      "block": 0,
+      "order": [
+        "R0",
+        "A1",
+        "W0"
+      ],
+      "variants": {
+        "R0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "A1": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "W0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        }
+      },
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      }
+    },
+    {
+      "case": "P2/unicode-none",
+      "lane": "P2",
+      "fixture": "unicode-none",
+      "kind": "event-async",
+      "encoding": "chunks",
+      "block": 1,
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P2/unicode-none",
+      "lane": "P2",
+      "fixture": "unicode-none",
+      "kind": "event-async",
+      "encoding": "chunks",
+      "block": 2,
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P3/ascii-none",
+      "lane": "P3",
+      "fixture": "ascii-none",
+      "kind": "event-sync",
+      "encoding": "string",
+      "block": 0,
+      "order": [
+        "R0",
+        "A1",
+        "W0"
+      ],
+      "variants": {
+        "R0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "A1": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "W0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        }
+      },
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      }
+    },
+    {
+      "case": "P3/ascii-none",
+      "lane": "P3",
+      "fixture": "ascii-none",
+      "kind": "event-sync",
+      "encoding": "string",
+      "block": 1,
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P3/ascii-none",
+      "lane": "P3",
+      "fixture": "ascii-none",
+      "kind": "event-sync",
+      "encoding": "string",
+      "block": 2,
+      "status": "NOT RUN",
+      "reason": {
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P3/rare",
+      "lane": "P3",
+      "fixture": "rare",
+      "kind": "event-sync",
+      "encoding": "string",
+      "block": 0,
+      "order": [
+        "A1",
+        "R0",
+        "W0"
+      ],
+      "variants": {
+        "A1": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "R0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        },
+        "W0": {
+          "status": "NOT RUN",
+          "error": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+          "samples": []
+        }
+      },
+      "status": "NOT RUN",
+      "reason": {
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      }
+    },
+    {
+      "case": "P3/rare",
+      "lane": "P3",
+      "fixture": "rare",
+      "kind": "event-sync",
+      "encoding": "string",
+      "block": 1,
+      "status": "NOT RUN",
+      "reason": {
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P3/rare",
+      "lane": "P3",
+      "fixture": "rare",
+      "kind": "event-sync",
+      "encoding": "string",
+      "block": 2,
+      "status": "NOT RUN",
+      "reason": {
+        "A1": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "R0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n",
+        "W0": "entity-single-eval worker failed (1): {\"name\":\"Error\",\"message\":\"Duplicate attribute: a15\"}\n"
+      },
+      "variants": {}
+    },
+    {
+      "case": "P4/midsize",
+      "lane": "P4",
+      "fixture": "midsize.xml",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 0,
+      "order": [
+        "A1",
+        "W0",
+        "R0"
+      ],
+      "variants": {
+        "A1": {
+          "mode": "warm",
+          "variant": "A1",
+          "lane": "P4",
+          "fixture": "midsize.xml",
+          "kind": "event-sync",
+          "encoding": "bytes",
+          "block": 0,
+          "samples": [
+            {
+              "ms": 399.5850409999998,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 389.9235829999998,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 379.748916,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 384.6250420000001,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 386.5334590000002,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            }
+          ],
+          "canonicalDigest": "640e942c51eb5a3a34b2a152e1e43bd88feb52ec0c73076c5eb2502d4539014a",
+          "fixtureSha256": "ee298a5d02cf404b309c63162605465c34e7315e5a9152051d2e79b7474a3fce",
+          "fixtureBytes": 13584398,
+          "options": {
+            "namespaceAware": true,
+            "autoDecodeEntities": true
+          },
+          "argv": [
+            "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+            "/private/tmp/stax-entity-single-eval/packages/benchmark/entity-single-eval.mjs",
+            "--worker"
+          ]
+        },
+        "W0": {
+          "mode": "warm",
+          "variant": "W0",
+          "lane": "P4",
+          "fixture": "midsize.xml",
+          "kind": "event-sync",
+          "encoding": "bytes",
+          "block": 0,
+          "samples": [
+            {
+              "ms": 359.95504200000005,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 352.64754200000016,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 354.91208300000017,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 351.28499999999985,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 351.1084580000006,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            }
+          ],
+          "canonicalDigest": "640e942c51eb5a3a34b2a152e1e43bd88feb52ec0c73076c5eb2502d4539014a",
+          "fixtureSha256": "ee298a5d02cf404b309c63162605465c34e7315e5a9152051d2e79b7474a3fce",
+          "fixtureBytes": 13584398,
+          "options": {
+            "namespaceAware": true,
+            "autoDecodeEntities": true
+          },
+          "argv": [
+            "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+            "/private/tmp/stax-entity-single-eval/packages/benchmark/entity-single-eval.mjs",
+            "--worker"
+          ]
+        },
+        "R0": {
+          "mode": "warm",
+          "variant": "R0",
+          "lane": "P4",
+          "fixture": "midsize.xml",
+          "kind": "event-sync",
+          "encoding": "bytes",
+          "block": 0,
+          "samples": [
+            {
+              "ms": 350.7616670000002,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 360.73875,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 356.775709,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 355.6777500000003,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 356.9177499999996,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            }
+          ],
+          "canonicalDigest": "640e942c51eb5a3a34b2a152e1e43bd88feb52ec0c73076c5eb2502d4539014a",
+          "fixtureSha256": "ee298a5d02cf404b309c63162605465c34e7315e5a9152051d2e79b7474a3fce",
+          "fixtureBytes": 13584398,
+          "options": {
+            "namespaceAware": true,
+            "autoDecodeEntities": true
+          },
+          "argv": [
+            "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+            "/private/tmp/stax-entity-single-eval/packages/benchmark/entity-single-eval.mjs",
+            "--worker"
+          ]
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "case": "P4/midsize",
+      "lane": "P4",
+      "fixture": "midsize.xml",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 1,
+      "order": [
+        "R0",
+        "A1",
+        "W0"
+      ],
+      "variants": {
+        "R0": {
+          "mode": "warm",
+          "variant": "R0",
+          "lane": "P4",
+          "fixture": "midsize.xml",
+          "kind": "event-sync",
+          "encoding": "bytes",
+          "block": 1,
+          "samples": [
+            {
+              "ms": 358.45333400000004,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 351.3605839999998,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 354.2644580000001,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 352.8720410000001,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 354.8773329999999,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            }
+          ],
+          "fixtureSha256": "ee298a5d02cf404b309c63162605465c34e7315e5a9152051d2e79b7474a3fce",
+          "fixtureBytes": 13584398,
+          "options": {
+            "namespaceAware": true,
+            "autoDecodeEntities": true
+          },
+          "argv": [
+            "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+            "/private/tmp/stax-entity-single-eval/packages/benchmark/entity-single-eval.mjs",
+            "--worker"
+          ]
+        },
+        "A1": {
+          "mode": "warm",
+          "variant": "A1",
+          "lane": "P4",
+          "fixture": "midsize.xml",
+          "kind": "event-sync",
+          "encoding": "bytes",
+          "block": 1,
+          "samples": [
+            {
+              "ms": 390.0294170000002,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 386.91274999999973,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 386.2890000000002,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 387.097041,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 383.09320899999966,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            }
+          ],
+          "fixtureSha256": "ee298a5d02cf404b309c63162605465c34e7315e5a9152051d2e79b7474a3fce",
+          "fixtureBytes": 13584398,
+          "options": {
+            "namespaceAware": true,
+            "autoDecodeEntities": true
+          },
+          "argv": [
+            "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+            "/private/tmp/stax-entity-single-eval/packages/benchmark/entity-single-eval.mjs",
+            "--worker"
+          ]
+        },
+        "W0": {
+          "mode": "warm",
+          "variant": "W0",
+          "lane": "P4",
+          "fixture": "midsize.xml",
+          "kind": "event-sync",
+          "encoding": "bytes",
+          "block": 1,
+          "samples": [
+            {
+              "ms": 345.50033299999996,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 356.8249999999998,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 348.94058399999994,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 344.5123749999998,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 348.98779200000035,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            }
+          ],
+          "fixtureSha256": "ee298a5d02cf404b309c63162605465c34e7315e5a9152051d2e79b7474a3fce",
+          "fixtureBytes": 13584398,
+          "options": {
+            "namespaceAware": true,
+            "autoDecodeEntities": true
+          },
+          "argv": [
+            "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+            "/private/tmp/stax-entity-single-eval/packages/benchmark/entity-single-eval.mjs",
+            "--worker"
+          ]
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "case": "P4/midsize",
+      "lane": "P4",
+      "fixture": "midsize.xml",
+      "kind": "event-sync",
+      "encoding": "bytes",
+      "block": 2,
+      "order": [
+        "A1",
+        "W0",
+        "R0"
+      ],
+      "variants": {
+        "A1": {
+          "mode": "warm",
+          "variant": "A1",
+          "lane": "P4",
+          "fixture": "midsize.xml",
+          "kind": "event-sync",
+          "encoding": "bytes",
+          "block": 2,
+          "samples": [
+            {
+              "ms": 384.39175,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 384.72633399999995,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 387.851416,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 381.20333400000027,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 389.42041599999993,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            }
+          ],
+          "fixtureSha256": "ee298a5d02cf404b309c63162605465c34e7315e5a9152051d2e79b7474a3fce",
+          "fixtureBytes": 13584398,
+          "options": {
+            "namespaceAware": true,
+            "autoDecodeEntities": true
+          },
+          "argv": [
+            "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+            "/private/tmp/stax-entity-single-eval/packages/benchmark/entity-single-eval.mjs",
+            "--worker"
+          ]
+        },
+        "W0": {
+          "mode": "warm",
+          "variant": "W0",
+          "lane": "P4",
+          "fixture": "midsize.xml",
+          "kind": "event-sync",
+          "encoding": "bytes",
+          "block": 2,
+          "samples": [
+            {
+              "ms": 353.218791,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 359.618166,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 354.5592080000001,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 357.88179100000025,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 360.88591700000006,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            }
+          ],
+          "fixtureSha256": "ee298a5d02cf404b309c63162605465c34e7315e5a9152051d2e79b7474a3fce",
+          "fixtureBytes": 13584398,
+          "options": {
+            "namespaceAware": true,
+            "autoDecodeEntities": true
+          },
+          "argv": [
+            "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+            "/private/tmp/stax-entity-single-eval/packages/benchmark/entity-single-eval.mjs",
+            "--worker"
+          ]
+        },
+        "R0": {
+          "mode": "warm",
+          "variant": "R0",
+          "lane": "P4",
+          "fixture": "midsize.xml",
+          "kind": "event-sync",
+          "encoding": "bytes",
+          "block": 2,
+          "samples": [
+            {
+              "ms": 354.281166,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 347.67566599999986,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 355.76158399999986,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 358.59887500000013,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            },
+            {
+              "ms": 358.8872500000002,
+              "eventCount": 1446917,
+              "checksum": -1574013263,
+              "transcriptDigest": 0,
+              "outputCodeUnits": 18800662,
+              "counters": {}
+            }
+          ],
+          "fixtureSha256": "ee298a5d02cf404b309c63162605465c34e7315e5a9152051d2e79b7474a3fce",
+          "fixtureBytes": 13584398,
+          "options": {
+            "namespaceAware": true,
+            "autoDecodeEntities": true
+          },
+          "argv": [
+            "/Users/senghyunjo/.local/share/vite-plus/js_runtime/node/24.21.0/bin/node",
+            "/private/tmp/stax-entity-single-eval/packages/benchmark/entity-single-eval.mjs",
+            "--worker"
+          ]
+        }
+      },
+      "status": "PASS"
+    }
+  ],
+  "processOrder": [
+    {
+      "case": "P1/ascii-none",
+      "block": 0,
+      "order": [
+        "R0",
+        "A1",
+        "W0"
+      ]
+    },
+    {
+      "case": "P1/unicode-none",
+      "block": 0,
+      "order": [
+        "R0",
+        "A1",
+        "W0"
+      ]
+    },
+    {
+      "case": "P1/astral-none",
+      "block": 0,
+      "order": [
+        "W0",
+        "R0",
+        "A1"
+      ]
+    },
+    {
+      "case": "P1/rare",
+      "block": 0,
+      "order": [
+        "A1",
+        "R0",
+        "W0"
+      ]
+    },
+    {
+      "case": "P1/named-attr",
+      "block": 0,
+      "order": [
+        "R0",
+        "A1",
+        "W0"
+      ]
+    },
+    {
+      "case": "P1/numeric-attr",
+      "block": 0,
+      "order": [
+        "R0",
+        "A1",
+        "W0"
+      ]
+    },
+    {
+      "case": "P1/custom-attr",
+      "block": 0,
+      "order": [
+        "W0",
+        "R0",
+        "A1"
+      ]
+    },
+    {
+      "case": "P1/named-text",
+      "block": 0,
+      "order": [
+        "R0",
+        "A1",
+        "W0"
+      ]
+    },
+    {
+      "case": "P1/mixed",
+      "block": 0,
+      "order": [
+        "A1",
+        "W0",
+        "R0"
+      ]
+    },
+    {
+      "case": "P1/xmlns",
+      "block": 0,
+      "order": [
+        "A1",
+        "W0",
+        "R0"
+      ]
+    },
+    {
+      "case": "P2/ascii-none",
+      "block": 0,
+      "order": [
+        "R0",
+        "A1",
+        "W0"
+      ]
+    },
+    {
+      "case": "P2/unicode-none",
+      "block": 0,
+      "order": [
+        "R0",
+        "A1",
+        "W0"
+      ]
+    },
+    {
+      "case": "P3/ascii-none",
+      "block": 0,
+      "order": [
+        "R0",
+        "A1",
+        "W0"
+      ]
+    },
+    {
+      "case": "P3/rare",
+      "block": 0,
+      "order": [
+        "A1",
+        "R0",
+        "W0"
+      ]
+    },
+    {
+      "case": "P4/midsize",
+      "block": 0,
+      "order": [
+        "A1",
+        "W0",
+        "R0"
+      ]
+    },
+    {
+      "case": "P4/midsize",
+      "block": 1,
+      "order": [
+        "R0",
+        "A1",
+        "W0"
+      ]
+    },
+    {
+      "case": "P4/midsize",
+      "block": 2,
+      "order": [
+        "A1",
+        "W0",
+        "R0"
+      ]
+    }
+  ]
+}

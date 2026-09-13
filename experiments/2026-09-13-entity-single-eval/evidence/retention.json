@@ -1,0 +1,14 @@
+{
+  "status": "NOT RUN",
+  "reason": "No primary candidate passed. Full counts/repeats and slope gate not expanded. Node/Bun count=16, repeat=1 smoke only.",
+  "smoke": [
+    "retention-smoke.json",
+    "bun-retention-smoke.json"
+  ],
+  "nodeMetadataNote": "retention-smoke.json options.exposeGc describes the unexposed parent in the earlier harness; all 112 children actually report gcCycles=25. Fixed in final harness; Bun smoke reports exposeGc=true.",
+  "lengthConsistency": "tests/retention-smoke-consistency.json",
+  "additionalEngineSmokes": [
+    "jsc-smoke.json",
+    "firefox-smoke.json"
+  ]
+}

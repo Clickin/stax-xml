@@ -1,0 +1,17 @@
+[
+  {
+    "variant": "W0",
+    "runtimeIdentical": true,
+    "sha256": "1e788258415470b328bb53ef30cffeccff989f296419e7bda61d815f7e144a7f"
+  },
+  {
+    "variant": "A1",
+    "runtimeIdentical": true,
+    "sha256": "1e788258415470b328bb53ef30cffeccff989f296419e7bda61d815f7e144a7f"
+  },
+  {
+    "variant": "AT1",
+    "runtimeIdentical": true,
+    "sha256": "1e788258415470b328bb53ef30cffeccff989f296419e7bda61d815f7e144a7f"
+  }
+]

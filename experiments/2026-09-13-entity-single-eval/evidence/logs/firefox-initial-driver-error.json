@@ -1,0 +1,12 @@
+{
+  "status": "FAIL",
+  "stage": "additional Firefox smoke harness, after all primary timing",
+  "error": {
+    "error": "unknown error",
+    "message": "out of memory"
+  },
+  "cause": "Initial new smoke loop incorrectly treated EventReader.next() as an event instead of IteratorResult and did not terminate.",
+  "fix": "Use public for-of / for-await-of iterator contract; restart isolated Firefox.",
+  "candidateFailure": false,
+  "verification": "firefox-smoke.json: all four variants match 598 scenarios"
+}

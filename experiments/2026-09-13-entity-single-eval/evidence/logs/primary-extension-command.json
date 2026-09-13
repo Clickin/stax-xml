@@ -1,0 +1,1 @@
+["node", "packages/benchmark/entity-single-eval.mjs", "bench", "--manifest", "/tmp/stax-entity-single-eval-evidence/builds.json", "--suite", "primary", "--blocks", "7", "--start-block", "7", "--warmups", "6", "--runs", "5", "--cases", "P4/large", "--out", "/tmp/stax-entity-single-eval-evidence/primary-extension.json"]

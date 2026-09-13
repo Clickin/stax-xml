@@ -1,0 +1,1 @@
+["node", "packages/benchmark/entity-single-eval.mjs", "bench", "--manifest", "/tmp/stax-entity-single-eval-evidence/builds.json", "--suite", "pilot", "--blocks", "3", "--warmups", "3", "--runs", "5", "--out", "/tmp/stax-entity-single-eval-evidence/pilot.json"]

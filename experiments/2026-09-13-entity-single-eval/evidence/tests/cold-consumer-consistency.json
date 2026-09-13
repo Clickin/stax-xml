@@ -1,0 +1,10 @@
+{
+  "rowsChecked": 91,
+  "variantsPerRow": 4,
+  "equal": [
+    "fullEventCount",
+    "fullChecksum",
+    "firstType"
+  ],
+  "status": "PASS"
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "runtime": "Node",
+    "groups": 28,
+    "variants": 4,
+    "lengthParity": "PASS",
+    "childGcCycles": 25,
+    "fullRetentionGate": "NOT RUN"
+  },
+  {
+    "runtime": "Bun",
+    "groups": 28,
+    "variants": 4,
+    "lengthParity": "PASS",
+    "childGcCycles": 25,
+    "fullRetentionGate": "NOT RUN"
+  }
+]

@@ -1,0 +1,220 @@
+{
+  "status": "PASS",
+  "engine": "/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc",
+  "results": [
+    {
+      "variant": "R0",
+      "scenarios": 16,
+      "traceSha256": "6c3d4e276b1cf6411acae0e110f33d5a50572a59c88c43c5ec2596dfcb5b5f52",
+      "ordinary": {
+        "count": 1446917,
+        "checksum": 556260891,
+        "ms": 2305,
+        "retained": 256
+      },
+      "retention": [
+        {
+          "scenario": "first",
+          "mode": "normalized-result",
+          "count": 16,
+          "beforeGcHeapSize": 1012168,
+          "afterGcHeapSize": 5226795,
+          "strings": 32,
+          "units": 1324,
+          "gcCycles": 25
+        },
+        {
+          "scenario": "first",
+          "mode": "positive-control",
+          "count": 16,
+          "beforeGcHeapSize": 5229950,
+          "afterGcHeapSize": 5282744,
+          "strings": 48,
+          "units": 4197912,
+          "gcCycles": 25
+        },
+        {
+          "scenario": "none",
+          "mode": "normalized-result",
+          "count": 16,
+          "beforeGcHeapSize": 5304952,
+          "afterGcHeapSize": 5570900,
+          "strings": 32,
+          "units": 1292,
+          "gcCycles": 25
+        },
+        {
+          "scenario": "none",
+          "mode": "positive-control",
+          "count": 16,
+          "beforeGcHeapSize": 5571076,
+          "afterGcHeapSize": 5571076,
+          "strings": 48,
+          "units": 4197720,
+          "gcCycles": 25
+        }
+      ]
+    },
+    {
+      "variant": "W0",
+      "scenarios": 16,
+      "traceSha256": "6c3d4e276b1cf6411acae0e110f33d5a50572a59c88c43c5ec2596dfcb5b5f52",
+      "ordinary": {
+        "count": 1446917,
+        "checksum": 556260891,
+        "ms": 2306,
+        "retained": 256
+      },
+      "retention": [
+        {
+          "scenario": "first",
+          "mode": "normalized-result",
+          "count": 16,
+          "beforeGcHeapSize": 1015236,
+          "afterGcHeapSize": 5229928,
+          "strings": 32,
+          "units": 1324,
+          "gcCycles": 25
+        },
+        {
+          "scenario": "first",
+          "mode": "positive-control",
+          "count": 16,
+          "beforeGcHeapSize": 5233083,
+          "afterGcHeapSize": 5289541,
+          "strings": 48,
+          "units": 4197912,
+          "gcCycles": 25
+        },
+        {
+          "scenario": "none",
+          "mode": "normalized-result",
+          "count": 16,
+          "beforeGcHeapSize": 5311749,
+          "afterGcHeapSize": 5577697,
+          "strings": 32,
+          "units": 1292,
+          "gcCycles": 25
+        },
+        {
+          "scenario": "none",
+          "mode": "positive-control",
+          "count": 16,
+          "beforeGcHeapSize": 5577873,
+          "afterGcHeapSize": 5577873,
+          "strings": 48,
+          "units": 4197720,
+          "gcCycles": 25
+        }
+      ]
+    },
+    {
+      "variant": "A1",
+      "scenarios": 16,
+      "traceSha256": "6c3d4e276b1cf6411acae0e110f33d5a50572a59c88c43c5ec2596dfcb5b5f52",
+      "ordinary": {
+        "count": 1446917,
+        "checksum": 556260891,
+        "ms": 2322,
+        "retained": 256
+      },
+      "retention": [
+        {
+          "scenario": "first",
+          "mode": "normalized-result",
+          "count": 16,
+          "beforeGcHeapSize": 1063646,
+          "afterGcHeapSize": 5292308,
+          "strings": 32,
+          "units": 1324,
+          "gcCycles": 25
+        },
+        {
+          "scenario": "first",
+          "mode": "positive-control",
+          "count": 16,
+          "beforeGcHeapSize": 5295463,
+          "afterGcHeapSize": 5354769,
+          "strings": 48,
+          "units": 4197912,
+          "gcCycles": 25
+        },
+        {
+          "scenario": "none",
+          "mode": "normalized-result",
+          "count": 16,
+          "beforeGcHeapSize": 5376977,
+          "afterGcHeapSize": 5642793,
+          "strings": 32,
+          "units": 1292,
+          "gcCycles": 25
+        },
+        {
+          "scenario": "none",
+          "mode": "positive-control",
+          "count": 16,
+          "beforeGcHeapSize": 5642969,
+          "afterGcHeapSize": 5642969,
+          "strings": 48,
+          "units": 4197720,
+          "gcCycles": 25
+        }
+      ]
+    },
+    {
+      "variant": "AT1",
+      "scenarios": 16,
+      "traceSha256": "6c3d4e276b1cf6411acae0e110f33d5a50572a59c88c43c5ec2596dfcb5b5f52",
+      "ordinary": {
+        "count": 1446917,
+        "checksum": 556260891,
+        "ms": 2327,
+        "retained": 256
+      },
+      "retention": [
+        {
+          "scenario": "first",
+          "mode": "normalized-result",
+          "count": 16,
+          "beforeGcHeapSize": 1083468,
+          "afterGcHeapSize": 1128236,
+          "strings": 32,
+          "units": 1324,
+          "gcCycles": 25
+        },
+        {
+          "scenario": "first",
+          "mode": "positive-control",
+          "count": 16,
+          "beforeGcHeapSize": 1131391,
+          "afterGcHeapSize": 5387171,
+          "strings": 48,
+          "units": 4197912,
+          "gcCycles": 25
+        },
+        {
+          "scenario": "none",
+          "mode": "normalized-result",
+          "count": 16,
+          "beforeGcHeapSize": 5409379,
+          "afterGcHeapSize": 5412759,
+          "strings": 32,
+          "units": 1292,
+          "gcCycles": 25
+        },
+        {
+          "scenario": "none",
+          "mode": "positive-control",
+          "count": 16,
+          "beforeGcHeapSize": 5412935,
+          "afterGcHeapSize": 5412935,
+          "strings": 48,
+          "units": 4197720,
+          "gcCycles": 25
+        }
+      ]
+    }
+  ],
+  "fullRetentionGate": "NOT RUN; count16/repeat1 first/none only",
+  "bytesAsync": "NOT RUN; no TextDecoder in standalone shell; Bun and Firefox cover bytes/async without polyfills"
+}

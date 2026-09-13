@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "rows": [
+    {
+      "runtime": "node",
+      "variant": "R0",
+      "sha256": "d98c7e1519f9fae333c691962f4495fec28d9b4fcc8593956660dee210fbdf24"
+    },
+    {
+      "runtime": "node",
+      "variant": "W0",
+      "sha256": "d98c7e1519f9fae333c691962f4495fec28d9b4fcc8593956660dee210fbdf24"
+    },
+    {
+      "runtime": "node",
+      "variant": "A1",
+      "sha256": "d98c7e1519f9fae333c691962f4495fec28d9b4fcc8593956660dee210fbdf24"
+    },
+    {
+      "runtime": "node",
+      "variant": "AT1",
+      "sha256": "d98c7e1519f9fae333c691962f4495fec28d9b4fcc8593956660dee210fbdf24"
+    },
+    {
+      "runtime": "bun",
+      "variant": "R0",
+      "sha256": "d98c7e1519f9fae333c691962f4495fec28d9b4fcc8593956660dee210fbdf24"
+    },
+    {
+      "runtime": "bun",
+      "variant": "W0",
+      "sha256": "d98c7e1519f9fae333c691962f4495fec28d9b4fcc8593956660dee210fbdf24"
+    },
+    {
+      "runtime": "bun",
+      "variant": "A1",
+      "sha256": "d98c7e1519f9fae333c691962f4495fec28d9b4fcc8593956660dee210fbdf24"
+    },
+    {
+      "runtime": "bun",
+      "variant": "AT1",
+      "sha256": "d98c7e1519f9fae333c691962f4495fec28d9b4fcc8593956660dee210fbdf24"
+    }
+  ],
+  "timingGate": "NOT RUN: this is an additional correctness smoke, not a replacement for blocked G6 fixtures."
+}

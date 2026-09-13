@@ -1,0 +1,2420 @@
+diff --git a/packages/benchmark/entity-single-eval.mjs b/packages/benchmark/entity-single-eval.mjs
+new file mode 100644
+index 00000000..0050e1e5
+--- /dev/null
++++ b/packages/benchmark/entity-single-eval.mjs
+@@ -0,0 +1,492 @@
++import { createHash } from 'node:crypto';
++import { spawnSync } from 'node:child_process';
++import { mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
++import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
++import { fileURLToPath, pathToFileURL } from 'node:url';
++import { performance } from 'node:perf_hooks';
++import { cpus, release } from 'node:os';
++import {
++  ACTUAL_FIXTURE_IDS,
++  FIXTURE_IDS,
++  FIXTURE_SEED,
++  PROCESS_ORDER_SEED,
++  createFixtureManifest,
++  fixtureById,
++  fixtureOptions,
++  loadActualFixture,
++  sha256Bytes,
++} from './entity-single-eval/fixtures.mjs';
++import {
++  consumeAsync,
++  consumePublic,
++  consumeSync,
++  foldString,
++  importPublicBuild,
++  readCounters,
++} from './entity-single-eval/consume.mjs';
++import { runRetention } from './entity-single-eval/retention.mjs';
++
++export const VARIANT_IDS = ['R0', 'W0', 'A1', 'AT1'];
++export const MANIFEST_SCHEMA_VERSION = 1;
++const HERE = dirname(fileURLToPath(import.meta.url));
++const MIB = 1024 * 1024;
++const DEFAULT_SIZE_MIB = 16;
++const HEX64 = /^[0-9a-f]{64}$/iu;
++const HEX40 = /^[0-9a-f]{40}$/iu;
++const PLACEHOLDER = /actual-|placeholder|path\/to|example\.com/iu;
++
++function sha256(value) {
++  return createHash('sha256').update(value).digest('hex');
++}
++
++export function fingerprintDist(distPath) {
++  const root = resolve(distPath);
++  const files = [];
++  function visit(directory) {
++    for (const entry of readdirSync(directory, { withFileTypes: true })) {
++      const path = join(directory, entry.name);
++      if (entry.isDirectory()) visit(path);
++      else if (entry.isFile()) files.push(path);
++    }
++  }
++  visit(root);
++  files.sort((left, right) => relative(root, left).localeCompare(relative(root, right)));
++  const hash = createHash('sha256');
++  const entries = [];
++  for (const file of files) {
++    const rel = relative(root, file).split('\\').join('/');
++    const bytes = readFileSync(file);
++    hash.update(rel);
++    hash.update('\0');
++    hash.update(bytes);
++    entries.push({ path: rel, bytes: bytes.byteLength, sha256: sha256(bytes) });
++  }
++  return { sha256: hash.digest('hex'), files, entries };
++}
++
++export function distRootForEntry(entry) {
++  return dirname(resolve(entry));
++}
++
++export function validateBuildManifest(value, { checkFiles = true, checkFingerprints = true } = {}) {
++  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Build manifest must be an object.');
++  const topKeys = ['schemaVersion', 'baselineSha', 'variants', 'fixtureSeed', 'processOrderSeed'];
++  if (Object.keys(value).some((key) => !topKeys.includes(key))) throw new Error('Build manifest has unknown fields.');
++  if (value.schemaVersion !== MANIFEST_SCHEMA_VERSION) throw new Error(`Build manifest schemaVersion must be ${MANIFEST_SCHEMA_VERSION}.`);
++  if (!HEX40.test(value.baselineSha) || PLACEHOLDER.test(value.baselineSha)) throw new Error('Build manifest baselineSha must be an actual full SHA-1.');
++  if (!Array.isArray(value.variants) || !value.variants.length) throw new Error('Build manifest must contain R0 and available staged variants.');
++  const ids = new Set();
++  for (const variant of value.variants) {
++    const keys = ['id', 'entry', 'converterEntry', 'sourceSha', 'patchSha256', 'distSha256', 'normalization', 'instrumented'];
++    if (!variant || Object.keys(variant).some((key) => !keys.includes(key))) throw new Error('Build manifest variant has unknown fields.');
++    if (!VARIANT_IDS.includes(variant.id) || ids.has(variant.id)) throw new Error(`Invalid or duplicate build variant id: ${variant.id}`);
++    ids.add(variant.id);
++    for (const key of ['entry', 'converterEntry']) {
++      if (typeof variant[key] !== 'string' || !isAbsolute(variant[key]) || PLACEHOLDER.test(variant[key])) throw new Error(`${variant.id}.${key} must be an absolute real path.`);
++      if (checkFiles && !statSync(variant[key], { throwIfNoEntry: false })?.isFile()) throw new Error(`${variant.id}.${key} does not exist: ${variant[key]}`);
++    }
++    if (!HEX40.test(variant.sourceSha) || PLACEHOLDER.test(variant.sourceSha)) throw new Error(`${variant.id}.sourceSha must be an actual full SHA-1.`);
++    if (variant.patchSha256 !== null && (!HEX64.test(variant.patchSha256) || PLACEHOLDER.test(variant.patchSha256))) throw new Error(`${variant.id}.patchSha256 must be SHA-256 or null.`);
++    if (!HEX64.test(variant.distSha256) || PLACEHOLDER.test(variant.distSha256)) throw new Error(`${variant.id}.distSha256 must be an actual SHA-256.`);
++    if (!['reference', 'wiring', 'attributes', 'attributes-text'].includes(variant.normalization)) throw new Error(`${variant.id}.normalization is invalid.`);
++    if (typeof variant.instrumented !== 'boolean') throw new Error(`${variant.id}.instrumented must be boolean.`);
++    if (checkFingerprints) {
++      const actual = fingerprintDist(distRootForEntry(variant.entry)).sha256;
++      if (actual !== variant.distSha256) throw new Error(`${variant.id} dist fingerprint mismatch: manifest=${variant.distSha256}, actual=${actual}`);
++    }
++  }
++  if (!ids.has('R0')) throw new Error('Build manifest is missing R0.');
++  if (value.variants.some(v => v.instrumented !== value.variants[0].instrumented)) throw new Error('Timing and instrumented builds must be separate.');
++  if (value.fixtureSeed !== FIXTURE_SEED || value.processOrderSeed !== PROCESS_ORDER_SEED) throw new Error('Build manifest fixture/process seed does not match the experiment contract.');
++  return value;
++}
++
++export function loadBuildManifest(path, options) {
++  const absolute = resolve(path);
++  let value;
++  try { value = JSON.parse(readFileSync(absolute, 'utf8')); } catch (error) { throw new Error(`Unable to read build manifest ${absolute}: ${error.message}`); }
++  return validateBuildManifest(value, options);
++}
++
++function parseArgs(args) {
++  const command = args.shift();
++  if (!command || command === '--help' || command === '-h') return { command: command ?? 'help', options: {} };
++  const options = {};
++  const allowed = {
++    parity: new Set(['manifest', 'suite', 'out', 'cases', 'size-mib']),
++    bench: new Set(['manifest', 'suite', 'blocks', 'start-block', 'warmups', 'runs', 'out', 'cases', 'size-mib', 'lanes']),
++    retention: new Set(['manifest', 'out', 'counts', 'repeats', 'value-kib']),
++    diagnose: new Set(['manifest', 'out', 'cases', 'size-mib']),
++  }[command];
++  if (!allowed) throw new Error(`Unknown command: ${command}`);
++  for (let index = 0; index < args.length; index++) {
++    const arg = args[index];
++    if (!arg.startsWith('--')) throw new Error(`Unknown argument: ${arg}`);
++    const [rawName, inline] = arg.includes('=') ? arg.split(/=(.*)/s, 2) : [arg, undefined];
++    const name = rawName.slice(2);
++    if (!allowed.has(name)) throw new Error(`Unknown argument: ${rawName}`);
++    const value = inline ?? args[++index];
++    if (value === undefined) throw new Error(`${rawName} requires a value.`);
++    options[name] = value;
++  }
++  if (!options.manifest) throw new Error('--manifest is required.');
++  if (command !== 'parity' && !options.out) throw new Error('--out is required.');
++  return { command, options };
++}
++
++function positive(value, flag, fallback) {
++  const result = Number(value ?? fallback);
++  if (!Number.isInteger(result) || result <= 0) throw new Error(`${flag} must be a positive integer.`);
++  return result;
++}
++
++function nonNegative(value, flag, fallback) {
++  const result = Number(value ?? fallback);
++  if (!Number.isInteger(result) || result < 0) throw new Error(`${flag} must be a non-negative integer.`);
++  return result;
++}
++
++function chosen(values, allowed, flag) {
++  const result = values ? values.split(',').filter(Boolean) : allowed;
++  for (const item of result) if (!allowed.includes(item)) throw new Error(`${flag} contains unknown case ${item}.`);
++  return result;
++}
++
++function seededOrder(values, seed) {
++  const result = values.slice();
++  let state = seed >>> 0;
++  for (let index = result.length - 1; index > 0; index--) {
++    state = (Math.imul(state ^ (state >>> 16), 2246822519) + 3266489917) >>> 0;
++    const other = state % (index + 1);
++    [result[index], result[other]] = [result[other], result[index]];
++  }
++  return result;
++}
++
++function fixturePayload(id, sizeMib) {
++  return { id, targetBytes: Math.max(1024, Math.floor(sizeMib * MIB)) };
++}
++
++function caseRows(suite, sizeMib, filters = {}) {
++  const p1 = FIXTURE_IDS.map((fixture) => ({ id: `P1/${fixture}`, lane: 'P1', fixture, kind: 'event-sync', encoding: 'bytes', options: { namespaceAware: true, autoDecodeEntities: true } }));
++  const p2Fixtures = ['ascii-none', 'unicode-none', 'rare', 'named-attr', 'numeric-attr', 'named-text', 'mixed'];
++  const p2 = p2Fixtures.map((fixture) => ({ id: `P2/${fixture}`, lane: 'P2', fixture, kind: 'event-async', encoding: 'chunks', chunkSize: 64 * 1024, options: { namespaceAware: true, autoDecodeEntities: true } }));
++  const p3Fixtures = ['ascii-none', 'rare', 'named-attr', 'numeric-attr', 'named-text', 'mixed'];
++  const p3 = p3Fixtures.map((fixture) => ({ id: `P3/${fixture}`, lane: 'P3', fixture, kind: 'event-sync', encoding: 'string', options: { namespaceAware: true, autoDecodeEntities: true } }));
++  const p4 = ACTUAL_FIXTURE_IDS.map((name) => ({ id: `P4/${name.replace('.xml', '')}`, lane: 'P4', fixture: name, kind: 'event-sync', encoding: 'bytes', options: { namespaceAware: true, autoDecodeEntities: true } }));
++  const g1 = ['named-attr', 'named-text', 'mixed'].flatMap((fixture) => [
++    { id: `G1-sync/${fixture}`, lane: 'G1', fixture, kind: 'event-sync', encoding: 'bytes', options: { namespaceAware: true, autoDecodeEntities: false } },
++    { id: `G1-async/${fixture}`, lane: 'G1', fixture, kind: 'event-async', encoding: 'chunks', chunkSize: 64 * 1024, options: { namespaceAware: true, autoDecodeEntities: false } },
++  ]);
++  const g2 = ['named-attr', 'xmlns'].flatMap((fixture) => [
++    { id: `G2-aware/${fixture}`, lane: 'G2', fixture, kind: 'event-sync', encoding: 'bytes', options: { namespaceAware: true, autoDecodeEntities: true } },
++    { id: `G2-raw/${fixture}`, lane: 'G2', fixture, kind: 'event-sync', encoding: 'bytes', options: { namespaceAware: false, autoDecodeEntities: true } },
++  ]);
++  const g3 = ['ascii-none', 'mixed', 'named-attr'].flatMap((fixture) => [
++    { id: `G3-sync-full/${fixture}`, lane: 'G3', fixture, kind: 'stream-sync', encoding: 'bytes', access: 'full', options: { namespaceAware: true, autoDecodeEntities: true } },
++    { id: `G3-sync-type/${fixture}`, lane: 'G3', fixture, kind: 'stream-sync', encoding: 'bytes', access: 'type-only', options: { namespaceAware: true, autoDecodeEntities: true } },
++    { id: `G3-async-full/${fixture}`, lane: 'G3', fixture, kind: 'stream-async', encoding: 'chunks', chunkSize: 64 * 1024, access: 'full', options: { namespaceAware: true, autoDecodeEntities: true } },
++    { id: `G3-async-type/${fixture}`, lane: 'G3', fixture, kind: 'stream-async', encoding: 'chunks', chunkSize: 64 * 1024, access: 'type-only', options: { namespaceAware: true, autoDecodeEntities: true } },
++  ]);
++  const g4 = [{ id: 'G4/converter-catalog', lane: 'G4', fixture: 'converter-catalog', kind: 'converter', encoding: 'string', options: { namespaceAware: true, autoDecodeEntities: true } }];
++  const g5 = [
++    { id: 'G5/event-sync', lane: 'G5', fixture: 'ascii-none', kind: 'event-sync', encoding: 'bytes', cold: true, options: { namespaceAware: true, autoDecodeEntities: true } },
++    { id: 'G5/stream-sync', lane: 'G5', fixture: 'ascii-none', kind: 'stream-sync', encoding: 'bytes', cold: true, options: { namespaceAware: true, autoDecodeEntities: true } },
++    { id: 'G5/event-async', lane: 'G5', fixture: 'ascii-none', kind: 'event-async', encoding: 'chunks', chunkSize: 2048, cold: true, options: { namespaceAware: true, autoDecodeEntities: true } },
++    { id: 'G5/stream-async', lane: 'G5', fixture: 'ascii-none', kind: 'stream-async', encoding: 'chunks', chunkSize: 2048, cold: true, options: { namespaceAware: true, autoDecodeEntities: true } },
++  ].flatMap(item => [2, 4].map(kib => ({ ...item, id: `${item.id}-${kib}KiB`, fixture: kib === 2 ? 'complex.xml' : 'books.xml', targetBytes: kib * 1024 })));
++  const g6 = ['ascii-none', 'mixed'].map((fixture) => ({ id: `G6/${fixture}`, lane: 'G6', fixture, kind: 'mixed-process', encoding: 'bytes', options: { namespaceAware: true, autoDecodeEntities: true } }));
++  const all = { pilot: [...p1, ...p2.slice(0, 2), ...p3.slice(0, 2), ...p4.slice(0, 1)], primary: [...p1, ...p2, ...p3, ...p4], guards: [...g1, ...g2, ...g3, ...g4, ...g5, ...g6], all: [...p1, ...p2, ...p3, ...p4, ...g1, ...g2, ...g3, ...g4, ...g5, ...g6] }[suite];
++  if (!all) throw new Error(`Unknown bench suite: ${suite}.`);
++  const wanted = chosen(filters.cases, all.map((item) => item.id), '--cases');
++  const wantedLanes = chosen(filters.lanes, [...new Set(all.map((item) => item.lane))], '--lanes');
++  return all.filter((item) => wanted.includes(item.id) && wantedLanes.includes(item.lane)).map((item) => ({ ...item, sizeMib }));
++}
++
++function buildFixtureRecord(id, sizeMib) {
++  if (id === 'converter-catalog') {
++    const fixture = workerFixture({ kind: 'converter', targetBytes: sizeMib * MIB });
++    return { id, kind: 'catalog', bytes: fixture.bytes.length, sha256: sha256Bytes(fixture.bytes) };
++  }
++  if (id.endsWith('.xml')) {
++    const fixture = loadActualFixture(id);
++    return { id, kind: fixture.kind, path: fixture.path, bytes: fixture.bytesLength, sha256: fixture.sha256, entityStats: fixture.entityStats };
++  }
++  const fixture = fixtureById(id, { targetBytes: Math.max(1024, Math.floor(sizeMib * MIB)) });
++  return { id, kind: fixture.kind, bytes: fixture.bytesLength, sha256: fixture.sha256, rows: fixture.rows, entityStats: fixture.entityStats, targetBytes: fixture.targetBytes };
++}
++
++function runWorker(payload, nodeArgs = []) {
++  const workerPath = fileURLToPath(import.meta.url);
++  const result = spawnSync(process.execPath, [...nodeArgs, workerPath, '--worker'], {
++    env: { ...process.env, ENTITY_SINGLE_EVAL_WORKER: JSON.stringify(payload) },
++    encoding: 'utf8',
++    maxBuffer: 128 * 1024 * 1024,
++  });
++  if (result.status !== 0) throw new Error(`entity-single-eval worker failed (${result.status}): ${result.stderr || result.stdout}`);
++  const line = result.stdout.trim().split('\n').at(-1);
++  try { return JSON.parse(line); } catch { throw new Error(`Worker returned invalid JSON: ${line}`); }
++}
++
++function workerFixture(payload) {
++  if (payload.kind === 'converter') {
++    // Same catalog contract as harness/cases/converter-catalog.mjs, without
++    // importing its package-bound schema (which would load another build).
++    const rows = [];
++    let size = 19;
++    for (let index = 0; size < payload.targetBytes; index++) {
++      const row = `<book id="book-${index}"><title>Compiled Batch Plan ${index}</title><author>Author ${index % 97}</author><price>${(10 + (index % 500) / 10).toFixed(2)}</price>${index % 5 === 0 ? '<featured>true</featured>' : ''}</book>`;
++      rows.push(row); size += row.length;
++    }
++    const source = `<catalog>${rows.join('')}</catalog>`;
++    return { source, bytes: new TextEncoder().encode(source), options: { documentMode: 'fragment' } };
++  }
++  if (payload.fixture.endsWith('.xml')) return loadActualFixture(payload.fixture);
++  return fixtureById(payload.fixture, { targetBytes: payload.targetBytes, seed: payload.fixtureSeed });
++}
++
++async function runTimed(payload, api, fixture) {
++  if (payload.kind === 'converter') {
++    const result = fixture.schema.parseSync(fixture.bytes, { documentMode: 'fragment', maxEvents: 20_000_000 });
++    let checksum = 0, outputCodeUnits = 0;
++    for (const book of result.books) for (const key of ['id', 'title', 'author', 'price', 'featured']) {
++      const value = String(book[key] ?? '');
++      checksum = foldString(checksum, value); outputCodeUnits += value.length;
++    }
++    checksum = foldString(checksum, result.firstTitle);
++    return { eventCount: result.books.length, checksum, outputCodeUnits, counters: readCounters() };
++  }
++  const input = payload.encoding === 'string' ? fixture.source : fixture.bytes;
++  return consumePublic(api, input, {
++    ...fixture.options,
++    ...payload.options,
++    kind: payload.kind,
++    access: payload.access,
++    chunkSize: payload.chunkSize,
++  });
++}
++
++async function consumeMixed(api, fixture, options) {
++  const results = [];
++  for (let index = 0; index < 4; index++) {
++    results.push(index % 2 ? consumeSync(api, fixture.bytes, { ...fixture.options, ...options, kind: 'stream-sync' }) : consumeSync(api, fixture.bytes, { ...fixture.options, ...options, kind: 'event-sync' }));
++    results.push(consumeSync(api, '<root a="&amp;">small</root>', { ...options, kind: index % 2 ? 'event-sync' : 'stream-sync' }));
++  }
++  return { eventCount: results.reduce((sum, result) => sum + result.eventCount, 0), checksum: results.reduce((sum, result) => sum + result.checksum, 0), transcriptDigest: results[0].transcriptDigest, outputCodeUnits: results.reduce((sum, result) => sum + result.outputCodeUnits, 0), error: results.find((result) => result.error)?.error ?? null, counters: readCounters() };
++}
++
++async function runWorkerPayload(payload) {
++  const fixture = workerFixture(payload);
++  if (payload.mode === 'cold' || payload.cold) {
++    const input = payload.encoding === 'string' ? fixture.source : fixture.bytes;
++    const startedImport = performance.now();
++    const imported = await importPublicBuild(payload.entry);
++    const importMs = performance.now() - startedImport;
++    const Reader = payload.kind === 'event-sync' ? imported.EventReaderSync : payload.kind === 'stream-sync' ? imported.StreamReaderSync : payload.kind === 'event-async' ? imported.EventReader : imported.StreamReader;
++    const startedConstructor = performance.now();
++    const reader = new Reader(payload.kind.endsWith('async') ? (async function* () { yield input; })() : input, { ...fixture.options, ...payload.options });
++    const constructorMs = performance.now() - startedConstructor;
++    const startedFirst = performance.now();
++    const first = await reader.next();
++    const firstNextMs = performance.now() - startedFirst;
++    const startedClose = performance.now();
++    await reader.close();
++    const closeMs = performance.now() - startedClose;
++    const startedFull = performance.now();
++    const full = await runTimed(payload, imported, fixture);
++    const fullMs = performance.now() - startedFull;
++    if (full.error) throw new Error(`${payload.variant}/${payload.fixture} cold full parse failed: ${full.error.name}: ${full.error.message}`);
++    return { mode: 'cold', importMs, constructorMs, firstNextMs, closeMs, firstNextCloseMs: constructorMs + firstNextMs + closeMs, fullMs, samples: [{ ms: fullMs }], fullEventCount: full.eventCount, fullChecksum: full.checksum, firstType: first?.value?.type ?? first, counters: readCounters() };
++  }
++  const api = await importPublicBuild(payload.entry);
++  if (payload.kind === 'converter') {
++    const { x } = await importPublicBuild(payload.converterEntry);
++    const book = x.object({ id: x.string().xpath('./@id'), title: x.string().xpath('./title'), author: x.string().xpath('./author'), price: x.number().xpath('./price'), featured: x.string().xpath('./featured').optional() });
++    fixture.schema = x.object({ books: x.array(book, '/catalog/book'), firstTitle: x.string().xpath('/catalog/book/title').optional() });
++  }
++  let canonicalDigest;
++  if (payload.block === 0 && payload.kind.startsWith('event-')) {
++    const verification = await consumePublic(api, payload.encoding === 'string' ? fixture.source : fixture.bytes, { ...fixture.options, ...payload.options, kind: payload.kind, chunkSize: payload.chunkSize, canonical: 'digest' });
++    if (verification.error) throw new Error(JSON.stringify(verification.error));
++    canonicalDigest = verification.transcriptDigest;
++  }
++  const warmups = payload.warmups ?? 0;
++  for (let index = 0; index < warmups; index++) {
++    const result = payload.kind === 'mixed-process' ? await consumeMixed(api, fixture, payload.options) : await runTimed(payload, api, fixture);
++    if (result.error) throw new Error(`${payload.variant}/${payload.fixture} warmup parse failed: ${result.error.name}: ${result.error.message}`);
++  }
++  const samples = [];
++  let expected;
++  for (let index = 0; index < (payload.runs ?? 1); index++) {
++    const started = performance.now();
++    const result = payload.kind === 'mixed-process' ? await consumeMixed(api, fixture, payload.options) : await runTimed(payload, api, fixture);
++    const elapsedMs = performance.now() - started;
++    if (result.error) throw new Error(`${payload.variant}/${payload.fixture} parse failed: ${result.error.name}: ${result.error.message}`);
++    const signature = [result.eventCount, result.checksum, result.outputCodeUnits].join('/');
++    if (expected !== undefined && expected !== signature) throw new Error('Unstable consumer output across samples.');
++    expected = signature;
++    samples.push({ ms: elapsedMs, eventCount: result.eventCount, checksum: result.checksum, transcriptDigest: result.transcriptDigest, outputCodeUnits: result.outputCodeUnits, counters: result.counters });
++  }
++  return { mode: 'warm', variant: payload.variant, lane: payload.lane, fixture: payload.fixture, kind: payload.kind, encoding: payload.encoding, block: payload.block, samples, canonicalDigest, fixtureSha256: sha256Bytes(fixture.bytes), fixtureBytes: fixture.bytes.length, options: { ...fixture.options, schema: undefined, ...payload.options }, argv: process.argv };
++}
++
++function parityInputs(sizeMib) {
++  const result = FIXTURE_IDS.map((id) => ({ id, fixture: id, targetBytes: Math.max(1024, Math.floor(sizeMib * MIB)), options: fixtureOptions(id) }));
++  result.push(
++    { id: 'edge-prolog', source: '\ufeff<?xml version="1.0"?><root xmlns="urn:x"><a q="&amp;lt;">한😀</a><![CDATA[&amp;]]><!-- &amp; --><?p data?></root>', options: { documentMode: 'document', namespaceAware: true, autoDecodeEntities: true } },
++    { id: 'edge-custom', source: '<root><a v="&company; &empty; &literalAmp;">&company;</a></root>', options: { documentMode: 'document', namespaceAware: true, autoDecodeEntities: true, addEntities: [{ entity: 'company', value: 'Clickin & Co.' }, { entity: 'empty', value: '' }, { entity: 'literalAmp', value: 'A&B' }] } },
++    { id: 'error-unknown', source: '<root a="&unknown;"><x/></root>', options: { documentMode: 'document', namespaceAware: true, autoDecodeEntities: true } },
++    { id: 'error-missing-semicolon', source: '<root a="&amp"><x/></root>', options: { documentMode: 'document', namespaceAware: true, autoDecodeEntities: true } },
++    { id: 'error-raw-attr-less', source: '<root a="x<y"/>', options: { documentMode: 'document', namespaceAware: true, autoDecodeEntities: true } },
++    { id: 'error-mismatch', source: '<root><x></root>', options: { documentMode: 'document', namespaceAware: true, autoDecodeEntities: true } },
++  );
++  return result;
++}
++
++function parityPayload(input, variant, trace = true) {
++  const source = input.source ?? workerFixture(input);
++  const bytes = typeof source === 'string' ? new TextEncoder().encode(source) : source.bytes;
++  return { ...input, source: undefined, bytes: [...bytes], entry: variant.entry, variant: variant.id, trace, kind: 'event-sync', encoding: 'bytes' };
++}
++
++function runParity(manifest, options) {
++  const sizeMib = Number(options['size-mib'] ?? 0.004);
++  const selected = chosen(options.cases, parityInputs(sizeMib).map((item) => item.id), '--cases');
++  const variants = manifest.variants;
++  const cases = [];
++  for (const input of parityInputs(sizeMib).filter((item) => selected.includes(item.id))) {
++    const outputs = {};
++    for (const variant of variants) outputs[variant.id] = runWorker({ mode: 'parity', ...parityPayload(input, variant) });
++    const reference = outputs.R0;
++    const rows = {};
++    for (const variant of variants) {
++      const output = outputs[variant.id];
++      const equal = JSON.stringify(output.events) === JSON.stringify(reference.events) && JSON.stringify(output.error) === JSON.stringify(reference.error) && JSON.stringify(output.trace) === JSON.stringify(reference.trace);
++      rows[variant.id] = { equal, eventCount: output.events.length, transcriptDigest: output.transcriptDigest, error: output.error };
++    }
++    cases.push({ id: input.id, variants: rows, parity: Object.values(rows).every((row) => row.equal), referenceTrace: reference.trace });
++  }
++  const output = { schemaVersion: 1, generatedAt: new Date().toISOString(), suite: options.suite ?? 'all', cases, pass: cases.every((item) => item.parity) };
++  if (!output.pass) throw new Error(`Parity mismatch: ${JSON.stringify(cases.filter((item) => !item.parity))}`);
++  return output;
++}
++
++function runBench(manifest, options) {
++  const suite = options.suite ?? 'primary';
++  const blocks = positive(options.blocks, '--blocks', suite === 'pilot' ? 3 : 7);
++  const startBlock = nonNegative(options['start-block'], '--start-block', 0);
++  const warmups = nonNegative(options.warmups, '--warmups', suite === 'pilot' ? 3 : 6);
++  const runs = positive(options.runs, '--runs', 5);
++  const sizeMib = Number(options['size-mib'] ?? (suite === 'pilot' ? 4 : DEFAULT_SIZE_MIB));
++  if (!Number.isFinite(sizeMib) || sizeMib <= 0) throw new Error('--size-mib must be positive.');
++  const cases = caseRows(suite, sizeMib, { cases: options.cases, lanes: options.lanes });
++  const rows = [];
++  const processOrder = [];
++  for (const item of cases) {
++    let blocked;
++    for (let block = startBlock; block < startBlock + blocks; block++) {
++      if (blocked) {
++        rows.push({ case: item.id, lane: item.lane, fixture: item.fixture, kind: item.kind, encoding: item.encoding, block, status: 'NOT RUN', reason: blocked, variants: {} });
++        continue;
++      }
++      const order = seededOrder(manifest.variants.map((variant) => variant.id), PROCESS_ORDER_SEED + block + item.id.length);
++      processOrder.push({ case: item.id, block, order });
++      const variants = {};
++      for (const id of order) {
++        const variant = manifest.variants.find((candidate) => candidate.id === id);
++        try {
++          variants[id] = runWorker({ mode: 'bench', ...item, targetBytes: item.targetBytes ?? Math.max(1024, Math.floor(sizeMib * MIB)), fixtureSeed: manifest.fixtureSeed, variant: id, entry: variant.entry, converterEntry: variant.converterEntry, warmups, runs, block });
++        } catch (error) {
++          variants[id] = { status: 'NOT RUN', error: error.message, samples: [] };
++        }
++      }
++      if (Object.values(variants).some(v => v.error)) blocked = Object.fromEntries(Object.entries(variants).filter(([, v]) => v.error).map(([id, v]) => [id, v.error]));
++      const signatures = Object.values(variants).map(v => JSON.stringify(v.mode === 'cold' ? [v.fullEventCount, v.fullChecksum] : v.samples?.map(s => [s.eventCount, s.checksum, s.outputCodeUnits])));
++      if (!blocked && new Set(signatures).size !== 1) throw new Error(`Consumer mismatch: ${item.id}`);
++      if (!blocked && new Set(Object.values(variants).map(v => v.canonicalDigest)).size !== 1) throw new Error(`Canonical digest mismatch: ${item.id}`);
++      rows.push({ case: item.id, lane: item.lane, fixture: item.fixture, kind: item.kind, encoding: item.encoding, block, order, variants, status: blocked ? 'NOT RUN' : 'PASS', reason: blocked });
++      writeOutput(options.out + '.partial', { rows, processOrder });
++    }
++  }
++  const fixtureIds = [...new Set(cases.map((item) => item.fixture))];
++  const fixtures = fixtureIds.map((id) => buildFixtureRecord(id, sizeMib));
++  return { schemaVersion: 1, generatedAt: new Date().toISOString(), suite, builds: manifest, options: { blocks, startBlock, warmups, runs, sizeMib }, environment: { node: process.version, versions: process.versions, platform: process.platform, osRelease: release(), cpu: cpus()[0]?.model, arch: process.arch, argv: process.argv }, fixtureSeed: manifest.fixtureSeed, processOrderSeed: manifest.processOrderSeed, fixtures, rows, processOrder };
++}
++
++function runDiagnose(manifest, options) {
++  const inputs = [
++    ['named-attr', '<r xmlns:p="urn:a&amp;b" a="&amp;&lt;&gt;&quot;&apos;">plain</r>'],
++    ['numeric-attr', '<r a="&#65;&#x1f600;">plain</r>'],
++    ['custom-attr', '<r a="&empty;&literalAmp;&company;">plain</r>'],
++    ['named-text', '<r a="plain">&amp;&lt;&gt;&quot;&apos;</r>'],
++    ['mixed', '<r a="한글&#65;&empty;">😀&amp;&#x41;</r>'],
++  ].map(([id, source]) => ({ id, source, options: fixtureOptions(id) }));
++  const selected = chosen(options.cases, inputs.map((item) => item.id), '--cases');
++  const rows = [];
++  for (const input of inputs.filter((item) => selected.includes(item.id))) {
++    for (const variant of manifest.variants.filter((item) => item.instrumented)) {
++      const output = runWorker({ mode: 'diagnose', ...parityPayload(input, variant, false), options: { ...input.options, autoDecodeEntities: true } });
++      const counters = output.counters ?? {};
++      const rawOccurrences = (input.source.match(/&[^;]+;/g) ?? []).length;
++      const resolverCalls = Number(counters.decodeEntity ?? counters.resolve ?? 0);
++      const namespaceCalls = Number(counters.namespace ?? counters.namespaceResolve ?? 0);
++      const materializerCalls = Number(counters.materializer ?? counters.materializerResolve ?? 0);
++      const fused = variant.id === 'AT1' || variant.id === 'A1' && input.id.endsWith('-attr');
++      rows.push({ fixture: input.id, variant: variant.id, counters, eventCount: output.events.length, rawOccurrences, resolverCalls, namespaceCalls, materializerCalls, assertion: { rawOccurrenceObserved: rawOccurrences > 0, fusedConsumersZero: !fused || namespaceCalls === 0 && materializerCalls === 0, singleEvaluation: !fused || resolverCalls === rawOccurrences, correctCursor: variant.id === 'R0' ? counters.cursorReference === 1 : counters.cursorMaterializing === 1 } });
++    }
++  }
++  return { schemaVersion: 1, generatedAt: new Date().toISOString(), rows, pass: rows.every((row) => Object.values(row.assertion).every(Boolean)) };
++}
++
++async function runWorkerMode() {
++  const payload = JSON.parse(process.env.ENTITY_SINGLE_EVAL_WORKER ?? '{}');
++  if (payload.mode === 'parity' || payload.mode === 'diagnose') {
++    const input = payload.bytes ? { ...payload, bytes: Uint8Array.from(payload.bytes) } : payload;
++    const source = input.source ?? Uint8Array.from(input.bytes);
++    const api = await importPublicBuild(payload.entry);
++    const trace = payload.trace ? [] : undefined;
++    globalThis.__entitySingleEval = {};
++    const result = await consumePublic(api, source, { ...payload.options, kind: payload.kind ?? 'event-sync', canonical: true, trace, chunkSize: payload.chunkSize });
++    process.stdout.write(`${JSON.stringify({ events: result.events, transcriptDigest: result.transcriptDigest, error: result.error, trace, counters: result.counters })}\n`);
++    return;
++  }
++  const result = await runWorkerPayload(payload);
++  process.stdout.write(`${JSON.stringify(result)}\n`);
++}
++
++function writeOutput(path, output) {
++  if (!path) return;
++  mkdirSync(dirname(resolve(path)), { recursive: true });
++  writeFileSync(resolve(path), `${JSON.stringify(output, null, 2)}\n`);
++}
++
++export async function main(args = process.argv.slice(2)) {
++  if (args[0] === '--worker') return runWorkerMode();
++  const { command, options } = parseArgs(args.slice());
++  if (command === 'help') {
++    console.log('Usage: entity-single-eval.mjs <parity|bench|retention|diagnose> --manifest PATH [options]');
++    return;
++  }
++  if (command === 'retention') {
++    const manifest = loadBuildManifest(options.manifest);
++    const counts = options.counts?.split(',').map((value) => positive(value, '--counts'));
++    const output = runRetention(manifest, { counts, repeats: options.repeats ? positive(options.repeats, '--repeats') : undefined, valueBytes: options['value-kib'] ? positive(options['value-kib'], '--value-kib') * 1024 : undefined, runner: fileURLToPath(import.meta.url) });
++    writeOutput(options.out, output);
++    return output;
++  }
++  const manifest = loadBuildManifest(options.manifest, { checkFingerprints: true });
++  if (command === 'bench' && manifest.variants.some(v => v.instrumented)) throw new Error('Instrumented builds cannot be timed.');
++  if (command === 'diagnose' && manifest.variants.some(v => !v.instrumented)) throw new Error('Diagnose requires instrumented builds.');
++  let output;
++  if (command === 'parity') output = runParity(manifest, options);
++  else if (command === 'bench') output = runBench(manifest, options);
++  else output = runDiagnose(manifest, options);
++  writeOutput(options.out, output);
++  if (output.pass === false) process.exitCode = 1;
++  if (!options.out) console.log(JSON.stringify(output, null, 2));
++  return output;
++}
++
++if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
++  try { await main(); } catch (error) { console.error(error.message); process.exitCode = 1; }
++}
+diff --git a/packages/benchmark/entity-single-eval/consume.mjs b/packages/benchmark/entity-single-eval/consume.mjs
+new file mode 100644
+index 00000000..2f5495d7
+--- /dev/null
++++ b/packages/benchmark/entity-single-eval/consume.mjs
+@@ -0,0 +1,356 @@
++import { readFileSync } from 'node:fs';
++import { createHash } from 'node:crypto';
++import { pathToFileURL } from 'node:url';
++
++export const RING_SIZE = 256;
++const OMITTED = '<undefined>';
++const EVENT_FIELDS = {
++  START_DOCUMENT: ['version', 'encoding', 'standalone'],
++  END_DOCUMENT: [],
++  START_ELEMENT: ['name', 'localName', 'prefix', 'namespaceURI', 'selfClosing'],
++  END_ELEMENT: ['name', 'localName', 'prefix', 'namespaceURI'],
++  CHARACTERS: ['value'], CDATA: ['value'], COMMENT: ['value'], DTD: ['value'],
++  PROCESSING_INSTRUCTION: ['target', 'data'],
++};
++const ATTRIBUTE_FIELDS = ['name', 'localName', 'prefix', 'namespaceURI', 'value'];
++
++export function mixChecksum(seed, value) {
++  return Math.imul((seed ^ (value | 0)) | 0, 16777619) | 0;
++}
++
++export function foldString(seed, value) {
++  if (value === undefined || value === null) return mixChecksum(seed, 0x811c9dc5);
++  const text = String(value);
++  let next = seed | 0;
++  for (let index = 0; index < text.length; index++) {
++    next = ((next << 5) - next + text.charCodeAt(index)) | 0;
++  }
++  return next;
++}
++
++function hasOwn(value, key) {
++  return Object.prototype.hasOwnProperty.call(value, key);
++}
++
++function fieldDigest(seed, key, value) {
++  let next = foldString(seed, key);
++  if (value === undefined) return foldString(next, OMITTED);
++  return foldString(next, value);
++}
++
++function stableEventFields(event) {
++  return EVENT_FIELDS[event.type];
++}
++
++export function canonicalEvent(event) {
++  if (!event || typeof event !== 'object') return JSON.stringify(event);
++  const fields = stableEventFields(event).map((key) => [key, hasOwn(event, key), event[key]]);
++  const result = { type: event.type, ownKeys: Object.keys(event), fields };
++  if (event.type === 'START_ELEMENT') {
++    if (!hasOwn(event, 'attributes') || event.attributes === undefined) {
++      result.attributes = { present: false };
++    } else {
++      result.attributes = {
++        present: true,
++        entries: [...event.attributes].map(([key, attribute]) => [
++          key,
++          Object.fromEntries(['name', 'localName', 'prefix', 'namespaceURI', 'value'].map((field) => [field, [hasOwn(attribute, field), attribute[field]]])),
++        ]),
++      };
++    }
++  }
++  return result;
++}
++
++export function canonicalTranscript(events) {
++  return events.map(canonicalEvent);
++}
++
++export function digestTranscript(events) {
++  let checksum = 0;
++  for (const event of events) checksum = foldString(checksum, JSON.stringify(canonicalEvent(event)));
++  return checksum;
++}
++
++export function consumeMaterializedEvent(event, state) {
++  state.eventCount++;
++  state.checksum = fieldDigest(state.checksum, 'type', event?.type);
++  for (const key of stableEventFields(event)) {
++    state.checksum = mixChecksum(state.checksum, hasOwn(event, key) ? 1 : 0);
++    state.checksum = fieldDigest(state.checksum, key, event?.[key]);
++    if (event?.[key] !== undefined) state.outputCodeUnits += String(event[key]).length;
++  }
++  if (event?.type === 'START_ELEMENT') {
++    const attributes = event.attributes;
++    state.checksum = mixChecksum(state.checksum, attributes === undefined ? -1 : attributes.size);
++    if (attributes !== undefined) {
++      for (const [key, attribute] of attributes) {
++        state.checksum = fieldDigest(state.checksum, 'attribute-key', key);
++        for (const field of ATTRIBUTE_FIELDS) {
++          state.checksum = mixChecksum(state.checksum, hasOwn(attribute, field) ? 1 : 0);
++          state.checksum = fieldDigest(state.checksum, field, attribute?.[field]);
++          if (attribute?.[field] !== undefined) state.outputCodeUnits += String(attribute[field]).length;
++        }
++      }
++    }
++  }
++  state.ring[state.eventCount & (RING_SIZE - 1)] = event;
++}
++
++export function createConsumerState() {
++  return { eventCount: 0, checksum: 0, outputCodeUnits: 0, ring: new Array(RING_SIZE) };
++}
++
++export function makeSyncChunks(bytes, chunkSize = 64 * 1024) {
++  if (!(bytes instanceof Uint8Array)) bytes = new TextEncoder().encode(String(bytes));
++  return {
++    *[Symbol.iterator]() {
++      for (let offset = 0; offset < bytes.byteLength; offset += chunkSize) yield bytes.subarray(offset, Math.min(offset + chunkSize, bytes.byteLength));
++    },
++  };
++}
++
++export function makeAsyncChunks(bytes, chunkSize = 64 * 1024, trace) {
++  if (!(bytes instanceof Uint8Array)) bytes = new TextEncoder().encode(String(bytes));
++  return {
++    [Symbol.asyncIterator]() {
++      let offset = 0;
++      let finished = false;
++      return {
++        async next() {
++          trace?.push(['input.next', 'request']);
++          if (offset >= bytes.byteLength) {
++            trace?.push(['input.next', 'return', { done: true }]);
++            finished = true;
++            return { value: undefined, done: true };
++          }
++          const value = bytes.subarray(offset, Math.min(offset + chunkSize, bytes.byteLength));
++          offset += value.byteLength;
++          trace?.push(['input.next', 'return', { done: false, bytes: value.byteLength }]);
++          return { value, done: false };
++        },
++        async return(value) {
++          trace?.push(['input.return', 'request']);
++          finished = true;
++          trace?.push(['input.return', 'return']);
++          return { value, done: true };
++        },
++        async throw(error) {
++          trace?.push(['input.throw', 'request', error?.constructor?.name, error?.message]);
++          finished = true;
++          throw error;
++        },
++      };
++    },
++  };
++}
++
++function tracedSyncIterable(input, trace) {
++  const iterable = typeof input === 'string' ? [input] : input instanceof Uint8Array ? [input] : input;
++  return {
++    [Symbol.iterator]() {
++      const iterator = iterable[Symbol.iterator]();
++      return {
++        next() {
++          trace?.push(['input.next', 'request']);
++          try {
++            const result = iterator.next();
++            trace?.push(['input.next', 'return', { done: result.done, bytes: result.value?.byteLength }]);
++            return result;
++          } catch (error) {
++            trace?.push(['input.next', 'throw', error?.constructor?.name, error?.message]);
++            throw error;
++          }
++        },
++        return(value) {
++          trace?.push(['input.return', 'request']);
++          try {
++            const result = iterator.return ? iterator.return(value) : { value, done: true };
++            trace?.push(['input.return', 'return']);
++            return result;
++          } catch (error) {
++            trace?.push(['input.return', 'throw', error?.constructor?.name, error?.message]);
++            throw error;
++          }
++        },
++      };
++    },
++  };
++}
++
++export function normalizeInput(input, { async = false, chunkSize = 64 * 1024, trace } = {}) {
++  if (async) {
++    if (typeof input === 'string') input = new TextEncoder().encode(input);
++    return makeAsyncChunks(input, chunkSize, trace);
++  }
++  if (!trace && (typeof input === 'string' || input instanceof Uint8Array)) return input;
++  return tracedSyncIterable(input, trace);
++}
++
++export async function importPublicBuild(entry) {
++  if (!entry || typeof entry !== 'string') throw new Error('Build manifest entry is required.');
++  const url = entry.startsWith('file:') ? entry : pathToFileURL(entry).href;
++  return import(url);
++}
++
++function recordEventNext(trace, action, detail) {
++  trace?.push(['reader.next', action, detail]);
++}
++
++function errorRecord(error) {
++  return { name: error?.constructor?.name ?? 'Error', message: error?.message ?? String(error) };
++}
++
++export function readCounters() {
++  const value = globalThis.__entitySingleEval;
++  if (!value || typeof value !== 'object') return {};
++  return Object.fromEntries(Object.entries(value).filter(([, count]) => Number.isFinite(count)));
++}
++
++export function createReaderOptions(options = {}) {
++  const result = {
++    documentMode: options.documentMode ?? 'document',
++    namespaceAware: options.namespaceAware ?? true,
++    autoDecodeEntities: options.autoDecodeEntities ?? true,
++  };
++  if (options.encoding) result.encoding = options.encoding;
++  if (options.addEntities) result.addEntities = options.addEntities;
++  if (options.maxEvents) result.maxEvents = options.maxEvents;
++  return result;
++}
++
++export function consumeSync(api, input, options = {}) {
++  const trace = options.trace;
++  const kind = options.kind ?? 'event-sync';
++  const readerOptions = createReaderOptions(options);
++  const Reader = kind === 'event-sync' ? api.EventReaderSync : api.StreamReaderSync;
++  if (!Reader) throw new Error(`Build does not export ${kind === 'event-sync' ? 'EventReaderSync' : 'StreamReaderSync'}.`);
++  const source = kind === 'event-sync' ? normalizeInput(input, { trace }) : normalizeInput(input, { trace });
++  const reader = new Reader(source, readerOptions);
++  const state = createConsumerState();
++  const canonicalHash = options.canonical === 'digest' ? createHash('sha256') : undefined;
++  const events = [];
++  let error;
++  try {
++    while (true) {
++      recordEventNext(trace, 'request');
++      let result;
++      try {
++        result = reader.next();
++        recordEventNext(trace, 'return', result?.done ? { done: true } : { done: false, type: result?.value?.type ?? result });
++      } catch (caught) {
++        recordEventNext(trace, 'throw', errorRecord(caught));
++        throw caught;
++      }
++      if (result === null || result?.done) break;
++      if (kind === 'event-sync') {
++        if (options.canonical === true) events.push(result.value);
++        canonicalHash?.update(JSON.stringify(canonicalEvent(result.value)));
++        consumeMaterializedEvent(result.value, state);
++      } else {
++        consumeStreamToken(reader, state, options.access ?? 'full');
++      }
++    }
++  } catch (caught) {
++    error = errorRecord(caught);
++  } finally {
++    trace?.push(['close', 'start']);
++    try {
++      reader.close();
++      trace?.push(['close', 'complete']);
++    } catch (caught) {
++      trace?.push(['close', 'throw', errorRecord(caught)]);
++      if (!error) error = errorRecord(caught);
++    }
++  }
++  return { ...state, events: canonicalTranscript(events), transcriptDigest: canonicalHash?.digest('hex') ?? digestTranscript(events), error, counters: readCounters() };
++}
++
++function consumeStreamToken(reader, state, access) {
++  state.eventCount++;
++  const type = reader.eventType();
++  state.checksum = fieldDigest(state.checksum, 'type', type);
++  if (access === 'type-only') return;
++  if (type === 'START_ELEMENT' || type === 'END_ELEMENT') {
++    for (const field of ['name', 'localName', 'prefix', 'namespaceURI']) {
++      const value = reader[field]();
++      state.checksum = fieldDigest(state.checksum, field, value);
++      state.outputCodeUnits += String(value ?? '').length;
++    }
++  }
++  if (type === 'CHARACTERS' || type === 'CDATA' || type === 'COMMENT' || type === 'DTD') {
++    const value = reader.text();
++    state.checksum = fieldDigest(state.checksum, 'value', value);
++    state.outputCodeUnits += String(value ?? '').length;
++  }
++  if (type === 'START_ELEMENT') {
++    const count = reader.attributeCount();
++    state.checksum = mixChecksum(state.checksum, count);
++    for (let index = 0; index < count; index++) {
++      for (const field of ['attributeName', 'attributeLocalName', 'attributePrefix', 'attributeNamespaceURI']) {
++        const value = reader[field](index);
++        state.checksum = fieldDigest(state.checksum, field, value);
++        state.outputCodeUnits += String(value ?? '').length;
++      }
++      const value = reader.attributeValue(index);
++      state.checksum = fieldDigest(state.checksum, 'attributeValue', value);
++      state.outputCodeUnits += String(value ?? '').length;
++    }
++  }
++}
++
++export async function consumeAsync(api, input, options = {}) {
++  const trace = options.trace;
++  const kind = options.kind ?? 'event-async';
++  const readerOptions = createReaderOptions(options);
++  const Reader = kind === 'event-async' ? api.EventReader : api.StreamReader;
++  if (!Reader) throw new Error(`Build does not export ${kind === 'event-async' ? 'EventReader' : 'StreamReader'}.`);
++  const source = normalizeInput(input, { async: true, chunkSize: options.chunkSize ?? 64 * 1024, trace });
++  const reader = new Reader(source, readerOptions);
++  const state = createConsumerState();
++  const canonicalHash = options.canonical === 'digest' ? createHash('sha256') : undefined;
++  const events = [];
++  let error;
++  try {
++    while (true) {
++      recordEventNext(trace, 'request');
++      let result;
++      try {
++        result = await reader.next();
++        recordEventNext(trace, 'return', result?.done ? { done: true } : { done: false, type: result?.value?.type ?? result });
++      } catch (caught) {
++        recordEventNext(trace, 'throw', errorRecord(caught));
++        throw caught;
++      }
++      if (result === null || result?.done) break;
++      if (kind === 'event-async') {
++        if (options.canonical === true) events.push(result.value);
++        canonicalHash?.update(JSON.stringify(canonicalEvent(result.value)));
++        consumeMaterializedEvent(result.value, state);
++      } else {
++        consumeStreamToken(reader, state, options.access ?? 'full');
++      }
++    }
++  } catch (caught) {
++    error = errorRecord(caught);
++  } finally {
++    trace?.push(['close', 'start']);
++    try {
++      await reader.close();
++      trace?.push(['close', 'complete']);
++    } catch (caught) {
++      trace?.push(['close', 'throw', errorRecord(caught)]);
++      if (!error) error = errorRecord(caught);
++    }
++  }
++  return { ...state, events: canonicalTranscript(events), transcriptDigest: canonicalHash?.digest('hex') ?? digestTranscript(events), error, counters: readCounters() };
++}
++
++export async function consumePublic(api, input, options = {}) {
++  return options.kind?.endsWith('async') ? consumeAsync(api, input, options) : consumeSync(api, input, options);
++}
++
++export function readInputFile(path, encoding = 'bytes') {
++  const bytes = readFileSync(path);
++  return encoding === 'string' ? bytes.toString('utf8') : bytes;
++}
+diff --git a/packages/benchmark/entity-single-eval/fixtures.mjs b/packages/benchmark/entity-single-eval/fixtures.mjs
+new file mode 100644
+index 00000000..e9d3e4c1
+--- /dev/null
++++ b/packages/benchmark/entity-single-eval/fixtures.mjs
+@@ -0,0 +1,537 @@
++import { createHash } from 'node:crypto';
++import { existsSync, readFileSync, statSync } from 'node:fs';
++import { dirname, isAbsolute, join, resolve } from 'node:path';
++import { fileURLToPath } from 'node:url';
++
++export const FIXTURE_SEED = 260913;
++export const PROCESS_ORDER_SEED = 90317;
++export const VALUE_LENGTHS = [8, 32, 128];
++export const FIXTURE_IDS = [
++  'ascii-none',
++  'unicode-none',
++  'astral-none',
++  'rare',
++  'named-attr',
++  'numeric-attr',
++  'custom-attr',
++  'named-text',
++  'mixed',
++  'xmlns',
++];
++export const ACTUAL_FIXTURE_IDS = ['midsize.xml', 'large.xml'];
++
++const HERE = dirname(fileURLToPath(import.meta.url));
++const LOCAL_ASSETS = resolve(HERE, '../assets');
++const SOURCE_ASSETS = '/Users/senghyunjo/github/stax-xml/packages/benchmark/assets';
++const encoder = new TextEncoder();
++
++export const CUSTOM_ENTITIES = Object.freeze([
++  { entity: 'company', value: 'Clickin & Co.' },
++  { entity: 'empty', value: '' },
++  { entity: 'literalAmp', value: 'A&B' },
++]);
++
++const TARGET_GROUP_SIZE = 100;
++const ASCII_VALUE_ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%()*+,-./:;=?@[]^_{|}~';
++const UNICODE_VALUE_ALPHABET = Array.from({ length: 2048 }, (_, index) => String.fromCodePoint(0x400 + index));
++const ASTRAL_VALUE_ALPHABET = Array.from({ length: 2048 }, (_, index) => String.fromCodePoint(0x10000 + index));
++const ENTITY_REFERENCE = /&(?:#(?:x[0-9a-f]+|\d+)|[A-Za-z_:][\w:.-]*);/gu;
++const PREDEFINED_ENTITIES = new Map([
++  ['amp', '&'],
++  ['lt', '<'],
++  ['gt', '>'],
++  ['quot', '"'],
++  ['apos', "'"],
++]);
++const CUSTOM_ENTITY_VALUES = new Map(CUSTOM_ENTITIES.map(({ entity, value }) => [entity, value]));
++
++function hashBytes(bytes) {
++  return createHash('sha256').update(bytes).digest('hex');
++}
++
++export function sha256Bytes(value) {
++  return hashBytes(typeof value === 'string' ? encoder.encode(value) : value);
++}
++
++export function sha256File(filePath) {
++  return hashBytes(readFileSync(filePath));
++}
++
++export function resolveAsset(name, explicitPath) {
++  const candidates = [];
++  if (explicitPath) candidates.push(resolve(explicitPath));
++  candidates.push(join(LOCAL_ASSETS, name));
++  candidates.push(join(SOURCE_ASSETS, name));
++  const path = candidates.find((candidate) => existsSync(candidate));
++  if (!path) {
++    throw new Error(`Actual benchmark asset not found: ${name} (tried ${candidates.join(', ')})`);
++  }
++  if (!isAbsolute(path)) throw new Error(`Asset path must be absolute: ${path}`);
++  return path;
++}
++
++export function loadActualFixture(name, explicitPath) {
++  const path = resolveAsset(name, explicitPath);
++  const bytes = readFileSync(path);
++  return {
++    id: name.replace(/\.xml$/u, ''),
++    name,
++    kind: 'actual',
++    path,
++    source: bytes.toString('utf8'),
++    bytes,
++    bytesLength: bytes.byteLength,
++    sha256: hashBytes(bytes),
++    entityStats: scanEntityStats(bytes.toString('utf8')),
++  };
++}
++
++function nextSeed(seed) {
++  return (Math.imul(seed ^ 0x9e3779b9, 1664525) + 1013904223) >>> 0;
++}
++
++function encodeId(value, alphabet, slots) {
++  const result = new Array(slots);
++  let cursor = Math.max(0, Number(value));
++  for (let index = slots - 1; index >= 0; index--) {
++    result[index] = alphabet[cursor % alphabet.length];
++    cursor = Math.floor(cursor / alphabet.length);
++  }
++  return result.join('');
++}
++
++function seededValue(seed, length, kind, uniqueId = 0) {
++  if (!Number.isInteger(length) || length < 0) throw new Error(`Invalid fixture value length: ${length}`);
++  if (kind === 'astral' && length % 2 !== 0) throw new Error(`Astral fixture value length must be even: ${length}`);
++  const alphabet = kind === 'unicode' ? UNICODE_VALUE_ALPHABET : kind === 'astral' ? ASTRAL_VALUE_ALPHABET : ASCII_VALUE_ALPHABET;
++  const unitLength = kind === 'astral' ? length / 2 : length;
++  const chars = [];
++  let cursor = (seed ^ Math.imul(uniqueId + 1, 0x45d9f3b)) >>> 0;
++  for (let index = 0; index < unitLength; index++) {
++    cursor = nextSeed(cursor);
++    chars.push(alphabet[cursor % alphabet.length]);
++  }
++  const idChars = Array.from(encodeId(uniqueId, alphabet, Math.min(unitLength, 8)));
++  for (let index = 0; index < idChars.length; index++) chars[index] = idChars[index];
++  return chars.join('');
++}
++
++function escapeAttribute(value, entityKind, index) {
++  let escaped = '';
++  for (const character of value) {
++    if ((entityKind === 'named' || entityKind === 'named-rich') && character === '&') escaped += '&amp;';
++    else if ((entityKind === 'named' || entityKind === 'named-rich') && character === '<') escaped += '&lt;';
++    else if ((entityKind === 'named' || entityKind === 'named-rich') && character === '>') escaped += '&gt;';
++    else if ((entityKind === 'named' || entityKind === 'named-rich') && character === '"') escaped += '&quot;';
++    else if ((entityKind === 'named' || entityKind === 'named-rich') && character === "'") escaped += '&apos;';
++    else if (entityKind === 'numeric' && character === '<') escaped += index % 2 ? '&#x3c;' : '&#60;';
++    else if (entityKind === 'numeric' && character === '>') escaped += index % 2 ? '&#62;' : '&#x3e;';
++    else if (character === '&') escaped += '&amp;';
++    else if (character === '<') escaped += '&lt;';
++    else if (character === '"') escaped += '&quot;';
++    else escaped += character;
++  }
++  return escaped;
++}
++
++function makeFixtureValue(seed, length, kind, entityKind, uniqueId) {
++  if (!entityKind) {
++    const semantic = seededValue(seed, length, kind, uniqueId);
++    return { semantic, raw: semantic };
++  }
++  if (entityKind === 'named-rich') {
++    const specials = '&<>\"\'';
++    const base = seededValue(seed, length - specials.length, 'ascii', uniqueId);
++    const semantic = specials + base;
++    return { semantic, raw: escapeAttribute(semantic, entityKind, uniqueId) };
++  }
++  if (entityKind === 'named') {
++    const special = ['&', '<', '>', '"', "'"][uniqueId % 5];
++    if (kind === 'astral') {
++      const base = seededValue(seed, length, kind, uniqueId);
++      const semantic = special + base.slice(2) + 'a';
++      return { semantic, raw: escapeAttribute(semantic, entityKind, uniqueId) };
++    }
++    const base = seededValue(seed, length, kind, uniqueId);
++    const semantic = special + base.slice(1);
++    return { semantic, raw: escapeAttribute(semantic, entityKind, uniqueId) };
++  }
++  if (entityKind === 'numeric') {
++    if (kind === 'astral') {
++      const base = seededValue(seed, length, kind, uniqueId);
++      const semantic = '<>' + base.slice(4) + 'aa';
++      return { semantic, raw: escapeAttribute(semantic, entityKind, uniqueId) };
++    }
++    const base = seededValue(seed, length, kind, uniqueId);
++    const semantic = '<>' + base.slice(2);
++    return { semantic, raw: escapeAttribute(semantic, entityKind, uniqueId) };
++  }
++  if (entityKind === 'custom') {
++    if (kind === 'astral') {
++      const base = seededValue(seed, length, kind, uniqueId);
++      return { semantic: base, raw: `&empty;${base}` };
++    }
++    const choices = length >= 13 ? ['company', 'empty', 'literalAmp'] : length >= 3 ? ['empty', 'literalAmp'] : ['empty'];
++    const entity = choices[uniqueId % choices.length];
++    const replacement = CUSTOM_ENTITY_VALUES.get(entity);
++    const base = seededValue(seed, length - replacement.length, kind, uniqueId);
++    return { semantic: replacement + base, raw: `&${entity};${base}` };
++  }
++  throw new Error(`Unknown fixture entity kind: ${entityKind}`);
++}
++
++function decodeValue(raw, lexical = true) {
++  if (!lexical) return raw;
++  return raw.replace(ENTITY_REFERENCE, (reference) => {
++    const body = reference.slice(1, -1);
++    if (PREDEFINED_ENTITIES.has(body)) return PREDEFINED_ENTITIES.get(body);
++    if (CUSTOM_ENTITY_VALUES.has(body)) return CUSTOM_ENTITY_VALUES.get(body);
++    if (body.startsWith('#x')) {
++      const codePoint = Number.parseInt(body.slice(2), 16);
++      return Number.isInteger(codePoint) && codePoint >= 0 && codePoint <= 0x10ffff ? String.fromCodePoint(codePoint) : reference;
++    }
++    if (body.startsWith('#')) {
++      const codePoint = Number.parseInt(body.slice(1), 10);
++      return Number.isInteger(codePoint) && codePoint >= 0 && codePoint <= 0x10ffff ? String.fromCodePoint(codePoint) : reference;
++    }
++    return reference;
++  });
++}
++
++function fixtureProfile(id) {
++  return {
++    'ascii-none': { density: 0, kind: 'ascii', entity: null },
++    'unicode-none': { density: 0, kind: 'unicode', entity: null },
++    'astral-none': { density: 0, kind: 'astral', entity: null },
++    rare: { density: 0.01, kind: 'ascii', entity: 'named' },
++    'named-attr': { density: 1, kind: 'ascii', entity: 'named-rich', target: 'attr' },
++    'numeric-attr': { density: 1, kind: 'ascii', entity: 'numeric', target: 'attr' },
++    'custom-attr': { density: 1, kind: 'unicode', entity: 'custom', target: 'attr' },
++    'named-text': { density: 1, kind: 'ascii', entity: 'named-rich', target: 'text' },
++    mixed: { density: 0.1, kind: 'mixed', entity: 'mixed' },
++    xmlns: { density: 0, kind: 'named', entity: null },
++  }[id];
++}
++
++function valueKind(profile, row) {
++  if (profile.kind !== 'mixed') return profile.kind;
++  return ['ascii', 'unicode', 'astral'][row % 3];
++}
++
++function entityKind(profile, valueIndex, target) {
++  if (!profile.entity || profile.density === 0) return null;
++  if (profile.target && profile.target !== target) return null;
++  if (profile.density < 1 && valueIndex % Math.round(1 / profile.density) !== 0) return null;
++  if (profile.entity !== 'mixed') return profile.entity;
++  return ['named', 'numeric', 'custom'][(valueIndex / 10) % 3];
++}
++
++function attributeCount(row) {
++  const mod = row % 10;
++  return mod < 5 ? 0 : mod < 9 ? 4 : 16;
++}
++
++function buildRow(id, row, seed, valueIndex, countOverride) {
++  const profile = fixtureProfile(id);
++  const kind = valueKind(profile, row);
++  const length = VALUE_LENGTHS[row % VALUE_LENGTHS.length];
++  const count = countOverride ?? attributeCount(row);
++  const attrs = [];
++  for (let index = 0; index < count; index++) {
++    const currentValueIndex = valueIndex + index;
++    const attrEntity = entityKind(profile, currentValueIndex, 'attr');
++    const attrValue = makeFixtureValue(seed + index * 31, length, kind, attrEntity, currentValueIndex);
++    attrs.push(` a${index}="${attrValue.raw}"`);
++  }
++  const textValueIndex = valueIndex + count;
++  const textEntity = entityKind(profile, textValueIndex, 'text');
++  const textValue = makeFixtureValue(seed + 97, length, kind, textEntity, textValueIndex);
++  const namespaceAttrs = id === 'xmlns'
++    ? ` xmlns:p="urn:stax:shadow-${row}-${seed.toString(36)}&amp;uri" xmlns="" p:ref="${seededValue(seed + 7, 32, 'ascii', textValueIndex)}"`
++    : '';
++  const body = `<t>${textValue.raw}</t>`;
++  return {
++    source: `<r id="r-${seed.toString(36)}-${row}"${namespaceAttrs}${attrs.join('')}>${body}</r>`,
++    targetValues: count + 1,
++    valueIndex: textValueIndex + 1,
++  };
++}
++
++export function scanEntityStats(source) {
++  const values = [];
++  const readTagEnd = (start) => {
++    let quote = '';
++    for (let index = start; index < source.length; index++) {
++      const character = source[index];
++      if (quote) {
++        if (character === quote) quote = '';
++      } else if (character === '"' || character === "'") {
++        quote = character;
++      } else if (character === '>') {
++        return index;
++      }
++    }
++    return source.length;
++  };
++  const readDeclarationEnd = (start) => {
++    let quote = '';
++    let subsetDepth = 0;
++    for (let index = start; index < source.length; index++) {
++      const character = source[index];
++      if (quote) {
++        if (character === quote) quote = '';
++      } else if (character === '"' || character === "'") {
++        quote = character;
++      } else if (character === '[') {
++        subsetDepth++;
++      } else if (character === ']' && subsetDepth > 0) {
++        subsetDepth--;
++      } else if (character === '>' && subsetDepth === 0) {
++        return index;
++      }
++    }
++    return source.length;
++  };
++  const readAttributes = (start, end) => {
++    let index = start + 1;
++    if (source[index] === '/') index++;
++    while (index < end && /[\s]/u.test(source[index])) index++;
++    while (index < end && /[A-Za-z_:]/u.test(source[index])) index++;
++    while (index < end) {
++      while (index < end && /[\s/]/u.test(source[index])) index++;
++      if (index >= end || source[index] === '>') break;
++      const nameStart = index;
++      while (index < end && /[A-Za-z0-9_.:-]/u.test(source[index])) index++;
++      const name = source.slice(nameStart, index);
++      while (index < end && /\s/u.test(source[index])) index++;
++      if (!name || source[index] !== '=') {
++        while (index < end && !/[\s/]/u.test(source[index])) index++;
++        continue;
++      }
++      index++;
++      while (index < end && /\s/u.test(source[index])) index++;
++      const quote = source[index];
++      if (quote !== '"' && quote !== "'") continue;
++      index++;
++      const valueStart = index;
++      while (index < end && source[index] !== quote) index++;
++      values.push({ kind: 'attribute', name, raw: source.slice(valueStart, index), lexical: true });
++      if (index < end) index++;
++    }
++  };
++  const pushText = (raw, lexical = true) => {
++    if (raw.length) values.push({ kind: 'text', raw, lexical });
++  };
++  let index = 0;
++  let textStart = 0;
++  while (index < source.length) {
++    if (source[index] !== '<') {
++      index++;
++      continue;
++    }
++    pushText(source.slice(textStart, index));
++    if (source.startsWith('<!--', index)) {
++      const end = source.indexOf('-->', index + 4);
++      index = end < 0 ? source.length : end + 3;
++    } else if (source.startsWith('<![CDATA[', index)) {
++      const end = source.indexOf(']]>', index + 9);
++      pushText(source.slice(index + 9, end < 0 ? source.length : end), false);
++      index = end < 0 ? source.length : end + 3;
++    } else if (source.startsWith('<?', index)) {
++      const end = readTagEnd(index + 2);
++      index = Math.min(source.length, end + 1);
++    } else if (source.startsWith('<!', index)) {
++      const end = readDeclarationEnd(index + 2);
++      index = Math.min(source.length, end + 1);
++    } else {
++      const end = readTagEnd(index + 1);
++      readAttributes(index, end);
++      index = Math.min(source.length, end + 1);
++    }
++    textStart = index;
++  }
++  pushText(source.slice(textStart));
++  const attributes = values.filter((item) => item.kind === 'attribute');
++  const isNamespaceName = (name) => name === 'xmlns' || name.startsWith('xmlns:');
++  const isIdName = (name) => name === 'id' || name.endsWith(':id');
++  const targetValues = values.filter((item) => item.kind === 'text'
++    || (item.kind === 'attribute' && !isIdName(item.name) && !isNamespaceName(item.name)));
++  const idValues = attributes.filter((item) => isIdName(item.name));
++  const namespaceValues = attributes.filter((item) => isNamespaceName(item.name));
++  const hasEntity = (item) => {
++    ENTITY_REFERENCE.lastIndex = 0;
++    return item.lexical && ENTITY_REFERENCE.test(item.raw);
++  };
++  const withEntities = targetValues.filter(hasEntity);
++  const allWithEntities = values.filter(hasEntity);
++  const byKind = { attribute: 0, text: 0 };
++  for (const item of withEntities) byKind[item.kind]++;
++  const allByKind = { attribute: 0, text: 0 };
++  for (const item of allWithEntities) allByKind[item.kind]++;
++  const rawValueLengths = {};
++  const semanticValueLengths = {};
++  let rawCodeUnits = 0;
++  let semanticCodeUnits = 0;
++  let invalidSurrogates = 0;
++  const semanticValues = [];
++  for (const item of targetValues) {
++    const semantic = decodeValue(item.raw, item.lexical);
++    rawValueLengths[item.raw.length] = (rawValueLengths[item.raw.length] ?? 0) + 1;
++    semanticValueLengths[semantic.length] = (semanticValueLengths[semantic.length] ?? 0) + 1;
++    rawCodeUnits += item.raw.length;
++    semanticCodeUnits += semantic.length;
++    semanticValues.push(semantic);
++    for (let position = 0; position < semantic.length; position++) {
++      const codeUnit = semantic.charCodeAt(position);
++      if (codeUnit >= 0xd800 && codeUnit <= 0xdbff) {
++        const next = semantic.charCodeAt(position + 1);
++        if (next < 0xdc00 || next > 0xdfff) invalidSurrogates++;
++        else position++;
++      } else if (codeUnit >= 0xdc00 && codeUnit <= 0xdfff) {
++        invalidSurrogates++;
++      }
++    }
++  }
++  const occurrences = (items) => items.reduce((count, item) => count + (item.lexical ? (item.raw.match(ENTITY_REFERENCE) ?? []).length : 0), 0);
++  const targetRawOccurrences = occurrences(targetValues);
++  const namespaceRawOccurrences = occurrences(namespaceValues);
++  const idRawOccurrences = occurrences(idValues);
++  const namespaceValuesWithEntities = namespaceValues.filter(hasEntity).length;
++  const idValuesWithEntities = idValues.filter(hasEntity).length;
++  const allRawCodeUnits = values.reduce((total, item) => total + item.raw.length, 0);
++  const allSemanticCodeUnits = values.reduce((total, item) => total + decodeValue(item.raw, item.lexical).length, 0);
++  return {
++    targetValues: targetValues.length,
++    valuesWithEntities: withEntities.length,
++    entityDensity: targetValues.length ? withEntities.length / targetValues.length : 0,
++    rawOccurrences: occurrences(values),
++    targetRawOccurrences,
++    targetValuesWithEntities: withEntities.length,
++    attributeValues: targetValues.filter((item) => item.kind === 'attribute').length,
++    textValues: targetValues.filter((item) => item.kind === 'text').length,
++    entityAttributeValues: byKind.attribute,
++    entityTextValues: byKind.text,
++    namespaceValues: namespaceValues.length,
++    idValues: idValues.length,
++    namespaceAttributeValues: namespaceValues.length,
++    idAttributeValues: idValues.length,
++    namespaceValuesWithEntities,
++    idValuesWithEntities,
++    namespaceRawOccurrences,
++    idRawOccurrences,
++    entityOccurrences: {
++      target: targetRawOccurrences,
++      namespace: namespaceRawOccurrences,
++      id: idRawOccurrences,
++      all: targetRawOccurrences + namespaceRawOccurrences + idRawOccurrences,
++    },
++    allEntityAttributeValues: allByKind.attribute,
++    allEntityTextValues: allByKind.text,
++    rawValueLengths,
++    semanticValueLengths,
++    valueLengths: rawValueLengths,
++    rawCodeUnits,
++    semanticCodeUnits,
++    outputCodeUnits: semanticCodeUnits,
++    allRawCodeUnits,
++    allSemanticCodeUnits,
++    uniqueValueCount: new Set(semanticValues).size,
++    uniqueSemanticValues: new Set(semanticValues).size,
++    invalidSurrogates,
++    targetGroupSize: TARGET_GROUP_SIZE,
++    completeGroups: Math.floor(targetValues.length / TARGET_GROUP_SIZE),
++    remainderValues: targetValues.length % TARGET_GROUP_SIZE,
++  };
++}
++
++export function createSyntheticFixture(id, options = {}) {
++  if (!FIXTURE_IDS.includes(id)) throw new Error(`Unknown entity-single-eval fixture: ${id}`);
++  const targetBytes = Math.max(1024, Math.floor((options.targetBytes ?? 16 * 1024 * 1024)));
++  const seed = Number.isInteger(options.seed) ? options.seed : FIXTURE_SEED;
++  const parts = [];
++  const rootStart = id === 'xmlns'
++    ? '<root xmlns="urn:stax:root&amp;uri" xmlns:p="urn:stax:p&amp;uri" xmlns:q="urn:stax:q&amp;uri">'
++    : '<root>';
++  const rootEnd = '</root>';
++  let byteLength = encoder.encode(rootStart).byteLength;
++  const rootEndBytes = encoder.encode(rootEnd).byteLength;
++  parts.push(rootStart);
++  let row = 0;
++  let valueIndex = 0;
++  while (byteLength + rootEndBytes < targetBytes) {
++    const built = buildRow(id, row, seed + row * 131, valueIndex);
++    parts.push(built.source);
++    byteLength += encoder.encode(built.source).byteLength;
++    valueIndex = built.valueIndex;
++    row++;
++  }
++  const beforePaddingBytes = byteLength;
++  const beforePaddingRows = row;
++  while (valueIndex % TARGET_GROUP_SIZE !== 0) {
++    const count = Math.min(16, TARGET_GROUP_SIZE - (valueIndex % TARGET_GROUP_SIZE) - 1);
++    const built = buildRow(id, row, seed + row * 131, valueIndex, Math.max(0, count));
++    parts.push(built.source);
++    byteLength += encoder.encode(built.source).byteLength;
++    valueIndex = built.valueIndex;
++    row++;
++  }
++  parts.push(rootEnd);
++  const source = parts.join('');
++  const bytes = encoder.encode(source);
++  const stats = scanEntityStats(source);
++  return {
++    id,
++    name: id,
++    kind: 'synthetic',
++    seed,
++    targetBytes,
++    rows: row,
++    source,
++    bytes,
++    bytesLength: bytes.byteLength,
++    sha256: hashBytes(bytes),
++    entityStats: stats,
++    paddingRows: row - beforePaddingRows,
++    paddingBytes: byteLength - beforePaddingBytes,
++    paddingRatio: (byteLength - beforePaddingBytes) / Math.max(1, targetBytes),
++    options: fixtureOptions(id),
++  };
++}
++
++export function createFixtures(options = {}) {
++  const ids = options.ids ?? FIXTURE_IDS;
++  const targetBytes = options.targetBytes ?? 16 * 1024 * 1024;
++  return ids.map((id) => createSyntheticFixture(id, { ...options, targetBytes }));
++}
++
++export function createFixtureManifest(options = {}) {
++  const synthetic = createFixtures(options).map(({ source, bytes, ...manifest }) => manifest);
++  const actual = (options.actual === false ? [] : ACTUAL_FIXTURE_IDS).map((name) => {
++    const fixture = loadActualFixture(name, options.assets?.[name]);
++    const { source, bytes, ...manifest } = fixture;
++    return manifest;
++  });
++  return {
++    schemaVersion: 1,
++    seed: options.seed ?? FIXTURE_SEED,
++    targetBytes: options.targetBytes ?? 16 * 1024 * 1024,
++    valueLengths: VALUE_LENGTHS,
++    fixtures: [...synthetic, ...actual],
++  };
++}
++
++export function fixtureById(id, options = {}) {
++  if (FIXTURE_IDS.includes(id)) return createSyntheticFixture(id, options);
++  if (ACTUAL_FIXTURE_IDS.includes(id) || id === 'midsize' || id === 'large') return loadActualFixture(id.endsWith('.xml') ? id : `${id}.xml`, options.assets?.[id]);
++  throw new Error(`Unknown entity-single-eval fixture: ${id}`);
++}
++
++export function fixtureOptions(id, options = {}) {
++  return {
++    namespaceAware: true,
++    autoDecodeEntities: true,
++    documentMode: 'document',
++    ...(id === 'custom-attr' || id === 'mixed' ? { addEntities: CUSTOM_ENTITIES } : {}),
++    ...(id === 'xmlns' ? { namespaceAware: true } : {}),
++  };
++}
+diff --git a/packages/benchmark/entity-single-eval/analyze.mjs b/packages/benchmark/entity-single-eval/analyze.mjs
+new file mode 100644
+index 00000000..ed9eef56
+--- /dev/null
++++ b/packages/benchmark/entity-single-eval/analyze.mjs
+@@ -0,0 +1,596 @@
++import { readFileSync, writeFileSync } from 'node:fs';
++
++export const BOOTSTRAP_ITERATIONS = 10_000;
++export const BOOTSTRAP_SEED = 260913;
++const MIB = 1024 * 1024;
++const ENTITY_FIXTURES = ['named-attr', 'numeric-attr', 'custom-attr'];
++const VALID_VARIANTS = ['R0', 'W0', 'A1', 'AT1'];
++
++export function median(values) {
++  const sorted = values.filter(Number.isFinite).slice().sort((a, b) => a - b);
++  if (!sorted.length) return Number.NaN;
++  const middle = Math.floor(sorted.length / 2);
++  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
++}
++
++export function geometricMean(values) {
++  const valid = values.filter((value) => Number.isFinite(value) && value > 0);
++  if (!valid.length) return Number.NaN;
++  return Math.exp(valid.reduce((sum, value) => sum + Math.log(value), 0) / valid.length);
++}
++
++function random(seed) {
++  let state = seed >>> 0;
++  return () => {
++    state = (Math.imul(state ^ (state >>> 16), 2246822519) + 3266489917) >>> 0;
++    state ^= state >>> 13;
++    return (state >>> 0) / 0x100000000;
++  };
++}
++
++function sampleValues(value) {
++  const samples = Array.isArray(value) ? value : value?.samples ?? value?.timesMs;
++  if (!Array.isArray(samples)) return [];
++  return samples.map((sample) => typeof sample === 'number' ? sample : sample?.ms ?? sample?.timeMs).filter(Number.isFinite);
++}
++
++function metricValues(value, metric) {
++  if (metric === 'fullMs' && value?.samples) return sampleValues(value);
++  const raw = value?.[metric];
++  if (Array.isArray(raw)) return raw.map((sample) => typeof sample === 'number' ? sample : sample?.ms ?? sample?.timeMs).filter(Number.isFinite);
++  return Number.isFinite(raw) ? [raw] : [];
++}
++
++function blockId(block, index) {
++  return block?.block ?? block?.index ?? index;
++}
++
++function blockVariant(block, id) {
++  return block?.variants?.[id] ?? block?.results?.[id] ?? block?.[id];
++}
++
++export function pairedRatios(blocks, baselineId = 'R0', candidateId) {
++  const pairs = [];
++  for (const [index, block] of (blocks ?? []).entries()) {
++    const baselineMedian = median(sampleValues(blockVariant(block, baselineId)));
++    const candidateMedian = median(sampleValues(blockVariant(block, candidateId)));
++    if (baselineMedian > 0 && candidateMedian > 0) {
++      pairs.push({ block: blockId(block, index), baselineMedian, candidateMedian, ratio: candidateMedian / baselineMedian });
++    }
++  }
++  return pairs;
++}
++
++function missingPairBlocks(blocks, baselineId, candidateId) {
++  const missing = [];
++  for (const [index, block] of (blocks ?? []).entries()) {
++    const baseline = sampleValues(blockVariant(block, baselineId));
++    const candidate = sampleValues(blockVariant(block, candidateId));
++    const baselineMedian = median(baseline);
++    const candidateMedian = median(candidate);
++    if (!(baselineMedian > 0) || !(candidateMedian > 0)) missing.push(blockId(block, index));
++  }
++  return missing;
++}
++
++function pairedMetricRatios(blocks, baselineId, candidateId, metric) {
++  const pairs = [];
++  for (const [index, block] of (blocks ?? []).entries()) {
++    const baselineMedian = median(metricValues(blockVariant(block, baselineId), metric));
++    const candidateMedian = median(metricValues(blockVariant(block, candidateId), metric));
++    if (baselineMedian > 0 && candidateMedian > 0) {
++      pairs.push({ block: blockId(block, index), baselineMedian, candidateMedian, ratio: candidateMedian / baselineMedian });
++    }
++  }
++  return pairs;
++}
++
++function summarizeMetricPair(blocks, candidateId, metric, options = {}) {
++  const baselineId = options.baselineId ?? 'R0';
++  const pairs = pairedMetricRatios(blocks, baselineId, candidateId, metric);
++  const confidence = bootstrapCI(pairs.map((pair) => pair.ratio), options);
++  const missingBlocks = [];
++  for (const [index, block] of (blocks ?? []).entries()) {
++    const baselineMedian = median(metricValues(blockVariant(block, baselineId), metric));
++    const candidateMedian = median(metricValues(blockVariant(block, candidateId), metric));
++    if (!(baselineMedian > 0) || !(candidateMedian > 0)) missingBlocks.push(blockId(block, index));
++  }
++  return { metric, candidate: candidateId, baseline: baselineId, ...confidence, pairs, missingBlocks, dataComplete: pairs.length > 0 && missingBlocks.length === 0 };
++}
++
++export function bootstrapCI(ratios, options = {}) {
++  const values = (ratios ?? []).filter((value) => Number.isFinite(value) && value > 0);
++  const iterations = options.iterations ?? BOOTSTRAP_ITERATIONS;
++  const seed = options.seed ?? BOOTSTRAP_SEED;
++  if (!values.length) return { estimate: Number.NaN, meanRatio: Number.NaN, lower: Number.NaN, upper: Number.NaN, iterations: 0, seed, ratios: [] };
++  const estimate = geometricMean(values);
++  const meanRatio = values.reduce((sum, value) => sum + value, 0) / values.length;
++  const next = random(seed);
++  const samples = new Array(iterations);
++  for (let iteration = 0; iteration < iterations; iteration++) {
++    let sum = 0;
++    for (let index = 0; index < values.length; index++) sum += Math.log(values[Math.floor(next() * values.length)]);
++    samples[iteration] = Math.exp(sum / values.length);
++  }
++  samples.sort((a, b) => a - b);
++  const lowerIndex = Math.floor((iterations - 1) * 0.025);
++  const upperIndex = Math.ceil((iterations - 1) * 0.975);
++  return { estimate, meanRatio, lower: samples[lowerIndex], upper: samples[upperIndex], iterations, seed, ratios: values };
++}
++
++export function summarizePair(blocks, candidateId, options = {}) {
++  const baselineId = options.baselineId ?? 'R0';
++  const pairs = pairedRatios(blocks, baselineId, candidateId);
++  const confidence = bootstrapCI(pairs.map((pair) => pair.ratio), options);
++  const missingBlocks = missingPairBlocks(blocks, baselineId, candidateId);
++  return {
++    candidate: candidateId,
++    baseline: baselineId,
++    ...confidence,
++    pairs,
++    missingBlocks,
++    dataComplete: pairs.length > 0 && missingBlocks.length === 0,
++  };
++}
++
++function flattenRows(report) {
++  if (Array.isArray(report?.rows)) return report.rows;
++  if (Array.isArray(report?.cases)) return report.cases;
++  const rows = [];
++  for (const [key, value] of Object.entries(report?.results ?? report?.cases ?? {})) {
++    if (value && typeof value === 'object' && !Array.isArray(value) && (value.variants || value.blocks || value.samples)) {
++      rows.push({ case: key, ...value });
++      continue;
++    }
++    for (const [lane, laneValue] of Object.entries(value ?? {})) rows.push({ case: `${lane}/${key}`, lane, fixture: key, ...laneValue });
++  }
++  return rows;
++}
++
++function rowCase(row) {
++  return String(row.case ?? row.id ?? `${row.lane ?? row.laneId ?? ''}/${row.fixture ?? row.fixtureId ?? ''}`);
++}
++
++function rowBlocks(row) {
++  if (Array.isArray(row?.blocks)) return row.blocks;
++  return row && (row.variants || row.results || row.block !== undefined) ? [row] : [];
++}
++
++function groupRows(reports) {
++  const groups = new Map();
++  for (const row of reports.flatMap((report) => flattenRows(report))) {
++    const key = rowCase(row);
++    let group = groups.get(key);
++    if (!group) {
++      group = { case: key, lane: row.lane ?? row.laneId ?? '', fixture: row.fixture ?? row.fixtureId ?? '', kind: row.kind, api: row.api ?? row.kind ?? row.lane ?? row.laneId ?? '', rows: [] };
++      groups.set(key, group);
++    }
++    group.rows.push(row);
++    if (!group.lane) group.lane = row.lane ?? row.laneId ?? '';
++    if (!group.fixture) group.fixture = row.fixture ?? row.fixtureId ?? '';
++    if (!group.kind) group.kind = row.kind;
++    if (!group.api) group.api = row.api ?? row.kind ?? group.lane;
++  }
++  return [...groups.values()];
++}
++
++function groupBlocks(group) {
++  return group.rows.flatMap(rowBlocks);
++}
++
++function confidenceStatus(confidence, threshold, complete = true) {
++  if (!complete || !confidence || !confidence.pairs?.length || !Number.isFinite(confidence.lower) || !Number.isFinite(confidence.upper) || confidence.lower > confidence.upper) return 'INCONCLUSIVE';
++  if (confidence.lower > threshold) return 'FAIL';
++  if (confidence.upper <= threshold) return 'PASS';
++  return 'INCONCLUSIVE';
++}
++
++function aggregateStatus(items) {
++  if (!items.length) return 'INCONCLUSIVE';
++  if (items.some((item) => item.status === 'FAIL')) return 'FAIL';
++  if (items.some((item) => item.status === 'INCONCLUSIVE')) return 'INCONCLUSIVE';
++  return 'PASS';
++}
++
++function caseItem(group, candidate, options = {}) {
++  const summary = summarizePair(groupBlocks(group), candidate, options);
++  const threshold = options.threshold;
++  return {
++    case: group.case,
++    lane: group.lane,
++    api: group.api,
++    fixture: group.fixture,
++    kind: group.kind,
++    candidate,
++    threshold,
++    status: confidenceStatus(summary, threshold, summary.dataComplete),
++    ...summary,
++  };
++}
++
++function coldCaseItem(group, candidate, options = {}) {
++  const metrics = {};
++  for (const metric of ['constructorMs', 'firstNextMs', 'firstNextCloseMs', 'fullMs']) {
++    const summary = summarizeMetricPair(groupBlocks(group), candidate, metric, options);
++    metrics[metric] = { ...summary, threshold: options.threshold, status: confidenceStatus(summary, options.threshold, summary.dataComplete) };
++  }
++  // Import and close are useful diagnostics, but are deliberately not folded
++  // into the cold gate's parser lifecycle metrics.
++  const reporting = {};
++  for (const metric of ['importMs', 'closeMs']) reporting[metric] = summarizeMetricPair(groupBlocks(group), candidate, metric, options);
++  const statuses = Object.values(metrics).map((item) => item.status);
++  const status = aggregateStatus(statuses.map((value) => ({ status: value })));
++  return {
++    case: group.case,
++    lane: group.lane,
++    api: group.api,
++    fixture: group.fixture,
++    kind: group.kind,
++    candidate,
++    threshold: options.threshold,
++    metrics,
++    reporting,
++    // Keep full parse at the top level for consumers of the original table.
++    ...metrics.fullMs,
++    status,
++  };
++}
++
++function entitySummary(items, candidate, options = {}) {
++  const usable = items.filter((item) => item.candidate === candidate && ENTITY_FIXTURES.includes(item.fixture));
++  const byLane = new Map();
++  for (const item of usable) {
++    if (!byLane.has(item.lane)) byLane.set(item.lane, []);
++    byLane.get(item.lane).push(item);
++  }
++  const lanes = [];
++  for (const [lane, laneItems] of byLane) {
++    const expectedCases = laneItems.map((item) => item.case);
++    const byBlock = new Map();
++    for (const item of laneItems) {
++      for (const pair of item.pairs) {
++        if (!byBlock.has(pair.block)) byBlock.set(pair.block, new Map());
++        byBlock.get(pair.block).set(item.case, pair.ratio);
++      }
++    }
++    const blockPairs = [];
++    const missingBlocks = [];
++    for (const [block, values] of byBlock) {
++      if (expectedCases.every((key) => Number.isFinite(values.get(key)) && values.get(key) > 0)) {
++        blockPairs.push({ block, ratios: expectedCases.map((key) => values.get(key)), ratio: geometricMean(expectedCases.map((key) => values.get(key))) });
++      } else missingBlocks.push(block);
++    }
++    const missingCases = laneItems.filter((item) => !item.pairs.length || !item.dataComplete).map((item) => item.case);
++    const confidence = bootstrapCI(blockPairs.map((pair) => pair.ratio), options);
++    lanes.push({
++      lane,
++      api: laneItems[0]?.api ?? lane,
++      candidate,
++      fixtures: [...new Set(laneItems.map((item) => item.fixture))],
++      cases: laneItems,
++      pairs: blockPairs,
++      missingCases,
++      missingBlocks,
++      dataComplete: blockPairs.length > 0 && !missingCases.length && !missingBlocks.length,
++      threshold: options.threshold,
++      status: confidenceStatus(confidence, options.threshold, blockPairs.length > 0 && !missingCases.length && !missingBlocks.length),
++      ...confidence,
++    });
++  }
++  const status = aggregateStatus(lanes);
++  const allPairs = lanes.flatMap((lane) => lane.pairs);
++  // Lanes are independent APIs. Do not turn their block pairs into one
++  // confidence interval; callers can read the per-lane table above.
++  const confidence = lanes.length === 1
++    ? lanes[0]
++    : { estimate: Number.NaN, meanRatio: Number.NaN, lower: Number.NaN, upper: Number.NaN, iterations: 0, seed: options.seed };
++  return {
++    candidate,
++    status,
++    threshold: options.threshold,
++    lanes,
++    pairs: allPairs,
++    estimate: confidence.estimate,
++    meanRatio: confidence.meanRatio,
++    lower: confidence.lower,
++    upper: confidence.upper,
++    iterations: confidence.iterations,
++    seed: confidence.seed,
++  };
++}
++
++function analyzeRetentionLane(rows, mode, candidates, options = {}) {
++  const baseline = rows.filter((row) => row.variant === 'R0' && row.mode === mode);
++  const byKey = (variant) => new Map(rows.filter((row) => row.variant === variant && row.mode === mode).map((row) => [retentionKey(row), row]));
++  const baselineByKey = new Map(baseline.map((row) => [retentionKey(row), row]));
++  const expectedKeys = options.expectedKeys ?? [...baselineByKey.keys()];
++  const duplicateBaselineKeys = duplicateKeys(baseline);
++  const candidateResults = [];
++  const failures = [];
++  const missing = [];
++  const absoluteFailures = [];
++  const slopeFailures = [];
++  for (const candidate of candidates) {
++    const candidateRows = rows.filter((row) => row.variant === candidate && row.mode === mode);
++    const candidateByKey = byKey(candidate);
++    const duplicateCandidateKeys = duplicateKeys(candidateRows);
++    const pairs = [];
++    for (const key of expectedKeys) {
++      const base = baselineByKey.get(key);
++      const value = candidateByKey.get(key);
++      const [keyScenario, keyCount, keyRepeat] = key.split('\u0000');
++      const detail = { key, scenario: base?.scenario ?? keyScenario ?? 'default', count: base?.count ?? Number(keyCount), repeat: base?.repeat ?? Number(keyRepeat ?? 0), variant: candidate };
++      if (!base) {
++        missing.push({ ...detail, reason: 'baseline row missing' });
++        continue;
++      }
++      if (duplicateBaselineKeys.has(key)) {
++        missing.push({ ...detail, reason: 'duplicate baseline row' });
++        continue;
++      }
++      if (!value) {
++        missing.push({ ...detail, reason: 'candidate row missing' });
++        continue;
++      }
++      if (duplicateCandidateKeys.has(key)) {
++        missing.push({ ...detail, reason: 'duplicate candidate row' });
++        continue;
++      }
++      const baseUnits = keptUnits(base);
++      const candidateUnits = keptUnits(value);
++      const baseHeap = heapMetric(base);
++      const candidateHeap = heapMetric(value);
++      if (!Number.isFinite(baseUnits) || !Number.isFinite(candidateUnits) || baseUnits !== candidateUnits) {
++        missing.push({ ...detail, reason: 'kept units differ', baselineKeptUnits: baseUnits, candidateKeptUnits: candidateUnits });
++        continue;
++      }
++      if (!Number.isFinite(baseHeap) || !Number.isFinite(candidateHeap)) {
++        missing.push({ ...detail, reason: 'retained heap data missing' });
++        continue;
++      }
++      const discardedSourceBytes = discardedBytes(base);
++      const delta = candidateHeap - baseHeap;
++      const absolute = absoluteHeapMetric(value);
++      const absoluteLimit = Math.max(2 * MIB, baseUnits * 4);
++      const pair = { ...detail, baselineRetainedHeapBytes: baseHeap, candidateRetainedHeapBytes: candidateHeap, additionalRetainedHeapBytes: delta, keptUnits: baseUnits, discardedSourceBytes, absoluteRetainedHeapBytes: absolute, absoluteLimitBytes: absoluteLimit };
++      pairs.push(pair);
++      if (mode === 'normalized-result' && !['none', 'rare-attr', 'rare-text'].includes(detail.scenario) && (!Number.isFinite(absolute) || absolute > absoluteLimit || Number(value.sourceHeldBytes ?? 0) > 0)) {
++        absoluteFailures.push({ ...pair, reason: Number(value.sourceHeldBytes ?? 0) > 0 ? 'source retained' : 'absolute normalized retention exceeded' });
++      }
++    }
++    const extraKeys = candidateRows.filter((row) => !baselineByKey.has(retentionKey(row))).map((row) => retentionKey(row));
++    const candidateMissing = missing.filter((item) => item.variant === candidate);
++    for (const key of extraKeys) candidateMissing.push({ key, variant: candidate, reason: 'baseline row missing' });
++    const scenarios = options.expectedScenarios ?? [...new Set(expectedKeys.map((key) => baselineByKey.get(key)?.scenario ?? key.split('\u0000')[0] ?? 'default'))];
++    const scenarioResults = [];
++    for (const scenario of scenarios) {
++      const scenarioPairs = pairs.filter((pair) => pair.scenario === scenario);
++      const scenarioKeys = expectedKeys.filter((key) => {
++        const base = baselineByKey.get(key);
++        return (base?.scenario ?? key.split('\u0000')[0] ?? 'default') === scenario;
++      });
++      const scenarioMissing = candidateMissing.filter((item) => item.scenario === scenario || item.scenario === undefined);
++      const points = [...new Set(scenarioPairs.map((pair) => pair.count))].map((count) => {
++        const selected = scenarioPairs.filter((pair) => pair.count === count);
++        return { count, discardedSourceBytes: median(selected.map((pair) => pair.discardedSourceBytes)), additionalRetainedHeapBytes: median(selected.map((pair) => pair.additionalRetainedHeapBytes)) };
++      }).filter((point) => Number.isFinite(point.discardedSourceBytes) && Number.isFinite(point.additionalRetainedHeapBytes));
++      const slope = linearSlope(points.map((point) => [point.discardedSourceBytes, point.additionalRetainedHeapBytes]));
++      const scenarioAbsoluteFailures = absoluteFailures.filter((item) => item.scenario === scenario);
++      const scenarioStatus = scenarioAbsoluteFailures.length || (Number.isFinite(slope) && slope > (options.slopeLimit ?? 0.01))
++        ? 'FAIL'
++        : scenarioPairs.length === scenarioKeys.length && scenarioKeys.length > 0 && !scenarioMissing.length ? 'PASS' : 'INCONCLUSIVE';
++      const scenarioResult = { scenario, expectedCount: scenarioKeys.length, pairCount: scenarioPairs.length, pairs: scenarioPairs, missing: scenarioMissing, absoluteFailures: scenarioAbsoluteFailures, slope, slopeLimit: options.slopeLimit ?? 0.01, points, status: scenarioStatus };
++      scenarioResults.push(scenarioResult);
++      if (Number.isFinite(slope) && slope > (options.slopeLimit ?? 0.01)) slopeFailures.push({ variant: candidate, mode, ...scenarioResult });
++    }
++    if (absoluteFailures.filter((item) => item.variant === candidate).length) failures.push(...absoluteFailures.filter((item) => item.variant === candidate));
++    const result = { variant: candidate, mode, pairs, expectedCount: expectedKeys.length, pairCount: pairs.length, missing: candidateMissing, absoluteFailures: absoluteFailures.filter((item) => item.variant === candidate), scenarios: scenarioResults, slope: scenarioResults.length === 1 ? scenarioResults[0].slope : null, slopeLimit: options.slopeLimit ?? 0.01 };
++    result.status = aggregateStatus(scenarioResults);
++    candidateResults.push(result);
++  }
++  return { mode, status: aggregateStatus(candidateResults), candidates: candidateResults, failures, missing, absoluteFailures, slopeFailures, baselineCount: baseline.length, candidateCount: candidateResults.reduce((sum, item) => sum + item.pairCount, 0), thresholdBytes: 2 * MIB, slopeLimit: options.slopeLimit ?? 0.01 };
++}
++
++function duplicateKeys(rows) {
++  const seen = new Set();
++  const duplicates = new Set();
++  for (const row of rows) {
++    const key = retentionKey(row);
++    if (seen.has(key)) duplicates.add(key);
++    seen.add(key);
++  }
++  return duplicates;
++}
++
++function retentionKey(row) {
++  return `${row.scenario ?? row.fixture ?? 'default'}\u0000${row.count ?? ''}\u0000${row.repeat ?? 0}`;
++}
++
++function keptUnits(row) {
++  return Number(row.keptChars ?? row.returnedChars ?? row.keptUnits ?? Number.NaN);
++}
++
++function heapMetric(row) {
++  return Number(row.retainedHeapBytes ?? row.heapDeltaBytes ?? Number.NaN);
++}
++
++function absoluteHeapMetric(row) {
++  return Number(row.heapDeltaBytes ?? row.retainedHeapBytes ?? Number.NaN);
++}
++
++function discardedBytes(row) {
++  const source = Number(row.sourceBytes);
++  const kept = keptUnits(row);
++  return Number.isFinite(source) ? Math.max(0, source - (Number.isFinite(kept) ? kept * 2 : 0)) : Number.NaN;
++}
++
++function linearSlope(points) {
++  if (points.length < 2) return 0;
++  const meanX = points.reduce((sum, point) => sum + point[0], 0) / points.length;
++  const meanY = points.reduce((sum, point) => sum + point[1], 0) / points.length;
++  let numerator = 0;
++  let denominator = 0;
++  for (const [x, y] of points) {
++    numerator += (x - meanX) * (y - meanY);
++    denominator += (x - meanX) ** 2;
++  }
++  return denominator ? numerator / denominator : 0;
++}
++
++function controlCheck(rows, mode, scenarios, expectedRows = []) {
++  const controls = rows.filter((row) => row.mode === mode);
++  const expected = scenarios.length ? scenarios : [...new Set(controls.map((row) => row.scenario ?? 'default'))];
++  const missing = [];
++  const invalid = [];
++  const expectedKeys = expectedRows.length
++    ? expectedRows.map((row) => retentionKey(row))
++    : expected.map((scenario) => `${scenario}\u0000\u0000\u0000`);
++  const variants = [...new Set(expectedRows.map((row) => row.variant).filter(Boolean))];
++  const expectedVariantKeys = variants.length
++    ? variants.flatMap((variant) => expectedKeys.map((key) => `${variant}\u0000${key}`))
++    : expectedKeys;
++  const indexed = new Map();
++  for (const row of controls) indexed.set(`${row.variant ?? ''}\u0000${retentionKey(row)}`, row);
++  for (const key of expectedVariantKeys) {
++    const row = indexed.get(key) ?? indexed.get(`\u0000${key}`);
++    if (!row) {
++      missing.push(key);
++      continue;
++    }
++    if (!Number.isFinite(Number(row.retainedHeapBytes ?? row.heapDeltaBytes)) || (mode === 'positive-control' && !(Number(row.sourceHeldBytes) > 0)) || (mode === 'plus-diagnostic' && !Number.isFinite(Number(row.plusDiagnosticChars)))) invalid.push({ row, reason: mode === 'positive-control' ? 'positive control did not retain source' : 'diagnostic heap data missing' });
++  }
++  for (const row of controls) {
++    if (!Number.isFinite(Number(row.retainedHeapBytes ?? row.heapDeltaBytes)) || (mode === 'positive-control' && !(Number(row.sourceHeldBytes) > 0)) || (mode === 'plus-diagnostic' && !Number.isFinite(Number(row.plusDiagnosticChars)))) invalid.push({ row, reason: mode === 'positive-control' ? 'positive control did not retain source' : 'diagnostic heap data missing' });
++  }
++  return { mode, rows: controls, expectedScenarios: expected, missing, invalid, status: !controls.length || missing.length || invalid.length ? 'INCONCLUSIVE' : 'PASS' };
++}
++
++export function analyzeGates(input, options = {}) {
++  const primary = input.primary ?? input;
++  const guards = input.guards;
++  const retention = input.retention;
++  const candidates = options.candidates ?? ['W0', 'A1', 'AT1'];
++  const groups = groupRows([primary, guards]);
++  const ordinaryItems = [];
++  const coldItems = [];
++  const allItems = [];
++  for (const group of groups) {
++    for (const candidate of candidates) {
++      const item = group.lane === 'G5'
++        ? coldCaseItem(group, candidate, { seed: options.seed ?? BOOTSTRAP_SEED, iterations: options.iterations ?? BOOTSTRAP_ITERATIONS, threshold: options.coldLimit ?? 1.10 })
++        : caseItem(group, candidate, { seed: options.seed ?? BOOTSTRAP_SEED, iterations: options.iterations ?? BOOTSTRAP_ITERATIONS, threshold: options.ordinaryLimit ?? 1.02 });
++      allItems.push(item);
++      if (group.lane === 'G5') coldItems.push(item);
++      else ordinaryItems.push(item);
++    }
++  }
++  const ordinaryGate = { status: aggregateStatus(ordinaryItems), threshold: options.ordinaryLimit ?? 1.02, cases: ordinaryItems, pairs: ordinaryItems };
++  const coldGate = { status: aggregateStatus(coldItems), threshold: options.coldLimit ?? 1.10, metrics: ['constructorMs', 'firstNextMs', 'firstNextCloseMs', 'fullMs'], cases: coldItems, pairs: coldItems };
++  const entityItems = allItems.filter((item) => ENTITY_FIXTURES.includes(item.fixture));
++  const entityByCandidate = {};
++  for (const candidate of candidates.filter((id) => id !== 'W0' && id !== 'R0')) entityByCandidate[candidate] = entitySummary(entityItems, candidate, { seed: options.seed ?? BOOTSTRAP_SEED, iterations: options.iterations ?? BOOTSTRAP_ITERATIONS, threshold: options.entityLimit ?? 1 / 1.1 });
++  const textItems = groups.filter((group) => group.fixture === 'named-text').flatMap((group) => [caseItem(group, 'AT1', { baselineId: 'A1', seed: options.seed ?? BOOTSTRAP_SEED, iterations: options.iterations ?? BOOTSTRAP_ITERATIONS, threshold: 1 })]);
++  const textGate = { status: aggregateStatus(textItems), threshold: 1, cases: textItems, pairs: textItems };
++  const retentionGate = retention ? analyzeRetention(retention) : { status: 'NOT RUN', reason: 'retention report was not supplied' };
++  return {
++    schemaVersion: 1,
++    generatedAt: new Date().toISOString(),
++    gates: {
++      correctness: { status: input.correctness === false ? 'FAIL' : input.correctness === true ? 'PASS' : 'INCONCLUSIVE' },
++      ordinaryNonRegression: ordinaryGate,
++      coldEarlyClose: coldGate,
++      entityGain: entityByCandidate,
++      textExtension: textGate,
++      memory: retentionGate,
++      packaging: { status: input.packaging === false ? 'FAIL' : input.packaging === true ? 'PASS' : 'NOT RUN' },
++    },
++    tables: { cases: allItems, ordinary: ordinaryItems, cold: coldItems, entity: entityByCandidate, text: textItems },
++    pairs: allItems,
++  };
++}
++
++export function analyzeRetention(report) {
++  const rows = report?.rows ?? report?.results ?? [];
++  if (!Array.isArray(rows) || !rows.length) return { status: 'INCONCLUSIVE', reason: 'no retention rows' };
++  const scenarios = report.options?.scenarios ?? [...new Set(rows.map((row) => row.scenario ?? 'default'))];
++  const variants = [...new Set(rows.map((row) => row.variant).filter((variant) => variant && variant !== 'R0' && variant !== 'positive-control'))];
++  if (!rows.some((row) => row.variant === 'R0' && row.mode === 'normalized-result') || !variants.length) return { status: 'INCONCLUSIVE', reason: 'baseline or candidate retention rows missing' };
++  const planned = report.options?.counts?.length && report.options?.repeats
++    ? report.options.counts.flatMap((count) => scenarios.flatMap((scenario) => Array.from({ length: report.options.repeats }, (_, repeat) => `${scenario}\u0000${count}\u0000${repeat}`)))
++    : undefined;
++  const normalized = analyzeRetentionLane(rows, 'normalized-result', variants, { expectedKeys: planned, expectedScenarios: scenarios });
++  const raw = analyzeRetentionLane(rows, 'raw', variants, { expectedKeys: planned, expectedScenarios: scenarios });
++  const controlRows = rows.filter((row) => row.variant && row.variant !== 'positive-control' && row.mode === 'normalized-result');
++  const positiveControl = controlCheck(rows, 'positive-control', scenarios, controlRows);
++  const plusDiagnostic = controlCheck(rows, 'plus-diagnostic', scenarios, controlRows);
++  const statuses = [normalized.status, raw.status, positiveControl.status, plusDiagnostic.status];
++  return {
++    status: statuses.includes('FAIL') ? 'FAIL' : statuses.every((status) => status === 'PASS') ? 'PASS' : 'INCONCLUSIVE',
++    thresholdBytes: 2 * MIB,
++    slopeLimit: 0.01,
++    scenarios,
++    normalized,
++    raw,
++    positiveControl,
++    plusDiagnostic,
++    failures: [...normalized.failures, ...raw.failures],
++    baselineCount: normalized.baselineCount,
++    candidateCount: normalized.candidateCount,
++  };
++}
++
++function validateManifest(value) {
++  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Build manifest must be an object.');
++  if (value.schemaVersion !== 1) throw new Error('Build manifest schemaVersion must be 1.');
++  if (!Array.isArray(value.variants) || !value.variants.length) throw new Error('Build manifest must contain staged variants.');
++  const seen = new Set();
++  for (const variant of value.variants) {
++    if (!variant || !VALID_VARIANTS.includes(variant.id) || seen.has(variant.id)) throw new Error('Build manifest variants are invalid or duplicated.');
++    seen.add(variant.id);
++    if (typeof variant.entry !== 'string' || !variant.entry) throw new Error(`${variant.id}.entry is required.`);
++  }
++  if (!seen.has('R0')) throw new Error('Build manifest must contain R0.');
++  return { valid: true, schemaVersion: value.schemaVersion, variants: [...seen] };
++}
++
++export function parseArgs(args = process.argv.slice(2)) {
++  const input = [...args];
++  const command = input[0]?.startsWith('--') ? 'analyze' : (input.shift() ?? 'analyze');
++  const allowed = command === 'validate' ? new Set(['--manifest']) : new Set(['--input', '--guards', '--retention', '--manifest', '--out', '--iterations', '--seed']);
++  if (!['analyze', 'validate'].includes(command)) throw new Error(`Unknown command: ${command}`);
++  const options = {};
++  for (let index = 0; index < input.length; index++) {
++    const arg = input[index];
++    if (!arg.startsWith('--') || !allowed.has(arg.split('=', 1)[0])) throw new Error(`Unknown argument: ${arg}`);
++    const [name, inline] = arg.includes('=') ? arg.split(/=(.*)/s, 2) : [arg, undefined];
++    const value = inline ?? input[++index];
++    if (value === undefined) throw new Error(`${name} requires a value.`);
++    options[name.slice(2)] = ['iterations', 'seed'].includes(name.slice(2)) ? Number(value) : value;
++  }
++  if (command === 'validate') {
++    if (!options.manifest) throw new Error('--manifest is required.');
++  } else if (!options.input || !options.out) {
++    throw new Error('--input and --out are required.');
++  }
++  return command === 'validate' ? { command, ...options } : options;
++}
++
++export async function main(args = process.argv.slice(2)) {
++  const parsed = parseArgs(args);
++  if (parsed.command === 'validate') {
++    const value = JSON.parse(readFileSync(parsed.manifest, 'utf8'));
++    const result = validateManifest(value);
++    console.log(JSON.stringify(result));
++    return result;
++  }
++  const input = JSON.parse(readFileSync(parsed.input, 'utf8'));
++  const guards = parsed.guards ? JSON.parse(readFileSync(parsed.guards, 'utf8')) : undefined;
++  const retention = parsed.retention ? JSON.parse(readFileSync(parsed.retention, 'utf8')) : undefined;
++  const output = analyzeGates({ primary: input, guards, retention }, { iterations: parsed.iterations, seed: parsed.seed });
++  writeFileSync(parsed.out, `${JSON.stringify(output, null, 2)}\n`);
++  return output;
++}
++
++if (process.argv[1] && import.meta.url === new URL(process.argv[1], 'file:').href) {
++  try { await main(); } catch (error) { console.error(error.message); process.exitCode = 1; }
++}
+diff --git a/packages/benchmark/entity-single-eval/retention.mjs b/packages/benchmark/entity-single-eval/retention.mjs
+new file mode 100644
+index 00000000..f1a9631c
+--- /dev/null
++++ b/packages/benchmark/entity-single-eval/retention.mjs
+@@ -0,0 +1,283 @@
++import { spawnSync } from 'node:child_process';
++import { writeFileSync, readFileSync } from 'node:fs';
++import { setImmediate as waitImmediate } from 'node:timers/promises';
++import { performance } from 'node:perf_hooks';
++import { fileURLToPath } from 'node:url';
++import { importPublicBuild } from './consume.mjs';
++
++export const RETENTION_COUNTS = [16, 64, 128, 256];
++export const RETENTION_REPEATS = 5;
++export const RETENTION_SCENARIOS = ['first', 'last', 'dense', 'customempty', 'none', 'rare-attr', 'rare-text'];
++export const RETENTION_MODES = ['normalized-result', 'raw', 'positive-control', 'plus-diagnostic'];
++const CUSTOM_ENTITIES = [
++  { entity: 'company', value: 'Clickin & Co.' },
++  { entity: 'empty', value: '' },
++  { entity: 'literalAmp', value: 'A&B' },
++];
++
++function usage() {
++  const value = process.memoryUsage?.();
++  return { rssBytes: value?.rss ?? null, heapUsedBytes: value?.heapUsed ?? null, externalBytes: value?.external ?? null };
++}
++
++function gcMany() {
++  if (typeof globalThis.gc !== 'function') return 0;
++  for (let index = 0; index < 5; index++) globalThis.gc();
++  return 5;
++}
++
++export async function settleHeap() {
++  let turns = 0;
++  for (let index = 0; index < 5; index++) {
++    await waitImmediate();
++    turns++;
++    gcMany();
++  }
++  return turns;
++}
++
++function scenarioEntity(scenario, index, count) {
++  if (scenario === 'none') return null;
++  if (scenario === 'dense') return 'named';
++  if (scenario === 'customempty') return 'custom-empty';
++  if (scenario === 'first' || scenario === 'last') return 'named';
++  if (scenario === 'rare-attr') return index === 0 ? 'named' : null;
++  if (scenario === 'rare-text') return index === 0 ? 'named' : null;
++  return null;
++}
++
++function escapedValues(scenario, index, count) {
++  const entity = scenarioEntity(scenario, index, count);
++  const unique = `retained-value-${index}-`.padEnd(32, 'x');
++  if (entity === 'custom-empty') return { attribute: '&empty;', text: '&empty;' };
++  if (scenario === 'first') return { attribute: `&amp;${unique}`, text: `&lt;${unique}` };
++  if (scenario === 'last') return { attribute: `${unique}&amp;`, text: `${unique}&lt;` };
++  if (scenario === 'dense') return { attribute: `${'&amp;'.repeat(24)}${index}`, text: `${'&lt;'.repeat(24)}${index}` };
++  if (scenario === 'rare-attr') return entity ? { attribute: 'before &amp; after', text: `text-${index}` } : { attribute: `plain-${index}`, text: `text-${index}` };
++  if (scenario === 'rare-text') return entity ? { attribute: `plain-${index}`, text: 'text &lt; value' } : { attribute: `plain-${index}`, text: `text-${index}` };
++  if (entity) return { attribute: 'before &amp; after', text: 'text &lt; value' };
++  return { attribute: `plain-${index}`, text: `text-${index}` };
++}
++
++function byteLength(value) {
++  return typeof value === 'string' ? Buffer.byteLength(value) : value?.byteLength ?? 0;
++}
++
++function sourceForDocument(scenario = 'none', index = 0, count = 16, valueBytes = 256 * 1024) {
++  const values = escapedValues(scenario, index, count);
++  const paddingBytes = Math.max(32, Math.floor(valueBytes / 2));
++  const token = `${index.toString(36)}-`;
++  const repeated = token.repeat(Math.ceil(paddingBytes / token.length)).slice(0, paddingBytes);
++  return `<root><r id="ret-${index}"><discard>${repeated}</discard><v a="${values.attribute}">${values.text}</v><discard>${repeated}</discard></r></root>`;
++}
++
++function retentionOptions(mode) {
++  return {
++    documentMode: 'document',
++    namespaceAware: true,
++    autoDecodeEntities: mode !== 'raw',
++    addEntities: CUSTOM_ENTITIES,
++  };
++}
++
++function isTargetStart(event) {
++  return event?.type === 'START_ELEMENT' && (event.name === 'v' || event.localName === 'v');
++}
++
++function isTargetEnd(event) {
++  return event?.type === 'END_ELEMENT' && (event.name === 'v' || event.localName === 'v');
++}
++
++function buildPlusDiagnostic(source, value) {
++  // Deliberately reproduce the rejected builder: source slices longer than a
++  // short-string threshold can keep the large document alive.
++  const prefixLength = 14;
++  const suffixLength = 14;
++  const prefix = source.slice(0, prefixLength);
++  const suffix = source.slice(Math.max(prefixLength, source.length - suffixLength));
++  return prefix + value + suffix;
++}
++
++function parseDocument(api, source, mode) {
++  const returned = [];
++  const diagnostics = [];
++  let inTarget = false;
++  let reader;
++  try {
++    reader = new api.EventReaderSync(source, retentionOptions(mode));
++    for (const event of reader) {
++      if (isTargetStart(event)) {
++        inTarget = true;
++        if (event.attributes) {
++          for (const attribute of event.attributes.values()) {
++            if (attribute?.name !== 'a' && attribute?.localName !== 'a') continue;
++            returned.push(String(attribute.value ?? ''));
++          }
++        }
++      } else if (event.type === 'CHARACTERS' && inTarget) {
++        returned.push(String(event.value ?? ''));
++      } else if (isTargetEnd(event)) {
++        inTarget = false;
++      }
++    }
++  } finally {
++    try { reader?.close(); } finally { reader = null; }
++  }
++  if (mode === 'plus-diagnostic') {
++    for (const value of returned) diagnostics.push(buildPlusDiagnostic(source, value));
++  }
++  return { returned, diagnostics };
++}
++
++export async function runRetentionWorker(payload) {
++  const api = await importPublicBuild(payload.entry);
++  const mode = payload.mode ?? 'normalized-result';
++  const scenario = payload.scenario ?? 'none';
++  const count = payload.count ?? 16;
++  const valueBytes = payload.valueBytes ?? 256 * 1024;
++  await settleHeap();
++  const before = usage();
++  const returned = [];
++  const diagnostics = [];
++  const retainedSources = [];
++  let sourceBytes = 0;
++  let source;
++  const started = performance.now();
++  for (let index = 0; index < count; index++) {
++    source = payload.source && index === 0 ? payload.source : sourceForDocument(scenario, index, count, valueBytes);
++    sourceBytes += byteLength(source);
++    const parsed = parseDocument(api, source, mode);
++    returned.push(...parsed.returned);
++    diagnostics.push(...parsed.diagnostics);
++    if (mode === 'positive-control') retainedSources.push(source);
++    source = null;
++  }
++  // The arrays are intentionally read after all GC turns, so the retained
++  // values cannot be optimized away before the endpoint measurement.
++  await settleHeap();
++  let keptChars = 0;
++  for (const value of returned) keptChars += value.length;
++  let plusDiagnosticChars = 0;
++  for (const value of diagnostics) plusDiagnosticChars += value.length;
++  void returned.length;
++  void diagnostics.length;
++  const after = usage();
++  const result = {
++    variant: payload.variant,
++    mode,
++    scenario,
++    count,
++    repeat: payload.repeat ?? 0,
++    sourceBytes,
++    documents: count,
++    keptChars,
++    keptStrings: returned.length,
++    returnedChars: keptChars,
++    retainedStrings: returned.length,
++    retainedHeapBytes: after.heapUsedBytes,
++    heapDeltaBytes: after.heapUsedBytes - before.heapUsedBytes,
++    rssBytes: after.rssBytes,
++    sourceHeldBytes: retainedSources.reduce((sum, value) => sum + byteLength(value), 0),
++    gcCycles: typeof globalThis.gc === 'function' ? 25 : 0,
++    eventLoopTurns: 5,
++    elapsedMs: performance.now() - started,
++    plusDiagnosticChars,
++    diagnostic: mode === 'plus-diagnostic' ? 'plus-equals-source-slices' : null,
++    counters: globalThis.__entitySingleEval && typeof globalThis.__entitySingleEval === 'object' ? { ...globalThis.__entitySingleEval } : {},
++  };
++  result.keptUnits = keptChars;
++  return result;
++}
++
++function parsePayload() {
++  const raw = process.env.ENTITY_SINGLE_EVAL_RETENTION;
++  if (!raw) throw new Error('ENTITY_SINGLE_EVAL_RETENTION payload is required.');
++  return JSON.parse(raw);
++}
++
++export function spawnRetentionWorker(payload, options = {}) {
++  const runner = options.runner ?? process.argv[1];
++  const nodeArgs = [...(options.nodeArgs ?? [])];
++  if (process.release?.name === 'node' && !nodeArgs.includes('--expose-gc')) nodeArgs.unshift('--expose-gc');
++  const args = [...nodeArgs, runner, '--retention-worker'];
++  const result = spawnSync(process.execPath, args, {
++    cwd: options.cwd,
++    env: { ...process.env, ENTITY_SINGLE_EVAL_RETENTION: JSON.stringify(payload) },
++    encoding: 'utf8',
++    maxBuffer: 64 * 1024 * 1024,
++  });
++  if (result.status !== 0) throw new Error(`Retention worker failed (${result.status}): ${result.stderr || result.stdout}`);
++  const output = result.stdout.trim().split('\n').at(-1);
++  return JSON.parse(output);
++}
++
++function validatePlan(counts, repeats) {
++  if (!Array.isArray(counts) || !counts.length || counts.some((count) => !Number.isInteger(count) || count <= 0)) throw new Error('Retention counts must be positive integers.');
++  if (!Number.isInteger(repeats) || repeats <= 0) throw new Error('Retention repeats must be a positive integer.');
++  if (counts.some((count) => count >= 64) && repeats < 5) throw new Error('Retention counts >=64 require at least 5 repeats.');
++}
++
++export function runRetention(manifest, options = {}) {
++  const counts = options.counts ?? RETENTION_COUNTS;
++  const repeats = options.repeats ?? RETENTION_REPEATS;
++  const valueBytes = options.valueBytes ?? 256 * 1024;
++  validatePlan(counts, repeats);
++  if (!Number.isInteger(valueBytes) || valueBytes <= 0) throw new Error('Retention valueBytes must be a positive integer.');
++  const rows = [];
++  const variants = (manifest?.variants ?? []).filter((variant) => !variant.instrumented);
++  if (!variants.length) throw new Error('Retention manifest has no runnable variants.');
++  for (const variant of variants) {
++    for (const mode of RETENTION_MODES) {
++      for (const scenario of RETENTION_SCENARIOS) {
++        for (const count of counts) {
++          for (let repeat = 0; repeat < repeats; repeat++) {
++            // The worker flag belongs to this module, not the parent driver.
++            rows.push(spawnRetentionWorker({ variant: variant.id, entry: variant.entry, mode, scenario, count, repeat, valueBytes }, { ...options, runner: fileURLToPath(import.meta.url) }));
++          }
++        }
++      }
++    }
++  }
++  return {
++    schemaVersion: 1,
++    generatedAt: new Date().toISOString(),
++    options: { counts, repeats, valueBytes, scenarios: RETENTION_SCENARIOS, modes: RETENTION_MODES, exposeGc: rows.every(row => row.gcCycles === 25) },
++    rows,
++  };
++}
++
++export function parseRetentionArgs(args = process.argv.slice(2)) {
++  const options = {};
++  const allowed = new Set(['--manifest', '--out', '--counts', '--repeats', '--value-kib']);
++  for (let index = 0; index < args.length; index++) {
++    const arg = args[index];
++    const [name, inline] = arg.includes('=') ? arg.split(/=(.*)/s, 2) : [arg, undefined];
++    if (!allowed.has(name)) throw new Error(`Unknown argument: ${name}`);
++    const value = inline ?? args[++index];
++    if (value === undefined) throw new Error(`${name} requires a value.`);
++    if (name === '--counts') options.counts = value.split(',').map(Number);
++    else if (name === '--repeats') options.repeats = Number(value);
++    else if (name === '--value-kib') options.valueBytes = Number(value) * 1024;
++    else options[name.slice(2)] = value;
++  }
++  if (!options.manifest || !options.out) throw new Error('--manifest and --out are required.');
++  validatePlan(options.counts ?? RETENTION_COUNTS, options.repeats ?? RETENTION_REPEATS);
++  if (options.valueBytes !== undefined && (!Number.isInteger(options.valueBytes) || options.valueBytes <= 0)) throw new Error('--value-kib must be a positive integer.');
++  return options;
++}
++
++export async function main(args = process.argv.slice(2)) {
++  if (args[0] === '--retention-worker') {
++    process.stdout.write(`${JSON.stringify(await runRetentionWorker(parsePayload()))}\n`);
++    return;
++  }
++  const options = parseRetentionArgs(args);
++  const manifest = JSON.parse(readFileSync(options.manifest, 'utf8'));
++  const output = runRetention(manifest, options);
++  writeFileSync(options.out, `${JSON.stringify(output, null, 2)}\n`);
++  return output;
++}
++
++if (process.argv[1] && import.meta.url === new URL(process.argv[1], 'file:').href) {
++  try { await main(); } catch (error) { console.error(error.message); process.exitCode = 1; }
++}
+diff --git a/packages/benchmark/test/entity-single-eval-contract.test.mjs b/packages/benchmark/test/entity-single-eval-contract.test.mjs
+new file mode 100644
+index 00000000..e2d1a924
+--- /dev/null
++++ b/packages/benchmark/test/entity-single-eval-contract.test.mjs
+@@ -0,0 +1,120 @@
++import assert from 'node:assert/strict';
++import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
++import { tmpdir } from 'node:os';
++import { join } from 'node:path';
++import test from 'node:test';
++import { FIXTURE_IDS, FIXTURE_SEED, PROCESS_ORDER_SEED, createSyntheticFixture, scanEntityStats } from '../entity-single-eval/fixtures.mjs';
++import { canonicalEvent, consumeSync, digestTranscript } from '../entity-single-eval/consume.mjs';
++import { bootstrapCI, geometricMean, median } from '../entity-single-eval/analyze.mjs';
++import { fingerprintDist } from '../entity-single-eval.mjs';
++
++const apiPromise = import('../../stax-xml/dist/index.js');
++
++test('fixture catalog is complete, seeded, and density counts values rather than bytes', () => {
++  assert.deepEqual(FIXTURE_IDS, ['ascii-none', 'unicode-none', 'astral-none', 'rare', 'named-attr', 'numeric-attr', 'custom-attr', 'named-text', 'mixed', 'xmlns']);
++  const first = createSyntheticFixture('mixed', { seed: FIXTURE_SEED, targetBytes: 32 * 1024 });
++  const second = createSyntheticFixture('mixed', { seed: FIXTURE_SEED, targetBytes: 32 * 1024 });
++  assert.equal(first.sha256, second.sha256);
++  assert.equal(first.bytes.byteLength, second.bytes.byteLength);
++  assert.equal(first.entityStats.targetValues, first.entityStats.attributeValues + first.entityStats.textValues);
++  assert.equal(first.entityStats.valuesWithEntities, first.entityStats.entityAttributeValues + first.entityStats.entityTextValues);
++  assert.equal(PROCESS_ORDER_SEED, 90317);
++});
++
++test('entity density scanner distinguishes occurrence count from values containing entities', () => {
++  const stats = scanEntityStats('<root id=\'root\' xmlns="urn:x&amp;y"><r a="&amp;&amp;" b=\'plain\'><x>all &lt; text</x></r></root>');
++  assert.equal(stats.targetValues, 3);
++  assert.equal(stats.valuesWithEntities, 2);
++  assert.equal(stats.rawOccurrences, 4);
++  assert.equal(stats.targetRawOccurrences, 3);
++  assert.equal(stats.entityDensity, 2 / 3);
++  assert.equal(stats.namespaceValues, 1);
++  assert.equal(stats.idValues, 1);
++});
++
++test('synthetic entity groups have exact target density, references, lengths, and unique values', () => {
++  const rare = createSyntheticFixture('rare', { seed: FIXTURE_SEED, targetBytes: 64 * 1024 });
++  assert.equal(rare.entityStats.remainderValues, 0);
++  assert.equal(rare.entityStats.valuesWithEntities * 100, rare.entityStats.targetValues);
++  assert.equal(rare.entityStats.entityAttributeValues + rare.entityStats.entityTextValues, rare.entityStats.valuesWithEntities);
++  assert.equal(rare.entityStats.uniqueValueCount, rare.entityStats.targetValues);
++  assert.equal(rare.entityStats.invalidSurrogates, 0);
++  for (const length of [8, 32, 128]) assert.ok(rare.entityStats.semanticValueLengths[length] > 0);
++
++  const mixed = createSyntheticFixture('mixed', { seed: FIXTURE_SEED, targetBytes: 64 * 1024 });
++  assert.equal(mixed.entityStats.remainderValues, 0);
++  assert.equal(mixed.entityStats.valuesWithEntities * 10, mixed.entityStats.targetValues);
++  assert.equal(mixed.entityStats.uniqueValueCount, mixed.entityStats.targetValues);
++  assert.equal(mixed.entityStats.invalidSurrogates, 0);
++
++  const named = createSyntheticFixture('named-attr', { targetBytes: 32 * 1024 });
++  const namedAttrs = [...named.source.matchAll(/\sa\d+="([^"]*)"/gu)].map((match) => match[1]);
++  assert.ok(namedAttrs.length > 0);
++  for (const value of namedAttrs) {
++    assert.equal((value.match(/&amp;/gu) ?? []).length, 1);
++    assert.equal((value.match(/&lt;/gu) ?? []).length, 1);
++    assert.equal((value.match(/&gt;/gu) ?? []).length, 1);
++    assert.equal((value.match(/&quot;/gu) ?? []).length, 1);
++    assert.equal((value.match(/&apos;/gu) ?? []).length, 1);
++  }
++  assert.equal(named.entityStats.rawOccurrences, namedAttrs.length * 5);
++
++  const numeric = createSyntheticFixture('numeric-attr', { targetBytes: 32 * 1024 });
++  const numericAttrs = [...numeric.source.matchAll(/\sa\d+="([^"]*)"/gu)].map((match) => match[1]);
++  assert.ok(numericAttrs.length > 0);
++  for (const value of numericAttrs) {
++    assert.equal((value.match(/&#(?:60|62);/gu) ?? []).length, 1);
++    assert.equal((value.match(/&#x(?:3c|3e);/giu) ?? []).length, 1);
++  }
++  assert.equal(numeric.entityStats.rawOccurrences, numericAttrs.length * 2);
++});
++
++test('xmlns fixture has escaped URI bindings without duplicate declarations', () => {
++  const fixture = createSyntheticFixture('xmlns', { targetBytes: 32 * 1024 });
++  assert.equal(fixture.entityStats.namespaceValues, fixture.rows * 2 + 3);
++  assert.equal(fixture.entityStats.namespaceRawOccurrences, fixture.rows + 3);
++  assert.equal((fixture.source.match(/xmlns:p=/gu) ?? []).length, fixture.rows + 1);
++  assert.equal((fixture.source.match(/xmlns=/gu) ?? []).length, fixture.rows + 1);
++  assert.equal((fixture.source.match(/xmlns:q=/gu) ?? []).length, 1);
++  for (const tag of fixture.source.matchAll(/<r\b[^>]*>/gu)) {
++    assert.equal((tag[0].match(/xmlns:p=/gu) ?? []).length, 1);
++    assert.equal((tag[0].match(/xmlns=/gu) ?? []).length, 1);
++  }
++  assert.ok(fixture.source.includes('&amp;'));
++  assert.equal(fixture.entityStats.uniqueValueCount, fixture.entityStats.targetValues);
++});
++
++test('dist fingerprint includes sorted relative paths and file bytes', () => {
++  const root = mkdtempSync(join(tmpdir(), 'entity-single-fingerprint-'));
++  mkdirSync(join(root, 'nested'));
++  writeFileSync(join(root, 'z.js'), 'z');
++  writeFileSync(join(root, 'nested', 'a.js'), 'a');
++  const first = fingerprintDist(root);
++  writeFileSync(join(root, 'z.js'), 'changed');
++  const second = fingerprintDist(root);
++  assert.deepEqual(first.entries.map((entry) => entry.path), ['nested/a.js', 'z.js']);
++  assert.notEqual(first.sha256, second.sha256);
++});
++
++test('paired bootstrap is deterministic and uses geometric block ratios', () => {
++  assert.equal(median([3, 1, 2]), 2);
++  assert.equal(geometricMean([1, 4]), 2);
++  const one = bootstrapCI([0.9, 1, 1.1], { iterations: 200, seed: 7 });
++  const two = bootstrapCI([0.9, 1, 1.1], { iterations: 200, seed: 7 });
++  assert.deepEqual(one, two);
++  assert.equal(one.iterations, 200);
++});
++
++test('public consumer records full event transcript and stable string digest', async () => {
++  const api = await apiPromise;
++  const fixture = createSyntheticFixture('named-attr', { targetBytes: 4096 });
++  const result = consumeSync(api, fixture.bytes, { kind: 'event-sync', canonical: true, ...fixture.options });
++  assert.equal(result.error, undefined);
++  assert.ok(result.eventCount > 0);
++  assert.equal(result.transcriptDigest, digestTranscript(result.events));
++  assert.equal(result.events[0].type, 'START_DOCUMENT');
++  assert.equal(canonicalEvent(result.events.at(-1)).type, 'END_DOCUMENT');
++  assert.ok(result.outputCodeUnits > 0);
++});
++
++

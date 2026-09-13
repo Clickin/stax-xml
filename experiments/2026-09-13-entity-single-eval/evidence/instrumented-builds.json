@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "baselineSha": "9a839ffb6824a25c4cc2fa6698e860daea5b5816",
+  "variants": [
+    {
+      "id": "R0",
+      "entry": "/tmp/stax-entity-single-eval-evidence/instrumented/R0/dist/index.js",
+      "converterEntry": "/tmp/stax-entity-single-eval-evidence/instrumented/R0/dist/converter.js",
+      "sourceSha": "9a839ffb6824a25c4cc2fa6698e860daea5b5816",
+      "patchSha256": null,
+      "distSha256": "5a89ee2a5fb693772822d0150adca52557e883f5bffec4f167ab692eca480e77",
+      "normalization": "reference",
+      "instrumented": true
+    },
+    {
+      "id": "W0",
+      "entry": "/tmp/stax-entity-single-eval-evidence/instrumented/W0/dist/index.js",
+      "converterEntry": "/tmp/stax-entity-single-eval-evidence/instrumented/W0/dist/converter.js",
+      "sourceSha": "9a839ffb6824a25c4cc2fa6698e860daea5b5816",
+      "patchSha256": "25a23fa696febbf8cd59014d2ff7d3d57a74efa18f2c3c0d4e36271df16af166",
+      "distSha256": "4f3dca4d103f995491f6cebcd225d5d62629d09a504606e03dc851b18488fed1",
+      "normalization": "wiring",
+      "instrumented": true
+    },
+    {
+      "id": "A1",
+      "entry": "/tmp/stax-entity-single-eval-evidence/instrumented/A1/dist/index.js",
+      "converterEntry": "/tmp/stax-entity-single-eval-evidence/instrumented/A1/dist/converter.js",
+      "sourceSha": "9a839ffb6824a25c4cc2fa6698e860daea5b5816",
+      "patchSha256": "615b11b0bd40a008b8bf47b07ec5c4931b1389ef66200f9c53979bb9a6074cdd",
+      "distSha256": "7420928737ad86614d1208c1a634160924a4e02b349984a9cab7fb309413a05b",
+      "normalization": "attributes",
+      "instrumented": true
+    },
+    {
+      "id": "AT1",
+      "entry": "/tmp/stax-entity-single-eval-evidence/instrumented/AT1/dist/index.js",
+      "converterEntry": "/tmp/stax-entity-single-eval-evidence/instrumented/AT1/dist/converter.js",
+      "sourceSha": "9a839ffb6824a25c4cc2fa6698e860daea5b5816",
+      "patchSha256": "512039dea33e030eb45a9ecf6646006af21e6cea48e5152c155b323859186234",
+      "distSha256": "06024e0526d57034a7902af4a4a0083794cb44d2876ed408d2512b74ad9e94f8",
+      "normalization": "attributes-text",
+      "instrumented": true
+    }
+  ],
+  "fixtureSeed": 260913,
+  "processOrderSeed": 90317
+}
