@@ -262,6 +262,62 @@ describe("TokenCursor option and accessor coverage", () => {
     );
   });
 
+  it.each([15, 16, 17, 32, 33])(
+    "reuses duplicate tracking across consecutive %i-attribute elements",
+    (width) => {
+      const first = attributeNames(width, "a");
+      const second = attributeNames(width, "a");
+      const third = attributeNames(width, "b").reverse();
+      const xml = [
+        `<first ${first.map((name, index) => `${name}="${index}"`).join(" ")}/>`,
+        `<second ${second.map((name, index) => `${name}="${index}"`).join(" ")}/>`,
+        `<third ${third.map((name, index) => `${name}="${index}"`).join(" ")}/>`,
+      ].join("");
+
+      for (const namespaceAware of [true, false]) {
+        expect(
+          collectAttributeNames(xml, { namespaceAware }, 1),
+        ).toEqual([first, second, third]);
+      }
+    },
+  );
+
+  it.each([15, 16, 17, 32])(
+    "rejects a real duplicate in a %i-attribute element",
+    (width) => {
+      const names = attributeNames(width);
+      names[width - 1] = names[0]!;
+      const xml = `<root ${names
+        .map((name, index) => `${name}="${index}"`)
+        .join(" ")}/>`;
+
+      for (const namespaceAware of [true, false]) {
+        expect(() =>
+          collectAttributeNames(xml, { namespaceAware }, 1),
+        ).toThrow(/duplicate attribute/i);
+      }
+    },
+  );
+
+  it("preserves expanded-name duplicate semantics and attribute ordering", () => {
+    const expandedNames = attributeNames(17, "a:x");
+    const attributes = [
+      'xmlns:a="urn:test"',
+      'xmlns:b="urn:test"',
+      ...expandedNames.map((name, index) => `${name}="${index}"`),
+      'b:x0="duplicate"',
+    ];
+    const xml = `<root ${attributes.join(" ")}/>`;
+
+    expect(() =>
+      collectAttributeNames(xml, { namespaceAware: true }, 1),
+    ).toThrow(/duplicate expanded attribute/i);
+
+    expect(
+      collectAttributeNames(xml, { namespaceAware: false }, 1)[0],
+    ).toEqual(["xmlns:a", "xmlns:b", ...expandedNames, "b:x0"]);
+  });
+
   it("validates entity and Unicode edge cases in text, attributes, and lexical nodes", () => {
     const entities = new TokenCursor(
       "<root>&lt;&gt;&amp;&quot;&apos;&#65;&#x42;</root>",
@@ -373,5 +429,42 @@ function collectTypes(cursor: TokenCursor): unknown[] {
     const type = cursor.next();
     if (type === null || type === NEED_INPUT) return types;
     types.push(type);
+  }
+}
+
+function attributeNames(width: number, prefix = "a"): string[] {
+  return Array.from({ length: width }, (_, index) => `${prefix}${index}`);
+}
+
+function collectAttributeNames(
+  xml: string,
+  options: { namespaceAware?: boolean },
+  chunkSize?: number,
+): string[][] {
+  const cursor =
+    chunkSize === undefined
+      ? new TokenCursor(xml, true, options)
+      : new TokenCursor("", false, options);
+  const result: string[][] = [];
+  let offset = 0;
+  while (true) {
+    const type = cursor.next();
+    if (type === NEED_INPUT) {
+      if (chunkSize === undefined || offset >= xml.length)
+        throw new Error("cursor requested unexpected input");
+      const nextOffset = Math.min(xml.length, offset + chunkSize);
+      cursor.push(xml.slice(offset, nextOffset), nextOffset === xml.length);
+      offset = nextOffset;
+      continue;
+    }
+    if (type === null) return result;
+    if (type === XmlEventType.START_ELEMENT) {
+      result.push(
+        Array.from(
+          { length: cursor.attributeCount() },
+          (_, index) => cursor.attribute(index)!.name,
+        ),
+      );
+    }
   }
 }

@@ -912,7 +912,8 @@ export class TokenCursor {
   private prepareDuplicateTable(count: number): DuplicateTable {
     const required = (count + 1) * 2;
     let table = this.duplicateTable;
-    if (table === undefined || table.slots.length < required) {
+    const needsGrowth = table === undefined || table.slots.length < required;
+    if (needsGrowth) {
       let capacity = 32;
       while (capacity < required) capacity *= 2;
       table = {
@@ -921,8 +922,10 @@ export class TokenCursor {
         generation: 0,
       };
       this.duplicateTable = table;
-    } else {
-      // Duplicate tables are only requested for wide tags, so any reusable table is ready as-is.
+    }
+    // A tag's first table lookup starts at the threshold. Later lookups reuse
+    // the generation; growth still needs a fresh generation and re-seed.
+    if (!needsGrowth && count !== DUPLICATE_TABLE_THRESHOLD) {
       return table;
     }
 
