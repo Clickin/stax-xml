@@ -1,0 +1,1 @@
+/Users/senghyunjo/github/stax-xml/packages/benchmark/cross-runtime/reader-quickxml-large/target/release/stax_xml_reader_quickxml_large: /Users/senghyunjo/github/stax-xml/packages/benchmark/cross-runtime/reader-quickxml-large/src/main.rs
