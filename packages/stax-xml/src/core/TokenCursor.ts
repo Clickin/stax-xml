@@ -1015,6 +1015,27 @@ export class TokenCursor {
     const boundary = this.buffer.indexOf("<", start);
     const outsideDocumentRoot =
       this.documentMode === "document" && this.stack.length === 0;
+    // Long spans first: a native char-class scan (compiled regex) beats the
+    // per-char ladder several-fold, and the inline loop below stays the
+    // authority for everything else — its inlined placement is load-bearing.
+    if (!outsideDocumentRoot && boundary - start >= NATIVE_TEXT_SCAN_MIN) {
+      const scanned = scanTextForBoundary(this.buffer, start);
+      if (scanned !== TEXT_SCAN_HAS_ENTITY) {
+        if (scanned >= 0) return scanned;
+        if (this.final) {
+          validateCharDataSpan(
+            this.buffer,
+            start,
+            this.buffer.length,
+            this.customEntities,
+          );
+          return -1;
+        }
+        this.resumeKind = ResumeKind.TEXT;
+        this.resumeOffset = this.buffer.length;
+        return -1;
+      }
+    }
     for (let index = start; index < this.buffer.length; index++) {
       const code = this.buffer.charCodeAt(index);
       if (code === 60) return index;
@@ -1463,6 +1484,70 @@ function validateXmlCharsSpan(text: string, start: number, end: number): void {
   }
 }
 
+// Code units that need JS attention inside text: '&' starts an entity, ']'
+// can start "]]>", and everything outside [\t\n\r\x20-\uD7FF\uE000-\uFFFD]
+// (other control chars, surrogates, 0xFFFE/0xFFFF) is invalid unless paired.
+// irregexp (V8) compiles this class into native range checks, several times
+// faster than the per-char JS ladder on long spans. '<' terminates the scan
+// at the span boundary. Spans shorter than NATIVE_TEXT_SCAN_MIN keep the
+// reference loop: exec()'s fixed cost dominates below that length.
+const SUSPICIOUS_TEXT = /[&<\]]|[^\x09\x0a\x0d\x20-\uD7FF\uE000-\uFFFD]/g;
+const NATIVE_TEXT_SCAN_MIN = 128;
+
+/** Sentinel: the span contains '&' and the caller's inline loop must run. */
+const TEXT_SCAN_HAS_ENTITY = -2;
+
+/**
+ * Validate one suspicious code unit. Returns the index of the low surrogate
+ * when `index` starts a valid pair (caller resumes after it), else undefined.
+ */
+function scanSuspiciousCodeUnit(
+  buffer: string,
+  index: number,
+  limit: number,
+): number | undefined {
+  const code = buffer.charCodeAt(index);
+  if (code >= 0xd800 && code <= 0xdfff) {
+    if (code > 0xdbff || index + 1 >= limit)
+      throw new Error("Invalid XML character.");
+    const low = buffer.charCodeAt(index + 1);
+    if (low < 0xdc00 || low > 0xdfff)
+      throw new Error("Invalid XML character.");
+    return index + 1;
+  }
+  if (code < 32 && code !== 9 && code !== 10 && code !== 13)
+    throw new Error("Invalid XML character.");
+  if (code === 0xfffe || code === 0xffff)
+    throw new Error("Invalid XML character.");
+  return undefined;
+}
+
+/** Long-span scan: return the '<' index (or -1); TEXT_SCAN_HAS_ENTITY for '&'. */
+function scanTextForBoundary(
+  buffer: string,
+  start: number,
+): number {
+  SUSPICIOUS_TEXT.lastIndex = start;
+  for (;;) {
+    const match = SUSPICIOUS_TEXT.exec(buffer);
+    if (match === null) return -1;
+    const index = match.index;
+    const code = match[0].charCodeAt(0);
+    if (code === 60) return index;
+    if (code === 38) return TEXT_SCAN_HAS_ENTITY;
+    if (code === 93) {
+      if (
+        buffer.charCodeAt(index + 1) === 93 &&
+        buffer.charCodeAt(index + 2) === 62
+      )
+        throw new Error("Character data cannot contain ]]>");
+      continue;
+    }
+    const next = scanSuspiciousCodeUnit(buffer, index, buffer.length);
+    if (next !== undefined) SUSPICIOUS_TEXT.lastIndex = next + 1;
+  }
+}
+
 function findValidatedAttributeEnd(
   text: string,
   start: number,
@@ -1482,7 +1567,8 @@ function validateCharDataSpan(
   customEntities?: ReadonlyMap<string, string>,
 ): void {
   validateEntitiesSpan(text, start, end, false, customEntities);
-  if (text.indexOf("]]>", start) >= 0 && text.indexOf("]]>", start) < end) {
+  const cdataEnd = text.indexOf("]]>", start);
+  if (cdataEnd >= 0 && cdataEnd < end) {
     throw new Error("Character data cannot contain ]]>");
   }
 }
