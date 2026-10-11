@@ -89,20 +89,34 @@ candidate/base — below 1.0 is faster):
   whole-input EventReaderSync + chunked byte streaming, covering ]]>,
   control chars, surrogate pairs/lone halves, unknown/unterminated
   entities, attribute edge cases, custom entities, doctype, whitespace.
-  **Coverage qualifier:** StreamReaderSync re-batches all byte input to
-  64 KiB (`batchByteChunks`), so the "7-byte chunks" feed produces 64 KiB
-  push/decode boundaries, not 7-byte tokenizer boundaries. Sub-64KiB
-  cursor boundaries are covered only by the unit suite (1..N code-unit
-  chunks, span length ≤17 there).
-- 58/58 threshold/boundary parity checks (parity3.mjs): span lengths
-  126/127/128/129/130/5000; invalid and interesting content placed inside
-  ≥128-char spans (]]>, control at 0/mid, 0x7F pass, 0xFFFE, lone
-  surrogate halves, valid pairs, entities at start/mid, unknown/numeric
-  entities); final-tail spans without '<'; 64 KiB boundary straddles
-  (span, entity, control char, ]]>, multi-byte UTF-8, entity split); plus
-  a 260×300-char interior-span streaming document (fast-path eligible in
-  streaming mode) — all identical to baseline, and the candidate
-  demonstrably throws the right errors on fast-path spans.
+  **Coverage qualifier:** StreamReaderSync re-batches all byte input
+  through `batchByteChunks`, which appends WHOLE input chunks until the
+  64 KiB limit is reached — a 7-byte chunk feed therefore produces
+  65,541-byte batches (9363×7), not 65,536-byte ones. Chunked feeds
+  cannot target byte offset 65536 exactly; sub-64KiB cursor boundaries
+  are covered only by the unit suite (1..N code-unit chunks, longest
+  entity-bearing span 17 chars — fast path not exercised there).
+- 56/56 differential parity checks (parity4.mjs), the corrected
+  threshold/boundary protocol:
+  - Input is a single Uint8Array → StreamReaderSync → `fixedByteChunks`,
+    which slices at exactly BYTE_CHUNK_SIZE = 65,536 — real 64 KiB
+    decode/push boundaries.
+  - Every fixture's special is offset-ASSERTED in the encoded bytes
+    before running (mis-built fixtures throw, not pass vacuously).
+  - Comparison is full event serialization + SHA-256 (parity3 compared
+    only length + first 80 chars).
+  - Coverage: span lengths 126/127/128/129/130/5000; invalid/valid
+    content inside ≥128-char spans; specials at exact offsets 65535/65536/
+    65537 (]]>), 65535/65536 (control), 65533–65538 (`&amp;` split at
+    every alignment), 65534–65536 (한, both UTF-8 split shapes), split
+    `&broken;` error; spans crossing 65536 and starting exactly at 65536;
+    plus a 260×300-char interior-span streaming document (the only
+    streaming shape in which the fast path executes inside a buffer).
+  - Superseded: parity3.mjs's boundary family was mis-built — specials
+    landed ~93–97 bytes before 65536 (the 3-byte `<r>` was not accounted
+    for), `bd-cdata-straddle` (65,492 B) and `bd-multibyte` (65,514 B)
+    never reached 64 KiB at all, and its 7-byte feed produced 65,541-byte
+    batches. Its threshold and invalid-placement families remain valid.
 - History note: the first parity script fed string chunks to
   StreamReaderSync; both sides threw the identical TypeError, so that
   pass was vacuous. parity2.mjs switched to the real byte-chunk path.
@@ -146,6 +160,9 @@ inferred from the quadratic scaling alone.
 - iteration-log.md — D/E/H measurement history (negative intermediates).
 - parity2.mjs, parity-log.txt — differential correctness (64KiB-bounded
   streaming; see qualifier above).
-- parity3.mjs, parity3-log.txt — threshold-edge and 64KiB-boundary parity
-  (58/58), including streaming interior long spans.
+- parity3.mjs, parity3-log.txt — threshold-edge parity (valid) and a
+  mis-built boundary family (superseded; see Correctness).
+- parity4.mjs, parity4-run.log — corrected threshold/boundary protocol:
+  exact-65536 fixedByteChunks input, offset-asserted specials, full
+  serialization + SHA-256 comparison. 56/56.
 - final-results.txt — design J summary numbers.
