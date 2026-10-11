@@ -1,0 +1,3 @@
+58 checks run, 0 mismatches
+cdata-long whole: {"err":"Character data cannot contain ]]>"}
+ctrl-long whole: {"err":"Invalid XML character."}

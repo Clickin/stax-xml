@@ -82,13 +82,30 @@ candidate/base — below 1.0 is faster):
 ## Correctness
 
 - 658/658 unit tests, W3C XML TS 805 passed / 203 baseline skips / 0 failed.
-- 64/64 differential parity checks vs baseline dist (whole-input EventReaderSync
-  + 7-byte chunked byte streaming through TextDecoder/push), covering ]]>,
-  control chars, surrogate pairs/lone halves, unknown/unterminated entities,
-  attribute edge cases, custom entities, doctype, whitespace spans.
-- Note: an earlier parity script fed string chunks to StreamReaderSync; both
-  sides threw the identical TypeError, so that pass was vacuous. parity2.mjs
-  uses the real byte-chunk path.
+  The unit suite covers TokenCursor directly at every chunk size 1..N
+  (token-cursor-resume), but its longest entity-bearing text span is 17
+  chars, so the ≥128 fast path is not exercised there.
+- 64/64 differential parity checks (parity2.mjs) vs baseline dist:
+  whole-input EventReaderSync + chunked byte streaming, covering ]]>,
+  control chars, surrogate pairs/lone halves, unknown/unterminated
+  entities, attribute edge cases, custom entities, doctype, whitespace.
+  **Coverage qualifier:** StreamReaderSync re-batches all byte input to
+  64 KiB (`batchByteChunks`), so the "7-byte chunks" feed produces 64 KiB
+  push/decode boundaries, not 7-byte tokenizer boundaries. Sub-64KiB
+  cursor boundaries are covered only by the unit suite (1..N code-unit
+  chunks, span length ≤17 there).
+- 58/58 threshold/boundary parity checks (parity3.mjs): span lengths
+  126/127/128/129/130/5000; invalid and interesting content placed inside
+  ≥128-char spans (]]>, control at 0/mid, 0x7F pass, 0xFFFE, lone
+  surrogate halves, valid pairs, entities at start/mid, unknown/numeric
+  entities); final-tail spans without '<'; 64 KiB boundary straddles
+  (span, entity, control char, ]]>, multi-byte UTF-8, entity split); plus
+  a 260×300-char interior-span streaming document (fast-path eligible in
+  streaming mode) — all identical to baseline, and the candidate
+  demonstrably throws the right errors on fast-path spans.
+- History note: the first parity script fed string chunks to
+  StreamReaderSync; both sides threw the identical TypeError, so that
+  pass was vacuous. parity2.mjs switched to the real byte-chunk path.
 
 ## Verdict
 
@@ -100,14 +117,26 @@ remain neutral by construction. Bun/JSC: ascii neutral, unicode slightly
 slower (Yarr two-byte negated-class scan), documented as a promotion
 consideration.
 
-New negative patterns recorded for future experiments:
+New negative patterns recorded for future experiments (measured effects;
+engine-internal causes are hypotheses, see below):
 
-- Native scans must be bounded by the span they serve (indexOf with no end
-  bound re-scans tails per span; JSC makes it quadratic).
-- exec()-per-span fixed cost exceeds the JS ladder below ~30-60 char spans.
-- Whole-buffer proof scans pay the markup share that the ladder never paid.
-- Do not extract the inline validation ladder; its inlined placement in
-  findTextEndValidated is load-bearing (~15%).
+- Native scans must be bounded by the span they serve: an indexOf pre-check
+  with no end bound made Bun wall time scale quadratically (measured
+  1MB=180ms → 4MB=2739ms).
+- exec()-per-span fixed cost exceeds the JS ladder below ~30-60 char spans
+  (measured break-even; the allocation profile of RegExpBuiltinExec is the
+  suspected, unverified mechanism).
+- Whole-buffer proof scans pay the markup share that the ladder never paid
+  (measured: 14.8ms regex sweep vs ~12ms of ladder work on midsize.xml).
+- Do not extract the inline validation ladder: extraction alone cost ~15%
+  on span-dense documents (measured 56.7→66.5ms on ascii SYNTH).
+
+Engine-internal attributions are hypotheses, not traced causes: "JSC lacks
+SIMD in String.indexOf" and "TurboFan field-load specialization vs argument
+passing / bounds-check elimination" both explain the measurements, but no
+engine trace or custom build isolated either mechanism. The V8 SIMD
+SearchString claim for indexOf is documented upstream; the JSC side was
+inferred from the quadratic scaling alone.
 
 ## Files
 
@@ -115,6 +144,8 @@ New negative patterns recorded for future experiments:
 - micro-outputs.txt — captured micro runs.
 - span-distribution.md — real fixture span/entity analysis.
 - iteration-log.md — D/E/H measurement history (negative intermediates).
-- final-ab-node.log, final-ab-stream.log, final-ab-bun.log — design J A/B.
-- parity2.mjs, parity-log.txt — differential correctness.
-- env.txt — runtime/versions.
+- parity2.mjs, parity-log.txt — differential correctness (64KiB-bounded
+  streaming; see qualifier above).
+- parity3.mjs, parity3-log.txt — threshold-edge and 64KiB-boundary parity
+  (58/58), including streaming interior long spans.
+- final-results.txt — design J summary numbers.
