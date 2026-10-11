@@ -1,0 +1,40 @@
+=== scan-micro2.mjs (design A: exec per suspicious char, spans/long) ===
+ascii/long chars=16.8M jsLoop=35.6ms (472Mc/s) reScan=19.8ms (848Mc/s) speedup=1.80x
+entities/long chars=16.8M jsLoop=32.6ms (515Mc/s) reScan=43.5ms (386Mc/s) speedup=0.75x
+unicode/long chars=16.8M jsLoop=36.0ms (466Mc/s) reScan=8.3ms (2009Mc/s) speedup=4.31x
+mixed/long chars=16.8M jsLoop=40.7ms (413Mc/s) reScan=25.0ms (672Mc/s) speedup=1.63x
+ascii/spans(150c x 112k) jsLoop=27.6ms (607Mc/s) reScan=18.0ms (932Mc/s) speedup=1.54x
+entities/spans(150c x 112k) jsLoop=31.6ms (530Mc/s) reScan=56.5ms (297Mc/s) speedup=0.56x
+unicode/spans(60c x 280k) jsLoop=32.9ms (510Mc/s) reScan=25.7ms (652Mc/s) speedup=1.28x
+ascii/spans(40c x 419k) jsLoop=84.2ms (199Mc/s) reScan=48.0ms (350Mc/s) speedup=1.76x
+
+=== scan-micro3.mjs (design C: density escape to JS loop) ===
+ascii/long jsLoop=36.2ms reScanC=15.6ms speedup=2.31x
+entities/long jsLoop=32.5ms reScanC=32.8ms speedup=0.99x
+unicode/long jsLoop=36.5ms reScanC=8.3ms speedup=4.38x
+mixed/long jsLoop=40.7ms reScanC=25.0ms speedup=1.62x
+sparse/long jsLoop=41.8ms reScanC=20.5ms speedup=2.04x
+entities/spans(150c) jsLoop=31.0ms reScanC=38.5ms speedup=0.80x
+
+=== scan-micro4.mjs (design D: indexOf('&') pre-check branch) ===
+ascii/long jsLoop=35.0ms (479Mc/s) reD=8.6ms (1946Mc/s) speedup=4.06x
+entities/long jsLoop=33.2ms (505Mc/s) reD=31.9ms (525Mc/s) speedup=1.04x
+unicode/long jsLoop=35.8ms (469Mc/s) reD=9.2ms (1827Mc/s) speedup=3.90x
+mixed/long jsLoop=40.2ms (418Mc/s) reD=39.8ms (421Mc/s) speedup=1.01x
+sparse/long jsLoop=41.0ms (409Mc/s) reD=41.0ms (409Mc/s) speedup=1.00x
+ascii/spans(150c) jsLoop=30.6ms (548Mc/s) reD=10.9ms (1535Mc/s) speedup=2.80x
+entities/spans(150c) jsLoop=30.2ms (556Mc/s) reD=31.8ms (428Mc/s) speedup=0.95x
+sparse/spans(150c) jsLoop=32.3ms (520Mc/s) reD=32.8ms (512Mc/s) speedup=0.98x
+ascii/spans(40c) jsLoop=34.7ms (484Mc/s) reD=15.9ms (1055Mc/s) speedup=2.18x
+unicode/spans(60c) jsLoop=31.6ms (530Mc/s) reD=14.2ms (1180Mc/s) speedup=2.22x
+
+=== class encoding comparison on midsize.xml (design H era) ===
+alternation /[&\]]|[^\t\n\r\x20-...]/ : 13.9ms 974Mc/s (0 matches)
+singleNegated folded                  : 15.4ms 881Mc/s (0 matches)
+same match positions: true
+
+=== Bun quadratic blowup (design D, JSC scalar indexOf) ===
+bun ascii 1MB events 60496 ms 180
+bun ascii 2MB events 120991 ms 689
+bun ascii 4MB events 241981 ms 2739
+(after design E fix: 1MB=19ms 4MB=21ms 16MB=67ms; design J final: 16MB=58ms)
