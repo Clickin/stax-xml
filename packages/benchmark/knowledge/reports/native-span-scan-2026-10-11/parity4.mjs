@@ -27,7 +27,8 @@ function byteIndexOf(bytes, needle, from = 0) {
 
 /** Build `<r>` + a*pad + special + tail + `</r>` and assert byte layout. */
 function build(B, special, tail, label) {
-  const xml = `<r>${"a".repeat(B - 3)}${special}${tail}</r>`;
+  const mid = special === null ? "" : special;
+  const xml = `<r>${"a".repeat(B - 3)}${mid}${tail}</r>`;
   const bytes = enc.encode(xml);
   if (special === null) {
     // Crossing case: text span is [3, B + tail.length); assert 65536 is
@@ -41,6 +42,24 @@ function build(B, special, tail, label) {
   if (at !== B)
     throw new Error(`fixture ${label}: special at byte ${at}, expected ${B}`);
   return { xml, bytes, at };
+}
+
+/**
+ * Text span starting exactly at byte 65536: markup before it is sized so the
+ * last '>' of the filler end tag lands at 65535 and the first text char at
+ * 65536. Asserted on the encoded bytes.
+ */
+function buildSpanStartAtBoundary(tail) {
+  // <r>(3) <i>(3) a*N </i>(4) = 10 + N bytes before the text.
+  const N = K - 10;
+  const xml = `<r><i>${"a".repeat(N)}</i>${tail}</r>`;
+  const bytes = enc.encode(xml);
+  if (bytes[K - 1] !== 0x3e) throw new Error(`span-start: byte 65535 is not '>'`);
+  if (bytes[K] !== tail.charCodeAt(0))
+    throw new Error(`span-start: byte 65536 is not the first tail char`);
+  if (byteIndexOf(bytes, enc.encode(tail.slice(0, 8))) !== K)
+    throw new Error(`span-start: tail not at 65536`);
+  return { xml, bytes, at: K };
 }
 
 const A = "a";
@@ -72,7 +91,7 @@ cases.push(["final-tail-invalid", `<r>${A.repeat(L)}\x01`, null]);
 const T = A.repeat(300);
 const boundary = [
   ["bd-span-cross", null, K - 100, T], // 65733-char span crossing 65536 (special=padding only)
-  ["bd-span-start-at-k", null, K, A.repeat(300)], // long span starting exactly at 65536
+  ["bd-span-start-at-k", "SPAN_START", K, "z".repeat(300)], // text begins exactly at 65536
   ["bd-cdata-65535", "]]>", K - 1, T],
   ["bd-cdata-65536", "]]>", K, T],
   ["bd-cdata-65537", "]]>", K + 1, T],
@@ -118,11 +137,20 @@ async function collect(impl, xml, bytes) {
       return o;
     };
     out = await (bytes ? streamed() : whole());
-    const ser = JSON.stringify(out);
-    return { sha: createHash("sha256").update(ser).digest("hex").slice(0, 16), len: ser.length };
+    // Return the FULL serialization: comparing results below is direct
+    // string equality. The digest in log lines is display shorthand only.
+    return { ser: JSON.stringify(out) };
   } catch (e) {
     return { err: e.message };
   }
+}
+
+function brief(result) {
+  if (result.err !== undefined) return JSON.stringify(result);
+  return {
+    sha: createHash("sha256").update(result.ser).digest("hex").slice(0, 16),
+    len: result.ser.length,
+  };
 }
 
 let mismatches = 0;
@@ -137,17 +165,22 @@ for (const [label, xml] of cases) {
   }
 }
 for (const [label, special, B, tail] of boundary) {
-  const { xml, bytes, at } = build(B, special ?? null, tail, label);
+  const built =
+    special === "SPAN_START"
+      ? buildSpanStartAtBoundary(tail)
+      : build(B, special ?? null, tail, label);
+  const { xml, bytes, at } = built;
   for (const [mode, arg] of [["whole", null], ["stream64k", bytes]]) {
     const a = await collect(BASE, xml, arg);
     const b = await collect(CAND, xml, arg);
     checked++;
-    const tag = special === null ? "span-cross" : JSON.stringify(special);
+    const tag =
+      special === "SPAN_START" ? "text-span" : special === null ? "span-cross" : JSON.stringify(special);
     if (JSON.stringify(a) !== JSON.stringify(b)) {
       mismatches++;
-      console.log(`MISMATCH ${label}/${mode} special=${tag}@${at} base=${JSON.stringify(a)} cand=${JSON.stringify(b)}`);
+      console.log(`MISMATCH ${label}/${mode} special=${tag}@${at} base=${JSON.stringify(brief(a))} cand=${JSON.stringify(brief(b))}`);
     } else if (mode === "stream64k") {
-      console.log(`ok ${label.padEnd(24)} ${tag}@${at} -> ${JSON.stringify(a)}`);
+      console.log(`ok ${label.padEnd(24)} ${tag}@${at} -> ${JSON.stringify(brief(a))}`);
     }
   }
 }
@@ -159,6 +192,6 @@ for (const [label, special, B, tail] of boundary) {
   if (JSON.stringify(a) !== JSON.stringify(b)) {
     mismatches++;
     console.log(`MISMATCH stream-interior base=${JSON.stringify(a)} cand=${JSON.stringify(b)}`);
-  } else console.log(`ok stream-interior         260x300c -> ${JSON.stringify(a)}`);
+  } else console.log(`ok stream-interior         260x300c -> ${JSON.stringify(brief(a))}`);
 }
 console.log(`${checked} checks run, ${mismatches} mismatches`);

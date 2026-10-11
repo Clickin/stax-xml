@@ -1,10 +1,10 @@
-ok bd-span-cross            span-cross@65436 -> {"sha":"2e54c6a45bf96df6","len":65869}
-ok bd-span-start-at-k       span-cross@65536 -> {"sha":"a39f363980b9c738","len":65969}
-ok bd-cdata-65535           "]]>"@65535 -> {"err":"Character data cannot contain ]]>"}
-ok bd-cdata-65536           "]]>"@65536 -> {"err":"Character data cannot contain ]]>"}
-ok bd-cdata-65537           "]]>"@65537 -> {"err":"Character data cannot contain ]]>"}
-ok bd-ctrl-65535            "\u0001"@65535 -> {"err":"Invalid XML character."}
-ok bd-ctrl-65536            "\u0001"@65536 -> {"err":"Invalid XML character."}
+ok bd-span-cross            span-cross@65436 -> {"sha":"b7dd212091ef032e","len":65865}
+ok bd-span-start-at-k       text-span@65536 -> {"sha":"8e9c03a8de1f4f3d","len":66033}
+ok bd-cdata-65535           "]]>"@65535 -> "{\"err\":\"Character data cannot contain ]]>\"}"
+ok bd-cdata-65536           "]]>"@65536 -> "{\"err\":\"Character data cannot contain ]]>\"}"
+ok bd-cdata-65537           "]]>"@65537 -> "{\"err\":\"Character data cannot contain ]]>\"}"
+ok bd-ctrl-65535            "\u0001"@65535 -> "{\"err\":\"Invalid XML character.\"}"
+ok bd-ctrl-65536            "\u0001"@65536 -> "{\"err\":\"Invalid XML character.\"}"
 ok bd-ent-65533             "&amp;"@65533 -> {"sha":"4e643e205d1a3039","len":65963}
 ok bd-ent-65534             "&amp;"@65534 -> {"sha":"02599e2bcac16852","len":65964}
 ok bd-ent-65535             "&amp;"@65535 -> {"sha":"4fd377dc6fa5bfd5","len":65965}
@@ -13,6 +13,6 @@ ok bd-ent-65538             "&amp;"@65538 -> {"sha":"e5faf2a5e768fb86","len":659
 ok bd-han-65534             "한"@65534 -> {"sha":"919eec4243777a30","len":65964}
 ok bd-han-65535             "한"@65535 -> {"sha":"fb959816f06d0d19","len":65965}
 ok bd-han-65536             "한"@65536 -> {"sha":"48bf2fe53c061fcd","len":65966}
-ok bd-unknown-ent-65535     "&broken;"@65535 -> {"err":"Unknown or invalid entity: &broken;"}
+ok bd-unknown-ent-65535     "&broken;"@65535 -> "{\"err\":\"Unknown or invalid entity: &broken;\"}"
 ok stream-interior         260x300c -> {"sha":"8caffae81c2b8637","len":97615}
 56 checks run, 0 mismatches

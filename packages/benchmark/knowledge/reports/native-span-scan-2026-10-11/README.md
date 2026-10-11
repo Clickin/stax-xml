@@ -103,20 +103,29 @@ candidate/base — below 1.0 is faster):
     decode/push boundaries.
   - Every fixture's special is offset-ASSERTED in the encoded bytes
     before running (mis-built fixtures throw, not pass vacuously).
-  - Comparison is full event serialization + SHA-256 (parity3 compared
-    only length + first 80 chars).
+  - Comparison is direct full-serialization string equality: `collect`
+    returns the complete JSON event serialization and results are
+    compared whole. Log lines show a 16-hex-character SHA-256 prefix +
+    length as display shorthand only — the digest is NOT the comparison.
+    (The earlier parity4 draft compared only digest+length; also fixed
+    below.)
   - Coverage: span lengths 126/127/128/129/130/5000; invalid/valid
     content inside ≥128-char spans; specials at exact offsets 65535/65536/
     65537 (]]>), 65535/65536 (control), 65533–65538 (`&amp;` split at
     every alignment), 65534–65536 (한, both UTF-8 split shapes), split
-    `&broken;` error; spans crossing 65536 and starting exactly at 65536;
-    plus a 260×300-char interior-span streaming document (the only
-    streaming shape in which the fast path executes inside a buffer).
-  - Superseded: parity3.mjs's boundary family was mis-built — specials
-    landed ~93–97 bytes before 65536 (the 3-byte `<r>` was not accounted
-    for), `bd-cdata-straddle` (65,492 B) and `bd-multibyte` (65,514 B)
-    never reached 64 KiB at all, and its 7-byte feed produced 65,541-byte
-    batches. Its threshold and invalid-placement families remain valid.
+    `&broken;` error; a span crossing 65536; a text span STARTING exactly
+    at 65536 (markup filler sized so byte 65535 is '>' and 65536 is the
+    first text char, asserted); plus a 260×300-char interior-span
+    streaming document (the only streaming shape in which the fast path
+    executes inside a buffer).
+  - Superseded drafts: parity3's boundary family (specials ~93–97 B
+    before 65536, two cases under 64 KiB, 65,541-byte batches) and the
+    first parity4 draft (template `${null}` interpolated a literal
+    "null" token into the two padding-only fixtures, and its
+    `bd-span-start-at-k` never constructed a span starting at 65536 —
+    every span started at byte 3 after `<r>`; that case is now built and
+    asserted via `buildSpanStartAtBoundary`). Threshold and
+    invalid-placement families were never affected.
 - History note: the first parity script fed string chunks to
   StreamReaderSync; both sides threw the identical TypeError, so that
   pass was vacuous. parity2.mjs switched to the real byte-chunk path.
