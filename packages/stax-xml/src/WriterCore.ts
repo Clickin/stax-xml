@@ -190,7 +190,7 @@ export class WriterCore {
       this.write("/>");
       this.restore(undoStart);
       this.state = State.AFTER_ELEMENT;
-      this.newline();
+      if (this.options.prettyPrint) this.needsIndent = true;
       return;
     }
     this.elements.push(plan.qualifiedName);

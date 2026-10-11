@@ -19,6 +19,29 @@ function createCountingWritableStream(): {
 }
 
 describe("Writer hot-path regression coverage", () => {
+  it.each([
+    { prettyPrint: true, nested: false, expected: "<test/>\n<test/>" },
+    { prettyPrint: true, nested: true, expected: "<root>\n  <test/>\n  <test/>\n</root>" },
+    { prettyPrint: false, nested: false, expected: "<test/><test/>" },
+  ])("separates self-closing siblings without blank lines: %j", ({ prettyPrint, nested, expected }) => {
+    const writer = new WriterSync({ prettyPrint });
+    if (nested) writer.writeStartElement("root");
+    writer.writeStartElement("test", { selfClosing: true });
+    writer.writeStartElement("test", { selfClosing: true });
+    if (nested) writer.writeEndElement();
+    expect(writer.getXmlString()).toBe(expected);
+  });
+
+  it("does not insert whitespace after an inline self-closing element", () => {
+    const writer = new WriterSync({ prettyPrint: true });
+    writer.writeStartElement("root");
+    writer.writeCharacters("before");
+    writer.writeStartElement("br", { selfClosing: true });
+    writer.writeCharacters("after");
+    writer.writeEndElement();
+    expect(writer.getXmlString()).toBe("<root>before<br/>after</root>");
+  });
+
   it("serializes declaration, DTD, PI, namespaces, CDATA, and self-closing tags identically in every writer", async () => {
     const options = { prettyPrint: true, indentString: "  " };
     const sync = new WriterSync(options);
