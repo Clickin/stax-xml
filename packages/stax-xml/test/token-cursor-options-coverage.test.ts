@@ -275,9 +275,11 @@ describe("TokenCursor option and accessor coverage", () => {
       ].join("");
 
       for (const namespaceAware of [true, false]) {
-        expect(
-          collectAttributeNames(xml, { namespaceAware }, 1),
-        ).toEqual([first, second, third]);
+        for (const chunkSize of [undefined, 1]) {
+          expect(
+            collectAttributeNames(xml, { namespaceAware }, chunkSize),
+          ).toEqual([first, second, third]);
+        }
       }
     },
   );
@@ -292,9 +294,11 @@ describe("TokenCursor option and accessor coverage", () => {
         .join(" ")}/>`;
 
       for (const namespaceAware of [true, false]) {
-        expect(() =>
-          collectAttributeNames(xml, { namespaceAware }, 1),
-        ).toThrow(/duplicate attribute/i);
+        for (const chunkSize of [undefined, 1]) {
+          expect(() =>
+            collectAttributeNames(xml, { namespaceAware }, chunkSize),
+          ).toThrow(/duplicate attribute/i);
+        }
       }
     },
   );
@@ -309,13 +313,15 @@ describe("TokenCursor option and accessor coverage", () => {
     ];
     const xml = `<root ${attributes.join(" ")}/>`;
 
-    expect(() =>
-      collectAttributeNames(xml, { namespaceAware: true }, 1),
-    ).toThrow(/duplicate expanded attribute/i);
+    for (const chunkSize of [undefined, 1]) {
+      expect(() =>
+        collectAttributeNames(xml, { namespaceAware: true }, chunkSize),
+      ).toThrow(/duplicate expanded attribute/i);
 
-    expect(
-      collectAttributeNames(xml, { namespaceAware: false }, 1)[0],
-    ).toEqual(["xmlns:a", "xmlns:b", ...expandedNames, "b:x0"]);
+      expect(
+        collectAttributeNames(xml, { namespaceAware: false }, chunkSize)[0],
+      ).toEqual(["xmlns:a", "xmlns:b", ...expandedNames, "b:x0"]);
+    }
   });
 
   it("validates entity and Unicode edge cases in text, attributes, and lexical nodes", () => {

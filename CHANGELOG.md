@@ -5,12 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.1.1] - 2026-10-12
 
 ### Fixed
 
-- Reset duplicate-attribute table generations between wide start elements,
-  preserving exact duplicate detection when tables are reused or grown.
+- Fixed false duplicate-attribute errors when parsing consecutive elements with
+  17 or more attributes. Reused duplicate tables now start a new generation for
+  each wide start element and are reseeded after growth, while preserving real
+  duplicate detection, namespace checks, and attribute order.
 
 ## [1.1.0] - 2026-07-19
 
