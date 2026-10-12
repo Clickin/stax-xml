@@ -24,6 +24,7 @@ export default defineConfig({
     include: [
       "test/v1-reader-contract.test.ts",
       "test/token-cursor-resume.test.ts",
+      "test/token-cursor-hidden-class.test.ts",
       "test/token-cursor-options-coverage.test.ts",
       "test/namespace.test.ts",
       "test/parser-async-regression.test.ts",
