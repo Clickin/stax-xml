@@ -10,20 +10,18 @@
 TypeScript, built to process multi-gigabyte XML documents with a small, constant
 memory footprint.
 
-It is 100% pure JavaScript—not as a compromise, but because staying in
-JavaScript delivers higher end-to-end throughput and lower memory usage (RSS)
-than native addons or WebAssembly modules. The parser core, stream readers,
-event readers, converter, and writer all run without native dependencies or
-backend selection.
+It is 100% pure JavaScript. The parser core, stream readers, event readers,
+converter, and writer all run without native addons, WebAssembly modules, or
+backend selection, so parsed values are created directly as JavaScript values
+in a single heap.
 
 ### Goals
 
 - **Small, constant memory for massive files:** Parse XML documents far larger
   than JavaScript's single-string limit (~512MB–1GB) without `Out of Memory`
   crashes by consuming streams and byte batches.
-- **Outperform Native and Wasm in JavaScript workloads:** Achieve faster
-  end-to-end parsing and lower RSS by eliminating FFI/Wasm bridge overhead and
-  dual heaps.
+- **No native bridge, single heap:** Keep parsing inside JavaScript so results
+  never cross an FFI/Wasm bridge and no second native or Wasm heap is needed.
 - **StAX-style pull API:** Let application code pull events with standard loops
   instead of maintaining deep SAX callback state machines.
 - **Sync core, async boundaries:** Keep async work strictly at I/O ingress
@@ -32,29 +30,27 @@ backend selection.
 - **Universal portability:** Run identically across Node.js, Bun, Deno,
   browsers, and edge runtimes.
 
-### Why pure JavaScript is faster and lighter than Native/Wasm
+### Why pure JavaScript?
 
 We built and benchmarked native (N-API) and WebAssembly tokenizers first. Native
 code scans raw XML bytes quickly in isolation, but `stax-xml` is not a raw
 tokenizer benchmark. In a real application, the parser must deliver element
 names, text, attributes, events, and objects as JavaScript values.
 
-Crossing that boundary flips the performance tradeoff:
+That boundary changes the tradeoff:
 
 1. **No FFI/Wasm bridge cost:** Native code can read JavaScript
    `Buffer`/`ArrayBuffer` input without copying, but every parsed string and
    object still has to cross back into JavaScript. Because JavaScript strings
    are immutable primitives rather than reusable `char[]` views, crossing the
    bridge incurs UTF-8 decoding, allocation, and wrapper overhead on every token.
-2. **Lower memory footprint (RSS):** Wasm requires a separate linear memory
-   island, and native addons allocate on the native heap alongside V8. Staying
-   purely in JavaScript avoids dual-heap overhead and keeps RSS significantly
-   lower.
+2. **No second heap:** Wasm requires a separate linear memory island, and
+   native addons allocate on the native heap alongside V8. Staying in
+   JavaScript keeps all parser state and results in the V8 heap.
 
-Moving the native experiment out and centering `stax-xml` on byte-oriented pure
-JavaScript resulted in both faster end-to-end execution and lower resource
-consumption for XML-to-object conversion, event reading, cursor reading, and
-writing.
+For that reason, the native experiment was moved out of this package, and
+`stax-xml` centers on byte-oriented pure JavaScript for XML-to-object
+conversion, event reading, cursor reading, and writing.
 
 ### Install
 
@@ -140,9 +136,8 @@ compact XML to a file. Both include file I/O.
 | Woodstox 6.7.0 | Java 25 | 284.4 MiB/s | 106.5 MiB/s |
 | quick-xml 0.40.1 | Rust 1.95 | 597.6 MiB/s | 185.9 MiB/s |
 
-Woodstox and quick-xml produce JVM and Rust strings, not JavaScript values, so
-treat them as a reference point rather than an option for JavaScript code. The
-native/Wasm comparison above is about addons called from JavaScript.
+Woodstox and quick-xml produce JVM and Rust values rather than JavaScript
+values. Their rows are included for reference.
 
 ### Guides & Documentation
 
@@ -164,8 +159,8 @@ comparison:
 pnpm --dir packages/benchmark bench:runtime-matrix
 ```
 
-This compares the same JavaScript reader workload across Node, Bun, and Deno
-when those runtimes are installed.
+This compares the same JavaScript reader workload across Node and Bun when
+those runtimes are installed.
 
 ---
 
@@ -175,19 +170,17 @@ when those runtimes are installed.
 빠르게 처리할 수 있도록 설계된 JavaScript 및 TypeScript용 StAX(Pull 방식) XML
 파서 및 라이터입니다.
 
-이 패키지는 타협이 아니라 **실제 처리 속도(Throughput) 향상과 메모리(RSS) 절감**을
-위해 100% 순수 JavaScript로 동작합니다. 파서 코어, 스트림 리더, 이벤트 리더,
-컨버터, 라이터 모두 네이티브 애드온(N-API)이나 Wasm 모듈 없이도 네이티브/Wasm 기반
-파서보다 더 빠른 성능과 낮은 리소스 점유율을 보여줍니다.
+이 패키지는 100% 순수 JavaScript로 동작합니다. 파서 코어, 스트림 리더, 이벤트
+리더, 컨버터, 라이터 모두 네이티브 애드온(N-API), Wasm 모듈, 백엔드 선택 없이
+동작하므로, 파싱 결과가 하나의 힙 안에서 곧바로 JavaScript 값으로 만들어집니다.
 
 ### 핵심 목표
 
 - **적은 메모리로 대용량 파일 처리:** JavaScript의 단일 문자열 크기 한계(약
   512MB~1GB)를 넘는 대용량 XML도 스트림과 바이트 배치(Byte batch) 단위로 읽어,
   메모리 부족(OOM) 없이 일정하고 낮은 메모리 사용량을 유지합니다.
-- **Native / Wasm 대비 더 높은 속도와 리소스 절감:** FFI/Wasm 브릿지 병목과 이중
-  메모리 구조를 제거하여, JavaScript 애플리케이션에서 네이티브 및 Wasm 파서보다
-  빠른 속도와 낮은 메모리(RSS) 소모를 달성합니다.
+- **네이티브 브릿지 없는 단일 힙:** 파싱을 JavaScript 안에서 끝내므로 결과가
+  FFI/Wasm 브릿지를 넘지 않고, 별도의 네이티브/Wasm 힙도 필요하지 않습니다.
 - **StAX 스타일 Pull API:** 복잡한 SAX 콜백 상태 머신(State machine)을 직접
   유지할 필요 없이, 일반 루프로 파싱 흐름을 직접 제어합니다.
 - **비동기 I/O 경계 분리:** 비동기(Async) 작업은 I/O 유입 경계에만 둡니다. 바이트
@@ -196,27 +189,26 @@ when those runtimes are installed.
 - **완벽한 이식성:** Node.js, Bun, Deno, 브라우저, Edge 런타임 어디서나 빌드나
   환경 제약 없이 동일하게 동작합니다.
 
-### 왜 Native/Wasm보다 순수 JavaScript가 더 빠르고 가벼운가?
+### 왜 순수 JavaScript인가?
 
 처음에는 네이티브 애드온(N-API)과 Wasm 기반의 토크나이저 가속을 먼저 구현해
 검증했습니다. 순수하게 XML 바이트를 스캔하는 작업만 놓고 보면 네이티브 코드가
 빠르지만, `stax-xml`의 목적은 단순 스캔 벤치마크가 아닙니다. 실제 사용자는 태그
 이름, 텍스트, 속성, 이벤트, 객체를 **JavaScript 값**으로 읽어야 합니다.
 
-이 경계(Boundary)가 실제 성능을 역전시킵니다.
+이 경계(Boundary)에서 득실이 달라집니다.
 
 1. **브릿지(Bridge) 비용 제거:** 네이티브 코드가 JavaScript `Buffer`/`ArrayBuffer`
    입력을 복사 없이(Zero-copy) 읽더라도, 파싱된 결과는 결국 JavaScript 문자열과
    객체로 넘어와야 합니다. JavaScript 문자열은 재사용 가능한 `char[]` 뷰가 아니라
    불변(Immutable) 원시 값이므로, 경계를 넘을 때마다 디코딩, 메모리 할당, 래퍼
-   생성 비용이 발생해 스캔 속도 이점을 상쇄합니다.
-2. **메모리 사용량(RSS) 절감:** Wasm은 별도의 선형 메모리 공간을 요구하고,
-   네이티브 애드온은 V8 힙 외에 추가 네이티브 힙을 사용합니다. 모든 처리를 순수
-   JavaScript 내부에서 끝내면 이중 힙 구조가 사라져 전체 RSS가 크게 줄어듭니다.
+   생성 비용이 발생합니다.
+2. **두 번째 힙 불필요:** Wasm은 별도의 선형 메모리 공간을 요구하고, 네이티브
+   애드온은 V8 힙 외에 추가 네이티브 힙을 사용합니다. 모든 처리를 JavaScript
+   안에서 끝내면 파서 상태와 결과가 모두 V8 힙 하나에 머뭅니다.
 
-이 때문에 네이티브 실험 코드를 패키지에서 분리하고, 바이트 지향 순수 JavaScript
-엔진 중심으로 아키텍처를 정립해 XML-객체 변환, 이벤트/커서 리더, 라이터 전반에서
-더 높은 실제 속도와 리소스 절감을 이뤄냈습니다.
+이 때문에 네이티브 실험 코드는 패키지에서 분리했고, `stax-xml`은 바이트 지향 순수
+JavaScript 엔진을 중심으로 XML-객체 변환, 이벤트/커서 리더, 라이터를 제공합니다.
 
 ### 설치
 
@@ -301,9 +293,8 @@ I/O를 포함합니다.
 | Woodstox 6.7.0 | Java 25 | 284.4 MiB/s | 106.5 MiB/s |
 | quick-xml 0.40.1 | Rust 1.95 | 597.6 MiB/s | 185.9 MiB/s |
 
-Woodstox와 quick-xml은 JavaScript 값이 아니라 JVM/Rust 문자열을 만들기 때문에,
-JavaScript 코드에서 고를 수 있는 선택지라기보다 참고 기준으로 보세요. 위에서 말한
-Native/Wasm 비교는 JavaScript에서 호출하는 애드온을 기준으로 합니다.
+Woodstox와 quick-xml은 JavaScript 값이 아니라 JVM/Rust 값을 만듭니다. 참고용으로
+함께 실었습니다.
 
 ### 가이드 및 문서
 
@@ -326,7 +317,7 @@ Native/Wasm 비교는 JavaScript에서 호출하는 애드온을 기준으로 �
 pnpm --dir packages/benchmark bench:runtime-matrix
 ```
 
-로컬에 설치된 Node, Bun, Deno 환경에서 동일한 JavaScript 리더 워크로드 성능을
+로컬에 설치된 Node, Bun 환경에서 동일한 JavaScript 리더 워크로드 성능을
 비교합니다.
 
 ## License

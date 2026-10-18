@@ -102,8 +102,8 @@ comparison is:
 pnpm --dir packages/benchmark bench:runtime-matrix
 ```
 
-It compares the same JavaScript reader workload across Node, Bun, and Deno when
-those runtimes are installed.
+It compares the same JavaScript reader workload across Node and Bun when those
+runtimes are installed.
 
 ## Release Guides
 
