@@ -1,6 +1,6 @@
 ---
 title: Web Server Integration
-description: Use StAX-XML with Node, Fastify, Hono, Next.js, Bun, Deno, and edge request streams.
+description: Use StAX-XML with Node, Fastify, Hono, Next.js, Bun, and edge request streams.
 head:
   - tag: meta
     attrs:
@@ -181,29 +181,6 @@ Bun.serve({
 
     return Response.json({ elements });
   },
-});
-```
-
-## Deno
-
-Deno's server API is fetch-compatible, so the same stream path applies.
-
-```ts
-import { EventReader, XmlEventType } from 'npm:stax-xml';
-
-Deno.serve(async (request) => {
-  if (!request.body) {
-    return Response.json({ error: 'Missing request body' }, { status: 400 });
-  }
-
-  let elements = 0;
-  for await (const event of new EventReader(request.body)) {
-    if (event.type === XmlEventType.START_ELEMENT) {
-      elements++;
-    }
-  }
-
-  return Response.json({ elements });
 });
 ```
 

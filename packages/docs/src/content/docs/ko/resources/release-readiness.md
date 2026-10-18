@@ -62,7 +62,7 @@ Release set에는 다음 결과가 포함되어야 합니다.
 - 2 KiB, 4 KiB, 13 MiB, 98 MiB input에 대한 parser fixture series.
 - 유지되는 npm XML parser 비교 행.
 - 1 MiB부터 4 GiB까지의 historical `CursorReaderSync` candidate size series.
-- 설치된 Node, Bun, Deno version에 대한 runtime matrix.
+- 설치된 Node, Bun version에 대한 runtime matrix.
 - 비교를 위해 유지하는 historical 4 GiB `CursorReaderSync` index-first evidence.
 - Converter compiled batch-plan 비교.
 - Writer small/big/async 행.

@@ -38,9 +38,6 @@ pnpm add stax-xml
 
 # bun
 bun add stax-xml
-
-# deno
-deno add npm:stax-xml
 ```
 
 **ESM-only package:** StAX-XML is published as ESM-only. Use `import { ... } from 'stax-xml'`; `require('stax-xml')` is not supported.
@@ -51,7 +48,6 @@ StAX-XML keeps a Web Standard API baseline, making it compatible with:
 
 - **Node.js** (v20.19+)
 - **Bun** (any version)
-- **Deno** (any version)
 - **Web Browsers** (modern browsers)
 - **Edge Runtime** (Vercel, Cloudflare Workers, etc.)
 

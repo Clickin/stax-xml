@@ -36,7 +36,7 @@ JavaScript string and object materialization.
 - `pnpm --dir packages/benchmark bench:async` measures async parser and writer
   paths.
 - `pnpm --dir packages/benchmark bench:runtime-matrix` compares the same
-  JavaScript reader workload across Node, Bun, and Deno when those runtimes are
+  JavaScript reader workload across Node and Bun when those runtimes are
   installed.
 - `pnpm --filter benchmark run release:writer:cross-runtime` compares the
   file-writing workload across Node/stax-xml, Java/Woodstox, and Rust/quick-xml.
@@ -151,7 +151,7 @@ limited by JavaScript tokenizer and string-materialization costs.
 
 ### Runtime Matrix
 
-<ReleaseBenchmarkTable kind="runtime" version="v1.1.0" />
+<ReleaseBenchmarkTable kind="runtime" version="v1.1.0" runtimes={['node', 'bun']} />
 
 The 4 GiB generated stream fixture uses `StreamReaderSync` over
 `Iterable<Uint8Array[]>` in fragment mode, consumes events through current-token

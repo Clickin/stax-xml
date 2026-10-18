@@ -62,7 +62,7 @@ The release set must include:
 - parser fixture series for 2 KiB, 4 KiB, 13 MiB, and 98 MiB inputs;
 - maintained npm XML parser comparison rows;
 - historical `CursorReaderSync` candidate size series from 1 MiB through 4 GiB;
-- runtime matrix across installed Node, Bun, and Deno versions;
+- runtime matrix across installed Node and Bun versions;
 - historical 4 GiB `CursorReaderSync` index-first evidence retained for comparison;
 - converter compiled batch-plan comparison;
 - writer small/big/async rows;

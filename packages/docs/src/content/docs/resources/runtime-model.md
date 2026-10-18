@@ -5,8 +5,8 @@ description: How StAX-XML is packaged and why the public API stays in JavaScript
 
 StAX-XML is distributed as a pure JavaScript package. There is no optional
 native addon, Wasm parser module, or backend selection step to install or tune.
-The same package is intended to run across Node.js, Bun, Deno, browsers, and
-edge runtimes.
+The same package is intended to run across Node.js, Bun, browsers, and edge
+runtimes.
 
 This matters because the public API returns JavaScript values: strings,
 attributes, event objects, arrays, and converter output objects. A lower-level

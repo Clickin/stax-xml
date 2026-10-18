@@ -5,7 +5,7 @@ description: StAX-XML의 배포 형태와 JavaScript 공개 API 기준.
 
 StAX-XML은 순수 JavaScript 패키지로 배포됩니다. 설치하거나 선택해야 하는 native
 addon, Wasm parser module, backend selection 단계가 없습니다. 같은 패키지가
-Node.js, Bun, Deno, browser, edge runtime에서 동작하도록 구성되어 있습니다.
+Node.js, Bun, browser, edge runtime에서 동작하도록 구성되어 있습니다.
 
 이 기준이 중요한 이유는 공개 API가 JavaScript 값을 반환하기 때문입니다.
 사용자가 받는 값은 문자열, attribute, event object, array, converter output

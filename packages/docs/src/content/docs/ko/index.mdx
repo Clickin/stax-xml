@@ -1,6 +1,6 @@
 ---
 title: StAX-XML - 고성능 JavaScript XML 파서 라이브러리
-description: JavaScript/TypeScript용 빠른 스트리밍 XML 파서. Node.js, Bun, Deno, 브라우저에서 동작. TypeScript 지원으로 대용량 XML 파일의 메모리 효율적 처리.
+description: JavaScript/TypeScript용 빠른 스트리밍 XML 파서. Node.js, Bun, 브라우저에서 동작. TypeScript 지원으로 대용량 XML 파일의 메모리 효율적 처리.
 template: splash
 head:
   - tag: meta
@@ -52,7 +52,7 @@ declaration, attribute, self-closing 표기를 유지할 수 있습니다. 할�
     대용량 XML 파일의 메모리 효율적인 처리를 위한 스트림 기반 접근법
   </Card>
   <Card title="🌐 범용 호환성" icon="puzzle">
-    웹 표준 API를 사용하여 Node.js, Bun, Deno 및 웹 브라우저에서 작동
+    웹 표준 API를 사용하여 Node.js, Bun 및 웹 브라우저에서 작동
   </Card>
   <Card title="📝 TypeScript 지원" icon="document">
     포괄적인 타입 정의와 함께 완전한 TypeScript 지원
@@ -73,9 +73,6 @@ pnpm add stax-xml
 
 # bun
 bun add stax-xml
-
-# deno
-deno add npm:stax-xml
 ```
 
 **ESM-only 패키지:** StAX-XML은 ESM-only로 배포됩니다. `require('stax-xml')` 대신 `import { ... } from 'stax-xml'`를 사용하세요.

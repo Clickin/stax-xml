@@ -19,10 +19,11 @@ const benchmarkData = {
   },
 } as const;
 
-const { kind, locale = 'en', version = 'v1.1.0' } = Astro.props as {
+const { kind, locale = 'en', version = 'v1.1.0', runtimes } = Astro.props as {
   kind: Kind;
   locale?: Locale;
   version?: BenchmarkVersion;
+  runtimes?: readonly string[];
 };
 const { runtimeMatrix, streamReader4GiB } = benchmarkData[version] ?? benchmarkData['v1.1.0'];
 
@@ -37,7 +38,11 @@ const headings = {
   },
 } as const;
 
-const runtimeRows = runtimeMatrix.results.flatMap((runtime) =>
+const runtimeResults = runtimes
+  ? runtimeMatrix.results.filter((runtime) => runtimes.includes(runtime.runtime.id))
+  : runtimeMatrix.results;
+
+const runtimeRows = runtimeResults.flatMap((runtime) =>
   runtime.scenarios
     .filter((scenario) =>
       scenario.id === 'public-sync-full-string'

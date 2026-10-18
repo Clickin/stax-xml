@@ -30,7 +30,7 @@ head:
       "name": "StAX-XML은 무엇인가요?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "StAX-XML은 Node.js, Bun, Deno, browser, edge runtime에서 동작하는 pure JavaScript pull-style XML parser와 writer입니다."
+        "text": "StAX-XML은 Node.js, Bun, browser, edge runtime에서 동작하는 pure JavaScript pull-style XML parser와 writer입니다."
       }
     },
     {
@@ -58,7 +58,7 @@ head:
 ### StAX-XML은 무엇인가요?
 
 StAX-XML은 JavaScript/TypeScript용 pure JavaScript pull-style XML parser와
-writer입니다. Node.js, Bun, Deno, browser, edge runtime을 지원하며 native
+writer입니다. Node.js, Bun, browser, edge runtime을 지원하며 native
 addon, Wasm parser module, backend selection mode를 사용하지 않습니다.
 
 ### 어떤 reader부터 시작해야 하나요?

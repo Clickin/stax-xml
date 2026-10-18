@@ -30,7 +30,7 @@ head:
       "name": "What is StAX-XML?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "StAX-XML is a pure JavaScript, pull-style XML parser and writer for Node.js, Bun, Deno, browsers, and edge runtimes."
+        "text": "StAX-XML is a pure JavaScript, pull-style XML parser and writer for Node.js, Bun, browsers, and edge runtimes."
       }
     },
     {
@@ -58,7 +58,7 @@ head:
 ### What is StAX-XML?
 
 StAX-XML is a pure JavaScript, pull-style XML parser and writer for
-JavaScript/TypeScript. It targets Node.js, Bun, Deno, browsers, and edge
+JavaScript/TypeScript. It targets Node.js, Bun, browsers, and edge
 runtimes without native addons, Wasm parser modules, or backend selection.
 
 ### Which reader should I start with?
