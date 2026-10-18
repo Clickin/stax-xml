@@ -45,6 +45,31 @@ deno add npm:stax-xml
 
 **ESM-only package:** StAX-XML is published as ESM-only. Use `import { ... } from 'stax-xml'`; `require('stax-xml')` is not supported.
 
+## Browser CDN
+
+Without a bundler, import the pinned ESM bundle directly from jsDelivr:
+
+```html
+<script type="module">
+  import {
+    EventReaderSync,
+    XmlEventType,
+  } from 'https://cdn.jsdelivr.net/npm/stax-xml@1.1.0/dist/index.js';
+
+  for (const event of new EventReaderSync('<root><item>ok</item></root>')) {
+    if (event.type === XmlEventType.START_ELEMENT) console.log(event.name);
+  }
+</script>
+```
+
+The same files are available from unpkg:
+`https://unpkg.com/stax-xml@1.1.0/dist/index.js` and
+`https://unpkg.com/stax-xml@1.1.0/dist/converter.js`. The converter bundle is
+also available at
+`https://cdn.jsdelivr.net/npm/stax-xml@1.1.0/dist/converter.js`. These are ESM
+URLs, not classic global `<script src>` files. Pin an exact version in
+production.
+
 ## Platform Compatibility
 
 StAX-XML keeps a Web Standard API baseline, making it compatible with:
