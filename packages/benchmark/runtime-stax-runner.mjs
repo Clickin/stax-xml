@@ -5,9 +5,6 @@ import {
 } from "../stax-xml/dist/index.js";
 
 function argv() {
-  if (globalThis.Deno?.args) {
-    return globalThis.Deno.args;
-  }
   return globalThis.process?.argv?.slice(2) ?? [];
 }
 
@@ -85,15 +82,11 @@ function parseNonNegativeInteger(value, flag) {
 }
 
 function detectRuntimeId() {
-  if (globalThis.Deno) return "deno";
   if (globalThis.Bun) return "bun";
   return "node";
 }
 
 function runtimeVersion() {
-  if (globalThis.Deno?.version) {
-    return `${globalThis.Deno.version.deno} (v8 ${globalThis.Deno.version.v8})`;
-  }
   if (globalThis.Bun?.version) {
     return globalThis.Bun.version;
   }
@@ -101,9 +94,6 @@ function runtimeVersion() {
 }
 
 async function readTextFile(filePath) {
-  if (globalThis.Deno?.readTextFile) {
-    return await globalThis.Deno.readTextFile(filePath);
-  }
   if (globalThis.Bun?.file) {
     return await globalThis.Bun.file(filePath).text();
   }
@@ -114,13 +104,6 @@ async function readTextFile(filePath) {
 function memoryUsage() {
   if (globalThis.process?.memoryUsage) {
     const usage = globalThis.process.memoryUsage();
-    return {
-      rssBytes: usage.rss,
-      heapUsedBytes: usage.heapUsed,
-    };
-  }
-  if (globalThis.Deno?.memoryUsage) {
-    const usage = globalThis.Deno.memoryUsage();
     return {
       rssBytes: usage.rss,
       heapUsedBytes: usage.heapUsed,

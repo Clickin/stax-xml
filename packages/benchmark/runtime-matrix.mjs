@@ -16,7 +16,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     file: defaultFile,
     runs: 3,
     warmups: 1,
-    runtimes: ['node', 'bun', 'deno'],
+    runtimes: ['node', 'bun'],
     jsonOut: defaultJsonOut,
     mdOut: defaultMdOut,
     allowMissing: false,
@@ -164,12 +164,6 @@ function runtimeCommand(runtime, options) {
       args: baseArgs,
     };
   }
-  if (runtime === 'deno') {
-    return {
-      command: 'deno',
-      args: ['run', '--allow-read', '--allow-env', ...baseArgs],
-    };
-  }
   throw new Error(`Unknown runtime: ${runtime}`);
 }
 
@@ -234,7 +228,7 @@ function formatBytes(bytes) {
 function createScenarioDetails(report) {
   return [
     '<details>',
-    '<summary>Scenario contract: Node, Bun, and Deno runtime matrix</summary>',
+    '<summary>Scenario details: Node and Bun runtime matrix</summary>',
     '',
     `The matrix uses one generated single-root ${report.fixture.sizeMiB.toFixed(2)} MiB XML fixture.`,
     '',
@@ -269,7 +263,6 @@ function createScenarioDetails(report) {
     '',
     '- Node reads text with `fs.readFileSync`, then runs the built package through `node --expose-gc`.',
     '- Bun reads text with `Bun.file(path).text()`, then runs the same built JavaScript package.',
-    '- Deno reads text with `Deno.readTextFile` under `--allow-read --allow-env`, then runs the same built JavaScript package.',
     '- `stream-sync-type-only` advances `StreamReaderSync` and reads only each token type.',
     '- `stream-sync-name-text` additionally reads element/PI names and text payloads.',
     '- `stream-sync-full` additionally reads namespace and complete attribute fields.',
@@ -286,7 +279,7 @@ function createMarkdown(report) {
     '',
     `Generated: ${report.generatedAt}`,
     '',
-    'This fixture compares the same built `stax-xml` JavaScript implementation on Node, Bun, and Deno.',
+    'This fixture compares the same built `stax-xml` JavaScript implementation on Node and Bun.',
     'It does not compare binary parser modules or non-JavaScript parser backends.',
     '',
     '## Environment',

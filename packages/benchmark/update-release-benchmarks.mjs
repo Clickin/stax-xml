@@ -993,7 +993,7 @@ function renderBenchmarkMarkdown(summary) {
     '',
     '## Runtime Matrix',
     '',
-    'The same generated 16 MiB fixture and checksum workloads run on Node, Bun, and Deno. Memory columns are absolute measured-run endpoint peaks for each runtime process.',
+    'The same generated 16 MiB fixture and checksum workloads run on Node and Bun. Memory columns are absolute measured-run endpoint peaks for each runtime process.',
     '',
     renderRuntimeMatrixTable(),
     '',
