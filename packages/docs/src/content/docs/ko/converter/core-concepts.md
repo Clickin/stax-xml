@@ -387,7 +387,7 @@ const result = schema.parseSync(xml);
 | custom 또는 미지원 스키마 wrapper | 사용자 정의 schema subclass |
 
 지원하지 않는 XPath expression은 document-tree evaluator로 조용히 전환하지 않고
-명시적으로 실패합니다. 전체 selector 범위는 [XPath contract](./xpath-guide/)를
+명시적으로 실패합니다. 전체 selector 범위는 [XPath contract](/stax-xml/ko/converter/xpath-guide/)를
 확인하세요.
 
 ### 스키마 재사용

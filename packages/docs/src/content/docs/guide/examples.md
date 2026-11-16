@@ -371,7 +371,7 @@ function optimizedParsing(xmlString: string) {
         // Use Set for O(1) lookup instead of array includes
         if (ELEMENT_NAMES.has(event.name)) {
           if (event.name === 'book') {
-            currentBook = { id: event.attributes.get('id')?.value };
+            currentBook = { id: event.attributes?.get('id')?.value };
           }
           currentElement = event.name;
         }

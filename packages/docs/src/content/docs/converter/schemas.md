@@ -564,7 +564,7 @@ const links = linksSchema.parseSync(xml);
 | **Validation** | - | min, max, int | Per field | Per element |
 | **Nesting** | - | - | Yes (objects in objects) | Yes (arrays in objects) |
 | **Type Inference** | `string` | `number` | `{ ... }` | `T[]` |
-| **Empty Result** | `""` | `NaN` | `{}` with NaN/empty | `[]` |
+| **Unmatched Element** | `""` | `NaN` | `{}` with `NaN`/empty | `[]` |
 | **Transform** | ✅ | ✅ | ✅ | ✅ |
 | **Optional** | ✅ | ✅ | ✅ | ✅ |
 | **Writer Support** | ✅ | ✅ | ✅ | ✅ |

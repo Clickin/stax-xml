@@ -326,7 +326,7 @@ const result = schema.parseSync('<root></root>');
 | **유효성 검사** | - | min, max, int | 필드별 | 요소별 |
 | **중첩** | - | - | 예 (객체 in 객체) | 예 (배열 in 객체) |
 | **타입 추론** | `string` | `number` | `{ ... }` | `T[]` |
-| **빈 결과** | `""` | `NaN` | `{}` with NaN/empty | `[]` |
+| **일치 요소 없음** | `""` | `NaN` | `{}` (`NaN`/빈 값 포함) | `[]` |
 | **Transform** | ✅ | ✅ | ✅ | ✅ |
 | **Optional** | ✅ | ✅ | ✅ | ✅ |
 | **Writer** | ✅ | ✅ | ✅ | ✅ |

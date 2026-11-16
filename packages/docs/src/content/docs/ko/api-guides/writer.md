@@ -350,4 +350,4 @@ Record key가 attribute local name입니다. Namespaced attribute는 prefix를 �
 - 응답을 스트리밍해야 하는 API 구축
 - 라이브 데이터 소스에서 실시간 XML 생성
 
-**대용량 파일 생성**에는 [WriterSyncSink](/ko/api-guides/writer-sync/#sink-기반-증분-쓰기)를 권장합니다. **소규모 문서나 동기식 작업**에는 XML을 메모리에서 문자열로 구성하는 [WriterSync](/ko/api-guides/writer-sync/)를 사용하세요.
+**대용량 파일 생성**에는 [WriterSyncSink](/stax-xml/ko/api-guides/writer-sync/#sink-기반-증분-쓰기)를 권장합니다. **소규모 문서나 동기식 작업**에는 XML을 메모리에서 문자열로 구성하는 [WriterSync](/stax-xml/ko/api-guides/writer-sync/)를 사용하세요.

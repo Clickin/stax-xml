@@ -192,6 +192,6 @@ Bun.serve({
 매우 큰 batch는 parsing되는 동안 JavaScript thread를 점유합니다.
 
 Latency에 민감한 server에서는 incoming chunk를 bounded하게 유지하고 parser loop 안에
-무거운 business logic을 넣지 마세요. 필요한 field만 최소한으로 추출한 뒤, request
-latency보다 inline completion이 덜 중요하면 queue나 worker로 domain work를 넘기는
-편이 낫습니다.
+무거운 business logic을 넣지 마세요. 필요한 field만 최소한으로 추출한 뒤, 즉시
+완료(inline completion)보다 request latency가 더 중요하다면 queue나 worker로 domain
+work를 넘기는 편이 낫습니다.

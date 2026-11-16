@@ -42,6 +42,25 @@ bun add stax-xml
 
 **ESM-only 패키지:** StAX-XML은 ESM-only로 배포됩니다. `require('stax-xml')` 대신 `import { ... } from 'stax-xml'`를 사용하세요.
 
+### 브라우저 CDN
+
+번들러 없이 jsDelivr의 ESM 번들을 바로 불러다 쓸 수도 있습니다.
+
+```html
+<script type="module">
+  import {
+    EventReaderSync,
+    XmlEventType,
+  } from 'https://cdn.jsdelivr.net/npm/stax-xml@latest/dist/index.js';
+
+  for (const event of new EventReaderSync('<root><item>ok</item></root>')) {
+    if (event.type === XmlEventType.START_ELEMENT) console.log(event.name);
+  }
+</script>
+```
+
+jsDelivr 컨버터 번들(`https://cdn.jsdelivr.net/npm/stax-xml@latest/dist/converter.js`)과 unpkg(`https://unpkg.com/stax-xml@latest/dist/index.js`, `https://unpkg.com/stax-xml@latest/dist/converter.js`)도 같은 방식으로 쓸 수 있습니다. 모두 ESM 전용 URL이므로 일반 `<script src>`로는 동작하지 않으며, 프로덕션에서는 `@latest` 대신 특정 버전(예: `stax-xml@<version>`)으로 고정해 두는 편이 안전합니다.
+
 ## 플랫폼 호환성
 
 StAX-XML은 웹 표준 API만을 사용하여 다음과 호환됩니다:

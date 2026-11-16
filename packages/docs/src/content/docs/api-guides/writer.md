@@ -349,4 +349,4 @@ prefix and may supply its URI to declare the binding on that element.
 - Building APIs that need to stream responses
 - Real-time XML generation from live data sources
 
-**For large file generation**, prefer [WriterSyncSink](/api-guides/writer-sync/#sink-based-incremental-writing). **For small documents or synchronous operations**, use [WriterSync](/api-guides/writer-sync/) as an in-memory string builder.
+**For large file generation**, prefer [WriterSyncSink](/stax-xml/api-guides/writer-sync/#sink-based-incremental-writing). **For small documents or synchronous operations**, use [WriterSync](/stax-xml/api-guides/writer-sync/) as an in-memory string builder.

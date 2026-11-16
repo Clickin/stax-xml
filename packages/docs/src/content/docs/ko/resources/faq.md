@@ -38,7 +38,7 @@ head:
       "name": "어떤 reader를 사용해야 하나요?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Stable XML event object가 필요하면 EventReader 또는 EventReaderSync를 사용하세요. 낮은 allocation의 current-token 순회에는 StreamReader 또는 StreamReaderSync를 사용하세요."
+        "text": "Stable XML event object가 필요하면 EventReader 또는 EventReaderSync를 사용하세요. 할당을 줄인 current-token 순회에는 StreamReader 또는 StreamReaderSync를 사용하세요."
       }
     },
     {
@@ -95,7 +95,7 @@ JavaScript 문자열, attribute, event object, converter output object를 반환
 
 ### Unknown XML은 어떻게 파싱하나요?
 
-고정 schema가 없을 때는 tree/object helper를 사용하세요.
+고정 schema가 없을 때는 event reader를 사용하세요.
 
 ```ts
 import { EventReaderSync, XmlEventType } from 'stax-xml';

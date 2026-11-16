@@ -24,9 +24,9 @@ const schema = x.string()
   .xpath('/message')
   .transform(value => value.toUpperCase());
 
-const xml = '<message>안녕하세요</message>';
+const xml = '<message>hello world</message>';
 const result = schema.parseSync(xml);
-// "안녕하세요" (대문자로)
+// "HELLO WORLD"
 ```
 
 ### 타입 변환

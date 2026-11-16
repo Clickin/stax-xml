@@ -6,28 +6,27 @@
 
 ## English
 
-`stax-xml` is a StAX-style, pull-based XML parser and writer for JavaScript and TypeScript, built to process multi-gigabyte XML documents with a small, constant memory footprint.
+`stax-xml` is a pull-based (StAX) XML parser and writer for JavaScript and TypeScript, built to handle multi-gigabyte XML files with constant memory.
 
-It is 100% pure JavaScript. The parser core, stream readers, event readers, converter, and writer all run without native addons, WebAssembly modules, or backend selection, so parsed values are created directly as JavaScript values in a single heap.
+It is 100% pure JavaScript—no native addons or WebAssembly—so parsed values are created directly on the JS heap.
 
 ### Goals
 
-- **Small, constant memory for massive files:** Parse XML documents far larger than JavaScript's single-string limit (~512MB–1GB) without `Out of Memory` crashes by consuming streams and byte batches.
-- **No native bridge, single heap:** Keep parsing inside JavaScript so results never cross an FFI/Wasm bridge and no second native or Wasm heap is needed.
-- **StAX-style pull API:** Let application code pull events with standard loops instead of maintaining deep SAX callback state machines.
-- **Sync core, async boundaries:** Keep async work strictly at I/O ingress boundaries. Once a byte batch arrives, tokenization and event draining run in a synchronous loop.
-- **Universal portability:** Run identically across Node.js, Bun, browsers, and edge runtimes.
+- **Constant memory on huge files:** Stream XML well past JavaScript's single-string limit (~512MB–1GB) in byte chunks without running out of memory.
+- **Pull-based API:** Read XML with regular `for` loops instead of juggling SAX callback state.
+- **Sync core, async I/O:** Only reading from the stream is async; once a chunk arrives, tokenizing and parsing run in a synchronous loop.
+- **Runs anywhere:** Works in Node.js, Bun, browsers, and edge runtimes without build steps or native bindings.
 
 ### Why pure JavaScript?
 
-We built and benchmarked native (N-API) and WebAssembly tokenizers first. Native code scans raw XML bytes quickly in isolation, but `stax-xml` is not a raw tokenizer benchmark. In a real application, the parser must deliver element names, text, attributes, events, and objects as JavaScript values.
+We built and benchmarked N-API and WebAssembly tokenizers first. Native code scans raw bytes faster on its own, but real applications need element names, text, attributes, and objects as **JavaScript values**.
 
-That boundary changes the tradeoff:
+That boundary changes the math:
 
-1. **No FFI/Wasm bridge cost:** Native code can read JavaScript `Buffer`/`ArrayBuffer` input without copying, but every parsed string and object still has to cross back into JavaScript. Because JavaScript strings are immutable primitives rather than reusable `char[]` views, crossing the bridge incurs UTF-8 decoding, allocation, and wrapper overhead on every token.
-2. **No second heap:** Wasm requires a separate linear memory island, and native addons allocate on the native heap alongside V8. Staying in JavaScript keeps all parser state and results in the V8 heap.
+1. **Bridge overhead:** Even when native code reads a JS `Buffer` or `ArrayBuffer` without copying, every parsed string still has to cross back into JavaScript. Because JS strings are immutable values rather than reusable `char[]` views, crossing the boundary means UTF-8 decoding, allocation, and wrapper overhead on every token.
+2. **One heap instead of two:** WebAssembly uses separate linear memory, and native addons allocate on a native heap alongside V8. Keeping the parser in JavaScript leaves all state and parsed results on the V8 heap.
 
-For that reason, the native experiment was moved out of this package, and `stax-xml` centers on byte-oriented pure JavaScript for XML-to-object conversion, event reading, cursor reading, and writing.
+So we moved the native experiments out of this package and focused `stax-xml` on byte-oriented pure JavaScript for parsing, object conversion, and writing.
 
 ### Install
 
@@ -51,14 +50,14 @@ for (const event of reader) {
 
 ### Browser CDN
 
-Without a bundler, import the pinned ESM bundle directly from jsDelivr:
+Without a bundler, import the ESM bundle from jsDelivr:
 
 ```html
 <script type="module">
   import {
     EventReaderSync,
     XmlEventType,
-  } from 'https://cdn.jsdelivr.net/npm/stax-xml@1.1.2/dist/index.js';
+  } from 'https://cdn.jsdelivr.net/npm/stax-xml@latest/dist/index.js';
 
   for (const event of new EventReaderSync('<root><item>ok</item></root>')) {
     if (event.type === XmlEventType.START_ELEMENT) console.log(event.name);
@@ -66,22 +65,22 @@ Without a bundler, import the pinned ESM bundle directly from jsDelivr:
 </script>
 ```
 
-The same files are available from unpkg: `https://unpkg.com/stax-xml@1.1.2/dist/index.js` and `https://unpkg.com/stax-xml@1.1.2/dist/converter.js`. The converter bundle is also available at `https://cdn.jsdelivr.net/npm/stax-xml@1.1.2/dist/converter.js`. These are ESM URLs, not classic global `<script src>` files. Pin an exact version in production.
+The converter bundle (`https://cdn.jsdelivr.net/npm/stax-xml@latest/dist/converter.js`) and unpkg mirrors (`https://unpkg.com/stax-xml@latest/dist/index.js`, `https://unpkg.com/stax-xml@latest/dist/converter.js`) are also available. All of them are ESM URLs—not global `<script src>` files—so load them with `type="module"`, and pin an exact version (for example, `stax-xml@<version>`) in production.
 
 ### Public API
 
-- `stax-xml/converter`: Recommended schema-driven XML-to-object parsing and XML writing.
-- `EventReaderSync` / `EventReader`: Ergonomic event readers for applications that inspect events directly.
-- `StreamReaderSync` / `StreamReader`: Zero-allocation current-token cursor readers for performance-critical paths.
-- `Writer`, `WriterSync`, `WriterSyncSink`: XML output APIs, including a synchronous sink path for large outputs.
+`stax-xml` exposes two entry points: `stax-xml` and `stax-xml/converter`.
 
-When your target object structure is known, start with the converter. The package exposes only `stax-xml` and `stax-xml/converter`; there are no adapter, tree/DOM, or backend selection subpaths.
+- `stax-xml/converter` *(recommended)*: Schema-driven XML-to-object parsing and XML writing. Start here if you already know the shape of the objects you want.
+- `EventReaderSync` / `EventReader`: Event-by-event readers for iterating over parsed XML events directly.
+- `StreamReaderSync` / `StreamReader`: Cursor-based readers that inspect the current token in place to minimize allocations.
+- `Writer`, `WriterSync`, `WriterSyncSink`: XML writers, with `WriterSyncSink` for streaming large outputs directly to a synchronous sink.
 
 ### Performance
 
 Numbers from the v1.1.0 release benchmark (Node 26.5.0, Apple M4). See [Benchmarks](https://clickin.github.io/stax-xml/resources/benchmarks/) for the full tables and methodology.
 
-**Node XML libraries:** parse a 13 MiB file (`midsize.xml`) into the same JavaScript object array. Output parity is checked before timing.
+**Node XML libraries:** parse a 13 MiB file (`midsize.xml`) into the same JavaScript object array. Outputs are verified to match before timing.
 
 | Library | API | Avg time | Heap |
 | --- | --- | ---: | ---: |
@@ -105,51 +104,45 @@ Woodstox and quick-xml produce JVM and Rust values rather than JavaScript values
 ### Guides & Documentation
 
 - [Full Documentation](https://clickin.github.io/stax-xml/)
-- [Migrating from v0.x](https://clickin.github.io/stax-xml/guide/migration-v0/) maps older application code to the pure JavaScript 1.0+ reader and writer APIs.
-- [Web Server Integration](https://clickin.github.io/stax-xml/guide/server-integration/) shows how to keep XML request bodies streaming in Express, Fastify, Hono, Next.js, Bun, and edge runtimes.
-- [Release Readiness](https://clickin.github.io/stax-xml/resources/release-readiness/) records the pure JavaScript packaging, benchmark, docs, and merge checklist.
+- [Migrating from v0.x](https://clickin.github.io/stax-xml/guide/migration-v0/): Upgrading older code to the pure JS 1.0+ reader and writer APIs.
+- [Web Server Integration](https://clickin.github.io/stax-xml/guide/server-integration/): Streaming XML request bodies in Express, Fastify, Hono, Next.js, Bun, and edge runtimes.
 
 ### Runtime Matrix
 
-Benchmark scripts live under `packages/benchmark`. To run the cross-runtime comparison:
+Benchmark scripts live in `packages/benchmark`. To compare the reader workload across installed Node and Bun runtimes:
 
 ```bash
 pnpm --dir packages/benchmark bench:runtime-matrix
 ```
 
-This compares the same JavaScript reader workload across Node and Bun when those runtimes are installed.
-
 ---
 
 ## Korean
 
-`stax-xml`은 수 기가바이트(GB) 단위의 대용량 XML 문서도 아주 적은 고정 메모리로 빠르게 처리할 수 있도록 설계된 JavaScript 및 TypeScript용 StAX(Pull 방식) XML 파서 및 라이터입니다.
+`stax-xml`은 수 GB짜리 XML 문서도 적은 메모리로 처리할 수 있는 JavaScript·TypeScript용 Pull 방식(StAX) XML 파서·라이터입니다.
 
-이 패키지는 100% 순수 JavaScript로 동작합니다. 파서 코어, 스트림 리더, 이벤트 리더, 컨버터, 라이터 모두 네이티브 애드온(N-API), Wasm 모듈, 백엔드 선택 없이 동작하므로, 파싱 결과가 하나의 힙 안에서 곧바로 JavaScript 값으로 만들어집니다.
+네이티브 애드온이나 Wasm 없이 100% 순수 JavaScript로 동작합니다. 파싱 결과도 별도 브릿지를 거치지 않고 곧바로 JS 힙에 생성됩니다.
 
-### 핵심 목표
+### 설계 목표
 
-- **적은 메모리로 대용량 파일 처리:** JavaScript의 단일 문자열 크기 한계(약 512MB~1GB)를 넘는 대용량 XML도 스트림과 바이트 배치(Byte batch) 단위로 읽어, 메모리 부족(OOM) 없이 일정하고 낮은 메모리 사용량을 유지합니다.
-- **네이티브 브릿지 없는 단일 힙:** 파싱을 JavaScript 안에서 끝내므로 결과가 FFI/Wasm 브릿지를 넘지 않고, 별도의 네이티브/Wasm 힙도 필요하지 않습니다.
-- **StAX 스타일 Pull API:** 복잡한 SAX 콜백 상태 머신(State machine)을 직접 유지할 필요 없이, 일반 루프로 파싱 흐름을 직접 제어합니다.
-- **비동기 I/O 경계 분리:** 비동기(Async) 작업은 I/O 유입 경계에만 둡니다. 바이트 배치가 메모리에 도착한 뒤의 토크나이징과 이벤트 처리는 빠른 동기 루프로 동작합니다.
-- **완벽한 이식성:** Node.js, Bun, 브라우저, Edge 런타임 어디서나 빌드나 환경 제약 없이 동일하게 동작합니다.
+- **대용량 파일도 일정한 메모리로:** 스트림을 바이트 단위로 조금씩 읽어 들이기 때문에, JS 문자열 한계(약 512MB~1GB)를 넘는 파일도 OOM 없이 처리할 수 있습니다.
+- **Pull 방식 API:** SAX처럼 콜백 안에서 상태를 일일이 관리할 필요 없이, 일반 `for` 루프로 필요한 만큼만 가져와 읽습니다.
+- **동기식 파싱 코어:** 비동기는 I/O에서 데이터를 받아올 때만 씁니다. 청크가 메모리에 올라온 뒤 토크나이징과 파싱은 전부 동기 루프로 돕니다.
+- **어디서나 동일한 실행:** 빌드나 네이티브 의존성 없이 Node.js, Bun, 브라우저, Edge 런타임에서 똑같이 돌아갑니다.
 
 ### 왜 순수 JavaScript인가?
 
-처음에는 네이티브 애드온(N-API)과 Wasm 기반의 토크나이저 가속을 먼저 구현해 검증했습니다. 순수하게 XML 바이트를 스캔하는 작업만 놓고 보면 네이티브 코드가 빠르지만, `stax-xml`의 목적은 단순 스캔 벤치마크가 아닙니다. 실제 사용자는 태그 이름, 텍스트, 속성, 이벤트, 객체를 **JavaScript 값**으로 읽어야 합니다.
+처음에는 N-API 네이티브 애드온과 Wasm 토크나이저도 직접 구현해 벤치마크해 보았습니다. 바이트만 훑는 속도는 네이티브가 빠르지만, 실제 애플리케이션에서는 결국 태그 이름, 텍스트, 속성, 객체를 **JavaScript 값**으로 받아 써야 합니다. 여기서 손익이 달라집니다.
 
-이 경계(Boundary)에서 득실이 달라집니다.
+1. **브릿지 비용:** 네이티브 코드가 JS `Buffer`나 `ArrayBuffer`를 복사 없이 읽더라도, 파싱된 문자열과 객체는 결국 JS 쪽으로 넘겨줘야 합니다. JS 문자열은 재사용 가능한 `char[]` 뷰가 아닌 불변 값이라, 토큰마다 UTF-8 디코딩과 새 메모리 할당, 래퍼 생성 비용이 발생합니다.
+2. **단일 힙:** Wasm은 별도의 선형 메모리를 쓰고, 네이티브 애드온은 V8 밖의 네이티브 힙을 따로 씁니다. 처리를 전부 JS 안에서 끝내면 파서 상태와 결과물이 모두 V8 힙 하나에만 남습니다.
 
-1. **브릿지(Bridge) 비용 제거:** 네이티브 코드가 JavaScript `Buffer`/`ArrayBuffer` 입력을 복사 없이(Zero-copy) 읽더라도, 파싱된 결과는 결국 JavaScript 문자열과 객체로 넘어와야 합니다. JavaScript 문자열은 재사용 가능한 `char[]` 뷰가 아니라 불변(Immutable) 원시 값이므로, 경계를 넘을 때마다 디코딩, 메모리 할당, 래퍼 생성 비용이 발생합니다.
-2. **두 번째 힙 불필요:** Wasm은 별도의 선형 메모리 공간을 요구하고, 네이티브 애드온은 V8 힙 외에 추가 네이티브 힙을 사용합니다. 모든 처리를 JavaScript 안에서 끝내면 파서 상태와 결과가 모두 V8 힙 하나에 머뭅니다.
-
-이 때문에 네이티브 실험 코드는 패키지에서 분리했고, `stax-xml`은 바이트 지향 순수 JavaScript 엔진을 중심으로 XML-객체 변환, 이벤트/커서 리더, 라이터를 제공합니다.
+그래서 네이티브 실험 코드는 패키지에서 걷어내고, 바이트 기반 순수 JavaScript로 파싱과 객체 변환, 쓰기 API를 구현하는 데 집중했습니다.
 
 ### 설치
 
 ```bash
-npm install stax-xml # 혹은 pnpm, yarn, bun 등 원하시는 패키지 매니저로
+npm install stax-xml # pnpm, yarn, bun 등
 ```
 
 `stax-xml`은 ESM 전용 패키지입니다.
@@ -166,16 +159,16 @@ for (const event of reader) {
 }
 ```
 
-### Browser CDN
+### 브라우저 CDN
 
-번들러 없이 jsDelivr에서 버전이 고정된 ESM 번들을 직접 import할 수 있습니다.
+번들러 없이 jsDelivr의 ESM 번들을 바로 불러다 쓸 수도 있습니다.
 
 ```html
 <script type="module">
   import {
     EventReaderSync,
     XmlEventType,
-  } from 'https://cdn.jsdelivr.net/npm/stax-xml@1.1.2/dist/index.js';
+  } from 'https://cdn.jsdelivr.net/npm/stax-xml@latest/dist/index.js';
 
   for (const event of new EventReaderSync('<root><item>ok</item></root>')) {
     if (event.type === XmlEventType.START_ELEMENT) console.log(event.name);
@@ -183,22 +176,22 @@ for (const event of reader) {
 </script>
 ```
 
-동일한 파일을 unpkg에서도 불러올 수 있습니다: `https://unpkg.com/stax-xml@1.1.2/dist/index.js`, `https://unpkg.com/stax-xml@1.1.2/dist/converter.js`. 컨버터 번들은 `https://cdn.jsdelivr.net/npm/stax-xml@1.1.2/dist/converter.js`에서도 제공됩니다. 이 주소들은 전역 `<script src>`용 파일이 아니라 ESM 전용 URL입니다. 프로덕션 환경에서는 정확한 버전을 고정해서 사용하세요.
+jsDelivr 컨버터 번들(`https://cdn.jsdelivr.net/npm/stax-xml@latest/dist/converter.js`)과 unpkg(`https://unpkg.com/stax-xml@latest/dist/index.js`, `https://unpkg.com/stax-xml@latest/dist/converter.js`)도 같은 방식으로 쓸 수 있습니다. 모두 ESM 전용 URL이므로 일반 `<script src>`로는 동작하지 않으며, 프로덕션에서는 `@latest` 대신 특정 버전(예: `stax-xml@<version>`)으로 고정해 두는 편이 안전합니다.
 
-### 주요 API (Public API)
+### 주요 API
 
-- `stax-xml/converter`: **[권장]** 스키마 기반의 XML-객체 변환(파싱) 및 XML 생성.
-- `EventReaderSync` / `EventReader`: 이벤트를 직접 순회하며 처리하는 애플리케이션용 리더.
-- `StreamReaderSync` / `StreamReader`: 객체 할당 비용을 최소화해야 하는 고성능 구간용 커서(현재 토큰) 리더.
-- `Writer`, `WriterSync`, `WriterSyncSink`: 대용량 출력을 위한 동기식 Sink 경로(`WriterSyncSink`)를 포함한 XML 생성 API.
+패키지 진입점은 `stax-xml`과 `stax-xml/converter` 두 가지입니다.
 
-변환할 객체 형태가 정해져 있다면 `converter`부터 시작하는 것을 권장합니다. 패키지 진입점은 `stax-xml`과 `stax-xml/converter` 두 가지뿐이며, 별도의 어댑터나 DOM/백엔드 선택용 서브패스는 제공하지 않습니다.
+- `stax-xml/converter` *(권장)*: 스키마를 정해 XML과 JS 객체를 서로 변환합니다. 원하는 객체 형태가 정해져 있다면 이쪽부터 시작하는 편이 가장 간단합니다.
+- `EventReaderSync` / `EventReader`: 시작 태그나 텍스트 같은 이벤트를 하나씩 꺼내 다루는 리더입니다.
+- `StreamReaderSync` / `StreamReader`: 현재 토큰만 가리키는 커서 방식 리더입니다. 이벤트 객체를 매번 만들지 않으므로 메모리 할당을 더 줄여야 할 때 적합합니다.
+- `Writer`, `WriterSync`, `WriterSyncSink`: XML 출력용 API입니다. 큰 XML을 한 번에 문자열로 만들지 않고 바로 내보내려면 `WriterSyncSink`를 쓰면 됩니다.
 
 ### 성능
 
-v1.1.0 릴리스 벤치마크 결과입니다(Node 26.5.0, Apple M4). 전체 표와 측정 방법은 [벤치마크](https://clickin.github.io/stax-xml/ko/resources/benchmarks/) 문서를 참고하세요.
+v1.1.0 릴리스 기준 벤치마크입니다(Node 26.5.0, Apple M4). 전체 결과와 측정 조건은 [벤치마크 문서](https://clickin.github.io/stax-xml/ko/resources/benchmarks/)에서 볼 수 있습니다.
 
-**Node XML 라이브러리:** 13 MiB 파일(`midsize.xml`)을 동일한 JavaScript 객체 배열로 변환합니다. 측정 전에 모든 라이브러리의 결과가 같은지 검증합니다.
+**Node XML 라이브러리 비교:** 13 MiB 파일(`midsize.xml`)을 동일한 JS 객체 배열로 파싱한 결과입니다. 측정 전에 모든 라이브러리의 출력이 일치하는지 확인했습니다.
 
 | 라이브러리 | API | 평균 시간 | 힙 |
 | --- | --- | ---: | ---: |
@@ -209,7 +202,7 @@ v1.1.0 릴리스 벤치마크 결과입니다(Node 26.5.0, Apple M4). 전체 표
 | xml2js | `parseString` | 463.2 ms | 105.5 MiB |
 | fast-xml-parser | `XMLParser` | 542.0 ms | 135.3 MiB |
 
-**언어별 비교:** 리더는 16 MiB UTF-8 파일을 읽어 모든 요소 이름, 텍스트, 속성을 값으로 꺼냅니다. 라이터는 동일한 10.3 MiB compact XML을 파일로 씁니다. 둘 다 파일 I/O를 포함합니다.
+**언어별 비교:** 리더는 16 MiB UTF-8 파일을 읽어 모든 요소 이름·텍스트·속성을 꺼내는 작업, 라이터는 10.3 MiB compact XML을 파일로 쓰는 작업이며 모두 파일 I/O를 포함합니다.
 
 | 라이브러리 | 언어 | 리더 (16 MiB) | 라이터 (10.3 MiB) |
 | --- | --- | ---: | ---: |
@@ -217,24 +210,21 @@ v1.1.0 릴리스 벤치마크 결과입니다(Node 26.5.0, Apple M4). 전체 표
 | Woodstox 6.7.0 | Java 25 | 284.4 MiB/s | 106.5 MiB/s |
 | quick-xml 0.40.1 | Rust 1.95 | 597.6 MiB/s | 185.9 MiB/s |
 
-Woodstox와 quick-xml은 JavaScript 값이 아니라 JVM/Rust 값을 만듭니다. 참고용으로 함께 실었습니다.
+Woodstox와 quick-xml은 JS 값이 아니라 각각 JVM과 Rust 값을 생성하므로 참고용으로만 실었습니다.
 
 ### 가이드 및 문서
 
-- [공식 문서 홈](https://clickin.github.io/stax-xml/ko/)
-- [v0.x 마이그레이션](https://clickin.github.io/stax-xml/ko/guide/migration-v0/)은 기존 애플리케이션 코드를 순수 JavaScript 1.0+ 리더/라이터 API로 옮기는 기준을 정리합니다.
-- [Web Server 연동](https://clickin.github.io/stax-xml/ko/guide/server-integration/)은 Express, Fastify, Hono, Next.js, Bun, Edge 런타임에서 XML 요청 본문을 스트리밍으로 처리하는 방법을 보여줍니다.
-- [릴리스 준비](https://clickin.github.io/stax-xml/ko/resources/release-readiness/)는 순수 JavaScript 패키징, 벤치마크, 문서, 병합 체크리스트를 기록합니다.
+- [공식 문서](https://clickin.github.io/stax-xml/ko/)
+- [v0.x 마이그레이션](https://clickin.github.io/stax-xml/ko/guide/migration-v0/): 기존 코드를 순수 JS 1.0+ 리더·라이터 API로 옮기는 가이드
+- [웹 서버 연동](https://clickin.github.io/stax-xml/ko/guide/server-integration/): Express, Fastify, Hono, Next.js, Bun, Edge 런타임에서 XML 요청 본문을 스트리밍으로 처리하는 방법
 
-### Runtime Matrix
+### 런타임 비교
 
-벤치마크 스크립트는 `packages/benchmark` 아래에 있습니다. 런타임 간 성능 비교는 다음 명령어로 실행합니다.
+벤치마크 스크립트는 `packages/benchmark`에 있습니다. 로컬에 설치된 Node와 Bun에서 동일한 리더 워크로드를 비교하려면 아래 명령을 실행하세요.
 
 ```bash
 pnpm --dir packages/benchmark bench:runtime-matrix
 ```
-
-로컬에 설치된 Node, Bun 환경에서 동일한 JavaScript 리더 워크로드 성능을 비교합니다.
 
 ## License
 

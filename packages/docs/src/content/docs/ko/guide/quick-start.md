@@ -124,7 +124,7 @@ for (const event of new EventReaderSync(xmlString)) {
 }
 ```
 
-Event object allocation이 중요하면 `StreamReaderSync`를 사용하세요. 알려진 shape의
+Event object 할당을 줄이는 것이 중요하면 `StreamReaderSync`를 사용하세요. 알려진 shape의
 typed domain object에는 converter API를 사용합니다.
 
 ## 오류 처리

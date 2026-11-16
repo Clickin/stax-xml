@@ -151,5 +151,5 @@ await catalog.writeToStream(data, writableStream, {
 - `writeRaw()` belongs to the low-level writers and accepts trusted XML only;
   converter scalar writers use validated character or CDATA methods.
 
-See [Schema Types](./schemas/) for parsing and [Writer](../api-guides/writer/)
+See [Schema Types](/stax-xml/converter/schemas/) for parsing and [Writer](/stax-xml/api-guides/writer/)
 for the lower-level streaming writer.

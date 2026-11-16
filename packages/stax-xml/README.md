@@ -38,14 +38,14 @@ for (const event of reader) {
 
 ## Browser CDN
 
-Without a bundler, import the pinned ESM bundle directly from jsDelivr:
+Without a bundler, import the ESM bundle directly from jsDelivr:
 
 ```html
 <script type="module">
   import {
     EventReaderSync,
     XmlEventType,
-  } from 'https://cdn.jsdelivr.net/npm/stax-xml@1.1.2/dist/index.js';
+  } from 'https://cdn.jsdelivr.net/npm/stax-xml@latest/dist/index.js';
 
   for (const event of new EventReaderSync('<root><item>ok</item></root>')) {
     if (event.type === XmlEventType.START_ELEMENT) console.log(event.name);
@@ -53,7 +53,7 @@ Without a bundler, import the pinned ESM bundle directly from jsDelivr:
 </script>
 ```
 
-The same files are available from unpkg: `https://unpkg.com/stax-xml@1.1.2/dist/index.js` and `https://unpkg.com/stax-xml@1.1.2/dist/converter.js`. The converter bundle is also available at `https://cdn.jsdelivr.net/npm/stax-xml@1.1.2/dist/converter.js`. These are ESM URLs, not classic global `<script src>` files. Pin an exact version in production.
+The same files are available from unpkg: `https://unpkg.com/stax-xml@latest/dist/index.js` and `https://unpkg.com/stax-xml@latest/dist/converter.js`. The converter bundle is also available at `https://cdn.jsdelivr.net/npm/stax-xml@latest/dist/converter.js`. These are ESM URLs, not classic global `<script src>` files. Pin an exact version (such as `stax-xml@<version>`) in production.
 
 ## Public Surfaces
 
@@ -77,11 +77,10 @@ pnpm --dir packages/benchmark bench:runtime-matrix
 
 It compares the same JavaScript reader workload across Node and Bun when those runtimes are installed.
 
-## Release Guides
+## Guides
 
 - [Migrating from v0.x](https://clickin.github.io/stax-xml/guide/migration-v0/) maps older application code to the pure JavaScript 1.0 reader and writer surfaces.
 - [Web Server Integration](https://clickin.github.io/stax-xml/guide/server-integration/) shows request streaming patterns for Express, Fastify, Hono, Next.js, Bun, and edge runtimes.
-- [Release Readiness](https://clickin.github.io/stax-xml/resources/release-readiness/) records the packaging, benchmark, docs, and merge checklist used before publishing.
 
 ## License
 

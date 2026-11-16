@@ -154,7 +154,7 @@ limited by JavaScript tokenizer and string-materialization costs.
 <ReleaseBenchmarkTable kind="runtime" version="v1.1.0" runtimes={['node', 'bun']} />
 
 The 4 GiB generated stream fixture uses `StreamReaderSync` over
-`Iterable<Uint8Array[]>` in fragment mode, consumes events through current-token
+`Iterable<Uint8Array>` in fragment mode, consumes events through current-token
 accessors, skips warmup, and measures 3 runs.
 
 <ReleaseBenchmarkTable kind="stream4gib" version="v1.1.0" />
@@ -185,7 +185,8 @@ The converter comparison measures the same byte fixture through:
 - `schema.parseSync(bytes)`, which automatically compiles and caches supported
   streaming dispatch plans.
 
-Both rows are verified against the hand-written projection before timing.
+The converter row is verified against the hand-written `StreamReaderSync`
+projection before timing.
 
 <BenchmarkSection section="converter" />
 

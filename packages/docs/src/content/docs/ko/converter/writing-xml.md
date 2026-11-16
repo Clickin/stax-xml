@@ -148,5 +148,5 @@ await catalog.writeToStream(data, writableStream, {
 - `writeRaw()`는 low-level writer에서 신뢰할 수 있는 XML에만 사용합니다. Converter
   scalar writer는 검증된 character 또는 CDATA method를 사용합니다.
 
-Parsing은 [Schema Types](./schemas/), low-level streaming writer는
-[Writer](../../api-guides/writer/)를 참고하세요.
+Parsing은 [Schema Types](/stax-xml/ko/converter/schemas/), low-level streaming writer는
+[Writer](/stax-xml/ko/api-guides/writer/)를 참고하세요.

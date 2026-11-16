@@ -129,7 +129,9 @@ const result = await schema.safeParse('<age>150</age>');
 ```typescript
 type ParseResult<T> =
   | { success: true; data: T }
-  | { success: false; error: { issues: Array<{ message: string; path?: string }> } };
+  | { success: false; error: XmlParseError };
+
+// error.issues: Array<{ path: string[]; message: string; code: string }>
 ```
 
 **When to use:**
@@ -190,9 +192,9 @@ type Product = Infer<typeof productSchema>;
 
 ### Type Inference Best Practices
 
-1. **Define schemas as const**:
+1. **Define schemas once at module scope**:
    ```typescript
-   const schema = x.object({...}) as const;
+   const schema = x.object({...});
    ```
 
 2. **Extract types early**:
@@ -311,14 +313,14 @@ Common error scenarios:
 ```typescript
 const schema = x.number().xpath('//age').min(18);
 schema.parseSync('<age>15</age>');
-// Error: Value 15 is less than minimum 18
+// XmlParseError: Number 15 is less than minimum 18
 ```
 
 **2. Type Conversion Errors**
 ```typescript
 const schema = x.number().xpath('//count');
 schema.parseSync('<count>abc</count>');
-// Error: Expected number, got NaN
+// XmlParseError: Invalid number: abc
 ```
 
 **3. Missing Required Fields**
@@ -519,7 +521,7 @@ The schema above combines the common fast-path shapes in one compiled schema: ab
 | Custom or unsupported schema wrappers | User-defined schema subclasses |
 
 Unsupported XPath expressions fail explicitly instead of silently switching to
-a document-tree evaluator. See the [XPath contract](./xpath-guide/) for the
+a document-tree evaluator. See the [XPath contract](/stax-xml/converter/xpath-guide/) for the
 full supported selector set.
 
 ### Schema Reuse

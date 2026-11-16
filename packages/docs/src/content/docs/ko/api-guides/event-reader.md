@@ -31,7 +31,7 @@ import { EventReader, XmlEventType } from 'stax-xml';
 
 for await (const event of new EventReader(response.body!)) {
   if (event.type === XmlEventType.START_ELEMENT) {
-    const id = event.attributes.get('id')?.value;
+    const id = event.attributes?.get('id')?.value;
     console.log(event.name, id);
   } else if (event.type === XmlEventType.CHARACTERS) {
     console.log(event.value);
@@ -122,8 +122,8 @@ Current-token accessor는 다음 성공한 `next()` 호출 전까지만 유효�
 ## Event Shape
 
 `AnyXmlEvent`는 document, start/end element, characters, CDATA, comment,
-processing-instruction, DTD event를 포함합니다. Start-element attribute는
-`EventAttributes`는 qualified name을 key로 사용하는 읽기 전용 Map입니다. value에는
+processing-instruction, DTD event를 포함합니다. Start-element의 `attributes`는
+qualified name을 key로 사용하는 읽기 전용 Map인 `EventAttributes`입니다. value에는
 `name`, `localName`, `prefix`, `namespaceURI`, `value`가 유지되고 source 순서대로
 순회합니다. `JSON.stringify()` 결과는 `{}`가 아니라 JSON object입니다.
 Namespace-aware mode에서는 namespace declaration도 XMLNS namespace의 attribute로

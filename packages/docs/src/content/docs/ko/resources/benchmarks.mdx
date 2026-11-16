@@ -102,8 +102,8 @@ materialize하며, event 수와 checksum이 일치해야 결과를 기록합니�
 
 ### StreamReaderSync Size Series
 
-대용량 input series는 생성된 byte batch와 공개 `StreamReaderSync`
-index API를 사용합니다. byte offset 기반 reader가 전체 XML을 하나의
+대용량 input series는 생성된 byte batch와 공개 `StreamReaderSync` API를
+fragment mode로 사용합니다. Byte offset 기반 reader가 전체 XML을 하나의
 JavaScript string으로 만들지 않고도 문자열 크기 제한을 넘어설 수 있다는
 release evidence입니다.
 
@@ -150,7 +150,7 @@ materialization 비용의 제한을 받습니다.
 
 <ReleaseBenchmarkTable kind="runtime" locale="ko" version="v1.1.0" runtimes={['node', 'bun']} />
 
-과거 4 GiB generated stream fixture는 `Iterable<Uint8Array[]>` 위의
+4 GiB generated stream fixture는 `Iterable<Uint8Array>` 위의
 `StreamReaderSync`를 fragment mode로 사용하고 current-token accessor로
 소비합니다.
 
@@ -182,7 +182,8 @@ Converter 비교는 같은 byte fixture를 다음 경로로 파싱합니다.
 - `schema.parseSync(bytes)`: 지원되는 streaming dispatch plan을 자동 compile하고
   cache합니다.
 
-두 converter 행은 측정 전에 수동 기준값과 동일한 결과를 만드는지 검증합니다.
+Converter 행은 측정 전에 수동 `StreamReaderSync` 기준값과 동일한 결과를 만드는지
+검증합니다.
 
 <BenchmarkSection section="converter" locale="ko" />
 
@@ -238,7 +239,7 @@ while (reader.next() !== null) {
 }
 ```
 
-`for (const event of batch)`도 계속 지원하지만 wrapper event object를
-할당합니다. 98 MiB 표준 fixture에서 index-first 소비는 730.56 ms,
-heap delta 약 39.8 MiB였고, wrapper iteration은 1.28 s, heap delta 약
-482.7 MiB였습니다.
+98 MiB 표준 fixture에서 과거 cursor 소비 측정은 730.56 ms, heap delta 약
+39.8 MiB였고, event-object 순회는 1.28 s, heap delta 약 482.7 MiB였습니다.
+이 수치는 current-token API 형태에 대한 참고 자료이며 현재 `StreamReaderSync`
+릴리스 행은 아닙니다.

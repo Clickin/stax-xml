@@ -109,7 +109,7 @@ export default defineConfig({
           attrs: {
             property: "og:description",
             content:
-              "Fast, streaming XML parser for JavaScript/TypeScript. Works in Node.js, Bun, Deno, and browsers. Memory-efficient processing of large XML files with TypeScript support.",
+              "Fast, streaming XML parser for JavaScript/TypeScript. Works in Node.js, Bun, and browsers. Memory-efficient processing of large XML files with TypeScript support.",
           },
         },
         {
@@ -161,7 +161,7 @@ export default defineConfig({
           tag: "meta",
           attrs: {
             name: "twitter:title",
-            content: "StAX-XML - JavaScript XML Parser for Node.js, Bun, Deno",
+            content: "StAX-XML - JavaScript XML Parser for Node.js, Bun, and Browsers",
           },
         },
         {
@@ -180,7 +180,7 @@ export default defineConfig({
           attrs: {
             name: "keywords",
             content:
-              "XML parser JavaScript, TypeScript XML parser, Node.js XML parser, streaming XML parser, JavaScript XML library, Bun XML parser, Deno XML parser, XML processing JavaScript, high performance XML parser, memory efficient XML parser",
+              "XML parser JavaScript, TypeScript XML parser, Node.js XML parser, streaming XML parser, JavaScript XML library, Bun XML parser, XML processing JavaScript, high performance XML parser, memory efficient XML parser",
           },
         },
         {
@@ -238,7 +238,7 @@ export default defineConfig({
             applicationCategory: "DeveloperApplication",
             operatingSystem: ["Windows", "macOS", "Linux"],
             programmingLanguage: ["JavaScript", "TypeScript"],
-            runtimePlatform: ["Node.js", "Bun", "Deno", "Web Browser"],
+            runtimePlatform: ["Node.js", "Bun", "Web Browser"],
             downloadUrl: "https://www.npmjs.com/package/stax-xml",
             codeRepository: "https://github.com/Clickin/stax-xml",
             license: "https://github.com/Clickin/stax-xml/blob/master/LICENSE",
@@ -399,11 +399,6 @@ export default defineConfig({
               label: "Runtime Model",
               slug: "resources/runtime-model",
               translations: { ko: "실행 모델" },
-            },
-            {
-              label: "Release Readiness",
-              slug: "resources/release-readiness",
-              translations: { ko: "릴리스 준비" },
             },
             { label: "FAQ", slug: "resources/faq" },
           ],

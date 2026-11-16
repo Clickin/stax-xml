@@ -371,7 +371,7 @@ function optimizedParsing(xmlString: string) {
         // Use Set for O(1) lookup instead of array includes
         if (ELEMENT_NAMES.has(event.name)) {
           if (event.name === 'book') {
-            currentBook = { id: event.attributes.get('id')?.value };
+            currentBook = { id: event.attributes?.get('id')?.value };
           }
           currentElement = event.name;
         }
@@ -401,7 +401,7 @@ function optimizedParsing(xmlString: string) {
 }
 ```
 
-## Next Steps
+## 다음 단계
 
-- See [Performance Benchmarks](/stax-xml/resources/benchmarks/) for comparison data
-- Visit our [FAQ](/stax-xml/resources/faq/) for troubleshooting help
+- 비교 데이터는 [성능 벤치마크](/stax-xml/ko/resources/benchmarks/)에서 확인하세요
+- 문제 해결 도움말은 [FAQ](/stax-xml/ko/resources/faq/)를 참고하세요

@@ -184,10 +184,10 @@ if (result.success) {
 - You need maximum performance and control
 - XML structure is dynamic or unknown
 - You want event-driven processing
+- You're building streaming applications
 
 Choose `EventReaderSync` or `StreamReaderSync` for synchronous string/byte
 input, and `EventReader` or `StreamReader` for asynchronous byte input.
-- You're building streaming applications
 
 ## Schema Builder (x)
 
