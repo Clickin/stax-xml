@@ -212,10 +212,11 @@ export class TokenCursor {
   text(): string | undefined {
     if (this.currentTextStart < 0) return undefined;
     if (this.currentTextMemo === undefined) {
-      const value = this.buffer.slice(
+      let value = this.buffer.slice(
         this.currentTextStart,
         this.currentTextEnd,
-      ).replace(/\r\n?/g, "\n");
+      );
+      if (value.includes("\r")) value = value.replace(/\r\n?/g, "\n");
       this.currentTextMemo =
         this.currentType === XmlEventType.CHARACTERS && this.autoDecodeEntities
           ? decodeEntities(value, this.customEntities)
@@ -250,10 +251,10 @@ export class TokenCursor {
   }
   attributeValue(index: number): string | undefined {
     if (index < 0 || index >= this.currentAttributeCount) return undefined;
-    const value = this.buffer.slice(
+    const value = normalizeAttributeWhitespace(this.buffer.slice(
       this.attributeValueStarts[index]!,
       this.attributeValueEnds[index]!,
-    ).replace(/\r\n|[\t\r\n]/g, " ");
+    ));
     return this.autoDecodeEntities
       ? decodeEntities(value, this.customEntities, true)
       : value;
@@ -663,10 +664,10 @@ export class TokenCursor {
           const declaredPrefix =
             colon < 0 ? "" : this.buffer.slice(colon + 1, end);
           const value = decodeEntities(
-            this.buffer.slice(
+            normalizeAttributeWhitespace(this.buffer.slice(
               this.attributeValueStarts[index]!,
               this.attributeValueEnds[index]!,
-            ).replace(/\r\n|[\t\r\n]/g, " "),
+            )),
             this.customEntities,
             true,
           );
@@ -1338,6 +1339,10 @@ function compileCustomEntities(
     entities.set(entity, definition.value);
   }
   return entities;
+}
+
+function normalizeAttributeWhitespace(value: string): string {
+  return /[\t\r\n]/.test(value) ? value.replace(/\r\n|[\t\r\n]/g, " ") : value;
 }
 
 function decodeEntities(
