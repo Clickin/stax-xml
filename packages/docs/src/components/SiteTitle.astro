@@ -5,11 +5,11 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
 const isKorean = Astro.url.pathname.startsWith(`${base}ko/`);
 const locale = isKorean ? 'ko/' : '';
 const versionLabel = isKorean ? '문서 버전' : 'Documentation version';
-const versionPattern = /\/docs\/(v\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)\/index\.mdx?$/;
+const versionPattern = /\/docs\/(v\d+\.\d+(?:\.\d+)?(?:[-+][0-9A-Za-z.-]+)?)\/index\.mdx?$/;
 const versions = Object.keys(import.meta.glob('../content/docs/v*/index.{md,mdx}'))
   .flatMap((path) => path.match(versionPattern)?.[1] ?? [])
   .sort((left, right) => right.localeCompare(left, undefined, { numeric: true }));
-const currentVersion = Astro.url.pathname.match(/\/(v\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)(?:\/|$)/)?.[1] ?? 'current';
+const currentVersion = Astro.url.pathname.match(/\/(v\d+\.\d+(?:\.\d+)?(?:[-+][0-9A-Za-z.-]+)?)(?:\/|$)/)?.[1] ?? 'current';
 ---
 
 <div class="site-title-with-version">

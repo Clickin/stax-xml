@@ -13,7 +13,8 @@ const docsContentDir = join(repoRoot, 'packages/docs/src/content/docs');
 const docsVersionsDir = join(repoRoot, 'packages/docs/src/content/versions');
 const localeDirs = new Set(['ko']);
 const importPathRegex = /(from ?["'])([^"']*)(["'];?\s?)$/gm;
-const versionSlugRegex = /^v\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/;
+const versionSlugRegex = /^v\d+\.\d+(?:\.\d+)?(?:[-+][0-9A-Za-z.-]+)?$/;
+const inputVersionRegex = /^v(\d+)\.(\d+)(?:\.(\d+))?(?:([-+][0-9A-Za-z.-]+))?$/;
 
 const benchmarkFiles = [
   'latest-summary.json',
@@ -28,11 +29,13 @@ const benchmarkFiles = [
 function usage() {
   console.error([
     'Usage:',
-    '  pnpm --filter=stax-xml-docs snapshot:release v1.0.0',
+    '  pnpm --filter=stax-xml-docs snapshot:release v1.2',
+    '  pnpm --filter=stax-xml-docs snapshot:release v1.2.0',
     '',
     'Options:',
     '  --dry-run  Validate source artifacts and print the planned snapshot without writing files.',
     '  --force    Replace an existing docs benchmark snapshot for the version.',
+    '  --exact    Snapshot using the exact input tag instead of minor-level (vX.Y) grouping.',
   ].join('\n'));
   process.exit(1);
 }
@@ -41,17 +44,24 @@ function parseArgs() {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run');
   const force = args.includes('--force');
-  const positional = args.filter((arg) => arg !== '--dry-run' && arg !== '--force');
+  const exact = args.includes('--exact');
+  const positional = args.filter((arg) => arg !== '--dry-run' && arg !== '--force' && arg !== '--exact');
 
   if (positional.length !== 1) usage();
 
-  const version = positional[0];
-  if (!/^v\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/.test(version)) {
-    console.error(`Invalid version "${version}". Expected a tag-like semver such as v1.0.0.`);
+  const rawVersion = positional[0];
+  const match = rawVersion.match(inputVersionRegex);
+  if (!match) {
+    console.error(`Invalid version "${rawVersion}". Expected a version such as v1.2 or v1.2.0.`);
     process.exit(1);
   }
 
-  return { version, dryRun, force };
+  const [, major, minor, patch, suffix] = match;
+  const isPatchOrPrerelease = (patch !== undefined && patch !== '0') || Boolean(suffix);
+  const minorVersion = `v${major}.${minor}`;
+  const version = exact ? rawVersion : minorVersion;
+
+  return { rawVersion, version, minorVersion, isPatchOrPrerelease, dryRun, force, exact };
 }
 
 async function readJson(filePath) {
@@ -209,8 +219,17 @@ function contentSlugForDestination(destination) {
 }
 
 async function main() {
-  const { version, dryRun, force } = parseArgs();
+  const { rawVersion, version, minorVersion, isPatchOrPrerelease, dryRun, force, exact } = parseArgs();
   const destinationDir = join(benchmarkSnapshotRoot, version);
+
+  if (!exact && isPatchOrPrerelease) {
+    for (const fileName of benchmarkFiles) {
+      await readJson(join(benchmarkReleaseDir, fileName));
+    }
+    const modeNote = dryRun ? 'Validated release benchmark artifacts; skipping' : 'Skipping';
+    console.log(`${modeNote} docs snapshot for ${rawVersion} (snapshots are maintained per minor version: ${minorVersion}).`);
+    return;
+  }
 
   if (force && !dryRun) {
     await rm(destinationDir, { recursive: true, force: true });

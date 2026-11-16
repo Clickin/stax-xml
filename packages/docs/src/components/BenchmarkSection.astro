@@ -33,7 +33,7 @@ const benchmarkSnapshots = import.meta.glob('../data/benchmarks/*/latest-summary
 function inferBenchmarkVersion(pathname: string) {
   return pathname
     .split('/')
-    .find((segment) => /^v\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/.test(segment));
+    .find((segment) => /^v\d+\.\d+(?:\.\d+)?(?:[-+][0-9A-Za-z.-]+)?$/.test(segment));
 }
 
 function benchmarkSummaryForVersion(requestedVersion: string | undefined) {

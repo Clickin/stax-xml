@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+
+if [ "${SKIP_DOCS_SNAPSHOT:-0}" = "1" ]; then
+  exit 0
+fi
+
+exec node scripts/git-hooks/pre-commit-docs-snapshot.mjs

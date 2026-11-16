@@ -23,6 +23,8 @@
     "docs:build": "pnpm --filter=stax-xml-docs build",
     "docs:preview": "pnpm --filter=stax-xml-docs preview",
     "docs:snapshot:release": "pnpm --filter=stax-xml-docs snapshot:release",
+    "hooks:install": "node scripts/git-hooks/install-hooks.mjs",
+    "prepare": "node scripts/git-hooks/install-hooks.mjs",
     "benchmark": "pnpm --filter=benchmark dev:bench:all",
     "benchmark:release": "pnpm --filter=benchmark run release:expanded"
   },
