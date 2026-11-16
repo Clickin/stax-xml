@@ -180,6 +180,34 @@ describe("v1 reader public surface", () => {
 });
 
 describe("v1 current-token reader contract", () => {
+  it("preserves trailing processing instruction data and normalizes line endings", async () => {
+    const xml = '<?work  first\r\nsecond\rthird \t?><root/>';
+    const expected = [XmlEventType.PROCESSING_INSTRUCTION, "work", "first\nsecond\nthird \t"];
+    expect(collectSync(xml)).toContainEqual(expected);
+    expect(collectSync(chunks(xml))).toContainEqual(expected);
+    expect(await collectAsync(asyncChunks(xml))).toContainEqual(expected);
+    expect(Array.from(new EventReaderSync(xml)).map(eventToken)).toContainEqual(expected);
+    const events: unknown[][] = [];
+    for await (const event of new EventReader(asyncChunks(xml))) events.push(eventToken(event));
+    expect(events).toContainEqual(expected);
+  });
+  it("normalizes line endings and literal attribute whitespace across reader inputs", async () => {
+    const xml = '<r a="1\t2\r\n3&#13;">x\r\ny<![CDATA[z\r\nw]]></r>';
+    const expected = collectSync(xml);
+    expect(expected).toContainEqual([XmlEventType.CHARACTERS, "x\ny"]);
+    expect(expected).toContainEqual([XmlEventType.CDATA, "z\nw"]);
+    expect(expected).toContainEqual([
+      XmlEventType.START_ELEMENT, "r", "r", "", "",
+      [["a", "a", "", "", "1 2 3\r"]],
+    ]);
+    expect(collectSync(encoder.encode(xml))).toEqual(expected);
+    expect(collectSync(chunks(xml))).toEqual(expected);
+    await expect(collectAsync(asyncChunks(xml))).resolves.toEqual(expected);
+    expect(Array.from(new EventReaderSync(xml)).map(eventToken)).toEqual(expected);
+    const events: unknown[][] = [];
+    for await (const event of new EventReader(asyncChunks(xml))) events.push(eventToken(event));
+    expect(events).toEqual(expected);
+  });
   it("uses the configured fatal TextDecoder encoding for byte readers", async () => {
     const xml = '<?xml version="1.0" encoding="UTF-16"?><root>한글</root>';
     const expected = collectSync(xml);

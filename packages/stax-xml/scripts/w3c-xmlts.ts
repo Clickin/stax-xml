@@ -6,6 +6,7 @@ import { spawnSync } from 'node:child_process';
 import { pipeline } from 'node:stream/promises';
 import { get } from 'node:https';
 import { EventReaderSync } from '../src/sync/index.js';
+import { canonicalXml } from './w3c-canonical.js';
 
 const XMLTS_URL = 'https://www.w3.org/XML/Test/xmlts20130923.zip';
 const XMLTS_SHA256 = 'f9510b3532926e1b4c2e54855b021e4b8a66ec98a5337dcf4ff07e8a41968deb';
@@ -51,6 +52,7 @@ interface W3cCase {
   type: 'valid' | 'invalid' | 'not-wf';
   uri: string;
   path: string;
+  outputPath?: string;
   sections: string;
   namespace: 'yes' | 'no';
 }
@@ -60,6 +62,8 @@ interface RunResult {
   failed: Array<{ test: W3cCase; error: string }>;
   skipped: number;
   skippedReasons: Map<string, number>;
+  outputsChecked: number;
+  outputsSkipped: number;
 }
 
 await main();
@@ -73,6 +77,8 @@ async function main(): Promise<void> {
   console.log(`archive: ${XMLTS_URL}`);
   console.log(`sha256: ${XMLTS_SHA256}`);
   console.log(`passed: ${result.passed}`);
+  console.log(`canonical outputs checked: ${result.outputsChecked}`);
+  console.log(`canonical outputs skipped (DTD processing unsupported): ${result.outputsSkipped}`);
   console.log(`skipped: ${result.skipped}`);
   for (const [reason, count] of result.skippedReasons) {
     console.log(`skipped (${reason}): ${count}`);
@@ -187,11 +193,13 @@ function parseManifest(root: string, manifest: string, content: string): W3cCase
     }
 
     const relPath = normalize(join(manifestRelDir, currentBase, uri));
+    const output = readAttr(token, 'OUTPUT');
     tests.push({
       id: readAttr(token, 'ID') ?? relPath,
       type,
       uri: relPath,
       path: join(root, relPath),
+      outputPath: output ? join(root, manifestRelDir, currentBase, output) : undefined,
       sections: readAttr(token, 'SECTIONS') ?? '',
       namespace: readAttr(token, 'NAMESPACE') === 'no' ? 'no' : 'yes'
     });
@@ -238,7 +246,7 @@ function isInGateScope(test: W3cCase): boolean {
 }
 
 function runTests(tests: W3cCase[]): RunResult {
-  const result: RunResult = { passed: 0, failed: [], skipped: 0, skippedReasons: new Map() };
+  const result: RunResult = { passed: 0, failed: [], skipped: 0, skippedReasons: new Map(), outputsChecked: 0, outputsSkipped: 0 };
 
   for (const test of tests) {
     let bytes: Buffer;
@@ -290,15 +298,36 @@ function runTests(tests: W3cCase[]): RunResult {
     }
 
     let threw = false;
+    let output = '';
     let error = '';
     try {
-      Array.from(new EventReaderSync(bytes, { documentMode: 'document', encoding }));
+      output = canonicalXml(new EventReaderSync(bytes, { documentMode: 'document', encoding }));
     } catch (cause) {
       threw = true;
       error = cause instanceof Error ? cause.message : String(cause);
     }
 
     const shouldThrow = test.type === 'not-wf';
+    if (!threw && !shouldThrow && test.outputPath) {
+      try {
+        const expected = readFileSync(test.outputPath, 'utf8');
+        if (/<!ATTLIST\b|<!ENTITY\s+%|<!DOCTYPE\s+[^\s\[>]+\s+(?:SYSTEM|PUBLIC)\b/i.test(xml) || expected.includes('<!DOCTYPE')) {
+          result.outputsSkipped++;
+        } else {
+          result.outputsChecked++;
+          if (output !== expected) {
+            let index = 0;
+            while (index < output.length && output[index] === expected[index]) index++;
+            const start = Math.max(0, index - 30);
+            result.failed.push({ test, error: `canonical output differs near offset ${start}: expected ${JSON.stringify(expected.slice(start, start + 120))}, got ${JSON.stringify(output.slice(start, start + 120))}` });
+            continue;
+          }
+        }
+      } catch (cause) {
+        result.failed.push({ test, error: `cannot read canonical output: ${String(cause)}` });
+        continue;
+      }
+    }
     if (threw === shouldThrow) {
       result.passed++;
     } else {

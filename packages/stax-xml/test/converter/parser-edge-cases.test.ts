@@ -2,6 +2,16 @@ import { describe, expect, it } from 'vitest';
 import { x } from '../../src/converter/converter/index.js';
 
 describe('Parser Edge Cases Coverage', () => {
+  it('normalizes literal whitespace while preserving character references', () => {
+    const schema = x.object({
+      text: x.string().xpath('/a/t'),
+      attr: x.string().xpath('/a/@b'),
+    });
+    expect(schema.parseSync('<a b="1\t2\r\n3&#13;"><t>x\r\ny</t></a>')).toEqual({
+      text: 'x\ny',
+      attr: '1 2 3\r',
+    });
+  });
   describe('Deep transform nesting', () => {
     it('should handle 5 levels of transforms', () => {
       const xml = '<root><value>test</value></root>';
