@@ -215,7 +215,7 @@ export class TokenCursor {
       const value = this.buffer.slice(
         this.currentTextStart,
         this.currentTextEnd,
-      );
+      ).replace(/\r\n?/g, "\n");
       this.currentTextMemo =
         this.currentType === XmlEventType.CHARACTERS && this.autoDecodeEntities
           ? decodeEntities(value, this.customEntities)
@@ -253,7 +253,7 @@ export class TokenCursor {
     const value = this.buffer.slice(
       this.attributeValueStarts[index]!,
       this.attributeValueEnds[index]!,
-    );
+    ).replace(/\r\n|[\t\r\n]/g, " ");
     return this.autoDecodeEntities
       ? decodeEntities(value, this.customEntities, true)
       : value;
@@ -365,9 +365,11 @@ export class TokenCursor {
     }
     this.xmlDeclarationAllowed = false;
     this.currentNameValue = target;
-    this.currentTextMemo = this.buffer.slice(targetEnd, end).trim();
-    this.currentTextStart = this.currentTextEnd = 0;
-    return this.set(XmlEventType.PROCESSING_INSTRUCTION, true);
+    while (targetEnd < end && isXmlWhitespace(this.buffer.charCodeAt(targetEnd)))
+      targetEnd++;
+    this.currentTextStart = targetEnd;
+    this.currentTextEnd = end;
+    return this.set(XmlEventType.PROCESSING_INSTRUCTION);
   }
 
   private parseBang(): TokenCursorResult {
@@ -664,7 +666,7 @@ export class TokenCursor {
             this.buffer.slice(
               this.attributeValueStarts[index]!,
               this.attributeValueEnds[index]!,
-            ),
+            ).replace(/\r\n|[\t\r\n]/g, " "),
             this.customEntities,
             true,
           );
@@ -871,19 +873,7 @@ export class TokenCursor {
     const name = this.buffer.slice(start, end);
     const attribute = {
       name,
-      value: this.autoDecodeEntities
-        ? decodeEntities(
-            this.buffer.slice(
-              this.attributeValueStarts[index]!,
-              this.attributeValueEnds[index]!,
-            ),
-            this.customEntities,
-            true,
-          )
-        : this.buffer.slice(
-            this.attributeValueStarts[index]!,
-            this.attributeValueEnds[index]!,
-          ),
+      value: this.attributeValue(index)!,
       localName: colon < 0 ? name : this.buffer.slice(colon + 1, end),
       prefix: colon < 0 ? "" : this.buffer.slice(start, colon),
       namespaceURI: this.attributeNamespaceURIs[index]!,
@@ -1280,10 +1270,7 @@ export class TokenCursor {
     if (this.final) throw new Error(`Unterminated ${kind}.`);
     return NEED_INPUT;
   }
-  private set(
-    type: XmlEventTypeValue,
-    preserveTextMemo = false,
-  ): XmlEventTypeValue {
+  private set(type: XmlEventTypeValue): XmlEventTypeValue {
     for (let index = 0; index < this.attributeMemoHighWater; index++)
       this.attributeMemos[index] = undefined;
     this.attributeMemoHighWater = 0;
@@ -1300,7 +1287,7 @@ export class TokenCursor {
     ) {
       this.currentTextStart = this.currentTextEnd = NO_SPAN;
       this.currentTextMemo = undefined;
-    } else if (!preserveTextMemo) {
+    } else {
       this.currentTextMemo = undefined;
     }
     if (

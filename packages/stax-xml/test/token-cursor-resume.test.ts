@@ -45,6 +45,30 @@ function collect(xml: string, chunkSize?: number): unknown[][] {
 }
 
 describe('TokenCursor resumable token scans', () => {
+  it('normalizes literal line endings and attribute whitespace before decoding references', () => {
+    const xml = '<r a="1\t2\n3\r\n4\r5&#9;&#10;&#13;">x\r\ny\rz&#13;<![CDATA[c\r\nd\re]]><!--f\r\ng--></r>';
+    const expected = [
+      [XmlEventType.START_ELEMENT, 'r', [['a', '1 2 3 4 5\t\n\r']]],
+      [XmlEventType.CHARACTERS, 'x\ny\nz\r'],
+      [XmlEventType.CDATA, 'c\nd\ne'],
+      [XmlEventType.COMMENT, 'f\ng'],
+    ];
+    for (const chunkSize of [undefined, 1, 2, 7]) {
+      const tokens = collect(xml, chunkSize);
+      for (const token of expected) expect(tokens).toContainEqual(token);
+    }
+  });
+
+  it('normalizes namespace values and leaves references encoded when decoding is disabled', () => {
+    const cursor = new TokenCursor('<r xmlns:p="urn:one\r\ntwo" a="x\t&#9;">x\r\ny&#13;<p:c/></r>', true, { autoDecodeEntities: false });
+    expect(cursor.next()).toBe(XmlEventType.START_DOCUMENT);
+    expect(cursor.next()).toBe(XmlEventType.START_ELEMENT);
+    expect(cursor.attributeValue(1)).toBe('x &#9;');
+    expect(cursor.next()).toBe(XmlEventType.CHARACTERS);
+    expect(cursor.text()).toBe('x\ny&#13;');
+    expect(cursor.next()).toBe(XmlEventType.START_ELEMENT);
+    expect(cursor.namespaceURI()).toBe('urn:one two');
+  });
   it('matches complete input when long tokens cross one-code-unit chunks', () => {
     const payload = 'x'.repeat(16_384);
     const dtdPadding = ' '.repeat(16_384);
